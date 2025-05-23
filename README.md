@@ -1,13 +1,13 @@
-# Stable Protocol Interface v2
+# Stable Protocol Interface v3 (Multicollateral)
 
-## Warning: This is only for version 2 of the main contracts.
+## Warning: This is only for version 3 of the main contracts.
 
-Open source **decentralized interface** for v2 contracts
+Open source **decentralized interface** for v3 contracts
 
 You can:
 
-* Mint / Redeem Pegged Token (TP): Ex.: FlipARS, USDRIF
-* Mint / Redeem Collateral Token (TC): Ex.: BProMax, RIFPro
+* Mint / Redeem Pegged Token (TP): Ex.: FlipARS
+* Mint / Redeem Collateral Token (TC): Ex.: BProMax
 * Metrics
 * Last operations
 
@@ -23,10 +23,6 @@ You can:
 | TP #1 | Pegged Token     | Flipmoney   | Flip COP   | BPro       |
 | TC    | Collateral Token | Flipmoney   | BProMax    | BPro       |
 | TF    | Fee Token        | Flipmoney   | Flip       | -          |
-| TP    | Pegged Token     | RoC         | USDRIF     | RIF        |
-| TC    | Collateral Token | RoC         | RIFP       | RIF        |
-| TF    | Fee Token        | RoC         | MOC        | -          |
-
 
 
 ### Releases
@@ -74,9 +70,6 @@ Environment is our already deployed contracts.
 |-------------------|---------|--------------------------------------|-------------|---------|-------------------------|
 | Flipmoney Testnet | MOC     | [link](https://www.moneyonchain.com) | Testnet     | RSK     | start:flipmoney-testnet |
 | Flipmoney Mainnet | MOC     | [link](https://www.moneyonchain.com) | Mainnet     | RSK     | start:flipmoney-mainnet |
-| RoC Testnet       | ROC     | [link](https://www.moneyonchain.com) | Testnet     | RSK     | start:roc-testnet       |
-| RoC Mainnet       | ROC     | [link](https://dapp.rifonchain.com)  | Mainnet     | RSK     | start:roc-mainnet       |
-
 
 
 ### Faucets
