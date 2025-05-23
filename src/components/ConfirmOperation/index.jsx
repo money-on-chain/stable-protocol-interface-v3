@@ -34,6 +34,7 @@ export default function ConfirmOperation(props) {
         commissionFeeTokenUSD,
         commissionPercentFeeToken,
         radioSelectFee,
+        caIndex
     } = props;
 
     const { t, i18n, ns } = useProjectTranslation();
@@ -153,7 +154,7 @@ export default function ConfirmOperation(props) {
     };
 
     const showAllowance = () => {
-        const tokenAllowance = UserTokenAllowance(auth, currencyYouExchange);
+        const tokenAllowance = UserTokenAllowance(auth, currencyYouExchange, caIndex);
         return !!amountYouExchangeLimit.gt(tokenAllowance);
     };
 
@@ -166,7 +167,9 @@ export default function ConfirmOperation(props) {
     };
 
     const showAllowanceFeeToken = () => {
-        const tokenAllowance = UserTokenAllowance(auth, "TF");
+
+        //const caIndex = getCAIndex(currencyYouExchange, currencyYouReceive);
+        const tokenAllowance = UserTokenAllowance(auth, `TF_${caIndex}`, caIndex);
 
         if (radioSelectFee === 0 && tokenAllowance.gte(commissionFeeToken)) {
             // if we select not to pay with fee token, please disallow to use Fee token
@@ -253,6 +256,7 @@ export default function ConfirmOperation(props) {
             .get(apiUrl, {
                 params: {
                     oper_id: opID,
+                    bucket_index: caIndex
                 },
                 timeout: 10000,
             })
@@ -439,7 +443,7 @@ export default function ConfirmOperation(props) {
     let commissionPAY = commission;
     let commissionPAYUSD = commissionUSD;
     let commissionPercentPAY = commissionPercent;
-    let commissionSettings = TokenSettings("CA_0");
+    let commissionSettings = TokenSettings(`CA_${caIndex}`);
     let commissionTokenName;
 
     if (IS_MINT) {
@@ -457,7 +461,7 @@ export default function ConfirmOperation(props) {
         commissionPAY = commissionFeeToken;
         commissionPAYUSD = commissionFeeTokenUSD;
         commissionPercentPAY = commissionPercentFeeToken;
-        commissionSettings = TokenSettings("TF");
+        commissionSettings = TokenSettings(`TF_${caIndex}`);
         commissionTokenName = t(`exchange.tokens.TF.abbr`, {
             ns: ns,
         });
@@ -575,7 +579,7 @@ export default function ConfirmOperation(props) {
                                 : PrecisionNumbers({
                                       amount: new BigNumber(commissionPAYUSD),
                                       decimals: 2,
-                                      token: TokenSettings("CA_0"),
+                                      token: TokenSettings(`CA_${caIndex}`),
                                       i18n: i18n,
                                       isUSD: true,
                                       skipContractConvert: true,
@@ -668,7 +672,7 @@ export default function ConfirmOperation(props) {
                                 <div className={"token_receive"}>
                                     {PrecisionNumbers({
                                         amount: exchangingUSD,
-                                        token: TokenSettings("CA_0"),
+                                        token: TokenSettings(`CA_${caIndex}`),
                                         decimals: 4,
                                         i18n: i18n,
                                         skipContractConvert: true,
@@ -783,8 +787,8 @@ export default function ConfirmOperation(props) {
                 }
                 visible={showModalAllowanceFeeToken}
                 onHideModalAllowance={onHideModalAllowanceFeeToken}
-                currencyYouExchange={"TF"}
-                currencyYouReceive={"TF"}
+                currencyYouExchange={`TF_${caIndex}`}
+                currencyYouReceive={`TF_${caIndex}`}
                 amountYouExchangeLimit={commissionFeeToken}
                 amountYouReceiveLimit={commissionFeeToken}
                 onRealSendTransaction={onSendTransaction}

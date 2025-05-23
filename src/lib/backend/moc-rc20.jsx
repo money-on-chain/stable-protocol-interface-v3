@@ -7,6 +7,7 @@ import {
 
 const mintTC = async (
     interfaceContext,
+    caIndex,
     qTC,
     limitAmount,
     onTransaction,
@@ -15,7 +16,7 @@ const mintTC = async (
     // Mint Collateral token with CA support vendors
     return mintTC_(
         interfaceContext,
-        0,
+        caIndex,
         qTC,
         limitAmount,
         onTransaction,
@@ -25,6 +26,7 @@ const mintTC = async (
 
 const redeemTC = async (
     interfaceContext,
+    caIndex,
     qTC,
     limitAmount,
     onTransaction,
@@ -33,7 +35,7 @@ const redeemTC = async (
     // Redeem Collateral token receiving CA support vendors
     return redeemTC_(
         interfaceContext,
-        0,
+        caIndex,
         qTC,
         limitAmount,
         onTransaction,
@@ -43,6 +45,7 @@ const redeemTC = async (
 
 const mintTP = async (
     interfaceContext,
+    caIndex,
     tpIndex,
     qTP,
     limitAmount,
@@ -52,7 +55,7 @@ const mintTP = async (
     // Mint pegged token with collateral CA BAG support vendor
     return mintTP_(
         interfaceContext,
-        0,
+        caIndex,
         tpIndex,
         qTP,
         limitAmount,
@@ -63,6 +66,7 @@ const mintTP = async (
 
 const redeemTP = async (
     interfaceContext,
+    caIndex,
     tpIndex,
     qTP,
     limitAmount,
@@ -72,7 +76,7 @@ const redeemTP = async (
     // Redeem pegged token receiving CA support vendor
     return redeemTP_(
         interfaceContext,
-        0,
+        caIndex,
         tpIndex,
         qTP,
         limitAmount,

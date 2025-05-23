@@ -12,6 +12,7 @@ import {
     ConvertAmount,
     AmountToVisibleValue,
     CalcCommission,
+    getCAIndex,
 } from "../../helpers/currencies";
 import {
     tokenExchange,
@@ -71,10 +72,11 @@ export default function Exchange() {
     const [radioSelectFeeTokenDisabled, setRadioSelectFeeTokenDisabled] =
         useState(true);
 
-    const { checkerStatus } = CheckStatus();
-
     const [valueExchange, setValueExchange] = useState("");
     const [valueReceive, setValueReceive] = useState("");
+    const [caIndex, setCAIndex] = useState(0);
+
+    const { checkerStatus } = CheckStatus({caIndex: 0});
 
     useEffect(() => {
         if (amountYouExchange && auth.contractStatusData) {
@@ -85,12 +87,15 @@ export default function Exchange() {
     const onChangeCurrencyYouExchange = (newCurrencyYouExchange) => {
         onClear();
         setCurrencyYouExchange(newCurrencyYouExchange);
-        setCurrencyYouReceive(tokenReceive(newCurrencyYouExchange)[0]);
+        const newCurrencyYouReceive = tokenReceive(newCurrencyYouExchange)[0]
+        setCurrencyYouReceive(newCurrencyYouReceive);
+        setCAIndex(getCAIndex(newCurrencyYouExchange, newCurrencyYouReceive));
     };
 
     const onChangeCurrencyYouReceive = (newCurrencyYouReceive) => {
         onClear();
         setCurrencyYouReceive(newCurrencyYouReceive);
+        setCAIndex(getCAIndex(currencyYouExchange, newCurrencyYouReceive));
     };
     const handleSwapCurrencies = () => {
         const tempCurrency = currencyYouExchange;
@@ -120,7 +125,7 @@ export default function Exchange() {
         if (!isValid && errorType === "1") {
             if (
                 !currencyYouExchange.startsWith("TP") &&
-                currencyYouReceive !== "TC"
+                !currencyYouReceive.startsWith("TC")
             ) {
                 setInputValidationErrorText(
                     t("exchange.errors.notOperational")
@@ -204,7 +209,7 @@ export default function Exchange() {
             tIndex = TokenSettings(currencyYouReceive).key;
             const tpAvailableToMint = new BigNumber(
                 fromContractPrecisionDecimals(
-                    auth.contractStatusData.getTPAvailableToMint[tIndex],
+                    auth.contractStatusData[caIndex].getTPAvailableToMint[tIndex],
                     settings.tokens.TP[tIndex].decimals
                 )
             );
@@ -216,11 +221,12 @@ export default function Exchange() {
         }
 
         // 3. REDEEM TC
-        if (currencyYouExchange === "TC") {
+        let arrCurrencyYouExchange = currencyYouExchange.split("_");
+        if (arrCurrencyYouExchange[0] === "TC") {
             // There are sufficient TC in the contracts to redeem?
             const tcAvailableToRedeem = new BigNumber(
                 Web3.utils.fromWei(
-                    auth.contractStatusData.getTCAvailableToRedeem,
+                    auth.contractStatusData[caIndex].getTCAvailableToRedeem,
                     "ether"
                 )
             );
@@ -237,7 +243,7 @@ export default function Exchange() {
             // There are sufficient CA in the contract
             const caBalance = new BigNumber(
                 fromContractPrecisionDecimals(
-                    auth.contractStatusData.getACBalance[tIndex],
+                    auth.contractStatusData[caIndex].getACBalance[tIndex],
                     settings.tokens.CA[tIndex].decimals
                 )
             );
@@ -251,7 +257,7 @@ export default function Exchange() {
         // 5. HAVE TO PAY COMMISSIONS WITH FEE TOKEN?
         const feeTokenBalance = new BigNumber(
             fromContractPrecisionDecimals(
-                auth.userBalanceData.FeeToken.balance,
+                auth.userBalanceData[0].FeeToken.balance,
                 settings.tokens.TF[0].decimals
             )
         );
@@ -268,7 +274,7 @@ export default function Exchange() {
             tIndex = TokenSettings(currencyYouReceive).key;
             const maxQACToMintTP = new BigNumber(
                 fromContractPrecisionDecimals(
-                    auth.contractStatusData.maxQACToMintTP,
+                    auth.contractStatusData[caIndex].maxQACToMintTP,
                     settings.tokens.TP[tIndex].decimals
                 )
             );
@@ -281,13 +287,15 @@ export default function Exchange() {
             }
         }
 
-        // 7. Redeem TP. Flux capacitor maxQACToRedeemTP
-        const arrCurrencyYouExchange = currencyYouExchange.split("_");
+        // Redeem TP
+        arrCurrencyYouExchange = currencyYouExchange.split("_");
         if (arrCurrencyYouExchange[0] === "TP") {
+
+            // 7. Flux Capacitor
             tIndex = TokenSettings(currencyYouReceive).key;
             const maxQACToRedeemTP = new BigNumber(
                 fromContractPrecisionDecimals(
-                    auth.contractStatusData.maxQACToRedeemTP,
+                    auth.contractStatusData[caIndex].maxQACToRedeemTP,
                     settings.tokens.TP[tIndex].decimals
                 )
             );
@@ -303,6 +311,23 @@ export default function Exchange() {
                 setInputValidationError(true);
                 return;
             }
+
+            // 8 Available TP to redeem
+            tIndex = TokenSettings(currencyYouExchange).key;
+            const maxAvailableTP = new BigNumber(
+                fromContractPrecisionDecimals(
+                    auth.contractStatusData[caIndex].pegContainer[tIndex],
+                    settings.tokens.TP[tIndex].decimals
+                )
+            );
+            if (new BigNumber(amountYouExchange).gt(maxAvailableTP)) {
+                setInputValidationErrorText(
+                    t("exchange.errors.insufficientTPinCA")
+                );
+                setInputValidationError(true);
+                return;
+            }
+
         }
 
         // No Validations Errors
@@ -399,10 +424,11 @@ export default function Exchange() {
 
         const priceCA = new BigNumber(
             fromContractPrecisionDecimals(
-                auth.contractStatusData.PP_CA[0],
-                settings.tokens.CA[0].decimals
+                auth.contractStatusData[caIndex].PP_CA[0],
+                settings.tokens.CA[caIndex].decimals
             )
         );
+
         convertAmountUSD = convertAmountUSD.times(priceCA);
         setExchangingUSD(convertAmountUSD);
 
@@ -492,7 +518,9 @@ export default function Exchange() {
         setRadioSelectFee(e.target.value);
     };
     const calculateFinalAmountExchange = () => {
-        if (currencyYouExchange === "CA_0") {
+
+        let arrCurrencyYouExchange = currencyYouExchange.split("_");
+        if (arrCurrencyYouExchange[0] === "CA") {
             const tokenSettings = TokenSettings(currencyYouExchange);
             const totalbalance = new BigNumber(
                 fromContractPrecisionDecimals(
@@ -721,7 +749,7 @@ export default function Exchange() {
                                                                   commission
                                                               ),
                                                               token: TokenSettings(
-                                                                  "CA_0"
+                                                                  `CA_${caIndex}`
                                                               ),
                                                               i18n: i18n,
                                                               skipContractConvert: true,
@@ -750,7 +778,7 @@ export default function Exchange() {
                                                               ),
                                                               decimals: 2,
                                                               token: TokenSettings(
-                                                                  "CA_0"
+                                                                  `CA_${caIndex}`
                                                               ),
                                                               i18n: i18n,
                                                               isUSD: true,
@@ -799,7 +827,7 @@ export default function Exchange() {
                                                                   commissionFeeToken
                                                               ),
                                                               token: TokenSettings(
-                                                                  "TF"
+                                                                  `TF_${caIndex}`
                                                               ),
                                                               i18n: i18n,
                                                               skipContractConvert: true,
@@ -823,7 +851,7 @@ export default function Exchange() {
                                                               ),
                                                               decimals: 2,
                                                               token: TokenSettings(
-                                                                  "CA_0"
+                                                                  `CA_${caIndex}`
                                                               ),
                                                               i18n: i18n,
                                                               isUSD: true,
@@ -862,7 +890,7 @@ export default function Exchange() {
                                     ? "--"
                                     : PrecisionNumbers({
                                           amount: exchangingUSD,
-                                          token: TokenSettings("CA_0"),
+                                          token: TokenSettings(`CA_${caIndex}`),
                                           decimals: 2,
                                           i18n: i18n,
                                           skipContractConvert: true,
@@ -894,6 +922,7 @@ export default function Exchange() {
                         commissionFeeTokenUSD={commissionFeeTokenUSD}
                         commissionPercentFeeToken={commissionPercentFeeToken}
                         radioSelectFee={radioSelectFee}
+                        caIndex={caIndex}
                         //amountYouExchangeFee={amountYouExchangeFee}
                         //amountYouReceiveFee={amountYouReceiveFee}
                     />

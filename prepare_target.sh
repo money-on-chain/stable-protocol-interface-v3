@@ -33,7 +33,6 @@ copy_assets "$PUBLIC_DIR" "public"
 copy_assets "$ASSETS_DIR/branding" "$COMMON_DIR/branding"
 copy_assets "$ASSETS_DIR/css" "$COMMON_DIR/css"
 copy_assets "$ASSETS_DIR/tokens" "$COMMON_DIR/tokens"
-copy_assets "$SRC_DIR/contracts/projects/$PROJECT_NAME" "$SRC_DIR/contracts"
 copy_assets "$SRC_DIR/settings/projects/$PROJECT_NAME" "$SRC_DIR/settings"
 
 # Copy entrypoint index.html

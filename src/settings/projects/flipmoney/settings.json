@@ -1,9 +1,9 @@
 {
-    "collateral": "rc20",
-     "project": "flipmoney",
-     "showPriceVariation":true,
+    "project": "flipmoney",
+    "showPriceVariation":true,
     "tokens": {
         "COINBASE": [{
+            "key": 0,
             "name": "RBTC",
             "fullName": "Smart Bitcoin",
             "decimals": 18,
@@ -16,12 +16,25 @@
         "CA": [
             {
                 "key": 0,
+                "collateralType": "rc20",
                 "name": "BPRO",
                 "fullName": "BPro",
                 "decimals": 18,
                 "visibleDecimals": 6,
                 "visiblePriceDecimals": 2,
                 "visibleBalanceDecimals": 8,
+                "visibleBalanceUSDDecimals": 2,
+                "peggedUSD": false
+            },
+            {
+                "key": 1,
+                "collateralType": "rc20",
+                "name": "DOC",
+                "fullName": "Dollar on Chain",
+                "decimals": 18,
+                "visibleDecimals": 2,
+                "visiblePriceDecimals": 2,
+                "visibleBalanceDecimals": 2,
                 "visibleBalanceUSDDecimals": 2,
                 "peggedUSD": false
             }
@@ -48,24 +61,51 @@
                 "peggedUSD": false
             }
         ],
-        "TC": [{
-            "name": "BPROX",
-            "decimals": 18,
-            "visibleDecimals": 6,
-            "visiblePriceDecimals": 2,
-            "visibleBalanceDecimals": 8,
-            "visibleBalanceUSDDecimals": 2
-        }],
-        "TF": [{
-            "name": "FLIP",
-            "decimals": 18,
-            "visibleDecimals": 8,
-            "visiblePriceDecimals": 2,
-            "visibleBalanceDecimals": 4,
-            "visibleBalanceUSDDecimals": 2,
-            "peggedUSD": false
-        }],
+        "TC": [
+            {
+                "key": 0,
+                "name": "BPROX",
+                "decimals": 18,
+                "visibleDecimals": 6,
+                "visiblePriceDecimals": 2,
+                "visibleBalanceDecimals": 8,
+                "visibleBalanceUSDDecimals": 2,
+                "peggedUSD": false
+            },
+            {
+                "key": 1,
+                "name": "DOCX",
+                "decimals": 18,
+                "visibleDecimals": 2,
+                "visiblePriceDecimals": 2,
+                "visibleBalanceDecimals": 8,
+                "visibleBalanceUSDDecimals": 2,
+                "peggedUSD": false
+            }
+        ],
+        "TF": [
+            {
+                "key": 0,
+                "name": "FLIP",
+                "decimals": 18,
+                "visibleDecimals": 8,
+                "visiblePriceDecimals": 2,
+                "visibleBalanceDecimals": 4,
+                "visibleBalanceUSDDecimals": 2,
+                "peggedUSD": false
+            },
+            {
+                "key": 1,
+                "name": "FLIP",
+                "decimals": 18,
+                "visibleDecimals": 8,
+                "visiblePriceDecimals": 2,
+                "visibleBalanceDecimals": 4,
+                "visibleBalanceUSDDecimals": 2,
+                "peggedUSD": false
+            }],
         "TG": [{
+            "key": 0,
             "name": "FLIP",
             "decimals": 18,
             "visibleDecimals": 8,

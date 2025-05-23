@@ -5,29 +5,30 @@ import {
     toContractPrecisionDecimals,
     getGasPrice,
     fromContractPrecisionDecimals,
+    getExecutionFee
 } from "./utils";
 import { redeemTC as redeemTC_, redeemTP as redeemTP_ } from "./moc-core.jsx";
 
 const mintTC = async (
     interfaceContext,
+    caIndex,
     qTC,
     limitAmount,
     onTransaction,
     onReceipt
 ) => {
     // Mint Collateral token with CA coinbase
-    const caIndex = 0;
     const { web3, contractStatusData, userBalanceData, account } =
         interfaceContext;
     const dContracts = window.dContracts;
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
-    const MoCContract = dContracts.contracts.Moc;
+    const MoCContract = dContracts.contracts.Moc[caIndex];
 
     // Verifications
     // User have sufficient reserve to pay?
     console.log(
         `To mint ${qTC} ${
-            settings.tokens.TC[0].name
+            settings.tokens.TC[caIndex].name
         } you need > ${limitAmount.toString()} ${
             settings.tokens.CA[caIndex].name
         } in your balance`
@@ -46,7 +47,7 @@ const mintTC = async (
     // Allowance    reserveAllowance
     console.log(
         `Allowance: To mint ${qTC} ${
-            settings.tokens.TC[0].name
+            settings.tokens.TC[caIndex].name
         } you need > ${limitAmount.toString()} ${
             settings.tokens.CA[caIndex].name
         } in your spendable balance`
@@ -64,12 +65,8 @@ const mintTC = async (
         );
     */
 
-    let valueToSend = new BigNumber(
-        fromContractPrecisionDecimals(
-            contractStatusData.tcMintExecFee,
-            settings.tokens.CA[caIndex].decimals
-        )
-    ).plus(limitAmount);
+    let valueToSend = new BigNumber(await getExecutionFee(web3, contractStatusData[caIndex].tcMintExecCost, 0)).plus(limitAmount)
+
     valueToSend = toContractPrecisionDecimals(
         valueToSend,
         settings.tokens.CA[caIndex].decimals
@@ -80,7 +77,7 @@ const mintTC = async (
         .mintTC(
             toContractPrecisionDecimals(
                 new BigNumber(qTC),
-                settings.tokens.TC[0].decimals
+                settings.tokens.TC[caIndex].decimals
             ),
             account,
             vendorAddress
@@ -91,7 +88,7 @@ const mintTC = async (
         .mintTC(
             toContractPrecisionDecimals(
                 new BigNumber(qTC),
-                settings.tokens.TC[0].decimals
+                settings.tokens.TC[caIndex].decimals
             ),
             account,
             vendorAddress
@@ -111,6 +108,7 @@ const mintTC = async (
 
 const redeemTC = async (
     interfaceContext,
+    caIndex,
     qTC,
     limitAmount,
     onTransaction,
@@ -119,7 +117,7 @@ const redeemTC = async (
     // Redeem Collateral token receiving CA support vendors
     return redeemTC_(
         interfaceContext,
-        0,
+        caIndex,
         qTC,
         limitAmount,
         onTransaction,
@@ -129,6 +127,7 @@ const redeemTC = async (
 
 const mintTP = async (
     interfaceContext,
+    caIndex,
     tpIndex,
     qTP,
     limitAmount,
@@ -136,13 +135,11 @@ const mintTP = async (
     onReceipt
 ) => {
     // Mint pegged token with collateral coinbase
-    const caIndex = 0;
-
     const { web3, contractStatusData, userBalanceData, account } =
         interfaceContext;
     const dContracts = window.dContracts;
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
-    const MoCContract = dContracts.contracts.Moc;
+    const MoCContract = dContracts.contracts.Moc[caIndex];
     const tpAddress = dContracts.contracts.TP[tpIndex].options.address;
     console.log("tpAddress", tpAddress);
     console.log("contractStatusData", contractStatusData);
@@ -193,7 +190,7 @@ const mintTP = async (
     // There are sufficient PEGGED in the contracts to mint?
     const tpAvailableToMint = new BigNumber(
         fromContractPrecisionDecimals(
-            contractStatusData.getTPAvailableToMint[tpIndex],
+            contractStatusData[caIndex].getTPAvailableToMint[tpIndex],
             settings.tokens.TP[tpIndex].decimals
         )
     );
@@ -203,13 +200,9 @@ const mintTP = async (
             `Insufficient ${settings.tokens.TP[tpIndex].name} available to mint`
         );
 
-    //const valueToSend = contractStatusData.tpMintExecFee
-    let valueToSend = new BigNumber(
-        fromContractPrecisionDecimals(
-            contractStatusData.tpMintExecFee,
-            settings.tokens.CA[caIndex].decimals
-        )
-    ).plus(limitAmount);
+    let valueToSend = new BigNumber(await getExecutionFee(web3, contractStatusData[caIndex].tpMintExecCost, 0)).plus(limitAmount)
+
+
     valueToSend = toContractPrecisionDecimals(
         valueToSend,
         settings.tokens.CA[caIndex].decimals
@@ -254,6 +247,7 @@ const mintTP = async (
 
 const redeemTP = async (
     interfaceContext,
+    caIndex,
     tpIndex,
     qTP,
     limitAmount,
@@ -263,7 +257,7 @@ const redeemTP = async (
     // Redeem pegged token receiving CA support vendor
     return redeemTP_(
         interfaceContext,
-        0,
+        caIndex,
         tpIndex,
         qTP,
         limitAmount,

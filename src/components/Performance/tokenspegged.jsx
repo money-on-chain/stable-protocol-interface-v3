@@ -75,18 +75,18 @@ export default function TokensPegged() {
         settings.tokens.TP.forEach(function (dataItem) {
             let price = new BigNumber(
                 fromContractPrecisionDecimals(
-                    auth.contractStatusData.PP_TP[dataItem.key],
+                    auth.contractStatusData[0].PP_TP[dataItem.key][0],
                     settings.tokens.TP[dataItem.key].decimals
                 )
             );
 
-            price = ConvertPeggedTokenPrice(auth, dataItem.key, price);
+            price = ConvertPeggedTokenPrice(auth, 0,dataItem.key, price);
 
             if (dataItem.peggedUSD) price = new BigNumber(1);
 
             let tpAvailableToMint = new BigNumber(
                 fromContractPrecisionDecimals(
-                    auth.contractStatusData.getTPAvailableToMint[dataItem.key],
+                    auth.contractStatusData[0].getTPAvailableToMint[dataItem.key],
                     settings.tokens.TP[dataItem.key].decimals
                 )
             );
@@ -130,7 +130,7 @@ export default function TokensPegged() {
                         {!auth.contractStatusData.canOperate
                             ? "--"
                             : PrecisionNumbers({
-                                  amount: auth.contractStatusData.pegContainer[
+                                  amount: auth.contractStatusData[0].pegContainer[
                                       dataItem.key
                                   ],
                                   token: settings.tokens.TP[dataItem.key],
@@ -160,7 +160,7 @@ export default function TokensPegged() {
                         {!auth.contractStatusData.canOperate
                             ? "--"
                             : PrecisionNumbers({
-                                  amount: auth.contractStatusData.tpCtarg[
+                                  amount: auth.contractStatusData[0].tpCtarg[
                                       dataItem.key
                                   ],
                                   token: settings.tokens.TP[dataItem.key],
@@ -177,7 +177,7 @@ export default function TokensPegged() {
                         {!auth.contractStatusData.canOperate
                             ? "--"
                             : PrecisionNumbers({
-                                  amount: auth.contractStatusData.tpEma[
+                                  amount: auth.contractStatusData[0].tpEma[
                                       dataItem.key
                                   ],
                                   token: settings.tokens.TP[dataItem.key],
@@ -194,7 +194,7 @@ export default function TokensPegged() {
                         {!auth.contractStatusData.canOperate
                             ? "--"
                             : PrecisionNumbers({
-                                  amount: auth.contractStatusData
+                                  amount: auth.contractStatusData[0]
                                       .calcCtargemaCA,
                                   token: settings.tokens.TP[dataItem.key],
                                   decimals: 2,

@@ -11,6 +11,7 @@ import TokensPeggedMobile from "./tokenspeggedmobile";
 import CheckStatus from "../../helpers/checkStatus";
 import { fromContractPrecisionDecimals } from "../../helpers/Formats";
 import settings from "../../settings/settings.json";
+import CollateralToken from './collateralToken';
 
 export default function Performance() {
     //const [isValid, setIsValid] = useState(true);
@@ -19,7 +20,7 @@ export default function Performance() {
     const [statusText, setStatusText] = useState("--");
     const { t, i18n, ns } = useProjectTranslation();
     const auth = useContext(AuthenticateContext);
-    const { checkerStatus } = CheckStatus();
+    const { checkerStatus } = CheckStatus({caIndex: 0});
     useEffect(() => {
         if ((auth.contractStatusData, auth.userBalanceData)) {
             const { statusIcon, statusLabel, statusText } = checkerStatus();
@@ -31,30 +32,36 @@ export default function Performance() {
     }, [auth.contractStatusData, auth.userBalanceData]);
 
     let price;
+    let collateralTotalInUSD = new BigNumber(0);
     let collateralInUSD;
+
     if (auth.contractStatusData) {
-        const priceTEC = new BigNumber(
-            fromContractPrecisionDecimals(
-                auth.contractStatusData.getPTCac,
-                settings.tokens.TC[0].decimals
-            )
-        );
+        settings.tokens.CA.forEach(function (dataItem) {
+            const priceTEC = new BigNumber(
+                fromContractPrecisionDecimals(
+                    auth.contractStatusData[dataItem.key].getPTCac,
+                    settings.tokens.TC[dataItem.key].decimals
+                )
+            );
 
-        const priceCA = new BigNumber(
-            fromContractPrecisionDecimals(
-                auth.contractStatusData.PP_CA[0],
-                settings.tokens.CA[0].decimals
-            )
-        );
-        price = priceTEC.times(priceCA);
+            const priceCA = new BigNumber(
+                fromContractPrecisionDecimals(
+                    auth.contractStatusData[dataItem.key].PP_CA[0],
+                    settings.tokens.CA[dataItem.key].decimals
+                )
+            );
+            price = priceTEC.times(priceCA);
 
-        const collateralTotal = new BigNumber(
-            fromContractPrecisionDecimals(
-                auth.contractStatusData.nACcb,
-                settings.tokens.TC[0].decimals
-            )
-        );
-        collateralInUSD = collateralTotal.times(priceCA);
+            const nACcb = new BigNumber(
+                fromContractPrecisionDecimals(
+                    auth.contractStatusData[dataItem.key].nACcb,
+                    settings.tokens.TC[dataItem.key].decimals
+                )
+            );
+            collateralInUSD = nACcb.times(priceCA);
+            collateralTotalInUSD = collateralTotalInUSD.plus(collateralInUSD);
+
+        })
     }
     return (
         <div className="section sectionPerformance">
@@ -97,8 +104,8 @@ export default function Performance() {
                         {!auth.contractStatusData.canOperate
                             ? "--"
                             : PrecisionNumbers({
-                                  amount: collateralInUSD
-                                      ? collateralInUSD
+                                  amount: collateralTotalInUSD
+                                      ? collateralTotalInUSD
                                       : new BigNumber(0),
                                   token: TokenSettings("CA_0"),
                                   decimals: 2,
@@ -111,81 +118,10 @@ export default function Performance() {
                     </div>
                 </div>
             </div>
-            {/* Leveraged Token */}
-            <div className="section__innerCard--small dash__perfLeveraged">
-                <div className="token">
-                    <div className="icon-token-tc token__icon"></div>
-                    <div className="token__name">
-                        {t(`exchange.tokens.TC.label`, { ns: ns })}
-                    </div>
-                </div>
-
-                <div className="card-content">
-                    <div className="amount">
-                        {!auth.contractStatusData.canOperate
-                            ? "--"
-                            : PrecisionNumbers({
-                                  amount: price,
-                                  token: settings.tokens.TC[0],
-                                  decimals: 8,
-                                  i18n: i18n,
-                                  skipContractConvert: true,
-                              })}
-                        <div className="caption">
-                            {t("performance.tc.priceIn")}
-                        </div>
-                    </div>
-                    <div className="amount">
-                        {!auth.contractStatusData.canOperate
-                            ? "--"
-                            : PrecisionNumbers({
-                                  amount: auth.contractStatusData
-                                      ? auth.contractStatusData.getLeverageTC
-                                      : new BigNumber(0),
-                                  token: TokenSettings("TC"),
-                                  decimals: 8,
-                                  i18n: i18n,
-                                  skipContractConvert: false,
-                              })}
-                        <div className="caption">
-                            {t("performance.tc.currentLeverage")}
-                        </div>
-                    </div>
-                    <div className="amount">
-                        {!auth.contractStatusData.canOperate
-                            ? "--"
-                            : PrecisionNumbers({
-                                  amount: auth.contractStatusData
-                                      ? auth.contractStatusData.nTCcb
-                                      : new BigNumber(0),
-                                  token: TokenSettings("TC"),
-                                  decimals: 2,
-                                  i18n: i18n,
-                                  skipContractConvert: false,
-                              })}
-                        <div className="caption">
-                            {t("performance.tc.totalInSystem")}
-                        </div>
-                    </div>
-                    <div className="amount">
-                        {!auth.contractStatusData.canOperate
-                            ? "--"
-                            : PrecisionNumbers({
-                                  amount: auth.contractStatusData
-                                      ? auth.contractStatusData
-                                            .getTCAvailableToRedeem
-                                      : new BigNumber(0),
-                                  token: TokenSettings("TC"),
-                                  decimals: 2,
-                                  i18n: i18n,
-                                  skipContractConvert: false,
-                              })}{" "}
-                        <div className="caption">
-                            {t("performance.tc.redeemable")}
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {/* Collateral Token */}
+            {settings.tokens.CA.map(function(tokenSetting, caIndex){
+                return <CollateralToken tokenSettings={tokenSetting} caIndex={caIndex} key={caIndex} />;
+            })}
             {/* System Collateral */}
             <div className="section__innerCard--small dash__perfCollateral">
                 <div className="layout-card-title">
@@ -198,8 +134,8 @@ export default function Performance() {
                             {!auth.contractStatusData.canOperate
                                 ? "--"
                                 : PrecisionNumbers({
-                                      amount: collateralInUSD
-                                          ? collateralInUSD
+                                      amount: collateralTotalInUSD
+                                          ? collateralTotalInUSD
                                           : new BigNumber(0),
                                       token: TokenSettings("CA_0"),
                                       decimals: 2,
@@ -215,7 +151,7 @@ export default function Performance() {
                                 ? "--"
                                 : PrecisionNumbers({
                                       amount: auth.contractStatusData
-                                          ? auth.contractStatusData.getCglb
+                                          ? auth.contractStatusData[0].getCglb
                                           : new BigNumber(0),
                                       token: TokenSettings("CA_0"),
                                       decimals: 6,

@@ -6,7 +6,8 @@ import { AuthenticateContext } from "../context/Auth";
 import { fromContractPrecisionDecimals } from "./Formats";
 import settings from "../settings/settings.json";
 
-export default function CheckStatus() {
+export default function CheckStatus(props) {
+    const { caIndex } = props;
     const { t } = useProjectTranslation();
     const auth = useContext(AuthenticateContext);
     const checkerStatus = () => {
@@ -24,34 +25,35 @@ export default function CheckStatus() {
                 errorType,
                 checkerStatus,
             };
+
         const globalCoverage = new BigNumber(
             fromContractPrecisionDecimals(
-                auth.contractStatusData.getCglb,
-                settings.tokens.CA[0].decimals
+                auth.contractStatusData[caIndex].getCglb,
+                settings.tokens.CA[caIndex].decimals
             )
         );
-        const calcCtargemaCA = new BigNumber(
+        const getCtargemaCA = new BigNumber(
             fromContractPrecisionDecimals(
-                auth.contractStatusData.calcCtargemaCA,
-                settings.tokens.CA[0].decimals
+                auth.contractStatusData[caIndex].getCtargemaCA,
+                settings.tokens.CA[caIndex].decimals
             )
         );
 
         const liqThrld = new BigNumber(
             fromContractPrecisionDecimals(
-                auth.contractStatusData.liqThrld,
-                settings.tokens.CA[0].decimals
+                auth.contractStatusData[caIndex].liqThrld,
+                settings.tokens.CA[caIndex].decimals
             )
         );
 
         const protThrld = new BigNumber(
             fromContractPrecisionDecimals(
-                auth.contractStatusData.protThrld,
-                settings.tokens.CA[0].decimals
+                auth.contractStatusData[caIndex].protThrld,
+                settings.tokens.CA[caIndex].decimals
             )
         );
 
-        if (globalCoverage.gt(calcCtargemaCA)) {
+        if (globalCoverage.gt(getCtargemaCA)) {
             statusIcon = "icon-status-success";
             statusLabel = t("performance.status.statusTitleFull");
             statusText = t("performance.status.statusDescriptionFull");
@@ -59,7 +61,7 @@ export default function CheckStatus() {
             isValid = true;
         } else if (
             globalCoverage.gt(protThrld) &&
-            globalCoverage.lte(calcCtargemaCA)
+            globalCoverage.lte(getCtargemaCA)
         ) {
             statusIcon = "icon-status-warning";
             statusLabel = t("performance.status.stuatusTitleWarning");
@@ -77,7 +79,7 @@ export default function CheckStatus() {
             isValid = false;
         }
 
-        if (auth.contractStatusData.liquidated) {
+        if (auth.contractStatusData[caIndex].liquidated) {
             statusIcon = "icon-status-warning";
             statusLabel = t("performance.status.statusTitleLiquidated");
             statusText = t("performance.status.statusDescriptionLiquidated");
@@ -85,7 +87,7 @@ export default function CheckStatus() {
             isValid = false;
         }
 
-        if (auth.contractStatusData.paused) {
+        if (auth.contractStatusData[caIndex].paused) {
             statusIcon = "icon-status-warning";
             statusLabel = t("performance.status.statusTitlePaused");
             statusText = t("performance.status.statusDescriptionPaused");
@@ -100,6 +102,7 @@ export default function CheckStatus() {
             errorType = "5";
             isValid = false;
         }
+
         return { isValid, statusIcon, statusLabel, statusText, errorType };
     };
     return { checkerStatus };

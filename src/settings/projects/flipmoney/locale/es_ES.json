@@ -100,9 +100,17 @@
                 "label": "BPro",
                 "abbr": "BPRO"
             },
-            "TC": {
+            "CA_1": {
+                "label": "Dollar on Chain",
+                "abbr": "DOC"
+            },
+            "TC_0": {
                 "label": "BPro Max",
                 "abbr": "BPROX"
+            },
+            "TC_1": {
+                "label": "DOC Max",
+                "abbr": "DOCX"
             },
             "TP_0": {
                 "label": "ARS",
@@ -254,9 +262,17 @@
                 "label": "BPro",
                 "abbr": "BPRO"
             },
-            "TC": {
+            "CA_1": {
+                "label": "Dollar on Chain",
+                "abbr": "DOC"
+            },
+            "TC_0": {
                 "label": "BPro Max",
                 "abbr": "BPROX"
+            },
+            "TC_1": {
+                "label": "DOC Max",
+                "abbr": "DOCX"
             },
             "TP_0": {
                 "label": "ARS",

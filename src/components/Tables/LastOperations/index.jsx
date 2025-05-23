@@ -132,20 +132,22 @@ export default function LastOperations(props) {
             status = "params";
         }
 
+        const caIndex = row_operation["bucket_index"]
+
         if (!status) {
             return {
                 exchange: {
                     amount: 0,
                     name: "",
-                    token: settings.tokens.CA[0],
-                    icon: "CA_0",
+                    token: settings.tokens.CA[caIndex],
+                    icon: `CA_${caIndex}`,
                     title: t("operations.actions.exchanged"),
                 },
                 receive: {
                     amount: 0,
                     name: "",
-                    token: settings.tokens.CA[0],
-                    icon: "CA_0",
+                    token: settings.tokens.CA[caIndex],
+                    icon: `CA_${caIndex}`,
                     title: t("operations.actions.received"),
                 },
             };
@@ -159,9 +161,9 @@ export default function LastOperations(props) {
                         status === "executed"
                             ? row_operation[status]["qAC_"]
                             : row_operation[status]["qACmax"],
-                    name: settings.tokens.CA[0].name,
-                    token: settings.tokens.CA[0],
-                    icon: "CA_0",
+                    name: settings.tokens.CA[caIndex].name,
+                    token: settings.tokens.CA[caIndex],
+                    icon: `CA_${caIndex}`,
                     title:
                         status === "executed"
                             ? t("operations.actions.exchanged")
@@ -173,9 +175,9 @@ export default function LastOperations(props) {
                         status === "executed"
                             ? row_operation[status]["qTC_"]
                             : row_operation[status]["qTC"],
-                    name: settings.tokens.TC[0].name,
-                    token: settings.tokens.TC[0],
-                    icon: "TC",
+                    name: settings.tokens.TC[caIndex].name,
+                    token: settings.tokens.TC[caIndex],
+                    icon: `TC_${caIndex}`,
                     title:
                         status === "executed"
                             ? t("operations.actions.received")
@@ -190,9 +192,9 @@ export default function LastOperations(props) {
                         status === "executed"
                             ? row_operation[status]["qTC_"]
                             : row_operation[status]["qTC"],
-                    name: settings.tokens.TC[0].name,
-                    token: settings.tokens.TC[0],
-                    icon: "TC",
+                    name: settings.tokens.TC[caIndex].name,
+                    token: settings.tokens.TC[caIndex],
+                    icon: `TC_${caIndex}`,
                     title:
                         status === "executed"
                             ? t("operations.actions.exchanged")
@@ -204,9 +206,9 @@ export default function LastOperations(props) {
                         status === "executed"
                             ? row_operation[status]["qAC_"]
                             : row_operation[status]["qACmin"],
-                    name: settings.tokens.CA[0].name,
-                    token: settings.tokens.CA[0],
-                    icon: "CA_0",
+                    name: settings.tokens.CA[caIndex].name,
+                    token: settings.tokens.CA[caIndex],
+                    icon: `CA_${caIndex}`,
                     title:
                         status === "executed"
                             ? t("operations.actions.received")
@@ -224,9 +226,9 @@ export default function LastOperations(props) {
                         status === "executed"
                             ? row_operation[status]["qAC_"]
                             : row_operation[status]["qACmax"],
-                    name: settings.tokens.CA[0].name,
-                    token: settings.tokens.CA[0],
-                    icon: "CA_0",
+                    name: settings.tokens.CA[caIndex].name,
+                    token: settings.tokens.CA[caIndex],
+                    icon: `CA_${caIndex}`,
                     title:
                         status === "executed"
                             ? t("operations.actions.exchanged")
@@ -272,9 +274,9 @@ export default function LastOperations(props) {
                         status === "executed"
                             ? row_operation[status]["qAC_"]
                             : row_operation[status]["qACmin"],
-                    name: settings.tokens.CA[0].name,
-                    token: settings.tokens.CA[0],
-                    icon: "CA_0",
+                    name: settings.tokens.CA[caIndex].name,
+                    token: settings.tokens.CA[caIndex],
+                    icon: `CA_${caIndex}`,
                     title:
                         status === "executed"
                             ? t("operations.actions.received")
@@ -314,16 +316,16 @@ export default function LastOperations(props) {
                     action: "Error",
                     amount: 0,
                     name: "",
-                    token: settings.tokens.CA[0],
-                    icon: "CA_0",
+                    token: settings.tokens.CA[caIndex],
+                    icon: `CA_${caIndex}`,
                     title: "Revert",
                 },
                 receive: {
                     action: "Error",
                     amount: 0,
                     name: "",
-                    token: settings.tokens.CA[0],
-                    icon: "CA_0",
+                    token: settings.tokens.CA[caIndex],
+                    icon: `CA_${caIndex}`,
                     title: "Revert",
                 },
             };
@@ -652,6 +654,7 @@ export default function LastOperations(props) {
     }
     function getFee(row_operation) {
         const fee = { amount: new BigNumber(0), token: null, decimals: 18 };
+        const caIndex = row_operation["bucket_index"]
 
         if (
             row_operation["executed"] &&
@@ -684,20 +687,20 @@ export default function LastOperations(props) {
             const qACfee = new BigNumber(
                 fromContractPrecisionDecimals(
                     row_operation["executed"]["qACfee_"],
-                    settings.tokens.CA[0].decimals
+                    settings.tokens.CA[caIndex].decimals
                 )
             );
 
             const qACVendorMarkup = new BigNumber(
                 fromContractPrecisionDecimals(
                     row_operation["executed"]["qACVendorMarkup_"],
-                    settings.tokens.CA[0].decimals
+                    settings.tokens.CA[caIndex].decimals
                 )
             );
 
             fee["amount"] = qACfee.plus(qACVendorMarkup);
-            fee["token"] = "CA_0";
-            fee["decimals"] = settings.tokens.CA[0].decimals;
+            fee["token"] = `CA_${caIndex}`;
+            fee["decimals"] = settings.tokens.CA[caIndex].decimals;
         }
 
         if (fee["amount"].gt(0)) {
@@ -805,10 +808,20 @@ export default function LastOperations(props) {
                     name: settings.tokens.CA[0].name,
                     token: settings.tokens.CA[0],
                 };
-            case "TC":
+            case "CA_1":
+                return {
+                    name: settings.tokens.CA[1].name,
+                    token: settings.tokens.CA[1],
+                };
+            case "TC_0":
                 return {
                     name: settings.tokens.TC[0].name,
                     token: settings.tokens.TC[0],
+                };
+            case "TC_1":
+                return {
+                    name: settings.tokens.TC[1].name,
+                    token: settings.tokens.TC[1],
                 };
             case "TP_0":
                 return {
@@ -846,11 +859,23 @@ export default function LastOperations(props) {
                 return {
                     image: <div className="icon-token-ca_0 icon-token-modif" />,
                     color: "color-token-tp",
-                    txt: "TP",
+                    txt: "CA",
                 };
-            case "TC":
+            case "CA_1":
                 return {
-                    image: <div className="icon-token-tc icon-token-modif" />,
+                    image: <div className="icon-token-ca_1 icon-token-modif" />,
+                    color: "color-token-tp",
+                    txt: "CA",
+                };
+            case "TC_0":
+                return {
+                    image: <div className="icon-token-tc_0 icon-token-modif" />,
+                    color: "color-token-tc",
+                    txt: "TC",
+                };
+            case "TC_1":
+                return {
+                    image: <div className="icon-token-tc_1 icon-token-modif" />,
                     color: "color-token-tc",
                     txt: "TC",
                 };
@@ -858,7 +883,7 @@ export default function LastOperations(props) {
                 return {
                     image: <div className="icon-token-tp_0 icon-token-modif" />,
                     color: "color-token-tc",
-                    txt: "TC",
+                    txt: "TP",
                 };
             case "TP_1":
                 return {

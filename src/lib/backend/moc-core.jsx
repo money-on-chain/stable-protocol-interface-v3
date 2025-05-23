@@ -6,6 +6,8 @@ import {
     toContractPrecisionDecimals,
     getGasPrice,
     fromContractPrecisionDecimals,
+    getExecutionFee,
+    getNetworkFromProject
 } from "./utils";
 
 const mintTC = async (
@@ -21,14 +23,14 @@ const mintTC = async (
         interfaceContext;
     const dContracts = window.dContracts;
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
-    const MoCContract = dContracts.contracts.Moc;
+    const MoCContract = dContracts.contracts.Moc[caIndex];
 
     // Verifications
 
     // User have sufficient reserve to pay?
     console.log(
         `To mint ${qTC} ${
-            settings.tokens.TC[0].name
+            settings.tokens.TC[caIndex].name
         } you need > ${limitAmount.toString()} ${
             settings.tokens.CA[caIndex].name
         } in your balance`
@@ -47,7 +49,7 @@ const mintTC = async (
     // Allowance    reserveAllowance
     console.log(
         `Allowance: To mint ${qTC} ${
-            settings.tokens.TC[0].name
+            settings.tokens.TC[caIndex].name
         } you need > ${limitAmount.toString()} ${
             settings.tokens.CA[caIndex].name
         } in your spendable balance`
@@ -65,14 +67,20 @@ const mintTC = async (
         );
     */
 
-    const valueToSend = contractStatusData.tcMintExecFee;
+    // TODO: view functions returns baseFee == 0, if we use another value the estimateGas function will revert
+    let valueToSend
+    if (getNetworkFromProject()==="rsk") {
+        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tcMintExecCost, 2)
+    } else {
+        valueToSend = 0
+    }
 
     // Calculate estimate gas cost
     const estimateGas = await MoCContract.methods
         .mintTC(
             toContractPrecisionDecimals(
                 new BigNumber(qTC),
-                settings.tokens.TC[0].decimals
+                settings.tokens.TC[caIndex].decimals
             ),
             toContractPrecisionDecimals(
                 limitAmount,
@@ -81,13 +89,17 @@ const mintTC = async (
             account,
             vendorAddress
         )
-        .estimateGas({ from: account, value: valueToSend });
+        .estimateGas({ from: account, value: valueToSend.toString() });
+
+    if (valueToSend === 0) {
+        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tcMintExecCost, 2)
+    }
 
     const receipt = MoCContract.methods
         .mintTC(
             toContractPrecisionDecimals(
                 new BigNumber(qTC),
-                settings.tokens.TC[0].decimals
+                settings.tokens.TC[caIndex].decimals
             ),
             toContractPrecisionDecimals(
                 limitAmount,
@@ -98,7 +110,7 @@ const mintTC = async (
         )
         .send({
             from: account,
-            value: valueToSend,
+            value: valueToSend.toString(),
             gasPrice: await getGasPrice(web3),
             gas: estimateGas,
             gasLimit: estimateGas,
@@ -123,7 +135,7 @@ const redeemTC = async (
         interfaceContext;
     const dContracts = window.dContracts;
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
-    const MoCContract = dContracts.contracts.Moc;
+    const MoCContract = dContracts.contracts.Moc[caIndex];
 
     // Verifications
 
@@ -133,28 +145,28 @@ const redeemTC = async (
     );
     const userTCBalance = new BigNumber(
         fromContractPrecisionDecimals(
-            userBalanceData.TC.balance,
-            settings.tokens.TC[0].decimals
+            userBalanceData[caIndex].TC.balance,
+            settings.tokens.TC[caIndex].decimals
         )
     );
     if (new BigNumber(qTC).gt(userTCBalance))
         throw new Error(
-            `Insufficient ${settings.tokens.TC[0].name} user balance`
+            `Insufficient ${settings.tokens.TC[caIndex].name} user balance`
         );
 
     // There are sufficient TC in the contracts to redeem?
     const tcAvailableToRedeem = new BigNumber(
-        Web3.utils.fromWei(contractStatusData.getTCAvailableToRedeem, "ether")
+        Web3.utils.fromWei(contractStatusData[caIndex].getTCAvailableToRedeem, "ether")
     );
     if (new BigNumber(qTC).gt(tcAvailableToRedeem))
         throw new Error(
-            `Insufficient ${settings.tokens.TC[0].name}available to redeem in contract`
+            `Insufficient ${settings.tokens.TC[caIndex].name}available to redeem in contract`
         );
 
     // There are sufficient CA in the contract
     const caBalance = new BigNumber(
         fromContractPrecisionDecimals(
-            contractStatusData.getACBalance[caIndex],
+            contractStatusData[caIndex].getACBalance,
             settings.tokens.CA[caIndex].decimals
         )
     );
@@ -163,14 +175,19 @@ const redeemTC = async (
             `Insufficient ${settings.tokens.CA[caIndex].name} in the contract. Balance: ${caBalance} ${settings.tokens.CA[caIndex].name}`
         );
 
-    const valueToSend = contractStatusData.tcRedeemExecFee;
+    let valueToSend
+    if (getNetworkFromProject()==="rsk") {
+        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tcRedeemExecCost, 2)
+    } else {
+        valueToSend = 0
+    }
 
     // Calculate estimate gas cost
     const estimateGas = await MoCContract.methods
         .redeemTC(
             toContractPrecisionDecimals(
                 new BigNumber(qTC),
-                settings.tokens.TC[0].decimals
+                settings.tokens.TC[caIndex].decimals
             ),
             toContractPrecisionDecimals(
                 limitAmount,
@@ -179,14 +196,18 @@ const redeemTC = async (
             account,
             vendorAddress
         )
-        .estimateGas({ from: account, value: valueToSend });
+        .estimateGas({ from: account, value: valueToSend.toString() });
+
+    if (valueToSend === 0) {
+        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tcRedeemExecCost, 2)
+    }
 
     // Send tx
     const receipt = MoCContract.methods
         .redeemTC(
             toContractPrecisionDecimals(
                 new BigNumber(qTC),
-                settings.tokens.TC[0].decimals
+                settings.tokens.TC[caIndex].decimals
             ),
             toContractPrecisionDecimals(
                 limitAmount,
@@ -197,7 +218,7 @@ const redeemTC = async (
         )
         .send({
             from: account,
-            value: valueToSend,
+            value: valueToSend.toString(),
             gasPrice: await getGasPrice(web3),
             gas: estimateGas,
             gasLimit: estimateGas,
@@ -217,13 +238,13 @@ const mintTP = async (
     onTransaction,
     onReceipt
 ) => {
-    // Mint pegged token with collateral CA BAG
+    // Mint pegged token with collateral CA
 
     const { web3, contractStatusData, userBalanceData, account } =
         interfaceContext;
     const dContracts = window.dContracts;
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
-    const MoCContract = dContracts.contracts.Moc;
+    const MoCContract = dContracts.contracts.Moc[caIndex];
     const tpAddress = dContracts.contracts.TP[tpIndex].options.address;
 
     // Verifications
@@ -271,7 +292,7 @@ const mintTP = async (
     // There are sufficient PEGGED in the contracts to mint?
     const tpAvailableToMint = new BigNumber(
         fromContractPrecisionDecimals(
-            contractStatusData.getTPAvailableToMint[tpIndex],
+            contractStatusData[caIndex].getTPAvailableToMint[tpIndex],
             settings.tokens.TP[tpIndex].decimals
         )
     );
@@ -281,7 +302,12 @@ const mintTP = async (
             `Insufficient ${settings.tokens.TP[tpIndex].name} available to mint`
         );
 
-    const valueToSend = contractStatusData.tpMintExecFee;
+    let valueToSend
+    if (getNetworkFromProject()==="rsk") {
+        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tpMintExecCost, 2)
+    } else {
+        valueToSend = 0
+    }
 
     // Calculate estimate gas cost
     const estimateGas = await MoCContract.methods
@@ -298,7 +324,11 @@ const mintTP = async (
             account,
             vendorAddress
         )
-        .estimateGas({ from: account, value: valueToSend });
+        .estimateGas({ from: account, value: valueToSend.toString() });
+
+    if (valueToSend === 0) {
+        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tpMintExecCost, 2)
+    }
 
     // Send tx
     const receipt = MoCContract.methods
@@ -317,7 +347,7 @@ const mintTP = async (
         )
         .send({
             from: account,
-            value: valueToSend,
+            value: valueToSend.toString(),
             gasPrice: await getGasPrice(web3),
             gas: estimateGas,
             gasLimit: estimateGas,
@@ -343,7 +373,7 @@ const redeemTP = async (
         interfaceContext;
     const dContracts = window.dContracts;
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
-    const MoCContract = dContracts.contracts.Moc;
+    const MoCContract = dContracts.contracts.Moc[caIndex];
     const tpAddress = dContracts.contracts.TP[tpIndex].options.address;
 
     // Verifications
@@ -375,7 +405,7 @@ const redeemTP = async (
     // There are sufficient CA in the contract
     const caBalance = new BigNumber(
         fromContractPrecisionDecimals(
-            contractStatusData.getACBalance[caIndex],
+            contractStatusData[caIndex].getACBalance,
             settings.tokens.CA[caIndex].decimals
         )
     );
@@ -384,7 +414,12 @@ const redeemTP = async (
             `Insufficient ${settings.tokens.CA[caIndex].name} in the contract. Balance: ${caBalance} ${settings.tokens.CA[caIndex].name}`
         );
 
-    const valueToSend = contractStatusData.tpRedeemExecFee;
+    let valueToSend
+    if (getNetworkFromProject()==="rsk") {
+        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tpRedeemExecCost, 4)
+    } else {
+        valueToSend = 0
+    }
 
     // Calculate estimate gas cost
     const estimateGas = await MoCContract.methods
@@ -401,7 +436,11 @@ const redeemTP = async (
             account,
             vendorAddress
         )
-        .estimateGas({ from: account, value: valueToSend });
+        .estimateGas({ from: account, value: valueToSend.toString() });
+
+    if (valueToSend === 0) {
+        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tpRedeemExecCost, 4)
+    }
 
     // Send tx
     const receipt = MoCContract.methods
@@ -420,7 +459,7 @@ const redeemTP = async (
         )
         .send({
             from: account,
-            value: valueToSend,
+            value: valueToSend.toString(),
             gasPrice: await getGasPrice(web3),
             gas: estimateGas,
             gasLimit: estimateGas,

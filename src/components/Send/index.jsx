@@ -7,8 +7,8 @@ import CurrencyPopUp from "../CurrencyPopUp";
 import {
     TokenSettings,
     TokenBalance,
-    ConvertAmount,
-} from "../../helpers/currencies";
+    ConvertAmount, getCAIndex
+} from '../../helpers/currencies';
 import { tokenExchange } from "../../helpers/exchange";
 import settings from "../../settings/settings.json";
 import { PrecisionNumbers } from "../PrecisionNumbers";
@@ -132,18 +132,32 @@ export default function Send() {
             setAmountYouSend(newAmount);
         }
 
+        let caIndex = 0
+        const aCurrencyYouSend = currencyYouSend.split("_");
+        switch (aCurrencyYouSend[0]) {
+            case "CA":
+                caIndex = parseInt(aCurrencyYouSend[1])
+                break;
+            case "TC":
+                caIndex = parseInt(aCurrencyYouSend[1])
+                break;
+            case "TP":
+                caIndex = 0
+                break;
+        }
+
         const convertAmount = ConvertAmount(
             auth,
             currencyYouSend,
-            "CA",
+            `CA_${caIndex}`,
             newAmountBig,
             false
         );
 
         const priceCA = new BigNumber(
             fromContractPrecisionDecimals(
-                auth.contractStatusData.PP_CA[0],
-                settings.tokens.CA[0].decimals
+                auth.contractStatusData[caIndex].PP_CA[0],
+                settings.tokens.CA[caIndex].decimals
             )
         );
 

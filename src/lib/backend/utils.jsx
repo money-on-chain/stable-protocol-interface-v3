@@ -16,6 +16,47 @@ const getGasPrice = async (web3) => {
     }
 };
 
+const getNetworkFromProject = () => {
+    let network
+    switch (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT.toLowerCase()) {
+        case "flipmoney":
+            network = "rsk"
+            break;
+        case "stablex":
+            network = "arbitrum"
+            break;
+        default:
+            network = "rsk"
+    }
+    return network;
+}
+
+
+const getExecutionFee = async (web3, execCost, slippage) => {
+    //const lastBlock = await web3.eth.getBlock("latest")
+
+    const lastBlock = await web3.currentProvider.request({
+        method: "eth_getBlockByNumber",
+        params: ["latest", false]
+    });
+
+    let latestBaseFee
+    if (getNetworkFromProject()==="rsk") {
+        latestBaseFee = lastBlock.minimumGasPrice
+    } else {
+        latestBaseFee = lastBlock.baseFeePerGas
+    }
+
+    const execFee = new BigNumber(latestBaseFee)
+        .times(new BigNumber(execCost))
+        .times(new BigNumber(1 + slippage / 100));
+
+    //const execFee = BigInt(execCost) * BigInt(latestBaseFee) * 1.01//BigInt( 1 + slippage / 100)
+    //console.log(`Using Base Fee: ${latestBaseFee} * slippage ${slippage.toString()} % = ${execFee.toString()}`)
+    return execFee;
+}
+
+
 const toContractPrecision = (amount) => {
     return Web3.utils.toWei(
         BigNumber(amount).toFormat(18, BigNumber.ROUND_DOWN),
@@ -44,4 +85,6 @@ export {
     toContractPrecision,
     toContractPrecisionDecimals,
     fromContractPrecisionDecimals,
+    getExecutionFee,
+    getNetworkFromProject
 };

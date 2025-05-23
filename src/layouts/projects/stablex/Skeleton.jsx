@@ -14,7 +14,7 @@ const { Content, Footer } = Layout;
 export default function Skeleton() {
     const auth = useContext(AuthenticateContext);
     const [notifStatus, setNotifStatus] = useState(null);
-    const { checkerStatus } = CheckStatus();
+    const { checkerStatus } = CheckStatus({caIndex: 0});
     useEffect(() => {
         if (auth.contractStatusData && auth.userBalanceData) {
             readProtocolStatus();

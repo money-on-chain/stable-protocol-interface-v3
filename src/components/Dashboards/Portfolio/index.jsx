@@ -19,11 +19,15 @@ export default function Portfolio() {
     let totalUSD = new BigNumber(0);
 
     // Total tokens
+    if (auth.contractStatusData &&
+        auth.userBalanceData ) {
 
-    // Tokens CA
-    auth.contractStatusData &&
-        auth.userBalanceData &&
         settings.tokens.CA.forEach(function (dataItem) {
+
+            ////////////////
+            // Tokens CA
+            ///////////////
+
             balance = new BigNumber(
                 fromContractPrecisionDecimals(
                     auth.userBalanceData.CA[dataItem.key].balance,
@@ -32,64 +36,67 @@ export default function Portfolio() {
             );
             price = new BigNumber(
                 fromContractPrecisionDecimals(
-                    auth.contractStatusData.PP_CA[dataItem.key],
+                    auth.contractStatusData[dataItem.key].PP_CA[0],
                     settings.tokens.CA[dataItem.key].decimals
                 )
             );
             balanceUSD = balance.times(price);
             totalUSD = totalUSD.plus(balanceUSD);
-        });
 
-    // Tokens TP
-    auth.contractStatusData &&
-        auth.userBalanceData &&
+            /////////////
+            // Token TC
+            ////////////
+            balance = new BigNumber(
+                fromContractPrecisionDecimals(
+                    auth.userBalanceData[dataItem.key].TC.balance,
+                    settings.tokens.TC[dataItem.key].decimals
+                )
+            );
+            const priceTEC = new BigNumber(
+                fromContractPrecisionDecimals(
+                    auth.contractStatusData[dataItem.key].getPTCac,
+                    settings.tokens.TC[dataItem.key].decimals
+                )
+            );
+            const priceCA = new BigNumber(
+                fromContractPrecisionDecimals(
+                    auth.contractStatusData[dataItem.key].PP_CA[0],
+                    settings.tokens.CA[dataItem.key].decimals
+                )
+            );
+
+            if (auth.contractStatusData.canOperate) {
+                price = priceTEC.times(priceCA);
+                balanceUSD = balance.times(price);
+                totalUSD = totalUSD.plus(balanceUSD);
+            }
+
+        });
+        ///////////////
+        // Tokens TP
+        //////////////
         settings.tokens.TP.forEach(function (dataItem) {
             balance = new BigNumber(
                 fromContractPrecisionDecimals(
-                    auth.userBalanceData.TP[dataItem.key].balance,
+                    auth.userBalanceData.TP[0][dataItem.key].balance,
                     settings.tokens.TP[dataItem.key].decimals
                 )
             );
             price = dataItem.peggedUSD
                 ? 1
                 : new BigNumber(
-                      fromContractPrecisionDecimals(
-                          auth.contractStatusData.PP_TP[dataItem.key],
-                          settings.tokens.TP[dataItem.key].decimals
-                      )
-                  );
+                    fromContractPrecisionDecimals(
+                        auth.contractStatusData[0].PP_TP[dataItem.key][0],
+                        settings.tokens.TP[dataItem.key].decimals
+                    )
+                );
             balanceUSD = balance.div(price);
             totalUSD = totalUSD.plus(balanceUSD);
         });
 
-    if (auth.contractStatusData && auth.userBalanceData) {
-        // Token TC
-        balance = new BigNumber(
-            fromContractPrecisionDecimals(
-                auth.userBalanceData.TC.balance,
-                settings.tokens.TC[0].decimals
-            )
-        );
-        const priceTEC = new BigNumber(
-            fromContractPrecisionDecimals(
-                auth.contractStatusData.getPTCac,
-                settings.tokens.TC[0].decimals
-            )
-        );
-        const priceCA = new BigNumber(
-            fromContractPrecisionDecimals(
-                auth.contractStatusData.PP_CA[0],
-                settings.tokens.CA[0].decimals
-            )
-        );
-
-        if (auth.contractStatusData.canOperate) {
-            price = priceTEC.times(priceCA);
-            balanceUSD = balance.times(price);
-            totalUSD = totalUSD.plus(balanceUSD);
-        }
-
+        ///////////////
         // Coinbase
+        //////////////
         balance = new BigNumber(
             fromContractPrecisionDecimals(
                 auth.userBalanceData.coinbase,
@@ -98,29 +105,38 @@ export default function Portfolio() {
         );
         price = new BigNumber(
             fromContractPrecisionDecimals(
-                auth.contractStatusData.PP_COINBASE,
+                auth.contractStatusData.PP_COINBASE[0],
                 settings.tokens.COINBASE[0].decimals
             )
         );
         balanceUSD = balance.times(price);
         totalUSD = totalUSD.plus(balanceUSD);
 
+        /////////////////
         // Fee Token (TF) the price provider is expressed in collateral
+        ////////////////
         balance = new BigNumber(
             fromContractPrecisionDecimals(
-                auth.userBalanceData.FeeToken.balance,
+                auth.userBalanceData[0].FeeToken.balance,
                 settings.tokens.TF[0].decimals
+            )
+        );
+        const priceCA_0 = new BigNumber(
+            fromContractPrecisionDecimals(
+                auth.contractStatusData[0].PP_CA[0],
+                settings.tokens.CA[0].decimals
             )
         );
         const priceInCA = new BigNumber(
             fromContractPrecisionDecimals(
-                auth.contractStatusData.PP_FeeToken,
+                auth.contractStatusData[0].PP_FeeToken[0],
                 settings.tokens.TF[0].decimals
             )
         );
-        balanceUSD = balance.times(priceInCA).times(priceCA);
+        balanceUSD = balance.times(priceInCA).times(priceCA_0);
         totalUSD = totalUSD.plus(balanceUSD);
     }
+
 
     return (
         <div className="dashboard-portfolio">

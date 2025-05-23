@@ -106,9 +106,17 @@
                 "label": "BPro",
                 "abbr": "BPRO"
             },
-            "TC": {
+            "CA_1": {
+                "label": "Dollar on Chain",
+                "abbr": "DOC"
+            },
+            "TC_0": {
                 "label": "BPro Max",
                 "abbr": "BPROX"
+            },
+            "TC_1": {
+                "label": "DOC Max",
+                "abbr": "DOCX"
             },
             "TP_0": {
                 "label": "ARS",
@@ -179,7 +187,8 @@
             "amountInvalid": "Amount must be valid",
             "notBalance": "Not enough balance in your wallet",
             "noLiquidity": "Not enough liquidity in the protocol",
-            "maxLimitedByProtocol": "Maximum temporarily limited by the protocol"
+            "maxLimitedByProtocol": "Maximum temporarily limited by the protocol",
+            "insufficientTPinCA": "Insufficient tokens in this bucket"
         }
     },
     "portfolio": {
@@ -260,9 +269,17 @@
                 "label": "BPro",
                 "abbr": "BPRO"
             },
-            "TC": {
+            "CA_1": {
+                "label": "Dollar on Chain",
+                "abbr": "DOC"
+            },
+            "TC_0": {
                 "label": "BPro Max",
                 "abbr": "BPROX"
+            },
+            "TC_1": {
+                "label": "DOC Max",
+                "abbr": "DOCX"
             },
             "TP_0": {
                 "label": "ARS",

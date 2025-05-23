@@ -223,10 +223,17 @@ icons.css contains all the css code for Icons across the Dapp
     background-repeat: no-repeat;
 }
 
-.icon-token-tc {
+.icon-token-tc_0 {
     width: var(--icon-token-size);
     height: var(--icon-token-size);
-    background-image: url("../tokens/tc.svg");
+    background-image: url("../tokens/tc_0.svg");
+    background-size: var(--icon-token-size) var(--icon-token-size);
+    background-repeat: no-repeat;
+}
+.icon-token-tc_1 {
+    width: var(--icon-token-size);
+    height: var(--icon-token-size);
+    background-image: url("../tokens/tc_1.svg");
     background-size: var(--icon-token-size) var(--icon-token-size);
     background-repeat: no-repeat;
 }

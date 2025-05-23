@@ -32,6 +32,16 @@
     },
     {
       "inputs": [],
+      "name": "NotMocBucket",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotMocMultiCollateralGuard",
+      "type": "error"
+    },
+    {
+      "inputs": [],
       "name": "NotWhenPaused",
       "type": "error"
     },
@@ -186,81 +196,6 @@
         }
       ],
       "name": "Paused",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "bytes32",
-          "name": "role",
-          "type": "bytes32"
-        },
-        {
-          "indexed": true,
-          "internalType": "bytes32",
-          "name": "previousAdminRole",
-          "type": "bytes32"
-        },
-        {
-          "indexed": true,
-          "internalType": "bytes32",
-          "name": "newAdminRole",
-          "type": "bytes32"
-        }
-      ],
-      "name": "RoleAdminChanged",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "bytes32",
-          "name": "role",
-          "type": "bytes32"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "sender",
-          "type": "address"
-        }
-      ],
-      "name": "RoleGranted",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "bytes32",
-          "name": "role",
-          "type": "bytes32"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "sender",
-          "type": "address"
-        }
-      ],
-      "name": "RoleRevoked",
       "type": "event"
     },
     {
@@ -972,19 +907,6 @@
       "type": "event"
     },
     {
-      "inputs": [],
-      "name": "DEFAULT_ADMIN_ROLE",
-      "outputs": [
-        {
-          "internalType": "bytes32",
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "inputs": [
         {
           "internalType": "contract IGovernor",
@@ -1005,7 +927,7 @@
           "type": "uint8"
         }
       ],
-      "name": "execFee",
+      "name": "execCost",
       "outputs": [
         {
           "internalType": "uint256",
@@ -1020,12 +942,33 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "executionFeeRecipient",
+          "name": "executor_",
           "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxOperPerBatch_",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "blocksSinceLastPublication_",
+          "type": "uint256"
         }
       ],
       "name": "execute",
-      "outputs": [],
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "totalExecutionFee",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalOperExecuted",
+          "type": "uint256"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -1048,38 +991,14 @@
           "internalType": "enum MocQueueExecFees.OperType",
           "name": "operType_",
           "type": "uint8"
-        },
-        {
-          "internalType": "uint256",
-          "name": "value_",
-          "type": "uint256"
         }
       ],
-      "name": "getAndVerifyExecFee",
+      "name": "getExecFee",
       "outputs": [
         {
           "internalType": "uint256",
           "name": "currentExecFee",
           "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "role",
-          "type": "bytes32"
-        }
-      ],
-      "name": "getRoleAdmin",
-      "outputs": [
-        {
-          "internalType": "bytes32",
-          "name": "",
-          "type": "bytes32"
         }
       ],
       "stateMutability": "view",
@@ -1101,43 +1020,19 @@
     {
       "inputs": [
         {
-          "internalType": "bytes32",
-          "name": "role",
-          "type": "bytes32"
+          "internalType": "uint256",
+          "name": "operIdCount_",
+          "type": "uint256"
         },
         {
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
+          "internalType": "uint256",
+          "name": "firstOperId_",
+          "type": "uint256"
         }
       ],
-      "name": "grantRole",
+      "name": "initOperId",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "role",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        }
-      ],
-      "name": "hasRole",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -1153,65 +1048,70 @@
           "type": "address"
         },
         {
-          "internalType": "uint128",
-          "name": "minOperWaitingBlk_",
-          "type": "uint128"
+          "internalType": "contract MocMultiCollateralGuard",
+          "name": "mocMultiCollateralGuard_",
+          "type": "address"
         },
         {
-          "internalType": "uint128",
-          "name": "maxOperPerBatch_",
-          "type": "uint128"
+          "internalType": "uint256",
+          "name": "minOperWaitingBlk_",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxOperWaitingBlk_",
+          "type": "uint256"
         },
         {
           "components": [
             {
               "internalType": "uint256",
-              "name": "tcMintExecFee",
+              "name": "tcMintExecCost",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
-              "name": "tcRedeemExecFee",
+              "name": "tcRedeemExecCost",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
-              "name": "tpMintExecFee",
+              "name": "tpMintExecCost",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
-              "name": "tpRedeemExecFee",
+              "name": "tpRedeemExecCost",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
-              "name": "swapTPforTPExecFee",
+              "name": "swapTPforTPExecCost",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
-              "name": "swapTPforTCExecFee",
+              "name": "swapTPforTCExecCost",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
-              "name": "swapTCforTPExecFee",
+              "name": "swapTCforTPExecCost",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
-              "name": "redeemTCandTPExecFee",
+              "name": "redeemTCandTPExecCost",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
-              "name": "mintTCandTPExecFee",
+              "name": "mintTCandTPExecCost",
               "type": "uint256"
             }
           ],
-          "internalType": "struct MocQueueExecFees.InitializeMocQueueExecFeesParams",
-          "name": "mocQueueExecFeesParams_",
+          "internalType": "struct MocQueueExecFees.InitializeMocQueueExecCostsParams",
+          "name": "mocQueueExecCostsParams_",
           "type": "tuple"
         }
       ],
@@ -1249,12 +1149,12 @@
     },
     {
       "inputs": [],
-      "name": "maxOperPerBatch",
+      "name": "maxOperWaitingBlk",
       "outputs": [
         {
-          "internalType": "uint128",
+          "internalType": "uint256",
           "name": "",
-          "type": "uint128"
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -1265,9 +1165,22 @@
       "name": "minOperWaitingBlk",
       "outputs": [
         {
-          "internalType": "uint128",
+          "internalType": "uint256",
           "name": "",
-          "type": "uint128"
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "mocMultiCollateralGuard",
+      "outputs": [
+        {
+          "internalType": "contract MocMultiCollateralGuard",
+          "name": "",
+          "type": "address"
         }
       ],
       "stateMutability": "view",
@@ -1823,7 +1736,7 @@
           "type": "uint256"
         }
       ],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -1874,7 +1787,7 @@
           "type": "uint256"
         }
       ],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -1925,7 +1838,7 @@
           "type": "uint256"
         }
       ],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -1971,7 +1884,7 @@
           "type": "uint256"
         }
       ],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -2027,7 +1940,7 @@
           "type": "uint256"
         }
       ],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -2078,7 +1991,7 @@
           "type": "uint256"
         }
       ],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -2134,7 +2047,7 @@
           "type": "uint256"
         }
       ],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -2190,7 +2103,7 @@
           "type": "uint256"
         }
       ],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -2251,11 +2164,17 @@
           "type": "uint256"
         }
       ],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
-      "inputs": [],
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "blocksSinceLastPublication_",
+          "type": "uint256"
+        }
+      ],
       "name": "readyToExecute",
       "outputs": [
         {
@@ -2283,17 +2202,12 @@
     {
       "inputs": [
         {
-          "internalType": "bytes32",
-          "name": "role",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
+          "internalType": "uint256",
+          "name": "maxOperWaitingBlk_",
+          "type": "uint256"
         }
       ],
-      "name": "renounceRole",
+      "name": "setMaxOperWaitingBlk",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -2301,43 +2215,25 @@
     {
       "inputs": [
         {
-          "internalType": "bytes32",
-          "name": "role",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        }
-      ],
-      "name": "revokeRole",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint128",
-          "name": "maxOperPerBatch_",
-          "type": "uint128"
-        }
-      ],
-      "name": "setMaxOperPerBatch",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint128",
+          "internalType": "uint256",
           "name": "minOperWaitingBlk_",
-          "type": "uint128"
+          "type": "uint256"
         }
       ],
       "name": "setMinOperWaitingBlk",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract MocMultiCollateralGuard",
+          "name": "mocMultiCollateralGuardAddress_",
+          "type": "address"
+        }
+      ],
+      "name": "setMocMultiCollateralGuard",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -2369,25 +2265,6 @@
       "type": "function"
     },
     {
-      "inputs": [
-        {
-          "internalType": "bytes4",
-          "name": "interfaceId",
-          "type": "bytes4"
-        }
-      ],
-      "name": "supportsInterface",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "inputs": [],
       "name": "unpause",
       "outputs": [],
@@ -2400,56 +2277,56 @@
           "components": [
             {
               "internalType": "uint256",
-              "name": "tcMintExecFee",
+              "name": "tcMintExecCost",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
-              "name": "tcRedeemExecFee",
+              "name": "tcRedeemExecCost",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
-              "name": "tpMintExecFee",
+              "name": "tpMintExecCost",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
-              "name": "tpRedeemExecFee",
+              "name": "tpRedeemExecCost",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
-              "name": "swapTPforTPExecFee",
+              "name": "swapTPforTPExecCost",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
-              "name": "swapTPforTCExecFee",
+              "name": "swapTPforTCExecCost",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
-              "name": "swapTCforTPExecFee",
+              "name": "swapTCforTPExecCost",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
-              "name": "redeemTCandTPExecFee",
+              "name": "redeemTCandTPExecCost",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
-              "name": "mintTCandTPExecFee",
+              "name": "mintTCandTPExecCost",
               "type": "uint256"
             }
           ],
-          "internalType": "struct MocQueueExecFees.InitializeMocQueueExecFeesParams",
-          "name": "mocQueueExecFeesParams_",
+          "internalType": "struct MocQueueExecFees.InitializeMocQueueExecCostsParams",
+          "name": "mocQueueExecCostsParams_",
           "type": "tuple"
         }
       ],
-      "name": "updateExecutionFees",
+      "name": "updateExecutionCosts",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -2486,8 +2363,22 @@
       "type": "function"
     },
     {
-      "stateMutability": "payable",
-      "type": "receive"
+      "inputs": [
+        {
+          "internalType": "enum MocQueueExecFees.OperType",
+          "name": "operType_",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "execFee_",
+          "type": "uint256"
+        }
+      ],
+      "name": "verifyExecFee",
+      "outputs": [],
+      "stateMutability": "view",
+      "type": "function"
     }
   ]
 }

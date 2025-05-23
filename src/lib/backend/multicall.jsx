@@ -16,6 +16,11 @@ const onErrorProposal = () => {
     return { value: null, canOperate: true };
 };
 
+const onErrorFluxCapacitor = () => {
+    console.warn("Flux capacitor is disabled");
+    return { value: null, canOperate: true };
+};
+
 const onErrorTP = () => {
     return { value: null, canOperate: true };
 };
@@ -105,6 +110,9 @@ class Multicall {
                         "WARN: Cannot operate! Index query:",
                         itemIndex
                     );
+                    console.warn("keyName:", keyName)
+                    console.warn("keyIndex:", keyIndex)
+                    console.warn("keySubIndex:", keySubIndex)
                 }
             }
 
@@ -149,19 +157,9 @@ const contractStatus = async (web3, dContracts) => {
 
     const vendorAddress =
         `${import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS}`.toLowerCase();
-
-    console.log("Reading contract status ...");
-
     const multicall = dContracts.contracts.multicall;
-    const Moc = dContracts.contracts.Moc;
-    const MocVendors = dContracts.contracts.MocVendors;
-    const PP_FeeToken = dContracts.contracts.PP_FeeToken;
     const PP_COINBASE = dContracts.contracts.PP_COINBASE;
-    const MocQueue = dContracts.contracts.MocQueue;
-    const FC_MAX_ABSOLUTE_OP_PROVIDER =
-        dContracts.contracts.FC_MAX_ABSOLUTE_OP_PROVIDER;
-    const FC_MAX_OP_DIFFERENCE_PROVIDER =
-        dContracts.contracts.FC_MAX_OP_DIFFERENCE_PROVIDER;
+    const MocMultiCollateralGuard = dContracts.contracts.MocMultiCollateralGuard;
 
     // OMOC
     let iregistry;
@@ -186,427 +184,700 @@ const contractStatus = async (web3, dContracts) => {
 
     const multiCallRequest = new Multicall(multicall, web3);
 
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.protThrld().encodeABI(),
-        "uint256",
-        "protThrld"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.liqThrld().encodeABI(),
-        "uint256",
-        "liqThrld"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.liqEnabled().encodeABI(),
-        "bool",
-        "liqEnabled"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.liquidated().encodeABI(),
-        "bool",
-        "liquidated"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.nACcb().encodeABI(),
-        "uint256",
-        "nACcb"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.tcToken().encodeABI(),
-        "address",
-        "tcToken"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.nTCcb().encodeABI(),
-        "uint256",
-        "nTCcb"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.successFee().encodeABI(),
-        "uint256",
-        "successFee"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.appreciationFactor().encodeABI(),
-        "uint256",
-        "appreciationFactor"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.feeRetainer().encodeABI(),
-        "uint256",
-        "feeRetainer"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.tcMintFee().encodeABI(),
-        "uint256",
-        "tcMintFee"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.tcRedeemFee().encodeABI(),
-        "uint256",
-        "tcRedeemFee"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.swapTPforTPFee().encodeABI(),
-        "uint256",
-        "swapTPforTPFee"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.swapTPforTCFee().encodeABI(),
-        "uint256",
-        "swapTPforTCFee"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.swapTCforTPFee().encodeABI(),
-        "uint256",
-        "swapTCforTPFee"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.redeemTCandTPFee().encodeABI(),
-        "uint256",
-        "redeemTCandTPFee"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.mintTCandTPFee().encodeABI(),
-        "uint256",
-        "mintTCandTPFee"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.mocFeeFlowAddress().encodeABI(),
-        "address",
-        "mocFeeFlowAddress"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.mocAppreciationBeneficiaryAddress().encodeABI(),
-        "address",
-        "mocAppreciationBeneficiaryAddress"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.isLiquidationReached().encodeABI(),
-        "bool",
-        "isLiquidationReached"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.getPTCac().encodeABI(),
-        "uint256",
-        "getPTCac"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.getCglb().encodeABI(),
-        "uint256",
-        "getCglb"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.getTCAvailableToRedeem().encodeABI(),
-        "uint256",
-        "getTCAvailableToRedeem"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.getTotalACavailable().encodeABI(),
-        "uint256",
-        "getTotalACavailable"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.getLeverageTC().encodeABI(),
-        "uint256",
-        "getLeverageTC",
-        null,
-        null,
-        onErrorLeverage
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.nextEmaCalculation().encodeABI(),
-        "uint256",
-        "nextEmaCalculation"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.emaCalculationBlockSpan().encodeABI(),
-        "uint256",
-        "emaCalculationBlockSpan"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.calcCtargemaCA().encodeABI(),
-        "uint256",
-        "calcCtargemaCA"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.shouldCalculateEma().encodeABI(),
-        "bool",
-        "shouldCalculateEma"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.bes().encodeABI(),
-        "uint256",
-        "bes"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.bns().encodeABI(),
-        "uint256",
-        "bns"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.getBts().encodeABI(),
-        "uint256",
-        "getBts"
-    );
-    multiCallRequest.aggregate(
-        MocVendors,
-        MocVendors.methods.vendorsGuardianAddress().encodeABI(),
-        "address",
-        "vendorGuardianAddress"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.feeTokenPct().encodeABI(),
-        "uint256",
-        "feeTokenPct"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.feeToken().encodeABI(),
-        "address",
-        "feeToken"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.feeTokenPriceProvider().encodeABI(),
-        "address",
-        "feeTokenPriceProvider"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.tcInterestCollectorAddress().encodeABI(),
-        "address",
-        "tcInterestCollectorAddress"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.tcInterestRate().encodeABI(),
-        "uint256",
-        "tcInterestRate"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.tcInterestPaymentBlockSpan().encodeABI(),
-        "uint256",
-        "tcInterestPaymentBlockSpan"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.nextTCInterestPayment().encodeABI(),
-        "uint256",
-        "nextTCInterestPayment"
-    );
-    multiCallRequest.aggregate(
-        PP_FeeToken,
-        PP_FeeToken.methods.peek().encodeABI(),
-        "uint256",
-        "PP_FeeToken"
-    );
-    multiCallRequest.aggregate(
-        MocVendors,
-        MocVendors.methods.vendorMarkup(vendorAddress).encodeABI(),
-        "uint256",
-        "vendorMarkup"
-    );
+    const currentBlockNumber =  await multicall.methods.getBlockNumber().call()
+    let contractMocType
+    let Moc
+    let MocVendors
+    let MocQueue
+    let PP_FeeToken
+    let FC_MAX_ABSOLUTE_OP_PROVIDER
+    let FC_MAX_OP_DIFFERENCE_PROVIDER
+    let PP_TP
+
     multiCallRequest.aggregate(
         PP_COINBASE,
         PP_COINBASE.methods.peek().encodeABI(),
-        "uint256",
+        [
+            {
+                "internalType": "bytes32",
+                "name": "",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
         "PP_COINBASE"
     );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.maxAbsoluteOpProvider().encodeABI(),
-        "address",
-        "maxAbsoluteOpProvider"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.maxOpDiffProvider().encodeABI(),
-        "address",
-        "maxOpDiffProvider"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.decayBlockSpan().encodeABI(),
-        "uint256",
-        "decayBlockSpan"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.absoluteAccumulator().encodeABI(),
-        "uint256",
-        "absoluteAccumulator"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.differentialAccumulator().encodeABI(),
-        "uint256",
-        "differentialAccumulator"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.lastOperationBlockNumber().encodeABI(),
-        "uint256",
-        "lastOperationBlockNumber"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.qACLockedInPending().encodeABI(),
-        "uint256",
-        "qACLockedInPending"
-    );
-    multiCallRequest.aggregate(
-        MocQueue,
-        MocQueue.methods.operIdCount().encodeABI(),
-        "uint256",
-        "operIdCount"
-    );
-    multiCallRequest.aggregate(
-        MocQueue,
-        MocQueue.methods.firstOperId().encodeABI(),
-        "uint256",
-        "firstOperId"
-    );
-    multiCallRequest.aggregate(
-        MocQueue,
-        MocQueue.methods.minOperWaitingBlk().encodeABI(),
-        "uint256",
-        "minOperWaitingBlk"
-    );
-    multiCallRequest.aggregate(
-        MocQueue,
-        MocQueue.methods.execFee(1).encodeABI(),
-        "uint256",
-        "tcMintExecFee"
-    );
-    multiCallRequest.aggregate(
-        MocQueue,
-        MocQueue.methods.execFee(2).encodeABI(),
-        "uint256",
-        "tcRedeemExecFee"
-    );
-    multiCallRequest.aggregate(
-        MocQueue,
-        MocQueue.methods.execFee(3).encodeABI(),
-        "uint256",
-        "tpMintExecFee"
-    );
-    multiCallRequest.aggregate(
-        MocQueue,
-        MocQueue.methods.execFee(4).encodeABI(),
-        "uint256",
-        "tpRedeemExecFee"
-    );
-    multiCallRequest.aggregate(
-        MocQueue,
-        MocQueue.methods.execFee(9).encodeABI(),
-        "uint256",
-        "swapTPforTPExecFee"
-    );
-    multiCallRequest.aggregate(
-        MocQueue,
-        MocQueue.methods.execFee(8).encodeABI(),
-        "uint256",
-        "swapTPforTCExecFee"
-    );
-    multiCallRequest.aggregate(
-        MocQueue,
-        MocQueue.methods.execFee(7).encodeABI(),
-        "uint256",
-        "swapTCforTPExecFee"
-    );
-    multiCallRequest.aggregate(
-        MocQueue,
-        MocQueue.methods.execFee(6).encodeABI(),
-        "uint256",
-        "redeemTCandTPExecFee"
-    );
-    multiCallRequest.aggregate(
-        MocQueue,
-        MocQueue.methods.execFee(5).encodeABI(),
-        "uint256",
-        "mintTCandTPExecFee"
-    );
-    multiCallRequest.aggregate(
-        FC_MAX_ABSOLUTE_OP_PROVIDER,
-        FC_MAX_ABSOLUTE_OP_PROVIDER.methods.peek().encodeABI(),
-        "uint256",
-        "FC_MAX_ABSOLUTE_OP"
-    );
-    multiCallRequest.aggregate(
-        FC_MAX_OP_DIFFERENCE_PROVIDER,
-        FC_MAX_OP_DIFFERENCE_PROVIDER.methods.peek().encodeABI(),
-        "uint256",
-        "FC_MAX_OP_DIFFERENCE"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.maxQACToMintTP().encodeABI(),
-        "uint256",
-        "maxQACToMintTP"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.maxQACToRedeemTP().encodeABI(),
-        "uint256",
-        "maxQACToRedeemTP"
-    );
-    multiCallRequest.aggregate(
-        Moc,
-        Moc.methods.paused().encodeABI(),
-        "bool",
-        "paused"
-    );
 
-    // only on coinbase mode
-    if (settings.collateral === "coinbase") {
+    for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+
+        contractMocType = settings.tokens.CA[ca].type
+        Moc = dContracts.contracts.Moc[ca]
+        MocVendors = dContracts.contracts.MocVendors[ca]
+        MocQueue = dContracts.contracts.MocQueue[ca]
+        PP_FeeToken = dContracts.contracts.PP_FeeToken[ca]
+        FC_MAX_ABSOLUTE_OP_PROVIDER = dContracts.contracts.FC_MAX_ABSOLUTE_OP_PROVIDER[ca]
+        FC_MAX_OP_DIFFERENCE_PROVIDER = dContracts.contracts.FC_MAX_OP_DIFFERENCE_PROVIDER[ca]
+
         multiCallRequest.aggregate(
             Moc,
-            Moc.methods.transferMaxGas().encodeABI(),
+            Moc.methods.protThrld().encodeABI(),
             "uint256",
-            "transferMaxGas"
+            ca,
+            "protThrld"
         );
         multiCallRequest.aggregate(
             Moc,
-            Moc.methods.coinbaseFailedTransferFallback().encodeABI(),
-            "address",
-            "coinbaseFailedTransferFallback"
+            Moc.methods.liqThrld().encodeABI(),
+            "uint256",
+            ca,
+            "liqThrld"
         );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.liqEnabled().encodeABI(),
+        //     "bool",
+        //     ca,
+        //     "liqEnabled"
+        // );
+        multiCallRequest.aggregate(
+            Moc,
+            Moc.methods.liquidated().encodeABI(),
+            "bool",
+            ca,
+            "liquidated"
+        );
+        multiCallRequest.aggregate(
+            Moc,
+            Moc.methods.nACcb().encodeABI(),
+            "uint256",
+            ca,
+            "nACcb"
+        );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.tcToken().encodeABI(),
+        //     "address",
+        //     ca,
+        //     "tcToken"
+        // );
+        multiCallRequest.aggregate(
+            Moc,
+            Moc.methods.nTCcb().encodeABI(),
+            "uint256",
+            ca,
+            "nTCcb"
+        );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.successFee().encodeABI(),
+        //     "uint256",
+        //     ca,
+        //     "successFee"
+        // );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.appreciationFactor().encodeABI(),
+        //     "uint256",
+        //     ca,
+        //     "appreciationFactor"
+        // );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.feeRetainer().encodeABI(),
+        //     "uint256",
+        //     ca,
+        //     "feeRetainer"
+        // );
+        multiCallRequest.aggregate(
+            Moc,
+            Moc.methods.tcMintFee().encodeABI(),
+            "uint256",
+            ca,
+            "tcMintFee"
+        );
+        multiCallRequest.aggregate(
+            Moc,
+            Moc.methods.tcRedeemFee().encodeABI(),
+            "uint256",
+            ca,
+            "tcRedeemFee"
+        );
+        /*multiCallRequest.aggregate(
+            Moc,
+            Moc.methods.swapTPforTPFee().encodeABI(),
+            "uint256",
+            ca,
+            "swapTPforTPFee"
+        );
+        multiCallRequest.aggregate(
+            Moc,
+            Moc.methods.swapTPforTCFee().encodeABI(),
+            "uint256",
+            ca,
+            "swapTPforTCFee"
+        );
+        multiCallRequest.aggregate(
+            Moc,
+            Moc.methods.swapTCforTPFee().encodeABI(),
+            "uint256",
+            ca,
+            "swapTCforTPFee"
+        );
+        multiCallRequest.aggregate(
+            Moc,
+            Moc.methods.redeemTCandTPFee().encodeABI(),
+            "uint256",
+            ca,
+            "redeemTCandTPFee"
+        );
+        multiCallRequest.aggregate(
+            Moc,
+            Moc.methods.mintTCandTPFee().encodeABI(),
+            "uint256",
+            ca,
+            "mintTCandTPFee"
+        );*/
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.mocFeeFlowAddress().encodeABI(),
+        //     "address",
+        //     ca,
+        //     "mocFeeFlowAddress"
+        // );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.mocAppreciationBeneficiaryAddress().encodeABI(),
+        //     "address",
+        //     ca,
+        //     "mocAppreciationBeneficiaryAddress"
+        // );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.isLiquidationReached().encodeABI(),
+        //     "bool",
+        //     ca,
+        //     "isLiquidationReached"
+        // );
+        multiCallRequest.aggregate(
+            Moc,
+            Moc.methods.getPTCac().encodeABI(),
+            "uint256",
+            ca,
+            "getPTCac"
+        );
+        multiCallRequest.aggregate(
+            Moc,
+            Moc.methods.getCglb().encodeABI(),
+            "uint256",
+            ca,
+            "getCglb"
+        );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.getLckAC().encodeABI(),
+        //     "uint256",
+        //     ca,
+        //     "getLckAC"
+        // );
+        multiCallRequest.aggregate(
+            Moc,
+            Moc.methods.getTCAvailableToRedeem().encodeABI(),
+            "uint256",
+            ca,
+            "getTCAvailableToRedeem"
+        );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.getTotalACavailable().encodeABI(),
+        //     "uint256",
+        //     ca,
+        //     "getTotalACavailable"
+        // );
+        /*multiCallRequest.aggregate(
+            Moc,
+            Moc.methods.getLeverageTC().encodeABI(),
+            "uint256",
+            "getLeverageTC",
+            null,
+            null,
+            onErrorLeverage
+        );*/
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.nextEmaCalculation().encodeABI(),
+        //     "uint256",
+        //     ca,
+        //     "nextEmaCalculation"
+        // );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.emaCalculationTimeSpan().encodeABI(),
+        //     "uint256",
+        //     ca,
+        //     "emaCalculationTimeSpan"
+        // );
+        multiCallRequest.aggregate(
+            Moc,
+            Moc.methods.getCtargemaCA().encodeABI(),
+            "uint256",
+            ca,
+            "getCtargemaCA"
+        );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.shouldCalculateEma().encodeABI(),
+        //     "bool",
+        //     ca,
+        //     "shouldCalculateEma"
+        // );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.settlementTimeSpan().encodeABI(),
+        //     "uint256",
+        //     ca,
+        //     "settlementTimeSpan"
+        // );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.nextSettlementTime().encodeABI(),
+        //     "uint256",
+        //     ca,
+        //     "nextSettlementTime"
+        // );
+        // multiCallRequest.aggregate(
+        //     MocVendors,
+        //     MocVendors.methods.vendorsGuardianAddress().encodeABI(),
+        //     "address",
+        //     ca,
+        //     "vendorGuardianAddress"
+        // );
+        multiCallRequest.aggregate(
+            Moc,
+            Moc.methods.feeTokenPct().encodeABI(),
+            "uint256",
+            ca,
+            "feeTokenPct"
+        );
+        multiCallRequest.aggregate(
+            Moc,
+            Moc.methods.feeToken().encodeABI(),
+            "address",
+            ca,
+            "feeToken"
+        );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.feeTokenPriceProvider().encodeABI(),
+        //     "address",
+        //     ca,
+        //     "feeTokenPriceProvider"
+        // );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.tcInterestCollectorAddress().encodeABI(),
+        //     "address",
+        //     ca,
+        //     "tcInterestCollectorAddress"
+        // );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.tcInterestRate().encodeABI(),
+        //     "uint256",
+        //     ca,
+        //     "tcInterestRate"
+        // );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.tcInterestPaymentTimeSpan().encodeABI(),
+        //     "uint256",
+        //     ca,
+        //     "tcInterestPaymentTimeSpan"
+        // );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.nextTCInterestPayment().encodeABI(),
+        //     "uint256",
+        //     ca,
+        //     "nextTCInterestPayment"
+        // );
+        multiCallRequest.aggregate(
+            PP_FeeToken,
+            PP_FeeToken.methods.peek().encodeABI(),
+            [
+                {
+                    "internalType": "bytes32",
+                    "name": "",
+                    "type": "bytes32"
+                },
+                {
+                    "internalType": "bool",
+                    "name": "",
+                    "type": "bool"
+                }
+            ],
+            ca,
+            "PP_FeeToken"
+        );
+        multiCallRequest.aggregate(
+            MocVendors,
+            MocVendors.methods.vendorMarkup(vendorAddress).encodeABI(),
+            "uint256",
+            ca,
+            "vendorMarkup"
+        );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.maxAbsoluteOpProvider().encodeABI(),
+        //     "address",
+        //     ca,
+        //     "maxAbsoluteOpProvider"
+        // );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.maxOpDiffProvider().encodeABI(),
+        //     "address",
+        //     ca,
+        //     "maxOpDiffProvider"
+        // );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.decayTimeSpan().encodeABI(),
+        //     "uint256",
+        //     ca,
+        //     "decayTimeSpan"
+        // );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.absoluteAccumulator().encodeABI(),
+        //     "uint256",
+        //     ca,
+        //     "absoluteAccumulator"
+        // );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.differentialAccumulator().encodeABI(),
+        //     "uint256",
+        //     ca,
+        //     "differentialAccumulator"
+        // );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.lastOperationTimeStamp().encodeABI(),
+        //     "uint256",
+        //     ca,
+        //     "lastOperationTimeStamp"
+        // );
+        // multiCallRequest.aggregate(
+        //     Moc,
+        //     Moc.methods.qACLockedInPending().encodeABI(),
+        //     "uint256",
+        //     ca,
+        //     "qACLockedInPending"
+        // );
+        // multiCallRequest.aggregate(
+        //     MocQueue,
+        //     MocQueue.methods.operIdCount().encodeABI(),
+        //     "uint256",
+        //     ca,
+        //     "operIdCount"
+        // );
+        // multiCallRequest.aggregate(
+        //     MocQueue,
+        //     MocQueue.methods.firstOperId().encodeABI(),
+        //     "uint256",
+        //     ca,
+        //     "firstOperId"
+        // );
+        // multiCallRequest.aggregate(
+        //     MocQueue,
+        //     MocQueue.methods.minOperWaitingBlk().encodeABI(),
+        //     "uint256",
+        //     ca,
+        //     "minOperWaitingBlk"
+        // );
+        // multiCallRequest.aggregate(
+        //     MocQueue,
+        //     MocQueue.methods.maxOperWaitingBlk().encodeABI(),
+        //     "uint256",
+        //     ca,
+        //     "maxOperWaitingBlk"
+        // );
+        // multiCallRequest.aggregate(
+        //     MocQueue,
+        //     MocQueue.methods.isEmpty().encodeABI(),
+        //     "bool",
+        //     ca,
+        //     "isEmpty"
+        // );
+        multiCallRequest.aggregate(
+            MocQueue,
+            MocQueue.methods.execCost(1).encodeABI(),
+            "uint256",
+            ca,
+            "tcMintExecCost"
+        );
+        multiCallRequest.aggregate(
+            MocQueue,
+            MocQueue.methods.execCost(2).encodeABI(),
+            "uint256",
+            ca,
+            "tcRedeemExecCost"
+        );
+        multiCallRequest.aggregate(
+            MocQueue,
+            MocQueue.methods.execCost(3).encodeABI(),
+            "uint256",
+            ca,
+            "tpMintExecCost"
+        );
+        multiCallRequest.aggregate(
+            MocQueue,
+            MocQueue.methods.execCost(4).encodeABI(),
+            "uint256",
+            ca,
+            "tpRedeemExecCost"
+        );
+        multiCallRequest.aggregate(
+            MocQueue,
+            MocQueue.methods.execCost(9).encodeABI(),
+            "uint256",
+            ca,
+            "swapTPforTPExecCost"
+        );
+        multiCallRequest.aggregate(
+            MocQueue,
+            MocQueue.methods.execCost(8).encodeABI(),
+            "uint256",
+            ca,
+            "swapTPforTCExecCost"
+        );
+        multiCallRequest.aggregate(
+            MocQueue,
+            MocQueue.methods.execCost(7).encodeABI(),
+            "uint256",
+            ca,
+            "swapTCforTPExecCost"
+        );
+        multiCallRequest.aggregate(
+            MocQueue,
+            MocQueue.methods.execCost(6).encodeABI(),
+            "uint256",
+            ca,
+            "redeemTCandTPExecCost"
+        );
+        multiCallRequest.aggregate(
+            MocQueue,
+            MocQueue.methods.execCost(5).encodeABI(),
+            "uint256",
+            ca,
+            "mintTCandTPExecCost"
+        );
+        // multiCallRequest.aggregate(
+        //     FC_MAX_ABSOLUTE_OP_PROVIDER,
+        //     FC_MAX_ABSOLUTE_OP_PROVIDER.methods.peek().encodeABI(),
+        //     [
+        //         {
+        //             "internalType": "bytes32",
+        //             "name": "",
+        //             "type": "bytes32"
+        //         },
+        //         {
+        //             "internalType": "bool",
+        //             "name": "",
+        //             "type": "bool"
+        //         }
+        //     ],
+        //     ca,
+        //     "FC_MAX_ABSOLUTE_OP",
+        //     null,
+        //     onErrorFluxCapacitor
+        // );
+        // multiCallRequest.aggregate(
+        //     FC_MAX_OP_DIFFERENCE_PROVIDER,
+        //     FC_MAX_OP_DIFFERENCE_PROVIDER.methods.peek().encodeABI(),
+        //     [
+        //         {
+        //             "internalType": "bytes32",
+        //             "name": "",
+        //             "type": "bytes32"
+        //         },
+        //         {
+        //             "internalType": "bool",
+        //             "name": "",
+        //             "type": "bool"
+        //         }
+        //     ],
+        //     ca,
+        //     "FC_MAX_OP_DIFFERENCE",
+        //     null,
+        //     onErrorFluxCapacitor
+        // );
+        multiCallRequest.aggregate(
+            Moc,
+            Moc.methods.maxQACToMintTP(currentBlockNumber).encodeABI(),
+            "uint256",
+            ca,
+            "maxQACToMintTP"
+        );
+        multiCallRequest.aggregate(
+            Moc,
+            Moc.methods.maxQACToRedeemTP(currentBlockNumber).encodeABI(),
+            "uint256",
+            ca,
+            "maxQACToRedeemTP"
+        );
+        multiCallRequest.aggregate(
+            Moc,
+            Moc.methods.paused().encodeABI(),
+            "bool",
+            ca,
+            "paused"
+        );
+        multiCallRequest.aggregate(
+            MocMultiCollateralGuard,
+            MocMultiCollateralGuard.methods.getRealTCAvailableToRedeem(Moc.options.address).encodeABI(),
+            "uint256",
+            ca,
+            "getRealTCAvailableToRedeem"
+        );
+        // // only on coinbase mode
+        // if (contractMocType === "coinbase") {
+        //     multiCallRequest.aggregate(
+        //         Moc,
+        //         Moc.methods.transferMaxGas().encodeABI(),
+        //         "uint256",
+        //         ca,
+        //         "transferMaxGas"
+        //     );
+        //     multiCallRequest.aggregate(
+        //         Moc,
+        //         Moc.methods.coinbaseFailedTransferFallback().encodeABI(),
+        //         "address",
+        //         ca,
+        //         "coinbaseFailedTransferFallback"
+        //     );
+        // }
+
+        let tpAddress;
+        for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
+            tpAddress = dContracts.contracts.TP[tp].options.address;
+            PP_TP = dContracts.contracts.PP_TP[ca][tp];
+
+            multiCallRequest.aggregate(
+                PP_TP,
+                PP_TP.methods.peek().encodeABI(),
+                [
+                    {
+                        "internalType": "bytes32",
+                        "name": "",
+                        "type": "bytes32"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "",
+                        "type": "bool"
+                    }
+                ],
+                ca,
+                "PP_TP",
+                tp
+            );
+            multiCallRequest.aggregate(
+                Moc,
+                Moc.methods.tpMintFees(tpAddress).encodeABI(),
+                "uint256",
+                ca,
+                "tpMintFees",
+                tp
+            );
+            multiCallRequest.aggregate(
+                Moc,
+                Moc.methods.tpRedeemFees(tpAddress).encodeABI(),
+                "uint256",
+                ca,
+                "tpRedeemFees",
+                tp
+            );
+            multiCallRequest.aggregate(
+                Moc,
+                Moc.methods.tpCtarg(tp).encodeABI(),
+                "uint256",
+                ca,
+                "tpCtarg",
+                tp
+            );
+            multiCallRequest.aggregate(
+                Moc,
+                Moc.methods.pegContainer(tp).encodeABI(),
+                "uint256",
+                ca,
+                "pegContainer",
+                tp
+            );
+            // multiCallRequest.aggregate(
+            //     Moc,
+            //     Moc.methods.getPACtp(tpAddress).encodeABI(),
+            //     "uint256",
+            //     ca,
+            //     "getPACtp",
+            //     tp
+            // );
+            multiCallRequest.aggregate(
+                Moc,
+                Moc.methods.getTPAvailableToMint(tpAddress).encodeABI(),
+                "int256",
+                ca,
+                "getTPAvailableToMint",
+                tp
+            );
+            multiCallRequest.aggregate(
+                Moc,
+                Moc.methods.tpEma(tp).encodeABI(),
+                "uint256",
+                ca,
+                "tpEma",
+                tp
+            );
+            multiCallRequest.aggregate(
+                MocMultiCollateralGuard,
+                MocMultiCollateralGuard.methods.getRealTPAvailableToMint(Moc.options.address, tpAddress).encodeABI(),
+                "uint256",
+                ca,
+                "getRealTPAvailableToMint",
+                tp
+            );
+        }
+
     }
+    // multiCallRequest.aggregate(
+    //     MocMultiCollateralGuard,
+    //     MocMultiCollateralGuard.methods.maxOperPerBatch().encodeABI(),
+    //     "uint256",
+    //     "maxOperPerBatch"
+    // );
+    // multiCallRequest.aggregate(
+    //     MocMultiCollateralGuard,
+    //     MocMultiCollateralGuard.methods.getCombinedCglb().encodeABI(),
+    //     "uint256",
+    //     "getCombinedCglb"
+    // );
+    // multiCallRequest.aggregate(
+    //     MocMultiCollateralGuard,
+    //     MocMultiCollateralGuard.methods.getCombinedCtargemaCA().encodeABI(),
+    //     "uint256",
+    //     "getCombinedCtargemaCA"
+    // );
+    /*
+    multiCallRequest.aggregate(
+        MocMultiCollateralGuard,
+        MocMultiCollateralGuard.methods.getLastPublicationBlock(true).encodeABI(),
+        "uint256",
+        "getLastPublicationBlock"
+    );*/
 
     // OMOC
     if (typeof iregistry !== "undefined") {
@@ -882,159 +1153,163 @@ const contractStatus = async (web3, dContracts) => {
         );
     }
 
-    let PP_TP;
-    let tpAddress;
-    for (let i = 0; i < settings.tokens.TP.length; i++) {
-        tpAddress = dContracts.contracts.TP[i].options.address;
-        PP_TP = dContracts.contracts.PP_TP[i];
-        multiCallRequest.aggregate(
-            Moc,
-            Moc.methods.tpMintFees(tpAddress).encodeABI(),
-            "uint256",
-            "tpMintFees",
-            i
-        );
-        multiCallRequest.aggregate(
-            Moc,
-            Moc.methods.tpRedeemFees(tpAddress).encodeABI(),
-            "uint256",
-            "tpRedeemFees",
-            i
-        );
-        multiCallRequest.aggregate(
-            Moc,
-            Moc.methods.tpCtarg(i).encodeABI(),
-            "uint256",
-            "tpCtarg",
-            i
-        );
-        multiCallRequest.aggregate(
-            Moc,
-            Moc.methods.pegContainer(i).encodeABI(),
-            "uint256",
-            "pegContainer",
-            i
-        );
-        multiCallRequest.aggregate(
-            PP_TP,
-            PP_TP.methods.peek().encodeABI(),
-            "uint256",
-            "PP_TP",
-            i
-        );
-        multiCallRequest.aggregate(
-            Moc,
-            Moc.methods.getPACtp(tpAddress).encodeABI(),
-            "uint256",
-            "getPACtp",
-            i
-        );
-        multiCallRequest.aggregate(
-            Moc,
-            Moc.methods.getTPAvailableToMint(tpAddress).encodeABI(),
-            "int256",
-            "getTPAvailableToMint",
-            i
-        );
-        multiCallRequest.aggregate(
-            Moc,
-            Moc.methods.tpEma(i).encodeABI(),
-            "uint256",
-            "tpEma",
-            i
-        );
-    }
-
     let PP_CA;
     let CA;
-    for (let i = 0; i < settings.tokens.CA.length; i++) {
-        PP_CA = dContracts.contracts.PP_CA[i];
-        if (settings.collateral === "coinbase") {
+    let countRC20 = 0
+    for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+        PP_CA = dContracts.contracts.PP_CA[ca];
+        Moc = dContracts.contracts.Moc[ca];
+        contractMocType = settings.tokens.CA[ca].type
+
+        if (contractMocType === "coinbase") {
             multiCallRequest.aggregate(
                 multicall,
                 multicall.methods
                     .getEthBalance(Moc.options.address)
                     .encodeABI(),
                 "uint256",
-                "getACBalance",
-                i
+                ca,
+                "getACBalance"
             );
         } else {
-            CA = dContracts.contracts.CA[i];
+            CA = dContracts.contracts.CA[countRC20];
             multiCallRequest.aggregate(
                 CA,
                 CA.methods.balanceOf(Moc.options.address).encodeABI(),
                 "uint256",
-                "getACBalance",
-                i
+                ca,
+                "getACBalance"
             );
+            countRC20++;
         }
         multiCallRequest.aggregate(
             PP_CA,
             PP_CA.methods.peek().encodeABI(),
-            "uint256",
-            "PP_CA",
-            i
+            [
+                {
+                    "internalType": "bytes32",
+                    "name": "",
+                    "type": "bytes32"
+                },
+                {
+                    "internalType": "bool",
+                    "name": "",
+                    "type": "bool"
+                }
+            ],
+            ca,
+            "PP_CA"
         );
     }
 
     const status = await multiCallRequest.tryBlockAndAggregate();
+    console.log(`Reading contract status: OK!. Block: ${status.blockHeight}`);
 
-    // If calcCtargemaCA is a big number cannot operate
-    const calcCtargemaCA = new BigNumber(
-        fromContractPrecisionDecimals(status.calcCtargemaCA, 18)
-    );
-    if (calcCtargemaCA.gt(1000000)) {
-        status.canOperate = false;
+    let getCtargemaCA;
+    for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+        // If calcCtargemaCA is a huge number cannot operate
+        getCtargemaCA = new BigNumber(
+            fromContractPrecisionDecimals(status[ca].getCtargemaCA, 18)
+        );
+        if (getCtargemaCA.gt(100000000)) {
+            status.canOperate = false;
+            break;
+        }
     }
+
 
     // History Price (24hs ago)
     const d24BlockHeights = status.blockHeight - BigInt(2880);
     const multiCallRequestHistory = new Multicall(multicall, web3);
 
-    multiCallRequestHistory.aggregate(
-        Moc,
-        Moc.methods.getPTCac().encodeABI(),
-        "uint256",
-        "getPTCac"
-    );
+    for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+        Moc = dContracts.contracts.Moc[ca];
+        multiCallRequestHistory.aggregate(
+            Moc,
+            Moc.methods.getPTCac().encodeABI(),
+            "uint256",
+            ca,
+            "getPTCac"
+        );
+        multiCallRequestHistory.aggregate(
+            PP_CA,
+            PP_CA.methods.peek().encodeABI(),
+            [
+                {
+                    "internalType": "bytes32",
+                    "name": "",
+                    "type": "bytes32"
+                },
+                {
+                    "internalType": "bool",
+                    "name": "",
+                    "type": "bool"
+                }
+            ],
+            ca,
+            "PP_CA"
+        );
+        for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
+            PP_TP = dContracts.contracts.PP_TP[ca][tp];
+            multiCallRequestHistory.aggregate(
+                PP_TP,
+                PP_TP.methods.peek().encodeABI(),
+                [
+                    {
+                        "internalType": "bytes32",
+                        "name": "",
+                        "type": "bytes32"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "",
+                        "type": "bool"
+                    }
+                ],
+                ca,
+                "PP_TP",
+                tp
+            );
+        }
+    }
     multiCallRequestHistory.aggregate(
         PP_COINBASE,
         PP_COINBASE.methods.peek().encodeABI(),
-        "uint256",
+        [
+            {
+                "internalType": "bytes32",
+                "name": "",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
         "PP_COINBASE"
     );
     multiCallRequestHistory.aggregate(
         PP_FeeToken,
         PP_FeeToken.methods.peek().encodeABI(),
-        "uint256",
+        [
+            {
+                "internalType": "bytes32",
+                "name": "",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
         "PP_FeeToken"
     );
 
-    for (let i = 0; i < settings.tokens.TP.length; i++) {
-        PP_TP = dContracts.contracts.PP_TP[i];
-        multiCallRequestHistory.aggregate(
-            PP_TP,
-            PP_TP.methods.peek().encodeABI(),
-            "uint256",
-            "PP_TP",
-            i
-        );
-    }
-
-    for (let i = 0; i < settings.tokens.CA.length; i++) {
-        PP_CA = dContracts.contracts.PP_CA[i];
-        multiCallRequestHistory.aggregate(
-            PP_CA,
-            PP_CA.methods.peek().encodeABI(),
-            "uint256",
-            "PP_CA",
-            i
-        );
-    }
-
     const historic =
         await multiCallRequestHistory.tryBlockAndAggregate(d24BlockHeights);
+    console.log(`Reading contract status HISTORY: OK!. Block: ${historic.blockHeight}`);
     historic.blockHeight = d24BlockHeights;
     status.canHistoric = historic.canOperate;
     status.historic = historic;
@@ -1046,9 +1321,6 @@ const userBalance = async (web3, dContracts, userAddress) => {
     if (!dContracts) return;
 
     const multicall = dContracts.contracts.multicall;
-    const CollateralToken = dContracts.contracts.CollateralToken;
-    const FeeToken = dContracts.contracts.FeeToken;
-    const MoCContract = dContracts.contracts.Moc;
 
     let stakingmachine;
     let delaymachine;
@@ -1068,8 +1340,6 @@ const userBalance = async (web3, dContracts, userAddress) => {
         votingmachine = dContracts.contracts.VotingMachine;
     }
 
-    console.log(`Reading user balance ... account: ${userAddress}`);
-
     const multiCallRequest = new Multicall(multicall, web3);
     multiCallRequest.aggregate(
         multicall,
@@ -1077,38 +1347,52 @@ const userBalance = async (web3, dContracts, userAddress) => {
         "uint256",
         "coinbase"
     );
-    multiCallRequest.aggregate(
-        CollateralToken,
-        CollateralToken.methods.balanceOf(userAddress).encodeABI(),
-        "uint256",
-        "TC",
-        "balance"
-    );
-    multiCallRequest.aggregate(
-        CollateralToken,
-        CollateralToken.methods
-            .allowance(userAddress, MoCContract.options.address)
-            .encodeABI(),
-        "uint256",
-        "TC",
-        "allowance"
-    );
-    multiCallRequest.aggregate(
-        FeeToken,
-        FeeToken.methods.balanceOf(userAddress).encodeABI(),
-        "uint256",
-        "FeeToken",
-        "balance"
-    );
-    multiCallRequest.aggregate(
-        FeeToken,
-        FeeToken.methods
-            .allowance(userAddress, MoCContract.options.address)
-            .encodeABI(),
-        "uint256",
-        "FeeToken",
-        "allowance"
-    );
+
+    let Moc
+    let CollateralToken
+    let FeeToken
+    for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+        Moc = dContracts.contracts.Moc[ca]
+        CollateralToken = dContracts.contracts.CollateralToken[ca]
+        FeeToken = dContracts.contracts.FeeToken[ca]
+
+        multiCallRequest.aggregate(
+            CollateralToken,
+            CollateralToken.methods.balanceOf(userAddress).encodeABI(),
+            "uint256",
+            ca,
+            "TC",
+            "balance"
+        );
+        multiCallRequest.aggregate(
+            CollateralToken,
+            CollateralToken.methods
+                .allowance(userAddress, Moc.options.address)
+                .encodeABI(),
+            "uint256",
+            ca,
+            "TC",
+            "allowance"
+        );
+        multiCallRequest.aggregate(
+            FeeToken,
+            FeeToken.methods.balanceOf(userAddress).encodeABI(),
+            "uint256",
+            ca,
+            "FeeToken",
+            "balance"
+        );
+        multiCallRequest.aggregate(
+            FeeToken,
+            FeeToken.methods
+                .allowance(userAddress, Moc.options.address)
+                .encodeABI(),
+            "uint256",
+            ca,
+            "FeeToken",
+            "allowance"
+        );
+    }
 
     if (typeof stakingmachine !== "undefined") {
         // OMOC
@@ -1384,47 +1668,59 @@ const userBalance = async (web3, dContracts, userAddress) => {
     }
 
     let TP;
-    for (let i = 0; i < settings.tokens.TP.length; i++) {
-        TP = dContracts.contracts.TP[i];
-        multiCallRequest.aggregate(
-            TP,
-            TP.methods.balanceOf(userAddress).encodeABI(),
-            "uint256",
-            "TP_balance",
-            i
-        );
-        multiCallRequest.aggregate(
-            TP,
-            TP.methods
-                .allowance(userAddress, MoCContract.options.address)
-                .encodeABI(),
-            "uint256",
-            "TP_allowance",
-            i
-        );
+    for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+        for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
+            TP = dContracts.contracts.TP[tp];
+            Moc = dContracts.contracts.Moc[ca]
+            multiCallRequest.aggregate(
+                TP,
+                TP.methods.balanceOf(userAddress).encodeABI(),
+                "uint256",
+                ca,
+                "TP_balance",
+                tp
+            );
+            multiCallRequest.aggregate(
+                TP,
+                TP.methods
+                    .allowance(userAddress, Moc.options.address)
+                    .encodeABI(),
+                "uint256",
+                ca,
+                "TP_allowance",
+                tp
+            );
+        }
     }
 
     let CA;
-    if (settings.collateral !== "coinbase") {
-        for (let i = 0; i < settings.tokens.CA.length; i++) {
-            // RC-20 collateral
-            CA = dContracts.contracts.CA[i];
+    let contractMocType
+    let countRC20 = 0
+
+    for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+        // RC-20 collateral Only
+        contractMocType = settings.tokens.CA[ca].type
+        if (contractMocType !== 'coinbase')  {
+
+            Moc = dContracts.contracts.Moc[ca];
+            CA = dContracts.contracts.CA[countRC20];
             multiCallRequest.aggregate(
                 CA,
                 CA.methods.balanceOf(userAddress).encodeABI(),
                 "uint256",
-                "CA_balance",
-                i
+                ca,
+                "CA_balance"
             );
             multiCallRequest.aggregate(
                 CA,
                 CA.methods
-                    .allowance(userAddress, MoCContract.options.address)
+                    .allowance(userAddress, Moc.options.address)
                     .encodeABI(),
                 "uint256",
-                "CA_allowance",
-                i
+                ca,
+                "CA_allowance"
             );
+            countRC20++
         }
     }
 
@@ -1451,27 +1747,34 @@ const userBalance = async (web3, dContracts, userAddress) => {
     }
 
     const userBalance = await multiCallRequest.tryBlockAndAggregate();
+    console.log(`Reading user balance: OK. Block: ${userBalance.blockHeight}`);
 
-    TP = [];
-    for (let i = 0; i < settings.tokens.TP.length; i++) {
-        TP.push({
-            balance: userBalance["TP_balance"][i],
-            allowance: userBalance["TP_allowance"][i],
-        });
+    let TPca = [];
+    for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+        let TPtp = [];
+        for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
+            TPtp.push({
+                balance: userBalance[ca]["TP_balance"][tp],
+                allowance: userBalance[ca]["TP_allowance"][tp],
+            });
+        }
+        TPca.push(TPtp)
     }
-    userBalance.TP = TP;
+    userBalance.TP = TPca;
 
     CA = [];
-    if (settings.collateral === "coinbase") {
-        CA.push({
-            balance: userBalance["coinbase"],
-            allowance: userBalance["coinbase"],
-        });
-    } else {
-        for (let i = 0; i < settings.tokens.CA.length; i++) {
+    for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+        contractMocType = settings.tokens.CA[ca].type
+        if (contractMocType === 'coinbase')  {
             CA.push({
-                balance: userBalance["CA_balance"][i],
-                allowance: userBalance["CA_allowance"][i],
+                balance: userBalance["coinbase"],
+                allowance: userBalance["coinbase"],
+            });
+
+        } else {
+            CA.push({
+                balance: userBalance[ca]["CA_balance"],
+                allowance: userBalance[ca]["CA_allowance"],
             });
         }
     }
@@ -1558,67 +1861,65 @@ const registryAddresses = async (web3, dContracts) => {
     return await multiCallRequest.tryBlockAndAggregate();
 };
 
-const mocAddresses = async (web3, dContracts) => {
+const mocAddresses = async (web3, dContracts, contractMoc, contractMocType) => {
     const multicall = dContracts.contracts.multicall;
-    const moc = dContracts.contracts.Moc;
 
     const multiCallRequest = new Multicall(multicall, web3);
     multiCallRequest.aggregate(
-        moc,
-        moc.methods.feeToken().encodeABI(),
+        contractMoc,
+        contractMoc.methods.feeToken().encodeABI(),
         "address",
         "feeToken"
     );
     multiCallRequest.aggregate(
-        moc,
-        moc.methods.feeTokenPriceProvider().encodeABI(),
+        contractMoc,
+        contractMoc.methods.feeTokenPriceProvider().encodeABI(),
         "address",
         "feeTokenPriceProvider"
     );
-    if (settings.collateral !== "coinbase") {
+    if (contractMocType !== "coinbase") {
         multiCallRequest.aggregate(
-            moc,
-            moc.methods.acToken().encodeABI(),
+            contractMoc,
+            contractMoc.methods.acToken().encodeABI(),
             "address",
             "acToken"
         );
     }
     multiCallRequest.aggregate(
-        moc,
-        moc.methods.tcToken().encodeABI(),
+        contractMoc,
+        contractMoc.methods.tcToken().encodeABI(),
         "address",
         "tcToken"
     );
     multiCallRequest.aggregate(
-        moc,
-        moc.methods.maxAbsoluteOpProvider().encodeABI(),
+        contractMoc,
+        contractMoc.methods.maxAbsoluteOpProvider().encodeABI(),
         "address",
         "maxAbsoluteOpProvider"
     );
     multiCallRequest.aggregate(
-        moc,
-        moc.methods.maxOpDiffProvider().encodeABI(),
+        contractMoc,
+        contractMoc.methods.maxOpDiffProvider().encodeABI(),
         "address",
         "maxOpDiffProvider"
     );
     multiCallRequest.aggregate(
-        moc,
-        moc.methods.mocQueue().encodeABI(),
+        contractMoc,
+        contractMoc.methods.mocQueue().encodeABI(),
         "address",
         "mocQueue"
     );
     multiCallRequest.aggregate(
-        moc,
-        moc.methods.mocVendors().encodeABI(),
+        contractMoc,
+        contractMoc.methods.mocVendors().encodeABI(),
         "address",
         "mocVendors"
     );
 
-    const MAX_LEN_ARRAY_TP = 4;
-    for (let i = 0; i < MAX_LEN_ARRAY_TP; i++) {
+    for (let i = 0; i < settings.tokens.TP.length; i++) {
         multiCallRequest.aggregate(
-            moc,
-            moc.methods.tpTokens(i).encodeABI(),
+            contractMoc,
+            contractMoc.methods.tpTokens(i).encodeABI(),
             "address",
             "tpTokens",
             i,

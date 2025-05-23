@@ -25,7 +25,7 @@ src/settings/en_US.json
 src/settings/es_ES.json
 
 # contracts
-src/contracts/*.json
+#src/contracts/*.json
 
 /.pnp
 .pnp.js

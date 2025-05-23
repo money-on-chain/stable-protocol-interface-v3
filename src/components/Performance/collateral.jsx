@@ -33,8 +33,8 @@ export default function CollateralAssets() {
                                     ? "--"
                                     : PrecisionNumbers({
                                           amount: auth.contractStatusData
-                                              ? auth.contractStatusData
-                                                    .getACBalance[i]
+                                              ? auth.contractStatusData[i]
+                                                    .getACBalance
                                               : new BigNumber(0),
                                           token: TokenSettings(`CA_${i}`),
                                           decimals: 2,
