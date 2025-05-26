@@ -19,9 +19,10 @@ You can:
 
 | Token | Token name       | Project     | Token Name | Collateral |
 |-------|------------------|-------------|------------|------------|
-| TP #0 | Pegged Token     | Flipmoney   | Flip ARS   | BPro       |
-| TP #1 | Pegged Token     | Flipmoney   | Flip COP   | BPro       |
-| TC    | Collateral Token | Flipmoney   | BProMax    | BPro       |
+| TP #0 | Pegged Token     | Flipmoney   | Flip ARS   | BPro/DOC   |
+| TP #1 | Pegged Token     | Flipmoney   | Flip COP   | BPro/DOC   |
+| TC #0 | Collateral Token | Flipmoney   | BProMax    | BPro       |
+| TC #1 | Collateral Token | Flipmoney   | DOCMax     | DOC        |
 | TF    | Fee Token        | Flipmoney   | Flip       | -          |
 
 
