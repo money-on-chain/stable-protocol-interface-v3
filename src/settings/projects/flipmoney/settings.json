@@ -46,6 +46,7 @@
                 "decimals": 18,
                 "visibleDecimals": 2,
                 "visiblePriceDecimals": 2,
+                "visiblePriceUSD": 6,
                 "visibleBalanceDecimals": 2,
                 "visibleBalanceUSDDecimals": 2,
                 "peggedUSD": false
@@ -56,6 +57,7 @@
                 "decimals": 18,
                 "visibleDecimals": 2,
                 "visiblePriceDecimals": 2,
+                "visiblePriceUSD": 6,
                 "visibleBalanceDecimals": 2,
                 "visibleBalanceUSDDecimals": 2,
                 "peggedUSD": false

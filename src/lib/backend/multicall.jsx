@@ -376,13 +376,13 @@ const contractStatus = async (web3, dContracts) => {
             ca,
             "getCglb"
         );
-        // multiCallRequest.aggregate(
-        //     Moc,
-        //     Moc.methods.getLckAC().encodeABI(),
-        //     "uint256",
-        //     ca,
-        //     "getLckAC"
-        // );
+        multiCallRequest.aggregate(
+            Moc,
+            Moc.methods.getLckAC().encodeABI(),
+            "uint256",
+            ca,
+            "getLckAC"
+        );
         multiCallRequest.aggregate(
             Moc,
             Moc.methods.getTCAvailableToRedeem().encodeABI(),
@@ -859,18 +859,24 @@ const contractStatus = async (web3, dContracts) => {
     //     "uint256",
     //     "maxOperPerBatch"
     // );
-    // multiCallRequest.aggregate(
-    //     MocMultiCollateralGuard,
-    //     MocMultiCollateralGuard.methods.getCombinedCglb().encodeABI(),
-    //     "uint256",
-    //     "getCombinedCglb"
-    // );
-    // multiCallRequest.aggregate(
-    //     MocMultiCollateralGuard,
-    //     MocMultiCollateralGuard.methods.getCombinedCtargemaCA().encodeABI(),
-    //     "uint256",
-    //     "getCombinedCtargemaCA"
-    // );
+    multiCallRequest.aggregate(
+        MocMultiCollateralGuard,
+        MocMultiCollateralGuard.methods.getCombinedCglb().encodeABI(),
+        "uint256",
+        "getCombinedCglb"
+    );
+    multiCallRequest.aggregate(
+        MocMultiCollateralGuard,
+        MocMultiCollateralGuard.methods.getCombinedCtargemaCA().encodeABI(),
+        "uint256",
+        "getCombinedCtargemaCA"
+    );
+    multiCallRequest.aggregate(
+        MocMultiCollateralGuard,
+        MocMultiCollateralGuard.methods.getNormalizationFactors().encodeABI(),
+        "uint256[]",
+        "getNormalizationFactors"
+    );
     /*
     multiCallRequest.aggregate(
         MocMultiCollateralGuard,

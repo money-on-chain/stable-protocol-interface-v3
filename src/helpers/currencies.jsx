@@ -94,7 +94,7 @@ function TokenBalance(auth, tokenName) {
     return balance;
 }
 
-function ConvertPeggedTokenPrice(auth, caIndex, tpIndex, price) {
+function ConvertPeggedTokenPrice(auth, caIndex, tpIndex, price, inverted=false) {
     if (settings.tokens.TP[tpIndex].peggedUSD) {
         return price;
     } else {
@@ -104,7 +104,7 @@ function ConvertPeggedTokenPrice(auth, caIndex, tpIndex, price) {
                 settings.tokens.CA[caIndex].decimals
             )
         );
-        return price.div(priceCA);
+        return (inverted) ? new BigNumber(1).div(price.div(priceCA)) : price.div(priceCA);
     }
 }
 
