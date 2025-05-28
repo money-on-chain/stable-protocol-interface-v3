@@ -1230,6 +1230,7 @@ const contractStatus = async (web3, dContracts) => {
 
     for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
         Moc = dContracts.contracts.Moc[ca];
+        PP_CA = dContracts.contracts.PP_CA[ca];
         multiCallRequestHistory.aggregate(
             Moc,
             Moc.methods.getPTCac().encodeABI(),

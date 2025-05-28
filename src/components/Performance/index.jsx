@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 
 import { useProjectTranslation } from "../../helpers/translations";
 import { AuthenticateContext } from "../../context/Auth";
-import CheckStatus from "../../helpers/checkStatus";
+import { CheckStatusGlobal } from "../../helpers/checkStatus";
 import settings from "../../settings/settings.json";
 import Buckets from './buckets';
 import TVL from './tvl'
@@ -16,7 +16,7 @@ export default function Performance() {
     const [statusText, setStatusText] = useState("--");
     const { t } = useProjectTranslation();
     const auth = useContext(AuthenticateContext);
-    const { checkerStatus } = CheckStatus({caIndex: 0});
+    const { checkerStatus } = CheckStatusGlobal();
     useEffect(() => {
         if ((auth.contractStatusData, auth.userBalanceData)) {
             const { statusIcon, statusLabel, statusText } = checkerStatus();

@@ -27,7 +27,7 @@ import { AuthenticateContext } from "../../context/Auth";
 import InputAmount from "../InputAmount/";
 import BigNumber from "bignumber.js";
 import { fromContractPrecisionDecimals } from "../../helpers/Formats";
-import CheckStatus from "../../helpers/checkStatus";
+import { CheckStatusGlobal } from "../../helpers/checkStatus";
 
 export default function Exchange() {
     const { t, i18n, ns } = useProjectTranslation();
@@ -76,7 +76,7 @@ export default function Exchange() {
     const [valueReceive, setValueReceive] = useState("");
     const [caIndex, setCAIndex] = useState(0);
 
-    const { checkerStatus } = CheckStatus({caIndex: 0});
+    const { checkerStatus } = CheckStatusGlobal();
 
     useEffect(() => {
         if (amountYouExchange && auth.contractStatusData) {
@@ -209,7 +209,7 @@ export default function Exchange() {
             tIndex = TokenSettings(currencyYouReceive).key;
             const tpAvailableToMint = new BigNumber(
                 fromContractPrecisionDecimals(
-                    auth.contractStatusData[caIndex].getTPAvailableToMint[tIndex],
+                    auth.contractStatusData[caIndex].getRealTPAvailableToMint[tIndex],
                     settings.tokens.TP[tIndex].decimals
                 )
             );
@@ -226,7 +226,7 @@ export default function Exchange() {
             // There are sufficient TC in the contracts to redeem?
             const tcAvailableToRedeem = new BigNumber(
                 Web3.utils.fromWei(
-                    auth.contractStatusData[caIndex].getTCAvailableToRedeem,
+                    auth.contractStatusData[caIndex].getRealTCAvailableToRedeem,
                     "ether"
                 )
             );
