@@ -146,7 +146,7 @@ export default function Tokens(props) {
                         ? "--"
                         : PrecisionNumbers({
                               amount: auth.contractStatusData
-                                  ? auth.contractStatusData[caIndex].getTCAvailableToRedeem
+                                  ? auth.contractStatusData[caIndex].getRealTCAvailableToRedeem
                                   : new BigNumber(0),
                               token: settings.tokens.TC[caIndex],
                               decimals: settings.tokens.CA[caIndex].visibleDecimals,
@@ -174,7 +174,7 @@ export default function Tokens(props) {
 
             let tpAvailableToMint = new BigNumber(
                 fromContractPrecisionDecimals(
-                    auth.contractStatusData[caIndex].getTPAvailableToMint[dataItem.key],
+                    auth.contractStatusData[caIndex].getRealTPAvailableToMint[dataItem.key],
                     settings.tokens.TP[dataItem.key].decimals
                 )
             );
@@ -246,7 +246,7 @@ export default function Tokens(props) {
                                     dataItem.key
                                     ],
                                 token: settings.tokens.TP[dataItem.key],
-                                decimals: settings.tokens.CA[caIndex].visibleDecimals,
+                                decimals: settings.tokens.TP[caIndex].visibleBalanceDecimals,
                                 i18n: i18n,
                                 skipContractConvert: false,
                             })}
@@ -259,7 +259,7 @@ export default function Tokens(props) {
                             : PrecisionNumbers({
                                 amount: tpAvailableToMint,
                                 token: settings.tokens.TP[dataItem.key],
-                                decimals: settings.tokens.CA[caIndex].visibleDecimals,
+                                decimals: settings.tokens.TP[caIndex].visibleBalanceDecimals,
                                 t: t,
                                 i18n: i18n,
                                 ns: ns,

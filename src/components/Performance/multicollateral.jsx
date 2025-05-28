@@ -10,37 +10,45 @@ import { fromContractPrecisionDecimals } from '../../helpers/Formats';
 
 
 export default function MultiCollateral() {
-    const { t, i18n, ns } = useProjectTranslation();
+    const { i18n } = useProjectTranslation();
     const auth = useContext(AuthenticateContext);
 
-    let lckAC
-    let nACcb
-    let leverage
-
+    let leverage = new BigNumber(0)
     if (auth.contractStatusData) {
-
-        console.log("DEBUG>>>")
         const normalizationFactors = auth.contractStatusData.getNormalizationFactors
         let factor
-        for (let i = 0; i < normalizationFactors.length; i++) {
+        let bucketLckAC
+        let bucketAC
+        let tvl = new BigNumber(0)
+        let lckAC = new BigNumber(0)
+        for (let caIndex = 0; caIndex < normalizationFactors.length; caIndex++) {
             factor = fromContractPrecisionDecimals(
-                normalizationFactors[i],
-                settings.tokens.CA[0].decimals
-            )
-            console.log(factor.toString())
-        }
-
-
-        /*
-        nACcb = new BigNumber(
-            fromContractPrecisionDecimals(
-                auth.contractStatusData[caIndex].nACcb,
+                normalizationFactors[caIndex],
                 settings.tokens.CA[caIndex].decimals
             )
-        );
 
-        leverage = nACcb.div(nACcb.minus(lckAC))*/
+            bucketLckAC = new BigNumber(
+                fromContractPrecisionDecimals(
+                    auth.contractStatusData[caIndex].getLckAC,
+                    settings.tokens.CA[caIndex].decimals
+                )
+            );
 
+            bucketAC = new BigNumber(
+                fromContractPrecisionDecimals(
+                    auth.contractStatusData[caIndex].getTotalACavailable,
+                    settings.tokens.CA[caIndex].decimals
+                )
+            );
+
+            //tvl += bucketAC * factor;
+            //lckAC += bucketLckAC * factor;
+            tvl = tvl.plus(bucketAC.times(factor))
+            lckAC = lckAC.plus(bucketLckAC.times(factor))
+        }
+
+        //leverage = tvl / (tvl - lckAC);
+        leverage = tvl.div(tvl.minus(lckAC))
     }
 
     return (
@@ -89,11 +97,11 @@ export default function MultiCollateral() {
                     {!auth.contractStatusData.canOperate
                         ? "--"
                         : PrecisionNumbers({
-                            amount: new BigNumber(0),
+                            amount: leverage,
                             token: TokenSettings("CA_0"),
                             decimals: 4,
                             i18n: i18n,
-                            skipContractConvert: false,
+                            skipContractConvert: true,
                         })}
                     <div className="caption">
                         Leverage

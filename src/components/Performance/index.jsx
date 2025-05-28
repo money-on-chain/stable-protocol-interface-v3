@@ -14,7 +14,7 @@ export default function Performance() {
     const [statusIcon, setStatusIcon] = useState("");
     const [statusLabel, setStatusLabel] = useState("--");
     const [statusText, setStatusText] = useState("--");
-    const { t, i18n, ns } = useProjectTranslation();
+    const { t } = useProjectTranslation();
     const auth = useContext(AuthenticateContext);
     const { checkerStatus } = CheckStatus({caIndex: 0});
     useEffect(() => {
@@ -63,7 +63,7 @@ export default function Performance() {
             {/* MultiCollateral */}
             <MultiCollateral key={'multicollateral'} />
 
-            {/* Collateral Token */}
+            {/* Buckets */}
             {settings.tokens.CA.map(function(tokenSetting, caIndex){
                 return <Buckets tokenSettings={tokenSetting} caIndex={caIndex} key={caIndex} />;
             })}

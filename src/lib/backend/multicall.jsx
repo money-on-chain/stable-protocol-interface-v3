@@ -390,13 +390,13 @@ const contractStatus = async (web3, dContracts) => {
             ca,
             "getTCAvailableToRedeem"
         );
-        // multiCallRequest.aggregate(
-        //     Moc,
-        //     Moc.methods.getTotalACavailable().encodeABI(),
-        //     "uint256",
-        //     ca,
-        //     "getTotalACavailable"
-        // );
+        multiCallRequest.aggregate(
+            Moc,
+            Moc.methods.getTotalACavailable().encodeABI(),
+            "uint256",
+            ca,
+            "getTotalACavailable"
+        );
         /*multiCallRequest.aggregate(
             Moc,
             Moc.methods.getLeverageTC().encodeABI(),
