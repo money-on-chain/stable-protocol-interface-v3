@@ -30,6 +30,7 @@ export default function ConfirmOperation(props) {
         amountYouReceive,
         onCloseModal,
         executionFee,
+        executionFeeUSD,
         commissionFeeToken,
         commissionFeeTokenUSD,
         commissionPercentFeeToken,
@@ -610,6 +611,25 @@ export default function ConfirmOperation(props) {
                                 ns: ns,
                             })}{" "}
                         </span>
+
+                        <span className={""}> (</span>
+                        <span>
+                            {!auth.contractStatusData?.canOperate
+                                ? "--"
+                                : PrecisionNumbers({
+                                      amount: executionFeeUSD,
+                                      decimals: 2,
+                                      token: TokenSettings(`CA_${caIndex}`),
+                                      i18n: i18n,
+                                      isUSD: true,
+                                      skipContractConvert: true,
+                                  })}
+                        </span>
+                        <span className={""}>
+                            {" "}
+                            USD
+                        </span>
+                        <span className={""}>) </span>
                     </div>
                 </div>
                 <div className="tx-fees-info">
