@@ -826,12 +826,17 @@ export default function LastOperations(props) {
             case "TP_0":
                 return {
                     name: settings.tokens.TP[0].name,
-                    token: settings.tokens.TP,
+                    token: settings.tokens.TP[0],
                 };
             case "TP_1":
                 return {
                     name: settings.tokens.TP[1].name,
-                    token: settings.tokens.TP,
+                    token: settings.tokens.TP[1],
+                };
+            case "FeeToken":
+                return {
+                    name: settings.tokens.TF[0].name,
+                    token: settings.tokens.TF[0],
                 };
             default:
                 console.log("UNRECOGNIZED TOKEN: " + token);
@@ -890,6 +895,12 @@ export default function LastOperations(props) {
                     image: <div className="icon-token-tp_1 icon-token-modif" />,
                     color: "color-token-tc",
                     txt: "TP",
+                };
+            case "FeeToken":
+                return {
+                    image: <div className="icon-token-tf icon-token-modif" />,
+                    color: "color-token-tf",
+                    txt: "TF",
                 };
             default:
                 console.log("UNRECOGNIZED TOKEN: " + name);
