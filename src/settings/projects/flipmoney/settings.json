@@ -9,6 +9,7 @@
             "decimals": 18,
             "visibleDecimals": 6,
             "visiblePriceDecimals": 2,
+            "visiblePriceUSD": 8,
             "visibleBalanceDecimals": 8,
             "visibleBalanceUSDDecimals": 2,
             "peggedUSD": false
@@ -22,6 +23,7 @@
                 "decimals": 18,
                 "visibleDecimals": 6,
                 "visiblePriceDecimals": 2,
+                "visiblePriceUSD": 8,
                 "visibleBalanceDecimals": 8,
                 "visibleBalanceUSDDecimals": 2,
                 "peggedUSD": false
@@ -34,6 +36,7 @@
                 "decimals": 18,
                 "visibleDecimals": 2,
                 "visiblePriceDecimals": 2,
+                "visiblePriceUSD": 8,
                 "visibleBalanceDecimals": 2,
                 "visibleBalanceUSDDecimals": 2,
                 "peggedUSD": false
@@ -46,7 +49,7 @@
                 "decimals": 18,
                 "visibleDecimals": 2,
                 "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 6,
+                "visiblePriceUSD": 8,
                 "visibleBalanceDecimals": 2,
                 "visibleBalanceUSDDecimals": 2,
                 "peggedUSD": false
@@ -57,7 +60,7 @@
                 "decimals": 18,
                 "visibleDecimals": 2,
                 "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 6,
+                "visiblePriceUSD": 8,
                 "visibleBalanceDecimals": 2,
                 "visibleBalanceUSDDecimals": 2,
                 "peggedUSD": false
@@ -70,6 +73,7 @@
                 "decimals": 18,
                 "visibleDecimals": 6,
                 "visiblePriceDecimals": 2,
+                "visiblePriceUSD": 8,
                 "visibleBalanceDecimals": 8,
                 "visibleBalanceUSDDecimals": 2,
                 "peggedUSD": false
@@ -80,6 +84,7 @@
                 "decimals": 18,
                 "visibleDecimals": 2,
                 "visiblePriceDecimals": 2,
+                "visiblePriceUSD": 8,
                 "visibleBalanceDecimals": 8,
                 "visibleBalanceUSDDecimals": 2,
                 "peggedUSD": false
@@ -92,6 +97,7 @@
                 "decimals": 18,
                 "visibleDecimals": 8,
                 "visiblePriceDecimals": 2,
+                "visiblePriceUSD": 8,
                 "visibleBalanceDecimals": 4,
                 "visibleBalanceUSDDecimals": 2,
                 "peggedUSD": false
@@ -102,6 +108,7 @@
                 "decimals": 18,
                 "visibleDecimals": 8,
                 "visiblePriceDecimals": 2,
+                "visiblePriceUSD": 8,
                 "visibleBalanceDecimals": 4,
                 "visibleBalanceUSDDecimals": 2,
                 "peggedUSD": false
@@ -112,6 +119,7 @@
             "decimals": 18,
             "visibleDecimals": 8,
             "visiblePriceDecimals": 2,
+            "visiblePriceUSD": 8,
             "visibleBalanceDecimals": 4,
             "visibleBalanceUSDDecimals": 2,
             "peggedUSD": false

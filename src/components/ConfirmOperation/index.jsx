@@ -564,6 +564,7 @@ export default function ConfirmOperation(props) {
                         <span className={"token_receive"}>
                             {PrecisionNumbers({
                                 amount: new BigNumber(commissionPAY),
+                                decimals: 10,
                                 token: commissionSettings,
                                 i18n: i18n,
                                 skipContractConvert: true,
@@ -600,6 +601,7 @@ export default function ConfirmOperation(props) {
                         <span className={"token_receive"}>
                             {PrecisionNumbers({
                                 amount: executionFee,
+                                decimals: 10,
                                 token: TokenSettings("COINBASE"),
                                 i18n: i18n,
                                 skipContractConvert: true,

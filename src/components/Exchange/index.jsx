@@ -665,6 +665,9 @@ export default function Exchange() {
                                                       1,
                                                       false
                                                   ),
+                                                  decimals: TokenSettings(
+                                                      currencyYouReceive
+                                                  ).visiblePriceUSD,
                                                   token: TokenSettings(
                                                       currencyYouReceive
                                                   ),
@@ -704,6 +707,9 @@ export default function Exchange() {
                                                       1,
                                                       false
                                                   ),
+                                                  decimals: TokenSettings(
+                                                      currencyYouExchange
+                                                  ).visiblePriceUSD,
                                                   token: TokenSettings(
                                                       currencyYouExchange
                                                   ),
