@@ -199,6 +199,114 @@
         }
     }
 }
+
+.token-table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 14px;
+
+    th {
+        border-bottom: 1px solid gray;
+    }
+    .token-table__cell,
+    .token-table__header {
+        padding: 8px 16px;
+        // outline: 1px solid gray;
+    }
+
+    .token-table__cell:first-child,
+    .token-table__header:first-child {
+        padding-left: 0;
+    }
+
+    .token-table__cell:last-child,
+    .token-table__header:last-child {
+        padding-right: 0;
+    }
+    // Cells
+    .token-table__cell--name,
+    .token-table__header--name {
+        text-align: left;
+        // width: 300px;
+    }
+    .token-table__cell--price,
+    .token-table__header--price {
+        text-align: right;
+        width: 170px;
+    }
+    .token-table__cell--ema,
+    .token-table__header--ema {
+        text-align: right;
+        width: 130px;
+    }
+    .token-table__cell--minted,
+    .token-table__header--minted {
+        text-align: right;
+        width: 170px;
+    }
+    .token-table__cell--mintable,
+    .token-table__header--mintable {
+        text-align: right;
+        width: 170px;
+    }
+    .token-table__cell--redeem,
+    .token-table__header--redeem {
+        text-align: right;
+        width: 170px;
+    }
+    .token-table__cell--coverage,
+    .token-table__header--coverage {
+        text-align: right;
+        width: 100px;
+    }
+}
+
+.perfGlobalMetrics {
+    .metrics {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 32px;
+        margin-top: 32px;
+    }
+    .dataGroup {
+        display: flex;
+        gap: 16px;
+        min-width: 256px;
+        // outline: 1px dashed green;
+    }
+    .icon__back {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: var(--icon-background-radius);
+        background-color: var(--icon-background-color);
+        width: 48px;
+        height: 48px;
+    }
+    .amount {
+        display: flex;
+        align-items: center;
+        width: 115px;
+        height: 29px;
+        color: var(--color-txt-primary);
+        font-style: normal;
+        font-weight: 600;
+        font-size: 22px;
+        line-height: 29px;
+        font-family: var(--brand-font);
+    }
+    .label {
+        color: var(--color-txt-secondary);
+        font-style: normal;
+        font-weight: 400;
+        font-size: 14px;
+        font-family: var(--main-font);
+    }
+    .buckets {
+        margin-top: 40px;
+    }
+}
+
 .dash__perfCollateral {
     box-shadow: var(--surface-shadow-1);
     border-radius: var(--card-border-radius);

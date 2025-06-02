@@ -27,7 +27,8 @@ import { AuthenticateContext } from "../../context/Auth";
 import InputAmount from "../InputAmount/";
 import BigNumber from "bignumber.js";
 import { fromContractPrecisionDecimals } from "../../helpers/Formats";
-import CheckStatus from "../../helpers/checkStatus";
+import { CheckStatusGlobal } from "../../helpers/checkStatus";
+import { getExecutionFee } from "../../lib/backend/utils";
 
 export default function Exchange() {
     const { t, i18n, ns } = useProjectTranslation();
@@ -59,6 +60,7 @@ export default function Exchange() {
         useState("0.0");
 
     const [executionFee, setExecutionFee] = useState(new BigNumber(0));
+    const [executionFeeUSD, setExecutionFeeUSD] = useState(new BigNumber(0));
 
     const [exchangingUSD, setExchangingUSD] = useState(new BigNumber(0));
 
@@ -76,7 +78,7 @@ export default function Exchange() {
     const [valueReceive, setValueReceive] = useState("");
     const [caIndex, setCAIndex] = useState(0);
 
-    const { checkerStatus } = CheckStatus({caIndex: 0});
+    const { checkerStatus } = CheckStatusGlobal();
 
     useEffect(() => {
         if (amountYouExchange && auth.contractStatusData) {
@@ -209,7 +211,7 @@ export default function Exchange() {
             tIndex = TokenSettings(currencyYouReceive).key;
             const tpAvailableToMint = new BigNumber(
                 fromContractPrecisionDecimals(
-                    auth.contractStatusData[caIndex].getTPAvailableToMint[tIndex],
+                    auth.contractStatusData[caIndex].getRealTPAvailableToMint[tIndex],
                     settings.tokens.TP[tIndex].decimals
                 )
             );
@@ -226,7 +228,7 @@ export default function Exchange() {
             // There are sufficient TC in the contracts to redeem?
             const tcAvailableToRedeem = new BigNumber(
                 Web3.utils.fromWei(
-                    auth.contractStatusData[caIndex].getTCAvailableToRedeem,
+                    auth.contractStatusData[caIndex].getRealTCAvailableToRedeem,
                     "ether"
                 )
             );
@@ -335,7 +337,7 @@ export default function Exchange() {
         setInputValidationError(false);
     };
 
-    const onChangeAmounts = (amountExchange, amountReceive, source) => {
+    const onChangeAmounts = async (amountExchange, amountReceive, source) => {
         let infoFee;
         let amountExchangeFee;
         let amountReceiveFee;
@@ -432,19 +434,28 @@ export default function Exchange() {
         convertAmountUSD = convertAmountUSD.times(priceCA);
         setExchangingUSD(convertAmountUSD);
 
-        // Execution fee load
-        setExecutionFee(
-            new BigNumber(
-                fromContractPrecisionDecimals(
-                    executionFeeMap(
-                        currencyYouExchange,
-                        currencyYouReceive,
-                        auth
-                    ),
-                    settings.tokens.COINBASE[0].decimals
-                )
+        const execCost = executionFeeMap(
+            currencyYouExchange,
+            currencyYouReceive,
+            auth
+        )
+
+        const execFee = fromContractPrecisionDecimals(
+            await getExecutionFee(auth.web3, execCost, 2),
+            settings.tokens.COINBASE[0].decimals
+        )
+
+        const priceCoinbase = new BigNumber(
+            fromContractPrecisionDecimals(
+                auth.contractStatusData.PP_COINBASE[0],
+                settings.tokens.COINBASE[0].decimals
             )
         );
+        const execFeeUSD = execFee.times(priceCoinbase);
+
+        // Execution fee load
+        setExecutionFee(execFee);
+        setExecutionFeeUSD(execFeeUSD);
     };
 
     const onChangeAmountYouExchange = (newAmount) => {
@@ -654,6 +665,9 @@ export default function Exchange() {
                                                       1,
                                                       false
                                                   ),
+                                                  decimals: TokenSettings(
+                                                      currencyYouReceive
+                                                  ).visiblePriceUSD,
                                                   token: TokenSettings(
                                                       currencyYouReceive
                                                   ),
@@ -693,6 +707,9 @@ export default function Exchange() {
                                                       1,
                                                       false
                                                   ),
+                                                  decimals: TokenSettings(
+                                                      currencyYouExchange
+                                                  ).visiblePriceUSD,
                                                   token: TokenSettings(
                                                       currencyYouExchange
                                                   ),
@@ -918,6 +935,7 @@ export default function Exchange() {
                         onClear={onClear}
                         inputValidationError={inputValidationError}
                         executionFee={executionFee}
+                        executionFeeUSD={executionFeeUSD}
                         commissionFeeToken={commissionFeeToken}
                         commissionFeeTokenUSD={commissionFeeTokenUSD}
                         commissionPercentFeeToken={commissionPercentFeeToken}

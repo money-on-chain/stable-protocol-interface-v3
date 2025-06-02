@@ -5,7 +5,7 @@ import { Layout } from "antd";
 import { AuthenticateContext } from "../../../context/Auth";
 import SectionHeader from "../../../components/Header";
 import NotificationBody from "../../../components/Notification";
-import CheckStatus from "../../../helpers/checkStatus";
+import { CheckStatusGlobal } from "../../../helpers/checkStatus";
 import DappFooter from "../../../components/Footer/index";
 import W3ErrorAlert from "../../../components/Notification/W3ErrorAlert";
 
@@ -14,7 +14,7 @@ const { Content, Footer } = Layout;
 export default function Skeleton() {
     const auth = useContext(AuthenticateContext);
     const [notifStatus, setNotifStatus] = useState(null);
-    const { checkerStatus } = CheckStatus({caIndex: 0});
+    const { checkerStatus } = CheckStatusGlobal();
     useEffect(() => {
         if (auth.contractStatusData && auth.userBalanceData) {
             readProtocolStatus();
