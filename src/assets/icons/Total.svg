@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Icons/GlobalMetrics/Total</title>
+    <g id="Icons/GlobalMetrics/Total" stroke="none" fill="none" fill-rule="nonzero">
+        <rect id="Area" x="0" y="0" width="24" height="24"></rect>
+        <g id="Group" stroke-width="1" fill-rule="evenodd" stroke="#101214">
+            <polyline id="Path" stroke-width="2" points="9 6 6 1 18 1 15 6"></polyline>
+            <path d="M15,6 L9,6 C9,6 3,12.364 3,17 C3,20.091 5.251,23 12,23 C18.749,23 21,20.091 21,17 C21,12.364 15,6 15,6 Z" id="Path" stroke-width="2"></path>
+        </g>
+    </g>
+</svg>
