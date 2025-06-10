@@ -1,6 +1,6 @@
 {
     "project": "flipmoney",
-    "showPriceVariation":true,
+    "showPriceVariation":false,
     "tokens": {
         "COINBASE": [{
             "key": 0,

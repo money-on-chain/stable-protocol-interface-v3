@@ -1,7 +1,12 @@
 import BigNumber from "bignumber.js";
+import axios from "axios";
+
 import { fromContractPrecisionDecimals } from "../../helpers/Formats";
 import settings from "../../settings/settings.json";
 import omoc from "../../settings/omoc/omoc.json";
+import mapPricesOffchain from "../../settings/prices-offchain.json";
+import { toContractPrecisionDecimals } from "./utils";
+
 
 const onErrorLeverage = () => {
     const value = new BigNumber(
@@ -1211,6 +1216,150 @@ const contractStatus = async (web3, dContracts) => {
     const status = await multiCallRequest.tryBlockAndAggregate();
     console.log(`Reading contract status: OK!. Block: ${status.blockHeight}`);
 
+    // Price Off-chain. Status variables calculated from off-chain prices
+    status.pricesOffchain = false
+    if (typeof import.meta.env.REACT_APP_PRICE_OFFCHAIN_API !== 'undefined') {
+        const mapPrices = mapPricesOffchain.prices
+        console.warn("Price Off-chain detected - Using price off-chain API")
+        const coinpairs = []
+        let coinpair = ''
+        for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+            // CA Coin pair
+            coinpair = mapPrices[ca].CA
+            coinpairs.push(coinpair)
+            // TP Coin pair
+            for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
+                coinpair = mapPrices[ca].TP[tp]
+                coinpairs.push(coinpair)
+            }
+            // TF Coin pair
+            coinpair = mapPrices[ca].TF
+            coinpairs.push(coinpair)
+            // COINBASE Coin pair
+            coinpair = mapPrices[ca].COINBASE
+            coinpairs.push(coinpair)
+        }
+
+        try {
+            // Get price offline
+            const apiUrl =
+                `${import.meta.env.REACT_APP_PRICE_OFFCHAIN_API}` +
+                'api/offchain_prices/'
+
+            const response = await axios({
+                url: apiUrl,
+                params: {
+                    coinpairs: coinpairs.join()
+                },
+                method: 'get',
+                timeout: 10000,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+
+            if (response.status === 200) {
+                //console.log(response.data)
+                /* Parsed response */
+                let coinpair
+                const parsedPrices = []
+                let caParsePrices = {}
+                let tpParsePrices = {}
+                for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+                    caParsePrices = {}
+                    // CA Coin pair
+                    coinpair = mapPrices[ca].CA
+                    caParsePrices.CA = toContractPrecisionDecimals(new BigNumber(response.data.values[coinpair]), 18)
+                    // TP Coin pair
+                    tpParsePrices = []
+                    for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
+                        coinpair = mapPrices[ca].TP[tp]
+                        tpParsePrices.push(toContractPrecisionDecimals(new BigNumber(response.data.values[coinpair]), 18))
+                    }
+                    caParsePrices.TP = tpParsePrices
+                    // TF Coin pair
+                    coinpair = mapPrices[ca].TF
+                    caParsePrices.TF = toContractPrecisionDecimals(new BigNumber(response.data.values[coinpair]), 18)
+                    // COINBASE Coin pair
+                    coinpair = mapPrices[ca].COINBASE
+                    caParsePrices.COINBASE = toContractPrecisionDecimals(new BigNumber(response.data.values[coinpair]), 18)
+                    parsedPrices.push(caParsePrices)
+                }
+                //console.log('Parsed prices:')
+                //console.log(parsedPrices)
+
+                // const priceOfflineTPs = [
+                //   toContractPrecisionDecimals(new BigNumber(156888645.02), 18),
+                //   toContractPrecisionDecimals(new BigNumber(527823690.18), 18)]
+                const tpAddresses = []
+                for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
+                    const tpAddress = dContracts.contracts.TP[tp]
+                    tpAddresses.push(tpAddress.options.address)
+                }
+
+                // Price Off-chain
+                const multiCallRequestPO = new Multicall(multicall, web3)
+
+                let priceOfflineTPs
+                const bucketsPACtps = []
+                for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+                    priceOfflineTPs = parsedPrices[ca].TP
+                    bucketsPACtps.push(priceOfflineTPs)
+                }
+
+                multiCallRequestPO.aggregate(MocMultiCollateralGuard, MocMultiCollateralGuard.methods.calcNormalizationFactorsWithPrices(bucketsPACtps).encodeABI(), 'uint256[]', 'calcNormalizationFactorsWithPrices')
+                multiCallRequestPO.aggregate(MocMultiCollateralGuard, MocMultiCollateralGuard.methods.calcCombinedCglbWithPrices(bucketsPACtps).encodeABI(), 'uint256', 'calcCombinedCglbWithPrices')
+                multiCallRequestPO.aggregate(MocMultiCollateralGuard, MocMultiCollateralGuard.methods.calcCombinedCtargemaCAWithPrices(bucketsPACtps).encodeABI(), 'uint256', 'calcCombinedCtargemaCAWithPrices')
+
+                for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+                    Moc = dContracts.contracts.Moc[ca]
+                    priceOfflineTPs = parsedPrices[ca].TP
+                    multiCallRequestPO.aggregate(Moc, Moc.methods.calcPTCac(priceOfflineTPs).encodeABI(), 'uint256', ca, 'calcPTCac')
+                    multiCallRequestPO.aggregate(Moc, Moc.methods.calcCglb(priceOfflineTPs).encodeABI(), 'uint256', ca, 'calcCglb')
+                    multiCallRequestPO.aggregate(Moc, Moc.methods.calcLckAC(priceOfflineTPs).encodeABI(), 'uint256', ca, 'calcLckAC')
+                    multiCallRequestPO.aggregate(Moc, Moc.methods.calcLckACemaAdjusted(priceOfflineTPs).encodeABI(), 'uint256', ca, 'calcLckACemaAdjusted')
+                    multiCallRequestPO.aggregate(Moc, Moc.methods.calcTCAvailableToRedeem(priceOfflineTPs).encodeABI(), 'uint256', ca, 'calcTCAvailableToRedeem')
+                    multiCallRequestPO.aggregate(Moc, Moc.methods.calcCtargemaCA(priceOfflineTPs).encodeABI(), 'uint256', ca, 'calcCtargemaCA')
+                    multiCallRequestPO.aggregate(MocMultiCollateralGuard, MocMultiCollateralGuard.methods.calcRealTCAvailableToRedeemWithPrices(Moc.options.address, bucketsPACtps).encodeABI(), 'uint256', ca, 'calcRealTCAvailableToRedeemWithPrices')
+                    for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
+                        multiCallRequestPO.aggregate(Moc, Moc.methods.calcTPAvailableToMint(tpAddresses[tp], priceOfflineTPs).encodeABI(), 'int256', ca, 'calcTPAvailableToMint', tp)
+                        multiCallRequestPO.aggregate(MocMultiCollateralGuard, MocMultiCollateralGuard.methods.calcRealTPAvailableToMintWithPrices(Moc.options.address, tpAddresses[tp], bucketsPACtps).encodeABI(), 'uint256', ca, 'calcRealTPAvailableToMintWithPrices', tp)
+                    }
+                }
+                status.PO = await multiCallRequestPO.tryBlockAndAggregate()
+
+                // Map On-chain values with Off-chain calculation
+                status.getNormalizationFactors = status.PO.calcNormalizationFactorsWithPrices
+                status.getCombinedCglb = status.PO.calcCombinedCglbWithPrices
+                status.getCombinedCtargemaCA = status.PO.calcCombinedCtargemaCAWithPrices
+                for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+                    status[ca].getPTCac = status.PO[ca].calcPTCac
+                    status[ca].getCglb = status.PO[ca].calcCglb
+                    status[ca].getLckAC = status.PO[ca].calcLckAC
+                    status[ca].getCtargemaCA = status.PO[ca].calcCtargemaCA
+                    status[ca].getTCAvailableToRedeem = status.PO[ca].calcTCAvailableToRedeem
+                    status[ca].getRealTCAvailableToRedeem = status.PO[ca].calcRealTCAvailableToRedeemWithPrices
+                    status[ca].PP_CA = [parsedPrices[ca].CA, true]
+                    //status[ca].PP_FeeToken = [parsedPrices[ca].TF, true]
+                    //status[ca].PP_COINBASE = [parsedPrices[ca].COINBASE, true]
+                    // Warning!: With success fee disabled is safe to use nACcb as getTotalACavailable
+                    status[ca].getTotalACavailable = status[ca].nACcb
+                    for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
+                        status[ca].getTPAvailableToMint[tp] = status.PO[ca].calcTPAvailableToMint[tp]
+                        status[ca].getRealTPAvailableToMint[tp] = status.PO[ca].calcRealTPAvailableToMintWithPrices[tp]
+                        status[ca].PP_TP[tp] = [parsedPrices[ca].TP[tp], true]
+                    }
+                }
+                status.canOperate = true
+                status.pricesOffchain = true
+            }
+        } catch (err) {
+            // Continue if it has an error
+            console.log("Error getting off-chain API!")
+            console.error(err)
+        }
+    }
+
     let getCtargemaCA;
     for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
         // If calcCtargemaCA is a huge number cannot operate
@@ -1223,44 +1372,43 @@ const contractStatus = async (web3, dContracts) => {
         }
     }
 
-
     // History Price (24hs ago)
-    const d24BlockHeights = status.blockHeight - BigInt(2880);
-    const multiCallRequestHistory = new Multicall(multicall, web3);
+    let historic = {}
+    if (status.pricesOffchain) {
+        // Price Get it from the API
+        historic.blockHeight = status.blockHeight
+        historic.PP_COINBASE = status.PP_COINBASE
+        historic.PP_FeeToken = status[0].PP_FeeToken
+        historic.canOperate = true
 
-    for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
-        Moc = dContracts.contracts.Moc[ca];
-        PP_CA = dContracts.contracts.PP_CA[ca];
-        multiCallRequestHistory.aggregate(
-            Moc,
-            Moc.methods.getPTCac().encodeABI(),
-            "uint256",
-            ca,
-            "getPTCac"
-        );
-        multiCallRequestHistory.aggregate(
-            PP_CA,
-            PP_CA.methods.peek().encodeABI(),
-            [
-                {
-                    "internalType": "bytes32",
-                    "name": "",
-                    "type": "bytes32"
-                },
-                {
-                    "internalType": "bool",
-                    "name": "",
-                    "type": "bool"
-                }
-            ],
-            ca,
-            "PP_CA"
-        );
-        for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
-            PP_TP = dContracts.contracts.PP_TP[ca][tp];
+        for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+            historic[ca] = {}
+            historic[ca].getPTCac = status[ca].getPTCac
+            historic[ca].PP_CA = status[ca].PP_CA
+
+            historic[ca].PP_TP = []
+            for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
+                historic[ca].PP_TP[tp] = status[ca].PP_TP[tp]
+            }
+        }
+    } else {
+        // No price off chain
+        const d24BlockHeights = status.blockHeight - BigInt(2880);
+        const multiCallRequestHistory = new Multicall(multicall, web3);
+
+        for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+            Moc = dContracts.contracts.Moc[ca];
+            PP_CA = dContracts.contracts.PP_CA[ca];
             multiCallRequestHistory.aggregate(
-                PP_TP,
-                PP_TP.methods.peek().encodeABI(),
+                Moc,
+                Moc.methods.getPTCac().encodeABI(),
+                "uint256",
+                ca,
+                "getPTCac"
+            );
+            multiCallRequestHistory.aggregate(
+                PP_CA,
+                PP_CA.methods.peek().encodeABI(),
                 [
                     {
                         "internalType": "bytes32",
@@ -1274,50 +1422,72 @@ const contractStatus = async (web3, dContracts) => {
                     }
                 ],
                 ca,
-                "PP_TP",
-                tp
+                "PP_CA"
             );
+            for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
+                PP_TP = dContracts.contracts.PP_TP[ca][tp];
+                multiCallRequestHistory.aggregate(
+                    PP_TP,
+                    PP_TP.methods.peek().encodeABI(),
+                    [
+                        {
+                            "internalType": "bytes32",
+                            "name": "",
+                            "type": "bytes32"
+                        },
+                        {
+                            "internalType": "bool",
+                            "name": "",
+                            "type": "bool"
+                        }
+                    ],
+                    ca,
+                    "PP_TP",
+                    tp
+                );
+            }
         }
-    }
-    multiCallRequestHistory.aggregate(
-        PP_COINBASE,
-        PP_COINBASE.methods.peek().encodeABI(),
-        [
-            {
-                "internalType": "bytes32",
-                "name": "",
-                "type": "bytes32"
-            },
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "PP_COINBASE"
-    );
-    multiCallRequestHistory.aggregate(
-        PP_FeeToken,
-        PP_FeeToken.methods.peek().encodeABI(),
-        [
-            {
-                "internalType": "bytes32",
-                "name": "",
-                "type": "bytes32"
-            },
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "PP_FeeToken"
-    );
+        multiCallRequestHistory.aggregate(
+            PP_COINBASE,
+            PP_COINBASE.methods.peek().encodeABI(),
+            [
+                {
+                    "internalType": "bytes32",
+                    "name": "",
+                    "type": "bytes32"
+                },
+                {
+                    "internalType": "bool",
+                    "name": "",
+                    "type": "bool"
+                }
+            ],
+            "PP_COINBASE"
+        );
+        multiCallRequestHistory.aggregate(
+            PP_FeeToken,
+            PP_FeeToken.methods.peek().encodeABI(),
+            [
+                {
+                    "internalType": "bytes32",
+                    "name": "",
+                    "type": "bytes32"
+                },
+                {
+                    "internalType": "bool",
+                    "name": "",
+                    "type": "bool"
+                }
+            ],
+            "PP_FeeToken"
+        );
 
-    const historic =
-        await multiCallRequestHistory.tryBlockAndAggregate(d24BlockHeights);
-    console.log(`Reading contract status HISTORY: OK!. Block: ${historic.blockHeight}`);
-    historic.blockHeight = d24BlockHeights;
+        historic =
+            await multiCallRequestHistory.tryBlockAndAggregate(d24BlockHeights);
+        console.log(`Reading contract status HISTORY: OK!. Block: ${historic.blockHeight}`);
+        historic.blockHeight = d24BlockHeights;
+    }
+
     status.canHistoric = historic.canOperate;
     status.historic = historic;
 

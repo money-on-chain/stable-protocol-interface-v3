@@ -49,7 +49,7 @@ const getExecutionFee = async (web3, execCost, slippage) => {
 
     const execFee = new BigNumber(latestBaseFee)
         .times(new BigNumber(execCost))
-        .times(new BigNumber(1 + slippage / 100));
+        .times(new BigNumber(1 + (slippage / 100)));
 
     //const execFee = BigInt(execCost) * BigInt(latestBaseFee) * 1.01//BigInt( 1 + slippage / 100)
     //console.log(`Using Base Fee: ${latestBaseFee} * slippage ${slippage.toString()} % = ${execFee.toString()}`)
