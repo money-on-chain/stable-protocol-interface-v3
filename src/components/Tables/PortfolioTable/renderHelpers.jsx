@@ -58,7 +58,7 @@ export const generateTokenRow = ({
                 </div>
 
                 {/* Token 24h variation */}
-                {settings.showPriceVariation ? (
+                {settings.showPriceVariation && (
                     <div className="table__cell">
                         {auth.contractStatusData.canOperate ? (
                             <div className="table__cell__variation">
@@ -92,10 +92,6 @@ export const generateTokenRow = ({
                                 </div>
                             </>
                         )}
-                    </div>
-                ) : (
-                    <div className="table__cell">
-                        <div className="table__cell table__cell__price"></div>
                     </div>
                 )}
                 {/* Token balance */}
