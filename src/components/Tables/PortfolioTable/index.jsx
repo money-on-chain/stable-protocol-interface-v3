@@ -51,9 +51,12 @@ export default function PortfolioTable() {
                         decimals: token.decimals,
                         visiblePriceDecimals: token.visiblePriceDecimals,
                         visibleBalanceDecimals: token.visibleBalanceDecimals,
-                        visibleBalanceUSDDecimals: token.visibleBalanceUSDDecimals,
+                        visibleBalanceUSDDecimals:
+                            token.visibleBalanceUSDDecimals,
                         peggedUSD:
-                            token.peggedUSD !== undefined ? token.peggedUSD : false, // Default to false
+                            token.peggedUSD !== undefined
+                                ? token.peggedUSD
+                                : false, // Default to false
                         collateralType: token.collateralType,
                     });
                     tfTokenNames.add(token.name);
@@ -117,10 +120,7 @@ export default function PortfolioTable() {
                         )
                     );
                     priceDelta = price.minus(priceHistory);
-                    variation = priceDelta
-                        .abs()
-                        .div(priceHistory)
-                        .times(100);
+                    variation = priceDelta.abs().div(priceHistory).times(100);
 
                     break;
                 case "CA":
@@ -156,12 +156,16 @@ export default function PortfolioTable() {
                         // variation
                         priceHistory = new BigNumber(
                             fromContractPrecisionDecimals(
-                                auth.contractStatusData.historic[token.key].PP_CA[0],
+                                auth.contractStatusData.historic[token.key]
+                                    .PP_CA[0],
                                 token.decimals
                             )
                         );
                         priceDelta = price.minus(priceHistory);
-                        variation = priceDelta.abs().div(priceHistory).times(100);
+                        variation = priceDelta
+                            .abs()
+                            .div(priceHistory)
+                            .times(100);
                     }
 
                     break;
@@ -189,9 +193,8 @@ export default function PortfolioTable() {
                         // variation
                         priceHistory = new BigNumber(
                             fromContractPrecisionDecimals(
-                                auth.contractStatusData.historic[
-                                    token.key
-                                    ].PP_CA[0],
+                                auth.contractStatusData.historic[token.key]
+                                    .PP_CA[0],
                                 token.decimals
                             )
                         );
@@ -216,7 +219,12 @@ export default function PortfolioTable() {
                                 token.decimals
                             )
                         );
-                        price = ConvertPeggedTokenPrice(auth, 0,token.key, price);
+                        price = ConvertPeggedTokenPrice(
+                            auth,
+                            0,
+                            token.key,
+                            price
+                        );
                         balanceUSD = balance.div(price);
 
                         //variation
@@ -276,7 +284,8 @@ export default function PortfolioTable() {
                     // variation
                     priceHistory = new BigNumber(
                         fromContractPrecisionDecimals(
-                            auth.contractStatusData.historic[token.key].getPTCac,
+                            auth.contractStatusData.historic[token.key]
+                                .getPTCac,
                             token.decimals
                         )
                     ).times(priceCA);
@@ -365,7 +374,7 @@ export default function PortfolioTable() {
                 i18n,
             });
 
-            if (token.collateralType !== 'coinbase') {
+            if (token.collateralType !== "coinbase") {
                 // Skip coinbase token when collateral is coinbase
                 if (token.type === "TP" && token.peggedUSD === false) {
                     newNonUSDpeggedTokenRows.push(tokenRow); // ✅ Store updated token Rows for nonUSDpegged
@@ -393,11 +402,11 @@ export default function PortfolioTable() {
                 <div className="table__cell__price">
                     {t("portfolio.tokensTable.priceInUSD")}
                 </div>
-                <div className="table__cell__variation">
-                    {!settings.showPriceVariation
-                        ? null
-                        : t("portfolio.tokensTable.variation")}
-                </div>
+                {settings.showPriceVariation && (
+                    <div className="table__cell__variation">
+                        {t("portfolio.tokensTable.variation")}
+                    </div>
+                )}
                 <div className="table__cell__amount">
                     {t("portfolio.tokensTable.balance")}
                 </div>
@@ -422,11 +431,11 @@ export default function PortfolioTable() {
                         <div className="table__cell__price">
                             {t("portfolio.tokensTable.tokensPerUSD")}
                         </div>
-                        <div className="table__cell__variation">
-                            {!settings.showPriceVariation
-                                ? null
-                                : t("portfolio.tokensTable.variation")}
-                        </div>
+                        {settings.showPriceVariation && (
+                            <div className="table__cell__variation">
+                                {t("portfolio.tokensTable.variation")}
+                            </div>
+                        )}
                         <div className="table__cell__amount">
                             {t("portfolio.tokensTable.balance")}
                         </div>
