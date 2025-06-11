@@ -232,8 +232,24 @@ export default function ConfirmOperation(props) {
                 console.log("DONE!");
             })
             .catch((error) => {
-                console.log(error);
-                setStatus("ERROR");
+                if (error.response) {
+                    // The request was made and the server responded with a status code
+                    // that falls out of the range of 2xx
+                    if (error.response.status === 404) {
+                        console.warn('Resource not found - Operation may not be indexed yet');
+                    } else {
+                        console.error('Server error:', error.response.status, error.response.data);
+                        setStatus('ERROR');
+                    }
+                } else if (error.request) {
+                    // The request was made but no response was received
+                    console.error('No response received:', error.request);
+                    setStatus('ERROR');
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    console.error('Error setting up request:', error.message);
+                    setStatus('ERROR');
+                }
             });
     };
 
@@ -299,12 +315,21 @@ export default function ConfirmOperation(props) {
                 if (error.response) {
                     // The request was made and the server responded with a status code
                     // that falls out of the range of 2xx
-
                     if (error.response.status === 404) {
-                        // No problem if is 404 error mean is not indexed
+                        console.warn('Resource not found - Operation may not be indexed yet');
+                    } else {
+                        console.error('Server error:', error.response.status, error.response.data);
+                        setStatus('ERROR');
                     }
+                } else if (error.request) {
+                    // The request was made but no response was received
+                    console.error('No response received:', error.request);
+                    //setStatus('ERROR');
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    console.error('Error setting up request:', error.message);
+                    setStatus('ERROR');
                 }
-                //setStatus('ERROR');
             });
     };
 
