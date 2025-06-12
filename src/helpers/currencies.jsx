@@ -52,7 +52,7 @@ function TokenSettings(tokenName) {
             token = settings.tokens.TF[parseInt(aTokenName[1])];
             break;
         case "TG":
-            token = settings.tokens.TG[parseInt(aTokenName[1])];
+            token = settings.tokens.TG[0];
             break;
         default:
             throw new Error("Invalid token name");
