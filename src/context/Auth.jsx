@@ -64,6 +64,13 @@ BigNumber.config({ ROUNDING_MODE: BigNumber.ROUND_DOWN });
 const AuthenticateContext = createContext({
     isLoggedIn: false,
     account: null,
+    accountData: {
+        Wallet: "",
+        Owner: "",
+        Balance: 0,
+        GasPrice: 0,
+        truncatedAddress: "0x0000..0000",
+    },
     userBalanceData: null,
     contractStatusData: null,
     web3: null,

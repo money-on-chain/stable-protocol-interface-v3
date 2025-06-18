@@ -1,12 +1,19 @@
 import React, { Fragment } from "react";
 import Modal from "antd/lib/modal/Modal";
-import PropTypes from "prop-types";
-
 import Account from "../../Account";
 
-export default function ModalAccount(props) {
-    const { truncatedAddress, show, onShow, onHide, vestingOn, setVestingOn } =
-        props;
+interface ModalAccountProps {
+    truncatedAddress: string;
+    show: boolean;
+    onShow: () => void;
+    onHide: () => void;
+    vestingOn: boolean;
+    setVestingOn: (value: boolean) => void;
+    [key: string]: any; // For any additional props that might be passed
+}
+
+export default function ModalAccount(props: ModalAccountProps): JSX.Element {
+    const { truncatedAddress, show, onShow, onHide, vestingOn, setVestingOn } = props;
 
     return (
         <Fragment>
@@ -34,13 +41,4 @@ export default function ModalAccount(props) {
             <i className="logo-wallet" onClick={onShow}></i>
         </Fragment>
     );
-}
-
-ModalAccount.propTypes = {
-    truncatedAddress: PropTypes.string,
-    show: PropTypes.bool,
-    onShow: PropTypes.func,
-    onHide: PropTypes.func,
-    vestingOn: PropTypes.bool,
-    setVestingOn: PropTypes.func,
-};
+} 
