@@ -22,9 +22,9 @@ export default function Skeleton() {
     }, [auth.contractStatusData, auth.userBalanceData]);
 
     const readProtocolStatus = () => {
-        const { isValid, statusIcon, statusLabel, statusText } =
+        const { globalStatus, statusIcon, statusLabel, statusText } =
             checkerStatus();
-        if (!isValid) {
+        if (globalStatus > 1) {
             setNotifStatus({
                 id: -1,
                 title: `Warning, protocol status is ${statusLabel}`,

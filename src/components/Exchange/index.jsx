@@ -123,30 +123,19 @@ export default function Exchange() {
 
     const onValidate = () => {
         // Protocol in not-good status
-        const { isValid, errorType } = checkerStatus();
-        if (!isValid && errorType === "1") {
-            if (
-                !currencyYouExchange.startsWith("TP") &&
-                !currencyYouReceive.startsWith("TC")
-            ) {
-                setInputValidationErrorText(
-                    t("exchange.errors.notOperational")
-                );
-                setInputValidationError(true);
-                return;
-            }
-        }
-        if (!isValid && errorType > 1 && errorType < 5) {
-            setInputValidationErrorText(t("exchange.errors.cantOperate"));
-            setInputValidationError(true);
-            return;
-        }
-        if (!isValid && errorType === "5") {
-            setInputValidationErrorText(t("exchange.errors.requestTimeout"));
-            setInputValidationError(true);
-            return;
-        }
+        const { statusCode } = checkerStatus();
 
+        const arrCurrencyYouExchange = currencyYouExchange.split("_");
+        const arrCurrencyYouReceive = currencyYouReceive.split("_");
+
+        if (statusCode[caIndex] >= 2) {
+            setInputValidationErrorText(
+                t("exchange.errors.notOperational")
+            );
+            setInputValidationError(true);
+            return;
+        }
+        
         // 0. Not Wallet connected
         if (!auth.userBalanceData) {
             setInputValidationErrorText(t("exchange.errors.connectYourWallet"));
@@ -204,8 +193,7 @@ export default function Exchange() {
         }
 
         let tIndex;
-        // 2. MINT TP. User receive available token in contract
-        const arrCurrencyYouReceive = currencyYouReceive.split("_");
+        // 2. MINT TP. User receive available token in contract        
         if (arrCurrencyYouReceive[0] === "TP") {
             // There are sufficient PEGGED in the contracts to mint?
             tIndex = TokenSettings(currencyYouReceive).key;
@@ -222,8 +210,7 @@ export default function Exchange() {
             }
         }
 
-        // 3. REDEEM TC
-        let arrCurrencyYouExchange = currencyYouExchange.split("_");
+        // 3. REDEEM TC        
         if (arrCurrencyYouExchange[0] === "TC") {
             // There are sufficient TC in the contracts to redeem?
             const tcAvailableToRedeem = new BigNumber(

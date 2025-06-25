@@ -9,8 +9,7 @@ import TVL from './tvl'
 import MultiCollateral from './multicollateral'
 
 
-export default function Performance() {
-    //const [isValid, setIsValid] = useState(true);
+export default function Performance() {    
     const [statusIcon, setStatusIcon] = useState("");
     const [statusLabel, setStatusLabel] = useState("--");
     const [statusText, setStatusText] = useState("--");
@@ -19,8 +18,7 @@ export default function Performance() {
     const { checkerStatus } = CheckStatusGlobal();
     useEffect(() => {
         if ((auth.contractStatusData, auth.userBalanceData)) {
-            const { statusIcon, statusLabel, statusText } = checkerStatus();
-            //setIsValid(isValid);
+            const { statusIcon, statusLabel, statusText } = checkerStatus();            
             setStatusIcon(statusIcon);
             setStatusLabel(statusLabel);
             setStatusText(statusText);

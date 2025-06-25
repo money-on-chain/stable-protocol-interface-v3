@@ -216,7 +216,7 @@ export default function LastOperations(props) {
                 },
             };
         } else if (row_operation["operation"] === "TPMint") {
-            let tp_index = row_operation[status]["tpIndex"];
+            let tp_index = row_operation[status]["tpIndex"] || row_operation[status]["tpIndex_"];
             if (tp_index === undefined) tp_index = 0;
 
             return {
@@ -250,7 +250,7 @@ export default function LastOperations(props) {
                 },
             };
         } else if (row_operation["operation"] === "TPRedeem") {
-            let tp_index = row_operation[status]["tpIndex"];
+            let tp_index = row_operation[status]["tpIndex"] || row_operation[status]["tpIndex_"];
             if (tp_index === undefined) tp_index = 0;
 
             return {
