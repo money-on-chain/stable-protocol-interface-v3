@@ -277,7 +277,7 @@ export default function Exchange() {
         }
 
         // Redeem TP
-        arrCurrencyYouExchange = currencyYouExchange.split("_");
+        //arrCurrencyYouExchange = currencyYouExchange.split("_");
         if (arrCurrencyYouExchange[0] === "TP") {
 
             // 7. Flux Capacitor

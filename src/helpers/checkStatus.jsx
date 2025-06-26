@@ -13,7 +13,7 @@ function CheckStatusCA(auth, caIndex) {
      0: Optimal - globalCoverage > getCtargemaCA
      1: Warning - globalCoverage > protThrld && globalCoverage <= getCtargemaCA
      2: Protected Mode - globalCoverage > liqThrld && globalCoverage <= protThrld
-     3: Liquidated - auth.contractStatusData[caIndex].liquidated
+     3: Liquidated or in process of liquidation - auth.contractStatusData[caIndex].liquidated
      4: Paused - auth.contractStatusData[caIndex].paused
      5: Can't operate - !auth.contractStatusData.canOperate
     */
@@ -60,6 +60,8 @@ function CheckStatusCA(auth, caIndex) {
         globalCoverage.lte(protThrld)
     ) {        
         statusCode = 2;        
+    } else {
+        statusCode = 3;
     }
 
     if (auth.contractStatusData[caIndex].liquidated) {        
@@ -108,7 +110,7 @@ function CheckStatusGlobal() {
             }
         }
 
-        let globalStatus = -1;
+        let globalStatus = -1;        
         if (countValid === settings.tokens.CA.length){
             // This OK no problems, Optimal status
             statusIcon = "icon-status-success";
@@ -127,7 +129,7 @@ function CheckStatusGlobal() {
             statusLabel = "Partially Operational";
             statusText = "Partially Operational";
             globalStatus = 2;            
-        } else if (countCode == 0 && countProtected === settings.tokens.CA.length) {
+        } else if (countValid == 0 && countProtected === settings.tokens.CA.length) {
             statusIcon = "icon-status-warning";
             statusLabel = "Protected Mode";
             statusText = "Protected Mode";
