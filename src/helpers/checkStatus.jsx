@@ -6,7 +6,6 @@ import { AuthenticateContext } from "../context/Auth";
 import { fromContractPrecisionDecimals } from "./Formats";
 import settings from "../settings/settings.json";
 
-
 function CheckStatusCA(auth, caIndex) {
     /* Status Code:
     -1: Error - !auth.contractStatusData
@@ -17,12 +16,11 @@ function CheckStatusCA(auth, caIndex) {
      4: Paused - auth.contractStatusData[caIndex].paused
      5: Can't operate - !auth.contractStatusData.canOperate
     */
-    
+
     let statusCode = -1;
-    
-    if (!auth.contractStatusData)
-        return statusCode
-        
+
+    if (!auth.contractStatusData) return statusCode;
+
     const globalCoverage = new BigNumber(
         fromContractPrecisionDecimals(
             auth.contractStatusData[caIndex].getCglb,
@@ -48,101 +46,108 @@ function CheckStatusCA(auth, caIndex) {
         )
     );
 
-    if (globalCoverage.gt(getCtargemaCA)) {        
-        statusCode = 0;        
+    if (globalCoverage.gt(getCtargemaCA)) {
+        statusCode = 0;
     } else if (
         globalCoverage.gt(protThrld) &&
         globalCoverage.lte(getCtargemaCA)
-    ) {        
-        statusCode = 1;        
-    } else if (
-        globalCoverage.gt(liqThrld) &&
-        globalCoverage.lte(protThrld)
-    ) {        
-        statusCode = 2;        
+    ) {
+        statusCode = 1;
+    } else if (globalCoverage.gt(liqThrld) && globalCoverage.lte(protThrld)) {
+        statusCode = 2;
     } else {
         statusCode = 3;
     }
 
-    if (auth.contractStatusData[caIndex].liquidated) {        
-        statusCode = 3;        
+    if (auth.contractStatusData[caIndex].liquidated) {
+        statusCode = 3;
     }
 
-    if (auth.contractStatusData[caIndex].paused) {        
-        statusCode = 4;        
+    if (auth.contractStatusData[caIndex].paused) {
+        statusCode = 4;
     }
 
-    if (!auth.contractStatusData.canOperate) {        
-        statusCode = 5;        
+    if (!auth.contractStatusData.canOperate) {
+        statusCode = 5;
     }
 
-    
-    return statusCode
+    return statusCode;
 }
 
-
 function CheckStatusGlobal() {
-
     const { t } = useProjectTranslation();
     const auth = useContext(AuthenticateContext);
 
     const checkerStatus = () => {
-        
         let statusIcon = "";
         let statusLabel = "--";
+        let statusLabelClass = "";
         let statusText = "--";
-        
+
         let statusCode = [];
         let statusCodeCA = -1;
-        let countValid = 0;        
+        let countValid = 0;
         let countProtected = 0;
         for (let caIndex = 0; caIndex < settings.tokens.CA.length; caIndex++) {
-            
-            statusCodeCA = CheckStatusCA(auth, caIndex)            
-            statusCode.push(statusCodeCA)
-            
+            statusCodeCA = CheckStatusCA(auth, caIndex);
+            statusCode.push(statusCodeCA);
+
             if (statusCodeCA < 1) {
-                countValid += 1
+                countValid += 1;
             }
 
             if (statusCodeCA >= 2) {
-                countProtected += 1
+                countProtected += 1;
             }
         }
 
-        let globalStatus = -1;        
-        if (countValid === settings.tokens.CA.length){
+        let globalStatus = -1;
+        if (countValid === settings.tokens.CA.length) {
             // This OK no problems, Optimal status
-            statusIcon = "icon-status-success";
+            statusIcon = "icon-status-positive";
             statusLabel = t("performance.status.statusTitleFull");
+            statusLabelClass = "status-positive";
             statusText = t("performance.status.statusDescriptionFull");
-            globalStatus = 0;            
+            globalStatus = 0;
         } else if (countValid > 0 && countValid < settings.tokens.CA.length) {
             // One or more collaterals have some warnings but not all, Good status
-            statusIcon = "icon-status-warning";
+            statusIcon = "icon-status-positive";
             statusLabel = "Good condition";
+            statusLabelClass = "status-positive";
             statusText = "Some of the collaterals may have some warnings";
-            globalStatus = 1;            
-        } else if (countValid == 0 && countProtected < settings.tokens.CA.length) {
+            globalStatus = 1;
+        } else if (
+            countValid == 0 &&
+            countProtected < settings.tokens.CA.length
+        ) {
             // Both is under coverage and one or more collaterals are in protected mode
-            statusIcon = "icon-status-warning";
+            statusIcon = "icon-status-neutral";
             statusLabel = "Partially Operational";
+            statusLabelClass = "status-neutral";
             statusText = "Partially Operational";
-            globalStatus = 2;            
-        } else if (countValid == 0 && countProtected === settings.tokens.CA.length) {
-            statusIcon = "icon-status-warning";
+            globalStatus = 2;
+        } else if (
+            countValid == 0 &&
+            countProtected === settings.tokens.CA.length
+        ) {
+            statusIcon = "icon-status-negative";
             statusLabel = "Protected Mode";
+            statusLabelClass = "status-negative";
             statusText = "Protected Mode";
             globalStatus = 3;
         }
 
-        return { globalStatus, statusIcon, statusLabel, statusText, statusCode }        
-    }
+        return {
+            globalStatus,
+            statusIcon,
+            statusLabel,
+            statusLabelClass,
+            statusText,
+            statusCode,
+        };
+    };
 
     return { checkerStatus };
-
 }
 
-export {
-    CheckStatusGlobal
-};
+export { CheckStatusGlobal };

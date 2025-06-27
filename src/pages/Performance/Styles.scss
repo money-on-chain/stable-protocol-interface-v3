@@ -20,11 +20,77 @@
 
         .coll-1 {
             width: 50%;
+            display: flex;
+
+            // gap: 16px;
+            .stat-icon {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                opacity: 1;
+                color: var(--color-txt-primary);
+                font-style: normal;
+                font-weight: 700;
+                font-size: 16px;
+                font-family: var(--brand-font);
+                letter-spacing: 0px;
+                text-align: left;
+            }
+            .stat-label {
+            }
+
+            .status-positive {
+                color: var(--color-semantic-positive);
+            }
+            .status-neutral {
+                color: var(--color-semantic-neutral);
+            }
+            .status-negative {
+                color: var(--color-semantic-negative);
+            }
+            .status-lights-container {
+                position: relative;
+            }
+            .icon-status-lights-lamp {
+                width: 7px;
+                height: 7px;
+                border-radius: 50%;
+                position: absolute;
+                left: 20px;
+                z-index: 0;
+            }
+
+            .icon-status-lights-lamp-negative {
+                background-color: var(--color-semantic-negative);
+                bottom: 9px;
+            }
+            .icon-status-lights-lamp-neutral {
+                background-color: var(--color-semantic-neutral-alt);
+                bottom: 20px;
+            }
+            .icon-status-lights-lamp-positive {
+                background-color: var(--color-semantic-positive);
+                bottom: 31px;
+            }
+            .icon-status-lights {
+                z-index: 10;
+            }
             .stat-text {
                 color: var(--color-txt-primary);
                 font-style: normal;
                 font-weight: 400;
                 font-size: 14px;
+                font-family: var(--main-font);
+                letter-spacing: 0px;
+                text-align: left;
+            }
+            .block-info {
+                opacity: 1;
+                // margin-left: 34px;
+                color: var(--color-txt-secondary);
+                font-style: normal;
+                font-weight: 400;
+                font-size: 12px;
                 font-family: var(--main-font);
                 letter-spacing: 0px;
                 text-align: left;
@@ -44,34 +110,30 @@
             width: 50%;
             border-left: 1px solid var(--dividers);
             padding-left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+
+            .status-text {
+                line-height: 1.2;
+            }
+            .aboutShowModal__button {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 8px;
+                border: none;
+                background-color: transparent;
+                .buttonArrow {
+                    filter: var(--color-icon-link-filter);
+                }
+                .buttonText {
+                    color: var(--color-txt-link);
+                }
+            }
             @media (max-width: 768px) {
                 border-left: none;
                 padding-left: 0px;
-            }
-            .stat-icon {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                opacity: 1;
-                color: var(--color-txt-primary);
-                font-style: normal;
-                font-weight: 700;
-                font-size: 16px;
-                font-family: var(--brand-font);
-                letter-spacing: 0px;
-                text-align: left;
-            }
-
-            .block-info {
-                opacity: 1;
-                margin-left: 34px;
-                color: var(--color-txt-secondary);
-                font-style: normal;
-                font-weight: 400;
-                font-size: 12px;
-                font-family: var(--main-font);
-                letter-spacing: 0px;
-                text-align: left;
             }
         }
     }

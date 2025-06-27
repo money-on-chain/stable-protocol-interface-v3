@@ -6,15 +6,16 @@ import { AuthenticateContext } from "../../context/Auth";
 import { CheckStatusGlobal } from "../../helpers/checkStatus";
 import GlobalStatusModal from "../Modals/GlobalStatus";
 import settings from "../../settings/settings.json";
-import Buckets from './buckets';
-import TVL from './tvl'
-import MultiCollateral from './multicollateral'
+import Buckets from "./buckets";
+import TVL from "./tvl";
+import MultiCollateral from "./multicollateral";
 
-
-export default function Performance() {    
+export default function Performance() {
+    const space = "\u00A0";
     const [statusIcon, setStatusIcon] = useState("");
     const [statusLabel, setStatusLabel] = useState("--");
     const [statusText, setStatusText] = useState("--");
+    const [statusLabelClass, setStatusLabelClass] = useState("");
     const [statusCode, setStatusCode] = useState([]);
     const [showGlobalStatusModal, setShowGlobalStatusModal] = useState(false);
     const { t } = useProjectTranslation();
@@ -22,10 +23,17 @@ export default function Performance() {
     const { checkerStatus } = CheckStatusGlobal();
     useEffect(() => {
         if ((auth.contractStatusData, auth.userBalanceData)) {
-            const { statusIcon, statusLabel, statusText, statusCode } = checkerStatus();            
+            const {
+                statusIcon,
+                statusLabel,
+                statusLabelClass,
+                statusText,
+                statusCode,
+            } = checkerStatus();
             setStatusIcon(statusIcon);
             setStatusLabel(statusLabel);
             setStatusText(statusText);
+            setStatusLabelClass(statusLabelClass);
             setStatusCode(statusCode);
         }
     }, [auth.contractStatusData, auth.userBalanceData]);
@@ -44,57 +52,80 @@ export default function Performance() {
                 <div className="card-system-status">
                     <div className="layout-card-title">
                         <h1>{t("performance.status.cardTitle")}</h1>
-                        <a className="aboutShowModal__button" onClick={showModal}>
-                            <div>Status</div>
-                            <div className="logo-status"></div>
-                        </a>
-                        {showGlobalStatusModal && (
-                            <Modal
-                                title={'Global Status'}
-                                width={505}
-                                open={true}
-                                onCancel={hideModal}
-                                footer={null}
-                                closable={false}
-                                className="aboutGlobalStatus__modal ModalAccount "
-                                centered={true}
-                                maskStyle={{}}
-                            >
-                                <GlobalStatusModal hideModal={hideModal} statusCode={statusCode} />
-                            </Modal>
-                        )}
                     </div>
 
                     <div className="card-content">
                         <div className="coll-1">
-                            <div className="stat-text">{statusText}</div>
+                            <div className="stat-icon">
+                                <div className="status-lights-container">
+                                    <div className="icon-status-lights-lamp icon-status-lights-lamp-positive "></div>
+                                    <div className="icon-status-lights"></div>
+                                </div>
+                                {/* <div className={`${statusIcon}`}></div> */}
+                                <div
+                                    className={`stat-label  ${statusLabelClass}`}
+                                >
+                                    {statusLabel}
+                                    <div className="block-info">
+                                        {t("performance.status.showingBlock")}
+                                        {space}
+                                        {auth.contractStatusData
+                                            ? BigInt(
+                                                  auth.contractStatusData
+                                                      .blockHeight
+                                              ).toString()
+                                            : "--"}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div className="coll-2">
-                            <div className="stat-icon">
-                                <div className={`${statusIcon}`}></div>
-                                {statusLabel}
-                            </div>
-                            <div className="block-info">
-                                {t("performance.status.showingBlock")}
-                                {auth.contractStatusData
-                                    ? BigInt(
-                                          auth.contractStatusData.blockHeight
-                                      ).toString()
-                                    : "--"}
-                            </div>
+                            <div className="status-text">{statusText}</div>
+                            <button
+                                className="aboutShowModal__button"
+                                onClick={showModal}
+                            >
+                                <div className="icon__button__arrow buttonArrow"></div>
+                                <div className="buttonText">View Details</div>
+                                {/* <div className="logo-status"></div> */}
+                            </button>
+                            {showGlobalStatusModal && (
+                                <Modal
+                                    title={"Global Status"}
+                                    width={505}
+                                    open={true}
+                                    onCancel={hideModal}
+                                    footer={null}
+                                    closable={false}
+                                    className="aboutGlobalStatus__modal ModalAccount "
+                                    centered={true}
+                                    maskStyle={{}}
+                                >
+                                    <GlobalStatusModal
+                                        hideModal={hideModal}
+                                        statusCode={statusCode}
+                                    />
+                                </Modal>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
             {/* Total Value Locked */}
-            <TVL key={'tvl'} />
+            <TVL key={"tvl"} />
 
             {/* MultiCollateral */}
-            <MultiCollateral key={'multicollateral'} />
+            <MultiCollateral key={"multicollateral"} />
 
             {/* Buckets */}
-            {settings.tokens.CA.map(function(tokenSetting, caIndex){
-                return <Buckets tokenSettings={tokenSetting} caIndex={caIndex} key={caIndex} />;
+            {settings.tokens.CA.map(function (tokenSetting, caIndex) {
+                return (
+                    <Buckets
+                        tokenSettings={tokenSetting}
+                        caIndex={caIndex}
+                        key={caIndex}
+                    />
+                );
             })}
         </div>
     );
