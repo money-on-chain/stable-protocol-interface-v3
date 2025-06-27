@@ -12,7 +12,6 @@ import MultiCollateral from "./multicollateral";
 
 export default function Performance() {
     const space = "\u00A0";
-    const [statusIcon, setStatusIcon] = useState("");
     const [statusLabel, setStatusLabel] = useState("--");
     const [statusText, setStatusText] = useState("--");
     const [statusLabelClass, setStatusLabelClass] = useState("");
@@ -23,14 +22,8 @@ export default function Performance() {
     const { checkerStatus } = CheckStatusGlobal();
     useEffect(() => {
         if ((auth.contractStatusData, auth.userBalanceData)) {
-            const {
-                statusIcon,
-                statusLabel,
-                statusLabelClass,
-                statusText,
-                statusCode,
-            } = checkerStatus();
-            setStatusIcon(statusIcon);
+            const { statusLabel, statusLabelClass, statusText, statusCode } =
+                checkerStatus();
             setStatusLabel(statusLabel);
             setStatusText(statusText);
             setStatusLabelClass(statusLabelClass);
@@ -58,10 +51,11 @@ export default function Performance() {
                         <div className="coll-1">
                             <div className="stat-icon">
                                 <div className="status-lights-container">
-                                    <div className="icon-status-lights-lamp icon-status-lights-lamp-positive "></div>
+                                    <div
+                                        className={`icon-status-lights-lamp icon-status-lights-${statusLabelClass}`}
+                                    ></div>
                                     <div className="icon-status-lights"></div>
                                 </div>
-                                {/* <div className={`${statusIcon}`}></div> */}
                                 <div
                                     className={`stat-label  ${statusLabelClass}`}
                                 >

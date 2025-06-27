@@ -79,7 +79,6 @@ function CheckStatusGlobal() {
     const auth = useContext(AuthenticateContext);
 
     const checkerStatus = () => {
-        let statusIcon = "";
         let statusLabel = "--";
         let statusLabelClass = "";
         let statusText = "--";
@@ -104,14 +103,12 @@ function CheckStatusGlobal() {
         let globalStatus = -1;
         if (countValid === settings.tokens.CA.length) {
             // This OK no problems, Optimal status
-            statusIcon = "icon-status-positive";
             statusLabel = t("performance.status.statusTitleFull");
             statusLabelClass = "status-positive";
             statusText = t("performance.status.statusDescriptionFull");
             globalStatus = 0;
         } else if (countValid > 0 && countValid < settings.tokens.CA.length) {
             // One or more collaterals have some warnings but not all, Good status
-            statusIcon = "icon-status-positive";
             statusLabel = "Good condition";
             statusLabelClass = "status-positive";
             statusText = "Some of the collaterals may have some warnings";
@@ -121,7 +118,6 @@ function CheckStatusGlobal() {
             countProtected < settings.tokens.CA.length
         ) {
             // Both is under coverage and one or more collaterals are in protected mode
-            statusIcon = "icon-status-neutral";
             statusLabel = "Partially Operational";
             statusLabelClass = "status-neutral";
             statusText = "Partially Operational";
@@ -130,7 +126,6 @@ function CheckStatusGlobal() {
             countValid == 0 &&
             countProtected === settings.tokens.CA.length
         ) {
-            statusIcon = "icon-status-negative";
             statusLabel = "Protected Mode";
             statusLabelClass = "status-negative";
             statusText = "Protected Mode";
@@ -139,7 +134,6 @@ function CheckStatusGlobal() {
 
         return {
             globalStatus,
-            statusIcon,
             statusLabel,
             statusLabelClass,
             statusText,

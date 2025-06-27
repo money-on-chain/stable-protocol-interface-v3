@@ -60,17 +60,17 @@
                 z-index: 0;
             }
 
-            .icon-status-lights-lamp-negative {
+            .icon-status-lights-status-negative {
                 background-color: var(--color-semantic-negative);
-                bottom: 9px;
+                bottom: 31px;
             }
-            .icon-status-lights-lamp-neutral {
+            .icon-status-lights-status-neutral {
                 background-color: var(--color-semantic-neutral-alt);
                 bottom: 20px;
             }
-            .icon-status-lights-lamp-positive {
+            .icon-status-lights-status-positive {
                 background-color: var(--color-semantic-positive);
-                bottom: 31px;
+                bottom: 9px;
             }
             .icon-status-lights {
                 z-index: 10;
