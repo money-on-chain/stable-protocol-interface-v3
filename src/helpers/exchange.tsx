@@ -10,6 +10,63 @@ import {
     redeemTP as redeemTP_coinbase,
 } from "../lib/backend/moc-coinbase";
 
+// Type definitions
+interface InterfaceContext {
+    // Add specific interface context properties as needed
+    [key: string]: any;
+}
+
+interface Auth {
+    userBalanceData: {
+        CA: Array<{ balance: number; allowance: number }>;
+        TP: Array<Array<{ balance: number; allowance: number }>>;
+        [key: number]: {
+            TC: { balance: number; allowance: number };
+            FeeToken: { balance: number; allowance: number };
+        };
+        TG: { balance: number; allowance: number };
+    };
+    contractStatusData: Array<{
+        tcMintExecCost: string;
+        tpMintExecCost: string;
+        tpRedeemExecCost: string;
+        tcRedeemExecCost: string;
+    }>;
+}
+
+interface DContracts {
+    contracts: {
+        CA: Array<any>;
+        Moc: Array<any>;
+        CollateralToken: Array<any>;
+        TP: Array<any>;
+        FeeToken: Array<any>;
+        TG: any;
+        StakingMachine: any;
+    };
+}
+
+interface TokenContractResult {
+    token: any;
+    decimals: number;
+}
+
+interface ApproveTokenContractResult {
+    token: any;
+    contractAllow: any;
+    decimals: number;
+}
+
+interface TokenMap {
+    [key: string]: string[];
+}
+
+type TokenName = string;
+type TokenAmount = string | number;
+type LimitAmount = string | number;
+type OnTransaction = (hash: string) => void;
+type OnReceipt = (receipt: any) => void;
+
 /*
 const tokenMap = {
     CA_0: ['TC_0', 'TP_0', 'TP_1'],
@@ -27,9 +84,9 @@ const tokenMap = {
     TP_1: ['CA_0', 'CA_1']
 };*/
 
-function loadTokenMap() {
-    const tMap = {};
-    let lReceive = [];
+function loadTokenMap(): TokenMap {
+    const tMap: TokenMap = {};
+    let lReceive: string[] = [];
 
     // Exchange CA
     for (let i = 0; i < settings.tokens.CA.length; i++) {
@@ -62,11 +119,11 @@ function loadTokenMap() {
 
 //const VERY_HIGH_NUMBER = 100000000000;
 
-const tokenMap = loadTokenMap();
-const tokenExchange = () => Object.keys(tokenMap);
-const tokenReceive = (tExchange) => tokenMap[tExchange];
+const tokenMap: TokenMap = loadTokenMap();
+const tokenExchange = (): string[] => Object.keys(tokenMap);
+const tokenReceive = (tExchange: string): string[] => tokenMap[tExchange];
 
-function isMintOperation(tokenExchange, tokenReceive) {
+function isMintOperation(tokenExchange: string, tokenReceive: string): boolean {
     /*
         case 'CA_0,TC':
         case 'CA_1,TC':
@@ -87,9 +144,9 @@ function isMintOperation(tokenExchange, tokenReceive) {
     }
      */
 
-    const aTokenExchange = tokenExchange.split("_");
-    const aTokenReceive = tokenReceive.split("_");
-    const aTokenMap = `${aTokenExchange[0]},${aTokenReceive[0]}`;
+    const aTokenExchange: string[] = tokenExchange.split("_");
+    const aTokenReceive: string[] = tokenReceive.split("_");
+    const aTokenMap: string = `${aTokenExchange[0]},${aTokenReceive[0]}`;
 
     switch (aTokenMap) {
         case "CA,TC":
@@ -105,11 +162,11 @@ function isMintOperation(tokenExchange, tokenReceive) {
     }
 }
 
-function TokenAllowance(auth, tokenExchange, caIndex) {
+function TokenAllowance(auth: Auth, tokenExchange: string, caIndex: number): number {
     // Ex. tokenExchange = CA_0, CA_1, TP_0, TP_1, TC_0, TC_1, COINBASE, TF_0, TF_1
     //const tokenExchangeSettings = TokenSettings(tokenExchange);
-    const aTokenExchange = tokenExchange.split("_");
-    let allowance = 0;
+    const aTokenExchange: string[] = tokenExchange.split("_");
+    let allowance: number = 0;
     switch (aTokenExchange[0]) {
         case "CA":
             allowance =
@@ -132,7 +189,7 @@ function TokenAllowance(auth, tokenExchange, caIndex) {
     return allowance;
 }
 
-function UserTokenAllowance(auth, tokenExchange, caIndex) {
+function UserTokenAllowance(auth: Auth, tokenExchange: string, caIndex: number): BigNumber {
     const tokenExchangeSettings = TokenSettings(tokenExchange);
 
     return new BigNumber(
@@ -143,12 +200,12 @@ function UserTokenAllowance(auth, tokenExchange, caIndex) {
     );
 }
 
-function ApproveTokenContract(dContracts, tokenExchange, tokenReceive) {
+function ApproveTokenContract(dContracts: DContracts, tokenExchange: string, tokenReceive: string): ApproveTokenContractResult {
     const tokenExchangeSettings = TokenSettings(tokenExchange);
 
-    const aTokenExchange = tokenExchange.split("_");
-    const aTokenReceive = tokenReceive.split("_");
-    const aTokenMap = `${aTokenExchange[0]},${aTokenReceive[0]}`;
+    const aTokenExchange: string[] = tokenExchange.split("_");
+    const aTokenReceive: string[] = tokenReceive.split("_");
+    const aTokenMap: string = `${aTokenExchange[0]},${aTokenReceive[0]}`;
 
     switch (aTokenMap) {
         case "CA,TC":
@@ -187,12 +244,12 @@ function ApproveTokenContract(dContracts, tokenExchange, tokenReceive) {
     }
 }
 
-function TokenContract(dContracts, tokenExchange) {
+function TokenContract(dContracts: DContracts, tokenExchange: string): TokenContractResult {
     // Ex. aTokenMap = CA_0, CA_1, TP_0, TP_1, TC_0, TC_1, COINBASE, TF_0, TF_1
     const tokenExchangeSettings = TokenSettings(tokenExchange);
 
-    const tokenMap = `${tokenExchange}`;
-    const aTokenMap = tokenMap.split("_");
+    const tokenMap: string = `${tokenExchange}`;
+    const aTokenMap: string[] = tokenMap.split("_");
     switch (aTokenMap[0]) {
         case "CA":
             return {
@@ -225,22 +282,22 @@ function TokenContract(dContracts, tokenExchange) {
 }
 
 function exchangeMethod(
-    interfaceContext,
-    tokenExchange,
-    tokenReceive,
-    tokenAmount,
-    limitAmount,
-    onTransaction,
-    onReceipt
-) {
-    let caIndex = 0;
-    let tpIndex = 0;
+    interfaceContext: InterfaceContext,
+    tokenExchange: string,
+    tokenReceive: string,
+    tokenAmount: TokenAmount,
+    limitAmount: LimitAmount,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<any> {
+    let caIndex: number = 0;
+    let tpIndex: number = 0;
 
-    const aTokenExchange = tokenExchange.split("_");
-    const aTokenReceive = tokenReceive.split("_");
+    const aTokenExchange: string[] = tokenExchange.split("_");
+    const aTokenReceive: string[] = tokenReceive.split("_");
     console.log("aTokenExchange", aTokenExchange);
     console.log("aTokenReceive", aTokenReceive);
-    const aTokenMap = `${aTokenExchange[0]},${aTokenReceive[0]}`;
+    const aTokenMap: string = `${aTokenExchange[0]},${aTokenReceive[0]}`;
     console.log("aTokenMap", aTokenMap);
     const tokenExchangeSettings = TokenSettings(tokenExchange);
     const tokenReceiveSettings = TokenSettings(tokenReceive);
@@ -343,10 +400,10 @@ function exchangeMethod(
     }
 }
 
-function executionFeeMap(tokenExchange, tokenReceive, auth) {
-    const aTokenExchange = tokenExchange.split("_");
-    const aTokenReceive = tokenReceive.split("_");
-    const aTokenMap = `${aTokenExchange[0]},${aTokenReceive[0]}`;
+function executionFeeMap(tokenExchange: string, tokenReceive: string, auth: Auth): string {
+    const aTokenExchange: string[] = tokenExchange.split("_");
+    const aTokenReceive: string[] = tokenReceive.split("_");
+    const aTokenMap: string = `${aTokenExchange[0]},${aTokenReceive[0]}`;
     switch (aTokenMap) {
         case "CA,TC":
             return auth.contractStatusData[parseInt(aTokenExchange[1])].tcMintExecCost;
@@ -371,3 +428,18 @@ export {
     TokenContract,
     executionFeeMap,
 };
+
+// Export types for use in other files
+export type {
+    InterfaceContext,
+    Auth,
+    DContracts,
+    TokenContractResult,
+    ApproveTokenContractResult,
+    TokenMap,
+    TokenName,
+    TokenAmount,
+    LimitAmount,
+    OnTransaction,
+    OnReceipt,
+}; 
