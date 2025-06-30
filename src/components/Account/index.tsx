@@ -14,12 +14,37 @@ import {
 } from "../../helpers/vesting";
 
 import VestingMachine from "../../contracts/omoc/VestingMachine.json";
-//import { withSuccess } from "antd/lib/modal/confirm";
-//import settings from "../../settings/settings.json";
 
 const { Option } = Select;
 
-function removeAllItem(arr, value) {
+// Type definitions
+interface AccountDialogProps {
+    onCloseModal: () => void;
+    truncatedAddress: string;
+    vestingOn: boolean;
+    setVestingOn: (checked: boolean) => void;
+}
+
+interface VestingMachineContract {
+    methods: {
+        getHolder: () => {
+            call: () => Promise<string>;
+        };
+    };
+}
+
+// Extend Window interface for global variables
+declare global {
+    interface Window {
+        dContracts: {
+            contracts: {
+                VestingMachine?: any;
+            };
+        };
+    }
+}
+
+function removeAllItem<T>(arr: T[], value: T): T[] {
     let i = 0;
     while (i < arr.length) {
         if (arr[i] === value) {
@@ -31,34 +56,32 @@ function removeAllItem(arr, value) {
     return arr;
 }
 
-export default function AccountDialog(props) {
+export default function AccountDialog(props: AccountDialogProps): JSX.Element {
     const { onCloseModal, truncatedAddress, vestingOn, setVestingOn } = props;
 
     const { t } = useProjectTranslation();
     const auth = useContext(AuthenticateContext);
-    const [qrValue, setQrValue] = useState(null);
-    const [actionVesting, setActionVesting] = useState("select");
-    const [addVestingAddress, setAddVestingAddress] = useState("");
-    const [addVestingAddressError, setAddVestingAddressError] = useState(false);
-    const [addVestingAddressErrorText, setAddVestingAddressErrorText] =
-        useState("");
+    const [qrValue, setQrValue] = useState<string | null>(null);
+    const [actionVesting, setActionVesting] = useState<"select" | "add">("select");
+    const [addVestingAddress, setAddVestingAddress] = useState<string>("");
+    const [addVestingAddressError, setAddVestingAddressError] = useState<boolean>(false);
+    const [addVestingAddressErrorText, setAddVestingAddressErrorText] = useState<string>("");
 
-    const defaultVestingAddresses = loadVestingAddressesFromLocalStorage(
+    const defaultVestingAddresses: string[] = loadVestingAddressesFromLocalStorage(
         auth.accountData.Wallet
     );
-    let defaultVestingAddress = loadDefaultVestingFromLocalStorage(
+    let defaultVestingAddress: string | null = loadDefaultVestingFromLocalStorage(
         auth.accountData.Wallet
     );
 
-    //let defaultVestingAddress = null;
     // Select the first one from the list of vesting if not default vesting address
     if (defaultVestingAddresses && !defaultVestingAddress)
         defaultVestingAddress = defaultVestingAddresses[0];
 
-    const [vestingAddresses, setVestingAddresses] = useState(
+    const [vestingAddresses, setVestingAddresses] = useState<string[]>(
         defaultVestingAddresses
     );
-    const [vestingAddressDefault, setVestingAddressDefault] = useState(
+    const [vestingAddressDefault, setVestingAddressDefault] = useState<string | null>(
         defaultVestingAddress
     );
 
@@ -74,28 +97,30 @@ export default function AccountDialog(props) {
         setQrValue(url);
     }, [auth, auth.accountData.Wallet]);
 
-    const onClose = () => {
+    const onClose = (): void => {
         onCloseModal();
     };
 
-    const onDisconnect = () => {
+    const onDisconnect = (): void => {
         onCloseModal();
         auth.disconnect();
     };
 
-    const onCopy = (e) => {
+    const onCopy = (e: React.MouseEvent): void => {
         e.stopPropagation();
         /*navigator.clipboard.writeText(address);
         showNotificationCopiedAddress(address);*/
     };
 
-    const onCopyVesting = (e) => {
+    const onCopyVesting = (e: React.MouseEvent): void => {
         e.stopPropagation();
-        navigator.clipboard.writeText(vestingAddressDefault);
-        showNotificationCopiedAddress(vestingAddressDefault);
+        if (vestingAddressDefault) {
+            navigator.clipboard.writeText(vestingAddressDefault);
+            showNotificationCopiedAddress(vestingAddressDefault);
+        }
     };
 
-    const showNotificationCopiedAddress = (copiedAddress) => {
+    const showNotificationCopiedAddress = (copiedAddress: string): void => {
         notification.open({
             className: "notification type-temporal",
             message: t("feedback.clipboardCopy"),
@@ -110,17 +135,17 @@ export default function AccountDialog(props) {
         });
     };
 
-    const onChangeInputVestingAddress = (e) => {
+    const onChangeInputVestingAddress = (e: React.ChangeEvent<HTMLInputElement>): void => {
         setAddVestingAddress(e.target.value.toLowerCase());
         onValidateVestingAddressClear();
     };
 
-    const onValidateVestingAddressClear = () => {
+    const onValidateVestingAddressClear = (): void => {
         setAddVestingAddressErrorText("");
         setAddVestingAddressError(false);
     };
 
-    const onValidateVestingAddress = async () => {
+    const onValidateVestingAddress = async (): Promise<boolean> => {
         // 1. Input address valid
         if (addVestingAddress === "") {
             setAddVestingAddressErrorText("Vesting address can not be empty");
@@ -136,7 +161,7 @@ export default function AccountDialog(props) {
         }
 
         // 2. Check if not in the list
-        const vestingLowerCase = vestingAddresses.map(function (value) {
+        const vestingLowerCase: string[] = vestingAddresses.map(function (value: string) {
             return value.toLowerCase();
         });
         if (vestingLowerCase.includes(addVestingAddress.toLowerCase())) {
@@ -146,11 +171,11 @@ export default function AccountDialog(props) {
         }
 
         try {
-            const vestingMachine = new auth.web3.eth.Contract(
+            const vestingMachine: VestingMachineContract = new auth.web3!.eth.Contract(
                 VestingMachine.abi,
                 addVestingAddress
-            );
-            const holder = await vestingMachine.methods.getHolder().call();
+            ) as VestingMachineContract;
+            const holder: string = await vestingMachine.methods.getHolder().call();
             console.log("Holder: ", holder);
 
             return true;
@@ -164,7 +189,7 @@ export default function AccountDialog(props) {
         }
     };
 
-    const addVesting = async () => {
+    const addVesting = async (): Promise<void> => {
         const isValidVesting = await onValidateVestingAddress();
         if (isValidVesting) {
             const isLoaded = loadVesting(auth, addVestingAddress);
@@ -174,7 +199,7 @@ export default function AccountDialog(props) {
 
             //add on storage
             // get vesting addresses
-            const vestingFromStorage = loadVestingAddressesFromLocalStorage(
+            const vestingFromStorage: string[] = loadVestingAddressesFromLocalStorage(
                 auth.accountData.Wallet
             );
 
@@ -199,39 +224,41 @@ export default function AccountDialog(props) {
         }
     };
 
-    const onAddVesting = (e) => {
+    const onAddVesting = (e: React.MouseEvent): void => {
         e.stopPropagation();
         addVesting();
     };
 
-    const onUnloadVM = (e) => {
+    const onUnloadVM = (e: React.MouseEvent): void => {
         e.stopPropagation();
-        const removeItems = removeAllItem(
-            vestingAddresses,
-            vestingAddressDefault
-        );
-        saveVestingAddressesToLocalStorage(
-            auth.accountData.Wallet.toLowerCase(),
-            removeItems
-        );
-        setVestingAddressDefault(null);
-        setVestingAddresses(removeItems);
+        if (vestingAddressDefault) {
+            const removeItems: string[] = removeAllItem(
+                vestingAddresses,
+                vestingAddressDefault
+            );
+            saveVestingAddressesToLocalStorage(
+                auth.accountData.Wallet.toLowerCase(),
+                removeItems
+            );
+            setVestingAddressDefault(null);
+            setVestingAddresses(removeItems);
 
-        // Disable using vesting machine
-        onChangeShowVesting(false);
+            // Disable using vesting machine
+            onChangeShowVesting(false);
+        }
     };
 
-    const onShowAddVesting = (e) => {
+    const onShowAddVesting = (e: React.MouseEvent): void => {
         e.stopPropagation();
         setActionVesting("add");
     };
 
-    const onCloseAddVesting = (e) => {
+    const onCloseAddVesting = (e: React.MouseEvent): void => {
         e.stopPropagation();
         setActionVesting("select");
     };
 
-    const onChangeSelectVesting = (selectAddress) => {
+    const onChangeSelectVesting = (selectAddress: string): boolean => {
         if (!selectAddress) return false;
         if (vestingAddressDefault === selectAddress) return false;
         const isLoaded = loadVesting(auth, selectAddress);
@@ -244,7 +271,7 @@ export default function AccountDialog(props) {
         return isLoaded;
     };
 
-    const onVestingOn = () => {
+    const onVestingOn = (): boolean => {
         let isLoaded = false;
         if (
             vestingOn &&
@@ -262,7 +289,9 @@ export default function AccountDialog(props) {
             console.log("Vesting Switch: OFF");
             // Disable using vesting machine
             window.dContracts.contracts.VestingMachine = undefined;
-            auth.userBalanceData.vestingmachine = undefined;
+            if (auth.userBalanceData) {
+                auth.userBalanceData.vestingmachine = undefined;
+            }
 
             // Refresh status
             auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
@@ -273,7 +302,7 @@ export default function AccountDialog(props) {
         return isLoaded;
     };
 
-    const onChangeShowVesting = (checked) => {
+    const onChangeShowVesting = (checked: boolean): void => {
         setVestingOn(checked);
     };
 
@@ -349,7 +378,7 @@ export default function AccountDialog(props) {
                             onChange={onChangeSelectVesting}
                             value={vestingAddressDefault}
                         >
-                            {vestingAddresses.map((possibleOption) => (
+                            {vestingAddresses.map((possibleOption: string) => (
                                 <Option
                                     key={possibleOption}
                                     value={possibleOption}
@@ -358,15 +387,10 @@ export default function AccountDialog(props) {
                                 </Option>
                             ))}
                         </Select>
-                        {/* <Button
-                            className="address__copy__button"
-                            onClick={onCopy}
-                        > */}
                         <div
                             className="icon-copy"
                             onClick={onCopyVesting}
                         ></div>
-                        {/* </Button> */}
                     </div>
                     <div className="wallet__vesting__options__cta">
                         <div className="wallet__vesting__options__buttons">
@@ -410,14 +434,14 @@ export default function AccountDialog(props) {
                     </div>
                     <div className="wallet__vesting__options__buttons">
                         <button
-                            type="secondary"
+                            type="button"
                             className="button secondary button__small btn-clear"
                             onClick={onCloseAddVesting}
                         >
                             Cancel
                         </button>
                         <button
-                            type="primary"
+                            type="button"
                             className="button secondary button__small btn-confirm"
                             onClick={onAddVesting}
                         >
@@ -432,14 +456,14 @@ export default function AccountDialog(props) {
             <div className="cta-container">
                 <div className="cta-options-group">
                     <button
-                        type="secondary"
+                        type="button"
                         className="button secondary btn-clear"
                         onClick={onDisconnect}
                     >
                         {t("wallet.cta.disconnect")}
                     </button>
                     <button
-                        type="primary"
+                        type="button"
                         className="button btn-confirm"
                         onClick={onClose}
                     >
@@ -452,8 +476,8 @@ export default function AccountDialog(props) {
 }
 
 AccountDialog.propTypes = {
-    onCloseModal: PropTypes.func,
-    truncatedAddress: PropTypes.string,
-    vestingOn: PropTypes.bool,
-    setVestingOn: PropTypes.func,
-};
+    onCloseModal: PropTypes.func.isRequired,
+    truncatedAddress: PropTypes.string.isRequired,
+    vestingOn: PropTypes.bool.isRequired,
+    setVestingOn: PropTypes.func.isRequired,
+}; 
