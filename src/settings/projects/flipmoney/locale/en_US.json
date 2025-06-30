@@ -231,7 +231,23 @@
             "statusTitleUnavailable": "Cannot operate",
             "statusDescreiptionUnavailable": "One or more contracts are temporarily unavailable. Please try again later.",
 
-            "showingBlock": "Showing block"
+            "showingBlock": "Showing block",
+            "buttonDetails": "View Details"
+        },
+        "detailedStatus": {
+            "modalTitle": "System Status by Collateral",
+            "collateralStatus": {
+                "fullyOperational": "Fully Operational",
+                "partiallyOperational": "Partially Operational",
+                "protectedMode": "Protected Mode",
+                "liquidated": "Liquidated"
+            },
+            "operations": {
+                "mintTP": "Mint Pegged Tokens",
+                "redeemTP": "Redeem Pegged Tokens",
+                "mintTC": "Mint Collateral Tokens",
+                "redeemTC": "Redeem Collateral Tokens"
+            }
         },
         "tvl": {
             "cardTitle": "Total Value Locked",

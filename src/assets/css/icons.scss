@@ -304,31 +304,6 @@ icons.css contains all the css code for Icons across the Dapp
     background-repeat: no-repeat;
     filter: var(--color-icon-link-secondary-filter);
 }
-.icon-status-positive {
-    background-image: url("../icons/face-positive-Outline.svg");
-    filter: var(--filter-semantic-positive);
-    background-size: 32px 32px;
-    background-repeat: no-repeat;
-    width: 32px;
-    height: 32px;
-}
-.icon-status-neutral {
-    background-image: url("../icons/face-neutral-Outline.svg");
-    filter: var(--filter-semantic-neutral);
-    background-size: 32px 32px;
-    background-repeat: no-repeat;
-    width: 32px;
-    height: 32px;
-}
-.icon-status-negative {
-    background-image: url("../icons/face-negative-Outline.svg");
-    filter: var(--filter-semantic-negative);
-    background-size: 32px 32px;
-    background-repeat: no-repeat;
-    width: 32px;
-    height: 32px;
-}
-
 .icon__govBalance {
     filter: var(--color-nav-icon-filter-default);
     background-image: url("../icons/govBalance.svg");
@@ -461,6 +436,22 @@ icons.css contains all the css code for Icons across the Dapp
     height: 24px;
 }
 .icon__Total {
+    background-image: url("../icons/Total.svg");
+    filter: var(--color-icon-link-secondary-filter);
+    background-size: 24px 24px;
+    background-repeat: no-repeat;
+    width: 24px;
+    height: 24px;
+}
+.icon__status__good {
+    background-image: url("../icons/Total.svg");
+    filter: var(--color-icon-link-secondary-filter);
+    background-size: 24px 24px;
+    background-repeat: no-repeat;
+    width: 24px;
+    height: 24px;
+}
+.icon__status__bad {
     background-image: url("../icons/Total.svg");
     filter: var(--color-icon-link-secondary-filter);
     background-size: 24px 24px;

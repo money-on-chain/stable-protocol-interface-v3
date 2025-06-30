@@ -10,8 +10,8 @@ export default function GlobalStatusModal(props) {
     const { statusCode, hideModal } = props;
 
     return (
-        <div className="global-status-modal-container">
-            <div className="status-list">
+        <div className="detailedGlobalStatusModal">
+            <div className="collateralContainer">
                 {settings.tokens.CA.map((dataItem) => (
                     <StatusBucket
                         key={dataItem.key}
@@ -20,7 +20,7 @@ export default function GlobalStatusModal(props) {
                     ></StatusBucket>
                 ))}
             </div>
-            <div className="button-container">
+            <div className="cta">
                 <button type="primary" className="button" onClick={hideModal}>
                     {t("wallet.cta.close")}
                 </button>

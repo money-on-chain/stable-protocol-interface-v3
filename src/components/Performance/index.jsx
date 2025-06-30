@@ -80,12 +80,15 @@ export default function Performance() {
                                 onClick={showModal}
                             >
                                 <div className="icon__button__arrow buttonArrow"></div>
-                                <div className="buttonText">View Details</div>
-                                {/* <div className="logo-status"></div> */}
+                                <div className="buttonText">
+                                    {t("performance.status.buttonDetails")}
+                                </div>
                             </button>
                             {showGlobalStatusModal && (
                                 <Modal
-                                    title={"Global Status"}
+                                    title={t(
+                                        "performance.detailedStatus.modalTitle"
+                                    )}
                                     width={505}
                                     open={true}
                                     onCancel={hideModal}

@@ -224,7 +224,23 @@
             "statusTitleUnavailable": "No puede operar",
             "statusDescreiptionUnavailable": "Uno o más contratos se encuentran temporalmente no disponibles. Intenta nuevamente más tarde.",
 
-            "showingBlock": "Mostrando bloque"
+            "showingBlock": "Mostrando bloque",
+            "buttonDetails": "Ver Detalle"
+        },
+        "detailedStatus": {
+            "modalTitle": "Estado del Sitema por Colateral",
+            "collateralStatus": {
+                "fullyOperational": "Totalmente Operativo",
+                "partiallyOperational": "Parcialmente Operativo",
+                "protectedMode": "Modo Protegido",
+                "liquidated": "Liquidado"
+            },
+            "operations": {
+                "mintTP": "Mintear Pegged Tokens",
+                "redeemTP": "Redimir Pegged Tokens",
+                "mintTC": "Mintear Collateral Tokens",
+                "redeemTC": "Redimir Collateral Tokens"
+            }
         },
         "tvl": {
             "cardTitle": "Valor Total Bloqueado",
