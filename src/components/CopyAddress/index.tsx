@@ -4,12 +4,19 @@ import PropTypes from "prop-types";
 
 import { useProjectTranslation } from "../../helpers/translations";
 
-export default function CopyAddress(props) {
+interface CopyAddressProps {
+    address?: string;
+    type?: string;
+}
+
+type AddressType = "tx" | "address" | "";
+
+export default function CopyAddress(props: CopyAddressProps): JSX.Element {
     const { t } = useProjectTranslation();
 
     const { address = "", type = "" } = props;
 
-    const truncateAddress = (address) => {
+    const truncateAddress = (address: string): string => {
         if (address === "") return "";
         return (
             address.substring(0, 6) +
@@ -18,7 +25,7 @@ export default function CopyAddress(props) {
         );
     };
 
-    const onClick = () => {
+    const onClick = (): void => {
         navigator.clipboard.writeText(address);
         notification.open({
             message: t("feedback.clipboardCopy"),
@@ -31,11 +38,11 @@ export default function CopyAddress(props) {
         });
     };
 
-    let urlExplorer =
+    let urlExplorer: string =
         import.meta.env.REACT_APP_ENVIRONMENT_EXPLORER_URL +
         "/address/" +
         address;
-    switch (type) {
+    switch (type as AddressType) {
         case "tx":
             urlExplorer =
                 import.meta.env.REACT_APP_ENVIRONMENT_EXPLORER_URL +

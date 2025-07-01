@@ -4,7 +4,16 @@ import PropTypes from "prop-types";
 
 import IconCopy from "./../../assets/icons/CopyOutline.svg";
 
-export default function Copy(props) {
+interface CopyProps {
+    textToShow?: string;
+    textToCopy?: string;
+    fastBTC?: boolean;
+    typeUrl?: string;
+}
+
+type UrlType = "tx" | "address" | "";
+
+export default function Copy(props: CopyProps): JSX.Element {
     const {
         textToShow = "",
         textToCopy = "",
@@ -12,7 +21,7 @@ export default function Copy(props) {
         typeUrl = "",
     } = props;
 
-    const onClick = () => {
+    const onClick = (): void => {
         navigator.clipboard.writeText(textToCopy);
         notification.open({
             message: "Copied",
@@ -25,11 +34,11 @@ export default function Copy(props) {
         });
     };
 
-    let url_set =
+    let url_set: string =
         import.meta.env.REACT_APP_ENVIRONMENT_EXPLORER_URL +
         "/address/" +
         textToCopy;
-    switch (typeUrl) {
+    switch (typeUrl as UrlType) {
         case "tx":
             url_set =
                 import.meta.env.REACT_APP_ENVIRONMENT_EXPLORER_URL +
@@ -58,11 +67,11 @@ export default function Copy(props) {
                         }}
                     />
                 )}
-                <span style={{ display: fastBTC && "flex" }}>
+                <span style={{ display: fastBTC ? "flex" : "inline" }}>
                     <a
                         style={{
                             flexGrow: "1",
-                            fontweight: "bold",
+                            fontWeight: "bold",
                         }}
                         href={url_set}
                         target="_blank"
