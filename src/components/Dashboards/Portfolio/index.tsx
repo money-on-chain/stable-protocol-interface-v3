@@ -8,21 +8,38 @@ import { fromContractPrecisionDecimals } from "../../../helpers/Formats";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 import PortfolioTable from "../../Tables/PortfolioTable";
 
-export default function Portfolio() {
-    const space = "\u00A0";
+interface TokenData {
+    key: string;
+    decimals: number;
+    peggedUSD?: boolean;
+}
+
+interface ContractStatusData {
+    canOperate: boolean;
+    [key: string]: any;
+}
+
+interface UserBalanceData {
+    CA: { [key: string]: { balance: string } };
+    coinbase: string;
+    [key: string]: any;
+}
+
+export default function Portfolio(): JSX.Element {
+    const space: string = "\u00A0";
     const { t, i18n } = useProjectTranslation();
     const auth = useContext(AuthenticateContext);
 
-    let balance;
-    let price;
-    let balanceUSD;
-    let totalUSD = new BigNumber(0);
+    let balance: BigNumber;
+    let price: BigNumber;
+    let balanceUSD: BigNumber;
+    let totalUSD: BigNumber = new BigNumber(0);
 
     // Total tokens
     if (auth.contractStatusData &&
         auth.userBalanceData ) {
 
-        settings.tokens.CA.forEach(function (dataItem) {
+        (settings.tokens.CA as TokenData[]).forEach(function (dataItem: TokenData) {
 
             ////////////////
             // Tokens CA
@@ -52,13 +69,13 @@ export default function Portfolio() {
                     settings.tokens.TC[dataItem.key].decimals
                 )
             );
-            const priceTEC = new BigNumber(
+            const priceTEC: BigNumber = new BigNumber(
                 fromContractPrecisionDecimals(
                     auth.contractStatusData[dataItem.key].getPTCac,
                     settings.tokens.TC[dataItem.key].decimals
                 )
             );
-            const priceCA = new BigNumber(
+            const priceCA: BigNumber = new BigNumber(
                 fromContractPrecisionDecimals(
                     auth.contractStatusData[dataItem.key].PP_CA[0],
                     settings.tokens.CA[dataItem.key].decimals
@@ -75,7 +92,7 @@ export default function Portfolio() {
         ///////////////
         // Tokens TP
         //////////////
-        settings.tokens.TP.forEach(function (dataItem) {
+        (settings.tokens.TP as TokenData[]).forEach(function (dataItem: TokenData) {
             balance = new BigNumber(
                 fromContractPrecisionDecimals(
                     auth.userBalanceData.TP[0][dataItem.key].balance,
@@ -83,7 +100,7 @@ export default function Portfolio() {
                 )
             );
             price = dataItem.peggedUSD
-                ? 1
+                ? new BigNumber(1)
                 : new BigNumber(
                     fromContractPrecisionDecimals(
                         auth.contractStatusData[0].PP_TP[dataItem.key][0],
@@ -121,13 +138,13 @@ export default function Portfolio() {
                 settings.tokens.TF[0].decimals
             )
         );
-        const priceCA_0 = new BigNumber(
+        const priceCA_0: BigNumber = new BigNumber(
             fromContractPrecisionDecimals(
                 auth.contractStatusData[0].PP_CA[0],
                 settings.tokens.CA[0].decimals
             )
         );
-        const priceInCA = new BigNumber(
+        const priceInCA: BigNumber = new BigNumber(
             fromContractPrecisionDecimals(
                 auth.contractStatusData[0].PP_FeeToken[0],
                 settings.tokens.TF[0].decimals

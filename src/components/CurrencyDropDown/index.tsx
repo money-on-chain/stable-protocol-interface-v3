@@ -8,18 +8,33 @@ import { useProjectTranslation } from "../../helpers/translations";
 
 const { Option } = Select;
 
-export default function CurrencyDropDown(props) {
+interface CurrencyOption {
+    value: string;
+    image: React.ReactNode;
+    label: string;
+    abbr: string;
+}
+
+interface CurrencyDropDownProps {
+    value?: string;
+    onChange?: (value: string) => void;
+    currencyOptions: string[];
+    disabled?: boolean;
+    action: string;
+}
+
+export default function CurrencyDropDown(props: CurrencyDropDownProps): JSX.Element {
     const { value, onChange, currencyOptions, disabled, action } = props;
     const { t, ns } = useProjectTranslation();
 
-    const options = getCurrenciesDetail().map((it) => ({
+    const options: CurrencyOption[] = getCurrenciesDetail().map((it: any) => ({
         value: it.value,
         image: it.image,
         label: t(`${action}.tokens.${it.value}.label`, { ns: ns }),
         abbr: t(`${action}.tokens.${it.value}.abbr`, { ns: ns }),
     }));
-    const option = options.find((it) => it.value === value);
-    const optionsFiltered = options.filter((it) =>
+    const option: CurrencyOption | undefined = options.find((it: CurrencyOption) => it.value === value);
+    const optionsFiltered: CurrencyOption[] = options.filter((it: CurrencyOption) =>
         currencyOptions.includes(it.value)
     );
     //const auth = useContext(AuthenticateContext);
@@ -32,7 +47,7 @@ export default function CurrencyDropDown(props) {
                 disabled={disabled}
                 value={option && option.value}
             >
-                {optionsFiltered.map((possibleOption) => (
+                {optionsFiltered.map((possibleOption: CurrencyOption) => (
                     <Option
                         key={possibleOption.value}
                         value={possibleOption.value}
