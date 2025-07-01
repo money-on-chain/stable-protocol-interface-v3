@@ -209,6 +209,9 @@
             "statusTitleFull": "Totalmente Operativo",
             "statusDescriptionFull": "Sistema en condiciones óptimas",
 
+            "statusTitleGood": "Buena Condición",
+            "statusDescriptionGood": "Vea el Estado por Colateral usando el botón de abajo:",
+
             "stuatusTitleWarning": "Parcialmente Operativo",
             "statusDescriptionWarning": "El Token Colateral no se puede redimir. El token anclado no se puede mintear",
 
@@ -225,7 +228,7 @@
             "statusDescreiptionUnavailable": "Uno o más contratos se encuentran temporalmente no disponibles. Intenta nuevamente más tarde.",
 
             "showingBlock": "Mostrando bloque",
-            "buttonDetails": "Ver Detalle"
+            "buttonDetails": "Ver Estado por Colateral"
         },
         "detailedStatus": {
             "modalTitle": "Estado del Sitema por Colateral",
@@ -235,11 +238,10 @@
                 "protectedMode": "Modo Protegido",
                 "liquidated": "Liquidado"
             },
-            "operations": {
-                "mintTP": "Mintear Pegged Tokens",
-                "redeemTP": "Redimir Pegged Tokens",
-                "mintTC": "Mintear Collateral Tokens",
-                "redeemTC": "Redimir Collateral Tokens"
+            "headerOperations": {
+                "token": "Token",
+                "mint": "Mintear",
+                "redeem": "Redimir"
             }
         },
         "tvl": {

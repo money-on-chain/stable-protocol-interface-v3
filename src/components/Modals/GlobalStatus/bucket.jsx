@@ -1,177 +1,130 @@
 import React from "react";
 import PropTypes from "prop-types";
 import settings from "../../../settings/settings.json";
-
 import { useProjectTranslation } from "../../../helpers/translations";
 
 export default function StatusBucket(props) {
-    const space = "\u00A0";
-    const { t, ns } = useProjectTranslation();
+    const { t } = useProjectTranslation();
     const { statusCode, caIndex } = props;
 
-    let summary = "";
-    let operations = [];
+    const tpTokens = settings.tokens.TP;
+    const tcTokens = settings.tokens.TC;
+    const caToken = settings.tokens.CA[caIndex];
+    const leveragedToken = tcTokens[caIndex];
 
-    switch (statusCode[caIndex]) {
-        case 0:
-            summary = t(
+    const status = statusCode[caIndex];
+
+    const collateralPermissionsByStatus = {
+        0: { mint: true, redeem: true },
+        1: { mint: true, redeem: false },
+        2: { mint: false, redeem: false },
+        3: { mint: false, redeem: false },
+    };
+
+    const peggedPermissionsByStatus = {
+        0: { mint: true, redeem: true },
+        1: { mint: false, redeem: true },
+        2: { mint: false, redeem: false },
+        3: { mint: false, redeem: false },
+    };
+
+    const caPermissions = collateralPermissionsByStatus[status];
+    const tpPermissions = peggedPermissionsByStatus[status];
+
+    const summaryMap = {
+        0: {
+            label: t(
                 "performance.detailedStatus.collateralStatus.fullyOperational"
-            );
-            operations = [
-                {
-                    label: t("performance.detailedStatus.operations.mintTP", {
-                        ns,
-                    }),
-                    allowed: true,
-                },
-                {
-                    label: t("performance.detailedStatus.operations.redeemTC", {
-                        ns,
-                    }),
-                    allowed: true,
-                },
-                {
-                    label: t("performance.detailedStatus.operations.redeemTC", {
-                        ns,
-                    }),
-                    allowed: true,
-                },
-                {
-                    label: t("performance.detailedStatus.operations.redeemTC", {
-                        ns,
-                    }),
-                    allowed: true,
-                },
-            ];
-            break;
-        case 1:
-            summary = t(
+            ),
+            severity: "positive",
+        },
+        1: {
+            label: t(
                 "performance.detailedStatus.collateralStatus.partiallyOperational"
-            );
-            operations = [
-                {
-                    label: t("performance.detailedStatus.operations.mintTP", {
-                        ns,
-                    }),
-                    allowed: true,
-                },
-                {
-                    label: t("performance.detailedStatus.operations.redeemTC", {
-                        ns,
-                    }),
-                    allowed: true,
-                },
-                {
-                    label: t("performance.detailedStatus.operations.redeemTC", {
-                        ns,
-                    }),
-                    allowed: false,
-                },
-                {
-                    label: t("performance.detailedStatus.operations.redeemTC", {
-                        ns,
-                    }),
-                    allowed: false,
-                },
-            ];
-            break;
-        case 2:
-            summary = t(
+            ),
+            severity: "neutral",
+        },
+        2: {
+            label: t(
                 "performance.detailedStatus.collateralStatus.protectedMode"
-            );
-            operations = [
-                {
-                    label: t("performance.detailedStatus.operations.mintTP", {
-                        ns,
-                    }),
-                    allowed: false,
-                },
-                {
-                    label: t("performance.detailedStatus.operations.redeemTC", {
-                        ns,
-                    }),
-                    allowed: false,
-                },
-                {
-                    label: t("performance.detailedStatus.operations.redeemTC", {
-                        ns,
-                    }),
-                    allowed: false,
-                },
-                {
-                    label: t("performance.detailedStatus.operations.redeemTC", {
-                        ns,
-                    }),
-                    allowed: false,
-                },
-            ];
-            break;
-        case 3:
-            summary = t(
-                "performance.detailedStatus.collateralStatus.liquidated"
-            );
-            operations = [
-                {
-                    label: t("performance.detailedStatus.operations.mintTP", {
-                        ns,
-                    }),
-                    allowed: false,
-                },
-                {
-                    label: t("performance.detailedStatus.operations.redeemTC", {
-                        ns,
-                    }),
-                    allowed: false,
-                },
-                {
-                    label: t("performance.detailedStatus.operations.redeemTC", {
-                        ns,
-                    }),
-                    allowed: false,
-                },
-                {
-                    label: t("performance.detailedStatus.operations.redeemTC", {
-                        ns,
-                    }),
-                    allowed: false,
-                },
-            ];
-            break;
-    }
+            ),
+            severity: "negative",
+        },
+        3: {
+            label: t("performance.detailedStatus.collateralStatus.liquidated"),
+            severity: "negative",
+        },
+    };
+
+    const summary = summaryMap[status] || { label: "--", severity: "neutral" };
+
+    const operations = [
+        ...tpTokens.map((tp, index) => ({
+            name: tp.name,
+            iconClass: `icon-token-tp_${index}`,
+            mintAllowed: tpPermissions.mint,
+            redeemAllowed: tpPermissions.redeem,
+        })),
+        {
+            name: leveragedToken.name,
+            iconClass: `icon-token-tc_${caIndex}`,
+            mintAllowed: caPermissions.mint,
+            redeemAllowed: caPermissions.redeem,
+        },
+    ];
 
     return (
-        <div className="detailedCollateralStatus">
+        <div className="collateralStatusCard">
             <div className="collateralTitle">
                 <div className={`icon-token-ca_${caIndex}`}></div>
-                {settings.tokens.CA[caIndex].fullName}
+                {caToken.fullName}
             </div>
+
             <div className="collateralDetails">
-                <div className="collateralSummary">{summary}</div>
-                <ul>
-                    {operations.map((op, index) => (
-                        <li
-                            className="detailedStatus__operation"
-                            key={index}
-                            style={{
-                                color: op.allowed ? "positive" : "negative",
-                            }}
-                        >
-                            <div
-                                className={`icon-status-${op.allowed ? "success" : "alert"}`}
-                            ></div>
-                            <div
-                                className={`detailedStatus ${op.allowed ? "positive" : "negative"}`}
-                            >
-                                {op.label}
+                <div className={`collateralSummary ${summary.severity}`}>
+                    {summary.label}
+                </div>
+
+                <div className="operationTableHeader">
+                    <div className="operationCol tokenCol">
+                        {t("performance.detailedStatus.headerOperations.token")}
+                    </div>
+                    <div className="operationCol">
+                        {t("performance.detailedStatus.headerOperations.mint")}
+                    </div>
+                    <div className="operationCol">
+                        {t(
+                            "performance.detailedStatus.headerOperations.redeem"
+                        )}
+                    </div>
+                </div>
+
+                {operations.map((op, index) => (
+                    <div key={index} className="operationTableRow">
+                        <div className="operationCol tokenCol">
+                            <div className="tokenIconName">
+                                <div className={op.iconClass}></div>
+                                <span className="tokenLabel">{op.name}</span>
                             </div>
-                        </li>
-                    ))}
-                </ul>
+                        </div>
+                        <div className="operationCol">
+                            <div
+                                className={`icon-status-${op.mintAllowed ? "success" : "alert"}`}
+                            />
+                        </div>
+                        <div className="operationCol">
+                            <div
+                                className={`icon-status-${op.redeemAllowed ? "success" : "alert"}`}
+                            />
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
     );
 }
 
 StatusBucket.propTypes = {
-    statusCode: PropTypes.array,
+    statusCode: PropTypes.array.isRequired,
+    caIndex: PropTypes.number.isRequired,
 };

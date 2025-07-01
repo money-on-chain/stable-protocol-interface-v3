@@ -109,9 +109,9 @@ function CheckStatusGlobal() {
             globalStatus = 0;
         } else if (countValid > 0 && countValid < settings.tokens.CA.length) {
             // One or more collaterals have some warnings but not all, Good status
-            statusLabel = "Good condition";
+            statusLabel = t("performance.status.statusTitleGood");
             statusLabelClass = "status-positive";
-            statusText = "Some of the collaterals may have some warnings";
+            statusText = t("performance.status.statusDescriptionGood");
             globalStatus = 1;
         } else if (
             countValid == 0 &&
