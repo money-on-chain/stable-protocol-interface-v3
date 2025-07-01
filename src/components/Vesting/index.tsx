@@ -21,26 +21,109 @@ import { decodeEvents } from "../../lib/backend/transaction";
 import "./Styles.scss";
 
 const { TextArea } = Input;
-const space = "\u00A0";
+const space: string = "\u00A0";
 
-export default function Vesting() {
+interface VestedAmounts {
+    released: BigNumber;
+    vested: BigNumber;
+    total: BigNumber;
+    daysToRelease: number;
+}
+
+interface VestingParameters {
+    percentages: (string | number)[];
+    timeDeltas: (string | number)[];
+}
+
+interface VestingMachine {
+    getAvailable: string | number;
+    isVerified: boolean;
+    getHolder: string;
+    getTotal: string | number;
+    getLocked: string | number;
+    getParameters: VestingParameters;
+    staking: {
+        balance: string | number;
+    };
+    delay: {
+        balance: string | number;
+    };
+}
+
+interface VestingFactory {
+    getTGETimestamp: string | number;
+}
+
+interface IncentiveV2 {
+    userBalance: string | number;
+}
+
+interface UserBalanceData {
+    vestingmachine: VestingMachine;
+    vestingfactory: VestingFactory;
+    incentiveV2: IncentiveV2;
+}
+
+interface AccountData {
+    Wallet: string;
+}
+
+interface AuthContext {
+    userBalanceData: UserBalanceData;
+    isVestingLoaded: () => boolean;
+    vestingAddress: () => string;
+    accountData: AccountData;
+    interfaceVestingWithdraw: (
+        onTransaction: (txHash: string) => void,
+        onReceipt: () => void,
+        onError: (error: any) => void
+    ) => Promise<any>;
+    interfaceVestingVerify: (
+        onTransaction: (txHash: string) => void,
+        onReceipt: () => void,
+        onError: (error: any) => void
+    ) => Promise<any>;
+    onShowModalAccountVesting: () => void;
+    loadContractsStatusAndUserBalance: () => Promise<any>;
+    interfaceIncentiveV2Claim: (
+        claimCode: string,
+        onTransaction: (txHash: string) => void,
+        onReceipt: (receipt: any) => void,
+        onError: (error: any) => void
+    ) => Promise<any>;
+    web3: {
+        eth: {
+            accounts: {
+                recover: (message: string, signature: string) => string;
+            };
+            getTransactionReceipt: (hash: string) => Promise<any>;
+        };
+    };
+}
+
+interface FilteredEvent {
+    eventName: string;
+    args: Record<string, any>;
+}
+
+const Vesting: React.FC = () => {
     const { t, i18n, ns } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext);
+    const auth = useContext(AuthenticateContext) as AuthContext;
 
-    const [status, setStatus] = useState("STEP_1");
+    const [status, setStatus] = useState<string>("STEP_1");
     const [isOperationModalVisible, setIsOperationModalVisible] =
-        useState(false);
-    const [txHash, setTxHash] = useState("");
-    const [operationStatus, setOperationStatus] = useState("sign");
-    const [modalTitle, setModalTitle] = useState("Operation status");
-    const [usingVestingAddress, setUsingVestingAddress] = useState("");
-    const [validWithdraw, setValidWithdraw] = useState(false);
-    const [claimCode, setClaimCode] = useState("");
-    const [validClaimCode, setValidClaimCode] = useState(false);
-    const [validClaimCodeError, setValidClaimCodeError] = useState("");
-    const [validCreateVM, setValidCreateVM] = useState(false);
-    const [newVestingAddress, setNewVestingAddress] = useState("");
-    const [isHolderVesting, setIsHolderVesting] = useState(false);
+        useState<boolean>(false);
+    const [txHash, setTxHash] = useState<string>("");
+    const [operationStatus, setOperationStatus] = useState<string>("sign");
+    const [modalTitle, setModalTitle] = useState<string>("Operation status");
+    const [usingVestingAddress, setUsingVestingAddress] = useState<string>("");
+    const [validWithdraw, setValidWithdraw] = useState<boolean>(false);
+    const [claimCode, setClaimCode] = useState<string>("");
+    const [validClaimCode, setValidClaimCode] = useState<boolean>(false);
+    const [validClaimCodeError, setValidClaimCodeError] = useState<string>("");
+    const [validCreateVM, setValidCreateVM] = useState<boolean>(false);
+    const [newVestingAddress, setNewVestingAddress] = useState<string>("");
+    const [isHolderVesting, setIsHolderVesting] = useState<boolean>(false);
 
     useEffect(() => {
         if (auth.userBalanceData && auth.isVestingLoaded()) {
@@ -62,7 +145,7 @@ export default function Vesting() {
     }, [claimCode]);
 
     /*
-    const truncateAddress = (address) => {
+    const truncateAddress = (address: string): string => {
         return (
             address.substring(0, 6) +
             "..." +
@@ -70,7 +153,7 @@ export default function Vesting() {
         );
     };*/
 
-    const onValidateWithdraw = () => {
+    const onValidateWithdraw = (): void => {
         if (!getIsHolderVesting()) {
             setValidWithdraw(false);
             return;
@@ -89,25 +172,27 @@ export default function Vesting() {
         }
     };
 
-    const getIsHolderVesting = () => {
+    const getIsHolderVesting = (): boolean => {
         return (
             auth.userBalanceData.vestingmachine.getHolder.toLowerCase() ===
             auth.accountData.Wallet.toLowerCase()
         );
     };
 
-    const onCheckIsHolderVesting = () => {
+    const onCheckIsHolderVesting = (): void => {
         const isHolder = getIsHolderVesting();
         setIsHolderVesting(isHolder);
     };
 
-    const vestedAmounts = () => {
-        const amounts = {};
+    const vestedAmounts = (): VestedAmounts => {
+        const amounts: VestedAmounts = {
+            released: new BigNumber(0),
+            vested: new BigNumber(0),
+            total: new BigNumber(0),
+            daysToRelease: 0,
+        };
 
         if (!auth.isVestingLoaded()) {
-            amounts.released = new BigNumber(0);
-            amounts.vested = new BigNumber(0);
-            amounts.total = new BigNumber(0);
             return amounts;
         }
 
@@ -136,7 +221,7 @@ export default function Vesting() {
             new BigNumber(percentMultiplier).minus(x)
         );
 
-        let dates = [];
+        let dates: (string | number)[] = [];
         if (deltas) {
             if (tgeTimestamp) {
                 // Convert timestamp to date.
@@ -161,7 +246,7 @@ export default function Vesting() {
         auth.userBalanceData &&
             getParameters &&
             percents.forEach(function (percent, itemIndex) {
-                const date_release = new Date(dates[itemIndex]);
+                const date_release = new Date(dates[itemIndex] as string);
                 const date_now = new Date();
                 const timeDifference =
                     date_release.getTime() - date_now.getTime();
@@ -197,9 +282,9 @@ export default function Vesting() {
         return amounts;
     };
 
-    const vestingTotals = vestedAmounts();
+    const vestingTotals: VestedAmounts = vestedAmounts();
 
-    const onWithdraw = async (e) => {
+    const onWithdraw = async (e: React.MouseEvent): Promise<void> => {
         setModalTitle("Withdraw transaction");
 
         e.stopPropagation();
@@ -207,16 +292,16 @@ export default function Vesting() {
         setOperationStatus("sign");
         setIsOperationModalVisible(true);
 
-        const onTransaction = (txHash) => {
+        const onTransaction = (txHash: string): void => {
             console.log("Sent transaction withdraw...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
-        const onReceipt = () => {
+        const onReceipt = (): void => {
             console.log("Transaction withdraw mined!...");
             setOperationStatus("success");
         };
-        const onError = (error) => {
+        const onError = (error: any): void => {
             console.log("Transaction withdraw error!...:", error);
             setOperationStatus("error");
         };
@@ -235,7 +320,7 @@ export default function Vesting() {
             });
     };
 
-    const onVerify = async (e) => {
+    const onVerify = async (e: React.MouseEvent): Promise<void> => {
         e.stopPropagation();
 
         setModalTitle("Verification transaction");
@@ -243,16 +328,16 @@ export default function Vesting() {
         setOperationStatus("sign");
         setIsOperationModalVisible(true);
 
-        const onTransaction = (txHash) => {
+        const onTransaction = (txHash: string): void => {
             console.log("Sent transaction verify...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
-        const onReceipt = () => {
+        const onReceipt = (): void => {
             console.log("Transaction verify mined!...");
             setOperationStatus("success");
         };
-        const onError = (error) => {
+        const onError = (error: any): void => {
             console.log("Transaction verify error!...:", error);
             setOperationStatus("error");
         };
@@ -271,11 +356,11 @@ export default function Vesting() {
             });
     };
 
-    const onDisplayAccount = () => {
+    const onDisplayAccount = (): void => {
         auth.onShowModalAccountVesting();
     };
 
-    const onValidateIncentiveV2UserBalance = () => {
+    const onValidateIncentiveV2UserBalance = (): void => {
         let valid = false;
         if (
             auth.userBalanceData &&
@@ -292,15 +377,15 @@ export default function Vesting() {
         setValidCreateVM(valid);
     };
 
-    const onClickUseClaimCode = () => {
+    const onClickUseClaimCode = (): void => {
         setStatus("STEP_2");
     };
 
-    const onChangeClaimCode = (event) => {
+    const onChangeClaimCode = (event: React.ChangeEvent<HTMLTextAreaElement>): void => {
         setClaimCode(event.target.value.substring(0, 132));
     };
 
-    const recoverMessageClaimCode = (message) => {
+    const recoverMessageClaimCode = (message: string): string => {
         const chainId = import.meta.env.REACT_APP_ENVIRONMENT_CHAIN_ID;
         const userAddress = auth.accountData.Wallet;
         const fromAddress = userAddress.slice(2);
@@ -317,7 +402,7 @@ export default function Vesting() {
         return recoveredAddress.toLowerCase();
     };
 
-    const onValidateClaimCode = () => {
+    const onValidateClaimCode = (): void => {
         let valid = false;
 
         if (claimCode.length === 132) {
@@ -340,11 +425,11 @@ export default function Vesting() {
         }
     };
 
-    const onClickCreateVM = () => {
+    const onClickCreateVM = (): void => {
         setStatus("STEP_3");
     };
 
-    const onVestingCreated = (filteredEvents) => {
+    const onVestingCreated = (filteredEvents: FilteredEvent[]): void => {
         filteredEvents.forEach(function (events) {
             if (events.eventName === "VestingCreated") {
                 for (const [eveName, eveValue] of Object.entries(events.args)) {
@@ -370,7 +455,7 @@ export default function Vesting() {
         });
     };
 
-    const onSendCreateVM = async (e) => {
+    const onSendCreateVM = async (e: React.MouseEvent): Promise<void> => {
         setModalTitle(t("vesting.vestingOnboarding.page3.modalTitle"));
 
         e.stopPropagation();
@@ -378,12 +463,12 @@ export default function Vesting() {
         setOperationStatus("sign");
         setIsOperationModalVisible(true);
 
-        const onTransaction = (txHash) => {
+        const onTransaction = (txHash: string): void => {
             console.log("Sent transaction create VM...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
-        const onReceipt = async (receipt) => {
+        const onReceipt = async (receipt: any): Promise<void> => {
             console.log("Transaction create VM mined!...");
             setOperationStatus("success");
             // Events name list
@@ -397,7 +482,7 @@ export default function Vesting() {
             const filteredEvents = decodeEvents(txRcp, contractName, filter);
             onVestingCreated(filteredEvents);
         };
-        const onError = (error) => {
+        const onError = (error: any): void => {
             console.log("Transaction create VM error!...:", error);
             setOperationStatus("error");
         };
@@ -423,17 +508,19 @@ export default function Vesting() {
             });
     };
 
-    const loadClaimCodeFromFile = async (e) => {
+    const loadClaimCodeFromFile = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
         e.preventDefault();
         const reader = new FileReader();
         reader.onload = async (e) => {
-            const text = e.target.result.substring(0, 132);
+            const text = (e.target?.result as string).substring(0, 132);
             setClaimCode(text);
         };
-        reader.readAsText(e.target.files[0]);
+        if (e.target.files && e.target.files[0]) {
+            reader.readAsText(e.target.files[0]);
+        }
     };
 
-    const saveAddressToFile = (address) => {
+    const saveAddressToFile = (address: string): void => {
         const uri =
             "data:text/plain;charset=utf-8," + encodeURIComponent(address);
 
@@ -447,7 +534,7 @@ export default function Vesting() {
         document.body.removeChild(link);
     };
 
-    const copyAddressToClipboard = (address) => {
+    const copyAddressToClipboard = (address: string): void => {
         navigator.clipboard
             .writeText(address)
             .then(() => {
@@ -458,7 +545,7 @@ export default function Vesting() {
             });
     };
 
-    const addVesting = async (addVestingAddress) => {
+    const addVesting = async (addVestingAddress: string): Promise<boolean> => {
         const isValidVesting = await onValidateVestingAddress(
             auth,
             addVestingAddress
@@ -491,6 +578,7 @@ export default function Vesting() {
 
             return true;
         }
+        return false;
     };
 
     return (
@@ -719,6 +807,7 @@ export default function Vesting() {
                                             decimals: t(
                                                 "staking.display_decimals"
                                             ),
+                                            numericLabelParams: {},
                                             i18n: i18n,
                                         })}
                                         {t("staking.governanceToken")}
@@ -972,6 +1061,7 @@ export default function Vesting() {
                                             decimals: t(
                                                 "staking.display_decimals"
                                             ),
+                                            numericLabelParams: {},
                                             i18n: i18n,
                                         })}
                                     </div>
@@ -1005,6 +1095,7 @@ export default function Vesting() {
                                             : vestingTotals["vested"],
                                         token: settings.tokens.TG[0],
                                         decimals: t("staking.display_decimals"),
+                                        numericLabelParams: {},
                                         i18n: i18n,
                                     })}
                                 </div>
@@ -1038,6 +1129,7 @@ export default function Vesting() {
                                                   .balance,
                                         token: settings.tokens.TG[0],
                                         decimals: t("staking.display_decimals"),
+                                        numericLabelParams: {},
                                         i18n: i18n,
                                     })}{" "}
                                 </div>
@@ -1057,6 +1149,7 @@ export default function Vesting() {
                                                   .vestingmachine.delay.balance,
                                         token: settings.tokens.TG[0],
                                         decimals: t("staking.display_decimals"),
+                                        numericLabelParams: {},
                                         i18n: i18n,
                                     })}
                                 </div>
@@ -1085,6 +1178,7 @@ export default function Vesting() {
                                                   .vestingmachine.getTotal,
                                         token: settings.tokens.TG[0],
                                         decimals: t("staking.display_decimals"),
+                                        numericLabelParams: {},
                                         i18n: i18n,
                                     })}
                                     {space}
@@ -1112,3 +1206,5 @@ export default function Vesting() {
         </div>
     );
 }
+
+export default Vesting; 

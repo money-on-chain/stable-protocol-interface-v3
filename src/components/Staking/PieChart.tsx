@@ -1,18 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import BigNumber from "bignumber.js";
-import PropTypes from "prop-types";
 
 import { useProjectTranslation } from "../../helpers/translations";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import settings from "../../settings/settings.json";
 
-const PieChartComponent = (props) => {
+interface UserInfoStaking {
+    tgBalance: string | number;
+    stakedBalance: string | number;
+    totalPendingExpiration: string | number;
+    totalAvailableToWithdraw: string | number;
+    lockedInVoting: string | number;
+}
+
+interface PieChartData {
+    type: string;
+    value: number;
+}
+
+interface PieChartComponentProps {
+    userInfoStaking: UserInfoStaking;
+}
+
+const PieChartComponent: React.FC<PieChartComponentProps> = (props) => {
     const { t, i18n } = useProjectTranslation();
-    const [data, setData] = useState([]);
-    const [total, setTotal] = useState(new BigNumber(0));
+    const [data, setData] = useState<PieChartData[]>([]);
+    const [total, setTotal] = useState<BigNumber>(new BigNumber(0));
     const { userInfoStaking } = props;
-    const space = "\u00A0";
+    const space: string = "\u00A0";
 
     useEffect(() => {
         readData();
@@ -24,9 +40,9 @@ const PieChartComponent = (props) => {
         userInfoStaking["lockedInVoting"],
     ]);
 
-    const readData = () => {
-        const total = getTotal();
-        const _data = [
+    const readData = (): void => {
+        const total: BigNumber = getTotal();
+        const _data: PieChartData[] = [
             {
                 type: t("staking.distribution.graph.balance"),
                 value: total.gt(0)
@@ -87,7 +103,7 @@ const PieChartComponent = (props) => {
         setTotal(total);
     };
 
-    const getTotal = () => {
+    const getTotal = (): BigNumber => {
         return BigNumber.sum(
             userInfoStaking["tgBalance"],
             new BigNumber(userInfoStaking["stakedBalance"]).minus(
@@ -100,24 +116,24 @@ const PieChartComponent = (props) => {
     };
 
     // Retrieve CSS color variables
-    const colorBalance = getComputedStyle(
-        document.querySelector(":root")
+    const colorBalance: string = getComputedStyle(
+        document.querySelector(":root") as Element
     ).getPropertyValue("--brand-color-darker");
-    const colorProcessing = getComputedStyle(
-        document.querySelector(":root")
+    const colorProcessing: string = getComputedStyle(
+        document.querySelector(":root") as Element
     ).getPropertyValue("--brand-color-dark");
-    const colorReady = getComputedStyle(
-        document.querySelector(":root")
+    const colorReady: string = getComputedStyle(
+        document.querySelector(":root") as Element
     ).getPropertyValue("--brand-color-base");
-    const colorStaked = getComputedStyle(
-        document.querySelector(":root")
+    const colorStaked: string = getComputedStyle(
+        document.querySelector(":root") as Element
     ).getPropertyValue("--brand-color-light");
-    const colorStakedInVoting = getComputedStyle(
-        document.querySelector(":root")
+    const colorStakedInVoting: string = getComputedStyle(
+        document.querySelector(":root") as Element
     ).getPropertyValue("--brand-color-lighter");
 
     // Custom color palette for the pie chart
-    const pieColorPalette = [
+    const pieColorPalette: string[] = [
         colorBalance,
         colorProcessing,
         colorReady,
@@ -133,6 +149,7 @@ const PieChartComponent = (props) => {
                         amount: total,
                         token: settings.tokens.TG[0],
                         decimals: 2,
+                        numericLabelParams: {},
                         i18n: i18n,
                         skipContractConvert: true,
                     })}
@@ -155,7 +172,7 @@ const PieChartComponent = (props) => {
                             cy="50%"
                             outerRadius={100}
                         >
-                            {data.map((entry, index) => (
+                            {data.map((entry: PieChartData, index: number) => (
                                 <Cell
                                     key={`cell-${index}`}
                                     fill={
@@ -172,7 +189,7 @@ const PieChartComponent = (props) => {
             </div>
             <div className="dataContainer">
                 <div className="dataLabels">
-                    {data.map((item) => (
+                    {data.map((item: PieChartData) => (
                         <div key={item.type} className="data-row">
                             <div className="data-bullet"></div>
                             <div>{item.type}: </div>
@@ -187,8 +204,4 @@ const PieChartComponent = (props) => {
     );
 };
 
-export default PieChartComponent;
-
-PieChartComponent.propTypes = {
-    userInfoStaking: PropTypes.object,
-};
+export default PieChartComponent; 
