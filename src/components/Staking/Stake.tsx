@@ -14,27 +14,46 @@ import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatus
 import InputAmount from "../InputAmount";
 import settings from "../../settings/settings.json";
 
-const Stake = (props) => {
+interface StakeProps {
+    activeTab: string;
+    userInfoStaking: {
+        tgBalance: BigNumber;
+        unstakeBalance: BigNumber;
+        [key: string]: any;
+    };
+}
+
+interface OperationModalInfo {
+    operationStatus: string;
+    txHash: string;
+}
+
+type ModalMode = "staking" | "unstaking" | null;
+
+const Stake = (props: StakeProps): JSX.Element => {
     const { activeTab, userInfoStaking } = props;
     const { t, i18n, ns } = useProjectTranslation();
 
     const auth = useContext(AuthenticateContext);
-    const defaultTokenStake = tokenStake()[0];
-    const [isUnstaking, setIsUnstaking] = useState(false);
+    const defaultTokenStake: string = tokenStake()[0];
+    const [isUnstaking, setIsUnstaking] = useState<boolean>(false);
     const [inputValidationErrorText, setInputValidationErrorText] =
-        useState("");
-    const [modalMode, setModalMode] = useState(null);
-    const [modalAmount, setModalAmount] = useState("0");
-    const [operationModalInfo, setOperationModalInfo] = useState({});
+        useState<string>("");
+    const [modalMode, setModalMode] = useState<ModalMode>(null);
+    const [modalAmount, setModalAmount] = useState<string>("0");
+    const [operationModalInfo, setOperationModalInfo] = useState<OperationModalInfo>({
+        operationStatus: "",
+        txHash: ""
+    });
     const [isOperationModalVisible, setIsOperationModalVisible] =
-        useState(false);
-    const [inputValidationError, setInputValidationError] = useState(true);
+        useState<boolean>(false);
+    const [inputValidationError, setInputValidationError] = useState<boolean>(true);
     //const [cleanInputCount, setUntouchCount] = useState(0);
 
-    const [amountToStake, setAmountToStake] = useState("");
-    const [amountToUnstake, setAmountToUnstake] = useState("");
+    const [amountToStake, setAmountToStake] = useState<string>("");
+    const [amountToUnstake, setAmountToUnstake] = useState<string>("");
 
-    const [currentTab, setCurrentTab] = useState(activeTab);
+    const [currentTab, setCurrentTab] = useState<string>(activeTab);
 
     useEffect(() => {
         // if(amountToStake === '' && amountToUnstake === '') return;
@@ -52,13 +71,13 @@ const Stake = (props) => {
         onValidate();
     }, [amountToStake, amountToUnstake]);
 
-    const onValidate = () => {
-        let amountInputError = false;
+    const onValidate = (): void => {
+        let amountInputError: boolean = false;
 
-        const totalBalance = isUnstaking
+        const totalBalance: BigNumber = isUnstaking
             ? userInfoStaking["unstakeBalance"]
             : userInfoStaking["tgBalance"];
-        const amountToProcess = isUnstaking
+        const amountToProcess: BigNumber = isUnstaking
             ? new BigNumber(amountToUnstake)
             : new BigNumber(amountToStake);
 
@@ -91,22 +110,24 @@ const Stake = (props) => {
         setInputValidationError(amountInputError);
     };
 
-    const onChangeCurrency = (/*newCurrency*/) => {
+    const onChangeCurrency = (/*newCurrency*/): void => {
         onClear();
     };
 
-    const onClear = () => {
+    const onClear = (): void => {
         setAmountToStake("");
         setAmountToUnstake("");
     };
-    const setAddTotalAvailable = () => {
-        const total = isUnstaking
+    
+    const setAddTotalAvailable = (): void => {
+        const total: BigNumber = isUnstaking
             ? userInfoStaking["unstakeBalance"]
             : userInfoStaking["tgBalance"];
         if (isUnstaking) setAmountToUnstake(total.toString());
         else setAmountToStake(total.toString());
     };
-    const getAmount = () => {
+    
+    const getAmount = (): number => {
         if (isUnstaking) {
             if (amountToUnstake === "0") {
                 return 0;
@@ -123,23 +144,25 @@ const Stake = (props) => {
             false
         );
     };
-    const onStakeButton = () => {
+    
+    const onStakeButton = (): void => {
         if (getAmount() > 0) {
-            setModalAmount(getAmount());
+            setModalAmount(getAmount().toString());
             setModalMode(isUnstaking ? "unstaking" : "staking");
         } else {
             alert("Please fill amount you want to stake");
         }
     };
 
-    const resetBalancesAndValues = () => {
+    const resetBalancesAndValues = (): void => {
         //setStakingBalances();
         setAmountToStake("");
         setAmountToUnstake("");
         //setUntouchCount((prev) => prev + 1);
     };
-    const onStakingModalConfirm = (operationStatus, txHash) => {
-        const operationInfo = {
+    
+    const onStakingModalConfirm = (operationStatus: string, txHash: string): void => {
+        const operationInfo: OperationModalInfo = {
             operationStatus,
             txHash,
         };

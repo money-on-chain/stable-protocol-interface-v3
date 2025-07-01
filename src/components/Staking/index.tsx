@@ -12,26 +12,80 @@ import Web3 from "web3";
 import { fromContractPrecisionDecimals } from "../../helpers/Formats";
 import { TokenSettings } from "../../helpers/currencies";
 
-const withdrawalStatus = {
+interface WithdrawalStatus {
+    pending: string;
+    available: string;
+}
+
+interface PendingWithdrawal {
+    id: string;
+    amount: string;
+    expiration: string;
+    status?: string;
+}
+
+interface UserInfoStaking {
+    tgBalance: BigNumber;
+    stakedBalance: BigNumber;
+    lockedBalance: BigNumber;
+    pendingWithdrawals: PendingWithdrawal[];
+    totalPendingExpiration: BigNumber;
+    totalAvailableToWithdraw: BigNumber;
+    lockedInVoting: BigNumber;
+    unstakeBalance?: BigNumber;
+}
+
+interface VestingMachine {
+    tgBalance: string;
+    staking: {
+        balance: string;
+        getLockedBalance: string;
+        getLockingInfo: {
+            amount: string;
+            untilTimestamp: string;
+        };
+    };
+    delay: any;
+}
+
+interface StakingMachine {
+    getBalance: string;
+    getLockedBalance: string;
+    getLockingInfo: {
+        amount: string;
+        untilTimestamp: string;
+    };
+}
+
+interface UserBalanceData {
+    vestingmachine?: VestingMachine;
+    TG?: {
+        balance: string;
+    };
+    stakingmachine?: StakingMachine;
+    delaymachine?: any;
+}
+
+const withdrawalStatus: WithdrawalStatus = {
     pending: "PENDING",
     available: "AVAILABLE",
 };
 
-const defaultTokenStake = tokenStake()[0];
-const tokenSettingsStake = TokenSettings(defaultTokenStake);
+const defaultTokenStake: string = tokenStake()[0];
+const tokenSettingsStake: any = TokenSettings(defaultTokenStake);
 
-const formatBigNumber = (amount) => {
+const formatBigNumber = (amount: string): BigNumber => {
     return new BigNumber(
         fromContractPrecisionDecimals(amount, tokenSettingsStake.decimals)
     );
 };
 
-export default function Staking() {
+export default function Staking(): JSX.Element {
     const auth = useContext(AuthenticateContext);
     const { t } = useProjectTranslation();
-    const [activeTab, setActiveTab] = useState("tab1");
+    const [activeTab, setActiveTab] = useState<string>("tab1");
 
-    const defaultUserInfoStaking = {
+    const defaultUserInfoStaking: UserInfoStaking = {
         tgBalance: new BigNumber(0),
         stakedBalance: new BigNumber(0),
         lockedBalance: new BigNumber(0),
@@ -40,7 +94,7 @@ export default function Staking() {
         totalAvailableToWithdraw: new BigNumber(0),
         lockedInVoting: new BigNumber(0),
     };
-    const [userInfoStaking, setUserInfoStaking] = useState(
+    const [userInfoStaking, setUserInfoStaking] = useState<UserInfoStaking>(
         defaultUserInfoStaking
     );
 
@@ -50,45 +104,46 @@ export default function Staking() {
         }
     }, [auth]);
 
-    const refreshBalances = () => {
-        const cData = { ...userInfoStaking };
-        const nowTimestamp = new BigNumber(Date.now());
-        let pendingWithdrawals = [];
-        let vUsing;
+    const refreshBalances = (): void => {
+        const cData: UserInfoStaking = { ...userInfoStaking };
+        const nowTimestamp: BigNumber = new BigNumber(Date.now());
+        let pendingWithdrawals: PendingWithdrawal[] = [];
+        let vUsing: VestingMachine | StakingMachine;
+        
         if (auth.isVestingLoaded()) {
             cData["tgBalance"] = formatBigNumber(
-                auth.userBalanceData.vestingmachine.tgBalance
+                auth.userBalanceData.vestingmachine!.tgBalance
             );
             cData["stakedBalance"] = formatBigNumber(
-                auth.userBalanceData.vestingmachine.staking.balance
+                auth.userBalanceData.vestingmachine!.staking.balance
             );
             cData["lockedBalance"] = formatBigNumber(
-                auth.userBalanceData.vestingmachine.staking.getLockedBalance
+                auth.userBalanceData.vestingmachine!.staking.getLockedBalance
             );
             pendingWithdrawals = pendingWithdrawalsFormat(
-                auth.userBalanceData.vestingmachine.delay
+                auth.userBalanceData.vestingmachine!.delay
             );
-            vUsing = auth.userBalanceData.vestingmachine.staking;
+            vUsing = auth.userBalanceData.vestingmachine!.staking;
         } else {
             cData["tgBalance"] = formatBigNumber(
-                auth.userBalanceData.TG.balance
+                auth.userBalanceData.TG!.balance
             );
             cData["stakedBalance"] = formatBigNumber(
-                auth.userBalanceData.stakingmachine.getBalance
+                auth.userBalanceData.stakingmachine!.getBalance
             );
             cData["lockedBalance"] = formatBigNumber(
-                auth.userBalanceData.stakingmachine.getLockedBalance
+                auth.userBalanceData.stakingmachine!.getLockedBalance
             );
             pendingWithdrawals = pendingWithdrawalsFormat(
                 auth.userBalanceData.delaymachine
             );
-            vUsing = auth.userBalanceData.stakingmachine;
+            vUsing = auth.userBalanceData.stakingmachine!;
         }
 
-        const lockedAmount = new BigNumber(
+        const lockedAmount: BigNumber = new BigNumber(
             Web3.utils.fromWei(vUsing.getLockingInfo.amount, "ether")
         );
-        const lockedUntilTimestamp = new BigNumber(
+        const lockedUntilTimestamp: BigNumber = new BigNumber(
             vUsing.getLockingInfo.untilTimestamp
         ).times(1000);
 
@@ -102,10 +157,10 @@ export default function Staking() {
             cData["lockedInVoting"]
         );
 
-        const pendingWithdrawalsFormatted = pendingWithdrawals
-            .filter((withdrawal) => withdrawal.expiration)
-            .map((withdrawal) => {
-                const status =
+        const pendingWithdrawalsFormatted: PendingWithdrawal[] = pendingWithdrawals
+            .filter((withdrawal: PendingWithdrawal) => withdrawal.expiration)
+            .map((withdrawal: PendingWithdrawal) => {
+                const status: string =
                     new Date(parseInt(withdrawal.expiration) * 1000) >
                     new Date()
                         ? withdrawalStatus.pending
@@ -116,9 +171,9 @@ export default function Staking() {
                     status,
                 };
             });
-        let pendingExpirationAmount = new BigNumber(0);
-        let readyToWithdrawAmount = new BigNumber(0);
-        pendingWithdrawalsFormatted.forEach(({ status, amount }) => {
+        let pendingExpirationAmount: BigNumber = new BigNumber(0);
+        let readyToWithdrawAmount: BigNumber = new BigNumber(0);
+        pendingWithdrawalsFormatted.forEach(({ status, amount }: PendingWithdrawal) => {
             if (status === withdrawalStatus.pending) {
                 pendingExpirationAmount = BigNumber.sum(
                     pendingExpirationAmount,
@@ -131,9 +186,9 @@ export default function Staking() {
                 );
             }
         });
-        const pendingWithdrawalsSort = pendingWithdrawalsFormatted.sort(
-            function (a, b) {
-                return b.id.toString() - a.id.toString();
+        const pendingWithdrawalsSort: PendingWithdrawal[] = pendingWithdrawalsFormatted.sort(
+            function (a: PendingWithdrawal, b: PendingWithdrawal) {
+                return parseInt(b.id) - parseInt(a.id);
             }
         );
 

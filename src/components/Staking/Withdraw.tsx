@@ -13,21 +13,62 @@ import ActionIcon from "../../assets/icons/Action.svg";
 import StakingOptionsModal from "../Modals/StakingOptionsModal/index";
 import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
 
-export default function Withdraw(props) {
+interface WithdrawProps {
+    userInfoStaking: {
+        pendingWithdrawals: WithdrawalItem[];
+        totalPendingExpiration: any;
+        totalAvailableToWithdraw: any;
+        [key: string]: any;
+    };
+}
+
+interface WithdrawalItem {
+    id: number;
+    expiration: number;
+    amount: any;
+    status: string;
+}
+
+interface OperationModalInfo {
+    operationStatus: string;
+    txHash: string;
+}
+
+interface TableColumn {
+    title: string;
+    dataIndex: string;
+    align: "left" | "right" | "center";
+    width: number;
+}
+
+interface TableDataItem {
+    key: number;
+    expiration: JSX.Element;
+    amount: JSX.Element;
+    status: JSX.Element;
+    available_actions: JSX.Element;
+}
+
+type ModalMode = "restake" | "withdraw" | null;
+
+export default function Withdraw(props: WithdrawProps): JSX.Element {
     const { userInfoStaking } = props;
     const { t, i18n, ns } = useProjectTranslation();
     const auth = useContext(AuthenticateContext);
-    const [totalTable, setTotalTable] = useState(null);
-    const [data, setData] = useState(null);
-    const [modalMode, setModalMode] = useState(null);
-    const [withdrawalId, setWithdrawalId] = useState("0");
-    const [modalAmount, setModalAmount] = useState("0");
-    const [operationModalInfo, setOperationModalInfo] = useState({});
+    const [totalTable, setTotalTable] = useState<number | null>(null);
+    const [data, setData] = useState<TableDataItem[] | null>(null);
+    const [modalMode, setModalMode] = useState<ModalMode>(null);
+    const [withdrawalId, setWithdrawalId] = useState<string>("0");
+    const [modalAmount, setModalAmount] = useState<string>("0");
+    const [operationModalInfo, setOperationModalInfo] = useState<OperationModalInfo>({
+        operationStatus: "",
+        txHash: ""
+    });
     const [isOperationModalVisible, setIsOperationModalVisible] =
-        useState(false);
+        useState<boolean>(false);
 
-    const columnsData = [];
-    const ProvideColumnsTG = [
+    const columnsData: TableColumn[] = [];
+    const ProvideColumnsTG: TableColumn[] = [
         {
             title: t("staking.withdraw.table.expiration"),
             dataIndex: "expiration",
@@ -53,16 +94,17 @@ export default function Withdraw(props) {
             width: 160,
         },
     ];
+    
     useEffect(() => {
         if (auth && userInfoStaking["pendingWithdrawals"]) {
             getWithdrawals();
         }
     }, [auth, userInfoStaking["pendingWithdrawals"], i18n.language]);
 
-    const getWithdrawals = () => {
+    const getWithdrawals = (): void => {
         setTotalTable(userInfoStaking["pendingWithdrawals"].length);
-        const tokensData = userInfoStaking["pendingWithdrawals"].map(
-            (withdrawal, index) => ({
+        const tokensData: TableDataItem[] = userInfoStaking["pendingWithdrawals"].map(
+            (withdrawal: WithdrawalItem, index: number) => ({
                 key: index,
                 expiration: (
                     <div className="item-data">
@@ -73,7 +115,7 @@ export default function Withdraw(props) {
                                     : date.DATE_ES
                             }
                             date={moment.tz(
-                                parseInt(withdrawal.expiration) * 1000,
+                                parseInt(withdrawal.expiration.toString()) * 1000,
                                 moment.tz.guess()
                             )}
                         />
@@ -144,7 +186,7 @@ export default function Withdraw(props) {
     };
 
     // Columns
-    ProvideColumnsTG.forEach(function (dataItem) {
+    ProvideColumnsTG.forEach(function (dataItem: TableColumn) {
         columnsData.push({
             title: dataItem.title,
             dataIndex: dataItem.dataIndex,
@@ -153,8 +195,8 @@ export default function Withdraw(props) {
         });
     });
 
-    const onConfirm = (operationStatus, txHash) => {
-        const operationInfo = {
+    const onConfirm = (operationStatus: string, txHash: string): void => {
+        const operationInfo: OperationModalInfo = {
             operationStatus,
             txHash,
         };
@@ -168,16 +210,16 @@ export default function Withdraw(props) {
         }
     };
 
-    const handleActionClick = (action, status) => {
+    const handleActionClick = (action: "restake" | "withdraw", withdrawal: WithdrawalItem): void => {
         // if (status !== 'PENDING' && status !== 'AVAILABLE' && action === 'restake') return;
-        if (status === "PENDING" && action === "withdraw") return;
+        if (withdrawal.status === "PENDING" && action === "withdraw") return;
         if (action === "restake") {
             setModalMode("restake");
         } else {
             setModalMode("withdraw");
         }
-        setWithdrawalId(status.id.toString());
-        setModalAmount(status.amount);
+        setWithdrawalId(withdrawal.id.toString());
+        setModalAmount(withdrawal.amount.toString());
     };
 
     return (
