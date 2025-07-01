@@ -1,19 +1,34 @@
 import React, { /*useContext,*/ useState } from "react";
 import { Modal, Button } from "antd";
-import PropTypes from "prop-types";
 
 import { getCurrenciesDetail } from "../../helpers/currencies";
 //import { AuthenticateContext } from "../../context/Auth";
 import { useProjectTranslation } from "../../helpers/translations";
 import "./Styles.scss";
 
-export default function CurrencyPopUp(props) {
+interface CurrencyOption {
+    value: string;
+    image: React.ReactNode;
+    label: string;
+    abbreviation: string;
+}
+
+interface CurrencyPopUpProps {
+    value?: string;
+    onChange: (value: string) => void;
+    currencyOptions: string[];
+    disabled?: boolean;
+    action: string;
+    title?: string;
+}
+
+export default function CurrencyPopUp(props: CurrencyPopUpProps): JSX.Element {
     const { value, onChange, currencyOptions, disabled, action, title } = props;
     const { t, ns } = useProjectTranslation();
-    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
     // Retrieve currency options with details
-    const options = getCurrenciesDetail().map((currency) => ({
+    const options: CurrencyOption[] = getCurrenciesDetail().map((currency) => ({
         value: currency.value,
         image: currency.image,
         label: t(`${action}.tokens.${currency.value}.label`, { ns: ns }),
@@ -21,8 +36,8 @@ export default function CurrencyPopUp(props) {
     }));
 
     // Remove duplicated items, except on action exchange & coinbase
-    const arrayAdded = [];
-    const optionsFiltered = options.filter(function (item /*index, array*/) {
+    const arrayAdded: string[] = [];
+    const optionsFiltered: CurrencyOption[] = options.filter(function (item: CurrencyOption /*index, array*/) {
         if (!arrayAdded.includes(item.abbreviation)) {
             if (!(action === "exchange" && item.value === "COINBASE"))
                 arrayAdded.push(item.abbreviation);
@@ -31,31 +46,31 @@ export default function CurrencyPopUp(props) {
     });
 
     // Get the currently selected currency
-    const selectedCurrency = optionsFiltered.find(
+    const selectedCurrency: CurrencyOption | undefined = optionsFiltered.find(
         (currency) => currency.value === value
     );
 
     // Filter options to only include allowed currencies
-    const filteredOptions = optionsFiltered.filter((currency) =>
+    const filteredOptions: CurrencyOption[] = optionsFiltered.filter((currency) =>
         currencyOptions.includes(currency.value)
     );
 
     //const auth = useContext(AuthenticateContext);
 
     // Function to open the modal
-    const openModal = () => {
+    const openModal = (): void => {
         if (!disabled) {
             setIsModalVisible(true);
         }
     };
 
     // Function to close the modal
-    const closeModal = () => {
+    const closeModal = (): void => {
         setIsModalVisible(false);
     };
 
     // Function to select a currency and close the modal
-    const handleSelect = (selectedValue) => {
+    const handleSelect = (selectedValue: string): void => {
         onChange(selectedValue);
         closeModal();
     };
@@ -111,13 +126,4 @@ export default function CurrencyPopUp(props) {
             </Modal>
         </div>
     );
-}
-
-CurrencyPopUp.propTypes = {
-    value: PropTypes.string,
-    onChange: PropTypes.func,
-    currencyOptions: PropTypes.array,
-    disabled: PropTypes.bool,
-    action: PropTypes.string,
-    title: PropTypes.string,
-};
+} 
