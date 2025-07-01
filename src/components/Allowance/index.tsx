@@ -7,7 +7,19 @@ import { useProjectTranslation } from "../../helpers/translations";
 import { AuthenticateContext } from "../../context/Auth";
 //import AccountDialog from '../Account';
 
-export default function AllowanceDialog(props) {
+interface AllowanceDialogProps {
+    onCloseModal: () => void;
+    currencyYouExchange: string;
+    currencyYouReceive: string;
+    amountYouExchangeLimit: BigNumber;
+    //amountYouReceiveLimit: BigNumber;
+    onRealSendTransaction: () => void;
+    disAllowance?: boolean;
+}
+
+type StatusType = "SUBMIT" | "SIGN" | "WAITING" | "ERROR";
+
+export default function AllowanceDialog(props: AllowanceDialogProps): JSX.Element {
     const {
         onCloseModal,
         currencyYouExchange,
@@ -21,11 +33,11 @@ export default function AllowanceDialog(props) {
     const { t } = useProjectTranslation();
     const auth = useContext(AuthenticateContext);
 
-    const [status, setStatus] = useState("SUBMIT");
-    let infinityAllowance = false;
+    const [status, setStatus] = useState<StatusType>("SUBMIT");
+    let infinityAllowance: boolean = false;
 
-    let sentIcon = "";
-    let statusLabel = "";
+    let sentIcon: string = "";
+    let statusLabel: string = "";
     switch (status) {
         case "SUBMIT":
             sentIcon = "icon-tx-waiting";
@@ -48,25 +60,25 @@ export default function AllowanceDialog(props) {
             statusLabel = t("allowance.feedback.default");
     }
 
-    const onChange = (e) => {
+    const onChange = (e: any): void => {
         console.log(`checked = ${e.target.checked}`);
         infinityAllowance = e.target.checked;
     };
 
-    const reset = () => {
+    const reset = (): void => {
         setStatus("SUBMIT");
         infinityAllowance = false;
     };
 
-    const onClose = () => {
+    const onClose = (): void => {
         reset();
         onCloseModal();
     };
 
-    const onAuthorize = () => {
+    const onAuthorize = (): void => {
         // First change status to sign tx
         //amountAllowance = new BigNumber(1000) //Number.MAX_SAFE_INTEGER.toString()
-        let amountAllowance;
+        let amountAllowance: BigNumber;
         if (infinityAllowance) {
             amountAllowance = new BigNumber(100000000000);
         } else {
@@ -89,19 +101,19 @@ export default function AllowanceDialog(props) {
             .then((/*value*/) => {
                 onClose();
             })
-            .catch((error) => {
+            .catch((error: any) => {
                 console.log(error);
                 setStatus("ERROR");
             });
     };
 
-    const onTransaction = (transactionHash) => {
+    const onTransaction = (transactionHash: string): void => {
         // Tx receipt detected change status to waiting
         setStatus("WAITING");
         console.log("On transaction: ", transactionHash);
     };
 
-    const onReceipt = async (receipt) => {
+    const onReceipt = async (receipt: any): Promise<void> => {
         // Tx is mined ok proceed with operation transaction
         console.log("On receipt: ", receipt);
         /*
@@ -152,14 +164,14 @@ export default function AllowanceDialog(props) {
                         <div className="cta-container">
                             <div className="cta-options-group">
                                 <button
-                                    type="secondary"
+                                    type="button"
                                     className="button secondary"
                                     onClick={onClose}
                                 >
                                     {t("allowance.confirm.cancel")}
                                 </button>
                                 <button
-                                    type="primary"
+                                    type="button"
                                     className="button"
                                     onClick={onAuthorize}
                                 >
@@ -185,7 +197,7 @@ export default function AllowanceDialog(props) {
                         <div className="cta-container">
                             <div className="cta-options-group">
                                 <button
-                                    type="primary"
+                                    type="button"
                                     className="button secondary"
                                     onClick={onClose}
                                 >
