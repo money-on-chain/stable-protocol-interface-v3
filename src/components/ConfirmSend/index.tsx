@@ -9,7 +9,17 @@ import { TokenSettings } from "../../helpers/currencies";
 import { AuthenticateContext } from "../../context/Auth";
 import CopyAddress from "../CopyAddress";
 
-export default function ConfirmSend(props) {
+interface ConfirmSendProps {
+    currencyYouExchange: string;
+    exchangingUSD: BigNumber;
+    amountYouExchange: string;
+    destinationAddress: string;
+    onCloseModal: () => void;
+}
+
+type StatusType = "SUBMIT" | "SIGN" | "WAITING" | "SUCCESS" | "ERROR";
+
+export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
     const {
         currencyYouExchange,
         exchangingUSD,
@@ -21,10 +31,10 @@ export default function ConfirmSend(props) {
     const { t, i18n, ns } = useProjectTranslation();
     const auth = useContext(AuthenticateContext);
 
-    const [status, setStatus] = useState("SUBMIT");
-    const [txID, setTxID] = useState("");
+    const [status, setStatus] = useState<StatusType>("SUBMIT");
+    const [txID, setTxID] = useState<string>("");
 
-    const onSendTransaction = () => {
+    const onSendTransaction = (): void => {
         // Real send transaction
         setStatus("SIGN");
 
@@ -38,7 +48,7 @@ export default function ConfirmSend(props) {
                 .then((/*value*/) => {
                     console.log("DONE!");
                 })
-                .catch((error) => {
+                .catch((error: any) => {
                     console.log("ERROR");
                     setStatus("ERROR");
                     console.log(error);
@@ -54,7 +64,7 @@ export default function ConfirmSend(props) {
                 .then((/*value*/) => {
                     console.log("DONE!");
                 })
-                .catch((error) => {
+                .catch((error: any) => {
                     console.log("ERROR");
                     setStatus("ERROR");
                     console.log(error);
@@ -62,14 +72,14 @@ export default function ConfirmSend(props) {
         }
     };
 
-    const onTransaction = (transactionHash) => {
+    const onTransaction = (transactionHash: string): void => {
         // Tx receipt detected change status to waiting
         setStatus("WAITING");
         console.log("On transaction: ", transactionHash);
         setTxID(transactionHash);
     };
 
-    const onReceipt = async (receipt) => {
+    const onReceipt = async (receipt: any): Promise<void> => {
         // Tx is mined ok
         console.log("On receipt: ", receipt);
 
@@ -98,8 +108,8 @@ export default function ConfirmSend(props) {
         });
     };
 
-    let sentIcon = "";
-    let statusLabel = "";
+    let sentIcon: string = "";
+    let statusLabel: string = "";
     switch (status) {
         case "SUBMIT":
             sentIcon = "icon-tx-waiting ";
@@ -126,7 +136,7 @@ export default function ConfirmSend(props) {
             statusLabel = t("send.feedback.default");
     }
 
-    const onClose = () => {
+    const onClose = (): void => {
         setStatus("SUBMIT");
         onCloseModal();
     };
@@ -193,7 +203,7 @@ export default function ConfirmSend(props) {
                     </div>
                     <div className="cta-options-group">
                         <Button
-                            type="secondary"
+                            type="default"
                             className={
                                 import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT.toLowerCase()
                                     ? "button secondary"
@@ -204,7 +214,7 @@ export default function ConfirmSend(props) {
                             {t("send.buttonCancel")}
                         </Button>
                         <button
-                            type="primary"
+                            type="button"
                             className={
                                 import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT.toLowerCase()
                                     ? `button`
@@ -255,7 +265,7 @@ export default function ConfirmSend(props) {
                     <div className="cta-container">
                         <div className="cta-options-group">
                             <button
-                                type="primary"
+                                type="button"
                                 className="button secondary"
                                 onClick={onClose}
                             >
