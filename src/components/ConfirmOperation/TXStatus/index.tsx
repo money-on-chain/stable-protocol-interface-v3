@@ -2,17 +2,38 @@ import React from "react";
 import PropTypes from "prop-types";
 import "./Styles.scss";
 
-export default function TXStatus({ statusData, statusLabels }) {
+interface StatusData {
+    status: string;
+}
+
+interface StatusLabels {
+    SIGN?: string;
+    QUEUING?: string;
+    QUEUED?: string;
+    CONFIRMING?: string;
+    SUCCESS?: string;
+    ERROR?: string;
+    [key: string]: string | undefined;
+}
+
+interface TXStatusProps {
+    statusData: StatusData;
+    statusLabels: StatusLabels;
+}
+
+type StepType = "SIGN" | "QUEUING" | "QUEUED" | "SUCCESS";
+
+export default function TXStatus({ statusData, statusLabels }: TXStatusProps): JSX.Element {
     const { status } = statusData;
 
     // List of steps in order
-    const steps = ["SIGN", "QUEUING", "QUEUED", "SUCCESS"];
+    const steps: StepType[] = ["SIGN", "QUEUING", "QUEUED", "SUCCESS"];
 
     // Get the index of the current step
-    const stepIndex = steps.indexOf(status);
+    const stepIndex: number = steps.indexOf(status as StepType);
 
     // Mapping of statuses to icon classes
-    const statusIcons = {
+    const statusIcons: { [key: string]: string } = {
         SIGN: "icon-tx-signWallet",
         QUEUING: "icon-operation-tx-queuing",
         QUEUED: "icon-operation-tx-queued",
@@ -46,10 +67,10 @@ export default function TXStatus({ statusData, statusLabels }) {
             ) : (
                 /* Default case: Show step-by-step progress */
                 <div className="txSteps-container">
-                    {steps.map((step, index) => {
-                        let stepClass = "stepRow txSteps--todo";
-                        let iconClass = "icon-tx-checkUnchecked"; // Default icon
-                        let label = statusLabels[step] || step;
+                    {steps.map((step: StepType, index: number) => {
+                        let stepClass: string = "stepRow txSteps--todo";
+                        let iconClass: string = "icon-tx-checkUnchecked"; // Default icon
+                        let label: string = statusLabels[step] || step;
 
                         if (index < stepIndex) {
                             stepClass = "stepRow txSteps--done";

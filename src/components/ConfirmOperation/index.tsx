@@ -18,7 +18,55 @@ import { decodeEvents } from "../../lib/backend/transaction";
 
 const { Panel } = Collapse;
 
-export default function ConfirmOperation(props) {
+interface ConfirmOperationProps {
+    currencyYouExchange: string;
+    currencyYouReceive: string;
+    exchangingUSD: BigNumber;
+    commission: BigNumber;
+    commissionUSD: BigNumber;
+    commissionPercent: BigNumber;
+    inputAmountYouExchange: BigNumber;
+    amountYouReceive: BigNumber;
+    onCloseModal: () => void;
+    executionFee: BigNumber;
+    executionFeeUSD: BigNumber;
+    commissionFeeToken: BigNumber;
+    commissionFeeTokenUSD: BigNumber;
+    commissionPercentFeeToken: BigNumber;
+    radioSelectFee: number;
+    caIndex: number;
+}
+
+type StatusType = "SUBMIT" | "SIGN" | "QUEUING" | "QUEUED" | "CONFIRMING" | "SUCCESS" | "ERROR";
+
+interface ToleranceLimits {
+    exchange: BigNumber;
+    receive: BigNumber;
+}
+
+interface MarkStyle {
+    style: {
+        color: string;
+        fontSize: number;
+    };
+}
+
+interface PriceVariationToleranceMarks {
+    [key: number]: MarkStyle & { label: string };
+}
+
+interface StatusLabels {
+    SUBMIT: string;
+    SIGN: string;
+    QUEUING: string;
+    QUEUED: string;
+    CONFIRMING: string;
+    SUCCESS: string;
+    ERROR: string;
+    DEFAULT: string;
+}
+
+export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Element {
     const {
         currencyYouExchange,
         currencyYouReceive,
@@ -41,23 +89,24 @@ export default function ConfirmOperation(props) {
     const { t, i18n, ns } = useProjectTranslation();
     const auth = useContext(AuthenticateContext);
 
-    const [status, setStatus] = useState("SUBMIT");
-    const [amountYouExchange, setAmountYouExchange] = useState(
+    const [status, setStatus] = useState<StatusType>("SUBMIT");
+    const [amountYouExchange, setAmountYouExchange] = useState<BigNumber>(
         inputAmountYouExchange
     );
-    const [tolerance, setTolerance] = useState(0.7);
-    const [txID, setTxID] = useState("");
-    const [opID, setOpID] = useState(null);
-    const [toleranceError, setToleranceError] = useState("");
-    const [amountChanged, setAmountChanged] = useState(false);
+    const [tolerance, setTolerance] = useState<number>(0.7);
+    const [txID, setTxID] = useState<string>("");
+    const [opID, setOpID] = useState<number | null>(null);
+    const [toleranceError, setToleranceError] = useState<string>("");
+    const [amountChanged, setAmountChanged] = useState<boolean>(false);
 
-    const IS_MINT = isMintOperation(currencyYouExchange, currencyYouReceive);
+    const IS_MINT: boolean = isMintOperation(currencyYouExchange, currencyYouReceive);
+    
     useEffect(() => {
         setAmountYouExchange(inputAmountYouExchange);
     }, []);
 
     useEffect(() => {
-        let timerId;
+        let timerId: NodeJS.Timeout;
         if (status === "QUEUING") {
             console.log(
                 "Operation queuing... waiting for operation execution."
@@ -86,9 +135,9 @@ export default function ConfirmOperation(props) {
         return () => clearTimeout(timerId);
     }, [status]);
 
-    const toleranceLimits = (newTolerance) => {
-        let limitExchange;
-        let limitReceive;
+    const toleranceLimits = (newTolerance: number): ToleranceLimits => {
+        let limitExchange: BigNumber;
+        let limitReceive: BigNumber;
         if (IS_MINT) {
             limitExchange = new BigNumber(amountYouExchange)
                 .times(new BigNumber(newTolerance))
@@ -104,7 +153,7 @@ export default function ConfirmOperation(props) {
                 .abs();
         }
 
-        const limits = {
+        const limits: ToleranceLimits = {
             exchange: limitExchange,
             receive: limitReceive,
         };
@@ -112,65 +161,63 @@ export default function ConfirmOperation(props) {
         return limits;
     };
 
-    const limits = toleranceLimits(tolerance);
+    const limits: ToleranceLimits = toleranceLimits(tolerance);
 
-    const [amountYouExchangeLimit, setAmountYouExchangeLimit] = useState(
+    const [amountYouExchangeLimit, setAmountYouExchangeLimit] = useState<BigNumber>(
         limits.exchange
     );
-    const [amountYouReceiveLimit, setAmountYouReceiveLimit] = useState(
+    const [amountYouReceiveLimit, setAmountYouReceiveLimit] = useState<BigNumber>(
         limits.receive
     );
-    const [showModalAllowance, setShowModalAllowance] = useState(false);
-    const [showModalAllowanceFeeToken, setShowModalAllowanceFeeToken] =
-        useState(false);
-    const [disAllowanceFeeToken, setDisAllowanceFeeToken] = useState(false);
+    const [showModalAllowance, setShowModalAllowance] = useState<boolean>(false);
+    const [showModalAllowanceFeeToken, setShowModalAllowanceFeeToken] = useState<boolean>(false);
+    const [disAllowanceFeeToken, setDisAllowanceFeeToken] = useState<boolean>(false);
 
     useEffect(() => {
         if (amountYouExchange) {
-            const limits = toleranceLimits(tolerance);
+            const limits: ToleranceLimits = toleranceLimits(tolerance);
             setAmountYouExchangeLimit(limits.exchange);
         }
     }, [amountYouExchange]);
 
     useEffect(() => {
         if (amountYouReceive) {
-            const limits = toleranceLimits(tolerance);
+            const limits: ToleranceLimits = toleranceLimits(tolerance);
             setAmountYouReceiveLimit(limits.receive);
         }
     }, [amountYouReceive]);
 
     useEffect(() => {
-        const interval = setInterval(() => {
+        const interval: NodeJS.Timeout = setInterval(() => {
             opStatus();
         }, 5000);
         return () => clearInterval(interval);
     }, [opID]);
 
-    const onHideModalAllowance = () => {
+    const onHideModalAllowance = (): void => {
         setShowModalAllowance(false);
     };
 
-    const onShowModalAllowance = () => {
+    const onShowModalAllowance = (): void => {
         setShowModalAllowance(true);
     };
 
-    const showAllowance = () => {
-        const tokenAllowance = UserTokenAllowance(auth, currencyYouExchange, caIndex);
+    const showAllowance = (): boolean => {
+        const tokenAllowance: BigNumber = UserTokenAllowance(auth, currencyYouExchange, caIndex);
         return !!amountYouExchangeLimit.gt(tokenAllowance);
     };
 
-    const onHideModalAllowanceFeeToken = () => {
+    const onHideModalAllowanceFeeToken = (): void => {
         setShowModalAllowanceFeeToken(false);
     };
 
-    const onShowModalAllowanceFeeToken = () => {
+    const onShowModalAllowanceFeeToken = (): void => {
         setShowModalAllowanceFeeToken(true);
     };
 
-    const showAllowanceFeeToken = () => {
-
+    const showAllowanceFeeToken = (): boolean => {
         //const caIndex = getCAIndex(currencyYouExchange, currencyYouReceive);
-        const tokenAllowance = UserTokenAllowance(auth, `TF_${caIndex}`, caIndex);
+        const tokenAllowance: BigNumber = UserTokenAllowance(auth, `TF_${caIndex}`, caIndex);
 
         if (radioSelectFee === 0 && tokenAllowance.gte(commissionFeeToken)) {
             // if we select not to pay with fee token, please disallow to use Fee token
@@ -184,7 +231,7 @@ export default function ConfirmOperation(props) {
         return false;
     };
 
-    const onSendTransactionAllowFeeToken = () => {
+    const onSendTransactionAllowFeeToken = (): void => {
         // Show modal allowance
         if (showAllowanceFeeToken()) {
             onShowModalAllowanceFeeToken();
@@ -195,7 +242,7 @@ export default function ConfirmOperation(props) {
         onSendTransaction();
     };
 
-    const onSendTransaction = () => {
+    const onSendTransaction = (): void => {
         // Show modal allowance
         if (showAllowance()) {
             onShowModalAllowance();
@@ -206,12 +253,12 @@ export default function ConfirmOperation(props) {
         onRealSendTransaction();
     };
 
-    const onRealSendTransaction = () => {
+    const onRealSendTransaction = (): void => {
         // Real send transaction
         setStatus("SIGN");
 
-        let tokenAmount;
-        let limitAmount;
+        let tokenAmount: BigNumber;
+        let limitAmount: BigNumber;
         if (IS_MINT) {
             tokenAmount = amountYouReceive;
             limitAmount = amountYouExchangeLimit;
@@ -231,7 +278,7 @@ export default function ConfirmOperation(props) {
             .then((/*value*/) => {
                 console.log("DONE!");
             })
-            .catch((error) => {
+            .catch((error: any) => {
                 if (error.response) {
                     // The request was made and the server responded with a status code
                     // that falls out of the range of 2xx
@@ -253,20 +300,20 @@ export default function ConfirmOperation(props) {
             });
     };
 
-    const onTransaction = (transactionHash) => {
+    const onTransaction = (transactionHash: string): void => {
         // Tx receipt detected change status to waiting
         setStatus("QUEUING");
         console.log("On transaction: ", transactionHash);
         setTxID(transactionHash);
     };
 
-    const opStatus = () => {
+    const opStatus = (): void => {
         if (!opID) {
             console.log("Operation Status: Checking... NO.");
             return;
         }
 
-        const apiUrl =
+        const apiUrl: string =
             `${import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS}` +
             "operations/oper_id/";
         axios
@@ -277,7 +324,7 @@ export default function ConfirmOperation(props) {
                 },
                 timeout: 10000,
             })
-            .then((response) => {
+            .then((response: any) => {
                 if (response.status === 200) {
                     if (response.data.status === 0) {
                         // Pending executed
@@ -311,7 +358,7 @@ export default function ConfirmOperation(props) {
                     }
                 }
             })
-            .catch((error) => {
+            .catch((error: any) => {
                 if (error.response) {
                     // The request was made and the server responded with a status code
                     // that falls out of the range of 2xx
@@ -333,14 +380,14 @@ export default function ConfirmOperation(props) {
             });
     };
 
-    const onQueued = (filteredEvents) => {
-        let operId = 0;
-        filteredEvents.forEach(function (events) {
+    const onQueued = (filteredEvents: any[]): void => {
+        let operId: number = 0;
+        filteredEvents.forEach(function (events: any) {
             if (events.eventName === "OperationQueued") {
                 // Is the event operation queue
                 for (const [eveName, eveValue] of Object.entries(events.args)) {
                     if (eveName === "operId_") {
-                        operId = parseInt(eveValue);
+                        operId = parseInt(eveValue as string);
                     }
                 }
             }
@@ -354,29 +401,30 @@ export default function ConfirmOperation(props) {
         }
     };
 
-    const onReceipt = async (receipt) => {
+    const onReceipt = async (receipt: any): Promise<void> => {
         // Tx is mined ok
         console.log("On receipt: ", receipt);
 
         // Events name list
-        const filter = [
+        const filter: string[] = [
             "OperationError",
             "UnhandledError",
             "OperationQueued",
             "OperationExecuted",
         ];
 
-        const contractName = "MocQueue";
+        const contractName: string = "MocQueue";
 
         const txRcp = await auth.web3.eth.getTransactionReceipt(
             receipt.transactionHash
         );
-        const filteredEvents = decodeEvents(txRcp, contractName, filter);
+        const filteredEvents: any[] = decodeEvents(txRcp, contractName, filter);
 
         // on Queue
         onQueued(filteredEvents);
     };
-    const statusLabels = {
+    
+    const statusLabels: StatusLabels = {
         SUBMIT: t("exchange.confirm.submit"),
         SIGN: t("exchange.confirm.sign"),
         QUEUING: t("exchange.confirm.queuing"),
@@ -422,14 +470,14 @@ export default function ConfirmOperation(props) {
             statusLabel = t("exchange.confirm.default");
     }*/
 
-    const markStyle = {
+    const markStyle: MarkStyle = {
         style: {
             color: "#707070",
             fontSize: 10,
         },
     };
 
-    const priceVariationToleranceMarks = {
+    const priceVariationToleranceMarks: PriceVariationToleranceMarks = {
         0: { ...markStyle, label: "0.0%" },
         1: { ...markStyle, label: "1%" },
         2: { ...markStyle, label: "2%" },
@@ -437,11 +485,11 @@ export default function ConfirmOperation(props) {
         10: { ...markStyle, label: "10%" },
     };
 
-    const changeTolerance = (newTolerance) => {
+    const changeTolerance = (newTolerance: number): void => {
         setAmountChanged(true);
         setTolerance(newTolerance);
-        const limits = toleranceLimits(newTolerance);
-        const totalBalance = new BigNumber(
+        const limits: ToleranceLimits = toleranceLimits(newTolerance);
+        const totalBalance: BigNumber = new BigNumber(
             fromContractPrecisionDecimals(
                 TokenBalance(auth, currencyYouExchange),
                 TokenSettings(currencyYouExchange).decimals
@@ -459,18 +507,18 @@ export default function ConfirmOperation(props) {
         setAmountYouReceiveLimit(limits.receive);
     };
 
-    const onClose = () => {
+    const onClose = (): void => {
         setStatus("SUBMIT");
         onCloseModal();
     };
 
     // Commission Select Radio
 
-    let commissionPAY = commission;
-    let commissionPAYUSD = commissionUSD;
-    let commissionPercentPAY = commissionPercent;
-    let commissionSettings = TokenSettings(`CA_${caIndex}`);
-    let commissionTokenName;
+    let commissionPAY: BigNumber = commission;
+    let commissionPAYUSD: BigNumber = commissionUSD;
+    let commissionPercentPAY: BigNumber = commissionPercent;
+    let commissionSettings: any = TokenSettings(`CA_${caIndex}`);
+    let commissionTokenName: string;
 
     if (IS_MINT) {
         commissionTokenName = t(`exchange.tokens.${currencyYouExchange}.abbr`, {
@@ -700,7 +748,7 @@ export default function ConfirmOperation(props) {
                                         max={10}
                                         step={0.1}
                                         dots={false}
-                                        onChange={(val) => changeTolerance(val)}
+                                        onChange={(val: number) => changeTolerance(val)}
                                     />
                                 </div>
                             </Panel>
@@ -741,14 +789,14 @@ export default function ConfirmOperation(props) {
                         )}
                         <div className="cta-options-group">
                             <Button
-                                type="secondary"
+                                type="default"
                                 className="button secondary"
                                 onClick={onClose}
                             >
                                 {t("exchange.buttonCancel")}
                             </Button>
                             <button
-                                type="primary"
+                                type="button"
                                 className="button"
                                 onClick={onSendTransactionAllowFeeToken}
                                 disabled={toleranceError !== ""}
@@ -804,7 +852,7 @@ export default function ConfirmOperation(props) {
                     <div className="cta-container">
                         <div className="cta-options-group">
                             <button
-                                type="secondary"
+                                type="button"
                                 className="button secondary"
                                 onClick={onClose}
                             >
