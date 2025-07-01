@@ -7,22 +7,34 @@ import { pendingWithdrawalsFormat } from "../../../helpers/staking";
 import { AuthenticateContext } from "../../../context/Auth";
 import { useProjectTranslation } from "../../../helpers/translations";
 
-const withdrawalStatus = {
+interface WithdrawalStatus {
+    pending: string;
+    available: string;
+}
+
+interface PendingWithdrawal {
+    expiration: string;
+    amount: string;
+    status?: string;
+    id?: string;
+}
+
+const withdrawalStatus: WithdrawalStatus = {
     pending: "PENDING",
     available: "AVAILABLE",
 };
 
-const Dashboard = () => {
+const Dashboard = (): JSX.Element => {
     const auth = useContext(AuthenticateContext);
     const { t, i18n, ns } = useProjectTranslation();
     //const [activeTab, setActiveTab] = useState("tab1");
-    const [tgBalance, setTgBalance] = useState("0");
+    const [tgBalance, setTgBalance] = useState<string>("0");
     //const [lockedBalance, setLockedBalance] = useState("0");
-    const [stakedBalance, setStakedBalance] = useState("0");
+    const [stakedBalance, setStakedBalance] = useState<string>("0");
     //const [pendingWithdrawals, setPendingWithdrawals] = useState(null);
-    const [totalPendingExpiration, setTotalPendingExpiration] = useState("0");
+    const [totalPendingExpiration, setTotalPendingExpiration] = useState<string>("0");
     const [totalAvailableToWithdraw, setTotalAvailableToWithdraw] =
-        useState("0");
+        useState<string>("0");
     //const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -32,31 +44,31 @@ const Dashboard = () => {
         }
     }, [auth]);
 
-    const setStakingBalances = async () => {
+    const setStakingBalances = async (): Promise<void> => {
         //try {
-        let [_stakedBalance, _pendingWithdrawals] = ["0", []];
+        let [_stakedBalance, _pendingWithdrawals]: [string, PendingWithdrawal[]] = ["0", []];
         if (auth.userBalanceData) {
-            if (auth.isVestingLoaded()) {
-                setTgBalance(auth.userBalanceData.vestingmachine.tgBalance);
+            if (auth.isVestingLoaded() && auth.userBalanceData.vestingmachine) {
+                setTgBalance(auth.userBalanceData.vestingmachine.tgBalance?.toString() || "0");
                 _stakedBalance =
-                    auth.userBalanceData.vestingmachine.staking.balance;
+                    auth.userBalanceData.vestingmachine.staking?.balance?.toString() || "0";
                 //_lockedBalance = auth.userBalanceData.vestingmachine.staking.getLockedBalance;
                 _pendingWithdrawals = pendingWithdrawalsFormat(
                     auth.userBalanceData.vestingmachine.delay
                 );
             } else {
-                setTgBalance(auth.userBalanceData.TG.balance);
-                _stakedBalance = auth.userBalanceData.stakingmachine.getBalance;
-                //_lockedBalance = auth.userBalanceData.stakingmachine.getLockedBalance;
+                setTgBalance(auth.userBalanceData.TG.balance?.toString() || "0");
+                _stakedBalance = (auth.userBalanceData as any).stakingmachine?.getBalance?.toString() || "0";
+                //_lockedBalance = (auth.userBalanceData as any).stakingmachine.getLockedBalance;
                 _pendingWithdrawals = pendingWithdrawalsFormat(
-                    auth.userBalanceData.delaymachine
+                    (auth.userBalanceData as any).delaymachine
                 );
             }
         }
-        const pendingWithdrawalsFormatted = _pendingWithdrawals
-            .filter((withdrawal) => withdrawal.expiration)
-            .map((withdrawal) => {
-                const status =
+        const pendingWithdrawalsFormatted: PendingWithdrawal[] = _pendingWithdrawals
+            .filter((withdrawal: PendingWithdrawal) => withdrawal.expiration)
+            .map((withdrawal: PendingWithdrawal) => {
+                const status: string =
                     new Date(parseInt(withdrawal.expiration) * 1000) >
                     new Date()
                         ? withdrawalStatus.pending
@@ -67,9 +79,9 @@ const Dashboard = () => {
                     status,
                 };
             });
-        let pendingExpirationAmount = "0";
-        let readyToWithdrawAmount = "0";
-        pendingWithdrawalsFormatted.forEach(({ status, amount }) => {
+        let pendingExpirationAmount: string = "0";
+        let readyToWithdrawAmount: string = "0";
+        pendingWithdrawalsFormatted.forEach(({ status, amount }: PendingWithdrawal) => {
             if (status === withdrawalStatus.pending) {
                 pendingExpirationAmount = BigNumber.sum(
                     pendingExpirationAmount,
@@ -108,10 +120,10 @@ const Dashboard = () => {
                         {PrecisionNumbers({
                             amount: new BigNumber(tgBalance),
                             token: settings.tokens.TG[0],
-                            decimals: t("staking.display_decimals"),
-                            t: t,
+                            decimals: parseInt(t("staking.display_decimals")),
+                            numericLabelParams: {},
                             i18n: i18n,
-                            ns: ns,
+                            skipContractConvert: true,
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -129,10 +141,10 @@ const Dashboard = () => {
                         {PrecisionNumbers({
                             amount: new BigNumber(stakedBalance),
                             token: settings.tokens.TG[0],
-                            decimals: t("staking.display_decimals"),
-                            t: t,
+                            decimals: parseInt(t("staking.display_decimals")),
+                            numericLabelParams: {},
                             i18n: i18n,
-                            ns: ns,
+                            skipContractConvert: true,
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -150,10 +162,10 @@ const Dashboard = () => {
                         {PrecisionNumbers({
                             amount: new BigNumber(totalPendingExpiration),
                             token: settings.tokens.TG[0],
-                            decimals: t("staking.display_decimals"),
-                            t: t,
+                            decimals: parseInt(t("staking.display_decimals")),
+                            numericLabelParams: {},
                             i18n: i18n,
-                            ns: ns,
+                            skipContractConvert: true,
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -171,10 +183,10 @@ const Dashboard = () => {
                         {PrecisionNumbers({
                             amount: new BigNumber(totalAvailableToWithdraw),
                             token: settings.tokens.TG[0],
-                            decimals: t("staking.display_decimals"),
-                            t: t,
+                            decimals: parseInt(t("staking.display_decimals")),
+                            numericLabelParams: {},
                             i18n: i18n,
-                            ns: ns,
+                            skipContractConvert: true,
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -192,10 +204,10 @@ const Dashboard = () => {
                         {PrecisionNumbers({
                             amount: new BigNumber(totalAvailableToWithdraw),
                             token: settings.tokens.TG[0],
-                            decimals: t("staking.display_decimals"),
-                            t: t,
+                            decimals: parseInt(t("staking.display_decimals")),
+                            numericLabelParams: {},
                             i18n: i18n,
-                            ns: ns,
+                            skipContractConvert: true,
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -207,4 +219,4 @@ const Dashboard = () => {
     );
 };
 
-export default Dashboard;
+export default Dashboard; 
