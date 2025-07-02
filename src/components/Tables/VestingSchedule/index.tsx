@@ -6,10 +6,38 @@ import { AuthenticateContext } from "../../../context/Auth";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { formatTimestamp } from "../../../helpers/staking";
 
-const precision = (contractDecimals) =>
+interface VestingParameters {
+    percentages: (string | number)[];
+    timeDeltas: (string | number)[];
+}
+
+interface VestingMachine {
+    getParameters: VestingParameters;
+    getTotal: string | number;
+}
+
+interface VestingFactory {
+    getTGETimestamp: string | number;
+}
+
+interface UserBalanceData {
+    vestingmachine?: VestingMachine;
+    vestingfactory?: VestingFactory;
+}
+
+interface AuthContext {
+    userBalanceData: UserBalanceData | null;
+}
+
+interface VestingDataItem {
+    key: number;
+    renderRow: React.ReactNode;
+}
+
+const precision = (contractDecimals: number): BigNumber =>
     new BigNumber(10).exponentiatedBy(contractDecimals);
 
-const formatVisibleValue = (amount, decimals) => {
+const formatVisibleValue = (amount: string | number, decimals: number): string => {
     return BigNumber(amount)
         .div(precision(18))
         .toFormat(decimals, BigNumber.ROUND_UP, {
@@ -18,16 +46,20 @@ const formatVisibleValue = (amount, decimals) => {
         });
 };
 
-export default function VestingSchedule() {
+export default function VestingSchedule(): React.ReactElement {
     const { t, i18n } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext);
+    const auth = useContext(AuthenticateContext) as AuthContext;
 
     const vestingColumns = [
         {
             dataIndex: "renderRow",
         },
     ];
-    const vestingData = [];
+    const vestingData: VestingDataItem[] = [];
+
+    if (!auth.userBalanceData?.vestingmachine || !auth.userBalanceData?.vestingfactory) {
+        return <div>No vesting data available</div>;
+    }
 
     const getParameters = auth.userBalanceData.vestingmachine.getParameters;
     const tgeTimestamp = auth.userBalanceData.vestingfactory.getTGETimestamp;
@@ -38,31 +70,31 @@ export default function VestingSchedule() {
     const timeDeltas = getParameters.timeDeltas;
     const deltas = [...timeDeltas];
     if (timeDeltas && !new BigNumber(timeDeltas[0]).isZero()) {
-        deltas.unshift(new BigNumber(0));
+        deltas.unshift(0);
     }
 
     if (new BigNumber(percentages[0]).lt(percentMultiplier)) {
-        percentages.unshift(BigInt(10000));
+        percentages.unshift(10000);
     }
 
     if (percentages && percentages.length > 0)
         percentages[percentages.length - 1] = 0;
 
-    const percents = percentages.map((x) =>
+    const percents = percentages.map((x: string | number) =>
         new BigNumber(percentMultiplier).minus(x)
     );
 
-    let dates = [];
+    let dates: (string | number)[] = [];
     if (deltas) {
         if (tgeTimestamp) {
             // Convert timestamp to date.
-            dates = deltas.map((x) =>
+            dates = deltas.map((x: string | number) =>
                 formatTimestamp(
                     new BigNumber(tgeTimestamp).plus(x).times(1000).toNumber()
                 )
             );
         } else {
-            dates = deltas.map((x) => x / 60 / 60 / 24);
+            dates = deltas.map((x: string | number) => Number(x) / 60 / 60 / 24);
         }
     }
 
@@ -72,12 +104,13 @@ export default function VestingSchedule() {
 
     auth.userBalanceData &&
         getParameters &&
-        percents.forEach(function (percent, itemIndex) {
+        percents.forEach(function (percent: BigNumber, itemIndex: number) {
             let strTotal = "";
             if (total && !new BigNumber(total).isZero()) {
                 strTotal = new BigNumber(percent)
                     .times(total)
-                    .div(percentMultiplier);
+                    .div(percentMultiplier)
+                    .toString();
             }
 
             const date_release = new Date(dates[itemIndex]);
