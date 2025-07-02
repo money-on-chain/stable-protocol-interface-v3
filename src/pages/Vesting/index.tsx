@@ -3,12 +3,13 @@ import { useContext } from "react";
 import { Skeleton } from "antd";
 
 import { AuthenticateContext } from "../../context/Auth";
-import Performance from "../../components/Performance";
+import Vesting from "../../components/Vesting";
 import "./Styles.scss";
 
-function SectionPerformance() {
+export default function SectionVesting(): React.ReactElement {
     const auth = useContext(AuthenticateContext);
-    const [ready, setReady] = useState(false);
+    const [ready, setReady] = useState<boolean>(false);
+    
     useEffect(() => {
         if (auth.contractStatusData) {
             setReady(true);
@@ -18,14 +19,10 @@ function SectionPerformance() {
     return (
         <Fragment>
             <div className="section-container">
-                <div className="content-page">
-                    <div className={"content-performance layout-card-title"}>
-                        {ready ? <Performance /> : <Skeleton active />}
-                    </div>
+                <div className={"content-vesting"}>
+                    {ready ? <Vesting /> : <Skeleton active />}
                 </div>
             </div>
         </Fragment>
     );
 }
-
-export default SectionPerformance;

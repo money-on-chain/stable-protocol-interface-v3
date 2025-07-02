@@ -32,7 +32,7 @@ window.addEventListener("vite:preloadError", (event) => {
     console.log(event);
 });
 
-async function loadTranslations() {
+async function loadTranslations(): Promise<void> {
     try {
         await i18next.init({
             interpolation: { escapeValue: false },
@@ -49,11 +49,15 @@ async function loadTranslations() {
 
 loadTranslations();
 
-function setColorMode() {
-    const defaulTheme = getComputedStyle(document.querySelector(":root"))
-        .getPropertyValue("--default-theme")
-        .split('"')
-        .join("");
+function setColorMode(): void {
+    const root = document.querySelector(":root");
+    let defaulTheme = "light";
+    if (root) {
+        defaulTheme = getComputedStyle(root)
+            .getPropertyValue("--default-theme")
+            .split('"')
+            .join("");
+    }
     const storedTheme = localStorage.getItem("preferredColorScheme");
     document.documentElement.setAttribute(
         "data-theme",
@@ -62,7 +66,13 @@ function setColorMode() {
     localStorage.setItem("preferredColorScheme", storedTheme ?? defaulTheme);
 }
 setColorMode();
-const root = ReactDOM.createRoot(document.getElementById("root"));
+
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+    throw new Error("Root element not found");
+}
+
+const root = ReactDOM.createRoot(rootElement);
 
 root.render(
     <React.StrictMode>

@@ -1,33 +1,34 @@
 import React, { Fragment, useState, useEffect } from "react";
 import { useContext } from "react";
 import { Skeleton } from "antd";
-
 import { AuthenticateContext } from "../../context/Auth";
 import LastOperations from "../../components/Tables/LastOperations";
 import { useProjectTranslation } from "../../helpers/translations";
-import Send from "../../components/Send";
+import Exchange from "../../components/Exchange";
 import "./Styles.scss";
 
-function SectionSend() {
+export default function SectionExchange(): React.ReactElement {
     const { t } = useProjectTranslation();
     const auth = useContext(AuthenticateContext);
-    const [ready, setReady] = useState(false);
+    const [ready, setReady] = useState<boolean>(false);
+    
     useEffect(() => {
-        if (auth) {
+        if (auth.contractStatusData && auth.userBalanceData) {
             setReady(true);
         }
     }, [auth]);
+
     return (
         <Fragment>
             <div className="section-container">
-                {/* Send */}
-                <div className="layout-card">
+                {/* Exchange */}
+                <div className={"layout-card"}>
                     <div className={"layout-card-title"}>
-                        <h1>{t("send.cardTitle")}</h1>
+                        <h1>{t("exchange.cardTitle")}</h1>
                     </div>
 
-                    <div className={"content-body"}>
-                        {ready ? <Send /> : <Skeleton active />}
+                    <div className={"content-body layout-card-content"}>
+                        {ready ? <Exchange /> : <Skeleton active />}
                     </div>
                 </div>
 
@@ -38,5 +39,3 @@ function SectionSend() {
         </Fragment>
     );
 }
-
-export default SectionSend;

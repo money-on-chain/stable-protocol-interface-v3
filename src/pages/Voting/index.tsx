@@ -7,17 +7,18 @@ import Voting from "../../components/Voting";
 import UseVestingAlert from "../../components/Notification/UsingVestingAlert";
 import "./Styles.scss";
 
-function SectionVoting() {
+export default function SectionVoting(): React.ReactElement {
     const auth = useContext(AuthenticateContext);
-    const [ready, setReady] = useState(false);
-    const [usingVestingAddress, setUsingVestingAddress] = useState("");
+    const [ready, setReady] = useState<boolean>(false);
+    const [usingVestingAddress, setUsingVestingAddress] = useState<string>("");
 
     useEffect(() => {
         if (auth.contractStatusData) {
             setReady(true);
         }
         if (auth.userBalanceData && auth.isVestingLoaded()) {
-            setUsingVestingAddress(auth.vestingAddress());
+            const vestingAddress = auth.vestingAddress();
+            setUsingVestingAddress(vestingAddress || "");
         } else {
             setUsingVestingAddress("");
         }
@@ -36,5 +37,3 @@ function SectionVoting() {
         </Fragment>
     );
 }
-
-export default SectionVoting;

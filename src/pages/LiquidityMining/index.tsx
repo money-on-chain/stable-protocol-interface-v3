@@ -3,21 +3,22 @@ import { useContext } from "react";
 import { Skeleton } from "antd";
 
 import { AuthenticateContext } from "../../context/Auth";
-import Staking from "../../components/Staking";
 import UseVestingAlert from "../../components/Notification/UsingVestingAlert";
-
+import LiquidityMiningClaim from "../../components/LiquidityMiningClaim";
 import "./Styles.scss";
 
-function SectionStaking() {
+export default function SectionLiquidityMining(): React.ReactElement {
     const auth = useContext(AuthenticateContext);
-    const [ready, setReady] = useState(false);
-    const [usingVestingAddress, setUsingVestingAddress] = useState("");
+    const [ready, setReady] = useState<boolean>(false);
+    const [usingVestingAddress, setUsingVestingAddress] = useState<string>("");
+    
     useEffect(() => {
         if (auth.contractStatusData) {
             setReady(true);
         }
         if (auth.userBalanceData && auth.isVestingLoaded()) {
-            setUsingVestingAddress(auth.vestingAddress());
+            const vestingAddress = auth.vestingAddress();
+            setUsingVestingAddress(vestingAddress || "");
         } else {
             setUsingVestingAddress("");
         }
@@ -26,15 +27,13 @@ function SectionStaking() {
     return (
         <Fragment>
             <div className="section-container">
-                <div className="sectionStaking">
+                <div className="sectionClaim">
                     {usingVestingAddress !== "" && (
                         <UseVestingAlert address={usingVestingAddress} />
                     )}
-                    {ready ? <Staking /> : <Skeleton active />}
+                    {ready ? <LiquidityMiningClaim /> : <Skeleton active />}
                 </div>
             </div>
         </Fragment>
     );
 }
-
-export default SectionStaking;
