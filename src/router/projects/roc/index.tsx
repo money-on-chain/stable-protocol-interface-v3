@@ -3,7 +3,7 @@ import { Navigate, useRoutes } from "react-router-dom";
 
 import NotFound from "../../../pages/NotFound";
 const Skeleton = React.lazy(
-    () => import("../../../layouts/projects/moc/Skeleton")
+    () => import("../../../layouts/projects/roc/Skeleton")
 );
 const Home = React.lazy(() => import("../../../pages/Home/index"));
 const Exchange = React.lazy(() => import("../../../pages/Exchange/index"));
@@ -12,13 +12,13 @@ const Performance = React.lazy(
     () => import("../../../pages/Performance/index")
 );
 const Staking = React.lazy(() => import("../../../pages/Staking/index"));
-const Vesting = React.lazy(() => import("../../../pages/Vesting/index"));
-const Voting = React.lazy(() => import("../../../pages/Voting/index"));
 const LiquidityMining = React.lazy(
     () => import("../../../pages/LiquidityMining/index")
 );
+const Vesting = React.lazy(() => import("../../../pages/Vesting/index"));
+const Voting = React.lazy(() => import("../../../pages/Voting/index"));
 
-export default function Router() {
+export default function Router(): React.ReactElement | null {
     return useRoutes([
         {
             path: "/",
@@ -55,10 +55,6 @@ export default function Router() {
                 {
                     path: "voting",
                     element: <Voting />,
-                },
-                {
-                    path: "liquidity-mining",
-                    element: <LiquidityMining />,
                 },
                 { path: "404", element: <NotFound /> },
                 { path: "*", element: <Navigate to="/404" /> },

@@ -15,7 +15,7 @@ const Staking = React.lazy(() => import("../../../pages/Staking/index"));
 const Vesting = React.lazy(() => import("../../../pages/Vesting/index"));
 const Voting = React.lazy(() => import("../../../pages/Voting/index"));
 
-export default function Router() {
+export default function Router(): React.ReactElement | null {
     return useRoutes([
         {
             path: "/",
