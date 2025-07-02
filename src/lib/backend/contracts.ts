@@ -25,14 +25,48 @@ import IncentiveV2 from "../../contracts/omoc/IncentiveV2.json";
 
 import { registryAddresses, mocAddresses } from "./multicall";
 import settings from "../../settings/settings.json";
+import Web3 from "web3";
 
+// Type definitions for dContracts
+interface DContracts {
+    json: Record<string, any>;
+    contracts: Record<string, any> & {
+        multicall?: any;
+        PP_CA?: any[];
+        PP_COINBASE?: any;
+        MocMultiCollateralGuard?: any;
+        Moc?: any[];
+        CA?: any[];
+        CollateralToken?: any[];
+        MocVendors?: any[];
+        MocQueue?: any[];
+        FeeToken?: any[];
+        PP_FeeToken?: any[];
+        FC_MAX_ABSOLUTE_OP_PROVIDER?: any[];
+        FC_MAX_OP_DIFFERENCE_PROVIDER?: any[];
+        PP_TP?: Record<number, Record<number, any>>;
+        TP?: any[];
+        IRegistry?: any;
+        StakingMachine?: any;
+        DelayMachine?: any;
+        Supporters?: any;
+        VestingFactory?: any;
+        IncentiveV2?: any;
+        VotingMachine?: any;
+        TG?: any;
+        tp_legacy?: any;
+        token_migrator?: any;
+    };
+    contractsAddresses: Record<string, any>;
+}
 
-const readContracts = async (web3) => {
+const readContracts = async (web3: Web3): Promise<DContracts> => {
     // Store contracts to later use
-    const dContracts = {};
-    dContracts.json = {};
-    dContracts.contracts = {};
-    dContracts.contractsAddresses = {};
+    const dContracts: DContracts = {
+        json: {},
+        contracts: {},
+        contractsAddresses: {},
+    };
 
     console.log(
         "Reading Multicall2 Contract... address: ",
@@ -57,7 +91,7 @@ const readContracts = async (web3) => {
     }
 
     console.log(
-        `Reading Price Provider ${settings.tokens.COINBASE.name} Contract... address: `,
+        `Reading Price Provider ${(settings.tokens.COINBASE as any).name} Contract... address: `,
         import.meta.env.REACT_APP_CONTRACT_PRICE_PROVIDER_COINBASE
     );
     dContracts.contracts.PP_COINBASE = new web3.eth.Contract(
@@ -83,48 +117,47 @@ const readContracts = async (web3) => {
     dContracts.contracts.PP_FeeToken = []
     dContracts.contracts.FC_MAX_ABSOLUTE_OP_PROVIDER = []
     dContracts.contracts.FC_MAX_OP_DIFFERENCE_PROVIDER = []
-    let collateralMoCAbi = MocCARC20
-    let contractMocAddress;
-    let contractMoc
-    let contractMocType
-    let contractCA = []
-    const tpAddresses = [];
-    dContracts.contracts.PP_TP = {}
+    let collateralMoCAbi = MocCARC20 as any;
+    let contractMocAddress: string;
+    let contractMoc: any;
+    let contractMocType: string;
+    let contractCA: string[] = [];
+    const tpAddresses: string[] = [];
+    dContracts.contracts.PP_TP = {};
 
     for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
-
         // Get MoC Bucket address from multi-collateral guard
-        contractMocAddress = await dContracts.contracts.MocMultiCollateralGuard.methods.buckets(ca).call()
-        contractMocType = settings.tokens.CA[ca].type
-        if (contractMocType === "coinbase") collateralMoCAbi = MocCACoinbase
-        console.log('Reading Moc Contract... address: ', contractMocAddress)
+        contractMocAddress = await dContracts.contracts.MocMultiCollateralGuard.methods.buckets(ca).call();
+        contractMocType = (settings.tokens.CA[ca] as any).type;
+        if (contractMocType === "coinbase") collateralMoCAbi = MocCACoinbase as any;
+        console.log('Reading Moc Contract... address: ', contractMocAddress);
 
         contractMoc = new web3.eth.Contract(
             collateralMoCAbi.abi,
             contractMocAddress
         );
 
-        dContracts.contracts.Moc.push(contractMoc)
+        dContracts.contracts.Moc.push(contractMoc);
 
         // Read contracts addresses from MoC
-        const mocAddr = await mocAddresses(web3, dContracts, contractMoc, contractMocType);
+        const mocAddr = await mocAddresses(web3, dContracts, contractMoc, contractMocType) as any;
 
         if (contractMocType !== 'coinbase') {
             if (!contractCA.includes(mocAddr['acToken'])) {
                 console.log(
-                    `Reading ${settings.tokens.CA[ca].name} Token Contract... address: `,
+                    `Reading ${(settings.tokens.CA[ca] as any).name} Token Contract... address: `,
                     mocAddr['acToken']
                 );
                 dContracts.contracts.CA.push(
                     new web3.eth.Contract(CollateralAsset.abi, mocAddr['acToken'])
                 );
-                contractCA.push(mocAddr['acToken'])
+                contractCA.push(mocAddr['acToken']);
             }
         }
 
-        let tpAddress;
-        let tpIndex;
-        let tpItem;
+        let tpAddress: string;
+        let tpIndex: any;
+        let tpItem: any;
         for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
             tpAddress = mocAddr["tpTokens"][tp];
             if (!tpAddress || tpAddress === "0x") continue;
@@ -142,12 +175,11 @@ const readContracts = async (web3) => {
             }
 
             console.log(
-                `Reading Price Provider Pair ${settings.tokens.TP[tp].name}/${settings.tokens.CA[ca].name} Contract... address: `,
+                `Reading Price Provider Pair ${(settings.tokens.TP[tp] as any).name}/${(settings.tokens.CA[ca] as any).name} Contract... address: `,
                 tpItem.priceProvider
             );
-            if (!dContracts.contracts.PP_TP[ca]) dContracts.contracts.PP_TP[ca] = {}
+            if (!dContracts.contracts.PP_TP[ca]) dContracts.contracts.PP_TP[ca] = {};
             dContracts.contracts.PP_TP[ca][tp] = new web3.eth.Contract(IPriceProvider.abi, tpItem.priceProvider);
-
         }
 
         console.log(
@@ -206,7 +238,6 @@ const readContracts = async (web3) => {
             IPriceProvider.abi,
             mocAddr["maxOpDiffProvider"]
         ));
-
     }
 
     dContracts.contracts.TP = [];
@@ -244,7 +275,7 @@ const readContracts = async (web3) => {
         );
 
         // Read contracts addresses from registry
-        const registryAddr = await registryAddresses(web3, dContracts);
+        const registryAddr = await registryAddresses(web3, dContracts) as any;
 
         console.log(
             "Reading StakingMachine Contract... address: ",

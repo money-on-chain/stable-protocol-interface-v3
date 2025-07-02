@@ -3,9 +3,33 @@ import { getGasPrice, toContractPrecisionDecimals } from "../utils";
 import Web3 from "web3";
 import settings from "../../../settings/settings.json";
 
-const vestingVerify = async (interfaceContext, onTransaction, onReceipt) => {
+// Type definitions
+interface InterfaceContext {
+    web3: any;
+    account: string;
+}
+
+interface DContracts {
+    contracts: {
+        VestingMachine: any;
+        StakingMachine: any;
+        DelayMachine: any;
+        VotingMachine: any;
+        TG: any;
+        [key: string]: any;
+    };
+}
+
+type TransactionCallback = (hash: string) => void;
+type ReceiptCallback = (receipt: any) => void;
+
+const vestingVerify = async (
+    interfaceContext: InterfaceContext,
+    onTransaction: TransactionCallback,
+    onReceipt: ReceiptCallback
+): Promise<any> => {
     const { web3, account } = interfaceContext;
-    const dContracts = window.dContracts;
+    const dContracts = (window as any).dContracts as DContracts;
 
     const VestingMachine = dContracts.contracts.VestingMachine;
 
@@ -28,20 +52,25 @@ const vestingVerify = async (interfaceContext, onTransaction, onReceipt) => {
     return receipt;
 };
 
-const approve = async (interfaceContext, amount, onTransaction, onReceipt) => {
+const approve = async (
+    interfaceContext: InterfaceContext,
+    amount: string | number | BigNumber,
+    onTransaction: TransactionCallback,
+    onReceipt: ReceiptCallback
+): Promise<any> => {
     const { web3, account } = interfaceContext;
-    const dContracts = window.dContracts;
+    const dContracts = (window as any).dContracts as DContracts;
     const tokenDecimals = settings.tokens.TG[0].decimals;
 
     const VestingMachine = dContracts.contracts.VestingMachine;
-    amount = new BigNumber(amount);
+    const amountBN = new BigNumber(amount);
 
     const estimateGas = await VestingMachine.methods
-        .approve(toContractPrecisionDecimals(amount, tokenDecimals))
+        .approve(toContractPrecisionDecimals(amountBN, tokenDecimals))
         .estimateGas({ from: account, value: "0x" });
 
     const receipt = VestingMachine.methods
-        .approve(toContractPrecisionDecimals(amount, tokenDecimals))
+        .approve(toContractPrecisionDecimals(amountBN, tokenDecimals))
         .send({
             from: account,
             value: 0,
@@ -55,20 +84,25 @@ const approve = async (interfaceContext, amount, onTransaction, onReceipt) => {
     return receipt;
 };
 
-const deposit = async (interfaceContext, amount, onTransaction, onReceipt) => {
+const deposit = async (
+    interfaceContext: InterfaceContext,
+    amount: string | number | BigNumber,
+    onTransaction: TransactionCallback,
+    onReceipt: ReceiptCallback
+): Promise<any> => {
     const { web3, account } = interfaceContext;
-    const dContracts = window.dContracts;
+    const dContracts = (window as any).dContracts as DContracts;
     const tokenDecimals = settings.tokens.TG[0].decimals;
     const VestingMachine = dContracts.contracts.VestingMachine;
 
-    amount = new BigNumber(amount);
+    const amountBN = new BigNumber(amount);
 
     const estimateGas = await VestingMachine.methods
-        .deposit(toContractPrecisionDecimals(amount, tokenDecimals))
+        .deposit(toContractPrecisionDecimals(amountBN, tokenDecimals))
         .estimateGas({ from: account, value: "0x" });
 
     const receipt = VestingMachine.methods
-        .deposit(toContractPrecisionDecimals(amount, tokenDecimals))
+        .deposit(toContractPrecisionDecimals(amountBN, tokenDecimals))
         .send({
             from: account,
             value: 0,
@@ -82,20 +116,25 @@ const deposit = async (interfaceContext, amount, onTransaction, onReceipt) => {
     return receipt;
 };
 
-const withdraw = async (interfaceContext, amount, onTransaction, onReceipt) => {
+const withdraw = async (
+    interfaceContext: InterfaceContext,
+    amount: string | number | BigNumber,
+    onTransaction: TransactionCallback,
+    onReceipt: ReceiptCallback
+): Promise<any> => {
     const { web3, account } = interfaceContext;
-    const dContracts = window.dContracts;
+    const dContracts = (window as any).dContracts as DContracts;
     const tokenDecimals = settings.tokens.TG[0].decimals;
     const VestingMachine = dContracts.contracts.VestingMachine;
 
-    amount = new BigNumber(amount);
+    const amountBN = new BigNumber(amount);
 
     const estimateGas = await VestingMachine.methods
-        .withdraw(toContractPrecisionDecimals(amount, tokenDecimals))
+        .withdraw(toContractPrecisionDecimals(amountBN, tokenDecimals))
         .estimateGas({ from: account, value: "0x" });
 
     const receipt = VestingMachine.methods
-        .withdraw(toContractPrecisionDecimals(amount, tokenDecimals))
+        .withdraw(toContractPrecisionDecimals(amountBN, tokenDecimals))
         .send({
             from: account,
             value: 0,
@@ -109,9 +148,13 @@ const withdraw = async (interfaceContext, amount, onTransaction, onReceipt) => {
     return receipt;
 };
 
-const withdrawAll = async (interfaceContext, onTransaction, onReceipt) => {
+const withdrawAll = async (
+    interfaceContext: InterfaceContext,
+    onTransaction: TransactionCallback,
+    onReceipt: ReceiptCallback
+): Promise<any> => {
     const { web3, account } = interfaceContext;
-    const dContracts = window.dContracts;
+    const dContracts = (window as any).dContracts as DContracts;
 
     const VestingMachine = dContracts.contracts.VestingMachine;
 
@@ -135,14 +178,14 @@ const withdrawAll = async (interfaceContext, onTransaction, onReceipt) => {
 };
 
 const _callWithData = async (
-    interfaceContext,
-    target,
-    data,
-    onTransaction,
-    onReceipt
-) => {
+    interfaceContext: InterfaceContext,
+    target: string,
+    data: string,
+    onTransaction: TransactionCallback,
+    onReceipt: ReceiptCallback
+): Promise<any> => {
     const { web3, account } = interfaceContext;
-    const dContracts = window.dContracts;
+    const dContracts = (window as any).dContracts as DContracts;
 
     const VestingMachine = dContracts.contracts.VestingMachine;
 
@@ -166,23 +209,23 @@ const _callWithData = async (
 };
 
 const addStake = async (
-    interfaceContext,
-    amount,
-    address,
-    onTransaction,
-    onReceipt
-) => {
-    const dContracts = window.dContracts;
+    interfaceContext: InterfaceContext,
+    amount: string | number | BigNumber,
+    address: string,
+    onTransaction: TransactionCallback,
+    onReceipt: ReceiptCallback
+): Promise<any> => {
+    const dContracts = (window as any).dContracts as DContracts;
     const StakingMachine = dContracts.contracts.StakingMachine;
     const VestingMachine = dContracts.contracts.VestingMachine;
     const tokenDecimals = settings.tokens.TG[0].decimals;
 
-    amount = new BigNumber(amount);
+    const amountBN = new BigNumber(amount);
 
     const target = Web3.utils.toChecksumAddress(StakingMachine.options.address);
     const data = StakingMachine.methods
         .deposit(
-            toContractPrecisionDecimals(amount, tokenDecimals),
+            toContractPrecisionDecimals(amountBN, tokenDecimals),
             Web3.utils.toChecksumAddress(VestingMachine.options.address)
         )
         .encodeABI();
@@ -198,16 +241,21 @@ const addStake = async (
     return receipt;
 };
 
-const unStake = async (interfaceContext, amount, onTransaction, onReceipt) => {
-    const dContracts = window.dContracts;
+const unStake = async (
+    interfaceContext: InterfaceContext,
+    amount: string | number | BigNumber,
+    onTransaction: TransactionCallback,
+    onReceipt: ReceiptCallback
+): Promise<any> => {
+    const dContracts = (window as any).dContracts as DContracts;
     const StakingMachine = dContracts.contracts.StakingMachine;
     const tokenDecimals = settings.tokens.TG[0].decimals;
 
-    amount = new BigNumber(amount);
+    const amountBN = new BigNumber(amount);
 
     const target = Web3.utils.toChecksumAddress(StakingMachine.options.address);
     const data = StakingMachine.methods
-        .withdraw(toContractPrecisionDecimals(amount, tokenDecimals))
+        .withdraw(toContractPrecisionDecimals(amountBN, tokenDecimals))
         .encodeABI();
 
     const receipt = _callWithData(
@@ -222,12 +270,12 @@ const unStake = async (interfaceContext, amount, onTransaction, onReceipt) => {
 };
 
 const delayMachineCancelWithdraw = async (
-    interfaceContext,
-    idWithdraw,
-    onTransaction,
-    onReceipt
-) => {
-    const dContracts = window.dContracts;
+    interfaceContext: InterfaceContext,
+    idWithdraw: string | number,
+    onTransaction: TransactionCallback,
+    onReceipt: ReceiptCallback
+): Promise<any> => {
+    const dContracts = (window as any).dContracts as DContracts;
     const DelayMachine = dContracts.contracts.DelayMachine;
 
     const target = Web3.utils.toChecksumAddress(DelayMachine.options.address);
@@ -245,12 +293,12 @@ const delayMachineCancelWithdraw = async (
 };
 
 const delayMachineWithdraw = async (
-    interfaceContext,
-    idWithdraw,
-    onTransaction,
-    onReceipt
-) => {
-    const dContracts = window.dContracts;
+    interfaceContext: InterfaceContext,
+    idWithdraw: string | number,
+    onTransaction: TransactionCallback,
+    onReceipt: ReceiptCallback
+): Promise<any> => {
+    const dContracts = (window as any).dContracts as DContracts;
     const DelayMachine = dContracts.contracts.DelayMachine;
 
     const target = Web3.utils.toChecksumAddress(DelayMachine.options.address);
@@ -268,24 +316,24 @@ const delayMachineWithdraw = async (
 };
 
 const approveStakingMachine = async (
-    interfaceContext,
-    amount,
-    onTransaction,
-    onReceipt
-) => {
-    const dContracts = window.dContracts;
+    interfaceContext: InterfaceContext,
+    amount: string | number | BigNumber,
+    onTransaction: TransactionCallback,
+    onReceipt: ReceiptCallback
+): Promise<any> => {
+    const dContracts = (window as any).dContracts as DContracts;
 
     const StakingMachine = dContracts.contracts.StakingMachine;
     const TG = dContracts.contracts.TG;
     const tokenDecimals = settings.tokens.TG[0].decimals;
 
-    amount = new BigNumber(amount);
+    const amountBN = new BigNumber(amount);
 
     const target = Web3.utils.toChecksumAddress(TG.options.address);
     const data = TG.methods
         .approve(
             Web3.utils.toChecksumAddress(StakingMachine.options.address),
-            toContractPrecisionDecimals(amount, tokenDecimals)
+            toContractPrecisionDecimals(amountBN, tokenDecimals)
         )
         .encodeABI();
 
@@ -301,12 +349,12 @@ const approveStakingMachine = async (
 };
 
 const preVote = async (
-    interfaceContext,
-    changeContractAddress,
-    onTransaction,
-    onReceipt
-) => {
-    const dContracts = window.dContracts;
+    interfaceContext: InterfaceContext,
+    changeContractAddress: string,
+    onTransaction: TransactionCallback,
+    onReceipt: ReceiptCallback
+): Promise<any> => {
+    const dContracts = (window as any).dContracts as DContracts;
     const VotingMachine = dContracts.contracts.VotingMachine;
 
     const target = Web3.utils.toChecksumAddress(VotingMachine.options.address);
@@ -326,12 +374,12 @@ const preVote = async (
 };
 
 const vote = async (
-    interfaceContext,
-    inFavorAgainst,
-    onTransaction,
-    onReceipt
-) => {
-    const dContracts = window.dContracts;
+    interfaceContext: InterfaceContext,
+    inFavorAgainst: boolean,
+    onTransaction: TransactionCallback,
+    onReceipt: ReceiptCallback
+): Promise<any> => {
+    const dContracts = (window as any).dContracts as DContracts;
     const VotingMachine = dContracts.contracts.VotingMachine;
 
     const target = Web3.utils.toChecksumAddress(VotingMachine.options.address);

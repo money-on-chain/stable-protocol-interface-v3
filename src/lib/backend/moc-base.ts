@@ -1,16 +1,28 @@
 import BigNumber from "bignumber.js";
+import Web3 from "web3";
 
 import { toContractPrecisionDecimals, getGasPrice } from "./utils";
 
+// Type definitions
+interface InterfaceContext {
+    web3: Web3;
+    account: string;
+    [key: string]: any;
+}
+
+type OnTransaction = (hash: string) => void;
+type OnReceipt = (receipt: any) => void;
+type OnError = (error: any) => void;
+
 const AllowanceAmount = async (
-    interfaceContext,
-    token,
-    contractAllow,
-    amountAllowance,
-    tokenDecimals,
-    onTransaction,
-    onReceipt
-) => {
+    interfaceContext: InterfaceContext,
+    token: any,
+    contractAllow: any,
+    amountAllowance: string | number,
+    tokenDecimals: number,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<any> => {
     const { web3, account } = interfaceContext;
     const contractAllowAddress = contractAllow.options.address;
 
@@ -42,26 +54,26 @@ const AllowanceAmount = async (
 };
 
 const transferTokenTo = async (
-    interfaceContext,
-    token,
-    tokenDecimals,
-    to,
-    amount,
-    onTransaction,
-    onReceipt
-) => {
+    interfaceContext: InterfaceContext,
+    token: any,
+    tokenDecimals: number,
+    to: string,
+    amount: string | number,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<any> => {
     const { web3, account } = interfaceContext;
 
-    amount = new BigNumber(amount);
+    const amountBN = new BigNumber(amount);
 
     // Calculate estimate gas cost
     const estimateGas = await token.methods
-        .transfer(to, toContractPrecisionDecimals(amount, tokenDecimals))
+        .transfer(to, toContractPrecisionDecimals(amountBN, tokenDecimals))
         .estimateGas({ from: account, value: 0 });
 
     // Send tx
     const receipt = token.methods
-        .transfer(to, toContractPrecisionDecimals(amount, tokenDecimals))
+        .transfer(to, toContractPrecisionDecimals(amountBN, tokenDecimals))
         .send({
             from: account,
             value: 0,
@@ -76,15 +88,15 @@ const transferTokenTo = async (
 };
 
 const transferCoinbaseTo = async (
-    interfaceContext,
-    to,
-    amount,
-    onTransaction,
-    onReceipt
-) => {
+    interfaceContext: InterfaceContext,
+    to: string,
+    amount: string | number,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<any> => {
     const { web3, account } = interfaceContext;
 
-    amount = new BigNumber(amount);
+    const amountBN = new BigNumber(amount);
 
     const receipt = web3.eth
         .sendTransaction({
@@ -92,7 +104,7 @@ const transferCoinbaseTo = async (
             to: to.toLowerCase(),
             gasPrice: await getGasPrice(web3),
             gasLimit: 21000,
-            value: toContractPrecisionDecimals(amount, 18),
+            value: toContractPrecisionDecimals(amountBN, 18),
         })
         .on("transactionHash", onTransaction)
         .on("receipt", onReceipt);
@@ -101,14 +113,14 @@ const transferCoinbaseTo = async (
 };
 
 const AllowUseTokenMigrator = async (
-    interfaceContext,
-    newAllowance,
-    onTransaction,
-    onReceipt,
-    onError
-) => {
+    interfaceContext: InterfaceContext,
+    newAllowance: string | number,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt,
+    onError: OnError
+): Promise<any> => {
     const { web3, account } = interfaceContext;
-    const dContracts = window.dContracts;
+    const dContracts = (window as any).dContracts;
 
     if (!dContracts.contracts.tp_legacy)
         console.log(
@@ -146,13 +158,13 @@ const AllowUseTokenMigrator = async (
 };
 
 const MigrateToken = async (
-    interfaceContext,
-    onTransaction,
-    onReceipt,
-    onError
-) => {
+    interfaceContext: InterfaceContext,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt,
+    onError: OnError
+): Promise<any> => {
     const { web3, account } = interfaceContext;
-    const dContracts = window.dContracts;
+    const dContracts = (window as any).dContracts;
 
     if (!dContracts.contracts.token_migrator)
         console.log(

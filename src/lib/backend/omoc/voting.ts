@@ -1,14 +1,30 @@
 import { getGasPrice } from "../utils";
 import Web3 from "web3";
 
+// Type definitions
+interface InterfaceContext {
+    web3: any;
+    account: string;
+}
+
+interface DContracts {
+    contracts: {
+        VotingMachine: any;
+        [key: string]: any;
+    };
+}
+
+type TransactionCallback = (hash: string) => void;
+type ReceiptCallback = (receipt: any) => void;
+
 const preVote = async (
-    interfaceContext,
-    changeContractAddress,
-    onTransaction,
-    onReceipt
-) => {
+    interfaceContext: InterfaceContext,
+    changeContractAddress: string,
+    onTransaction: TransactionCallback,
+    onReceipt: ReceiptCallback
+): Promise<any> => {
     const { web3, account } = interfaceContext;
-    const dContracts = window.dContracts;
+    const dContracts = (window as any).dContracts as DContracts;
     const VotingMachine = dContracts.contracts.VotingMachine;
 
     const estimateGas = await VotingMachine.methods
@@ -31,13 +47,13 @@ const preVote = async (
 };
 
 const unRegister = async (
-    interfaceContext,
-    changeContractAddress,
-    onTransaction,
-    onReceipt
-) => {
+    interfaceContext: InterfaceContext,
+    changeContractAddress: string,
+    onTransaction: TransactionCallback,
+    onReceipt: ReceiptCallback
+): Promise<any> => {
     const { web3, account } = interfaceContext;
-    const dContracts = window.dContracts;
+    const dContracts = (window as any).dContracts as DContracts;
     const VotingMachine = dContracts.contracts.VotingMachine;
 
     const estimateGas = await VotingMachine.methods
@@ -60,13 +76,13 @@ const unRegister = async (
 };
 
 const vote = async (
-    interfaceContext,
-    inFavorAgainst,
-    onTransaction,
-    onReceipt
-) => {
+    interfaceContext: InterfaceContext,
+    inFavorAgainst: boolean,
+    onTransaction: TransactionCallback,
+    onReceipt: ReceiptCallback
+): Promise<any> => {
     const { web3, account } = interfaceContext;
-    const dContracts = window.dContracts;
+    const dContracts = (window as any).dContracts as DContracts;
     const VotingMachine = dContracts.contracts.VotingMachine;
 
     const estimateGas = await VotingMachine.methods
@@ -88,9 +104,13 @@ const vote = async (
     return receipt;
 };
 
-const preVoteStep = async (interfaceContext, onTransaction, onReceipt) => {
+const preVoteStep = async (
+    interfaceContext: InterfaceContext,
+    onTransaction: TransactionCallback,
+    onReceipt: ReceiptCallback
+): Promise<any> => {
     const { web3, account } = interfaceContext;
-    const dContracts = window.dContracts;
+    const dContracts = (window as any).dContracts as DContracts;
     const VotingMachine = dContracts.contracts.VotingMachine;
 
     const estimateGas = await VotingMachine.methods
@@ -112,9 +132,13 @@ const preVoteStep = async (interfaceContext, onTransaction, onReceipt) => {
     return receipt;
 };
 
-const voteStep = async (interfaceContext, onTransaction, onReceipt) => {
+const voteStep = async (
+    interfaceContext: InterfaceContext,
+    onTransaction: TransactionCallback,
+    onReceipt: ReceiptCallback
+): Promise<any> => {
     const { web3, account } = interfaceContext;
-    const dContracts = window.dContracts;
+    const dContracts = (window as any).dContracts as DContracts;
     const VotingMachine = dContracts.contracts.VotingMachine;
 
     const estimateGas = await VotingMachine.methods
@@ -136,9 +160,13 @@ const voteStep = async (interfaceContext, onTransaction, onReceipt) => {
     return receipt;
 };
 
-const acceptedStep = async (interfaceContext, onTransaction, onReceipt) => {
+const acceptedStep = async (
+    interfaceContext: InterfaceContext,
+    onTransaction: TransactionCallback,
+    onReceipt: ReceiptCallback
+): Promise<any> => {
     const { web3, account } = interfaceContext;
-    const dContracts = window.dContracts;
+    const dContracts = (window as any).dContracts as DContracts;
     const VotingMachine = dContracts.contracts.VotingMachine;
 
     const estimateGas = await VotingMachine.methods

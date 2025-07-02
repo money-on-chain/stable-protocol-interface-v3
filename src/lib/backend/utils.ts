@@ -1,50 +1,72 @@
 import BigNumber from "bignumber.js";
 import Web3 from "web3";
 
+// Type definitions
+interface Web3Instance {
+    eth: {
+        getGasPrice: () => Promise<string>;
+    };
+    currentProvider: {
+        request: (params: { method: string; params: any[] }) => Promise<any>;
+    };
+}
+
+interface BlockResponse {
+    minimumGasPrice?: string;
+    baseFeePerGas?: string;
+    [key: string]: any;
+}
+
+type NetworkType = "rsk" | "arbitrum";
+
 BigNumber.config({
     ROUNDING_MODE: BigNumber.ROUND_DOWN,
     FORMAT: { decimalSeparator: ".", groupSeparator: "," },
 });
 
-const getGasPrice = async (web3) => {
+const getGasPrice = async (web3: Web3Instance): Promise<string | undefined> => {
     try {
         const gasPrice = await web3.eth.getGasPrice();
         //gasPrice = web3.utils.fromWei(gasPrice);
-        return gasPrice;
+        return gasPrice.toString();
     } catch (e) {
         console.log(e);
+        return undefined;
     }
 };
 
-const getNetworkFromProject = () => {
-    let network
+const getNetworkFromProject = (): NetworkType => {
+    let network: NetworkType;
     switch (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT.toLowerCase()) {
         case "flipmoney":
-            network = "rsk"
+            network = "rsk";
             break;
         case "stablex":
-            network = "arbitrum"
+            network = "arbitrum";
             break;
         default:
-            network = "rsk"
+            network = "rsk";
     }
     return network;
-}
+};
 
-
-const getExecutionFee = async (web3, execCost, slippage) => {
+const getExecutionFee = async (
+    web3: Web3Instance,
+    execCost: string | number,
+    slippage: number
+): Promise<BigNumber> => {
     //const lastBlock = await web3.eth.getBlock("latest")
 
     const lastBlock = await web3.currentProvider.request({
         method: "eth_getBlockByNumber",
         params: ["latest", false]
-    });
+    }) as BlockResponse;
 
-    let latestBaseFee
-    if (getNetworkFromProject()==="rsk") {
-        latestBaseFee = lastBlock.minimumGasPrice
+    let latestBaseFee: string;
+    if (getNetworkFromProject() === "rsk") {
+        latestBaseFee = lastBlock.minimumGasPrice || "0";
     } else {
-        latestBaseFee = lastBlock.baseFeePerGas
+        latestBaseFee = lastBlock.baseFeePerGas || "0";
     }
 
     const execFee = new BigNumber(latestBaseFee)
@@ -54,17 +76,16 @@ const getExecutionFee = async (web3, execCost, slippage) => {
     //const execFee = BigInt(execCost) * BigInt(latestBaseFee) * 1.01//BigInt( 1 + slippage / 100)
     //console.log(`Using Base Fee: ${latestBaseFee} * slippage ${slippage.toString()} % = ${execFee.toString()}`)
     return execFee;
-}
+};
 
-
-const toContractPrecision = (amount) => {
+const toContractPrecision = (amount: string | number): string => {
     return Web3.utils.toWei(
         BigNumber(amount).toFormat(18, BigNumber.ROUND_DOWN),
         "ether"
     );
 };
 
-const toContractPrecisionDecimals = (amount, decimals) => {
+const toContractPrecisionDecimals = (amount: BigNumber, decimals: number): string => {
     const result = new BigNumber(
         amount.toFormat(decimals, BigNumber.ROUND_DOWN)
     )
@@ -73,10 +94,10 @@ const toContractPrecisionDecimals = (amount, decimals) => {
     return result;
 };
 
-const precision = (contractDecimals) =>
+const precision = (contractDecimals: number): BigNumber =>
     new BigNumber(10).exponentiatedBy(contractDecimals);
 
-const fromContractPrecisionDecimals = (amount, decimals) => {
+const fromContractPrecisionDecimals = (amount: string | number, decimals: number): BigNumber => {
     return new BigNumber(amount).div(precision(decimals));
 };
 

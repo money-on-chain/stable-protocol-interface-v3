@@ -10,18 +10,30 @@ import {
     getNetworkFromProject
 } from "./utils";
 
+// Type definitions
+interface InterfaceContext {
+    web3: Web3;
+    contractStatusData: any[];
+    userBalanceData: any;
+    account: string;
+    [key: string]: any;
+}
+
+type OnTransaction = (hash: string) => void;
+type OnReceipt = (receipt: any) => void;
+
 const mintTC = async (
-    interfaceContext,
-    caIndex,
-    qTC,
-    limitAmount,
-    onTransaction,
-    onReceipt
-) => {
+    interfaceContext: InterfaceContext,
+    caIndex: number,
+    qTC: string | number,
+    limitAmount: BigNumber,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<any> => {
     // Mint Collateral token with CA
     const { web3, contractStatusData, userBalanceData, account } =
         interfaceContext;
-    const dContracts = window.dContracts;
+    const dContracts = (window as any).dContracts;
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
     const MoCContract = dContracts.contracts.Moc[caIndex];
 
@@ -30,28 +42,28 @@ const mintTC = async (
     // User have sufficient reserve to pay?
     console.log(
         `To mint ${qTC} ${
-            settings.tokens.TC[caIndex].name
+            (settings.tokens.TC[caIndex] as any).name
         } you need > ${limitAmount.toString()} ${
-            settings.tokens.CA[caIndex].name
+            (settings.tokens.CA[caIndex] as any).name
         } in your balance`
     );
     const userReserveBalance = new BigNumber(
         fromContractPrecisionDecimals(
             userBalanceData.CA[caIndex].balance,
-            settings.tokens.CA[caIndex].decimals
+            (settings.tokens.CA[caIndex] as any).decimals
         )
     );
     if (limitAmount.gt(userReserveBalance))
         throw new Error(
-            `Insufficient ${settings.tokens.CA[caIndex].name} balance`
+            `Insufficient ${(settings.tokens.CA[caIndex] as any).name} balance`
         );
 
     // Allowance    reserveAllowance
     console.log(
         `Allowance: To mint ${qTC} ${
-            settings.tokens.TC[caIndex].name
+            (settings.tokens.TC[caIndex] as any).name
         } you need > ${limitAmount.toString()} ${
-            settings.tokens.CA[caIndex].name
+            (settings.tokens.CA[caIndex] as any).name
         } in your spendable balance`
     );
     /*
@@ -68,11 +80,11 @@ const mintTC = async (
     */
 
     // TODO: view functions returns baseFee == 0, if we use another value the estimateGas function will revert
-    let valueToSend
-    if (getNetworkFromProject()==="rsk") {
-        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tcMintExecCost, 2)
+    let valueToSend: BigNumber;
+    if (getNetworkFromProject() === "rsk") {
+        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tcMintExecCost, 2);
     } else {
-        valueToSend = 0
+        valueToSend = new BigNumber(0);
     }
 
     // Calculate estimate gas cost
@@ -80,30 +92,30 @@ const mintTC = async (
         .mintTC(
             toContractPrecisionDecimals(
                 new BigNumber(qTC),
-                settings.tokens.TC[caIndex].decimals
+                (settings.tokens.TC[caIndex] as any).decimals
             ),
             toContractPrecisionDecimals(
                 limitAmount,
-                settings.tokens.CA[caIndex].decimals
+                (settings.tokens.CA[caIndex] as any).decimals
             ),
             account,
             vendorAddress
         )
         .estimateGas({ from: account, value: valueToSend.toString() });
 
-    if (valueToSend === 0) {
-        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tcMintExecCost, 2)
+    if (valueToSend.isZero()) {
+        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tcMintExecCost, 2);
     }
 
     const receipt = MoCContract.methods
         .mintTC(
             toContractPrecisionDecimals(
                 new BigNumber(qTC),
-                settings.tokens.TC[caIndex].decimals
+                (settings.tokens.TC[caIndex] as any).decimals
             ),
             toContractPrecisionDecimals(
                 limitAmount,
-                settings.tokens.CA[caIndex].decimals
+                (settings.tokens.CA[caIndex] as any).decimals
             ),
             account,
             vendorAddress
@@ -122,18 +134,18 @@ const mintTC = async (
 };
 
 const redeemTC = async (
-    interfaceContext,
-    caIndex,
-    qTC,
-    limitAmount,
-    onTransaction,
-    onReceipt
-) => {
+    interfaceContext: InterfaceContext,
+    caIndex: number,
+    qTC: string | number,
+    limitAmount: BigNumber,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<any> => {
     // Redeem Collateral token receiving CA
 
     const { web3, contractStatusData, userBalanceData, account } =
         interfaceContext;
-    const dContracts = window.dContracts;
+    const dContracts = (window as any).dContracts;
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
     const MoCContract = dContracts.contracts.Moc[caIndex];
 
@@ -141,17 +153,17 @@ const redeemTC = async (
 
     // User have sufficient TC in balance?
     console.log(
-        `Redeeming ${qTC} ${settings.tokens.TC[0].name} ... getting approx limit down to: ${limitAmount} ${settings.tokens.CA[caIndex].name}... `
+        `Redeeming ${qTC} ${(settings.tokens.TC[0] as any).name} ... getting approx limit down to: ${limitAmount} ${(settings.tokens.CA[caIndex] as any).name}... `
     );
     const userTCBalance = new BigNumber(
         fromContractPrecisionDecimals(
             userBalanceData[caIndex].TC.balance,
-            settings.tokens.TC[caIndex].decimals
+            (settings.tokens.TC[caIndex] as any).decimals
         )
     );
     if (new BigNumber(qTC).gt(userTCBalance))
         throw new Error(
-            `Insufficient ${settings.tokens.TC[caIndex].name} user balance`
+            `Insufficient ${(settings.tokens.TC[caIndex] as any).name} user balance`
         );
 
     // There are sufficient TC in the contracts to redeem?
@@ -160,26 +172,26 @@ const redeemTC = async (
     );
     if (new BigNumber(qTC).gt(tcAvailableToRedeem))
         throw new Error(
-            `Insufficient ${settings.tokens.TC[caIndex].name}available to redeem in contract`
+            `Insufficient ${(settings.tokens.TC[caIndex] as any).name}available to redeem in contract`
         );
 
     // There are sufficient CA in the contract
     const caBalance = new BigNumber(
         fromContractPrecisionDecimals(
             contractStatusData[caIndex].getACBalance,
-            settings.tokens.CA[caIndex].decimals
+            (settings.tokens.CA[caIndex] as any).decimals
         )
     );
     if (new BigNumber(limitAmount).gt(caBalance))
         throw new Error(
-            `Insufficient ${settings.tokens.CA[caIndex].name} in the contract. Balance: ${caBalance} ${settings.tokens.CA[caIndex].name}`
+            `Insufficient ${(settings.tokens.CA[caIndex] as any).name} in the contract. Balance: ${caBalance} ${(settings.tokens.CA[caIndex] as any).name}`
         );
 
-    let valueToSend
-    if (getNetworkFromProject()==="rsk") {
-        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tcRedeemExecCost, 2)
+    let valueToSend: BigNumber;
+    if (getNetworkFromProject() === "rsk") {
+        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tcRedeemExecCost, 2);
     } else {
-        valueToSend = 0
+        valueToSend = new BigNumber(0);
     }
 
     // Calculate estimate gas cost
@@ -187,19 +199,19 @@ const redeemTC = async (
         .redeemTC(
             toContractPrecisionDecimals(
                 new BigNumber(qTC),
-                settings.tokens.TC[caIndex].decimals
+                (settings.tokens.TC[caIndex] as any).decimals
             ),
             toContractPrecisionDecimals(
                 limitAmount,
-                settings.tokens.CA[caIndex].decimals
+                (settings.tokens.CA[caIndex] as any).decimals
             ),
             account,
             vendorAddress
         )
         .estimateGas({ from: account, value: valueToSend.toString() });
 
-    if (valueToSend === 0) {
-        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tcRedeemExecCost, 2)
+    if (valueToSend.isZero()) {
+        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tcRedeemExecCost, 2);
     }
 
     // Send tx
@@ -207,11 +219,11 @@ const redeemTC = async (
         .redeemTC(
             toContractPrecisionDecimals(
                 new BigNumber(qTC),
-                settings.tokens.TC[caIndex].decimals
+                (settings.tokens.TC[caIndex] as any).decimals
             ),
             toContractPrecisionDecimals(
                 limitAmount,
-                settings.tokens.CA[caIndex].decimals
+                (settings.tokens.CA[caIndex] as any).decimals
             ),
             account,
             vendorAddress
@@ -230,19 +242,19 @@ const redeemTC = async (
 };
 
 const mintTP = async (
-    interfaceContext,
-    caIndex,
-    tpIndex,
-    qTP,
-    limitAmount,
-    onTransaction,
-    onReceipt
-) => {
+    interfaceContext: InterfaceContext,
+    caIndex: number,
+    tpIndex: number,
+    qTP: string | number,
+    limitAmount: BigNumber,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<any> => {
     // Mint pegged token with collateral CA
 
     const { web3, contractStatusData, userBalanceData, account } =
         interfaceContext;
-    const dContracts = window.dContracts;
+    const dContracts = (window as any).dContracts;
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
     const MoCContract = dContracts.contracts.Moc[caIndex];
     const tpAddress = dContracts.contracts.TP[tpIndex].options.address;
@@ -251,28 +263,28 @@ const mintTP = async (
     // User have sufficient reserve to pay?
     console.log(
         `To mint ${qTP} ${
-            settings.tokens.TP[tpIndex].name
+            (settings.tokens.TP[tpIndex] as any).name
         } you need > ${limitAmount.toString()} ${
-            settings.tokens.CA[caIndex].name
+            (settings.tokens.CA[caIndex] as any).name
         } in your balance`
     );
     const userReserveBalance = new BigNumber(
         fromContractPrecisionDecimals(
             userBalanceData.CA[caIndex].balance,
-            settings.tokens.CA[caIndex].decimals
+            (settings.tokens.CA[caIndex] as any).decimals
         )
     );
     if (limitAmount.gt(userReserveBalance))
         throw new Error(
-            `Insufficient ${settings.tokens.CA[caIndex].name} balance`
+            `Insufficient ${(settings.tokens.CA[caIndex] as any).name} balance`
         );
 
     // Allowance
     console.log(
         `Allowance: To mint ${qTP} ${
-            settings.tokens.TP[tpIndex].name
+            (settings.tokens.TP[tpIndex] as any).name
         } you need > ${limitAmount.toString()} ${
-            settings.tokens.CA[caIndex].name
+            (settings.tokens.CA[caIndex] as any).name
         } in your spendable balance`
     );
     /*
@@ -293,20 +305,20 @@ const mintTP = async (
     const tpAvailableToMint = new BigNumber(
         fromContractPrecisionDecimals(
             contractStatusData[caIndex].getTPAvailableToMint[tpIndex],
-            settings.tokens.TP[tpIndex].decimals
+            (settings.tokens.TP[tpIndex] as any).decimals
         )
     );
 
     if (new BigNumber(qTP).gt(tpAvailableToMint))
         throw new Error(
-            `Insufficient ${settings.tokens.TP[tpIndex].name} available to mint`
+            `Insufficient ${(settings.tokens.TP[tpIndex] as any).name} available to mint`
         );
 
-    let valueToSend
-    if (getNetworkFromProject()==="rsk") {
-        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tpMintExecCost, 2)
+    let valueToSend: BigNumber;
+    if (getNetworkFromProject() === "rsk") {
+        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tpMintExecCost, 2);
     } else {
-        valueToSend = 0
+        valueToSend = new BigNumber(0);
     }
 
     // Calculate estimate gas cost
@@ -315,19 +327,19 @@ const mintTP = async (
             tpAddress,
             toContractPrecisionDecimals(
                 new BigNumber(qTP),
-                settings.tokens.TP[tpIndex].decimals
+                (settings.tokens.TP[tpIndex] as any).decimals
             ),
             toContractPrecisionDecimals(
                 limitAmount,
-                settings.tokens.CA[caIndex].decimals
+                (settings.tokens.CA[caIndex] as any).decimals
             ),
             account,
             vendorAddress
         )
         .estimateGas({ from: account, value: valueToSend.toString() });
 
-    if (valueToSend === 0) {
-        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tpMintExecCost, 2)
+    if (valueToSend.isZero()) {
+        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tpMintExecCost, 2);
     }
 
     // Send tx
@@ -336,11 +348,11 @@ const mintTP = async (
             tpAddress,
             toContractPrecisionDecimals(
                 new BigNumber(qTP),
-                settings.tokens.TP[tpIndex].decimals
+                (settings.tokens.TP[tpIndex] as any).decimals
             ),
             toContractPrecisionDecimals(
                 limitAmount,
-                settings.tokens.CA[caIndex].decimals
+                (settings.tokens.CA[caIndex] as any).decimals
             ),
             account,
             vendorAddress
@@ -359,19 +371,19 @@ const mintTP = async (
 };
 
 const redeemTP = async (
-    interfaceContext,
-    caIndex,
-    tpIndex,
-    qTP,
-    limitAmount,
-    onTransaction,
-    onReceipt
-) => {
+    interfaceContext: InterfaceContext,
+    caIndex: number,
+    tpIndex: number,
+    qTP: string | number,
+    limitAmount: BigNumber,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<any> => {
     // Redeem pegged token receiving CA
 
     const { web3, contractStatusData, userBalanceData, account } =
         interfaceContext;
-    const dContracts = window.dContracts;
+    const dContracts = (window as any).dContracts;
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
     const MoCContract = dContracts.contracts.Moc[caIndex];
     const tpAddress = dContracts.contracts.TP[tpIndex].options.address;
@@ -380,17 +392,17 @@ const redeemTP = async (
 
     // User have sufficient PEGGED Token in balance?
     console.log(
-        `Redeeming ${qTP} ${settings.tokens.TP[tpIndex].name} ... getting approx: ${limitAmount} ${settings.tokens.CA[caIndex].name}... `
+        `Redeeming ${qTP} ${(settings.tokens.TP[tpIndex] as any).name} ... getting approx: ${limitAmount} ${(settings.tokens.CA[caIndex] as any).name}... `
     );
     const userTPBalance = new BigNumber(
         fromContractPrecisionDecimals(
             userBalanceData.TP[tpIndex],
-            settings.tokens.TP[tpIndex].decimals
+            (settings.tokens.TP[tpIndex] as any).decimals
         )
     );
     if (new BigNumber(qTP).gt(userTPBalance))
         throw new Error(
-            `Insufficient ${settings.tokens.TP[tpIndex].name}  user balance`
+            `Insufficient ${(settings.tokens.TP[tpIndex] as any).name}  user balance`
         );
 
     // // There are sufficient Free Pegged Token in the contracts to redeem?
@@ -406,19 +418,19 @@ const redeemTP = async (
     const caBalance = new BigNumber(
         fromContractPrecisionDecimals(
             contractStatusData[caIndex].getACBalance,
-            settings.tokens.CA[caIndex].decimals
+            (settings.tokens.CA[caIndex] as any).decimals
         )
     );
     if (new BigNumber(limitAmount).gt(caBalance))
         throw new Error(
-            `Insufficient ${settings.tokens.CA[caIndex].name} in the contract. Balance: ${caBalance} ${settings.tokens.CA[caIndex].name}`
+            `Insufficient ${(settings.tokens.CA[caIndex] as any).name} in the contract. Balance: ${caBalance} ${(settings.tokens.CA[caIndex] as any).name}`
         );
 
-    let valueToSend
-    if (getNetworkFromProject()==="rsk") {
-        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tpRedeemExecCost, 4)
+    let valueToSend: BigNumber;
+    if (getNetworkFromProject() === "rsk") {
+        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tpRedeemExecCost, 4);
     } else {
-        valueToSend = 0
+        valueToSend = new BigNumber(0);
     }
 
     // Calculate estimate gas cost
@@ -427,19 +439,19 @@ const redeemTP = async (
             tpAddress,
             toContractPrecisionDecimals(
                 new BigNumber(qTP),
-                settings.tokens.TP[tpIndex].decimals
+                (settings.tokens.TP[tpIndex] as any).decimals
             ),
             toContractPrecisionDecimals(
                 limitAmount,
-                settings.tokens.CA[caIndex].decimals
+                (settings.tokens.CA[caIndex] as any).decimals
             ),
             account,
             vendorAddress
         )
         .estimateGas({ from: account, value: valueToSend.toString() });
 
-    if (valueToSend === 0) {
-        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tpRedeemExecCost, 4)
+    if (valueToSend.isZero()) {
+        valueToSend = await getExecutionFee(web3, contractStatusData[caIndex].tpRedeemExecCost, 4);
     }
 
     // Send tx
@@ -448,11 +460,11 @@ const redeemTP = async (
             tpAddress,
             toContractPrecisionDecimals(
                 new BigNumber(qTP),
-                settings.tokens.TP[tpIndex].decimals
+                (settings.tokens.TP[tpIndex] as any).decimals
             ),
             toContractPrecisionDecimals(
                 limitAmount,
-                settings.tokens.CA[caIndex].decimals
+                (settings.tokens.CA[caIndex] as any).decimals
             ),
             account,
             vendorAddress

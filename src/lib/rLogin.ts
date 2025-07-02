@@ -1,7 +1,36 @@
-const getRLogin = (port) => {
-    let rpcUrls = {};
+// Type definitions for window extensions
+declare global {
+    interface Window {
+        RLogin: {
+            default: any;
+        };
+        rLoginWalletConnect2Provider: {
+            WalletConnect2Provider: any;
+        };
+        rLoginLedgerProvider: {
+            ledgerProviderOptions: any;
+        };
+        rLoginDCentProvider: {
+            dcentProviderOptions: any;
+        };
+        rLoginTrezorProvider: {
+            trezorProviderOptions: any;
+        };
+    }
+}
 
-    switch (parseInt(port)) {
+interface RpcUrls {
+    [chainId: number]: string;
+}
+
+interface SelectedNetwork {
+    [chainId: number]: string;
+}
+
+const getRLogin = (port: string | number): any => {
+    let rpcUrls: RpcUrls = {};
+
+    switch (parseInt(port.toString())) {
         case 31:
             rpcUrls = {
                 31: "https://public-node.testnet.rsk.co",
@@ -24,7 +53,7 @@ const getRLogin = (port) => {
     }
 
     const chainId = import.meta.env.REACT_APP_ENVIRONMENT_CHAIN_ID;
-    var selectedNetwork = {};
+    const selectedNetwork: SelectedNetwork = {};
     selectedNetwork[parseInt(chainId)] = rpcUrls[parseInt(chainId)];
 
     const supportedChains = Object.keys(rpcUrls).map(Number);
