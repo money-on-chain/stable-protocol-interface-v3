@@ -1,16 +1,35 @@
 import React, { Fragment } from "react";
 import { Tooltip } from "antd";
+// @ts-ignore
 import NumericLabel from "react-pretty-numbers";
 import BigNumber from "bignumber.js";
-import PropTypes from "prop-types";
 
-const fromContractPrecisionDecimals = (amount, decimals) => {
+interface Token {
+    decimals: number;
+    visibleDecimals: number;
+}
+
+interface I18n {
+    languages: readonly string[];
+}
+
+interface PrecisionNumbersProps {
+    amount: any; // BigNumber or string/number
+    token: Token;
+    decimals?: number;
+    numericLabelParams?: any;
+    i18n: I18n;
+    skipContractConvert?: boolean;
+    isUSD?: boolean;
+}
+
+const fromContractPrecisionDecimals = (amount: any, decimals: number): BigNumber => {
     return new BigNumber(amount).div(
         new BigNumber(10).exponentiatedBy(decimals)
     );
 };
 
-const formatLargeNumber = (numberBig, decimals) => {
+const formatLargeNumber = (numberBig: BigNumber, decimals: number): string => {
     const billion = new BigNumber(1e9);
     const million = new BigNumber(1e6);
 
@@ -38,16 +57,16 @@ const formatLargeNumber = (numberBig, decimals) => {
     }
 };
 
-const PrecisionNumbers = ({
+const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
     amount,
     token,
     decimals,
-    numericLabelParams,
+    numericLabelParams = {},
     i18n,
-    skipContractConvert,
+    skipContractConvert = false,
     isUSD = false,
 }) => {
-    let amountBig;
+    let amountBig: BigNumber;
     if (skipContractConvert) {
         amountBig = amount;
     } else {
@@ -57,7 +76,7 @@ const PrecisionNumbers = ({
     if (!decimals) {
         decimals = token.visibleDecimals;
     }
-    let amountFormat;
+    let amountFormat: string;
     if (!isUSD) {
         amountFormat = amountBig.toFormat(decimals, BigNumber.ROUND_UP, {
             decimalSeparator: ".",
@@ -89,7 +108,7 @@ const PrecisionNumbers = ({
         return isUSD ? (
             <Fragment>{amountFormat}</Fragment>
         ) : (
-            <Tooltip title={amountBig.eq(0) ? "0" : amountBig}>
+            <Tooltip title={amountBig.eq(0) ? "0" : amountBig.toString()}>
                 <NumericLabel {...{ params }}>{amountFormat}</NumericLabel>
             </Tooltip>
         );
@@ -97,13 +116,3 @@ const PrecisionNumbers = ({
 };
 
 export { PrecisionNumbers };
-
-PrecisionNumbers.propTypes = {
-    amount: PropTypes.object,
-    token: PropTypes.object,
-    decimals: PropTypes.number,
-    numericLabelParams: PropTypes.object,
-    i18n: PropTypes.object,
-    skipContractConvert: PropTypes.bool,
-    isUSD: PropTypes.bool,
-};

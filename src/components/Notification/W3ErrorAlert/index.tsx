@@ -2,7 +2,7 @@ import React from "react";
 import { Alert } from "antd";
 import "./Styles.scss";
 
-export default function W3ErrorAlert() {
+export default function W3ErrorAlert(): React.ReactElement {
     return (
         <Alert
             className="alert alert-error"

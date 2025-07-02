@@ -1,24 +1,31 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
 import "./Styles.scss";
 
-export default function PerformanceChart() {
-    const [percent, setPercent] = useState(0);
+interface PerformanceData {
+    annualized_value: number;
+}
+
+export default function PerformanceChart(): React.ReactElement {
+    const [percent, setPercent] = useState<number>(0);
     const { t } = useProjectTranslation();
 
-    let height = percent && percent > 0 ? (percent * 190) / 100 : 0;
-    fetch(
-        "https://api.moneyonchain.com/api/calculated/moc_last_block_performance"
-    )
-        .then(async (response) => {
-            const data = await response.json();
-            setPercent(data.annualized_value.toFixed(2));
-        })
-        .catch((error) => {
-            console.log(error);
-            setPercent(0);
-        });
+    useEffect(() => {
+        fetch(
+            "https://api.moneyonchain.com/api/calculated/moc_last_block_performance"
+        )
+            .then(async (response) => {
+                const data: PerformanceData = await response.json();
+                setPercent(Number(data.annualized_value.toFixed(2)));
+            })
+            .catch((error) => {
+                console.log(error);
+                setPercent(0);
+            });
+    }, []);
+
+    const height = percent && percent > 0 ? (percent * 190) / 100 : 0;
 
     return (
         <div className="ChartContainer">

@@ -1,12 +1,21 @@
 import React from "react";
-import PropTypes from "prop-types";
 
 import "./Styles.scss";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 import { TokenSettings } from "../../../helpers/currencies";
 import { useProjectTranslation } from "../../../helpers/translations";
 
-function BalanceBar(props) {
+// Import the Token type from the correct location if available
+// import type { Token } from "../../../helpers/currencies";
+
+interface BalanceBarProps {
+    againstVotes: any; // Replace 'any' with the correct type if known
+    against: string;
+    infavorVotes: any; // Replace 'any' with the correct type if known
+    infavor: string;
+}
+
+export default function BalanceBar(props: BalanceBarProps): React.ReactElement {
     const { i18n } = useProjectTranslation();
     const space = "\u00A0";
 
@@ -16,7 +25,7 @@ function BalanceBar(props) {
                 <div className="label">
                     {PrecisionNumbers({
                         amount: props.againstVotes,
-                        token: TokenSettings("TG"),
+                        token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                         decimals: 2,
                         i18n: i18n,
                         skipContractConvert: true,
@@ -26,7 +35,7 @@ function BalanceBar(props) {
                 <div className="label">
                     {PrecisionNumbers({
                         amount: props.infavorVotes,
-                        token: TokenSettings("TG"),
+                        token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                         decimals: 2,
                         i18n: i18n,
                         skipContractConvert: true,
@@ -49,12 +58,3 @@ function BalanceBar(props) {
         </div>
     );
 }
-
-export default BalanceBar;
-
-BalanceBar.propTypes = {
-    againstVotes: PropTypes.object,
-    against: PropTypes.string,
-    infavorVotes: PropTypes.object,
-    infavor: PropTypes.string,
-};

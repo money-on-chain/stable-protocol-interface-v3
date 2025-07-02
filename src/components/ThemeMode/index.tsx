@@ -1,8 +1,8 @@
-import React, { Fragment } from "react";
+import React from "react";
 import { useProjectTranslation } from "../../helpers/translations";
 import useTheme from "../UseTheme";
 
-export default function ThemeMode() {
+export default function ThemeMode(): React.ReactElement {
     const { t } = useProjectTranslation();
     const { theme, toggleTheme } = useTheme();
 

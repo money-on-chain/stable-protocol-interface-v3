@@ -1,13 +1,24 @@
 import React from "react";
 import BigNumber from "bignumber.js";
-import PropTypes from "prop-types";
 
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 import settings from "../../../settings/settings.json";
 import { useProjectTranslation } from "../../../helpers/translations";
 import "./Styles.scss";
 
-const Dashboard = (props) => {
+interface UserInfoStaking {
+    tgBalance: string | number;
+    unstakeBalance: string | number;
+    totalPendingExpiration: string | number;
+    totalAvailableToWithdraw: string | number;
+    lockedInVoting: BigNumber;
+}
+
+interface DashboardProps {
+    userInfoStaking: UserInfoStaking;
+}
+
+const Dashboard: React.FC<DashboardProps> = (props) => {
     const { t, i18n, ns } = useProjectTranslation();
     const { userInfoStaking } = props;
 
@@ -24,10 +35,9 @@ const Dashboard = (props) => {
                         {PrecisionNumbers({
                             amount: new BigNumber(userInfoStaking["tgBalance"]),
                             token: settings.tokens.TG[0],
-                            decimals: t("staking.display_decimals"),
-                            t: t,
+                            decimals: Number(t("staking.display_decimals")),
+                            numericLabelParams: {},
                             i18n: i18n,
-                            ns: ns,
                             skipContractConvert: true,
                         })}
                     </div>
@@ -48,10 +58,9 @@ const Dashboard = (props) => {
                                 userInfoStaking["unstakeBalance"]
                             ),
                             token: settings.tokens.TG[0],
-                            decimals: t("staking.display_decimals"),
-                            t: t,
+                            decimals: Number(t("staking.display_decimals")),
+                            numericLabelParams: {},
                             i18n: i18n,
-                            ns: ns,
                             skipContractConvert: true,
                         })}
                     </div>
@@ -73,10 +82,9 @@ const Dashboard = (props) => {
                                 userInfoStaking["totalPendingExpiration"]
                             ),
                             token: settings.tokens.TG[0],
-                            decimals: t("staking.display_decimals"),
-                            t: t,
+                            decimals: Number(t("staking.display_decimals")),
+                            numericLabelParams: {},
                             i18n: i18n,
-                            ns: ns,
                             skipContractConvert: true,
                         })}
                     </div>
@@ -98,10 +106,9 @@ const Dashboard = (props) => {
                                 userInfoStaking["totalAvailableToWithdraw"]
                             ),
                             token: settings.tokens.TG[0],
-                            decimals: t("staking.display_decimals"),
-                            t: t,
+                            decimals: Number(t("staking.display_decimals")),
+                            numericLabelParams: {},
                             i18n: i18n,
-                            ns: ns,
                             skipContractConvert: true,
                         })}
                     </div>
@@ -124,10 +131,9 @@ const Dashboard = (props) => {
                                     userInfoStaking["lockedInVoting"]
                                 ),
                                 token: settings.tokens.TG[0],
-                                decimals: t("staking.display_decimals"),
-                                t: t,
+                                decimals: Number(t("staking.display_decimals")),
+                                numericLabelParams: {},
                                 i18n: i18n,
-                                ns: ns,
                                 skipContractConvert: true,
                             })}
                         </div>
@@ -142,7 +148,3 @@ const Dashboard = (props) => {
 };
 
 export default Dashboard;
-
-Dashboard.propTypes = {
-    userInfoStaking: PropTypes.object,
-};

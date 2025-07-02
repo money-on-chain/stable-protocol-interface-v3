@@ -1,16 +1,23 @@
 import React, { useContext } from "react";
 import { Alert, Button } from "antd";
-import PropTypes from "prop-types";
 
 import { useProjectTranslation } from "../../../helpers/translations";
 import { AuthenticateContext } from "../../../context/Auth";
 import "./Styles.scss";
 
-export default function UseVestingAlert(props) {
-    const { t } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext);
+interface UseVestingAlertProps {
+    address?: string;
+}
 
-    const truncateAddress = (address) => {
+interface AuthContext {
+    onShowModalAccount: (show: boolean) => void;
+}
+
+export default function UseVestingAlert(props: UseVestingAlertProps): React.ReactElement {
+    const { t } = useProjectTranslation();
+    const auth = useContext(AuthenticateContext) as AuthContext;
+
+    const truncateAddress = (address: string): string => {
         return (
             address.substring(0, 6) +
             "..." +
@@ -19,7 +26,7 @@ export default function UseVestingAlert(props) {
     };
     const space = "\u00A0";
 
-    const onDisplayAccount = () => {
+    const onDisplayAccount = (): void => {
         auth.onShowModalAccount(true);
     };
 
@@ -36,7 +43,7 @@ export default function UseVestingAlert(props) {
                     <div className="address mobile-only">
                         {t("vesting.alert.address")}
                         {space}
-                        {truncateAddress(props.address)}
+                        {truncateAddress(props.address || "")}
                     </div>
                     <div>{t("vesting.alert.explanation")}</div>
                 </div>
@@ -44,14 +51,10 @@ export default function UseVestingAlert(props) {
             type="error"
             showIcon
             action={
-                <Button size="small" type="custom" onClick={onDisplayAccount}>
+                <Button size="small" type="default" onClick={onDisplayAccount}>
                     {t("vesting.alert.cta")}
                 </Button>
             }
         />
     );
-}
-
-UseVestingAlert.propTypes = {
-    address: PropTypes.string,
-};
+} 

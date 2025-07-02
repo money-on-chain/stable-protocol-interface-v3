@@ -1,13 +1,18 @@
 import React from "react";
 import BigNumber from "bignumber.js";
-import PropTypes from "prop-types";
 
 import { useProjectTranslation } from "../../../helpers/translations";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 import { TokenSettings } from "../../../helpers/currencies";
 import "./Styles.scss";
 
-function ProposalStats(props) {
+interface ProposalStatsProps {
+    amount: BigNumber | string | number;
+    percentage: BigNumber | string | number;
+    label: string;
+}
+
+export default function ProposalStats(props: ProposalStatsProps): React.ReactElement {
     const { i18n } = useProjectTranslation();
 
     // Check that amount and percentage are an instance of BigNumber
@@ -33,7 +38,7 @@ function ProposalStats(props) {
                     <div className="statAmount">
                         {PrecisionNumbers({
                             amount: amountBig,
-                            token: TokenSettings("TG"),
+                            token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                             decimals: 2,
                             i18n: i18n,
                             skipContractConvert: true,
@@ -43,7 +48,7 @@ function ProposalStats(props) {
                         (
                         {PrecisionNumbers({
                             amount: percentageBig,
-                            token: TokenSettings("TG"),
+                            token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                             decimals: 2,
                             i18n: i18n,
                             skipContractConvert: true,
@@ -55,10 +60,3 @@ function ProposalStats(props) {
         </>
     );
 }
-export default ProposalStats;
-
-ProposalStats.propTypes = {
-    amount: PropTypes.bigint,
-    percentage: PropTypes.bigint,
-    label: PropTypes.string,
-};

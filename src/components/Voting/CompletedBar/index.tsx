@@ -1,12 +1,27 @@
 import React from "react";
-import PropTypes from "prop-types";
 
 import "./Styles.scss";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 import { TokenSettings } from "../../../helpers/currencies";
 import { useProjectTranslation } from "../../../helpers/translations";
 
-function CompletedBar(props) {
+interface CompletedBarProps {
+    description: string;
+    type: string;
+    percentage: string;
+    needed: string;
+    label1?: string;
+    amount1?: any; // Replace 'any' with the correct type if known
+    percentage1?: any; // Replace 'any' with the correct type if known
+    label2?: string;
+    amount2?: any; // Replace 'any' with the correct type if known
+    percentage2?: any; // Replace 'any' with the correct type if known
+    label3?: string;
+    amount3?: any; // Replace 'any' with the correct type if known
+    percentage3?: any; // Replace 'any' with the correct type if known
+}
+
+export default function CompletedBar(props: CompletedBarProps): React.ReactElement {
     const { i18n } = useProjectTranslation();
     const space = "\u00A0";
 
@@ -23,7 +38,7 @@ function CompletedBar(props) {
                     style={{
                         position: "absolute",
                         width: props.needed,
-                        zPosition: 100,
+                        zIndex: 100,
                     }}
                 ></div>
             </div>
@@ -34,7 +49,7 @@ function CompletedBar(props) {
                         {props.label1}:{space}
                         {PrecisionNumbers({
                             amount: props.amount1,
-                            token: TokenSettings("TG"),
+                            token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                             decimals: 2,
                             i18n: i18n,
                             skipContractConvert: true,
@@ -42,7 +57,7 @@ function CompletedBar(props) {
                         {space}(
                         {PrecisionNumbers({
                             amount: props.percentage1,
-                            token: TokenSettings("TG"),
+                            token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                             decimals: 2,
                             i18n: i18n,
                             skipContractConvert: true,
@@ -55,7 +70,7 @@ function CompletedBar(props) {
                         {props.label2}:{space}
                         {PrecisionNumbers({
                             amount: props.amount2,
-                            token: TokenSettings("TG"),
+                            token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                             decimals: 2,
                             i18n: i18n,
                             skipContractConvert: true,
@@ -63,7 +78,7 @@ function CompletedBar(props) {
                         {space}(
                         {PrecisionNumbers({
                             amount: props.percentage2,
-                            token: TokenSettings("TG"),
+                            token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                             decimals: 2,
                             i18n: i18n,
                             skipContractConvert: true,
@@ -76,7 +91,7 @@ function CompletedBar(props) {
                         {props.label3}:{space}
                         {PrecisionNumbers({
                             amount: props.amount3,
-                            token: TokenSettings("TG"),
+                            token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                             decimals: 2,
                             i18n: i18n,
                             skipContractConvert: true,
@@ -84,7 +99,7 @@ function CompletedBar(props) {
                         {space}(
                         {PrecisionNumbers({
                             amount: props.percentage3,
-                            token: TokenSettings("TG"),
+                            token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                             decimals: 2,
                             i18n: i18n,
                             skipContractConvert: true,
@@ -162,21 +177,3 @@ function CompletedBar(props) {
         </div>
     );
 }
-
-export default CompletedBar;
-
-CompletedBar.propTypes = {
-    description: PropTypes.string,
-    type: PropTypes.string,
-    percentage: PropTypes.string,
-    needed: PropTypes.string,
-    label1: PropTypes.string,
-    amount1: PropTypes.object,
-    percentage1: PropTypes.object,
-    label2: PropTypes.string,
-    amount2: PropTypes.object,
-    percentage2: PropTypes.object,
-    label3: PropTypes.string,
-    amount3: PropTypes.object,
-    percentage3: PropTypes.object,
-};

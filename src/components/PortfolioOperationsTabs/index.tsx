@@ -6,7 +6,12 @@ import Portfolio from "../../components/Dashboards/Portfolio";
 import ListOperationsMobile from "../Tables/LastOperations";
 import "./Styles.scss";
 
-export default function HomeTabs() {
+interface Tab {
+    id: number;
+    name: string;
+}
+
+export default function HomeTabs(): React.ReactElement {
     const { t } = useProjectTranslation();
     //const auth = useContext(AuthenticateContext);
     //const [ready, setReady] = useState(false);
@@ -19,14 +24,14 @@ export default function HomeTabs() {
     }, [auth]);*/
 
     // Tabs for mobile
-    const tabs = [
+    const tabs: Tab[] = [
         { id: 0, name: t(`portfolio.mobileTabs.portfolio`) },
         { id: 1, name: t(`portfolio.mobileTabs.lastOperations`) },
     ];
 
     // Active tab status control
 
-    const [activeTab, setActiveTab] = useState(tabs[0].id);
+    const [activeTab, setActiveTab] = useState<number>(tabs[0].id);
 
     return (
         <>

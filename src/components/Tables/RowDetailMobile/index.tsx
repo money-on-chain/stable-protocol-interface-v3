@@ -1,10 +1,37 @@
 import React from "react";
-import PropTypes from "prop-types";
 
 import { useProjectTranslation } from "../../../helpers/translations";
 import "./Styles.scss";
 
-function ItemData(props) {
+interface DetailData {
+    event: string;
+    created: string;
+    gas_used: string | number;
+    oper_id: string | number;
+    confirmation: string | number;
+    recipient: string;
+    status: string;
+    error_code: string | number;
+    block: string | number;
+    executed_tx_hash: string;
+    executed_tx_hash_truncate: string;
+    fee: string | number;
+    tx_hash: string;
+    tx_hash_truncate: string;
+    msg: string;
+    reason: string;
+}
+
+interface ItemDataProps {
+    label: string;
+    data: React.ReactNode;
+}
+
+interface RowDetailProps {
+    detail: DetailData;
+}
+
+function ItemData(props: ItemDataProps): React.ReactElement {
     return (
         <div className="LastOp__expanded__item">
             <div className="LastOp__expanded__label">{props.label}</div>
@@ -13,7 +40,7 @@ function ItemData(props) {
     );
 }
 
-function RowDetail(props) {
+function RowDetail(props: RowDetailProps): React.ReactElement {
     const { t, ns } = useProjectTranslation();
 
     return (
@@ -117,12 +144,3 @@ function RowDetail(props) {
 }
 
 export default RowDetail;
-
-RowDetail.propTypes = {
-    detail: PropTypes.object,
-};
-
-ItemData.propTypes = {
-    label: PropTypes.string,
-    data: PropTypes.object,
-};

@@ -1,14 +1,24 @@
 import { useEffect, useState } from "react";
 
-const useTheme = () => {
-    const [theme, setTheme] = useState(() => {
-        // Verificar si el tema está guardado en localStorage
-        const defaulTheme = getComputedStyle(document.querySelector(":root"))
-            .getPropertyValue("--default-theme")
-            .split('"')
-            .join("");
-        const storedTheme = localStorage.getItem("preferredColorScheme");
+export type Theme = "light" | "dark" | string;
 
+interface UseThemeResult {
+    theme: Theme;
+    toggleTheme: () => void;
+}
+
+const useTheme = (): UseThemeResult => {
+    const [theme, setTheme] = useState<Theme>(() => {
+        // Verificar si el tema está guardado en localStorage
+        const root = document.querySelector(":root");
+        let defaulTheme = "light";
+        if (root) {
+            defaulTheme = getComputedStyle(root as Element)
+                .getPropertyValue("--default-theme")
+                .split('"')
+                .join("");
+        }
+        const storedTheme = localStorage.getItem("preferredColorScheme");
         return storedTheme ? storedTheme : defaulTheme;
     });
 

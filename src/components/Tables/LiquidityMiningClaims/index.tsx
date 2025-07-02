@@ -5,7 +5,20 @@ import { Table } from "antd";
 import { useProjectTranslation } from "../../../helpers/translations";
 import "./Styles.scss";
 
-export default function LiquidityMiningClaims() {
+interface TempDataItem {
+    key: number;
+    event: string;
+    amount: number;
+    date: string;
+    status: string;
+}
+
+interface TableDataItem {
+    key: number;
+    renderRow: React.ReactNode;
+}
+
+export default function LiquidityMiningClaims(): React.ReactElement {
     const { t } = useProjectTranslation();
     //const auth = useContext(AuthenticateContext);
 
@@ -16,7 +29,7 @@ export default function LiquidityMiningClaims() {
     ];
 
     // THIS TABLE IS FOR EMULATING DATA ONLY, IT SHOULD BE REMOVED ONCE THE BACKEND IS DONE
-    const tempData = [
+    const tempData: TempDataItem[] = [
         {
             key: 0,
             event: "claim",
@@ -290,9 +303,30 @@ export default function LiquidityMiningClaims() {
             date: "2022-10-05 22:47:00",
             status: "Received",
         },
+        {
+            key: 2,
+            event: "claim",
+            amount: 5243.457633,
+            date: "2022-10-05 22:47:00",
+            status: "Received",
+        },
+        {
+            key: 2,
+            event: "claim",
+            amount: 5243.457633,
+            date: "2022-10-05 22:47:00",
+            status: "Received",
+        },
+        {
+            key: 2,
+            event: "claim",
+            amount: 5243.457633,
+            date: "2022-10-05 22:47:00",
+            status: "Received",
+        },
     ];
 
-    const tableData = tempData.map((item, itemIndex) => ({
+    const tableData: TableDataItem[] = tempData.map((item, itemIndex) => ({
         key: itemIndex,
         renderRow: (
             <div className="renderRow">
@@ -326,7 +360,7 @@ export default function LiquidityMiningClaims() {
             <Table
                 columns={tableColumns}
                 dataSource={tableData}
-                pagination={true}
+                pagination={{ pageSize: 10 }}
                 showHeader={false}
                 scroll={{ y: "auto" }}
             />

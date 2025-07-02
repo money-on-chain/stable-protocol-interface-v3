@@ -5,7 +5,13 @@ import { useProjectTranslation } from "../../../helpers/translations";
 import Swap from "../Swap";
 import "./style.scss";
 
-export default function ModalTokenMigration(props) {
+// If you know the props type, replace 'any' with the correct interface
+export interface ModalTokenMigrationProps {
+    // Add specific prop types here if known
+    [key: string]: any;
+}
+
+export default function ModalTokenMigration(props: ModalTokenMigrationProps): React.ReactElement {
     const [visible, setVisible] = useState(false);
 
     const showModal = () => {
@@ -33,7 +39,7 @@ export default function ModalTokenMigration(props) {
                 </div>
                 <div className="cta-options-group">
                     <button
-                        type="primary"
+                        type="button"
                         className="button"
                         onClick={showModal}
                     >
