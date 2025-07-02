@@ -18,7 +18,104 @@ import { TokenSettings } from "../../../helpers/currencies";
 import AboutQueue from "../../Modals/AboutQueue";
 import "./Styles.scss";
 
-export default function LastOperations(props) {
+// Type definitions
+interface LastOperationsProps {
+    token: string;
+}
+
+interface OperationData {
+    _id: string;
+    operation: string;
+    operId_: number | null;
+    bucket_index: number;
+    executed?: {
+        qAC_?: string;
+        qACmax?: string;
+        qTC_?: string;
+        qTC?: string;
+        qTP_?: string;
+        qACmin?: string;
+        qFeeToken_?: string;
+        qFeeTokenVendorMarkup_?: string;
+        qACfee_?: string;
+        qACVendorMarkup_?: string;
+        tpIndex_?: number;
+        blockNumber?: number;
+    };
+    params?: {
+        qAC_?: string;
+        qACmax?: string;
+        qTC_?: string;
+        qTC?: string;
+        qTP_?: string;
+        qACmin?: string;
+        tpIndex_?: number;
+        recipient?: string;
+        amount?: string;
+        token?: string;
+        sender?: string;
+        hash?: string;
+        blockNumber?: number;
+    };
+    status: number;
+    createdAt: string;
+    lastUpdatedAt: string;
+    confirmationTime?: string;
+    blockNumber?: number;
+    hash?: string;
+    gas_fee?: string;
+    gasFeeRBTC?: string;
+    gas?: string;
+    gasPrice?: string;
+    gasUsed?: string;
+    errorCode_?: string;
+    msg_?: string;
+    reason_?: string;
+    tokenInvolved?: string;
+}
+
+interface ApiResponse {
+    operations: OperationData[];
+    total: number;
+}
+
+interface TokenExchangeResult {
+    exchange: {
+        action?: string;
+        amount: string | number;
+        name: string;
+        token: any;
+        icon: string;
+        title: string;
+    };
+    receive: {
+        action?: string;
+        amount: string | number;
+        name: string;
+        token: any;
+        icon: string;
+        title: string;
+    };
+}
+
+interface TableRowData {
+    key: string;
+    info: string;
+    exchange: React.ReactNode;
+    receive: React.ReactNode;
+    date: React.ReactNode;
+    status: React.ReactNode;
+    detail: any;
+    renderRow: React.ReactNode;
+    description: React.ReactNode;
+}
+
+interface ExpandIconProps {
+    expanded: boolean;
+    onClick: () => void;
+}
+
+export default function LastOperations(props: LastOperationsProps) {
     const { token } = props;
     const [current, setCurrent] = useState(1);
     const { t, i18n, ns } = useProjectTranslation();
@@ -30,22 +127,22 @@ export default function LastOperations(props) {
         }
     }, [auth]);*/
 
-    const { accountData = {} } = auth;
-    const [dataJson, setDataJson] = useState([]);
+    const { accountData = {} as any } = auth;
+    const [dataJson, setDataJson] = useState<ApiResponse>({ operations: [], total: 0 });
     const [totalTable, setTotalTable] = useState(0);
     const [pageSize, setPageSize] = useState(10);
     //const [loadingSke, setLoadingSke] = useState(true);
     const [queueModal, setQueueModal] = useState(false);
     const lastOperationsHeight = getComputedStyle(
-        document.querySelector(":root")
+        document.querySelector(":root") as Element
     )
         .getPropertyValue("--lastOperationsHeight")
         .split('"')
         .join("");
     /*const timeSke = 1500;*/
-    var data = [];
-    const received_row = [];
-    var txList = [];
+    var data: TableRowData[] = [];
+    const received_row: TableRowData[] = [];
+    var txList: OperationData[] = [];
     const transactionsList = (/*skip*/) => {
         if (auth.isLoggedIn) {
             console.log("Loading table…");
@@ -58,13 +155,13 @@ export default function LastOperations(props) {
                 const baseUrl = `${import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS}operations/list/`;
                 const queryParams = new URLSearchParams({
                     recipient: accountData.Owner,
-                    limit: 1000,
-                    skip: 0,
+                    limit: "1000",
+                    skip: "0",
                 }).toString();
                 const url = `${baseUrl}?${queryParams}`;
 
                 api("get", url)
-                    .then((response) => {
+                    .then((response: ApiResponse) => {
                         setDataJson(response);
                         setTotalTable(response.total);
                         setReady(true);
@@ -76,10 +173,10 @@ export default function LastOperations(props) {
         }
     };
     // #section Operation detail custom expand function
-    const [expandedKeys, setExpandedKeys] = useState([]);
+    const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
 
     // Expansion / Contraction
-    const handleExpand = (expanded, record) => {
+    const handleExpand = (expanded: boolean, record: { key: string }) => {
         const newExpandedKeys = expanded
             ? [...expandedKeys, record.key]
             : expandedKeys.filter((key) => key !== record.key);
@@ -87,16 +184,11 @@ export default function LastOperations(props) {
     };
 
     // Expansion Icon
-    const ExpandIcon = ({ expanded, onClick }) => (
+    const ExpandIcon: React.FC<ExpandIconProps> = ({ expanded, onClick }) => (
         <div onClick={onClick} style={{ cursor: "pointer" }}>
             {expanded ? <UpCircleOutlined /> : <DownCircleOutlined />}
         </div>
     );
-
-    ExpandIcon.propTypes = {
-        expanded: PropTypes.bool,
-        onClick: PropTypes.func,
-    };
 
     // #endsection Operation detail custom expand function
 
@@ -109,30 +201,30 @@ export default function LastOperations(props) {
     ].filter((item) => !item.hidden);
     useEffect(() => {
         const interval = setInterval(() => {
-            transactionsList(current);
+            transactionsList();
         }, 3000);
         return () => clearInterval(interval);
     }, [accountData.Owner]);
     useEffect(() => {
-        transactionsList(current);
+        transactionsList();
     }, [accountData.Owner]);
-    const onChange = (page) => {
+    const onChange = (page: number) => {
         if (accountData !== undefined) {
             setCurrent(page);
-            data_row(page);
-            transactionsList(page, true);
+            data_row();
+            transactionsList();
         }
     };
 
-    function tokenExchange(row_operation) {
+    function tokenExchange(row_operation: OperationData): TokenExchangeResult | undefined {
         let status = "";
-        if (row_operation["executed"]) {
+        if (row_operation.executed) {
             status = "executed";
-        } else if (row_operation["params"]) {
+        } else if (row_operation.params) {
             status = "params";
         }
 
-        const caIndex = row_operation["bucket_index"]
+        const caIndex = row_operation.bucket_index;
 
         if (!status) {
             return {
@@ -153,14 +245,14 @@ export default function LastOperations(props) {
             };
         }
 
-        if (row_operation["operation"] === "TCMint") {
+        if (row_operation.operation === "TCMint") {
             return {
                 exchange: {
                     action: "TCMint",
                     amount:
                         status === "executed"
-                            ? row_operation[status]["qAC_"]
-                            : row_operation[status]["qACmax"],
+                            ? row_operation.executed?.qAC_ || 0
+                            : row_operation.params?.qACmax || 0,
                     name: settings.tokens.CA[caIndex].name,
                     token: settings.tokens.CA[caIndex],
                     icon: `CA_${caIndex}`,
@@ -173,8 +265,8 @@ export default function LastOperations(props) {
                     action: "TCMint",
                     amount:
                         status === "executed"
-                            ? row_operation[status]["qTC_"]
-                            : row_operation[status]["qTC"],
+                            ? row_operation.executed?.qTC_ || 0
+                            : row_operation.params?.qTC || 0,
                     name: settings.tokens.TC[caIndex].name,
                     token: settings.tokens.TC[caIndex],
                     icon: `TC_${caIndex}`,
@@ -184,14 +276,14 @@ export default function LastOperations(props) {
                             : t("operations.actions.receiving"),
                 },
             };
-        } else if (row_operation["operation"] === "TCRedeem") {
+        } else if (row_operation.operation === "TCRedeem") {
             return {
                 exchange: {
                     action: "TCRedeem",
                     amount:
                         status === "executed"
-                            ? row_operation[status]["qTC_"]
-                            : row_operation[status]["qTC"],
+                            ? row_operation.executed?.qTC_ || 0
+                            : row_operation.params?.qTC || 0,
                     name: settings.tokens.TC[caIndex].name,
                     token: settings.tokens.TC[caIndex],
                     icon: `TC_${caIndex}`,
@@ -204,8 +296,8 @@ export default function LastOperations(props) {
                     action: "TCRedeem",
                     amount:
                         status === "executed"
-                            ? row_operation[status]["qAC_"]
-                            : row_operation[status]["qACmin"],
+                            ? row_operation.executed?.qAC_ || 0
+                            : row_operation.params?.qACmin || 0,
                     name: settings.tokens.CA[caIndex].name,
                     token: settings.tokens.CA[caIndex],
                     icon: `CA_${caIndex}`,
@@ -215,8 +307,8 @@ export default function LastOperations(props) {
                             : t("operations.actions.receiving"),
                 },
             };
-        } else if (row_operation["operation"] === "TPMint") {
-            let tp_index = row_operation[status]["tpIndex_"];
+        } else if (row_operation.operation === "TPMint") {
+            let tp_index = row_operation.executed?.tpIndex_;
             if (tp_index === undefined) tp_index = 0;
 
             return {
@@ -224,8 +316,8 @@ export default function LastOperations(props) {
                     action: "TPMint",
                     amount:
                         status === "executed"
-                            ? row_operation[status]["qAC_"]
-                            : row_operation[status]["qACmax"],
+                            ? row_operation.executed?.qAC_ || 0
+                            : row_operation.params?.qACmax || 0,
                     name: settings.tokens.CA[caIndex].name,
                     token: settings.tokens.CA[caIndex],
                     icon: `CA_${caIndex}`,
@@ -238,8 +330,8 @@ export default function LastOperations(props) {
                     action: "TPMint",
                     amount:
                         status === "executed"
-                            ? row_operation[status]["qTP_"]
-                            : row_operation[status]["qTP"],
+                            ? row_operation.executed?.qTP_ || 0
+                            : row_operation.params?.qTP_ || 0,
                     name: settings.tokens.TP[tp_index].name,
                     token: settings.tokens.TP[tp_index],
                     icon: `TP_${tp_index}`,
@@ -249,8 +341,8 @@ export default function LastOperations(props) {
                             : t("operations.actions.receiving"),
                 },
             };
-        } else if (row_operation["operation"] === "TPRedeem") {
-            let tp_index = row_operation[status]["tpIndex_"];
+        } else if (row_operation.operation === "TPRedeem") {
+            let tp_index = row_operation.executed?.tpIndex_;
             if (tp_index === undefined) tp_index = 0;
 
             return {
@@ -258,8 +350,8 @@ export default function LastOperations(props) {
                     action: "TPRedeem",
                     amount:
                         status === "executed"
-                            ? row_operation[status]["qTP_"]
-                            : row_operation[status]["qTP"],
+                            ? row_operation.executed?.qTP_ || 0
+                            : row_operation.params?.qTP_ || 0,
                     name: settings.tokens.TP[tp_index].name,
                     token: settings.tokens.TP[tp_index],
                     icon: `TP_${tp_index}`,
@@ -272,8 +364,8 @@ export default function LastOperations(props) {
                     action: "TPRedeem",
                     amount:
                         status === "executed"
-                            ? row_operation[status]["qAC_"]
-                            : row_operation[status]["qACmin"],
+                            ? row_operation.executed?.qAC_ || 0
+                            : row_operation.params?.qACmin || 0,
                     name: settings.tokens.CA[caIndex].name,
                     token: settings.tokens.CA[caIndex],
                     icon: `CA_${caIndex}`,
@@ -283,16 +375,20 @@ export default function LastOperations(props) {
                             : t("operations.actions.receiving"),
                 },
             };
-        } else if (row_operation["operation"] === "Transfer") {
-            let token = row_operation["params"]["token"];
-            const token_info = getTokenInfo(token);
+        } else if (row_operation.operation === "Transfer") {
+            const tokenParam = row_operation.params?.token;
+            if (!tokenParam) return undefined;
+            
+            const token_info = getTokenInfo(tokenParam);
+            if (!token_info) return undefined;
+            
             return {
                 exchange: {
                     action: "Transfer",
-                    amount: row_operation["params"]["amount"],
+                    amount: row_operation.params?.amount || 0,
                     name: token_info.name,
                     token: token_info.token,
-                    icon: row_operation["params"]["token"],
+                    icon: tokenParam,
                     title:
                         status === "executed"
                             ? "TRANSFERRED"
@@ -300,17 +396,17 @@ export default function LastOperations(props) {
                 },
                 receive: {
                     action: "Transfer",
-                    amount: row_operation["params"]["amount"],
+                    amount: row_operation.params?.amount || 0,
                     name: token_info.name,
                     token: token_info.token,
-                    icon: row_operation["params"]["token"],
+                    icon: tokenParam,
                     title:
                         status === "executed"
                             ? "TRANSFERRED"
                             : t("operations.actions.transfer"),
                 },
             };
-        } else if (row_operation["operation"] === "ERROR") {
+        } else if (row_operation.operation === "ERROR") {
             return {
                 exchange: {
                     action: "Error",
@@ -331,9 +427,10 @@ export default function LastOperations(props) {
             };
         } else {
             console.log("CAN'T OPERATE: " + row_operation.operation);
+            return undefined;
         }
     }
-    const getErrorMessage = (error) => {
+    const getErrorMessage = (error: any) => {
         switch (error) {
             case "qAC below minimum required":
                 return `${settings.tokens.CA[0].name} ${t("operations.errors.qACBelow")} `;
@@ -360,7 +457,7 @@ export default function LastOperations(props) {
         if (dataJson.operations !== undefined) {
             dataJson.operations.sort((a, b) => {
                 if (a.blockNumber !== b.blockNumber) {
-                    return b.blockNumber - a.blockNumber;
+                    return (b.blockNumber || 0) - (a.blockNumber || 0);
                 }
                 if (a.operId_ !== null && b.operId_ !== null) {
                     return b.operId_ - a.operId_;
@@ -375,7 +472,7 @@ export default function LastOperations(props) {
             });
         }
         /*******************************filter by type (token)***********************************/
-        var pre_datas = [];
+        var pre_datas: OperationData[] = [];
         if (dataJson.operations !== undefined) {
             pre_datas = dataJson.operations.filter((data_j) => {
                 return token !== "all" ? data_j.tokenInvolved === token : true;
@@ -385,6 +482,7 @@ export default function LastOperations(props) {
         data = [];
         txList.forEach((data) => {
             const token = tokenExchange(data);
+            if (!token) return;
 
             const detail = {
                 event: data["operation"],
@@ -420,12 +518,12 @@ export default function LastOperations(props) {
                     "--"
                 ),
                 recipient:
-                    data["params"]["recipient"] !== "--" ? (
+                    data.params?.recipient !== "--" ? (
                         <Copy
                             textToShow={TruncatedAddress(
-                                data["params"]["recipient"]
+                                data.params?.recipient || ""
                             )}
-                            textToCopy={data["params"]["recipient"]}
+                            textToCopy={data.params?.recipient || ""}
                         />
                     ) : (
                         "--"
@@ -462,18 +560,12 @@ export default function LastOperations(props) {
                                             {token.exchange.title}
                                         </div>
                                         <div className="table-amount">
-                                            {PrecisionNumbers({
-                                                amount: token.exchange.amount,
-                                                token:
-                                                    token.exchange.token[0] ??
-                                                    token.exchange.token,
-                                                decimals:
-                                                    token.exchange.token
-                                                        .visibleDecimals ?? 2,
-                                                t: t,
-                                                i18n: i18n,
-                                                ns: ns,
-                                            })}{" "}
+                                            <PrecisionNumbers
+                                                amount={token.exchange.amount}
+                                                token={token.exchange.token}
+                                                decimals={token.exchange.token.visibleDecimals ?? 2}
+                                                i18n={i18n}
+                                            />
                                         </div>
                                     </div>
                                     <div className="lastOp__detail__token__container">
@@ -592,6 +684,8 @@ export default function LastOperations(props) {
                     </Fragment>
                 ),
                 detail: detail || "--",
+                renderRow: <></>,
+                description: <></>,
             });
         });
 
@@ -638,12 +732,12 @@ export default function LastOperations(props) {
         });
     };
 
-    data_row(current);
+    data_row();
     const tableColumns = columns.map((item) => ({ ...item }));
     /*useEffect(() => {
         setTimeout(() => setLoadingSke(false), timeSke);
     }, [auth]);*/
-    function TruncatedAddress(address, length = 6) {
+    function TruncatedAddress(address: string, length = 6) {
         if (!address) return "";
 
         return (
@@ -652,8 +746,8 @@ export default function LastOperations(props) {
             address.substring(address.length - length)
         );
     }
-    function getFee(row_operation) {
-        const fee = { amount: new BigNumber(0), token: null, decimals: 18 };
+    function getFee(row_operation: OperationData) {
+        const fee: { amount: BigNumber; token: string | null; decimals: number } = { amount: new BigNumber(0), token: null, decimals: 18 };
         const caIndex = row_operation["bucket_index"]
 
         if (
@@ -730,7 +824,7 @@ export default function LastOperations(props) {
             return "--";
         }
     }
-    function getTransferAction(row_operation) {
+    function getTransferAction(row_operation: OperationData) {
         if (
             row_operation["params"]["sender"].toLowerCase() ===
             accountData.Owner.toLowerCase()
@@ -749,7 +843,7 @@ export default function LastOperations(props) {
             address.substring(address.length - 4, address.length)
         );
     }*/
-    function getTransferAddress(row_operation) {
+    function getTransferAddress(row_operation: OperationData) {
         if (
             row_operation["params"]["sender"].toLowerCase() ===
             accountData.Owner.toLowerCase()
@@ -761,7 +855,7 @@ export default function LastOperations(props) {
             return row_operation["params"]["sender"].toLowerCase();
         }
     }
-    function getStatus(row_operation) {
+    function getStatus(row_operation: OperationData) {
         const confirmedBlocks = BigInt(10);
         switch (row_operation["status"]) {
             case -4:
@@ -776,8 +870,9 @@ export default function LastOperations(props) {
                 if (
                     row_operation["params"] &&
                     auth.contractStatusData &&
-                    BigInt(auth.contractStatusData.blockHeight) <
-                        BigInt(row_operation["params"]["blockNumber"]) +
+                    auth.contractStatusData[0] &&
+                    BigInt(auth.contractStatusData[0].blockHeight || 0) <
+                        BigInt(row_operation["params"]["blockNumber"] || 0) +
                             confirmedBlocks
                 )
                     return t("operations.actions.statusQueuing");
@@ -786,22 +881,26 @@ export default function LastOperations(props) {
                 if (
                     row_operation["executed"] &&
                     auth.contractStatusData &&
-                    BigInt(auth.contractStatusData.blockHeight) <
-                        BigInt(row_operation["executed"]["blockNumber"]) +
+                    auth.contractStatusData[0] &&
+                    BigInt(auth.contractStatusData[0].blockHeight || 0) <
+                        BigInt(row_operation["executed"]["blockNumber"] || 0) +
                             confirmedBlocks
                 )
                     return t("operations.actions.statusConfirming");
                 else if (
                     row_operation["operation"] === "Transfer" &&
                     auth.contractStatusData &&
-                    BigInt(auth.contractStatusData.blockHeight) <
-                        BigInt(row_operation["blockNumber"]) + confirmedBlocks
+                    auth.contractStatusData[0] &&
+                    BigInt(auth.contractStatusData[0].blockHeight || 0) <
+                        BigInt(row_operation["blockNumber"] || 0) + confirmedBlocks
                 )
                     return t("operations.actions.statusConfirming");
                 else return t("operations.actions.statusConfirmed");
+            default:
+                return t("operations.actions.statusFailed");
         }
     }
-    function getTokenInfo(token) {
+    function getTokenInfo(token: string) {
         switch (token) {
             case "CA_0":
                 return {
@@ -840,10 +939,11 @@ export default function LastOperations(props) {
                 };
             default:
                 console.log("UNRECOGNIZED TOKEN: " + token);
+                return undefined;
         }
     }
 
-    function setStatusIcon(status) {
+    function setStatusIcon(status: string) {
         switch (status) {
             case t("operations.actions.statusQueuing"):
                 return "QUEUING";
@@ -855,10 +955,12 @@ export default function LastOperations(props) {
                 return "CONFIRMED";
             case t("operations.actions.statusFailed"):
                 return "FAILED";
+            default:
+                return "FAILED";
         }
     }
 
-    function getAsset(name) {
+    function getAsset(name: string) {
         switch (name) {
             case "CA_0":
                 return {
@@ -968,7 +1070,7 @@ export default function LastOperations(props) {
                         }}
                         pagination={{
                             pageSize: pageSize,
-                            position: ["none", "bottomRight"],
+                            position: ["bottomRight"],
                             defaultCurrent: 1,
                             onChange: onChange,
                             total: totalTable,
@@ -985,7 +1087,7 @@ export default function LastOperations(props) {
                             },
                         }}
                         columns={tableColumns}
-                        dataSource={auth.isLoggedIn == true ? data : null}
+                        dataSource={auth.isLoggedIn == true ? data : undefined}
                         scroll={{ y: lastOperationsHeight }}
                         style={{}}
                     />
