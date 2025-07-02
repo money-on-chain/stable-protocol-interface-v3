@@ -4,6 +4,35 @@ import React from "react";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 import settings from "../../../settings/settings.json";
 
+interface TokenRowProps {
+    key: number;
+    label: {
+        name: string;
+        price: string;
+        variation: string;
+        balance: string;
+        usdBalance: string;
+    };
+    tokenIcon: string;
+    tokenName: string;
+    tokenTicker: string;
+    price: BigNumber;
+    balance: BigNumber;
+    balanceUSD: BigNumber;
+    priceDelta: BigNumber;
+    variation: BigNumber;
+    visiblePriceDecimals: number;
+    visibleBalanceDecimals: number;
+    visibleBalanceUSDDecimals: number;
+    auth: any;
+    i18n: any;
+}
+
+interface TokenRow {
+    key: number;
+    renderRow: React.ReactElement;
+}
+
 export const generateTokenRow = ({
     key,
     label,
@@ -20,8 +49,8 @@ export const generateTokenRow = ({
     visibleBalanceUSDDecimals,
     auth,
     i18n,
-}) => {
-    const getSign = () => {
+}: TokenRowProps): TokenRow => {
+    const getSign = (): string => {
         if (priceDelta.isZero()) return "";
         return priceDelta.isPositive() ? "+" : "-";
     };
