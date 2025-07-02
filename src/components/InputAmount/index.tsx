@@ -1,12 +1,22 @@
 import React, { useRef, useEffect } from "react";
-import PropTypes from "prop-types";
 import { useProjectTranslation } from "../../helpers/translations";
 import "./Styles.scss";
 
-const InputAmount = (props) => {
+interface InputAmountProps {
+    balanceText?: string;
+    action?: string;
+    balance?: React.ReactNode;
+    placeholder?: string;
+    inputValue?: string;
+    onValueChange: (value: string) => void;
+    setAddTotalAvailable: () => void;
+    validateError?: boolean;
+}
+
+const InputAmount: React.FC<InputAmountProps> = (props) => {
     const { t } = useProjectTranslation();
 
-    const inputRef = useRef(null);
+    const inputRef = useRef<HTMLInputElement>(null);
     //const [value, setValue] = useState("");
     const {
         balanceText,
@@ -20,7 +30,7 @@ const InputAmount = (props) => {
     } = props;
 
     useEffect(() => {
-        const handleWheel = (event) => {
+        const handleWheel = (event: WheelEvent) => {
             console.log("Wheel event triggered");
             event.preventDefault();
         };
@@ -39,12 +49,12 @@ const InputAmount = (props) => {
         };
     }, []);
 
-    const isValidNumber = (value) => {
+    const isValidNumber = (value: string): boolean => {
         const num = value.replace(",", ".");
-        return !isNaN(num);
+        return !isNaN(Number(num));
     };
 
-    const handleValueChange = (value) => {
+    const handleValueChange = (value: string): void => {
         let formattedValue = value;
         if (value.length > 20) {
             return;
@@ -66,6 +76,7 @@ const InputAmount = (props) => {
             onValueChange("");
         }
     };
+    
     return (
         <div className="amountInput">
             <div className="amountInput__infoBar">
@@ -99,15 +110,4 @@ const InputAmount = (props) => {
     );
 };
 
-export default InputAmount;
-
-InputAmount.propTypes = {
-    balanceText: PropTypes.string,
-    action: PropTypes.string,
-    balance: PropTypes.object,
-    placeholder: PropTypes.string,
-    inputValue: PropTypes.string,
-    onValueChange: PropTypes.func,
-    setAddTotalAvailable: PropTypes.func,
-    validateError: PropTypes.bool,
-};
+export default InputAmount; 

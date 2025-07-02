@@ -1,0 +1,74 @@
+import React, { useState } from "react";
+import Modal from "antd/lib/modal/Modal";
+import { Button } from "antd";
+
+import { useProjectTranslation } from "../../../helpers/translations";
+import ConfirmOperation from "../../ConfirmOperation";
+
+interface ModalConfirmOperationProps {
+    inputValidationError?: boolean;
+    currencyYouExchange: string;
+    currencyYouReceive: string;
+    exchangingUSD: any; // BigNumber type
+    commission: any; // BigNumber type
+    commissionUSD: any; // BigNumber type
+    commissionPercent: any; // BigNumber type
+    inputAmountYouExchange: any; // BigNumber type
+    amountYouReceive: any; // BigNumber type
+    executionFee: any; // BigNumber type
+    executionFeeUSD: any; // BigNumber type
+    commissionFeeToken: any; // BigNumber type
+    commissionFeeTokenUSD: any; // BigNumber type
+    commissionPercentFeeToken: any; // BigNumber type
+    radioSelectFee: number;
+    caIndex: number;
+}
+
+export default function ModalConfirmOperation(props: ModalConfirmOperationProps): React.ReactElement {
+    const { /*onClear,*/ inputValidationError } = props;
+
+    const { t } = useProjectTranslation();
+    const [visible, setVisible] = useState<boolean>(false);
+
+    const showModal = (): void => {
+        setVisible(true);
+    };
+
+    /*
+    const clear = () => {
+        onClear();
+    };*/
+
+    const hideModal = (): void => {
+        setVisible(false);
+    };
+    
+    return (
+        <div className="ShowModalConfirmOperation">
+            <Button
+                type="primary"
+                className="button"
+                onClick={showModal}
+                disabled={inputValidationError || false}
+            >
+                {t("exchange.buttonPrimary")}
+            </Button>
+            {visible && (
+                <Modal
+                    title={t("exchange.modalTitle")}
+                    width={505}
+                    open={visible}
+                    onCancel={hideModal}
+                    footer={null}
+                    className="ModalConfirmOperation"
+                    closable={false}
+                    centered={true}
+                    maskClosable={false}
+                    maskStyle={{}}
+                >
+                    <ConfirmOperation {...props} onCloseModal={hideModal} />
+                </Modal>
+            )}
+        </div>
+    );
+}

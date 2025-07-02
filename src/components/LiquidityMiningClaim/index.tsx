@@ -6,7 +6,7 @@ import PerformanceChart from "../Staking/performanceChart";
 import LiquidityMiningClaims from "../Tables/LiquidityMiningClaims";
 import "./Styles.scss";
 
-export default function LiquidityMiningClaim() {
+export default function LiquidityMiningClaim(): React.ReactElement {
     //const auth = useContext(AuthenticateContext);
     const { t } = useProjectTranslation();
 

@@ -1,7 +1,7 @@
 import React, { Fragment } from "react";
 import { useProjectTranslation } from "../../helpers/translations";
 
-export default function DappVersion() {
+export default function DappVersion(): React.ReactElement {
     const { t } = useProjectTranslation();
 
     return (
@@ -11,4 +11,4 @@ export default function DappVersion() {
             </div>
         </>
     );
-}
+} 

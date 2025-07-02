@@ -3,7 +3,7 @@ import ThemeMode from "../ThemeMode";
 import DappVersion from "../DappVersion";
 import "./Styles.scss";
 
-export default function DappFooter() {
+export default function DappFooter(): React.ReactElement {
     return (
         <>
             <div className="dashboard-footer desktop-only">
@@ -12,4 +12,4 @@ export default function DappFooter() {
             </div>
         </>
     );
-}
+} 

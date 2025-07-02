@@ -1,42 +1,49 @@
 import React, { useState } from "react";
 import Modal from "antd/lib/modal/Modal";
-import { Button } from "antd";
-import PropTypes from "prop-types";
 
 import { useProjectTranslation } from "../../../helpers/translations";
-import ConfirmOperation from "../../ConfirmOperation";
+import ConfirmSend from "../../ConfirmSend";
+import { Button } from "antd";
 
-export default function ModalConfirmOperation(props) {
+interface ModalConfirmSendProps {
+    inputValidationError?: boolean;
+    currencyYouExchange: string;
+    exchangingUSD: any; // BigNumber type
+    amountYouExchange: string;
+    destinationAddress: string;
+}
+
+export default function ModalConfirmSend(props: ModalConfirmSendProps): React.ReactElement {
     const { /*onClear,*/ inputValidationError } = props;
 
     const { t } = useProjectTranslation();
-    const [visible, setVisible] = useState(false);
+    const [visible, setVisible] = useState<boolean>(false);
 
-    const showModal = () => {
+    const showModal = (): void => {
         setVisible(true);
     };
 
-    /*
-    const clear = () => {
-        onClear();
-    };*/
-
-    const hideModal = () => {
+    const hideModal = (): void => {
         setVisible(false);
     };
+
     return (
         <div className="ShowModalConfirmOperation">
             <Button
                 type="primary"
-                className="button"
+                className={
+                    import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT.toLowerCase()
+                        ? "button"
+                        : "button"
+                }
                 onClick={showModal}
-                disabled={inputValidationError ? "disabled" : null}
+                disabled={inputValidationError || false}
             >
-                {t("exchange.buttonPrimary")}
+                {t("send.buttonPrimary")}
             </Button>
             {visible && (
                 <Modal
-                    title={t("exchange.modalTitle")}
+                    title={t("send.modalTitle")}
                     width={505}
                     open={visible}
                     onCancel={hideModal}
@@ -47,13 +54,9 @@ export default function ModalConfirmOperation(props) {
                     maskClosable={false}
                     maskStyle={{}}
                 >
-                    <ConfirmOperation {...props} onCloseModal={hideModal} />
+                    <ConfirmSend {...props} onCloseModal={hideModal} />
                 </Modal>
             )}
         </div>
     );
 }
-
-ModalConfirmOperation.propTypes = {
-    inputValidationError: PropTypes.bool,
-};

@@ -1,11 +1,14 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { useProjectTranslation } from "../../../helpers/translations";
 
-export default function AboutQueue(props) {
+interface AboutQueueProps {
+    hideModal: () => void;
+}
+
+export default function AboutQueue(props: AboutQueueProps): React.ReactElement {
     const { t } = useProjectTranslation();
 
-    function setStatusIcon(status) {
+    function setStatusIcon(status: string): string {
         switch (status) {
             case t("operations.actions.statusQueuing"):
                 return "QUEUING";
@@ -17,8 +20,11 @@ export default function AboutQueue(props) {
                 return "CONFIRMED";
             case t("operations.actions.statusFailed"):
                 return "FAILED";
+            default:
+                return "QUEUING";
         }
     }
+    
     return (
         <div className="queue-modal-container">
             <div className="status-list">
@@ -107,7 +113,7 @@ export default function AboutQueue(props) {
             </div>
             <div className="button-container">
                 <button
-                    type="primary"
+                    type="button"
                     className="button"
                     onClick={props.hideModal}
                 >
@@ -117,7 +123,3 @@ export default function AboutQueue(props) {
         </div>
     );
 }
-
-AboutQueue.propTypes = {
-    hideModal: PropTypes.func,
-};

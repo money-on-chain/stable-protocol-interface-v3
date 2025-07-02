@@ -1,20 +1,25 @@
-import Modal, { Fragment } from "antd/lib/modal/Modal";
+import Modal from "antd/lib/modal/Modal";
 import React from "react";
-import PropTypes from "prop-types";
 
 import { useProjectTranslation } from "../../../helpers/translations";
 import CopyAddress from "../../CopyAddress";
 
-const VotingStatusModal = ({
+interface OperationStatusModalProps {
+    className?: string;
+    visible?: boolean;
+    onCancel: () => void;
+    title?: string;
+    operationStatus?: string;
+    txHash?: string;
+}
+
+const OperationStatusModal: React.FC<OperationStatusModalProps> = ({
     className,
     visible,
     onCancel,
     title,
     operationStatus,
     txHash,
-    proposalChanger,
-    votingInFavor,
-    showProposal,
 }) => {
     const { t } = useProjectTranslation();
 
@@ -53,49 +58,6 @@ const VotingStatusModal = ({
                 {title || t("staking.modal.StatusModal_Modal_Title")}
             </h1>
 
-            <div className="ProposalVoteModal">
-                {showProposal && (
-                    <div className="proposalChanger__container">
-                        <div className="proposalChanger__details">
-                            <div className="proposalChanger__label">
-                                {t("voting.confirmationModal.changerAddress")}
-                            </div>
-                            <div className="proposalChanger__data">
-                                {proposalChanger}
-                            </div>
-                        </div>
-
-                        <div className="proposal-vote-infavor">
-                            {votingInFavor && (
-                                <>
-                                    <div className="whatIsVoting inFavor">
-                                        <div className="icon__vote__infavor icon"></div>
-                                        <div className="whatIsVoging__text">
-                                            {t(
-                                                "voting.confirmationModal.votingInFavor"
-                                            )}
-                                        </div>
-                                    </div>
-                                </>
-                            )}
-
-                            {!votingInFavor && (
-                                <>
-                                    <div className="whatIsVoting against">
-                                        <div className="icon__vote__against icon"></div>
-                                        <div className="whatIsVoging__text">
-                                            {t(
-                                                "voting.confirmationModal.votingAgainst"
-                                            )}
-                                        </div>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                )}
-            </div>
-
             <div className="tx-amount-group">
                 <div className="tx-id-container">
                     <div className="tx-id-data">
@@ -119,7 +81,9 @@ const VotingStatusModal = ({
                         )}
                     </div>
                 </div>
+
                 <div className="cta-container">
+                    {" "}
                     <div className="tx-feedback-container">
                         <div className="tx-feedback-icon tx-logo-status">
                             <div className={sentIcon}></div>
@@ -127,7 +91,7 @@ const VotingStatusModal = ({
                         <p className="tx-feedback-text">{statusLabel}</p>
                     </div>
                     <button
-                        type="primary"
+                        type="button"
                         className="button secondary"
                         onClick={onCancel}
                     >
@@ -139,16 +103,4 @@ const VotingStatusModal = ({
     );
 };
 
-export default VotingStatusModal;
-
-VotingStatusModal.propTypes = {
-    className: PropTypes.string,
-    visible: PropTypes.bool,
-    onCancel: PropTypes.func,
-    title: PropTypes.string,
-    operationStatus: PropTypes.string,
-    txHash: PropTypes.string,
-    proposalChanger: PropTypes.string,
-    votingInFavor: PropTypes.number,
-    showProposal: PropTypes.bool,
-};
+export default OperationStatusModal;

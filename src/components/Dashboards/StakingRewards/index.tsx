@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function StakingRewards() {
+export default function StakingRewards(): React.ReactElement {
     return (
         <div className="dashboard-staking-info">
             {/* Staked */}

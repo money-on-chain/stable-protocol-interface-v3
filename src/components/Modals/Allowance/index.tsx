@@ -1,10 +1,20 @@
 import React from "react";
 import Modal from "antd/lib/modal/Modal";
-import PropTypes from "prop-types";
 
 import Allowance from "../../Allowance";
 
-export default function ModalAllowanceOperation(props) {
+interface ModalAllowanceOperationProps {
+    visible?: boolean;
+    onHideModalAllowance: () => void;
+    title?: string;
+    currencyYouExchange: string;
+    currencyYouReceive: string;
+    amountYouExchangeLimit: any; // BigNumber type
+    onRealSendTransaction: () => void;
+    disAllowance?: boolean;
+}
+
+export default function ModalAllowanceOperation(props: ModalAllowanceOperationProps): React.ReactElement {
     const { visible, onHideModalAllowance, title } = props;
 
     return (
@@ -26,9 +36,3 @@ export default function ModalAllowanceOperation(props) {
         </div>
     );
 }
-
-ModalAllowanceOperation.propTypes = {
-    visible: PropTypes.bool,
-    onHideModalAllowance: PropTypes.func,
-    title: PropTypes.string,
-};
