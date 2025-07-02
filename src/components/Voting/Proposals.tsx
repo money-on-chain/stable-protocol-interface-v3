@@ -2,7 +2,6 @@ import React, { Fragment, useContext, useEffect, useState } from "react";
 import BigNumber from "bignumber.js";
 import { Input } from "antd";
 import Web3 from "web3";
-import PropTypes from "prop-types";
 
 import { useProjectTranslation } from "../../helpers/translations";
 import Proposal from "./Proposal";
@@ -13,29 +12,87 @@ import PreVote from "./PreVote";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import { TokenSettings } from "../../helpers/currencies";
 
-function Proposals(props) {
+interface ProposalData {
+    id: number;
+    changeContract: string;
+    votingRound: BigNumber;
+    votesPositive: BigNumber;
+    votesPositivePCT: BigNumber;
+    expirationTimeStampFormat: string;
+    expired: boolean;
+    canUnregister: boolean;
+    canRunStep: boolean;
+    canVote: boolean;
+}
+
+interface EmptyProposal {
+    changeContract: string;
+}
+
+interface InfoVoting {
+    proposals: any[];
+    globalVotingRound: BigNumber;
+    totalSupply: BigNumber;
+    PRE_VOTE_MIN_PCT_TO_WIN: BigNumber;
+    PRE_VOTE_MIN_TO_WIN: BigNumber;
+    readyToPreVoteStep: number;
+    MIN_STAKE: BigNumber;
+}
+
+interface InfoUser {
+    Voting_Power: BigNumber;
+    Voting_Power_PCT: BigNumber;
+}
+
+interface ProposalsProps {
+    infoVoting: InfoVoting;
+    infoUser: InfoUser;
+}
+
+interface AuthContext {
+    interfaceVotingPreVote: (
+        proposalAddress: string,
+        onTransaction: (txHash: string) => void,
+        onReceipt: () => void,
+        onError: (error: any) => void
+    ) => Promise<any>;
+    interfaceVotingUnRegister: (
+        proposalAddress: string,
+        onTransaction: (txHash: string) => void,
+        onReceipt: () => void,
+        onError: (error: any) => void
+    ) => Promise<any>;
+    interfaceVotingPreVoteStep: (
+        onTransaction: (txHash: string) => void,
+        onReceipt: () => void,
+        onError: (error: any) => void
+    ) => Promise<any>;
+    loadContractsStatusAndUserBalance: () => Promise<any>;
+}
+
+const Proposals: React.FC<ProposalsProps> = (props) => {
     const { infoVoting, infoUser } = props;
 
-    const emptyProposal = {
+    const emptyProposal: EmptyProposal = {
         changeContract: "",
     };
-    const [actionProposal, setActionProposal] = useState("LIST");
-    const [viewProposal, setViewProposal] = useState(emptyProposal);
-    const [addProposalAddress, setAddProposalAddress] = useState("");
+    const [actionProposal, setActionProposal] = useState<string>("LIST");
+    const [viewProposal, setViewProposal] = useState<ProposalData | EmptyProposal>(emptyProposal);
+    const [addProposalAddress, setAddProposalAddress] = useState<string>("");
     const [addProposalAddressError, setAddProposalAddressError] =
-        useState(false);
+        useState<boolean>(false);
     const [addProposalAddressErrorText, setAddProposalAddressErrorText] =
-        useState("");
+        useState<string>("");
     const [isOperationModalVisible, setIsOperationModalVisible] =
-        useState(false);
-    const [txHash, setTxHash] = useState("");
-    const [operationStatus, setOperationStatus] = useState("sign");
-    const [modalTitle, setModalTitle] = useState("Proposal");
-    const [proposalsData, setProposalsData] = useState([]);
+        useState<boolean>(false);
+    const [txHash, setTxHash] = useState<string>("");
+    const [operationStatus, setOperationStatus] = useState<string>("sign");
+    const [modalTitle, setModalTitle] = useState<string>("Proposal");
+    const [proposalsData, setProposalsData] = useState<ProposalData[]>([]);
 
     const { t, i18n, ns } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext);
-    const space = "\u00A0";
+    const auth = useContext(AuthenticateContext) as AuthContext;
+    const space: string = "\u00A0";
 
     useEffect(() => {
         onValidateSubmitProposal();
@@ -47,8 +104,19 @@ function Proposals(props) {
         }
     }, [infoVoting["proposals"]]);
 
-    const searchProposal = (proposalAddress) => {
-        let proposal = emptyProposal;
+    const searchProposal = (proposalAddress: string): ProposalData => {
+        let proposal: ProposalData = {
+            id: 0,
+            changeContract: "",
+            votingRound: new BigNumber(0),
+            votesPositive: new BigNumber(0),
+            votesPositivePCT: new BigNumber(0),
+            expirationTimeStampFormat: "",
+            expired: true,
+            canUnregister: false,
+            canRunStep: false,
+            canVote: false,
+        };
         for (let i = 0; i < proposalsData.length; i++) {
             if (
                 proposalsData[i].changeContract.toLowerCase() ===
@@ -60,15 +128,15 @@ function Proposals(props) {
         return proposal;
     };
 
-    const refreshViewProposalData = () => {
+    const refreshViewProposalData = (): void => {
         if (viewProposal.changeContract != null) {
             const proposal = searchProposal(viewProposal.changeContract);
             setViewProposal(proposal);
         }
     };
 
-    const refreshProposals = () => {
-        const propData = [];
+    const refreshProposals = (): void => {
+        const propData: ProposalData[] = [];
         let count = 0;
         const nowTimestamp = new BigNumber(Date.now());
         let expirationTimestamp = 0;
@@ -84,9 +152,9 @@ function Proposals(props) {
             if (infoVoting["proposals"][i] != null) {
                 expirationTimestamp = new BigNumber(
                     infoVoting["proposals"][i].expirationTimeStamp
-                ).times(1000);
+                ).times(1000).toNumber();
                 let expired = true;
-                if (expirationTimestamp.gt(nowTimestamp)) expired = false;
+                if (new BigNumber(expirationTimestamp).gt(nowTimestamp)) expired = false;
 
                 let canUnregister = false;
                 if (
@@ -134,7 +202,7 @@ function Proposals(props) {
                     votesPositive: votesPositive,
                     votesPositivePCT: votesPositivePCT,
                     expirationTimeStampFormat: formatTimestamp(
-                        expirationTimestamp.toNumber()
+                        expirationTimestamp
                     ),
                     expired: expired,
                     canUnregister: canUnregister,
@@ -150,17 +218,17 @@ function Proposals(props) {
         refreshViewProposalData();
     };
 
-    const onChangeInputAddProposal = (e) => {
+    const onChangeInputAddProposal = (e: React.ChangeEvent<HTMLInputElement>): void => {
         setAddProposalAddress(e.target.value.toLowerCase());
         onValidateAddProposalClear();
     };
 
-    const onValidateAddProposalClear = () => {
+    const onValidateAddProposalClear = (): void => {
         setAddProposalAddressErrorText("");
         setAddProposalAddressError(false);
     };
 
-    const onValidateAddressProposal = () => {
+    const onValidateAddressProposal = (): boolean => {
         // 1. Input address valid
         if (addProposalAddress === "") {
             setAddProposalAddressErrorText("Proposal address can not be empty");
@@ -178,7 +246,7 @@ function Proposals(props) {
         return true;
     };
 
-    const onValidateSubmitProposal = () => {
+    const onValidateSubmitProposal = (): boolean => {
         if (infoUser["Voting_Power"].lt(infoVoting["MIN_STAKE"])) {
             setAddProposalAddressErrorText(
                 // `You need at least ${infoVoting['MIN_STAKE'].toString()} amount of tokens to submit the proposal`
@@ -189,7 +257,7 @@ function Proposals(props) {
         } else return true;
     };
 
-    const addProposal = () => {
+    const addProposal = (): void => {
         const valid = onValidateAddressProposal() && onValidateSubmitProposal();
         if (valid) {
             onSendAddProposal()
@@ -200,32 +268,32 @@ function Proposals(props) {
         }
     };
 
-    const onAddProposal = (e) => {
+    const onAddProposal = (e: React.MouseEvent): void => {
         e.stopPropagation();
         addProposal();
     };
 
-    const onShowAddProposal = (e) => {
+    const onShowAddProposal = (e: React.MouseEvent): void => {
         e.stopPropagation();
         setActionProposal("ADD");
     };
 
-    const onCloseAddProposal = () => {
+    const onCloseAddProposal = (): void => {
         setActionProposal("LIST");
     };
 
-    const onSendAddProposal = async (/*e*/) => {
+    const onSendAddProposal = async (): Promise<void> => {
         setModalTitle("Adding proposal");
 
         setOperationStatus("sign");
         setIsOperationModalVisible(true);
 
-        const onTransaction = (txHash) => {
+        const onTransaction = (txHash: string): void => {
             console.log("Sent transaction add proposal...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
-        const onReceipt = (/*receipt*/) => {
+        const onReceipt = (): void => {
             console.log("Transaction add proposal mined!...");
             setOperationStatus("success");
             /*
@@ -246,7 +314,7 @@ function Proposals(props) {
              */
             onCloseAddProposal();
         };
-        const onError = (error) => {
+        const onError = (error: any): void => {
             console.log("Transaction add proposal error!...:", error);
             setOperationStatus("error");
         };
@@ -270,29 +338,29 @@ function Proposals(props) {
             });
     };
 
-    const onViewProposal = (changerAddr) => {
+    const onViewProposal = (changerAddr: string): void => {
         const proposal = searchProposal(changerAddr);
         setViewProposal(proposal);
         setActionProposal("VIEW_PROPOSAL");
     };
 
-    const onBackToProposalList = () => {
+    const onBackToProposalList = (): void => {
         setViewProposal(emptyProposal);
         setActionProposal("LIST");
     };
 
-    const onSendUnRegister = async (proposalAddress) => {
+    const onSendUnRegister = async (proposalAddress: string): Promise<void> => {
         setModalTitle("Unregister proposal");
 
         setOperationStatus("sign");
         setIsOperationModalVisible(true);
 
-        const onTransaction = (txHash) => {
+        const onTransaction = (txHash: string): void => {
             console.log("Sent transaction unregister proposal...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
-        const onReceipt = (/*receipt*/) => {
+        const onReceipt = (): void => {
             console.log("Transaction unregister proposal mined!...");
             setOperationStatus("success");
             /*
@@ -312,7 +380,7 @@ function Proposals(props) {
             const filteredEvents = decodeEvents(txRcp, contractName, filter);
              */
         };
-        const onError = (error) => {
+        const onError = (error: any): void => {
             console.log("Transaction unregister proposal error!...:", error);
             setOperationStatus("error");
         };
@@ -336,7 +404,7 @@ function Proposals(props) {
             });
     };
 
-    const onUnRegisterProposal = (proposalAddress) => {
+    const onUnRegisterProposal = (proposalAddress: string): void => {
         onSendUnRegister(proposalAddress)
             .then((/*res*/) => {})
             .catch((e) => {
@@ -344,18 +412,18 @@ function Proposals(props) {
             });
     };
 
-    const onRunPreVoteStep = async () => {
+    const onRunPreVoteStep = async (): Promise<void> => {
         setModalTitle("Pre-vote Step");
 
         setOperationStatus("sign");
         setIsOperationModalVisible(true);
 
-        const onTransaction = (txHash) => {
+        const onTransaction = (txHash: string): void => {
             console.log("Sent transaction pre vote step ...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
-        const onReceipt = (/*receipt*/) => {
+        const onReceipt = (): void => {
             console.log("Transaction pre vote step mined!...");
             setOperationStatus("success");
             /*
@@ -375,7 +443,7 @@ function Proposals(props) {
             const filteredEvents = decodeEvents(txRcp, contractName, filter);
              */
         };
-        const onError = (error) => {
+        const onError = (error: any): void => {
             console.log("Transaction pre vote step error!...:", error);
             setOperationStatus("error");
         };
@@ -431,14 +499,14 @@ function Proposals(props) {
                 {actionProposal === "LIST" &&
                     proposalsData.length > 0 &&
                     proposalsData.map((proposal) => (
-                        <>
+                        <React.Fragment key={proposal.id}>
                             <Proposal
                                 proposal={proposal}
                                 infoVoting={infoVoting}
                                 onViewProposal={onViewProposal}
                                 onRunPreVoteStep={onRunPreVoteStep}
                             />
-                        </>
+                        </React.Fragment>
                     ))}
                 {actionProposal === "VIEW_PROPOSAL" &&
                     viewProposal.changeContract !== "" && (
@@ -477,122 +545,6 @@ function Proposals(props) {
                             </div>
                         </>
                     )}
-                {actionProposal === "ADD" && (
-                    <div className="proposalsContainer">
-                        <div className="addProposal">
-                            <h2>{t("voting.cardTitle.addNewProposal")}</h2>
-                            <div className="inputFields">
-                                <div className="tokenSelector">
-                                    <div className="amountInput">
-                                        <div className="amountInput__infoBar">
-                                            <div className="amountInput__label">
-                                                {t(
-                                                    "voting.labels.proposalChangerContract"
-                                                )}
-                                            </div>
-                                        </div>
-                                        <div className="proposal__add__text amountInput__amount">
-                                            <Input
-                                                type="text"
-                                                placeholder="Changer address"
-                                                className="proposal__add__input amountInput__value"
-                                                onChange={
-                                                    onChangeInputAddProposal
-                                                }
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="amountInput__feedback amountInput__feedback--error">
-                                        {addProposalAddressError &&
-                                            addProposalAddressErrorText !==
-                                                "" && (
-                                                <div
-                                                    className={
-                                                        "input-error amountInput__feedback amountInput__feedback--error"
-                                                    }
-                                                >
-                                                    {
-                                                        addProposalAddressErrorText
-                                                    }
-                                                </div>
-                                            )}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="cta-container">
-                                <div className="cta-info-group">
-                                    <div className="cta-info-detail">
-                                        {t("voting.feedback.stakeRequiered1")}
-                                        {space}
-                                        {PrecisionNumbers({
-                                            amount: infoVoting["MIN_STAKE"],
-                                            token: TokenSettings("TG"),
-                                            decimals: 2,
-                                            i18n: i18n,
-                                            skipContractConvert: true,
-                                        })}
-                                        {space}{" "}
-                                        {t("voting.feedback.stakeRequiered2")}
-                                    </div>
-                                    <div className="cta-info-summary ">
-                                        <div className="label">
-                                            {t("voting.userPower.votingPower")}
-                                        </div>
-
-                                        <div className="data">
-                                            {PrecisionNumbers({
-                                                amount: infoUser[
-                                                    "Voting_Power"
-                                                ],
-                                                token: TokenSettings("TG"),
-                                                decimals: 2,
-                                                i18n: i18n,
-                                                skipContractConvert: true,
-                                            })}
-                                            {space}
-                                            {t("staking.tokens.TG.abbr", {
-                                                ns: ns,
-                                            })}
-                                            {space}(
-                                            {PrecisionNumbers({
-                                                amount: infoUser[
-                                                    "Voting_Power_PCT"
-                                                ],
-                                                token: TokenSettings("TG"),
-                                                decimals: 4,
-                                                t: t,
-                                                i18n: i18n,
-                                                ns: ns,
-                                                skipContractConvert: true,
-                                            })}
-                                            % )
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="cta-options-group">
-                                    <button
-                                        type="secondary"
-                                        className="button secondary"
-                                        onClick={onCloseAddProposal}
-                                    >
-                                        {t("voting.cta.cancel")}
-                                    </button>
-                                    <button
-                                        type="primary"
-                                        className="button"
-                                        onClick={onAddProposal}
-                                        disabled={addProposalAddressError}
-                                    >
-                                        {t("voting.cta.addProposal")}
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="wallet__vesting__options__buttons"></div>
-
-                            <div className="additional-text"></div>
-                        </div>
-                    </div>
-                )}
                 {/*{infoVoting['readyToPreVoteStep'] === 1 && (*/}
                 {/*    <div className="pre-vote-step">*/}
                 {/*        <div className="pre-vote-info">Please run Step to advance to vote stage</div>*/}
@@ -616,11 +568,6 @@ function Proposals(props) {
             </div>
         </Fragment>
     );
-}
-
-export default Proposals;
-
-Proposals.propTypes = {
-    infoVoting: PropTypes.object,
-    infoUser: PropTypes.object,
 };
+
+export default Proposals; 

@@ -1,6 +1,5 @@
 import React, { Fragment, useContext, useEffect, useState } from "react";
 import BigNumber from "bignumber.js";
-import PropTypes from "prop-types";
 
 import { useProjectTranslation } from "../../helpers/translations";
 import CompletedBar from "./CompletedBar";
@@ -10,7 +9,54 @@ import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import { TokenSettings } from "../../helpers/currencies";
 
-function CreateBarGraph(props) {
+interface CreateBarGraphProps {
+    id: number;
+    description: string;
+    percentage: string;
+    needed: string;
+    type: string;
+    label1?: string;
+    amount1?: BigNumber;
+    percentage1?: BigNumber;
+    label2?: string;
+    amount2?: BigNumber;
+    percentage2?: BigNumber;
+    label3?: string;
+    amount3?: BigNumber;
+    percentage3?: BigNumber;
+}
+
+interface VoteProps {
+    infoVoting: {
+        votingData: {
+            expired: boolean;
+            totalVoted: BigNumber;
+            totalVotedPCT: string;
+            againstVotesTotalSupplyPCT: BigNumber;
+            inFavorVotesTotalSupplyPCT: BigNumber;
+            inFavorVotes: BigNumber;
+            againstVotes: BigNumber;
+            inFavorVotesPCT: BigNumber;
+            againstVotesPCT: BigNumber;
+            votingExpirationTimeFormat: string;
+            winnerProposal: string;
+            VOTE_MIN_TO_VETO: BigNumber;
+        };
+        MIN_FOR_QUORUM: BigNumber;
+        MIN_PCT_FOR_QUORUM: string;
+        VOTE_MIN_TO_VETO: BigNumber;
+        VOTE_MIN_PCT_TO_VETO: string;
+        totalSupply: BigNumber;
+        readyToVoteStep: number;
+        state: number;
+    };
+    infoUser: {
+        Voting_Power: BigNumber;
+        Voting_Power_PCT: BigNumber;
+    };
+}
+
+function CreateBarGraph(props: CreateBarGraphProps): JSX.Element {
     return (
         <CompletedBar
             key={props.id}
@@ -18,14 +64,6 @@ function CreateBarGraph(props) {
             percentage={props.percentage}
             needed={props.needed}
             type={props.type}
-            // labelCurrent={props.labelCurrent}
-            // labelNeedIt={props.labelNeedIt}
-            // labelTotal={props.labelTotal}
-            // valueCurrent={props.valueCurrent}
-            // valueNeedIt={props.valueNeedIt}
-            // valueTotal={props.valueTotal}
-            // pctCurrent={props.pctCurrent}
-            // pctNeedIt={props.pctNeedIt}
             label1={props.label1}
             amount1={props.amount1}
             percentage1={props.percentage1}
@@ -39,37 +77,20 @@ function CreateBarGraph(props) {
     );
 }
 
-CreateBarGraph.propTypes = {
-    id: PropTypes.number,
-    description: PropTypes.string,
-    percentage: PropTypes.number,
-    needed: PropTypes.number,
-    type: PropTypes.number,
-    label1: PropTypes.number,
-    amount1: PropTypes.number,
-    percentage1: PropTypes.number,
-    label2: PropTypes.number,
-    amount2: PropTypes.number,
-    percentage2: PropTypes.number,
-    label3: PropTypes.number,
-    amount3: PropTypes.number,
-    percentage3: PropTypes.number,
-};
-
-function Vote(props) {
+function Vote(props: VoteProps): JSX.Element {
     const { infoVoting, infoUser } = props;
     const [isOperationModalVisible, setIsOperationModalVisible] =
-        useState(false);
-    const [txHash, setTxHash] = useState("");
-    const [operationStatus, setOperationStatus] = useState("sign");
-    const [modalTitle, setModalTitle] = useState("Voting Proposal");
+        useState<boolean>(false);
+    const [txHash, setTxHash] = useState<string>("");
+    const [operationStatus, setOperationStatus] = useState<string>("sign");
+    const [modalTitle, setModalTitle] = useState<string>("Voting Proposal");
     const [votingInFavorOrAgainstError, setVotingInFavorOrAgainstError] =
-        useState(false);
-    const [voteInFavor, setVoteInFavor] = useState(true);
-    const [showProposalModal, setShowProposalModal] = useState(false);
+        useState<boolean>(false);
+    const [voteInFavor, setVoteInFavor] = useState<boolean>(true);
+    const [showProposalModal, setShowProposalModal] = useState<boolean>(false);
 
-    const [votingFinish, setVotingFinish] = useState(false);
-    const [votingFinishReason, setVotingFinishReason] = useState(0);
+    const [votingFinish, setVotingFinish] = useState<boolean>(false);
+    const [votingFinishReason, setVotingFinishReason] = useState<number>(0);
 
     const { t, i18n, ns } = useProjectTranslation();
     const auth = useContext(AuthenticateContext);
@@ -87,7 +108,7 @@ function Vote(props) {
         infoVoting["votingData"]["againstVotesPCT"],
     ]);
 
-    const refreshVotingFinish = () => {
+    const refreshVotingFinish = (): void => {
         /* Voting Finish Reason */
         /* 0 - No reason */
         /* 1 - Success */
@@ -115,7 +136,7 @@ function Vote(props) {
         }
     };
 
-    const votingGraphs = [
+    const votingGraphs: CreateBarGraphProps[] = [
         {
             id: 1,
             description: t("voting.statusGraph.castOverCirculation"),
@@ -124,7 +145,7 @@ function Vote(props) {
             type: "brand",
             label1: "Votes casted",
             amount1: infoVoting["votingData"]["totalVoted"],
-            percentage1: infoVoting["votingData"]["totalVotedPCT"],
+            percentage1: new BigNumber(infoVoting["votingData"]["totalVotedPCT"]),
             label2: "Votes needed for Quroum",
             amount2: infoVoting["MIN_FOR_QUORUM"],
             percentage2: new BigNumber(infoVoting["MIN_PCT_FOR_QUORUM"]),
@@ -157,7 +178,7 @@ function Vote(props) {
         },
     ];
 
-    const onVote = async (inFavor) => {
+    const onVote = async (inFavor: boolean): Promise<void> => {
         setModalTitle("Vote proposal");
         setVoteInFavor(inFavor);
         setShowProposalModal(true);
@@ -165,32 +186,16 @@ function Vote(props) {
         setOperationStatus("sign");
         setIsOperationModalVisible(true);
 
-        const onTransaction = (txHash) => {
+        const onTransaction = (txHash: string): void => {
             console.log("Sent transaction in Favor proposal...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
-        const onReceipt = (/*receipt*/) => {
+        const onReceipt = (/*receipt*/): void => {
             console.log("Transaction in Favor proposal mined!...");
             setOperationStatus("success");
-            /*
-            // Events name list
-            const filter = [
-                'OperationError',
-                'UnhandledError',
-                'OperationQueued',
-                'OperationExecuted'
-            ];
-
-            const contractName = 'MocQueue';
-
-            const txRcp = await auth.web3.eth.getTransactionReceipt(
-                receipt.transactionHash
-            );
-            const filteredEvents = decodeEvents(txRcp, contractName, filter);
-             */
         };
-        const onError = (error) => {
+        const onError = (error: any): void => {
             console.log("Transaction in Favor proposal error!...:", error);
             setOperationStatus("error");
         };
@@ -209,39 +214,23 @@ function Vote(props) {
             });
     };
 
-    const onRunVoteStep = async () => {
+    const onRunVoteStep = async (): Promise<void> => {
         setModalTitle("Vote Step");
         setShowProposalModal(false);
 
         setOperationStatus("sign");
         setIsOperationModalVisible(true);
 
-        const onTransaction = (txHash) => {
+        const onTransaction = (txHash: string): void => {
             console.log("Sent transaction vote step ...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
-        const onReceipt = (/*receipt*/) => {
+        const onReceipt = (/*receipt*/): void => {
             console.log("Transaction vote step mined!...");
             setOperationStatus("success");
-            /*
-            // Events name list
-            const filter = [
-                'OperationError',
-                'UnhandledError',
-                'OperationQueued',
-                'OperationExecuted'
-            ];
-
-            const contractName = 'MocQueue';
-
-            const txRcp = await auth.web3.eth.getTransactionReceipt(
-                receipt.transactionHash
-            );
-            const filteredEvents = decodeEvents(txRcp, contractName, filter);
-             */
         };
-        const onError = (error) => {
+        const onError = (error: any): void => {
             console.log("Transaction vote step error!...:", error);
             setOperationStatus("error");
         };
@@ -260,39 +249,23 @@ function Vote(props) {
             });
     };
 
-    const onRunAcceptedStep = async () => {
+    const onRunAcceptedStep = async (): Promise<void> => {
         setModalTitle("Accepted Step");
         setShowProposalModal(false);
 
         setOperationStatus("sign");
         setIsOperationModalVisible(true);
 
-        const onTransaction = (txHash) => {
+        const onTransaction = (txHash: string): void => {
             console.log("Sent transaction accepted step ...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
-        const onReceipt = (/*receipt*/) => {
+        const onReceipt = (/*receipt*/): void => {
             console.log("Transaction accepted step mined!...");
             setOperationStatus("success");
-            /*
-            // Events name list
-            const filter = [
-                'OperationError',
-                'UnhandledError',
-                'OperationQueued',
-                'OperationExecuted'
-            ];
-
-            const contractName = 'MocQueue';
-
-            const txRcp = await auth.web3.eth.getTransactionReceipt(
-                receipt.transactionHash
-            );
-            const filteredEvents = decodeEvents(txRcp, contractName, filter);
-             */
         };
-        const onError = (error) => {
+        const onError = (error: any): void => {
             console.log("Transaction accepted step error!...:", error);
             setOperationStatus("error");
         };
@@ -311,7 +284,7 @@ function Vote(props) {
             });
     };
 
-    const onValidateVotingInFavorOrAgainst = () => {
+    const onValidateVotingInFavorOrAgainst = (): boolean => {
         if (infoUser["Voting_Power"].lte(new BigNumber(0))) {
             // You need at least voting power > 0
             setVotingInFavorOrAgainstError(true);
@@ -368,39 +341,6 @@ function Vote(props) {
                     <div className="title">
                         {infoVoting.votingData["winnerProposal"]}
                     </div>
-                    {/* <div className="change-contract">
-                        {infoVoting.votingData['winnerProposal']}
-                    </div> */}
-                    {/* 
-                    {votingFinish && (
-                        <div className="voting-finish">
-                            The voting period is over!
-                        </div>
-                    )}
-
-                    {!votingFinish && (
-                        <div className="voting-in-progress">
-                            The voting is in progress!
-                        </div>
-                    )}
-
-                    {votingFinishReason === 1 && (
-                        <div className="voting-status">
-                            Proposal was approved!
-                        </div>
-                    )}
-
-                    {votingFinishReason === 2 && (
-                        <div className="voting-status">
-                            No reach quorum for this proposal!
-                        </div>
-                    )}
-
-                    {votingFinishReason === 3 && (
-                        <div className="voting-status">
-                            Proposal was rejected by votes against!
-                        </div>
-                    )} */}
 
                     <div className="externalLink">
                         <a
@@ -467,6 +407,7 @@ function Vote(props) {
                                                 ],
                                                 token: TokenSettings("TG"),
                                                 decimals: 2,
+                                                numericLabelParams: {},
                                                 i18n: i18n,
                                                 skipContractConvert: true,
                                             })}
@@ -480,6 +421,7 @@ function Vote(props) {
                                                 ],
                                                 token: TokenSettings("TG"),
                                                 decimals: 4,
+                                                numericLabelParams: {},
                                                 i18n: i18n,
                                                 skipContractConvert: true,
                                             })}
@@ -560,7 +502,7 @@ function Vote(props) {
                         proposalChanger={
                             infoVoting.votingData["winnerProposal"]
                         }
-                        votingInFavor={voteInFavor}
+                        votingInFavor={voteInFavor ? 1 : 0}
                         showProposal={showProposalModal}
                     />
                 )}
@@ -569,9 +511,4 @@ function Vote(props) {
     );
 }
 
-export default Vote;
-
-Vote.propTypes = {
-    infoVoting: PropTypes.object,
-    infoUser: PropTypes.object,
-};
+export default Vote; 

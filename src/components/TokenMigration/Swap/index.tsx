@@ -12,31 +12,46 @@ import { PrecisionNumbers } from "../../PrecisionNumbers";
 import { TokenSettings } from "../../../helpers/currencies";
 import "./style.scss";
 
-const SwapToken = (props) => {
+interface SwapTokenProps {
+    onCloseModal: () => void;
+}
+
+type StatusType = 
+    | "SUBMIT"
+    | "CONFIRM"
+    | "ALLOWANCE-SIGN"
+    | "ALLOWANCE-WAITING"
+    | "ALLOWANCE-ERROR"
+    | "TOKEN-MIGRATION-SIGN"
+    | "TOKEN-MIGRATION-WAITING"
+    | "TOKEN-MIGRATION-SUCCESS"
+    | "TOKEN-MIGRATION-ERROR";
+
+const SwapToken = (props: SwapTokenProps): JSX.Element => {
     const { onCloseModal } = props;
 
-    const [status, setStatus] = useState("SUBMIT");
-    const [txID, setTxID] = useState(
+    const [status, setStatus] = useState<StatusType>("SUBMIT");
+    const [txID, setTxID] = useState<string>(
         "0x0000000000000000000000000000000000000000"
     );
 
     const { t, i18n } = useProjectTranslation();
     const auth = useContext(AuthenticateContext);
 
-    const onClose = () => {
+    const onClose = (): void => {
         setStatus("SUBMIT");
         onCloseModal();
     };
 
-    const onSubmit = () => {
+    const onSubmit = (): void => {
         setStatus("CONFIRM");
     };
 
-    const onSuccess = () => {
+    const onSuccess = (): void => {
         setStatus("TOKEN-MIGRATION-SUCCESS");
     };
 
-    const TruncateAddress = (address) => {
+    const TruncateAddress = (address: string): string => {
         return (
             address.substring(0, 6) +
             "..." +
@@ -44,7 +59,7 @@ const SwapToken = (props) => {
         );
     };
 
-    const onTokenMigration = () => {
+    const onTokenMigration = (): void => {
         // First change status to sign tx
         setStatus("TOKEN-MIGRATION-SIGN");
         auth.interfaceMigrateToken(
@@ -60,14 +75,14 @@ const SwapToken = (props) => {
             });
     };
 
-    const onTransactionTokenMigration = (transactionHash) => {
+    const onTransactionTokenMigration = (transactionHash: string): void => {
         // Tx receipt detected change status to waiting
         setStatus("TOKEN-MIGRATION-WAITING");
         console.log("On transaction token migration: ", transactionHash);
         setTxID(transactionHash);
     };
 
-    const onReceiptTokenMigration = async (receipt) => {
+    const onReceiptTokenMigration = async (receipt: any): Promise<void> => {
         // Tx is mined ok proceed with operation transaction
         console.log("On receipt token migration: ", receipt);
         /*
@@ -88,29 +103,34 @@ const SwapToken = (props) => {
          */
     };
 
-    const onErrorTokenMigration = async (error) => {
+    const onErrorTokenMigration = async (error: any): Promise<void> => {
         // Tx error
         setStatus("TOKEN-MIGRATION-ERROR");
         console.log("Transaction error: ", error);
     };
 
-    const onAuthorize = () => {
+    const onAuthorize = (): void => {
         // First change status to sign tx
 
         setStatus("ALLOWANCE-SIGN");
 
+        if (!auth.userBalanceData || !(auth.userBalanceData as any).tpLegacy) {
+            console.error("tpLegacy data not available");
+            return;
+        }
+
         const allowanceAmount = new BigNumber(
-            Web3.utils.fromWei(auth.userBalanceData.tpLegacy.balance, "ether")
+            Web3.utils.fromWei((auth.userBalanceData as any).tpLegacy.balance, "ether")
         );
         const oldAllowanceAmount = new BigNumber(
-            Web3.utils.fromWei(auth.userBalanceData.tpLegacy.allowance, "ether")
+            Web3.utils.fromWei((auth.userBalanceData as any).tpLegacy.allowance, "ether")
         );
 
         if (oldAllowanceAmount.gte(allowanceAmount)) {
             onTokenMigration();
         } else {
             auth.interfaceAllowUseTokenMigrator(
-                allowanceAmount,
+                allowanceAmount.toString(),
                 onTransactionAuthorize,
                 onReceiptAuthorize,
                 onErrorAuthorize
@@ -124,14 +144,14 @@ const SwapToken = (props) => {
         }
     };
 
-    const onTransactionAuthorize = (transactionHash) => {
+    const onTransactionAuthorize = (transactionHash: string): void => {
         // Tx receipt detected change status to waiting
         setStatus("ALLOWANCE-WAITING");
         console.log("On transaction authorize: ", transactionHash);
         setTxID(transactionHash);
     };
 
-    const onReceiptAuthorize = async (receipt) => {
+    const onReceiptAuthorize = async (receipt: any): Promise<void> => {
         // Tx is mined ok proceed with operation transaction
         console.log("On receipt authorize: ", receipt);
         /*
@@ -152,13 +172,13 @@ const SwapToken = (props) => {
          */
     };
 
-    const onErrorAuthorize = async (error) => {
+    const onErrorAuthorize = async (error: any): Promise<void> => {
         // Tx Authorize error
         setStatus("TOKEN-MIGRATION-ERROR");
         console.log("Transaction error: ", error);
     };
 
-    const onConfirm = () => {
+    const onConfirm = (): void => {
         switch (status) {
             case "SUBMIT":
                 onSubmit();
@@ -174,12 +194,19 @@ const SwapToken = (props) => {
         }
     };
 
-    let title;
-    let btnLabel = t("swapModal.buttonConfirm");
-    let btnDisable = false;
+    let title: string;
+    let btnLabel: string = t("swapModal.buttonConfirm");
+    let btnDisable: boolean = false;
+    
+    if (!auth.userBalanceData || !(auth.userBalanceData as any).tpLegacy) {
+        console.error("tpLegacy data not available");
+        return <div>Error: Token data not available</div>;
+    }
+    
     const tpLegacyBalance = new BigNumber(
-        Web3.utils.fromWei(auth.userBalanceData.tpLegacy.balance, "ether")
+        Web3.utils.fromWei((auth.userBalanceData as any).tpLegacy.balance, "ether")
     );
+    
     switch (status) {
         case "SUBMIT":
             title = t("swapModal.modalTitle1");
@@ -240,10 +267,11 @@ const SwapToken = (props) => {
                                 <div className="Amount">
                                     <div className="Value">
                                         {PrecisionNumbers({
-                                            amount: auth.userBalanceData
+                                            amount: (auth.userBalanceData as any)
                                                 .tpLegacy.balance,
                                             token: TokenSettings("TP_0"),
                                             decimals: 4,
+                                            numericLabelParams: {},
                                             i18n: i18n,
                                             skipContractConvert: false,
                                         })}
@@ -258,10 +286,11 @@ const SwapToken = (props) => {
                                 <div className="Amount">
                                     <div className="Value">
                                         {PrecisionNumbers({
-                                            amount: auth.userBalanceData
+                                            amount: (auth.userBalanceData as any)
                                                 .tpLegacy.balance,
                                             token: TokenSettings("TP_0"),
                                             decimals: 4,
+                                            numericLabelParams: {},
                                             i18n: i18n,
                                             skipContractConvert: false,
                                         })}
@@ -401,7 +430,7 @@ const SwapToken = (props) => {
                         status !== "TOKEN-MIGRATION-ERROR" &&
                         status !== "ALLOWANCE-ERROR" && (
                             <Button
-                                type="secondary"
+                                type="default"
                                 className="button secondary"
                                 onClick={onClose}
                             >

@@ -9,13 +9,107 @@ import { useProjectTranslation } from "../../helpers/translations";
 
 import "./Styles.scss";
 
-export default function Voting() {
+interface VotingData {
+    winnerProposal: string;
+    inFavorVotes: BigNumber;
+    againstVotes: BigNumber;
+    votingExpirationTime: BigNumber;
+    expired: boolean;
+    totalVotedPCT: BigNumber;
+    totalVoted: BigNumber;
+    votingExpirationTimeFormat?: string;
+    inFavorVotesTotalSupplyPCT?: BigNumber;
+    againstVotesTotalSupplyPCT?: BigNumber;
+    inFavorVotesPCT?: BigNumber;
+    againstVotesPCT?: BigNumber;
+}
+
+interface VotingInfo {
+    winnerProposal: string;
+    inFavorVotes: BigNumber;
+    againstVotes: BigNumber;
+}
+
+interface InfoVoting {
+    globalVotingRound: BigNumber;
+    totalSupply: BigNumber;
+    PRE_VOTE_MIN_TO_WIN: BigNumber;
+    PRE_VOTE_MIN_PCT_TO_WIN: BigNumber;
+    MIN_PCT_FOR_QUORUM: BigNumber;
+    MIN_FOR_QUORUM: BigNumber;
+    MIN_STAKE: BigNumber;
+    VOTING_POWER: BigNumber;
+    VOTE_MIN_PCT_TO_VETO: BigNumber;
+    VOTE_MIN_TO_VETO: BigNumber;
+    proposals: any[];
+    state: number;
+    readyToPreVoteStep: number;
+    readyToVoteStep: number;
+    votingData: VotingData;
+    votingInfo: VotingInfo;
+}
+
+interface InfoUser {
+    Voting_Power: BigNumber;
+    Voting_Power_PCT: BigNumber;
+}
+
+interface StakingMachine {
+    getBalance: string | number;
+    getLockingInfo: {
+        amount: string | number;
+        untilTimestamp: string | number;
+    };
+}
+
+interface VotingMachine {
+    getProposalByIndex: any[];
+    getState: string | number;
+    readyToPreVoteStep: string | number;
+    readyToVoteStep: string | number;
+    getVotingRound: string | number;
+    totalSupply: string | number;
+    PRE_VOTE_MIN_PCT_TO_WIN: string | number;
+    MIN_STAKE: string | number;
+    MIN_PCT_FOR_QUORUM: string | number;
+    VOTE_MIN_PCT_TO_VETO: string | number;
+    getVotingData: {
+        winnerProposal: string;
+        inFavorVotes: string | number;
+        againstVotes: string | number;
+        votingExpirationTime: string | number;
+    };
+    getVoteInfo: {
+        winnerProposal: string;
+        inFavorVotes: string | number;
+        againstVotes: string | number;
+    };
+}
+
+interface ContractStatusData {
+    votingmachine: VotingMachine;
+}
+
+interface UserBalanceData {
+    vestingmachine: {
+        staking: StakingMachine;
+    };
+    stakingmachine: StakingMachine;
+}
+
+interface AuthContext {
+    contractStatusData: ContractStatusData | null;
+    userBalanceData: UserBalanceData | null;
+    isVestingLoaded: () => boolean;
+}
+
+const Voting: React.FC = () => {
     const { t } = useProjectTranslation();
 
-    const auth = useContext(AuthenticateContext);
+    const auth = useContext(AuthenticateContext) as AuthContext;
 
-    const nowTimestamp = new BigNumber(Date.now());
-    const defaultInfoVoting = {
+    const nowTimestamp: BigNumber = new BigNumber(Date.now());
+    const defaultInfoVoting: InfoVoting = {
         globalVotingRound: new BigNumber(0),
         totalSupply: new BigNumber(0),
         PRE_VOTE_MIN_TO_WIN: new BigNumber(0),
@@ -45,13 +139,13 @@ export default function Voting() {
             againstVotes: new BigNumber(0),
         },
     };
-    const [infoVoting, setInfoVoting] = useState(defaultInfoVoting);
+    const [infoVoting, setInfoVoting] = useState<InfoVoting>(defaultInfoVoting);
 
-    const defaultInfoUser = {
+    const defaultInfoUser: InfoUser = {
         Voting_Power: new BigNumber(0),
         Voting_Power_PCT: new BigNumber(0),
     };
-    const [infoUser, setInfoUser] = useState(defaultInfoUser);
+    const [infoUser, setInfoUser] = useState<InfoUser>(defaultInfoUser);
 
     useEffect(() => {
         if (auth.contractStatusData && auth.userBalanceData) {
@@ -59,8 +153,10 @@ export default function Voting() {
         }
     }, [auth]);
 
-    const refreshData = () => {
-        const cData = { ...infoVoting };
+    const refreshData = (): void => {
+        if (!auth.contractStatusData) return;
+        
+        const cData: InfoVoting = { ...infoVoting };
         cData["proposals"] =
             auth.contractStatusData.votingmachine.getProposalByIndex;
         cData["state"] = new BigNumber(
@@ -81,8 +177,9 @@ export default function Voting() {
                 "ether"
             )
         );
-        cData["PRE_VOTE_MIN_PCT_TO_WIN"] =
-            auth.contractStatusData.votingmachine.PRE_VOTE_MIN_PCT_TO_WIN;
+        cData["PRE_VOTE_MIN_PCT_TO_WIN"] = new BigNumber(
+            auth.contractStatusData.votingmachine.PRE_VOTE_MIN_PCT_TO_WIN
+        );
         cData["PRE_VOTE_MIN_TO_WIN"] = new BigNumber(cData["totalSupply"])
             .times(new BigNumber(cData["PRE_VOTE_MIN_PCT_TO_WIN"]))
             .div(100);
@@ -92,13 +189,15 @@ export default function Voting() {
                 "ether"
             )
         );
-        cData["MIN_PCT_FOR_QUORUM"] =
-            auth.contractStatusData.votingmachine.MIN_PCT_FOR_QUORUM;
+        cData["MIN_PCT_FOR_QUORUM"] = new BigNumber(
+            auth.contractStatusData.votingmachine.MIN_PCT_FOR_QUORUM
+        );
         cData["MIN_FOR_QUORUM"] = new BigNumber(cData["totalSupply"])
             .times(new BigNumber(cData["MIN_PCT_FOR_QUORUM"]))
             .div(100);
-        cData["VOTE_MIN_PCT_TO_VETO"] =
-            auth.contractStatusData.votingmachine.VOTE_MIN_PCT_TO_VETO;
+        cData["VOTE_MIN_PCT_TO_VETO"] = new BigNumber(
+            auth.contractStatusData.votingmachine.VOTE_MIN_PCT_TO_VETO
+        );
         cData["VOTE_MIN_TO_VETO"] = new BigNumber(cData["totalSupply"])
             .times(new BigNumber(cData["VOTE_MIN_PCT_TO_VETO"]))
             .div(100);
@@ -133,7 +232,7 @@ export default function Voting() {
             cData["votingData"]["votingExpirationTime"].toNumber()
         );
 
-        let expired = true;
+        let expired: boolean = true;
         if (cData["votingData"]["votingExpirationTime"].gt(nowTimestamp))
             expired = false;
         cData["votingData"]["expired"] = expired;
@@ -187,23 +286,25 @@ export default function Voting() {
         );
         setInfoVoting(cData);
 
-        const cDataUser = { ...infoUser };
-        let vUsing;
+        if (!auth.userBalanceData) return;
+        
+        const cDataUser: InfoUser = { ...infoUser };
+        let vUsing: StakingMachine;
         if (auth.isVestingLoaded()) {
             vUsing = auth.userBalanceData.vestingmachine.staking;
         } else {
             vUsing = auth.userBalanceData.stakingmachine;
         }
 
-        const userBalance = new BigNumber(
+        const userBalance: BigNumber = new BigNumber(
             Web3.utils.fromWei(vUsing.getBalance, "ether")
         );
 
-        const lockedAmount = new BigNumber(
+        const lockedAmount: BigNumber = new BigNumber(
             Web3.utils.fromWei(vUsing.getLockingInfo.amount, "ether")
         );
 
-        const untilTimestamp = new BigNumber(
+        const untilTimestamp: BigNumber = new BigNumber(
             vUsing.getLockingInfo.untilTimestamp
         ).times(1000);
 
@@ -258,3 +359,5 @@ export default function Voting() {
         </div>
     );
 }
+
+export default Voting; 

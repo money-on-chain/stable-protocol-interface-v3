@@ -1,12 +1,56 @@
 import React from "react";
-import PropTypes from "prop-types";
 import BigNumber from "bignumber.js";
 
 import { useProjectTranslation } from "../../helpers/translations";
 import CompletedBar from "./CompletedBar";
 import ProposalStats from "./ProposalStats";
 
-function CreateBarGraph(props) {
+interface CreateBarGraphProps {
+    id: number;
+    description: string;
+    percentage: string;
+    needed: string;
+    type: string;
+    label1: string;
+    amount1: BigNumber;
+    percentage1: BigNumber;
+    label2: string;
+    amount2: BigNumber;
+    percentage2: BigNumber;
+    label3: string;
+    amount3: BigNumber;
+    percentage3: BigNumber;
+}
+
+interface CreateStatsProps {
+    id: number;
+    label: string;
+    amount: BigNumber;
+    percentage: BigNumber | number;
+}
+
+interface Proposal {
+    changeContract: string;
+    votesPositive: BigNumber;
+    votesPositivePCT: BigNumber;
+    expirationTimeStampFormat: string;
+    canRunStep: boolean;
+}
+
+interface InfoVoting {
+    PRE_VOTE_MIN_PCT_TO_WIN: BigNumber;
+    PRE_VOTE_MIN_TO_WIN: BigNumber;
+    totalSupply: BigNumber;
+}
+
+interface ProposalProps {
+    proposal: Proposal;
+    onViewProposal: (changeContract: string) => void;
+    infoVoting: InfoVoting;
+    onRunPreVoteStep: () => void;
+}
+
+const CreateBarGraph: React.FC<CreateBarGraphProps> = (props) => {
     return (
         <CompletedBar
             key={props.id}
@@ -33,26 +77,9 @@ function CreateBarGraph(props) {
             percentage3={props.percentage3}
         />
     );
-}
-
-CreateBarGraph.propTypes = {
-    id: PropTypes.number,
-    description: PropTypes.string,
-    percentage: PropTypes.number,
-    needed: PropTypes.number,
-    type: PropTypes.number,
-    label1: PropTypes.number,
-    amount1: PropTypes.number,
-    percentage1: PropTypes.number,
-    label2: PropTypes.number,
-    amount2: PropTypes.number,
-    percentage2: PropTypes.number,
-    label3: PropTypes.number,
-    amount3: PropTypes.number,
-    percentage3: PropTypes.number,
 };
 
-function CreateStats(props) {
+const CreateStats: React.FC<CreateStatsProps> = (props) => {
     return (
         <ProposalStats
             key={props.id}
@@ -61,21 +88,14 @@ function CreateStats(props) {
             percentage={props.percentage}
         />
     );
-}
-
-CreateStats.propTypes = {
-    id: PropTypes.number,
-    label: PropTypes.string,
-    amount: PropTypes.number,
-    percentage: PropTypes.number,
 };
 
-function Proposal(props) {
+const Proposal: React.FC<ProposalProps> = (props) => {
     const { proposal, onViewProposal, infoVoting, onRunPreVoteStep } = props;
     const { t } = useProjectTranslation();
     //const space = '\u00A0';
 
-    const preVotingGraphs = [
+    const preVotingGraphs: CreateBarGraphProps[] = [
         {
             id: 0,
             description: "Votes required to move to the next stage",
@@ -103,7 +123,7 @@ function Proposal(props) {
         },
     ];
 
-    const preVotingStats = [
+    const preVotingStats: CreateStatsProps[] = [
         {
             id: 0,
             label: "Votes received",
@@ -208,13 +228,6 @@ function Proposal(props) {
             </div>
         </div>
     );
-}
-
-export default Proposal;
-
-Proposal.propTypes = {
-    proposal: PropTypes.object,
-    onViewProposal: PropTypes.func,
-    infoVoting: PropTypes.object,
-    onRunPreVoteStep: PropTypes.func,
 };
+
+export default Proposal; 

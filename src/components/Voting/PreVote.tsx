@@ -7,9 +7,65 @@ import { PrecisionNumbers } from "../PrecisionNumbers";
 import { TokenSettings } from "../../helpers/currencies";
 import { AuthenticateContext } from "../../context/Auth";
 import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
-import PropTypes from "prop-types";
 
-function CreateBarGraph(props) {
+interface CreateBarGraphProps {
+    id: number;
+    description: string;
+    percentage: string;
+    needed: string;
+    type: string;
+    label1: string;
+    amount1: BigNumber;
+    percentage1: BigNumber;
+    label2: string;
+    amount2: BigNumber;
+    percentage2: BigNumber;
+    label3: string;
+    amount3: BigNumber;
+    percentage3: BigNumber;
+}
+
+interface Proposal {
+    changeContract: string;
+    canVote: boolean;
+    canRunStep: boolean;
+    canUnregister: boolean;
+    votesPositive: BigNumber;
+    votesPositivePCT: BigNumber;
+    expirationTimeStampFormat: string;
+}
+
+interface InfoVoting {
+    PRE_VOTE_MIN_PCT_TO_WIN: BigNumber;
+    PRE_VOTE_MIN_TO_WIN: BigNumber;
+    totalSupply: BigNumber;
+}
+
+interface InfoUser {
+    Voting_Power: BigNumber;
+    Voting_Power_PCT: BigNumber;
+}
+
+interface PreVoteProps {
+    proposal: Proposal;
+    onBack: () => void;
+    infoVoting: InfoVoting;
+    infoUser: InfoUser;
+    onUnRegisterProposal: (changeContract: string) => void;
+    onRunPreVoteStep: () => void;
+}
+
+interface AuthContext {
+    interfaceVotingPreVote: (
+        changeContract: string,
+        onTransaction: (txHash: string) => void,
+        onReceipt: () => void,
+        onError: (error: any) => void
+    ) => Promise<any>;
+    loadContractsStatusAndUserBalance: () => Promise<any>;
+}
+
+const CreateBarGraph: React.FC<CreateBarGraphProps> = (props) => {
     return (
         <CompletedBar
             key={props.id}
@@ -36,9 +92,9 @@ function CreateBarGraph(props) {
             percentage3={props.percentage3}
         />
     );
-}
+};
 
-function PreVote(props) {
+const PreVote: React.FC<PreVoteProps> = (props) => {
     const {
         proposal,
         onBack,
@@ -48,22 +104,22 @@ function PreVote(props) {
         onRunPreVoteStep,
     } = props;
     const { t, i18n, ns } = useProjectTranslation();
-    const space = "\u00A0";
-    const auth = useContext(AuthenticateContext);
+    const space: string = "\u00A0";
+    const auth = useContext(AuthenticateContext) as AuthContext;
 
     const [isOperationModalVisible, setIsOperationModalVisible] =
-        useState(false);
-    const [txHash, setTxHash] = useState("");
-    const [operationStatus, setOperationStatus] = useState("sign");
-    const [modalTitle, setModalTitle] = useState("Voting in favor");
-    const [votingInFavorError, setVotingInFavorError] = useState(false);
-    const [showProposalModal, setShowProposalModal] = useState(false);
+        useState<boolean>(false);
+    const [txHash, setTxHash] = useState<string>("");
+    const [operationStatus, setOperationStatus] = useState<string>("sign");
+    const [modalTitle, setModalTitle] = useState<string>("Voting in favor");
+    const [votingInFavorError, setVotingInFavorError] = useState<boolean>(false);
+    const [showProposalModal, setShowProposalModal] = useState<boolean>(false);
 
     useEffect(() => {
         onValidateVotingInFavor();
     }, [infoUser["Voting_Power"], proposal["canVote"]]);
 
-    const onValidateVotingInFavor = () => {
+    const onValidateVotingInFavor = (): boolean => {
         if (infoUser["Voting_Power"].lte(new BigNumber(0))) {
             // You need at least voting power > 0
             setVotingInFavorError(true);
@@ -77,7 +133,7 @@ function PreVote(props) {
         return true;
     };
 
-    const preVotingGraphs = [
+    const preVotingGraphs: CreateBarGraphProps[] = [
         {
             id: 0,
             description: "votes need to advance to next step",
@@ -105,14 +161,14 @@ function PreVote(props) {
         },
     ];
 
-    const onVoteInFavor = async (/*e*/) => {
+    const onVoteInFavor = async (): Promise<void> => {
         setModalTitle(`Voting proposal`);
         setShowProposalModal(true);
 
         setOperationStatus("sign");
         setIsOperationModalVisible(true);
 
-        const onTransaction = (txHash) => {
+        const onTransaction = (txHash: string): void => {
             console.log(
                 "Sent transaction voting in favor proposal...: ",
                 txHash
@@ -120,7 +176,7 @@ function PreVote(props) {
             setTxHash(txHash);
             setOperationStatus("pending");
         };
-        const onReceipt = (/*receipt*/) => {
+        const onReceipt = (): void => {
             console.log("Transaction voting in favor proposal mined!...");
             setOperationStatus("success");
             /*
@@ -140,7 +196,7 @@ function PreVote(props) {
             const filteredEvents = decodeEvents(txRcp, contractName, filter);
              */
         };
-        const onError = (error) => {
+        const onError = (error: any): void => {
             console.log(
                 "Transaction voting in favor proposal error!...:",
                 error
@@ -263,6 +319,7 @@ function PreVote(props) {
                                                     ],
                                                     token: TokenSettings("TG"),
                                                     decimals: 2,
+                                                    numericLabelParams: {},
                                                     i18n: i18n,
                                                     skipContractConvert: true,
                                                 })}
@@ -276,6 +333,7 @@ function PreVote(props) {
                                                     ],
                                                     token: TokenSettings("TG"),
                                                     decimals: 2,
+                                                    numericLabelParams: {},
                                                     i18n: i18n,
                                                     skipContractConvert: true,
                                                 })}
@@ -343,32 +401,6 @@ function PreVote(props) {
             )}
         </Fragment>
     );
-}
-
-export default PreVote;
-
-CreateBarGraph.propTypes = {
-    id: PropTypes.number,
-    description: PropTypes.string,
-    percentage: PropTypes.number,
-    needed: PropTypes.number,
-    type: PropTypes.number,
-    label1: PropTypes.number,
-    amount1: PropTypes.number,
-    percentage1: PropTypes.number,
-    label2: PropTypes.number,
-    amount2: PropTypes.number,
-    percentage2: PropTypes.number,
-    label3: PropTypes.number,
-    amount3: PropTypes.number,
-    percentage3: PropTypes.number,
 };
 
-PreVote.propTypes = {
-    proposal: PropTypes.string,
-    onBack: PropTypes.func,
-    infoVoting: PropTypes.object,
-    infoUser: PropTypes.object,
-    onUnRegisterProposal: PropTypes.func,
-    onRunPreVoteStep: PropTypes.func,
-};
+export default PreVote; 
