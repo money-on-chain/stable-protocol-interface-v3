@@ -11,20 +11,32 @@ import W3ErrorAlert from "../../../components/Notification/W3ErrorAlert";
 
 const { Content, Footer } = Layout;
 
-export default function Skeleton() {
+interface NotificationStatus {
+    id: number;
+    title: string;
+    textContent: string;
+    notifClass: string;
+    iconLeft: string;
+    isDismisable: boolean;
+    dismissTime: number;
+}
+
+export default function Skeleton(): React.ReactElement {
     const auth = useContext(AuthenticateContext);
-    const [notifStatus, setNotifStatus] = useState(null);
+    const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(null);
     const { checkerStatus } = CheckStatusGlobal();
+    
     useEffect(() => {
         if (auth.contractStatusData && auth.userBalanceData) {
             readProtocolStatus();
         }
     }, [auth.contractStatusData, auth.userBalanceData]);
 
-    const readProtocolStatus = () => {
+    const readProtocolStatus = (): void => {
         const { isValid, statusIcon, statusLabel, statusText } =
             checkerStatus();
         if (!isValid) {
+            console.log("is not valid");
             setNotifStatus({
                 id: -1,
                 title: `Warning, protocol status is ${statusLabel}`,

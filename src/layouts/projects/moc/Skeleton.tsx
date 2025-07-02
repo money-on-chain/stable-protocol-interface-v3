@@ -1,12 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Layout } from "antd";
-import BigNumber from "bignumber.js";
-import Web3 from "web3";
 
 import { AuthenticateContext } from "../../../context/Auth";
 import SectionHeader from "../../../components/Header";
-import ModalTokenMigration from "../../../components/TokenMigration/Modal";
 import NotificationBody from "../../../components/Notification";
 import { CheckStatusGlobal } from "../../../helpers/checkStatus";
 import DappFooter from "../../../components/Footer/index";
@@ -14,19 +11,28 @@ import W3ErrorAlert from "../../../components/Notification/W3ErrorAlert";
 
 const { Content, Footer } = Layout;
 
-export default function Skeleton() {
+interface NotificationStatus {
+    id: number;
+    title: string;
+    textContent: string;
+    notifClass: string;
+    iconLeft: string;
+    isDismisable: boolean;
+    dismissTime: number;
+}
+
+export default function Skeleton(): React.ReactElement {
     const auth = useContext(AuthenticateContext);
-    const [notifStatus, setNotifStatus] = useState(null);
-    const [canSwap, setCanSwap] = useState(false);
+    const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(null);
     const { checkerStatus } = CheckStatusGlobal();
+    
     useEffect(() => {
         if (auth.contractStatusData && auth.userBalanceData) {
             readProtocolStatus();
-            readTpLegacyBalance();
         }
     }, [auth.contractStatusData, auth.userBalanceData]);
 
-    const readProtocolStatus = () => {
+    const readProtocolStatus = (): void => {
         const { isValid, statusIcon, statusLabel, statusText } =
             checkerStatus();
         if (!isValid) {
@@ -45,24 +51,10 @@ export default function Skeleton() {
         }
     };
 
-    const readTpLegacyBalance = () => {
-        const tpLegacyBalance = new BigNumber(
-            Web3.utils.fromWei(auth.userBalanceData.tpLegacy.balance, "ether")
-        );
-
-        if (tpLegacyBalance.gt(0)) {
-            setCanSwap(true);
-        } else {
-            setCanSwap(false);
-        }
-    };
-
     return (
         <Layout>
             <SectionHeader />
             <Content>
-                {canSwap && <ModalTokenMigration />}
-
                 {/* TODO load an array of notifStatus items, and load a mapping for showing notifs here in this section , interact with a React Context */}
                 {notifStatus && <NotificationBody notifStatus={notifStatus} />}
 
