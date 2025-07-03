@@ -1,4 +1,11 @@
-export const ProvideColumnsCA = [
+interface TableColumn {
+    title: string;
+    dataIndex: string;
+    align: "left" | "right" | "center";
+    width?: number;
+}
+
+export const ProvideColumnsCA: TableColumn[] = [
     {
         title: "Name",
         dataIndex: "name",
@@ -30,7 +37,8 @@ export const ProvideColumnsCA = [
         /*width: 190,*/
     },
 ];
-export const ProvideColumnsTP = [
+
+export const ProvideColumnsTP: TableColumn[] = [
     {
         title: "Name",
         dataIndex: "name",

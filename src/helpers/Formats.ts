@@ -1,6 +1,16 @@
 import BigNumber from "bignumber.js";
 
-const formatLocalMap = {
+interface FormatConfig {
+    decimalSeparator: string;
+    groupSeparator: string;
+}
+
+interface FormatLocalMap {
+    es: FormatConfig;
+    en: FormatConfig;
+}
+
+const formatLocalMap: FormatLocalMap = {
     es: {
         decimalSeparator: ",",
         groupSeparator: ".",
@@ -16,7 +26,10 @@ BigNumber.config({
     FORMAT: formatLocalMap.en,
 });
 
-const fromContractPrecisionDecimals = (amount, decimals) => {
+const fromContractPrecisionDecimals = (
+    amount: string | number | BigNumber,
+    decimals: number
+): BigNumber => {
     return new BigNumber(amount).div(
         new BigNumber(10).exponentiatedBy(decimals)
     );

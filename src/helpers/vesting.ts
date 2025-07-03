@@ -1,17 +1,26 @@
 import VestingMachine from "../contracts/omoc/VestingMachine.json";
 
-const loadVestingAddressesFromLocalStorage = (accountAddress) => {
+interface Auth {
+    web3: {
+        eth: {
+            Contract: new (abi: any, address: string) => any;
+        };
+    };
+    loadContractsStatusAndUserBalance: () => Promise<any>;
+}
+
+const loadVestingAddressesFromLocalStorage = (accountAddress: string): string[] => {
     const storageVestingAddresses = localStorage.getItem(
         `vesting-addresses-${accountAddress.toLowerCase()}`
     );
-    let vestingAddresses = [];
+    let vestingAddresses: string[] = [];
     if (storageVestingAddresses !== null) {
         vestingAddresses = JSON.parse(storageVestingAddresses);
     }
     return vestingAddresses;
 };
 
-const saveVestingAddressesToLocalStorage = (accountAddress, vAddresses) => {
+const saveVestingAddressesToLocalStorage = (accountAddress: string, vAddresses: string[]): void => {
     // Store vesting addresses
     const sVestingAddresses = JSON.stringify(vAddresses);
     // save to storage addresses
@@ -21,7 +30,7 @@ const saveVestingAddressesToLocalStorage = (accountAddress, vAddresses) => {
     );
 };
 
-const saveDefaultVestingToLocalStorage = (accountAddress, vAddress) => {
+const saveDefaultVestingToLocalStorage = (accountAddress: string, vAddress: string): void => {
     // Save as the default vesting also
     localStorage.setItem(
         `default-vesting-address-${accountAddress.toLowerCase()}`,
@@ -29,14 +38,14 @@ const saveDefaultVestingToLocalStorage = (accountAddress, vAddress) => {
     );
 };
 
-const loadDefaultVestingFromLocalStorage = (accountAddress) => {
+const loadDefaultVestingFromLocalStorage = (accountAddress: string): string | null => {
     // Save as the default vesting also
     return localStorage.getItem(
         `default-vesting-address-${accountAddress.toLowerCase()}`
     );
 };
 
-const loadVesting = async (auth, vAddress) => {
+const loadVesting = async (auth: Auth, vAddress: string): Promise<boolean> => {
     let loaded = false;
     try {
         const vestingMachine = new auth.web3.eth.Contract(
@@ -45,7 +54,7 @@ const loadVesting = async (auth, vAddress) => {
         );
         const holder = await vestingMachine.methods.getHolder().call();
         console.log(`Loaded Vesting Machine: ${vAddress} Holder: ${holder} `);
-        window.dContracts.contracts.VestingMachine = vestingMachine;
+        (window as any).dContracts.contracts.VestingMachine = vestingMachine;
         loaded = true;
 
         auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
@@ -58,7 +67,7 @@ const loadVesting = async (auth, vAddress) => {
     return loaded;
 };
 
-const onValidateVestingAddress = async (auth, addVestingAddress) => {
+const onValidateVestingAddress = async (auth: Auth, addVestingAddress: string): Promise<boolean> => {
     // 1. Input address valid
     if (addVestingAddress === "") {
         return false;
@@ -77,8 +86,9 @@ const onValidateVestingAddress = async (auth, addVestingAddress) => {
         return true;
     } catch (error) {
         console.log(`Invalid Vesting address: ${error}`);
-        return false;
     }
+
+    return false;
 };
 
 export {
