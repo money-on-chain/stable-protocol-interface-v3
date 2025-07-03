@@ -59,6 +59,10 @@ const onErrorTP = () => {
     return { value: null, canOperate: true };
 };
 
+const onErrorGetPTCac = () => {
+    return { value: 0, canOperate: true };
+};
+
 class Multicall {
     multicall: any;
     web3: any;
@@ -136,7 +140,7 @@ class Multicall {
                     canOperate = resError["canOperate"];
                 } else {
                     // Not Ok Error on calling
-                    if (resultType === "uint256") {
+                    if (resultType === "uint256" || resultType === "int256") {
                         value = "0";
                     } else if (resultType === "address") {
                         value = "0x";
@@ -318,7 +322,9 @@ const contractStatus = async (
             Moc.methods.getPTCac().encodeABI(),
             "uint256",
             ca,
-            "getPTCac"
+            "getPTCac",
+            null,            
+            onErrorGetPTCac
         );
         multiCallRequest.aggregate(
             Moc,
@@ -1014,7 +1020,7 @@ const contractStatus = async (
                 for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
                     Moc = dContracts.contracts.Moc[ca]
                     priceOfflineTPs = parsedPrices[ca].TP
-                    multiCallRequestPO.aggregate(Moc, Moc.methods.calcPTCac(priceOfflineTPs).encodeABI(), 'uint256', ca, 'calcPTCac')
+                    multiCallRequestPO.aggregate(Moc, Moc.methods.calcPTCac(priceOfflineTPs).encodeABI(), 'uint256', ca, 'calcPTCac', null, onErrorGetPTCac)
                     multiCallRequestPO.aggregate(Moc, Moc.methods.calcCglb(priceOfflineTPs).encodeABI(), 'uint256', ca, 'calcCglb')
                     multiCallRequestPO.aggregate(Moc, Moc.methods.calcLckAC(priceOfflineTPs).encodeABI(), 'uint256', ca, 'calcLckAC')
                     multiCallRequestPO.aggregate(Moc, Moc.methods.calcLckACemaAdjusted(priceOfflineTPs).encodeABI(), 'uint256', ca, 'calcLckACemaAdjusted')
@@ -1059,7 +1065,7 @@ const contractStatus = async (
             console.error(err)
         }
     }
-
+    
     let getCtargemaCA;
     for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
         // If calcCtargemaCA is a huge number cannot operate

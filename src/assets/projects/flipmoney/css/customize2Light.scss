@@ -148,13 +148,14 @@
 
     --color-semantic-negative: #ce1717;
     --color-semantic-neutral: #9e9c9c;
+    --color-semantic-neutral-alt: #e8d421;
     --color-semantic-positive: #1cb900;
     --filter-semantic-negative: invert(21%) sepia(82%) saturate(5552%)
         hue-rotate(353deg) brightness(82%) contrast(98%);
     --filter-semantic-neutral: invert(75%) sepia(4%) saturate(30%)
         hue-rotate(314deg) brightness(83%) contrast(88%);
-    --filter-semantic-positive: invert(43%) sepia(93%) saturate(1081%)
-        hue-rotate(77deg) brightness(100%) contrast(103%);
+    --filter-semantic-positive: invert(43%) sepia(90%) saturate(2374%)
+        hue-rotate(78deg) brightness(107%) contrast(103%);
 
     // Notifications
 
@@ -254,6 +255,7 @@
     --color-txt-link: var(--brand-color-base);
     --color-txt-notification: #ffffff;
     --link-txt-style: underline;
+    --color-txt-inverted: #0c0c08;
 
     --color-icon-primary: invert(11%) sepia(8%) saturate(478%)
         hue-rotate(114deg) brightness(101%) contrast(94%);

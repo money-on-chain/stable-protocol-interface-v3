@@ -307,8 +307,8 @@ export default function LastOperations(props: LastOperationsProps) {
                             : t("operations.actions.receiving"),
                 },
             };
-        } else if (row_operation.operation === "TPMint") {
-            let tp_index = row_operation.executed?.tpIndex_;
+        } else if (row_operation["operation"] === "TPMint") {
+            let tp_index = row_operation[status]["tpIndex"] || row_operation[status]["tpIndex_"];
             if (tp_index === undefined) tp_index = 0;
 
             return {
@@ -341,8 +341,8 @@ export default function LastOperations(props: LastOperationsProps) {
                             : t("operations.actions.receiving"),
                 },
             };
-        } else if (row_operation.operation === "TPRedeem") {
-            let tp_index = row_operation.executed?.tpIndex_;
+        } else if (row_operation["operation"] === "TPRedeem") {
+            let tp_index = row_operation[status]["tpIndex"] || row_operation[status]["tpIndex_"];
             if (tp_index === undefined) tp_index = 0;
 
             return {
@@ -378,10 +378,10 @@ export default function LastOperations(props: LastOperationsProps) {
         } else if (row_operation.operation === "Transfer") {
             const tokenParam = row_operation.params?.token;
             if (!tokenParam) return undefined;
-            
+
             const token_info = getTokenInfo(tokenParam);
             if (!token_info) return undefined;
-            
+
             return {
                 exchange: {
                     action: "Transfer",
@@ -869,7 +869,7 @@ export default function LastOperations(props: LastOperationsProps) {
             case 0:
                 if (
                     row_operation["params"] &&
-                    auth.contractStatusData &&                    
+                    auth.contractStatusData &&
                     BigInt(auth.contractStatusData.blockHeight || 0) <
                         BigInt(row_operation["params"]["blockNumber"] || 0) +
                             confirmedBlocks
@@ -879,7 +879,7 @@ export default function LastOperations(props: LastOperationsProps) {
             case 1:
                 if (
                     row_operation["executed"] &&
-                    auth.contractStatusData &&                    
+                    auth.contractStatusData &&
                     BigInt(auth.contractStatusData.blockHeight || 0) <
                         BigInt(row_operation["executed"]["blockNumber"] || 0) +
                             confirmedBlocks

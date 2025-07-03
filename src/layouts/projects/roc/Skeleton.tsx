@@ -14,22 +14,11 @@ import W3ErrorAlert from "../../../components/Notification/W3ErrorAlert";
 
 const { Content, Footer } = Layout;
 
-interface NotificationStatus {
-    id: number;
-    title: string;
-    textContent: string;
-    notifClass: string;
-    iconLeft: string;
-    isDismisable: boolean;
-    dismissTime: number;
-}
-
-export default function Skeleton(): React.ReactElement {
+export default function Skeleton() {
     const auth = useContext(AuthenticateContext);
-    const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(null);
-    const [canSwap, setCanSwap] = useState<boolean>(false);
+    const [notifStatus, setNotifStatus] = useState(null);
+    const [canSwap, setCanSwap] = useState(false);
     const { checkerStatus } = CheckStatusGlobal();
-    
     useEffect(() => {
         if (auth.contractStatusData && auth.userBalanceData) {
             readProtocolStatus();
@@ -37,11 +26,10 @@ export default function Skeleton(): React.ReactElement {
         }
     }, [auth.contractStatusData, auth.userBalanceData]);
 
-    const readProtocolStatus = (): void => {
-        const { isValid, statusIcon, statusLabel, statusText } =
+    const readProtocolStatus = () => {
+        const { globalStatus, statusIcon, statusLabel, statusText } =
             checkerStatus();
-        if (!isValid) {
-            console.log("is not valid");
+        if (globalStatus > 1) {
             setNotifStatus({
                 id: -1,
                 title: `Warning, protocol status is ${statusLabel}`,
@@ -56,17 +44,13 @@ export default function Skeleton(): React.ReactElement {
         }
     };
 
-    const readTpLegacyBalance = (): void => {
-        if (auth.userBalanceData && (auth.userBalanceData as any).tpLegacy) {
-            const tpLegacyBalance = new BigNumber(
-                Web3.utils.fromWei((auth.userBalanceData as any).tpLegacy.balance, "ether")
-            );
+    const readTpLegacyBalance = () => {
+        const tpLegacyBalance = new BigNumber(
+            Web3.utils.fromWei(auth.userBalanceData.tpLegacy.balance, "ether")
+        );
 
-            if (tpLegacyBalance.gt(0)) {
-                setCanSwap(true);
-            } else {
-                setCanSwap(false);
-            }
+        if (tpLegacyBalance.gt(0)) {
+            setCanSwap(true);
         } else {
             setCanSwap(false);
         }
