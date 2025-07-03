@@ -1,11 +1,16 @@
 import React from "react";
-import PropTypes from "prop-types";
 
 import { useProjectTranslation } from "../../../helpers/translations";
 import settings from "../../../settings/settings.json";
 import StatusBucket from "./bucket";
 
-export default function GlobalStatusModal(props) {
+// Type definitions
+interface GlobalStatusModalProps {
+    statusCode: number[];
+    hideModal: () => void;
+}
+
+export default function GlobalStatusModal(props: GlobalStatusModalProps): JSX.Element {
     const { t } = useProjectTranslation();
     const { statusCode, hideModal } = props;
 
@@ -21,15 +26,10 @@ export default function GlobalStatusModal(props) {
                 ))}
             </div>
             <div className="cta">
-                <button type="primary" className="button" onClick={hideModal}>
+                <button className="button" onClick={hideModal}>
                     {t("wallet.cta.close")}
                 </button>
             </div>
         </div>
     );
 }
-
-GlobalStatusModal.propTypes = {
-    statusCode: PropTypes.array,
-    hideModal: PropTypes.func,
-};

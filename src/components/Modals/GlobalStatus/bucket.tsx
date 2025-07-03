@@ -1,9 +1,31 @@
 import React from "react";
-import PropTypes from "prop-types";
 import settings from "../../../settings/settings.json";
 import { useProjectTranslation } from "../../../helpers/translations";
 
-export default function StatusBucket(props) {
+// Type definitions
+interface StatusBucketProps {
+    statusCode: number[];
+    caIndex: number;
+}
+
+interface Permissions {
+    mint: boolean;
+    redeem: boolean;
+}
+
+interface Summary {
+    label: string;
+    severity: string;
+}
+
+interface Operation {
+    name: string;
+    iconClass: string;
+    mintAllowed: boolean;
+    redeemAllowed: boolean;
+}
+
+export default function StatusBucket(props: StatusBucketProps): JSX.Element {
     const { t } = useProjectTranslation();
     const { statusCode, caIndex } = props;
 
@@ -12,26 +34,26 @@ export default function StatusBucket(props) {
     const caToken = settings.tokens.CA[caIndex];
     const leveragedToken = tcTokens[caIndex];
 
-    const status = statusCode[caIndex];
+    const status: number = statusCode[caIndex];
 
-    const collateralPermissionsByStatus = {
+    const collateralPermissionsByStatus: { [key: number]: Permissions } = {
         0: { mint: true, redeem: true },
         1: { mint: true, redeem: false },
         2: { mint: false, redeem: false },
         3: { mint: false, redeem: false },
     };
 
-    const peggedPermissionsByStatus = {
+    const peggedPermissionsByStatus: { [key: number]: Permissions } = {
         0: { mint: true, redeem: true },
         1: { mint: false, redeem: true },
         2: { mint: false, redeem: false },
         3: { mint: false, redeem: false },
     };
 
-    const caPermissions = collateralPermissionsByStatus[status];
-    const tpPermissions = peggedPermissionsByStatus[status];
+    const caPermissions: Permissions = collateralPermissionsByStatus[status] || { mint: false, redeem: false };
+    const tpPermissions: Permissions = peggedPermissionsByStatus[status] || { mint: false, redeem: false };
 
-    const summaryMap = {
+    const summaryMap: { [key: number]: Summary } = {
         0: {
             label: t(
                 "performance.detailedStatus.collateralStatus.fullyOperational"
@@ -56,9 +78,9 @@ export default function StatusBucket(props) {
         },
     };
 
-    const summary = summaryMap[status] || { label: "--", severity: "neutral" };
+    const summary: Summary = summaryMap[status] || { label: "--", severity: "neutral" };
 
-    const operations = [
+    const operations: Operation[] = [
         ...tpTokens.map((tp, index) => ({
             name: tp.name,
             iconClass: `icon-token-tp_${index}`,
@@ -123,8 +145,3 @@ export default function StatusBucket(props) {
         </div>
     );
 }
-
-StatusBucket.propTypes = {
-    statusCode: PropTypes.array.isRequired,
-    caIndex: PropTypes.number.isRequired,
-};
