@@ -216,6 +216,9 @@
             "statusTitleFull": "Fully Operational",
             "statusDescriptionFull": "The system is in optimal condition",
 
+            "statusTitleGood": "Good Condition",
+            "statusDescriptionGood": "See Status by Collateral using the button bellow:",
+
             "stuatusTitleWarning": "Partially Operational",
             "statusDescriptionWarning": "Token Collateral cannot be redeemed. Token Pegged cannot be minted",
 
@@ -231,7 +234,22 @@
             "statusTitleUnavailable": "Cannot operate",
             "statusDescreiptionUnavailable": "One or more contracts are temporarily unavailable. Please try again later.",
 
-            "showingBlock": "Showing block"
+            "showingBlock": "Showing block",
+            "buttonDetails": "View Status by Collateral"
+        },
+        "detailedStatus": {
+            "modalTitle": "System Status by Collateral",
+            "collateralStatus": {
+                "fullyOperational": "Fully Operational",
+                "partiallyOperational": "Partially Operational",
+                "protectedMode": "Protected Mode",
+                "liquidated": "Liquidated"
+            },
+            "headerOperations": {
+                "token": "Token",
+                "mint": "Mint",
+                "redeem": "Redeem"
+            }
         },
         "tvl": {
             "cardTitle": "Total Value Locked",

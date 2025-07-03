@@ -8,12 +8,50 @@ import settings from "../../settings/settings.json";
 import { fromContractPrecisionDecimals } from "../../helpers/Formats";
 import { ConvertPeggedTokenPrice } from "../../helpers/currencies";
 
-export default function Tokens({ caIndex }) {
-    const { t, i18n, ns } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext);
-    const tokensData = [];
+// Type definitions
+interface TokensProps {
+    caIndex: number;
+}
 
-    const columns = [
+interface AuthContext {
+    contractStatusData: {
+        canOperate: boolean;
+        [key: number]: {
+            getPTCac: string;
+            PP_CA: string[];
+            nTCcb: string;
+            getRealTCAvailableToRedeem: string;
+            PP_TP: { [key: number]: string[] };
+            getRealTPAvailableToMint: { [key: number]: string };
+            tpEma: { [key: number]: string };
+            pegContainer: { [key: number]: string };
+            tpCtarg: { [key: number]: string };
+        };
+    } | null;
+}
+
+interface Column {
+    key: string;
+    title: string;
+}
+
+interface TokenData {
+    name: JSX.Element;
+    price: React.ReactNode;
+    ema: string | React.ReactNode;
+    minted: React.ReactNode;
+    mintable: string | React.ReactNode;
+    redeemable: React.ReactNode;
+    coverage: React.ReactNode;
+    [key: string]: React.ReactNode | string;
+}
+
+export default function Tokens({ caIndex }: TokensProps): JSX.Element {
+    const { t, i18n, ns } = useProjectTranslation();
+    const auth = useContext(AuthenticateContext) as AuthContext;
+    const tokensData: TokenData[] = [];
+
+    const columns: Column[] = [
         {
             key: "name",
             title: t("performance.pegged.colName"),
@@ -44,7 +82,7 @@ export default function Tokens({ caIndex }) {
         },
     ];
 
-    const renderTokenRow = (token, index) => (
+    const renderTokenRow = (token: TokenData, index: number): JSX.Element => (
         <tr key={index}>
             {columns.map((col) => (
                 <td key={col.key}>{token[col.key]}</td>
@@ -84,7 +122,7 @@ export default function Tokens({ caIndex }) {
                 ? "--"
                 : PrecisionNumbers({
                       amount: price,
-                      token: settings.tokens.TC[caIndex],
+                      token: settings.tokens.TC[caIndex] as any,
                       decimals: 3,
                       i18n,
                       skipContractConvert: true,
@@ -94,7 +132,7 @@ export default function Tokens({ caIndex }) {
                 ? "--"
                 : PrecisionNumbers({
                       amount: auth.contractStatusData[caIndex].nTCcb,
-                      token: settings.tokens.TC[caIndex],
+                      token: settings.tokens.TC[caIndex] as any,
                       decimals: settings.tokens.CA[caIndex].visibleDecimals,
                       i18n,
                       skipContractConvert: false,
@@ -105,7 +143,7 @@ export default function Tokens({ caIndex }) {
                 : PrecisionNumbers({
                       amount: auth.contractStatusData[caIndex]
                           .getRealTCAvailableToRedeem,
-                      token: settings.tokens.TC[caIndex],
+                      token: settings.tokens.TC[caIndex] as any,
                       decimals: settings.tokens.CA[caIndex].visibleDecimals,
                       i18n,
                       skipContractConvert: false,
@@ -117,12 +155,12 @@ export default function Tokens({ caIndex }) {
         settings.tokens.TP.forEach((dataItem) => {
             let price = new BigNumber(
                 fromContractPrecisionDecimals(
-                    auth.contractStatusData[caIndex].PP_TP[dataItem.key][0],
+                    auth.contractStatusData![caIndex].PP_TP[dataItem.key][0],
                     settings.tokens.TP[dataItem.key].decimals
                 )
             );
             price = ConvertPeggedTokenPrice(
-                auth,
+                auth as any,
                 caIndex,
                 dataItem.key,
                 price,
@@ -133,7 +171,7 @@ export default function Tokens({ caIndex }) {
 
             let tpAvailableToMint = new BigNumber(
                 fromContractPrecisionDecimals(
-                    auth.contractStatusData[caIndex].getRealTPAvailableToMint[
+                    auth.contractStatusData![caIndex].getRealTPAvailableToMint[
                         dataItem.key
                     ],
                     settings.tokens.TP[dataItem.key].decimals
@@ -143,12 +181,12 @@ export default function Tokens({ caIndex }) {
 
             let tpEMA = new BigNumber(
                 fromContractPrecisionDecimals(
-                    auth.contractStatusData[caIndex].tpEma[dataItem.key],
+                    auth.contractStatusData![caIndex].tpEma[dataItem.key],
                     settings.tokens.TP[dataItem.key].decimals
                 )
             );
             tpEMA = ConvertPeggedTokenPrice(
-                auth,
+                auth as any,
                 caIndex,
                 dataItem.key,
                 tpEMA,
@@ -173,66 +211,60 @@ export default function Tokens({ caIndex }) {
                         </span>
                     </div>
                 ),
-                price: !auth.contractStatusData.canOperate
+                price: !auth.contractStatusData?.canOperate
                     ? "--"
                     : PrecisionNumbers({
                           amount: price,
-                          token: settings.tokens.TP[dataItem.key],
+                          token: settings.tokens.TP[dataItem.key] as any,
                           decimals:
                               settings.tokens.TP[dataItem.key].visiblePriceUSD,
                           i18n,
                           skipContractConvert: true,
                       }),
-                ema: !auth.contractStatusData.canOperate
+                ema: !auth.contractStatusData?.canOperate
                     ? "--"
                     : PrecisionNumbers({
                           amount: tpEMA,
-                          token: settings.tokens.TP[dataItem.key],
+                          token: settings.tokens.TP[dataItem.key] as any,
                           decimals:
                               settings.tokens.TP[dataItem.key].visiblePriceUSD,
-                          t,
                           i18n,
-                          ns,
                           skipContractConvert: true,
                       }),
-                minted: !auth.contractStatusData.canOperate
+                minted: !auth.contractStatusData?.canOperate
                     ? "--"
                     : PrecisionNumbers({
-                          amount: auth.contractStatusData[caIndex].pegContainer[
+                          amount: auth.contractStatusData![caIndex].pegContainer[
                               dataItem.key
                           ],
-                          token: settings.tokens.TP[dataItem.key],
+                          token: settings.tokens.TP[dataItem.key] as any,
                           decimals:
                               settings.tokens.TP[caIndex]
                                   .visibleBalanceDecimals,
                           i18n,
                           skipContractConvert: false,
                       }),
-                mintable: !auth.contractStatusData.canOperate
+                mintable: !auth.contractStatusData?.canOperate
                     ? "--"
                     : PrecisionNumbers({
                           amount: tpAvailableToMint,
-                          token: settings.tokens.TP[dataItem.key],
+                          token: settings.tokens.TP[dataItem.key] as any,
                           decimals:
                               settings.tokens.TP[caIndex]
                                   .visibleBalanceDecimals,
-                          t,
                           i18n,
-                          ns,
                           skipContractConvert: true,
                       }),
                 redeemable: "No limit",
-                coverage: !auth.contractStatusData.canOperate
+                coverage: !auth.contractStatusData?.canOperate
                     ? "--"
                     : PrecisionNumbers({
-                          amount: auth.contractStatusData[caIndex].tpCtarg[
+                          amount: auth.contractStatusData![caIndex].tpCtarg[
                               dataItem.key
                           ],
-                          token: settings.tokens.TP[dataItem.key],
+                          token: settings.tokens.TP[dataItem.key] as any,
                           decimals: 2,
-                          t,
                           i18n,
-                          ns,
                           skipContractConvert: false,
                       }),
             });

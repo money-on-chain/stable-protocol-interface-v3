@@ -11,6 +11,7 @@ import W3ErrorAlert from "../../../components/Notification/W3ErrorAlert";
 
 const { Content, Footer } = Layout;
 
+// Type definitions
 interface NotificationStatus {
     id: number;
     title: string;
@@ -21,8 +22,15 @@ interface NotificationStatus {
     dismissTime: number;
 }
 
-export default function Skeleton(): React.ReactElement {
-    const auth = useContext(AuthenticateContext);
+interface AuthContext {
+    contractStatusData: any;
+    userBalanceData: any;
+    web3Error: any;
+    isLoggedIn: boolean;
+}
+
+export default function Skeleton(): JSX.Element {
+    const auth = useContext(AuthenticateContext) as AuthContext;
     const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(null);
     const { checkerStatus } = CheckStatusGlobal();
     
@@ -33,16 +41,14 @@ export default function Skeleton(): React.ReactElement {
     }, [auth.contractStatusData, auth.userBalanceData]);
 
     const readProtocolStatus = (): void => {
-        const { isValid, statusIcon, statusLabel, statusText } =
-            checkerStatus();
-        if (!isValid) {
-            console.log("is not valid");
+        const { globalStatus, statusLabel, statusText } = checkerStatus();
+        if (globalStatus > 1) {            
             setNotifStatus({
                 id: -1,
                 title: `Warning, protocol status is ${statusLabel}`,
                 textContent: statusText,
                 notifClass: "warning",
-                iconLeft: statusIcon,
+                iconLeft: "warning-icon", // Default icon since statusIcon doesn't exist
                 isDismisable: false,
                 dismissTime: 0,
             });

@@ -30,7 +30,8 @@ import { fromContractPrecisionDecimals } from "../../helpers/Formats";
 import { CheckStatusGlobal } from "../../helpers/checkStatus";
 import { getExecutionFee } from "../../lib/backend/utils";
 
-interface FeeInfo {
+// Type definitions
+interface CommissionInfo {
     fee: BigNumber;
     feeUSD: BigNumber;
     percent: BigNumber;
@@ -39,14 +40,18 @@ interface FeeInfo {
     feeTokenPercent: BigNumber;
 }
 
-type SourceType = "exchange" | "receive";
+interface AuthContext {
+    userBalanceData: any;
+    contractStatusData: any;
+    web3: Web3 | null;
+}
 
 export default function Exchange(): JSX.Element {
     const { t, i18n, ns } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext);
+    const auth = useContext(AuthenticateContext) as AuthContext;
 
-    const defaultTokenExchange: string = tokenExchange()[0];
-    const defaultTokenReceive: string = tokenReceive(defaultTokenExchange)[0];
+    const defaultTokenExchange = tokenExchange()[0];
+    const defaultTokenReceive = tokenReceive(defaultTokenExchange)[0];
 
     const [currencyYouExchange, setCurrencyYouExchange] =
         useState<string>(defaultTokenExchange);
@@ -79,7 +84,7 @@ export default function Exchange(): JSX.Element {
         useState<string>("");
     const [inputValidationError, setInputValidationError] = useState<boolean>(false);
 
-    const IS_MINT: boolean = isMintOperation(currencyYouExchange, currencyYouReceive);
+    const IS_MINT = isMintOperation(currencyYouExchange, currencyYouReceive);
 
     const [radioSelectFee, setRadioSelectFee] = useState<number>(0);
     const [radioSelectFeeTokenDisabled, setRadioSelectFeeTokenDisabled] =
@@ -100,7 +105,7 @@ export default function Exchange(): JSX.Element {
     const onChangeCurrencyYouExchange = (newCurrencyYouExchange: string): void => {
         onClear();
         setCurrencyYouExchange(newCurrencyYouExchange);
-        const newCurrencyYouReceive: string = tokenReceive(newCurrencyYouExchange)[0];
+        const newCurrencyYouReceive = tokenReceive(newCurrencyYouExchange)[0]
         setCurrencyYouReceive(newCurrencyYouReceive);
         setCAIndex(getCAIndex(newCurrencyYouExchange, newCurrencyYouReceive));
     };
@@ -112,15 +117,15 @@ export default function Exchange(): JSX.Element {
     };
     
     const handleSwapCurrencies = (): void => {
-        const tempCurrency: string = currencyYouExchange;
+        const tempCurrency = currencyYouExchange;
         setCurrencyYouExchange(currencyYouReceive);
         setCurrencyYouReceive(tempCurrency);
 
-        const tempAmount: BigNumber = amountYouExchange;
+        const tempAmount = amountYouExchange;
         setAmountYouExchange(amountYouReceive);
         setAmountYouReceive(tempAmount);
 
-        const tempInputExchange: string = valueExchange;
+        const tempInputExchange = valueExchange;
         setValueExchange(valueReceive);
         setValueReceive(tempInputExchange);
     };
@@ -136,30 +141,19 @@ export default function Exchange(): JSX.Element {
 
     const onValidate = (): void => {
         // Protocol in not-good status
-        const { isValid, errorType } = checkerStatus();
-        if (!isValid && errorType === "1") {
-            if (
-                !currencyYouExchange.startsWith("TP") &&
-                !currencyYouReceive.startsWith("TC")
-            ) {
-                setInputValidationErrorText(
-                    t("exchange.errors.notOperational")
-                );
-                setInputValidationError(true);
-                return;
-            }
-        }
-        if (!isValid && errorType > 1 && errorType < 5) {
-            setInputValidationErrorText(t("exchange.errors.cantOperate"));
-            setInputValidationError(true);
-            return;
-        }
-        if (!isValid && errorType === "5") {
-            setInputValidationErrorText(t("exchange.errors.requestTimeout"));
-            setInputValidationError(true);
-            return;
-        }
+        const { statusCode } = checkerStatus();
 
+        const arrCurrencyYouExchange = currencyYouExchange.split("_");
+        const arrCurrencyYouReceive = currencyYouReceive.split("_");
+
+        if (statusCode[caIndex] >= 2) {
+            setInputValidationErrorText(
+                t("exchange.errors.notOperational")
+            );
+            setInputValidationError(true);
+            return;
+        }
+        
         // 0. Not Wallet connected
         if (!auth.userBalanceData) {
             setInputValidationErrorText(t("exchange.errors.connectYourWallet"));
@@ -203,9 +197,9 @@ export default function Exchange(): JSX.Element {
         }
 
         // 1. User Exchange Token Validation
-        const totalBalance: BigNumber = new BigNumber(
+        const totalBalance = new BigNumber(
             fromContractPrecisionDecimals(
-                TokenBalance(auth, currencyYouExchange),
+                TokenBalance(auth as any, currencyYouExchange),
                 TokenSettings(currencyYouExchange).decimals
             )
         );
@@ -216,30 +210,30 @@ export default function Exchange(): JSX.Element {
             return;
         }
 
-        let tIndex: number;
-        // 2. MINT TP. User receive available token in contract
-        const arrCurrencyYouReceive: string[] = currencyYouReceive.split("_");
+        let tIndex: number | undefined;
+        // 2. MINT TP. User receive available token in contract        
         if (arrCurrencyYouReceive[0] === "TP") {
             // There are sufficient PEGGED in the contracts to mint?
             tIndex = TokenSettings(currencyYouReceive).key;
-            const tpAvailableToMint: BigNumber = new BigNumber(
-                fromContractPrecisionDecimals(
-                    auth.contractStatusData[caIndex].getRealTPAvailableToMint[tIndex],
-                    settings.tokens.TP[tIndex].decimals
-                )
-            );
-            if (new BigNumber(amountYouReceive).gt(tpAvailableToMint)) {
-                setInputValidationErrorText(t("exchange.errors.noLiquidity"));
-                setInputValidationError(true);
-                return;
+            if (tIndex !== undefined) {
+                const tpAvailableToMint = new BigNumber(
+                    fromContractPrecisionDecimals(
+                        auth.contractStatusData[caIndex].getRealTPAvailableToMint[tIndex],
+                        settings.tokens.TP[tIndex].decimals
+                    )
+                );
+                if (new BigNumber(amountYouReceive).gt(tpAvailableToMint)) {
+                    setInputValidationErrorText(t("exchange.errors.noLiquidity"));
+                    setInputValidationError(true);
+                    return;
+                }
             }
         }
 
-        // 3. REDEEM TC
-        let arrCurrencyYouExchange: string[] = currencyYouExchange.split("_");
+        // 3. REDEEM TC        
         if (arrCurrencyYouExchange[0] === "TC") {
             // There are sufficient TC in the contracts to redeem?
-            const tcAvailableToRedeem: BigNumber = new BigNumber(
+            const tcAvailableToRedeem = new BigNumber(
                 Web3.utils.fromWei(
                     auth.contractStatusData[caIndex].getRealTCAvailableToRedeem,
                     "ether"
@@ -255,22 +249,24 @@ export default function Exchange(): JSX.Element {
         // 4. REDEEM SUFFICIENT CA IN THE CONTRACT?
         if (arrCurrencyYouReceive[0] === "CA") {
             tIndex = TokenSettings(currencyYouReceive).key;
-            // There are sufficient CA in the contract
-            const caBalance: BigNumber = new BigNumber(
-                fromContractPrecisionDecimals(
-                    auth.contractStatusData[caIndex].getACBalance[tIndex],
-                    settings.tokens.CA[tIndex].decimals
-                )
-            );
-            if (new BigNumber(amountYouReceive).gt(caBalance)) {
-                setInputValidationErrorText(t("exchange.errors.noLiquidity"));
-                setInputValidationError(true);
-                return;
+            if (tIndex !== undefined) {
+                // There are sufficient CA in the contract
+                const caBalance = new BigNumber(
+                    fromContractPrecisionDecimals(
+                        auth.contractStatusData[caIndex].getACBalance[tIndex],
+                        settings.tokens.CA[tIndex].decimals
+                    )
+                );
+                if (new BigNumber(amountYouReceive).gt(caBalance)) {
+                    setInputValidationErrorText(t("exchange.errors.noLiquidity"));
+                    setInputValidationError(true);
+                    return;
+                }
             }
         }
 
         // 5. HAVE TO PAY COMMISSIONS WITH FEE TOKEN?
-        const feeTokenBalance: BigNumber = new BigNumber(
+        const feeTokenBalance = new BigNumber(
             fromContractPrecisionDecimals(
                 auth.userBalanceData[0].FeeToken.balance,
                 settings.tokens.TF[0].decimals
@@ -287,60 +283,66 @@ export default function Exchange(): JSX.Element {
         // 6. MINT TP. Flux capacitor maxQACToMintTP
         if (arrCurrencyYouReceive[0] === "TP") {
             tIndex = TokenSettings(currencyYouReceive).key;
-            const maxQACToMintTP: BigNumber = new BigNumber(
-                fromContractPrecisionDecimals(
-                    auth.contractStatusData[caIndex].maxQACToMintTP,
-                    settings.tokens.TP[tIndex].decimals
-                )
-            );
-            if (new BigNumber(amountYouExchange).gt(maxQACToMintTP)) {
-                setInputValidationErrorText(
-                    t("exchange.errors.maxLimitedByProtocol")
+            if (tIndex !== undefined) {
+                const maxQACToMintTP = new BigNumber(
+                    fromContractPrecisionDecimals(
+                        auth.contractStatusData[caIndex].maxQACToMintTP,
+                        settings.tokens.TP[tIndex].decimals
+                    )
                 );
-                setInputValidationError(true);
-                return;
+                if (new BigNumber(amountYouExchange).gt(maxQACToMintTP)) {
+                    setInputValidationErrorText(
+                        t("exchange.errors.maxLimitedByProtocol")
+                    );
+                    setInputValidationError(true);
+                    return;
+                }
             }
         }
 
         // Redeem TP
-        arrCurrencyYouExchange = currencyYouExchange.split("_");
+        //arrCurrencyYouExchange = currencyYouExchange.split("_");
         if (arrCurrencyYouExchange[0] === "TP") {
 
             // 7. Flux Capacitor
             tIndex = TokenSettings(currencyYouReceive).key;
-            const maxQACToRedeemTP: BigNumber = new BigNumber(
-                fromContractPrecisionDecimals(
-                    auth.contractStatusData[caIndex].maxQACToRedeemTP,
-                    settings.tokens.TP[tIndex].decimals
-                )
-            );
-            console.log("maxQACToRedeemTP: ", maxQACToRedeemTP.toString());
-            console.log(
-                "amountYouReceive: ",
-                new BigNumber(amountYouReceive).toString()
-            );
-            if (new BigNumber(amountYouReceive).gt(maxQACToRedeemTP)) {
-                setInputValidationErrorText(
-                    t("exchange.errors.maxLimitedByProtocol")
+            if (tIndex !== undefined) {
+                const maxQACToRedeemTP = new BigNumber(
+                    fromContractPrecisionDecimals(
+                        auth.contractStatusData[caIndex].maxQACToRedeemTP,
+                        settings.tokens.TP[tIndex].decimals
+                    )
                 );
-                setInputValidationError(true);
-                return;
+                console.log("maxQACToRedeemTP: ", maxQACToRedeemTP.toString());
+                console.log(
+                    "amountYouReceive: ",
+                    new BigNumber(amountYouReceive).toString()
+                );
+                if (new BigNumber(amountYouReceive).gt(maxQACToRedeemTP)) {
+                    setInputValidationErrorText(
+                        t("exchange.errors.maxLimitedByProtocol")
+                    );
+                    setInputValidationError(true);
+                    return;
+                }
             }
 
             // 8 Available TP to redeem
             tIndex = TokenSettings(currencyYouExchange).key;
-            const maxAvailableTP: BigNumber = new BigNumber(
-                fromContractPrecisionDecimals(
-                    auth.contractStatusData[caIndex].pegContainer[tIndex],
-                    settings.tokens.TP[tIndex].decimals
-                )
-            );
-            if (new BigNumber(amountYouExchange).gt(maxAvailableTP)) {
-                setInputValidationErrorText(
-                    t("exchange.errors.insufficientTPinCA")
+            if (tIndex !== undefined) {
+                const maxAvailableTP = new BigNumber(
+                    fromContractPrecisionDecimals(
+                        auth.contractStatusData[caIndex].pegContainer[tIndex],
+                        settings.tokens.TP[tIndex].decimals
+                    )
                 );
-                setInputValidationError(true);
-                return;
+                if (new BigNumber(amountYouExchange).gt(maxAvailableTP)) {
+                    setInputValidationErrorText(
+                        t("exchange.errors.insufficientTPinCA")
+                    );
+                    setInputValidationError(true);
+                    return;
+                }
             }
 
         }
@@ -350,8 +352,8 @@ export default function Exchange(): JSX.Element {
         setInputValidationError(false);
     };
 
-    const onChangeAmounts = async (amountExchange: BigNumber, amountReceive: BigNumber, source: SourceType): Promise<void> => {
-        let infoFee: FeeInfo;
+    const onChangeAmounts = async (amountExchange: BigNumber, amountReceive: BigNumber, source: string): Promise<void> => {
+        let infoFee: CommissionInfo;
         let amountExchangeFee: BigNumber;
         let amountReceiveFee: BigNumber;
         let amountFormattedReceive: string;
@@ -359,7 +361,7 @@ export default function Exchange(): JSX.Element {
         switch (source) {
             case "exchange":
                 infoFee = CalcCommission(
-                    auth,
+                    auth as any,
                     currencyYouExchange,
                     currencyYouReceive,
                     amountReceive,
@@ -381,7 +383,7 @@ export default function Exchange(): JSX.Element {
                 break;
             case "receive":
                 infoFee = CalcCommission(
-                    auth,
+                    auth as any,
                     currencyYouExchange,
                     currencyYouReceive,
                     amountExchange,
@@ -409,7 +411,7 @@ export default function Exchange(): JSX.Element {
         let convertAmountUSD: BigNumber;
         if (IS_MINT) {
             infoFee = CalcCommission(
-                auth,
+                auth as any,
                 currencyYouExchange,
                 currencyYouReceive,
                 amountExchange,
@@ -418,7 +420,7 @@ export default function Exchange(): JSX.Element {
             convertAmountUSD = amountExchangeFee;
         } else {
             infoFee = CalcCommission(
-                auth,
+                auth as any,
                 currencyYouExchange,
                 currencyYouReceive,
                 amountReceive,
@@ -437,7 +439,7 @@ export default function Exchange(): JSX.Element {
         setCommissionFeeTokenUSD(infoFee.totalFeeTokenUSD.toString());
         setCommissionPercentFeeToken(infoFee.feeTokenPercent.toString());
 
-        const priceCA: BigNumber = new BigNumber(
+        const priceCA = new BigNumber(
             fromContractPrecisionDecimals(
                 auth.contractStatusData[caIndex].PP_CA[0],
                 settings.tokens.CA[caIndex].decimals
@@ -447,24 +449,24 @@ export default function Exchange(): JSX.Element {
         convertAmountUSD = convertAmountUSD.times(priceCA);
         setExchangingUSD(convertAmountUSD);
 
-        const execCost: BigNumber = executionFeeMap(
+        const execCost = executionFeeMap(
             currencyYouExchange,
             currencyYouReceive,
-            auth
-        );
+            auth as any
+        )
 
-        const execFee: BigNumber = fromContractPrecisionDecimals(
-            await getExecutionFee(auth.web3, execCost, 2),
+        const execFee = fromContractPrecisionDecimals(
+            await getExecutionFee(auth.web3 as any, execCost, 2),
             settings.tokens.COINBASE[0].decimals
-        );
+        )
 
-        const priceCoinbase: BigNumber = new BigNumber(
+        const priceCoinbase = new BigNumber(
             fromContractPrecisionDecimals(
                 auth.contractStatusData.PP_COINBASE[0],
                 settings.tokens.COINBASE[0].decimals
             )
         );
-        const execFeeUSD: BigNumber = execFee.times(priceCoinbase);
+        const execFeeUSD = execFee.times(priceCoinbase);
 
         // Execution fee load
         setExecutionFee(execFee);
@@ -479,8 +481,8 @@ export default function Exchange(): JSX.Element {
             setValueExchange("");
         } else {
             setValueExchange(newAmount.toString());
-            const convertAmountReceive: BigNumber = ConvertAmount(
-                auth,
+            const convertAmountReceive = ConvertAmount(
+                auth as any,
                 currencyYouExchange,
                 currencyYouReceive,
                 newAmount === "" ? new BigNumber(0) : new BigNumber(newAmount),
@@ -502,8 +504,8 @@ export default function Exchange(): JSX.Element {
             setValueReceive("");
         } else {
             setValueReceive(newAmount.toString());
-            const convertAmountExchange: BigNumber = ConvertAmount(
-                auth,
+            const convertAmountExchange = ConvertAmount(
+                auth as any,
                 currencyYouReceive,
                 currencyYouExchange,
                 newAmount === "" ? new BigNumber(0) : new BigNumber(newAmount),
@@ -518,15 +520,15 @@ export default function Exchange(): JSX.Element {
     };
 
     const setAddTotalAvailable = (): void => {
-        const tokenSettings: any = TokenSettings(currencyYouExchange);
-        const totalbalance: BigNumber = new BigNumber(
+        const tokenSettings = TokenSettings(currencyYouExchange);
+        const totalbalance = new BigNumber(
             fromContractPrecisionDecimals(
-                TokenBalance(auth, currencyYouExchange),
+                TokenBalance(auth as any, currencyYouExchange),
                 tokenSettings.decimals
             )
         );
-        const convertAmountReceive: BigNumber = ConvertAmount(
-            auth,
+        const convertAmountReceive = ConvertAmount(
+            auth as any,
             currencyYouExchange,
             currencyYouReceive,
             totalbalance,
@@ -543,18 +545,19 @@ export default function Exchange(): JSX.Element {
     };
     
     const calculateFinalAmountExchange = (): BigNumber => {
-        let arrCurrencyYouExchange: string[] = currencyYouExchange.split("_");
+
+        let arrCurrencyYouExchange = currencyYouExchange.split("_");
         if (arrCurrencyYouExchange[0] === "CA") {
-            const tokenSettings: any = TokenSettings(currencyYouExchange);
-            const totalbalance: BigNumber = new BigNumber(
+            const tokenSettings = TokenSettings(currencyYouExchange);
+            const totalbalance = new BigNumber(
                 fromContractPrecisionDecimals(
-                    TokenBalance(auth, currencyYouExchange),
+                    TokenBalance(auth as any, currencyYouExchange),
                     tokenSettings.decimals
                 )
             );
-            const tolerance: number = 0.7;
+            const tolerance = 0.7;
             if (amountYouExchange.gte(totalbalance)) {
-                const upperLimit: BigNumber = totalbalance
+                const upperLimit = totalbalance
                     .times(BigNumber(tolerance))
                     .div(100)
                     .plus(amountYouExchange);
@@ -573,7 +576,6 @@ export default function Exchange(): JSX.Element {
                 <div className="inputFields">
                     <div className="tokenSelector">
                         <CurrencyPopUp
-                            className="select-token"
                             value={currencyYouExchange}
                             currencyOptions={tokenExchange()}
                             onChange={onChangeCurrencyYouExchange}
@@ -590,12 +592,12 @@ export default function Exchange(): JSX.Element {
                                     ? "--"
                                     : PrecisionNumbers({
                                           amount: TokenBalance(
-                                              auth,
+                                              auth as any,
                                               currencyYouExchange
                                           ),
                                           token: TokenSettings(
                                               currencyYouExchange
-                                          ),
+                                          ) as any,
                                           decimals: 8,
                                           i18n: i18n,
                                       })
@@ -615,7 +617,6 @@ export default function Exchange(): JSX.Element {
 
                     <div className="tokenSelector">
                         <CurrencyPopUp
-                            className="select-token"
                             value={currencyYouReceive}
                             currencyOptions={tokenReceive(currencyYouExchange)}
                             onChange={onChangeCurrencyYouReceive}
@@ -627,19 +628,18 @@ export default function Exchange(): JSX.Element {
                             placeholder={"0.0"}
                             onValueChange={onChangeAmountYouReceive}
                             validateError={false}
-                            isDirty={false}
                             balance={
                                 !auth.contractStatusData?.canOperate
                                     ? "--"
                                     : PrecisionNumbers({
                                           amount: ConvertBalance(
-                                              auth,
+                                              auth as any,
                                               currencyYouExchange,
                                               currencyYouReceive
                                           ),
                                           token: TokenSettings(
                                               currencyYouReceive
-                                          ),
+                                          ) as any,
                                           decimals: 8,
                                           i18n: i18n,
                                           skipContractConvert: true,
@@ -673,7 +673,7 @@ export default function Exchange(): JSX.Element {
                                             ? "--"
                                             : PrecisionNumbers({
                                                   amount: ConvertAmount(
-                                                      auth,
+                                                      auth as any,
                                                       currencyYouExchange,
                                                       currencyYouReceive,
                                                       1,
@@ -681,10 +681,10 @@ export default function Exchange(): JSX.Element {
                                                   ),
                                                   decimals: TokenSettings(
                                                       currencyYouReceive
-                                                  ).visiblePriceUSD,
+                                                  ).visibleDecimals || 2,
                                                   token: TokenSettings(
                                                       currencyYouReceive
-                                                  ),
+                                                  ) as any,
                                                   i18n: i18n,
                                                   skipContractConvert: true,
                                               })}
@@ -715,7 +715,7 @@ export default function Exchange(): JSX.Element {
                                             ? "--"
                                             : PrecisionNumbers({
                                                   amount: ConvertAmount(
-                                                      auth,
+                                                      auth as any,
                                                       currencyYouReceive,
                                                       currencyYouExchange,
                                                       1,
@@ -723,10 +723,10 @@ export default function Exchange(): JSX.Element {
                                                   ),
                                                   decimals: TokenSettings(
                                                       currencyYouExchange
-                                                  ).visiblePriceUSD,
+                                                  ).visibleDecimals || 2,
                                                   token: TokenSettings(
                                                       currencyYouExchange
-                                                  ),
+                                                  ) as any,
                                                   i18n: i18n,
                                                   skipContractConvert: true,
                                               })}
@@ -763,7 +763,7 @@ export default function Exchange(): JSX.Element {
                                                               ),
                                                               token: TokenSettings(
                                                                   currencyYouExchange
-                                                              ),
+                                                              ) as any,
                                                               decimals: 2,
                                                               i18n: i18n,
                                                               skipContractConvert: true,
@@ -781,7 +781,7 @@ export default function Exchange(): JSX.Element {
                                                               ),
                                                               token: TokenSettings(
                                                                   `CA_${caIndex}`
-                                                              ),
+                                                              ) as any,
                                                               i18n: i18n,
                                                               skipContractConvert: true,
                                                           })}
@@ -810,7 +810,7 @@ export default function Exchange(): JSX.Element {
                                                               decimals: 2,
                                                               token: TokenSettings(
                                                                   `CA_${caIndex}`
-                                                              ),
+                                                              ) as any,
                                                               i18n: i18n,
                                                               isUSD: true,
                                                               skipContractConvert: true,
@@ -841,7 +841,7 @@ export default function Exchange(): JSX.Element {
                                                               ),
                                                               token: TokenSettings(
                                                                   currencyYouExchange
-                                                              ),
+                                                              ) as any,
                                                               decimals: 2,
                                                               i18n: i18n,
                                                               skipContractConvert: true,
@@ -859,7 +859,7 @@ export default function Exchange(): JSX.Element {
                                                               ),
                                                               token: TokenSettings(
                                                                   `TF_${caIndex}`
-                                                              ),
+                                                              ) as any,
                                                               i18n: i18n,
                                                               skipContractConvert: true,
                                                           })}
@@ -883,7 +883,7 @@ export default function Exchange(): JSX.Element {
                                                               decimals: 2,
                                                               token: TokenSettings(
                                                                   `CA_${caIndex}`
-                                                              ),
+                                                              ) as any,
                                                               i18n: i18n,
                                                               isUSD: true,
                                                               skipContractConvert: true,
@@ -921,7 +921,7 @@ export default function Exchange(): JSX.Element {
                                     ? "--"
                                     : PrecisionNumbers({
                                           amount: exchangingUSD,
-                                          token: TokenSettings(`CA_${caIndex}`),
+                                          token: TokenSettings(`CA_${caIndex}`) as any,
                                           decimals: 2,
                                           i18n: i18n,
                                           skipContractConvert: true,
@@ -946,7 +946,6 @@ export default function Exchange(): JSX.Element {
                         commissionPercent={commissionPercent}
                         inputAmountYouExchange={calculateFinalAmountExchange()}
                         amountYouReceive={amountYouReceive}
-                        onClear={onClear}
                         inputValidationError={inputValidationError}
                         executionFee={executionFee}
                         executionFeeUSD={executionFeeUSD}
