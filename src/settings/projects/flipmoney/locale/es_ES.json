@@ -209,6 +209,9 @@
             "statusTitleFull": "Totalmente Operativo",
             "statusDescriptionFull": "Sistema en condiciones óptimas",
 
+            "statusTitleGood": "Buena Condición",
+            "statusDescriptionGood": "Vea el Estado por Colateral usando el botón de abajo:",
+
             "stuatusTitleWarning": "Parcialmente Operativo",
             "statusDescriptionWarning": "El Token Colateral no se puede redimir. El token anclado no se puede mintear",
 
@@ -224,7 +227,22 @@
             "statusTitleUnavailable": "No puede operar",
             "statusDescreiptionUnavailable": "Uno o más contratos se encuentran temporalmente no disponibles. Intenta nuevamente más tarde.",
 
-            "showingBlock": "Mostrando bloque"
+            "showingBlock": "Mostrando bloque",
+            "buttonDetails": "Ver Estado por Colateral"
+        },
+        "detailedStatus": {
+            "modalTitle": "Estado del Sitema por Colateral",
+            "collateralStatus": {
+                "fullyOperational": "Totalmente Operativo",
+                "partiallyOperational": "Parcialmente Operativo",
+                "protectedMode": "Modo Protegido",
+                "liquidated": "Liquidado"
+            },
+            "headerOperations": {
+                "token": "Token",
+                "mint": "Mintear",
+                "redeem": "Redimir"
+            }
         },
         "tvl": {
             "cardTitle": "Valor Total Bloqueado",
