@@ -10,18 +10,29 @@ import Buckets from "./buckets";
 import TVL from "./tvl";
 import MultiCollateral from "./multicollateral";
 
-export default function Performance() {
+// Type definitions
+interface AuthContext {
+    contractStatusData: {
+        blockHeight: string;
+        canOperate: boolean;
+        [key: number]: any;
+    } | null;
+    userBalanceData: any;
+}
+
+export default function Performance(): JSX.Element {
     const space = "\u00A0";
-    const [statusLabel, setStatusLabel] = useState("--");
-    const [statusText, setStatusText] = useState("--");
-    const [statusLabelClass, setStatusLabelClass] = useState("");
-    const [statusCode, setStatusCode] = useState([]);
-    const [showGlobalStatusModal, setShowGlobalStatusModal] = useState(false);
+    const [statusLabel, setStatusLabel] = useState<string>("--");
+    const [statusText, setStatusText] = useState<string>("--");
+    const [statusLabelClass, setStatusLabelClass] = useState<string>("");
+    const [statusCode, setStatusCode] = useState<number[]>([]);
+    const [showGlobalStatusModal, setShowGlobalStatusModal] = useState<boolean>(false);
     const { t } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext);
+    const auth = useContext(AuthenticateContext) as AuthContext;
     const { checkerStatus } = CheckStatusGlobal();
+    
     useEffect(() => {
-        if ((auth.contractStatusData, auth.userBalanceData)) {
+        if (auth.contractStatusData && auth.userBalanceData) {
             const { statusLabel, statusLabelClass, statusText, statusCode } =
                 checkerStatus();
             setStatusLabel(statusLabel);
@@ -31,10 +42,11 @@ export default function Performance() {
         }
     }, [auth.contractStatusData, auth.userBalanceData]);
 
-    const showModal = () => {
+    const showModal = (): void => {
         setShowGlobalStatusModal(true);
     };
-    const hideModal = () => {
+    
+    const hideModal = (): void => {
         setShowGlobalStatusModal(false);
     };
 
@@ -118,7 +130,6 @@ export default function Performance() {
             {settings.tokens.CA.map(function (tokenSetting, caIndex) {
                 return (
                     <Buckets
-                        tokenSettings={tokenSetting}
                         caIndex={caIndex}
                         key={caIndex}
                     />

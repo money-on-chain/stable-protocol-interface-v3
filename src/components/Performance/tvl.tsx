@@ -8,27 +8,37 @@ import { AuthenticateContext } from "../../context/Auth";
 import settings from "../../settings/settings.json";
 import { fromContractPrecisionDecimals } from '../../helpers/Formats';
 
+// Type definitions
+interface AuthContext {
+    contractStatusData: {
+        canOperate: boolean;
+        [key: number]: {
+            PP_CA: string[];
+            nACcb: string;
+        };
+    } | null;
+}
 
-export default function TVL() {
+export default function TVL(): JSX.Element {
     const { t, i18n } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext);
+    const auth = useContext(AuthenticateContext) as AuthContext;
 
     let collateralTotalInUSD = new BigNumber(0);
-    let collateralInUSD;
+    let collateralInUSD: BigNumber;
 
     if (auth.contractStatusData) {
         settings.tokens.CA.forEach(function (dataItem) {
 
             const priceCA = new BigNumber(
                 fromContractPrecisionDecimals(
-                    auth.contractStatusData[dataItem.key].PP_CA[0],
+                    auth.contractStatusData![dataItem.key].PP_CA[0],
                     settings.tokens.CA[dataItem.key].decimals
                 )
             );
 
             const nACcb = new BigNumber(
                 fromContractPrecisionDecimals(
-                    auth.contractStatusData[dataItem.key].nACcb,
+                    auth.contractStatusData![dataItem.key].nACcb,
                     settings.tokens.TC[dataItem.key].decimals
                 )
             );
@@ -46,13 +56,13 @@ export default function TVL() {
 
             <div className="card-content">
                 <div className="big-number">
-                    {!auth.contractStatusData.canOperate
+                    {!auth.contractStatusData?.canOperate
                         ? "--"
                         : PrecisionNumbers({
                             amount: collateralTotalInUSD
                                 ? collateralTotalInUSD
                                 : new BigNumber(0),
-                            token: TokenSettings("CA_0"),
+                            token: TokenSettings("CA_0") as any,
                             decimals: 2,
                             i18n: i18n,
                             skipContractConvert: true,

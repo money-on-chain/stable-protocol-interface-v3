@@ -6,7 +6,30 @@ import { AuthenticateContext } from "../context/Auth";
 import { fromContractPrecisionDecimals } from "./Formats";
 import settings from "../settings/settings.json";
 
-function CheckStatusCA(auth, caIndex) {
+// Type definitions
+interface AuthContext {
+    contractStatusData: {
+        canOperate: boolean;
+        [key: number]: {
+            getCglb: string;
+            getCtargemaCA: string;
+            liqThrld: string;
+            protThrld: string;
+            liquidated: boolean;
+            paused: boolean;
+        };
+    } | null;
+}
+
+interface StatusResult {
+    globalStatus: number;
+    statusLabel: string;
+    statusLabelClass: string;
+    statusText: string;
+    statusCode: number[];
+}
+
+function CheckStatusCA(auth: AuthContext, caIndex: number): number {
     /* Status Code:
     -1: Error - !auth.contractStatusData
      0: Optimal - globalCoverage > getCtargemaCA
@@ -17,7 +40,7 @@ function CheckStatusCA(auth, caIndex) {
      5: Can't operate - !auth.contractStatusData.canOperate
     */
 
-    let statusCode = -1;
+    let statusCode: number = -1;
 
     if (!auth.contractStatusData) return statusCode;
 
@@ -76,17 +99,17 @@ function CheckStatusCA(auth, caIndex) {
 
 function CheckStatusGlobal() {
     const { t } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext);
+    const auth = useContext(AuthenticateContext) as AuthContext;
 
-    const checkerStatus = () => {
-        let statusLabel = "--";
-        let statusLabelClass = "";
-        let statusText = "--";
+    const checkerStatus = (): StatusResult => {
+        let statusLabel: string = "--";
+        let statusLabelClass: string = "";
+        let statusText: string = "--";
 
-        let statusCode = [];
-        let statusCodeCA = -1;
-        let countValid = 0;
-        let countProtected = 0;
+        let statusCode: number[] = [];
+        let statusCodeCA: number = -1;
+        let countValid: number = 0;
+        let countProtected: number = 0;
         for (let caIndex = 0; caIndex < settings.tokens.CA.length; caIndex++) {
             statusCodeCA = CheckStatusCA(auth, caIndex);
             statusCode.push(statusCodeCA);
@@ -100,7 +123,7 @@ function CheckStatusGlobal() {
             }
         }
 
-        let globalStatus = -1;
+        let globalStatus: number = -1;
         if (countValid === settings.tokens.CA.length) {
             // This OK no problems, Optimal status
             statusLabel = t("performance.status.statusTitleFull");

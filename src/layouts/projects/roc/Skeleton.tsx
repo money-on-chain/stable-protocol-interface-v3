@@ -14,11 +14,30 @@ import W3ErrorAlert from "../../../components/Notification/W3ErrorAlert";
 
 const { Content, Footer } = Layout;
 
-export default function Skeleton() {
-    const auth = useContext(AuthenticateContext);
-    const [notifStatus, setNotifStatus] = useState(null);
-    const [canSwap, setCanSwap] = useState(false);
+// Type definitions
+interface NotificationStatus {
+    id: number;
+    title: string;
+    textContent: string;
+    notifClass: string;
+    iconLeft: string;
+    isDismisable: boolean;
+    dismissTime: number;
+}
+
+interface AuthContext {
+    contractStatusData: any;
+    userBalanceData: any;
+    web3Error: any;
+    isLoggedIn: boolean;
+}
+
+export default function Skeleton(): JSX.Element {
+    const auth = useContext(AuthenticateContext) as AuthContext;
+    const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(null);
+    const [canSwap, setCanSwap] = useState<boolean>(false);
     const { checkerStatus } = CheckStatusGlobal();
+    
     useEffect(() => {
         if (auth.contractStatusData && auth.userBalanceData) {
             readProtocolStatus();
@@ -26,16 +45,15 @@ export default function Skeleton() {
         }
     }, [auth.contractStatusData, auth.userBalanceData]);
 
-    const readProtocolStatus = () => {
-        const { globalStatus, statusIcon, statusLabel, statusText } =
-            checkerStatus();
+    const readProtocolStatus = (): void => {
+        const { globalStatus, statusLabel, statusText } = checkerStatus();
         if (globalStatus > 1) {
             setNotifStatus({
                 id: -1,
                 title: `Warning, protocol status is ${statusLabel}`,
                 textContent: statusText,
                 notifClass: "warning",
-                iconLeft: statusIcon,
+                iconLeft: "warning-icon", // Default icon since statusIcon doesn't exist
                 isDismisable: false,
                 dismissTime: 0,
             });
@@ -44,7 +62,7 @@ export default function Skeleton() {
         }
     };
 
-    const readTpLegacyBalance = () => {
+    const readTpLegacyBalance = (): void => {
         const tpLegacyBalance = new BigNumber(
             Web3.utils.fromWei(auth.userBalanceData.tpLegacy.balance, "ether")
         );
