@@ -869,9 +869,8 @@ export default function LastOperations(props: LastOperationsProps) {
             case 0:
                 if (
                     row_operation["params"] &&
-                    auth.contractStatusData &&
-                    auth.contractStatusData[0] &&
-                    BigInt(auth.contractStatusData[0].blockHeight || 0) <
+                    auth.contractStatusData &&                    
+                    BigInt(auth.contractStatusData.blockHeight || 0) <
                         BigInt(row_operation["params"]["blockNumber"] || 0) +
                             confirmedBlocks
                 )
@@ -880,9 +879,8 @@ export default function LastOperations(props: LastOperationsProps) {
             case 1:
                 if (
                     row_operation["executed"] &&
-                    auth.contractStatusData &&
-                    auth.contractStatusData[0] &&
-                    BigInt(auth.contractStatusData[0].blockHeight || 0) <
+                    auth.contractStatusData &&                    
+                    BigInt(auth.contractStatusData.blockHeight || 0) <
                         BigInt(row_operation["executed"]["blockNumber"] || 0) +
                             confirmedBlocks
                 )
@@ -890,8 +888,7 @@ export default function LastOperations(props: LastOperationsProps) {
                 else if (
                     row_operation["operation"] === "Transfer" &&
                     auth.contractStatusData &&
-                    auth.contractStatusData[0] &&
-                    BigInt(auth.contractStatusData[0].blockHeight || 0) <
+                    BigInt(auth.contractStatusData.blockHeight || 0) <
                         BigInt(row_operation["blockNumber"] || 0) + confirmedBlocks
                 )
                     return t("operations.actions.statusConfirming");
