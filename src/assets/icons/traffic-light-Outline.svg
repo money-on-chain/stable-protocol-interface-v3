@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Icon/48/face-cool-sunglasses/Filled</title>
+    <g id="Icon/48/face-cool-sunglasses/Filled" stroke="none" fill="none" fill-rule="evenodd" stroke-width="1">
+        <g id="Group" stroke="#101214">
+            <path d="M35,16 L35,16 C37.7614,16 40,13.7614 40,11 L40,10 L35,10" id="Path" stroke-width="2"></path>
+            <path d="M13,16 L13,16 C10.2386,16 8,13.7614 8,11 L8,10 L13,10" id="Path" stroke-width="2"></path>
+            <path d="M35,27 L35,27 C37.7614,27 40,24.7614 40,22 L40,21 L35,21" id="Path" stroke-width="2"></path>
+            <path d="M13,27 L13,27 C10.2386,27 8,24.7614 8,22 L8,21 L13,21" id="Path" stroke-width="2"></path>
+            <path d="M35,38 L35,38 C37.7614,38 40,35.7614 40,33 L40,32 L35,32" id="Path" stroke-width="2"></path>
+            <path d="M13,38 L13,38 C10.2386,38 8,35.7614 8,33 L8,32 L13,32" id="Path" stroke-width="2"></path>
+            <path d="M17,44 L31,44 C33.2091,44 35,42.2091 35,40 L35,8 C35,5.79086 33.2091,4 31,4 L17,4 C14.7909,4 13,5.79086 13,8 L13,40 C13,42.2091 14.7909,44 17,44 Z" id="Path" stroke-width="2"></path>
+            <path d="M27.5,24 C27.5,25.933 25.933,27.5 24,27.5 C22.067,27.5 20.5,25.933 20.5,24 C20.5,22.067 22.067,20.5 24,20.5 C25.933,20.5 27.5,22.067 27.5,24 Z" id="Path" stroke-width="2"></path>
+            <path d="M27.5,12.5 C27.5,14.433 25.933,16 24,16 C22.067,16 20.5,14.433 20.5,12.5 C20.5,10.567 22.067,9 24,9 C25.933,9 27.5,10.567 27.5,12.5 Z" id="Path" stroke-width="2"></path>
+            <path d="M27.5,35.5 C27.5,37.433 25.933,39 24,39 C22.067,39 20.5,37.433 20.5,35.5 C20.5,33.567 22.067,32 24,32 C25.933,32 27.5,33.567 27.5,35.5 Z" id="Path" stroke-width="2"></path>
+        </g>
+    </g>
+</svg>
