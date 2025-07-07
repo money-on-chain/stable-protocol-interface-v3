@@ -129,6 +129,7 @@
                 }
                 .buttonText {
                     color: var(--color-txt-link);
+                    font-weight: 600;
                 }
             }
             @media (max-width: 768px) {
@@ -318,7 +319,7 @@
     }
     .token-table__cell--coverage,
     .token-table__header--coverage {
-        width: 100px;
+        width: 120px;
         text-align: right;
     }
 }
@@ -332,7 +333,7 @@
     }
     .dataGroup {
         display: flex;
-        gap: 16px;
+        gap: 8px;
         min-width: 256px;
         // outline: 1px dashed green;
     }
@@ -345,6 +346,51 @@
         width: 48px;
         height: 48px;
     }
+    .perfGlobalMetrics {
+        .metrics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 32px;
+            margin-top: 32px;
+        }
+        .dataGroup {
+            display: flex;
+            gap: 16px;
+            min-width: 256px;
+        }
+        .icon__back {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: var(--icon-background-radius);
+            background-color: var(--icon-background-color);
+            width: 48px;
+            height: 48px;
+        }
+        .amount {
+            display: flex;
+            align-items: center;
+            width: 115px;
+            height: 29px;
+            color: var(--color-txt-primary);
+            font-style: normal;
+            font-weight: 600;
+            font-size: 22px;
+            line-height: 29px;
+            font-family: var(--brand-font);
+        }
+        .label {
+            color: var(--color-txt-secondary);
+            font-style: normal;
+            font-weight: 400;
+            font-size: 14px;
+            font-family: var(--main-font);
+        }
+        .buckets {
+            margin-top: 40px;
+        }
+    }
+
     .amount {
         display: flex;
         align-items: center;

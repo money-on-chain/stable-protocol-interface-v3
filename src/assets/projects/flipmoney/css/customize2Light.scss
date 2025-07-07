@@ -6,7 +6,7 @@
 
     --brand-color-darker: #379c72;
     --brand-color-dark: #32ac79;
-    --brand-color-base: #11e18a;
+    --brand-color-base: #1ec982;
     --brand-color-light: #2cea9b;
     --brand-color-lighter: #55f0b0;
     --brand-color-overbrand: #0c0c08;
@@ -42,8 +42,8 @@
     //Surfaces
     --surface-background-image: radial-gradient(
         at left top,
-        #ecef88,
-        #82eabe
+        #f4f5df,
+        #d3f1e5
     ); // can be set to none
 
     --surface-color-0: #ffffff00;
@@ -60,7 +60,7 @@
     --icon-token-size: 32px;
 
     // Dashboard
-    --icon-background-color: #e7f4ef;
+    --icon-background-color: #ddece6;
     --icon-background-radius: 4px;
 
     // UI controls
@@ -260,8 +260,8 @@
     --color-icon-primary: invert(11%) sepia(8%) saturate(478%)
         hue-rotate(114deg) brightness(101%) contrast(94%);
 
-    --color-icon-link-filter: invert(70%) sepia(56%) saturate(3446%)
-        hue-rotate(107deg) brightness(99%) contrast(86%);
+    --color-icon-link-filter: invert(71%) sepia(30%) saturate(500%)
+        hue-rotate(104deg) brightness(96%) contrast(76%);
 
     --color-icon-link-hover-filter: invert(54%) sepia(42%) saturate(508%)
         hue-rotate(103deg) brightness(89%) contrast(90%);
