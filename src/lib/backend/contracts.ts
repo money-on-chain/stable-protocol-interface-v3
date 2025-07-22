@@ -26,6 +26,7 @@ import IncentiveV2 from "../../contracts/omoc/IncentiveV2.json";
 import { registryAddresses, mocAddresses } from "./multicall";
 import settings from "../../settings/settings.json";
 import Web3 from "web3";
+import { readContract } from 'viem/actions'
 
 // Type definitions for dContracts
 interface DContracts {
@@ -60,54 +61,14 @@ interface DContracts {
     contractsAddresses: Record<string, any>;
 }
 
-const readContracts = async (web3: Web3): Promise<DContracts> => {
+const readContracts = async (publicClient: PublicClient): Promise<DContracts> => {
     // Store contracts to later use
     const dContracts: DContracts = {
         json: {},
         contracts: {},
         contractsAddresses: {},
     };
-
-    console.log(
-        "Reading Multicall2 Contract... address: ",
-        import.meta.env.REACT_APP_CONTRACT_MULTICALL2
-    );
-    dContracts.contracts.multicall = new web3.eth.Contract(
-        Multicall2.abi,
-        import.meta.env.REACT_APP_CONTRACT_MULTICALL2
-    );
-
-    dContracts.contracts.PP_CA = [];
-    const contractPPCA =
-        import.meta.env.REACT_APP_CONTRACT_PRICE_PROVIDER_CA.split(",");
-    for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
-        console.log(
-            `Reading Price Provider Pair ${settings.tokens.CA[ca].name} /USD Tokens Contract... address: `,
-            contractPPCA[ca]
-        );
-        dContracts.contracts.PP_CA.push(
-            new web3.eth.Contract(IPriceProvider.abi, contractPPCA[ca])
-        );
-    }
-
-    console.log(
-        `Reading Price Provider ${(settings.tokens.COINBASE as any).name} Contract... address: `,
-        import.meta.env.REACT_APP_CONTRACT_PRICE_PROVIDER_COINBASE
-    );
-    dContracts.contracts.PP_COINBASE = new web3.eth.Contract(
-        IPriceProvider.abi,
-        import.meta.env.REACT_APP_CONTRACT_PRICE_PROVIDER_COINBASE
-    );
-
-    console.log(
-        "Reading MocMultiCollateralGuard Contract... address: ",
-        import.meta.env.REACT_APP_CONTRACT_MULTICOLLATERAL_GUARD
-    );
-    dContracts.contracts.MocMultiCollateralGuard = new web3.eth.Contract(
-        MocMultiCollateralGuard.abi,
-        import.meta.env.REACT_APP_CONTRACT_MULTICOLLATERAL_GUARD
-    );
-
+        
     dContracts.contracts.Moc = []
     dContracts.contracts.CA = []
     dContracts.contracts.CollateralToken = []
@@ -117,41 +78,122 @@ const readContracts = async (web3: Web3): Promise<DContracts> => {
     dContracts.contracts.PP_FeeToken = []
     dContracts.contracts.FC_MAX_ABSOLUTE_OP_PROVIDER = []
     dContracts.contracts.FC_MAX_OP_DIFFERENCE_PROVIDER = []
-    let collateralMoCAbi = MocCARC20 as any;
+    let collateralMoCAbi = MocCARC20 as any;    
+    let contractMoc: any;    
+    let contractMocType: string; 
     let contractMocAddress: string;
-    let contractMoc: any;
-    let contractMocType: string;
-    let contractCA: string[] = [];
+    let contractDict: any;
+        
     const tpAddresses: string[] = [];
     dContracts.contracts.PP_TP = {};
 
+    const contracts = {
+        MocMultiCollateralGuard: {},
+        Moc: [],
+        CA: [],
+        CollateralToken: [],
+        MocVendors: [],
+        MocQueue: [],
+        FeeToken: [],
+        PP_FeeToken: [],
+        PP_TP: [],
+        FC_MAX_ABSOLUTE_OP_PROVIDER: [],
+        FC_MAX_OP_DIFFERENCE_PROVIDER: [],
+        TP: [],
+        PP_CA: [],
+        PP_COINBASE: {},
+        VotingMachine: {},
+        IRegistry: {},
+        StakingMachine: {},
+        DelayMachine: {},
+        Supporters: {},
+        VestingFactory: {},
+        IncentiveV2: {},    
+        TG: {},
+    };
+        
+    const contractPPCA =
+        import.meta.env.REACT_APP_CONTRACT_PRICE_PROVIDER_CA.split(",");
+    for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+        console.log(
+            `Price Provider Pair ${settings.tokens.CA[ca].name} /USD Tokens Contract... address: `,
+            contractPPCA[ca]
+        );
+        contractDict = {
+            address: contractPPCA[ca],
+            abi: IPriceProvider.abi,
+            name: 'PP',
+            type: ''
+        }
+        contracts.PP_CA.push(contractDict)
+    }
+       
+    console.log(
+        `Price Provider ${(settings.tokens.COINBASE as any).name} Contract... address: `,
+        import.meta.env.REACT_APP_CONTRACT_PRICE_PROVIDER_COINBASE
+    );
+    contractDict = {
+        address: import.meta.env.REACT_APP_CONTRACT_PRICE_PROVIDER_COINBASE,
+        abi: IPriceProvider.abi,
+        name: 'PP_COINBASE',
+        type: ''
+    }
+    contracts.PP_COINBASE = contractDict
+    
+    
+    console.log(
+        "MocMultiCollateralGuard Contract... address: ",
+        import.meta.env.REACT_APP_CONTRACT_MULTICOLLATERAL_GUARD
+    );
+    contractDict = {
+        address: import.meta.env.REACT_APP_CONTRACT_MULTICOLLATERAL_GUARD,
+        abi: MocMultiCollateralGuard.abi,
+        name: 'MocMultiCollateralGuard',
+        type: ''
+    }
+    contracts.MocMultiCollateralGuard = contractDict
+    
     for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
         // Get MoC Bucket address from multi-collateral guard
-        contractMocAddress = await dContracts.contracts.MocMultiCollateralGuard.methods.buckets(ca).call();
+        //contractMocAddress = await dContracts.contracts.MocMultiCollateralGuard.methods.buckets(ca).call();
+
+        contractMocAddress = await readContract(publicClient, {
+            address: import.meta.env.REACT_APP_CONTRACT_MULTICOLLATERAL_GUARD,
+            abi: MocMultiCollateralGuard.abi,
+            functionName: 'buckets',
+            args: [ca],
+        }) as string;
+        
         contractMocType = (settings.tokens.CA[ca] as any).type;
         if (contractMocType === "coinbase") collateralMoCAbi = MocCACoinbase as any;
-        console.log('Reading Moc Contract... address: ', contractMocAddress);
+        console.log('Moc Contract... address: ', contractMocAddress);
 
-        contractMoc = new web3.eth.Contract(
-            collateralMoCAbi.abi,
-            contractMocAddress
-        );
+        contractMoc = {
+            address: contractMocAddress,
+            abi: collateralMoCAbi.abi,
+            name: 'Moc',
+            type: contractMocType
+        }
 
-        dContracts.contracts.Moc.push(contractMoc);
-
+        contracts.Moc.push(contractMoc)
+                
         // Read contracts addresses from MoC
-        const mocAddr = await mocAddresses(web3, dContracts, contractMoc, contractMocType) as any;
-
+        const mocAddr = await mocAddresses(publicClient, contractMoc) as any;
+        
         if (contractMocType !== 'coinbase') {
-            if (!contractCA.includes(mocAddr['acToken'])) {
+            if (!contracts.CA.includes(mocAddr['acToken'])) {
                 console.log(
-                    `Reading ${(settings.tokens.CA[ca] as any).name} Token Contract... address: `,
+                    `${(settings.tokens.CA[ca] as any).name} Token Contract... address: `,
                     mocAddr['acToken']
                 );
-                dContracts.contracts.CA.push(
-                    new web3.eth.Contract(CollateralAsset.abi, mocAddr['acToken'])
-                );
-                contractCA.push(mocAddr['acToken']);
+                
+                contractDict = {
+                    address: mocAddr['acToken'],
+                    abi: CollateralAsset.abi,
+                    name: 'CollateralAsset',
+                    type: ''
+                }
+                contracts.CA.push(contractDict);
             }
         }
 
@@ -161,13 +203,27 @@ const readContracts = async (web3: Web3): Promise<DContracts> => {
         for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
             tpAddress = mocAddr["tpTokens"][tp];
             if (!tpAddress || tpAddress === "0x") continue;
-            tpIndex = await contractMoc.methods
-                .peggedTokenIndex(tpAddress)
-                .call();
-            if (!tpIndex.exists) continue;
-            tpItem = await contractMoc.methods
-                .pegContainer(tpIndex.index)
-                .call();
+            // tpIndex = await contractMoc.methods
+            //     .peggedTokenIndex(tpAddress)
+            //     .call();
+
+            tpIndex = await readContract(publicClient, {
+                address: contractMoc.address,
+                abi: collateralMoCAbi.abi,
+                functionName: 'peggedTokenIndex',
+                args: [tpAddress],
+                })
+        
+            // tpIndex:  [ 1n, true ]
+            if (!tpIndex) continue
+
+            // tpItem:  [price, priceProvider]
+            tpItem = await readContract(publicClient, {
+                address: contractMoc.address,
+                abi: collateralMoCAbi.abi,
+                functionName: 'pegContainer',
+                args: [tpIndex[0]],
+                })
 
             if (!tpAddresses.includes(tpAddress)) {
                 tpAddresses.push(tpAddress);
@@ -176,142 +232,177 @@ const readContracts = async (web3: Web3): Promise<DContracts> => {
 
             console.log(
                 `Reading Price Provider Pair ${(settings.tokens.TP[tp] as any).name}/${(settings.tokens.CA[ca] as any).name} Contract... address: `,
-                tpItem.priceProvider
+                tpItem[1]
             );
-            if (!dContracts.contracts.PP_TP[ca]) dContracts.contracts.PP_TP[ca] = {};
-            dContracts.contracts.PP_TP[ca][tp] = new web3.eth.Contract(IPriceProvider.abi, tpItem.priceProvider);
+            if (!contracts.PP_TP[ca]) contracts.PP_TP[ca] = [];
+
+            contractDict = {
+                address: tpItem[1],
+                abi: IPriceProvider.abi,
+                name: 'PP',
+                type: ''
+            }
+            contracts.PP_TP[ca].push(contractDict)
+            
         }
 
         console.log(
-            "Reading Collateral Token Contract... address: ",
+            "Collateral Token Contract... address: ",
             mocAddr["tcToken"]
         );
-        dContracts.contracts.CollateralToken.push(new web3.eth.Contract(
-            CollateralToken.abi,
-            mocAddr["tcToken"]
-        ));
+        contractDict = {
+            address: mocAddr["tcToken"],
+            abi: CollateralToken.abi,
+            name: 'CollateralToken',
+            type: ''
+        }
+        contracts.CollateralToken.push(contractDict)
 
         console.log(
-            "Reading Moc Vendors Contract... address: ",
+            "Moc Vendors Contract... address: ",
             mocAddr["mocVendors"]
         );
-        dContracts.contracts.MocVendors.push(new web3.eth.Contract(
-            MocVendors.abi,
-            mocAddr["mocVendors"]
-        ));
+        contractDict = {
+            address: mocAddr["mocVendors"],
+            abi: MocVendors.abi,
+            name: 'MocVendors',
+            type: ''
+        }
+        contracts.MocVendors.push(contractDict)
 
-        console.log("Reading MocQueue Contract... address: ", mocAddr["mocQueue"]);
-        dContracts.contracts.MocQueue.push(new web3.eth.Contract(
-            MocQueue.abi,
-            mocAddr["mocQueue"]
-        ));
+        console.log("MocQueue Contract... address: ", mocAddr["mocQueue"]);
+        contractDict = {
+            address: mocAddr["mocQueue"],
+            abi: MocQueue.abi,
+            name: 'MocQueue',
+            type: ''
+        }
+        contracts.MocQueue.push(contractDict)
 
-        console.log("Reading FeeToken Contract... address: ", mocAddr["feeToken"]);
-        dContracts.contracts.FeeToken.push(new web3.eth.Contract(
-            FeeToken.abi,
-            mocAddr["feeToken"]
-        ));
+        console.log("FeeToken Contract... address: ", mocAddr["feeToken"]);
+        contractDict = {
+            address: mocAddr["feeToken"],
+            abi: FeeToken.abi,
+            name: 'FeeToken',
+            type: ''
+        }
+        contracts.FeeToken.push(contractDict)
 
         console.log(
-            "Reading Fee Token PP Contract... address: ",
+            "Fee Token PP Contract... address: ",
             mocAddr["feeTokenPriceProvider"]
         );
-        dContracts.contracts.PP_FeeToken.push(new web3.eth.Contract(
-            IPriceProvider.abi,
-            mocAddr["feeTokenPriceProvider"]
-        ));
+        contractDict = {
+            address: mocAddr["feeTokenPriceProvider"],
+            abi: IPriceProvider.abi,
+            name: 'PP',
+            type: ''
+        }
+        contracts.PP_FeeToken.push(contractDict)
 
         console.log(
-            "Reading FC_MAX_ABSOLUTE_OP_PROVIDER Contract... address: ",
+            "FC_MAX_ABSOLUTE_OP_PROVIDER Contract... address: ",
             mocAddr["maxAbsoluteOpProvider"]
         );
-        dContracts.contracts.FC_MAX_ABSOLUTE_OP_PROVIDER.push(new web3.eth.Contract(
-            IPriceProvider.abi,
-            mocAddr["maxAbsoluteOpProvider"]
-        ));
+        contractDict = {
+            address: mocAddr["maxAbsoluteOpProvider"],
+            abi: IPriceProvider.abi,
+            name: 'FC_MAX_ABSOLUTE_OP_PROVIDER',
+            type: ''
+        }
+        contracts.FC_MAX_ABSOLUTE_OP_PROVIDER.push(contractDict)
 
         console.log(
-            "Reading FC_MAX_OP_DIFFERENCE_PROVIDER Contract... address: ",
+            "FC_MAX_OP_DIFFERENCE_PROVIDER Contract... address: ",
             mocAddr["maxOpDiffProvider"]
         );
-        dContracts.contracts.FC_MAX_OP_DIFFERENCE_PROVIDER.push(new web3.eth.Contract(
-            IPriceProvider.abi,
-            mocAddr["maxOpDiffProvider"]
-        ));
+        contractDict = {
+            address: mocAddr["maxOpDiffProvider"],
+            abi: IPriceProvider.abi,
+            name: 'FC_MAX_OP_DIFFERENCE_PROVIDER',
+            type: ''
+        }
+        contracts.FC_MAX_OP_DIFFERENCE_PROVIDER.push(contractDict)
     }
-
-    dContracts.contracts.TP = [];
+    
     for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
         console.log(
-            `Reading ${settings.tokens.TP[tp].name} Token Contract... address: `,
+            `${settings.tokens.TP[tp].name} Token Contract... address: `,
             tpAddresses[tp]
         );
-        dContracts.contracts.TP.push(
-            new web3.eth.Contract(TokenPegged.abi, tpAddresses[tp])
-        );
+        contractDict = {
+            address: tpAddresses[tp],
+            abi: TokenPegged.abi,
+            name: 'TP',
+            type: ''
+        }
+        contracts.TP.push(contractDict)
     }
 
-    /*
-    dContracts.contracts.PP_TP = [];
-    for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
-        console.log(
-            `Reading Price Provider ${settings.tokens.TP[tp].name} Contract... address: `,
-            tpAddressesProviders[tp]
-        );
-        dContracts.contracts.PP_TP.push(
-            new web3.eth.Contract(IPriceProvider.abi, tpAddressesProviders[tp])
-        );
-    }*/
-
-
+    
     if (typeof import.meta.env.REACT_APP_CONTRACT_IREGISTRY !== "undefined") {
         console.log(
-            "Reading IRegistry Contract... address: ",
+            "IRegistry Contract... address: ",
             import.meta.env.REACT_APP_CONTRACT_IREGISTRY
         );
-        dContracts.contracts.IRegistry = new web3.eth.Contract(
-            IRegistry.abi,
-            import.meta.env.REACT_APP_CONTRACT_IREGISTRY
-        );
+        contractDict = {
+            address: import.meta.env.REACT_APP_CONTRACT_IREGISTRY,
+            abi: IRegistry.abi,
+            name: 'IRegistry',
+            type: ''
+        }
+        contracts.IRegistry = contractDict
 
         // Read contracts addresses from registry
-        const registryAddr = await registryAddresses(web3, dContracts) as any;
-
+        const registryAddr = await registryAddresses(publicClient, contractDict) as any;
+        
         console.log(
-            "Reading StakingMachine Contract... address: ",
+            "StakingMachine Contract... address: ",
             registryAddr["MOC_STAKING_MACHINE"]
         );
-        dContracts.contracts.StakingMachine = new web3.eth.Contract(
-            StakingMachine.abi,
-            registryAddr["MOC_STAKING_MACHINE"]
-        );
+        contractDict = {
+            address: registryAddr["MOC_STAKING_MACHINE"],
+            abi: StakingMachine.abi,
+            name: 'StakingMachine',
+            type: ''
+        }
+        contracts.StakingMachine = contractDict
 
         console.log(
-            "Reading Delay Machine Contract... address: ",
+            "Delay Machine Contract... address: ",
             registryAddr["MOC_DELAY_MACHINE"]
         );
-        dContracts.contracts.DelayMachine = new web3.eth.Contract(
-            DelayMachine.abi,
-            registryAddr["MOC_DELAY_MACHINE"]
-        );
+        contractDict = {
+            address: registryAddr["MOC_DELAY_MACHINE"],
+            abi: DelayMachine.abi,
+            name: 'DelayMachine',
+            type: ''
+        }
+        contracts.DelayMachine = contractDict
 
         console.log(
-            "Reading Supporters Contract... address: ",
+            "Supporters Contract... address: ",
             registryAddr["SUPPORTERS_ADDR"]
         );
-        dContracts.contracts.Supporters = new web3.eth.Contract(
-            Supporters.abi,
-            registryAddr["SUPPORTERS_ADDR"]
-        );
+        contractDict = {
+            address: registryAddr["SUPPORTERS_ADDR"],
+            abi: Supporters.abi,
+            name: 'Supporters',
+            type: ''
+        }
+        contracts.Supporters = contractDict
 
         console.log(
-            "Reading Vesting Factory Contract... address: ",
+            "Vesting Factory Contract... address: ",
             registryAddr["MOC_VESTING_MACHINE"]
         );
-        dContracts.contracts.VestingFactory = new web3.eth.Contract(
-            VestingFactory.abi,
-            registryAddr["MOC_VESTING_MACHINE"]
-        );
+        contractDict = {
+            address: registryAddr["MOC_VESTING_MACHINE"],
+            abi: VestingFactory.abi,
+            name: 'VestingFactory',
+            type: ''
+        }
+        contracts.VestingFactory = contractDict
 
         // reading Incentive V2 from environment address
         if (
@@ -319,55 +410,64 @@ const readContracts = async (web3: Web3): Promise<DContracts> => {
             "undefined"
         ) {
             console.log(
-                "Reading Incentive V2 Contract... address: ",
+                "Incentive V2 Contract... address: ",
                 import.meta.env.REACT_APP_CONTRACT_INCENTIVE_V2
             );
-            dContracts.contracts.IncentiveV2 = new web3.eth.Contract(
-                IncentiveV2.abi,
-                import.meta.env.REACT_APP_CONTRACT_INCENTIVE_V2
-            );
+            contractDict = {
+                address: import.meta.env.REACT_APP_CONTRACT_INCENTIVE_V2,
+                abi: IncentiveV2.abi,
+                name: 'IncentiveV2',
+                type: ''
+            }
+            contracts.IncentiveV2 = contractDict
         }
 
         console.log(
-            "Reading Voting Machine Contract... address: ",
+            "Voting Machine Contract... address: ",
             registryAddr["MOC_VOTING_MACHINE"]
         );
-        dContracts.contracts.VotingMachine = new web3.eth.Contract(
-            VotingMachine.abi,
-            registryAddr["MOC_VOTING_MACHINE"]
-        );
+        contractDict = {
+            address: registryAddr["MOC_VOTING_MACHINE"],
+            abi: VotingMachine.abi,
+            name: 'VotingMachine',
+            type: ''
+        }
+        contracts.VotingMachine = contractDict
 
         console.log(
-            "Reading Token Govern Contract... address: ",
+            "Token Govern Contract... address: ",
             registryAddr["MOC_TOKEN"]
         );
-        dContracts.contracts.TG = new web3.eth.Contract(
-            IERC20.abi,
-            registryAddr["MOC_TOKEN"]
-        );
+        contractDict = {
+            address: registryAddr["MOC_TOKEN"],
+            abi: IERC20.abi,
+            name: 'TG',
+            type: ''
+        }
+        contracts.TG = contractDict
     }
 
-    // Token migrator & Legacy token
-    let tpLegacy
-    let tokenMigrator
-    if (import.meta.env.REACT_APP_CONTRACT_LEGACY_TP) {
-        tpLegacy = new web3.eth.Contract(
-            TokenPegged.abi,
-            import.meta.env.REACT_APP_CONTRACT_LEGACY_TP
-        );
-        dContracts.contracts.tp_legacy = tpLegacy;
+    // // Token migrator & Legacy token
+    // let tpLegacy
+    // let tokenMigrator
+    // if (import.meta.env.REACT_APP_CONTRACT_LEGACY_TP) {
+    //     tpLegacy = new web3.eth.Contract(
+    //         TokenPegged.abi,
+    //         import.meta.env.REACT_APP_CONTRACT_LEGACY_TP
+    //     );
+    //     dContracts.contracts.tp_legacy = tpLegacy;
 
-        if (!import.meta.env.REACT_APP_CONTRACT_TOKEN_MIGRATOR)
-            console.log("Error: Please set token migrator address!");
+    //     if (!import.meta.env.REACT_APP_CONTRACT_TOKEN_MIGRATOR)
+    //         console.log("Error: Please set token migrator address!");
 
-        tokenMigrator = new web3.eth.Contract(
-            TokenMigrator.abi,
-            import.meta.env.REACT_APP_CONTRACT_TOKEN_MIGRATOR
-        );
-        dContracts.contracts.token_migrator = tokenMigrator;
-    }
+    //     tokenMigrator = new web3.eth.Contract(
+    //         TokenMigrator.abi,
+    //         import.meta.env.REACT_APP_CONTRACT_TOKEN_MIGRATOR
+    //     );
+    //     dContracts.contracts.token_migrator = tokenMigrator;
+    // }
 
-    return dContracts;
+    return contracts;
 };
 
 export { readContracts };

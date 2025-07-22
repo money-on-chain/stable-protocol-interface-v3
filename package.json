@@ -6,6 +6,7 @@
     "type": "module",
     "dependencies": {
         "@ant-design/icons": "^4.8.3",
+        "@tanstack/react-query": "^5.83.0",
         "@vitejs/plugin-react-swc": "^3.10.0",
         "antd": "^4.24.16",
         "axios": "^1.9.0",
@@ -24,8 +25,9 @@
         "react-router-dom": "^6.30.1",
         "recharts": "^2.15.3",
         "sass": "^1.89.0",
-        "viem": "^2.30.1",
+        "viem": "^2.32.0",
         "vite": "^6.3.5",
+        "wagmi": "^2.15.7",
         "web3": "^4.16.0"
     },
     "scripts": {

@@ -77,7 +77,7 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
     <React.StrictMode>
         <I18nextProvider i18n={i18next}>
-            <AuthenticateProvider>
+            
                 <HashRouter>
                     {/*<React.Suspense fallback={ <span>Loading...</span> }>*/}
                     <React.Suspense
@@ -99,7 +99,7 @@ root.render(
                         <Router />
                     </React.Suspense>
                 </HashRouter>
-            </AuthenticateProvider>
+            
         </I18nextProvider>
     </React.StrictMode>
 );

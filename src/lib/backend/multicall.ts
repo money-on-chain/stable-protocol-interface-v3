@@ -1,5 +1,7 @@
 import BigNumber from "bignumber.js";
 import axios from "axios";
+import { parseUnits } from 'viem'
+import { readContract } from 'viem/actions'
 
 import { fromContractPrecisionDecimals } from "../../helpers/Formats";
 import settings from "../../settings/settings.json";
@@ -62,6 +64,147 @@ const onErrorTP = () => {
 const onErrorGetPTCac = () => {
     return { value: 0, canOperate: true };
 };
+
+class MultiCall3 {
+    constructor(publicClient) {    
+      this.publicClient = publicClient;
+      this.calls = [];
+      this.storage = {};
+    }
+    clear() {
+      this.calls = [];
+    }
+    aggregate(
+      contract,
+      functionName,
+      args,
+      resultType,
+      keyName,
+      keyIndex,
+      keySubIndex,
+      onError
+    ) {
+      this.calls.push([
+        contract,
+        functionName,
+        args,
+        resultType,
+        keyName,
+        keyIndex,
+        keySubIndex,
+        onError,
+      ]);
+    }
+    async fetch() {
+      
+      const convertedEntries = this.calls.map(([target, functionName, args]) => {
+        const isGetBalance = functionName === 'getBalance';
+        const isTargetAddress = typeof target === 'string';
+        if (isGetBalance && isTargetAddress) {
+          return {
+            abi: [],
+            address: target,
+            functionName: 'getBalance',
+            type: 'getBalance', 
+          };
+        }
+        
+        if (typeof target === 'object' && target.address && target.abi) {
+          return {
+            address: target.address,
+            abi: target.abi,
+            functionName,
+            args,
+          };
+        }
+      
+        throw new Error(`Invalid call format for function "${functionName}"`);
+      });
+      
+      const multiCallResult = await this.publicClient.multicall({
+        contracts: convertedEntries
+      })
+      
+      let canOperate = true;
+      const calls = this.calls;
+      const storage = this.storage;
+      multiCallResult.forEach(function (item, itemIndex) {
+        let value;
+        const resultType = calls[itemIndex][3];      
+        const keyName = calls[itemIndex][4];
+        const keyIndex = calls[itemIndex][5];
+        const keySubIndex = calls[itemIndex][6];
+        const onError = calls[itemIndex][7];
+  
+        if (item.status === 'success') {
+          value = item.result
+        } else {
+  
+          if (onError !== undefined) {
+            const resError = onError();
+            value = resError["value"];
+            canOperate = resError["canOperate"];
+          } else {
+            // Not Ok Error on calling
+            if (resultType === "uint256" || resultType === "int256") {
+              value = "0";
+            } else if (resultType === "address") {
+              value = "0x";
+            } else if (resultType === "bool") {
+              value = false;
+            }
+            // If there are any problems can not operate
+            canOperate = false;
+            console.warn(
+              "WARN: Cannot operate! Index query:",
+              itemIndex
+            );
+            console.warn("keyName:", keyName)
+            console.warn("keyIndex:", keyIndex)
+            console.warn("keySubIndex:", keySubIndex)
+          }
+  
+        }
+  
+        if (keyIndex != null && keySubIndex != null) {
+          if (!storage[keyName]) {
+            if (keyName === parseInt(keyName, 10)) {
+              storage[keyName] = [];
+            } else {
+              storage[keyName] = {};
+            }
+          }
+          if (!storage[keyName][keyIndex]) {
+            if (keyIndex === parseInt(keyIndex, 10)) {
+              storage[keyName][keyIndex] = [];
+            } else {
+              storage[keyName][keyIndex] = {};
+            }
+          }
+          storage[keyName][keyIndex][keySubIndex] = value;
+        } else if (keyIndex != null) {
+          if (!storage[keyName]) {
+            if (keyName === parseInt(keyName, 10)) {
+              storage[keyName] = [];
+            } else {
+              storage[keyName] = {};
+            }
+          }
+          storage[keyName][keyIndex] = value;
+        } else {
+          storage[keyName] = value;
+        }
+  
+      })
+  
+      storage["canOperate"] = canOperate;
+  
+      return storage;
+  
+    }
+  
+    
+  }
 
 class Multicall {
     multicall: any;
@@ -196,41 +339,28 @@ class Multicall {
 }
 
 const contractStatus = async (
-    web3: any,
-    dContracts: any
+    publicClient: any,
+    contracts: any
 ): Promise<any> => {
-    if (!dContracts) return;
+    if (!contracts) return;
 
     const vendorAddress =
-        `${import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS}`.toLowerCase();
-    const multicall = dContracts.contracts.multicall;
-    const PP_COINBASE = dContracts.contracts.PP_COINBASE;
-    const MocMultiCollateralGuard = dContracts.contracts.MocMultiCollateralGuard;
-
-    // OMOC
-    let iregistry;
-    let stakingmachine;
-    let delaymachine;
-    let supporters;
-    let votingmachine;
-    let tg;
+        `${import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS}`.toLowerCase();    
+        
+    // OMOC    
     let proposalCountVoting: number | undefined;
-
-    if (typeof import.meta.env.REACT_APP_CONTRACT_IREGISTRY !== "undefined") {
-        iregistry = dContracts.contracts.IRegistry;
-        stakingmachine = dContracts.contracts.StakingMachine;
-        delaymachine = dContracts.contracts.DelayMachine;
-        supporters = dContracts.contracts.Supporters;
-        votingmachine = dContracts.contracts.VotingMachine;
-        tg = dContracts.contracts.TG;
-        proposalCountVoting = Number(
-            BigInt(await votingmachine.methods.getProposalCount().call())
-        );
+    if (typeof import.meta.env.REACT_APP_CONTRACT_IREGISTRY !== "undefined") {        
+        proposalCountVoting = await readContract(publicClient, {
+            address: contracts.VotingMachine.address,
+            abi: contracts.VotingMachine.abi,
+            functionName: 'getProposalCount',
+            args: [],
+            })
     }
 
-    const multiCallRequest = new Multicall(multicall, web3);
-
-    const currentBlockNumber =  await multicall.methods.getBlockNumber().call()
+    const multiCallRequest = new MultiCall3(publicClient)
+    const currentBlockNumber =  await publicClient.getBlockNumber()  
+    
     let contractMocType: string | undefined;
     let Moc;
     let MocVendors;
@@ -241,8 +371,9 @@ const contractStatus = async (
     let PP_TP;
 
     multiCallRequest.aggregate(
-        PP_COINBASE,
-        PP_COINBASE.methods.peek().encodeABI(),
+        contracts.PP_COINBASE,
+        'peek',
+        [],
         [
             {
                 "internalType": "bytes32",
@@ -261,65 +392,73 @@ const contractStatus = async (
     for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
         const caToken = settings.tokens.CA[ca] as CAToken;
         contractMocType = caToken.type;
-        Moc = dContracts.contracts.Moc[ca];
-        MocVendors = dContracts.contracts.MocVendors[ca];
-        MocQueue = dContracts.contracts.MocQueue[ca];
-        PP_FeeToken = dContracts.contracts.PP_FeeToken[ca];
-        FC_MAX_ABSOLUTE_OP_PROVIDER = dContracts.contracts.FC_MAX_ABSOLUTE_OP_PROVIDER[ca];
-        FC_MAX_OP_DIFFERENCE_PROVIDER = dContracts.contracts.FC_MAX_OP_DIFFERENCE_PROVIDER[ca];
+        Moc = contracts.Moc[ca];
+        MocVendors = contracts.MocVendors[ca];
+        MocQueue = contracts.MocQueue[ca];
+        PP_FeeToken = contracts.PP_FeeToken[ca];
+        FC_MAX_ABSOLUTE_OP_PROVIDER = contracts.FC_MAX_ABSOLUTE_OP_PROVIDER[ca];
+        FC_MAX_OP_DIFFERENCE_PROVIDER = contracts.FC_MAX_OP_DIFFERENCE_PROVIDER[ca];
 
         multiCallRequest.aggregate(
             Moc,
-            Moc.methods.protThrld().encodeABI(),
+            'protThrld',
+            [],
             "uint256",
             ca,
             "protThrld"
         );
         multiCallRequest.aggregate(
             Moc,
-            Moc.methods.liqThrld().encodeABI(),
+            'liqThrld',
+            [],
             "uint256",
             ca,
             "liqThrld"
         );
         multiCallRequest.aggregate(
             Moc,
-            Moc.methods.liquidated().encodeABI(),
+            'liquidated',
+            [],
             "bool",
             ca,
             "liquidated"
         );
         multiCallRequest.aggregate(
             Moc,
-            Moc.methods.nACcb().encodeABI(),
+            'nACcb',
+            [],
             "uint256",
             ca,
             "nACcb"
         );
         multiCallRequest.aggregate(
             Moc,
-            Moc.methods.nTCcb().encodeABI(),
+            'nTCcb',
+            [],
             "uint256",
             ca,
             "nTCcb"
         );
         multiCallRequest.aggregate(
             Moc,
-            Moc.methods.tcMintFee().encodeABI(),
+            'tcMintFee',
+            [],
             "uint256",
             ca,
             "tcMintFee"
         );
         multiCallRequest.aggregate(
             Moc,
-            Moc.methods.tcRedeemFee().encodeABI(),
+            'tcRedeemFee',
+            [],
             "uint256",
             ca,
             "tcRedeemFee"
         );
         multiCallRequest.aggregate(
             Moc,
-            Moc.methods.getPTCac().encodeABI(),
+            'getPTCac',
+            [],
             "uint256",
             ca,
             "getPTCac",
@@ -328,56 +467,64 @@ const contractStatus = async (
         );
         multiCallRequest.aggregate(
             Moc,
-            Moc.methods.getCglb().encodeABI(),
+            'getCglb',
+            [],
             "uint256",
             ca,
             "getCglb"
         );
         multiCallRequest.aggregate(
             Moc,
-            Moc.methods.getLckAC().encodeABI(),
+            'getLckAC',
+            [],
             "uint256",
             ca,
             "getLckAC"
         );
         multiCallRequest.aggregate(
             Moc,
-            Moc.methods.getTCAvailableToRedeem().encodeABI(),
+            'getTCAvailableToRedeem',
+            [],
             "uint256",
             ca,
             "getTCAvailableToRedeem"
         );
         multiCallRequest.aggregate(
             Moc,
-            Moc.methods.getTotalACavailable().encodeABI(),
+            'getTotalACavailable',
+            [],
             "uint256",
             ca,
             "getTotalACavailable"
         );
         multiCallRequest.aggregate(
             Moc,
-            Moc.methods.getCtargemaCA().encodeABI(),
+            'getCtargemaCA',
+            [],
             "uint256",
             ca,
             "getCtargemaCA"
         );
         multiCallRequest.aggregate(
             Moc,
-            Moc.methods.feeTokenPct().encodeABI(),
+            'feeTokenPct',
+            [],
             "uint256",
             ca,
             "feeTokenPct"
         );
         multiCallRequest.aggregate(
             Moc,
-            Moc.methods.feeToken().encodeABI(),
+            'feeToken',
+            [],
             "address",
             ca,
             "feeToken"
         );
         multiCallRequest.aggregate(
             PP_FeeToken,
-            PP_FeeToken.methods.peek().encodeABI(),
+            'peek',
+            [],
             [
                 {
                     "internalType": "bytes32",
@@ -395,98 +542,112 @@ const contractStatus = async (
         );
         multiCallRequest.aggregate(
             MocVendors,
-            MocVendors.methods.vendorMarkup(vendorAddress).encodeABI(),
+            'vendorMarkup',
+            [vendorAddress],
             "uint256",
             ca,
             "vendorMarkup"
         );
         multiCallRequest.aggregate(
             MocQueue,
-            MocQueue.methods.execCost(1).encodeABI(),
+            'execCost',
+            [1],
             "uint256",
             ca,
             "tcMintExecCost"
         );
         multiCallRequest.aggregate(
             MocQueue,
-            MocQueue.methods.execCost(2).encodeABI(),
+            'execCost',
+            [2],
             "uint256",
             ca,
             "tcRedeemExecCost"
         );
         multiCallRequest.aggregate(
             MocQueue,
-            MocQueue.methods.execCost(3).encodeABI(),
+            'execCost',
+            [3],
             "uint256",
             ca,
             "tpMintExecCost"
         );
         multiCallRequest.aggregate(
             MocQueue,
-            MocQueue.methods.execCost(4).encodeABI(),
+            'execCost',
+            [4],
             "uint256",
             ca,
             "tpRedeemExecCost"
         );
         multiCallRequest.aggregate(
             MocQueue,
-            MocQueue.methods.execCost(9).encodeABI(),
+            'execCost',
+            [9],
             "uint256",
             ca,
             "swapTPforTPExecCost"
         );
         multiCallRequest.aggregate(
             MocQueue,
-            MocQueue.methods.execCost(8).encodeABI(),
+            'execCost',
+            [8],
             "uint256",
             ca,
             "swapTPforTCExecCost"
         );
         multiCallRequest.aggregate(
             MocQueue,
-            MocQueue.methods.execCost(7).encodeABI(),
+            'execCost',
+            [7],
             "uint256",
             ca,
             "swapTCforTPExecCost"
         );
         multiCallRequest.aggregate(
             MocQueue,
-            MocQueue.methods.execCost(6).encodeABI(),
+            'execCost',
+            [6],
             "uint256",
             ca,
             "redeemTCandTPExecCost"
         );
         multiCallRequest.aggregate(
             MocQueue,
-            MocQueue.methods.execCost(5).encodeABI(),
+            'execCost',
+            [5],
             "uint256",
             ca,
             "mintTCandTPExecCost"
         );
         multiCallRequest.aggregate(
             Moc,
-            Moc.methods.maxQACToMintTP(currentBlockNumber).encodeABI(),
+            'maxQACToMintTP',
+            [currentBlockNumber],
             "uint256",
             ca,
             "maxQACToMintTP"
         );
         multiCallRequest.aggregate(
             Moc,
-            Moc.methods.maxQACToRedeemTP(currentBlockNumber).encodeABI(),
+            'maxQACToRedeemTP',
+            [currentBlockNumber],
             "uint256",
             ca,
             "maxQACToRedeemTP"
         );
         multiCallRequest.aggregate(
             Moc,
-            Moc.methods.paused().encodeABI(),
+            'paused',
+            [],
             "bool",
             ca,
             "paused"
         );
         multiCallRequest.aggregate(
-            MocMultiCollateralGuard,
-            MocMultiCollateralGuard.methods.getRealTCAvailableToRedeem(Moc.options.address).encodeABI(),
+            contracts.MocMultiCollateralGuard,
+            'getRealTCAvailableToRedeem',
+            [Moc.address],
             "uint256",
             ca,
             "getRealTCAvailableToRedeem"
@@ -494,12 +655,13 @@ const contractStatus = async (
 
         let tpAddress;
         for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
-            tpAddress = dContracts.contracts.TP[tp].options.address;
-            PP_TP = dContracts.contracts.PP_TP[ca][tp];
-
+            tpAddress = contracts.TP[tp].address;
+            PP_TP = contracts.PP_TP[ca][tp];
+            
             multiCallRequest.aggregate(
                 PP_TP,
-                PP_TP.methods.peek().encodeABI(),
+                'peek',
+                [],
                 [
                     {
                         "internalType": "bytes32",
@@ -518,7 +680,8 @@ const contractStatus = async (
             );
             multiCallRequest.aggregate(
                 Moc,
-                Moc.methods.tpMintFees(tpAddress).encodeABI(),
+                'tpMintFees',
+                [tpAddress],
                 "uint256",
                 ca,
                 "tpMintFees",
@@ -526,7 +689,8 @@ const contractStatus = async (
             );
             multiCallRequest.aggregate(
                 Moc,
-                Moc.methods.tpRedeemFees(tpAddress).encodeABI(),
+                'tpRedeemFees',
+                [tpAddress],
                 "uint256",
                 ca,
                 "tpRedeemFees",
@@ -534,7 +698,8 @@ const contractStatus = async (
             );
             multiCallRequest.aggregate(
                 Moc,
-                Moc.methods.tpCtarg(tp).encodeABI(),
+                'tpCtarg',
+                [tp],
                 "uint256",
                 ca,
                 "tpCtarg",
@@ -542,7 +707,8 @@ const contractStatus = async (
             );
             multiCallRequest.aggregate(
                 Moc,
-                Moc.methods.pegContainer(tp).encodeABI(),
+                'pegContainer',
+                [tp],
                 "uint256",
                 ca,
                 "pegContainer",
@@ -550,7 +716,8 @@ const contractStatus = async (
             );
             multiCallRequest.aggregate(
                 Moc,
-                Moc.methods.getTPAvailableToMint(tpAddress).encodeABI(),
+                'getTPAvailableToMint',
+                [tpAddress],
                 "int256",
                 ca,
                 "getTPAvailableToMint",
@@ -558,15 +725,17 @@ const contractStatus = async (
             );
             multiCallRequest.aggregate(
                 Moc,
-                Moc.methods.tpEma(tp).encodeABI(),
+                'tpEma',
+                [tp],
                 "uint256",
                 ca,
                 "tpEma",
                 tp
             );
             multiCallRequest.aggregate(
-                MocMultiCollateralGuard,
-                MocMultiCollateralGuard.methods.getRealTPAvailableToMint(Moc.options.address, tpAddress).encodeABI(),
+                contracts.MocMultiCollateralGuard,
+                'getRealTPAvailableToMint',
+                [Moc.address, tpAddress],
                 "uint256",
                 ca,
                 "getRealTPAvailableToMint",
@@ -576,120 +745,137 @@ const contractStatus = async (
     }
 
     multiCallRequest.aggregate(
-        MocMultiCollateralGuard,
-        MocMultiCollateralGuard.methods.getCombinedCglb().encodeABI(),
+        contracts.MocMultiCollateralGuard,
+        'getCombinedCglb',
+        [],
         "uint256",
         "getCombinedCglb"
     );
     multiCallRequest.aggregate(
-        MocMultiCollateralGuard,
-        MocMultiCollateralGuard.methods.getCombinedCtargemaCA().encodeABI(),
+        contracts.MocMultiCollateralGuard,
+        'getCombinedCtargemaCA',
+        [],
         "uint256",
         "getCombinedCtargemaCA"
     );
     multiCallRequest.aggregate(
-        MocMultiCollateralGuard,
-        MocMultiCollateralGuard.methods.getNormalizationFactors().encodeABI(),
+        contracts.MocMultiCollateralGuard,
+        'getNormalizationFactors',
+        [],
         "uint256[]",
         "getNormalizationFactors"
     );
 
     // OMOC
-    if (typeof iregistry !== "undefined") {
+    if (typeof contracts.IRegistry !== "undefined") {
         multiCallRequest.aggregate(
-            stakingmachine,
-            stakingmachine.methods.getWithdrawLockTime().encodeABI(),
+            contracts.StakingMachine,
+            'getWithdrawLockTime',
+            [],
             "uint256",
             "stakingmachine",
             "getWithdrawLockTime"
         );
         multiCallRequest.aggregate(
-            stakingmachine,
-            stakingmachine.methods.getSupporters().encodeABI(),
+            contracts.StakingMachine,
+            'getSupporters',
+            [],
             "address",
             "stakingmachine",
             "getSupporters"
         );
         multiCallRequest.aggregate(
-            stakingmachine,
-            stakingmachine.methods.getOracleManager().encodeABI(),
+            contracts.StakingMachine,
+            'getOracleManager',
+            [],
             "address",
             "stakingmachine",
             "getOracleManager"
         );
         multiCallRequest.aggregate(
-            stakingmachine,
-            stakingmachine.methods.getDelayMachine().encodeABI(),
+            contracts.StakingMachine,
+            'getDelayMachine',
+            [],
             "address",
             "stakingmachine",
             "getDelayMachine"
         );
         multiCallRequest.aggregate(
-            delaymachine,
-            delaymachine.methods.getLastId().encodeABI(),
+            contracts.DelayMachine,
+            'getLastId',
+            [],
             "uint256",
             "delaymachine",
             "getLastId"
         );
         multiCallRequest.aggregate(
-            delaymachine,
-            delaymachine.methods.getSource().encodeABI(),
+            contracts.DelayMachine,
+            'getSource',
+            [],
             "address",
             "delaymachine",
             "getSource"
         );
         multiCallRequest.aggregate(
-            supporters,
-            supporters.methods.isReadyToDistribute().encodeABI(),
+            contracts.Supporters,
+            'isReadyToDistribute',
+            [],
             "bool",
             "supporters",
             "isReadyToDistribute"
         );
         multiCallRequest.aggregate(
-            supporters,
-            supporters.methods.mocToken().encodeABI(),
+            contracts.Supporters,
+            'mocToken',
+            [],
             "address",
             "supporters",
             "mocToken"
         );
         multiCallRequest.aggregate(
-            supporters,
-            supporters.methods.period().encodeABI(),
+            contracts.Supporters,
+            'period',
+            [],
             "uint256",
             "supporters",
             "period"
         );
         multiCallRequest.aggregate(
-            supporters,
-            supporters.methods.totalMoc().encodeABI(),
+            contracts.Supporters,
+            'totalMoc',
+            [],
             "uint256",
             "supporters",
             "totalMoc"
         );
         multiCallRequest.aggregate(
-            supporters,
-            supporters.methods.totalToken().encodeABI(),
+            contracts.Supporters,
+            'totalToken',
+            [],
             "uint256",
             "supporters",
             "totalToken"
         );
         multiCallRequest.aggregate(
-            votingmachine,
-            votingmachine.methods.getState().encodeABI(),
+            contracts.VotingMachine,
+            'getState',
+            [],
             "uint256",
             "votingmachine",
             "getState"
         );
         multiCallRequest.aggregate(
-            votingmachine,
-            votingmachine.methods.getVotingRound().encodeABI(),
+            contracts.VotingMachine,
+            'getVotingRound',
+            [],
             "uint256",
             "votingmachine",
             "getVotingRound"
         );
         multiCallRequest.aggregate(
-            votingmachine,
-            votingmachine.methods.getVoteInfo().encodeABI(),
+            contracts.VotingMachine,
+            'getVoteInfo',
+            [],
             [
                 { type: "address", name: "winnerProposal" },
                 { type: "uint256", name: "inFavorVotes" },
@@ -699,29 +885,33 @@ const contractStatus = async (
             "getVoteInfo"
         );
         multiCallRequest.aggregate(
-            votingmachine,
-            votingmachine.methods.readyToPreVoteStep().encodeABI(),
+            contracts.VotingMachine,
+            'readyToPreVoteStep',
+            [],
             "uint256",
             "votingmachine",
             "readyToPreVoteStep"
         );
         multiCallRequest.aggregate(
-            votingmachine,
-            votingmachine.methods.readyToVoteStep().encodeABI(),
+            contracts.VotingMachine,
+            'readyToVoteStep',
+            [],
             "uint256",
             "votingmachine",
             "readyToVoteStep"
         );
         multiCallRequest.aggregate(
-            votingmachine,
-            votingmachine.methods.getProposalCount().encodeABI(),
+            contracts.VotingMachine,
+            'getProposalCount',
+            [],
             "uint256",
             "votingmachine",
             "getProposalCount"
         );
         multiCallRequest.aggregate(
-            votingmachine,
-            votingmachine.methods.getVotingData().encodeABI(),
+            contracts.VotingMachine,
+            'getVotingData',
+            [],
             [
                 { type: "address", name: "winnerProposal" },
                 { type: "uint256", name: "inFavorVotes" },
@@ -732,8 +922,9 @@ const contractStatus = async (
             "getVotingData"
         );
         multiCallRequest.aggregate(
-            tg,
-            tg.methods.totalSupply().encodeABI(),
+            contracts.TG,
+            'totalSupply',
+            [],
             "uint256",
             "votingmachine",
             "totalSupply"
@@ -743,13 +934,12 @@ const contractStatus = async (
         let indexProp;
         if (proposalCountVoting !== undefined) {
             for (let i = 1; i < 30; i++) {
-                if (proposalCountVoting - i >= 0) {
+                if (proposalCountVoting - BigInt(i) >= 0) {
                     indexProp = proposalCountVoting - i;
                     multiCallRequest.aggregate(
-                        votingmachine,
-                        votingmachine.methods
-                            .getProposalByIndex(indexProp)
-                            .encodeABI(),
+                        contracts.VotingMachine,
+                        'getProposalByIndex',
+                        [indexProp],
                         [
                             { type: "address", name: "proposalAddress" },
                             { type: "uint256", name: "votingRound" },
@@ -767,103 +957,73 @@ const contractStatus = async (
 
         // OMOC REGISTRY CONSTANT
         multiCallRequest.aggregate(
-            iregistry,
-            iregistry.methods
-                .getUint(omoc.RegistryConstants.MOC_VOTING_MACHINE_MIN_STAKE)
-                .encodeABI(),
+            contracts.IRegistry,
+            'getUint',
+            [omoc.RegistryConstants.MOC_VOTING_MACHINE_MIN_STAKE],
             "uint256",
             "votingmachine",
             "MIN_STAKE"
         );
         multiCallRequest.aggregate(
-            iregistry,
-            iregistry.methods
-                .getUint(
-                    omoc.RegistryConstants
-                        .MOC_VOTING_MACHINE_PRE_VOTE_EXPIRATION_TIME_DELTA
-                )
-                .encodeABI(),
+            contracts.IRegistry,
+            'getUint',
+            [omoc.RegistryConstants.MOC_VOTING_MACHINE_PRE_VOTE_EXPIRATION_TIME_DELTA],
             "uint256",
             "votingmachine",
             "PRE_VOTE_EXPIRATION_TIME_DELTA"
         );
         multiCallRequest.aggregate(
-            iregistry,
-            iregistry.methods
-                .getUint(
-                    omoc.RegistryConstants.MOC_VOTING_MACHINE_MAX_PRE_PROPOSALS
-                )
-                .encodeABI(),
+            contracts.IRegistry,
+            'getUint',
+            [omoc.RegistryConstants.MOC_VOTING_MACHINE_MAX_PRE_PROPOSALS],
             "uint256",
             "votingmachine",
             "MAX_PRE_PROPOSALS"
         );
         multiCallRequest.aggregate(
-            iregistry,
-            iregistry.methods
-                .getUint(
-                    omoc.RegistryConstants
-                        .MOC_VOTING_MACHINE_PRE_VOTE_MIN_PCT_TO_WIN
-                )
-                .encodeABI(),
+            contracts.IRegistry,
+            'getUint',
+            [omoc.RegistryConstants.MOC_VOTING_MACHINE_PRE_VOTE_MIN_PCT_TO_WIN],
             "uint256",
             "votingmachine",
             "PRE_VOTE_MIN_PCT_TO_WIN"
         );
         multiCallRequest.aggregate(
-            iregistry,
-            iregistry.methods
-                .getUint(
-                    omoc.RegistryConstants
-                        .MOC_VOTING_MACHINE_VOTE_MIN_PCT_TO_VETO
-                )
-                .encodeABI(),
+            contracts.IRegistry,
+            'getUint',
+            [omoc.RegistryConstants.MOC_VOTING_MACHINE_VOTE_MIN_PCT_TO_VETO],
             "uint256",
             "votingmachine",
             "VOTE_MIN_PCT_TO_VETO"
         );
         multiCallRequest.aggregate(
-            iregistry,
-            iregistry.methods
-                .getUint(
-                    omoc.RegistryConstants
-                        .MOC_VOTING_MACHINE_VOTE_MIN_PCT_FOR_QUORUM
-                )
-                .encodeABI(),
+            contracts.IRegistry,
+            'getUint',
+            [omoc.RegistryConstants.MOC_VOTING_MACHINE_VOTE_MIN_PCT_FOR_QUORUM],
             "uint256",
             "votingmachine",
             "MIN_PCT_FOR_QUORUM"
         );
         multiCallRequest.aggregate(
-            iregistry,
-            iregistry.methods
-                .getUint(
-                    omoc.RegistryConstants
-                        .MOC_VOTING_MACHINE_VOTE_MIN_PCT_TO_ACCEPT
-                )
-                .encodeABI(),
+            contracts.IRegistry,
+            'getUint',
+            [omoc.RegistryConstants.MOC_VOTING_MACHINE_VOTE_MIN_PCT_TO_ACCEPT],
             "uint256",
             "votingmachine",
             "VOTE_MIN_PCT_TO_ACCEPT"
         );
         multiCallRequest.aggregate(
-            iregistry,
-            iregistry.methods
-                .getUint(
-                    omoc.RegistryConstants.MOC_VOTING_MACHINE_PCT_PRECISION
-                )
-                .encodeABI(),
+            contracts.IRegistry,
+            'getUint',
+            [omoc.RegistryConstants.MOC_VOTING_MACHINE_PCT_PRECISION],
             "uint256",
             "votingmachine",
             "PCT_PRECISION"
         );
         multiCallRequest.aggregate(
-            iregistry,
-            iregistry.methods
-                .getUint(
-                    omoc.RegistryConstants.MOC_VOTING_MACHINE_VOTING_TIME_DELTA
-                )
-                .encodeABI(),
+            contracts.IRegistry,
+            'getUint',
+            [omoc.RegistryConstants.MOC_VOTING_MACHINE_VOTING_TIME_DELTA],
             "uint256",
             "votingmachine",
             "VOTING_TIME_DELTA"
@@ -874,25 +1034,25 @@ const contractStatus = async (
     let CA;
     let countRC20 = 0
     for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
-        PP_CA = dContracts.contracts.PP_CA[ca];
-        Moc = dContracts.contracts.Moc[ca];
+        PP_CA = contracts.PP_CA[ca];
+        Moc = contracts.Moc[ca];
         contractMocType = (settings.tokens.CA[ca] as CAToken).type;
 
         if (contractMocType === "coinbase") {
             multiCallRequest.aggregate(
-                multicall,
-                multicall.methods
-                    .getEthBalance(Moc.options.address)
-                    .encodeABI(),
+                Moc,
+                'getBalance',
+                [Moc.address],
                 "uint256",
                 ca,
                 "getACBalance"
             );
         } else {
-            CA = dContracts.contracts.CA[countRC20];
+            CA = contracts.CA[countRC20];
             multiCallRequest.aggregate(
                 CA,
-                CA.methods.balanceOf(Moc.options.address).encodeABI(),
+                'balanceOf',
+                [Moc.address],
                 "uint256",
                 ca,
                 "getACBalance"
@@ -901,7 +1061,8 @@ const contractStatus = async (
         }
         multiCallRequest.aggregate(
             PP_CA,
-            PP_CA.methods.peek().encodeABI(),
+            'peek',
+            [],
             [
                 {
                     "internalType": "bytes32",
@@ -919,8 +1080,8 @@ const contractStatus = async (
         );
     }
 
-    const status = await multiCallRequest.tryBlockAndAggregate();
-    console.log(`Reading contract status: OK!. Block: ${status.blockHeight}`);
+    const status = await multiCallRequest.fetch()
+    console.log(status)
 
     // Price Off-chain. Status variables calculated from off-chain prices
     status.pricesOffchain = false
@@ -975,20 +1136,20 @@ const contractStatus = async (
                     caParsePrices = {};
                     // CA Coin pair
                     coinpair = mapPrices[ca].CA;
-                    caParsePrices.CA = toContractPrecisionDecimals(new BigNumber(response.data.values[coinpair]), 18);
+                    caParsePrices.CA = parseUnits(response.data.values[coinpair].toFixed(18), 18);
                     // TP Coin pair
                     tpParsePrices = [];
                     for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
                         coinpair = mapPrices[ca].TP[tp];
-                        tpParsePrices.push(toContractPrecisionDecimals(new BigNumber(response.data.values[coinpair]), 18));
+                        tpParsePrices.push(parseUnits(response.data.values[coinpair].toFixed(18), 18));
                     }
                     caParsePrices.TP = tpParsePrices;
                     // TF Coin pair
                     coinpair = mapPrices[ca].TF;
-                    caParsePrices.TF = toContractPrecisionDecimals(new BigNumber(response.data.values[coinpair]), 18);
+                    caParsePrices.TF = parseUnits(response.data.values[coinpair].toFixed(18), 18);
                     // COINBASE Coin pair
                     coinpair = mapPrices[ca].COINBASE;
-                    caParsePrices.COINBASE = toContractPrecisionDecimals(new BigNumber(response.data.values[coinpair]), 18);
+                    caParsePrices.COINBASE = parseUnits(response.data.values[coinpair].toFixed(18), 18);
                     parsedPrices.push(caParsePrices);
                 }
                 //console.log('Parsed prices:')
@@ -999,12 +1160,12 @@ const contractStatus = async (
                 //   toContractPrecisionDecimals(new BigNumber(527823690.18), 18)]
                 const tpAddresses = []
                 for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
-                    const tpAddress = dContracts.contracts.TP[tp]
-                    tpAddresses.push(tpAddress.options.address)
+                    const tpAddress = contracts.TP[tp]
+                    tpAddresses.push(tpAddress.address)
                 }
 
                 // Price Off-chain
-                const multiCallRequestPO = new Multicall(multicall, web3)
+                const multiCallRequestPO = new MultiCall3(publicClient)
 
                 let priceOfflineTPs
                 const bucketsPACtps: any[] = [];
@@ -1013,26 +1174,26 @@ const contractStatus = async (
                     bucketsPACtps.push(priceOfflineTPs);
                 }
 
-                multiCallRequestPO.aggregate(MocMultiCollateralGuard, MocMultiCollateralGuard.methods.calcNormalizationFactorsWithPrices(bucketsPACtps).encodeABI(), 'uint256[]', 'calcNormalizationFactorsWithPrices')
-                multiCallRequestPO.aggregate(MocMultiCollateralGuard, MocMultiCollateralGuard.methods.calcCombinedCglbWithPrices(bucketsPACtps).encodeABI(), 'uint256', 'calcCombinedCglbWithPrices')
-                multiCallRequestPO.aggregate(MocMultiCollateralGuard, MocMultiCollateralGuard.methods.calcCombinedCtargemaCAWithPrices(bucketsPACtps).encodeABI(), 'uint256', 'calcCombinedCtargemaCAWithPrices')
+                multiCallRequestPO.aggregate(contracts.MocMultiCollateralGuard, 'calcNormalizationFactorsWithPrices', [bucketsPACtps], 'uint256[]', 'calcNormalizationFactorsWithPrices')
+                multiCallRequestPO.aggregate(contracts.MocMultiCollateralGuard, 'calcCombinedCglbWithPrices', [bucketsPACtps], 'uint256', 'calcCombinedCglbWithPrices')
+                multiCallRequestPO.aggregate(contracts.MocMultiCollateralGuard, 'calcCombinedCtargemaCAWithPrices', [bucketsPACtps], 'uint256', 'calcCombinedCtargemaCAWithPrices')
 
                 for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
-                    Moc = dContracts.contracts.Moc[ca]
+                    Moc = contracts.Moc[ca]
                     priceOfflineTPs = parsedPrices[ca].TP
-                    multiCallRequestPO.aggregate(Moc, Moc.methods.calcPTCac(priceOfflineTPs).encodeABI(), 'uint256', ca, 'calcPTCac', null, onErrorGetPTCac)
-                    multiCallRequestPO.aggregate(Moc, Moc.methods.calcCglb(priceOfflineTPs).encodeABI(), 'uint256', ca, 'calcCglb')
-                    multiCallRequestPO.aggregate(Moc, Moc.methods.calcLckAC(priceOfflineTPs).encodeABI(), 'uint256', ca, 'calcLckAC')
-                    multiCallRequestPO.aggregate(Moc, Moc.methods.calcLckACemaAdjusted(priceOfflineTPs).encodeABI(), 'uint256', ca, 'calcLckACemaAdjusted')
-                    multiCallRequestPO.aggregate(Moc, Moc.methods.calcTCAvailableToRedeem(priceOfflineTPs).encodeABI(), 'uint256', ca, 'calcTCAvailableToRedeem')
-                    multiCallRequestPO.aggregate(Moc, Moc.methods.calcCtargemaCA(priceOfflineTPs).encodeABI(), 'uint256', ca, 'calcCtargemaCA')
-                    multiCallRequestPO.aggregate(MocMultiCollateralGuard, MocMultiCollateralGuard.methods.calcRealTCAvailableToRedeemWithPrices(Moc.options.address, bucketsPACtps).encodeABI(), 'uint256', ca, 'calcRealTCAvailableToRedeemWithPrices')
+                    multiCallRequestPO.aggregate(Moc, 'calcPTCac', [priceOfflineTPs], 'uint256', ca, 'calcPTCac', null, onErrorGetPTCac)
+                    multiCallRequestPO.aggregate(Moc, 'calcCglb', [priceOfflineTPs], 'uint256', ca, 'calcCglb')
+                    multiCallRequestPO.aggregate(Moc, 'calcLckAC', [priceOfflineTPs], 'uint256', ca, 'calcLckAC')
+                    multiCallRequestPO.aggregate(Moc, 'calcLckACemaAdjusted', [priceOfflineTPs], 'uint256', ca, 'calcLckACemaAdjusted')
+                    multiCallRequestPO.aggregate(Moc, 'calcTCAvailableToRedeem', [priceOfflineTPs], 'uint256', ca, 'calcTCAvailableToRedeem')
+                    multiCallRequestPO.aggregate(Moc, 'calcCtargemaCA', [priceOfflineTPs], 'uint256', ca, 'calcCtargemaCA')
+                    multiCallRequestPO.aggregate(contracts.MocMultiCollateralGuard, 'calcRealTCAvailableToRedeemWithPrices', [Moc.address, bucketsPACtps], 'uint256', ca, 'calcRealTCAvailableToRedeemWithPrices')
                     for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
-                        multiCallRequestPO.aggregate(Moc, Moc.methods.calcTPAvailableToMint(tpAddresses[tp], priceOfflineTPs).encodeABI(), 'int256', ca, 'calcTPAvailableToMint', tp)
-                        multiCallRequestPO.aggregate(MocMultiCollateralGuard, MocMultiCollateralGuard.methods.calcRealTPAvailableToMintWithPrices(Moc.options.address, tpAddresses[tp], bucketsPACtps).encodeABI(), 'uint256', ca, 'calcRealTPAvailableToMintWithPrices', tp)
+                        multiCallRequestPO.aggregate(Moc, 'calcTPAvailableToMint', [tpAddresses[tp], priceOfflineTPs], 'int256', ca, 'calcTPAvailableToMint', tp)
+                        multiCallRequestPO.aggregate(contracts.MocMultiCollateralGuard, 'calcRealTPAvailableToMintWithPrices', [Moc.address, tpAddresses[tp], bucketsPACtps], 'uint256', ca, 'calcRealTPAvailableToMintWithPrices', tp)
                     }
                 }
-                status.PO = await multiCallRequestPO.tryBlockAndAggregate()
+                status.PO = await multiCallRequestPO.fetch()
 
                 // Map On-chain values with Off-chain calculation
                 status.getNormalizationFactors = status.PO.calcNormalizationFactorsWithPrices
@@ -1066,16 +1227,11 @@ const contractStatus = async (
         }
     }
     
-    let getCtargemaCA;
-    for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
-        // If calcCtargemaCA is a huge number cannot operate
-        getCtargemaCA = new BigNumber(
-            fromContractPrecisionDecimals(status[ca].getCtargemaCA, 18)
-        );
-        if (getCtargemaCA.gt(100000000)) {
-            status.canOperate = false;
-            break;
-        }
+    const ctargemaCA = BigInt(status[0].getCtargemaCA);
+    const threshold = 1_000_000n * 10n ** 18n;
+
+    if (ctargemaCA > threshold) {
+        status.canOperate = false;
     }
 
     // History Price (24hs ago)
@@ -1098,22 +1254,24 @@ const contractStatus = async (
         }
     } else {
         // No price off chain
-        const d24BlockHeights = status.blockHeight - BigInt(2880);
-        const multiCallRequestHistory = new Multicall(multicall, web3);
+        const d24BlockHeights = status.blockHeight - 0;
+        const multiCallRequestHistory = new MultiCall3(publicClient)
 
         for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
-            Moc = dContracts.contracts.Moc[ca];
-            PP_CA = dContracts.contracts.PP_CA[ca];
+            Moc = contracts.Moc[ca];
+            PP_CA = contracts.PP_CA[ca];
             multiCallRequestHistory.aggregate(
                 Moc,
-                Moc.methods.getPTCac().encodeABI(),
+                'getPTCac',
+                [],
                 "uint256",
                 ca,
                 "getPTCac"
             );
             multiCallRequestHistory.aggregate(
                 PP_CA,
-                PP_CA.methods.peek().encodeABI(),
+                'peek',
+                [],
                 [
                     {
                         "internalType": "bytes32",
@@ -1130,10 +1288,11 @@ const contractStatus = async (
                 "PP_CA"
             );
             for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
-                PP_TP = dContracts.contracts.PP_TP[ca][tp];
+                PP_TP = contracts.PP_TP[ca][tp];
                 multiCallRequestHistory.aggregate(
                     PP_TP,
-                    PP_TP.methods.peek().encodeABI(),
+                    'peek',
+                    [],
                     [
                         {
                             "internalType": "bytes32",
@@ -1153,8 +1312,9 @@ const contractStatus = async (
             }
         }
         multiCallRequestHistory.aggregate(
-            PP_COINBASE,
-            PP_COINBASE.methods.peek().encodeABI(),
+            contracts.PP_COINBASE,
+            'peek',
+            [],
             [
                 {
                     "internalType": "bytes32",
@@ -1171,7 +1331,8 @@ const contractStatus = async (
         );
         multiCallRequestHistory.aggregate(
             PP_FeeToken,
-            PP_FeeToken.methods.peek().encodeABI(),
+            'peek',
+            [],
             [
                 {
                     "internalType": "bytes32",
@@ -1187,8 +1348,7 @@ const contractStatus = async (
             "PP_FeeToken"
         );
 
-        historic =
-            await multiCallRequestHistory.tryBlockAndAggregate(d24BlockHeights);
+        const historic = await multiCallRequestHistory.fetch();
         console.log(`Reading contract status HISTORY: OK!. Block: ${historic.blockHeight}`);
         historic.blockHeight = d24BlockHeights;
     }
@@ -1673,137 +1833,132 @@ const userBalance = async (
 };
 
 const registryAddresses = async (
-    web3: any,
-    dContracts: any
+    publicClient: any,
+    contractRegistry: any
 ): Promise<any> => {
-    const multicall = dContracts.contracts.multicall;
-    const iregistry = dContracts.contracts.IRegistry;
-
-    const multiCallRequest = new Multicall(multicall, web3);
+    
+    const multiCallRequest = new MultiCall3(publicClient)
     multiCallRequest.aggregate(
-        iregistry,
-        iregistry.methods
-            .getAddress(omoc.RegistryConstants.MOC_STAKING_MACHINE)
-            .encodeABI(),
+        contractRegistry,
+        'getAddress',
+        [omoc.RegistryConstants.MOC_STAKING_MACHINE],
         "address",
         "MOC_STAKING_MACHINE"
     );
     multiCallRequest.aggregate(
-        iregistry,
-        iregistry.methods
-            .getAddress(omoc.RegistryConstants.SUPPORTERS_ADDR)
-            .encodeABI(),
+        contractRegistry,
+        'getAddress',
+        [omoc.RegistryConstants.SUPPORTERS_ADDR],
         "address",
         "SUPPORTERS_ADDR"
     );
     multiCallRequest.aggregate(
-        iregistry,
-        iregistry.methods
-            .getAddress(omoc.RegistryConstants.MOC_DELAY_MACHINE)
-            .encodeABI(),
+        contractRegistry,
+        'getAddress',
+        [omoc.RegistryConstants.MOC_DELAY_MACHINE],
         "address",
         "MOC_DELAY_MACHINE"
     );
     multiCallRequest.aggregate(
-        iregistry,
-        iregistry.methods
-            .getAddress(omoc.RegistryConstants.MOC_VESTING_MACHINE)
-            .encodeABI(),
+        contractRegistry,
+        'getAddress',
+        [omoc.RegistryConstants.MOC_VESTING_MACHINE],
         "address",
         "MOC_VESTING_MACHINE"
     );
     multiCallRequest.aggregate(
-        iregistry,
-        iregistry.methods
-            .getAddress(omoc.RegistryConstants.MOC_VOTING_MACHINE)
-            .encodeABI(),
+        contractRegistry,
+        'getAddress',
+        [omoc.RegistryConstants.MOC_VOTING_MACHINE],
         "address",
         "MOC_VOTING_MACHINE"
     );
     multiCallRequest.aggregate(
-        iregistry,
-        iregistry.methods
-            .getAddress(omoc.RegistryConstants.MOC_PRICE_PROVIDER_REGISTRY)
-            .encodeABI(),
+        contractRegistry,
+        'getAddress',
+        [omoc.RegistryConstants.MOC_PRICE_PROVIDER_REGISTRY],
         "address",
         "MOC_PRICE_PROVIDER_REGISTRY"
     );
     multiCallRequest.aggregate(
-        iregistry,
-        iregistry.methods
-            .getAddress(omoc.RegistryConstants.ORACLE_MANAGER_ADDR)
-            .encodeABI(),
+        contractRegistry,
+        'getAddress',
+        [omoc.RegistryConstants.ORACLE_MANAGER_ADDR],
         "address",
         "ORACLE_MANAGER_ADDR"
     );
     multiCallRequest.aggregate(
-        iregistry,
-        iregistry.methods
-            .getAddress(omoc.RegistryConstants.MOC_TOKEN)
-            .encodeABI(),
+        contractRegistry,
+        'getAddress',
+        [omoc.RegistryConstants.MOC_TOKEN],
         "address",
         "MOC_TOKEN"
     );
 
-    return await multiCallRequest.tryBlockAndAggregate();
+    return await multiCallRequest.fetch();
 };
 
 const mocAddresses = async (
-    web3: any,
-    dContracts: any,
-    contractMoc: any,
-    contractMocType: string
+    publicClient: any,    
+    contractMoc: any    
 ): Promise<any> => {
-    const multicall = dContracts.contracts.multicall;
-
-    const multiCallRequest = new Multicall(multicall, web3);
+    
+    const multiCallRequest = new MultiCall3(publicClient)
     multiCallRequest.aggregate(
         contractMoc,
-        contractMoc.methods.feeToken().encodeABI(),
+        'feeToken',
+        [],
         "address",
         "feeToken"
     );
     multiCallRequest.aggregate(
         contractMoc,
-        contractMoc.methods.feeTokenPriceProvider().encodeABI(),
+        'feeTokenPriceProvider',
+        [],
         "address",
         "feeTokenPriceProvider"
     );
-    if (contractMocType !== "coinbase") {
+    if (contractMoc.contractMocType !== "coinbase") {
         multiCallRequest.aggregate(
             contractMoc,
-            contractMoc.methods.acToken().encodeABI(),
+            'acToken',
+            [],
             "address",
             "acToken"
         );
     }
     multiCallRequest.aggregate(
         contractMoc,
-        contractMoc.methods.tcToken().encodeABI(),
+        'tcToken',
+        [],
         "address",
         "tcToken"
     );
     multiCallRequest.aggregate(
         contractMoc,
-        contractMoc.methods.maxAbsoluteOpProvider().encodeABI(),
+        'maxAbsoluteOpProvider',
+        [],
         "address",
         "maxAbsoluteOpProvider"
     );
     multiCallRequest.aggregate(
         contractMoc,
-        contractMoc.methods.maxOpDiffProvider().encodeABI(),
+        'maxOpDiffProvider',
+        [],
         "address",
         "maxOpDiffProvider"
     );
     multiCallRequest.aggregate(
         contractMoc,
-        contractMoc.methods.mocQueue().encodeABI(),
+        'mocQueue',
+        [],
         "address",
         "mocQueue"
     );
     multiCallRequest.aggregate(
         contractMoc,
-        contractMoc.methods.mocVendors().encodeABI(),
+        'mocVendors',
+        [],
         "address",
         "mocVendors"
     );
@@ -1811,7 +1966,8 @@ const mocAddresses = async (
     for (let i = 0; i < settings.tokens.TP.length; i++) {
         multiCallRequest.aggregate(
             contractMoc,
-            contractMoc.methods.tpTokens(i).encodeABI(),
+            'tpTokens',
+            [i],
             "address",
             "tpTokens",
             i,
@@ -1820,7 +1976,7 @@ const mocAddresses = async (
         );
     }
 
-    return await multiCallRequest.tryBlockAndAggregate();
+    return await multiCallRequest.fetch();
 };
 
 export { contractStatus, userBalance, registryAddresses, mocAddresses };
