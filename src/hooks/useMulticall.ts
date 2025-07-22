@@ -11,16 +11,29 @@ type MultiCallInput = {
   functionName: string
   args?: any[]
   resultType?: ResultType
-  keyName: string | number
-  keyIndex?: string | number
-  keySubIndex?: string | number
+  keys: (string | number)[]
+  transform?: (result: any) => any
   onError?: () => { value: any; canOperate: boolean }
 }
 
 /**
- * Custom hook to simulate MultiCall behavior using wagmi's useReadContracts.
- * It supports hierarchical key mapping, default error fallback values,
- * and both automatic and manual refetching.
+ * Assigns a value into a nested object structure given a path of keys.
+ */
+function assignNestedValue(obj: any, path: (string | number)[], value: any) {
+  let current = obj
+  for (let i = 0; i < path.length - 1; i++) {
+    const key = path[i]
+    if (current[key] == null) {
+      current[key] = typeof path[i + 1] === 'number' ? [] : {}
+    }
+    current = current[key]
+  }
+  current[path[path.length - 1]] = value
+}
+
+/**
+ * Custom hook to simulate multicall behavior using wagmi's useReadContracts.
+ * It supports deeply nested storage mapping, error fallbacks, and custom value transforms.
  */
 export function useMultiCall(
   calls: MultiCallInput[] = [],
@@ -59,7 +72,7 @@ export function useMultiCall(
     throw new Error(`Invalid contract input for function "${functionName}"`)
   })
 
-  // Step 2: Perform the multicall using wagmi hook
+  // Step 2: Perform the multicall using wagmi
   const {
     data: results,
     isLoading,
@@ -74,16 +87,15 @@ export function useMultiCall(
     },
   })
 
-  // Step 3: Structure result into a nested dictionary, handling failures
+  // Step 3: Structure result into a nested dictionary, with optional transforms
   const storage: Record<string | number, any> = {}
   let canOperate = true
 
   results?.forEach((item, i) => {
     const {
       resultType,
-      keyName,
-      keyIndex,
-      keySubIndex,
+      keys,
+      transform,
       onError,
     } = calls[i]
 
@@ -91,6 +103,13 @@ export function useMultiCall(
 
     if (item.status === 'success') {
       value = item.result
+      if (transform) {
+        try {
+          value = transform(value)
+        } catch (e) {
+          console.warn(`Transform failed for keys [${keys.join('.')}]`, e)
+        }
+      }
     } else {
       if (onError) {
         const fallback = onError()
@@ -112,24 +131,11 @@ export function useMultiCall(
             value = null
         }
         canOperate = false
-        console.warn(`Multicall failed for key [${keyName}] at index ${i}`)
-        console.warn('keyName', keyName)
-        console.warn('keyIndex', keyIndex)
-        console.warn('keySubIndex', keySubIndex)        
+        console.warn(`Multicall failed for keys [${keys.join('.')}] at index ${i}`)
       }
     }
 
-    // Assign value into nested storage structure
-    if (keyIndex != null && keySubIndex != null) {
-      storage[keyName] ??= {}
-      storage[keyName][keyIndex] ??= {}
-      storage[keyName][keyIndex][keySubIndex] = value
-    } else if (keyIndex != null) {
-      storage[keyName] ??= {}
-      storage[keyName][keyIndex] = value
-    } else {
-      storage[keyName] = value
-    }
+    assignNestedValue(storage, keys, value)
   })
 
   storage['canOperate'] = canOperate

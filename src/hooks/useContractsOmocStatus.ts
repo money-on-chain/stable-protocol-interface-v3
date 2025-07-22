@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useMultiCall } from "./useMultiCall";
+import { useMultiCall } from "./useMulticall";
 import omoc from "../settings/omoc/omoc.json";
 
 const onErrorProposal = () => {
@@ -13,11 +13,7 @@ const onErrorProposal = () => {
  */
 export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bigint) {
     const callsRequests = useMemo(() => {
-
-        console.log('DEBUG')
-        console.log(contracts)
-        console.log(proposalCountVoting)
-
+        
         if (!contracts) return []
 
         if (!proposalCountVoting) proposalCountVoting = 0n
@@ -31,8 +27,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'getWithdrawLockTime',
                 args: [],
                 resultType: "uint256",
-                keyName: "stakingmachine",
-                keyIndex: 'getWithdrawLockTime'
+                keys: ["stakingmachine", "getWithdrawLockTime"]
             });
 
             callRequest.push({
@@ -40,8 +35,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'getSupporters',
                 args: [],
                 resultType: 'address',
-                keyName: 'stakingmachine',
-                keyIndex: 'getSupporters'
+                keys: ["stakingmachine", "getSupporters"]
             });
 
             callRequest.push({
@@ -49,8 +43,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'getOracleManager',
                 args: [],
                 resultType: 'address',
-                keyName: 'stakingmachine',
-                keyIndex: 'getOracleManager'
+                keys: ["stakingmachine", "getOracleManager"]
             });
 
             callRequest.push({
@@ -58,8 +51,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'getDelayMachine',
                 args: [],
                 resultType: 'address',
-                keyName: 'stakingmachine',
-                keyIndex: 'getDelayMachine'
+                keys: ["stakingmachine", "getDelayMachine"]
             });
 
             callRequest.push({
@@ -67,8 +59,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'getLastId',
                 args: [],
                 resultType: 'uint256',
-                keyName: 'delaymachine',
-                keyIndex: 'getLastId'
+                keys: ["delaymachine", "getLastId"]
             });
 
             callRequest.push({
@@ -76,8 +67,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'getSource',
                 args: [],
                 resultType: 'address',
-                keyName: 'delaymachine',
-                keyIndex: 'getSource'
+                keys: ["delaymachine", "getSource"]
             });
 
             callRequest.push({
@@ -85,8 +75,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'isReadyToDistribute',
                 args: [],
                 resultType: 'bool',
-                keyName: 'supporters',
-                keyIndex: 'isReadyToDistribute'
+                keys: ["supporters", "isReadyToDistribute"]
             });
 
             callRequest.push({
@@ -94,8 +83,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'mocToken',
                 args: [],
                 resultType: 'address',
-                keyName: 'supporters',
-                keyIndex: 'mocToken'
+                keys: ["supporters", "mocToken"]
             });
 
             callRequest.push({
@@ -103,8 +91,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'period',
                 args: [],
                 resultType: 'uint256',
-                keyName: 'supporters',
-                keyIndex: 'period'
+                keys: ["supporters", "period"]
             });
 
             callRequest.push({
@@ -112,8 +99,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'totalMoc',
                 args: [],
                 resultType: 'uint256',
-                keyName: 'supporters',
-                keyIndex: 'totalMoc'
+                keys: ["supporters", "totalMoc"]
             });
 
             callRequest.push({
@@ -121,8 +107,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'totalToken',
                 args: [],
                 resultType: 'uint256',
-                keyName: 'supporters',
-                keyIndex: 'totalToken'
+                keys: ["supporters", "totalToken"]
             });
 
             callRequest.push({
@@ -130,8 +115,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'getState',
                 args: [],
                 resultType: 'uint256',
-                keyName: 'votingmachine',
-                keyIndex: 'getState'
+                keys: ["votingmachine", "getState"]
             });
 
             callRequest.push({
@@ -139,8 +123,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'getVotingRound',
                 args: [],
                 resultType: 'uint256',
-                keyName: 'votingmachine',
-                keyIndex: 'getVotingRound'
+                keys: ["votingmachine", "getVotingRound"]
             });
 
             callRequest.push({
@@ -152,8 +135,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                     { type: "uint256", name: "inFavorVotes" },
                     { type: "uint256", name: "againstVotes" }
                 ],
-                keyName: 'votingmachine',
-                keyIndex: 'getVoteInfo'
+                keys: ["votingmachine", "getVoteInfo"]
             });
 
             callRequest.push({
@@ -161,8 +143,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'readyToPreVoteStep',
                 args: [],
                 resultType: 'uint256',
-                keyName: 'votingmachine',
-                keyIndex: 'readyToPreVoteStep'
+                keys: ["votingmachine", "readyToPreVoteStep"]
             });
 
             callRequest.push({
@@ -170,8 +151,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'readyToVoteStep',
                 args: [],
                 resultType: 'uint256',
-                keyName: 'votingmachine',
-                keyIndex: 'readyToVoteStep'
+                keys: ["votingmachine", "readyToVoteStep"]
             });
 
             callRequest.push({
@@ -179,8 +159,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'getProposalCount',
                 args: [],
                 resultType: 'uint256',
-                keyName: 'votingmachine',
-                keyIndex: 'getProposalCount'
+                keys: ["votingmachine", "getProposalCount"]
             });
 
             callRequest.push({
@@ -193,8 +172,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                     { type: "uint256", name: "againstVotes" },
                     { type: "uint256", name: "votingExpirationTime" },
                 ],
-                keyName: 'votingmachine',
-                keyIndex: 'getVotingData'
+                keys: ["votingmachine", "getVotingData"]
             });
 
             callRequest.push({
@@ -202,8 +180,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'totalSupply',
                 args: [],
                 resultType: 'uint256',
-                keyName: 'votingmachine',
-                keyIndex: 'totalSupply'
+                keys: ["votingmachine", "totalSupply"]
             });
 
             // Proposals
@@ -222,9 +199,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                                 { type: "uint256", name: "votes" },
                                 { type: "uint256", name: "expirationTimeStamp" },
                             ],
-                            keyName: "votingmachine",
-                            keyIndex: "getProposalByIndex",
-                            keySubIndex: indexProp,
+                            keys: ["votingmachine", "getProposalByIndex", indexProp],
                             onError: onErrorProposal
                         });
                     }
@@ -237,8 +212,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'getUint',
                 args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_MIN_STAKE],
                 resultType: 'uint256',
-                keyName: 'votingmachine',
-                keyIndex: 'MIN_STAKE'
+                keys: ["votingmachine", "MIN_STAKE"]
             });
 
             callRequest.push({
@@ -246,8 +220,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'getUint',
                 args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_PRE_VOTE_EXPIRATION_TIME_DELTA],
                 resultType: 'uint256',
-                keyName: 'votingmachine',
-                keyIndex: 'PRE_VOTE_EXPIRATION_TIME_DELTA'
+                keys: ["votingmachine", "PRE_VOTE_EXPIRATION_TIME_DELTA"]
             });
 
             callRequest.push({
@@ -255,8 +228,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'getUint',
                 args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_MAX_PRE_PROPOSALS],
                 resultType: 'uint256',
-                keyName: 'votingmachine',
-                keyIndex: 'MAX_PRE_PROPOSALS'
+                keys: ["votingmachine", "MAX_PRE_PROPOSALS"]
             });
 
             callRequest.push({
@@ -264,8 +236,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'getUint',
                 args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_PRE_VOTE_MIN_PCT_TO_WIN],
                 resultType: 'uint256',
-                keyName: 'votingmachine',
-                keyIndex: 'PRE_VOTE_MIN_PCT_TO_WIN'
+                keys: ["votingmachine", "PRE_VOTE_MIN_PCT_TO_WIN"]
             });
 
             callRequest.push({
@@ -273,8 +244,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'getUint',
                 args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_VOTE_MIN_PCT_TO_VETO],
                 resultType: 'uint256',
-                keyName: 'votingmachine',
-                keyIndex: 'VOTE_MIN_PCT_TO_VETO'
+                keys: ["votingmachine", "VOTE_MIN_PCT_TO_VETO"]
             });
 
             callRequest.push({
@@ -282,8 +252,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'getUint',
                 args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_VOTE_MIN_PCT_FOR_QUORUM],
                 resultType: 'uint256',
-                keyName: 'votingmachine',
-                keyIndex: 'MIN_PCT_FOR_QUORUM'
+                keys: ["votingmachine", "MIN_PCT_FOR_QUORUM"]
             });
 
             callRequest.push({
@@ -291,8 +260,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'getUint',
                 args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_VOTE_MIN_PCT_TO_ACCEPT],
                 resultType: 'uint256',
-                keyName: 'votingmachine',
-                keyIndex: 'VOTE_MIN_PCT_TO_ACCEPT'
+                keys: ["votingmachine", "VOTE_MIN_PCT_TO_ACCEPT"]
             });
 
             callRequest.push({
@@ -300,8 +268,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'getUint',
                 args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_PCT_PRECISION],
                 resultType: 'uint256',
-                keyName: 'votingmachine',
-                keyIndex: 'PCT_PRECISION'
+                keys: ["votingmachine", "PCT_PRECISION"]
             });
 
             callRequest.push({
@@ -309,8 +276,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
                 functionName: 'getUint',
                 args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_VOTING_TIME_DELTA],
                 resultType: 'uint256',
-                keyName: 'votingmachine',
-                keyIndex: 'VOTING_TIME_DELTA'
+                keys: ["votingmachine", "VOTING_TIME_DELTA"]
             });
         }
 

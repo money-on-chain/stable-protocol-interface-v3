@@ -3,6 +3,9 @@ import ReactDOM from "react-dom/client";
 import { HashRouter } from "react-router-dom";
 import { I18nextProvider } from "react-i18next";
 import i18next from "i18next";
+import { WagmiProvider } from 'wagmi'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { config } from './wagmiConfig'
 
 import "antd/dist/antd.css";
 import "./assets/css/icons.scss";
@@ -22,6 +25,7 @@ import es_ES from "./settings/locale/es_ES.json";
 import en_US from "./settings/locale/en_US.json";
 
 console.log(`Starting app version: ${import.meta.env.REACT_APP_VERSION}`);
+const queryClient = new QueryClient()
 
 window.addEventListener("vite:preloadError", (event) => {
     /*
@@ -78,29 +82,33 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
     <React.StrictMode>
         <I18nextProvider i18n={i18next}>
-            <WalletProvider>
-                <HashRouter>
-                    {/*<React.Suspense fallback={ <span>Loading...</span> }>*/}
-                    <React.Suspense
-                        fallback={
-                            <img
-                                style={{
-                                    position: "fixed",
-                                    left: "50%",
-                                    top: "50%",
-                                    filter: "var(--color-nav-icon-filter-default)",
-                                }}
-                                width={50}
-                                height={50}
-                                src={IconLoading}
-                                alt="Loading..."
-                            />
-                        }
-                    >
-                        <Router />
-                    </React.Suspense>
-                </HashRouter>
-            </WalletProvider>
+            <WagmiProvider config={config}>
+                <QueryClientProvider client={queryClient}>        
+                    <WalletProvider>
+                        <HashRouter>
+                            {/*<React.Suspense fallback={ <span>Loading...</span> }>*/}
+                            <React.Suspense
+                                fallback={
+                                    <img
+                                        style={{
+                                            position: "fixed",
+                                            left: "50%",
+                                            top: "50%",
+                                            filter: "var(--color-nav-icon-filter-default)",
+                                        }}
+                                        width={50}
+                                        height={50}
+                                        src={IconLoading}
+                                        alt="Loading..."
+                                    />
+                                }
+                            >
+                                <Router />
+                            </React.Suspense>
+                        </HashRouter>
+                    </WalletProvider>
+                </QueryClientProvider>
+            </WagmiProvider>
         </I18nextProvider>
     </React.StrictMode>
 );

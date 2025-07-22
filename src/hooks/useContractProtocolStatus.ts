@@ -2,7 +2,7 @@ import BigNumber from "bignumber.js";
 import { useMemo } from 'react'
 
 
-import { useMultiCall } from "./useMultiCall";
+import { useMultiCall } from "./useMulticall";
 import settings from "../settings/settings.json";
 
 
@@ -52,7 +52,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'peek',
                 args: [],
                 resultType: 'uint256',
-                keyName: 'PP_COINBASE'            
+                keys: ['PP_COINBASE']            
             }
         )
 
@@ -97,8 +97,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'protThrld',
                 args: [],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'protThrld'            
+                keys: [ca, "protThrld"]            
             })
 
             callRequest.push({
@@ -106,8 +105,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'liqThrld',
                 args: [],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'liqThrld'            
+                keys: [ca, "liqThrld"]            
             })
             
             callRequest.push({
@@ -115,8 +113,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'liquidated',
                 args: [],
                 resultType: 'bool',
-                keyName: ca,
-                keyIndex: 'liquidated'            
+                keys: [ca, "liquidated"]            
             })
     
             callRequest.push({
@@ -124,8 +121,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'nACcb',
                 args: [],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'nACcb'            
+                keys: [ca, "nACcb"]            
             })
     
             callRequest.push({
@@ -133,8 +129,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'nTCcb',
                 args: [],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'nTCcb'            
+                keys: [ca, "nTCcb"]            
             })
     
             callRequest.push({
@@ -142,8 +137,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'tcMintFee',
                 args: [],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'tcMintFee'            
+                keys: [ca, "tcMintFee"]            
             })
     
             callRequest.push({
@@ -151,8 +145,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'tcMintFee',
                 args: [],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'tcMintFee'            
+                keys: [ca, "tcMintFee"]            
             })
     
             callRequest.push({
@@ -160,8 +153,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'tcRedeemFee',
                 args: [],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'tcRedeemFee'            
+                keys: [ca, "tcRedeemFee"]            
             })
     
             callRequest.push({
@@ -169,8 +161,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: parsedPrices ? 'calcPTCac' : 'getPTCac',
                 args: parsedPrices ? [priceOfflineTPs] : [],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'getPTCac',            
+                keys: [ca, "getPTCac"],            
                 onError: onErrorGetPTCac
             })
             
@@ -179,8 +170,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: parsedPrices ? 'calcCglb' : 'getCglb',
                 args: parsedPrices ? [priceOfflineTPs] : [],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'getCglb'            
+                keys: [ca, "getCglb"]            
             })
     
             callRequest.push({
@@ -188,8 +178,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: parsedPrices ? 'calcLckAC' : 'getLckAC',
                 args: parsedPrices ? [priceOfflineTPs] : [],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'getLckAC'            
+                keys: [ca, "getLckAC"]            
             })
             
             callRequest.push({
@@ -197,8 +186,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: parsedPrices ? 'calcTCAvailableToRedeem' : 'getTCAvailableToRedeem',
                 args: parsedPrices ? [priceOfflineTPs] : [],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'getTCAvailableToRedeem'            
+                keys: [ca, "getTCAvailableToRedeem"]            
             })
     
             callRequest.push({
@@ -206,8 +194,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'getTotalACavailable',
                 args: [],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'getTotalACavailable'            
+                keys: [ca, "getTotalACavailable"]            
             })
     
             callRequest.push({
@@ -215,8 +202,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: parsedPrices ? 'calcCtargemaCA' : 'getCtargemaCA',
                 args: parsedPrices ? [priceOfflineTPs] : [],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'getCtargemaCA'            
+                keys: [ca, "getCtargemaCA"]            
             })
             
             callRequest.push({
@@ -224,8 +210,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'feeTokenPct',
                 args: [],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'feeTokenPct'            
+                keys: [ca, "feeTokenPct"]            
             })
     
             callRequest.push({
@@ -233,8 +218,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'feeToken',
                 args: [],
                 resultType: 'address',
-                keyName: ca,
-                keyIndex: 'feeToken'            
+                keys: [ca, "feeToken"]            
             })
     
             callRequest.push({
@@ -242,8 +226,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'feeToken',
                 args: [],
                 resultType: 'address',
-                keyName: ca,
-                keyIndex: 'feeToken'            
+                keys: [ca, "feeToken"]            
             })
     
             callRequest.push({
@@ -262,8 +245,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                         "type": "bool"
                     }
                 ],
-                keyName: ca,
-                keyIndex: 'PP_FeeToken'            
+                keys: [ca, "PP_FeeToken"]            
             })
     
             callRequest.push({
@@ -271,8 +253,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'vendorMarkup',
                 args: [vendorAddress],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'vendorMarkup'            
+                keys: [ca, "vendorMarkup"]            
             })
             
             callRequest.push({
@@ -280,8 +261,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'execCost',
                 args: [1],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'tcMintExecCost'            
+                keys: [ca, "tcMintExecCost"]            
             })
     
             callRequest.push({
@@ -289,8 +269,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'execCost',
                 args: [2],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'tcRedeemExecCost'            
+                keys: [ca, "tcRedeemExecCost"]            
             })
     
             callRequest.push({
@@ -298,8 +277,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'execCost',
                 args: [3],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'tpMintExecCost'            
+                keys: [ca, "tpMintExecCost"]            
             })
     
             callRequest.push({
@@ -307,8 +285,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'execCost',
                 args: [4],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'tpRedeemExecCost'            
+                keys: [ca, "tpRedeemExecCost"]            
             })
     
             callRequest.push({
@@ -316,8 +293,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'execCost',
                 args: [9],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'swapTPforTPExecCost'            
+                keys: [ca, "swapTPforTPExecCost"]            
             })
     
             callRequest.push({
@@ -325,8 +301,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'execCost',
                 args: [8],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'swapTPforTCExecCost'            
+                keys: [ca, "swapTPforTCExecCost"]            
             })
             
             callRequest.push({
@@ -334,8 +309,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'execCost',
                 args: [7],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'swapTCforTPExecCost'            
+                keys: [ca, "swapTCforTPExecCost"]            
             })
             
             callRequest.push({
@@ -343,8 +317,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'execCost',
                 args: [6],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'redeemTCandTPExecCost'            
+                keys: [ca, "redeemTCandTPExecCost"]            
             })
             
             callRequest.push({
@@ -352,8 +325,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'execCost',
                 args: [5],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'mintTCandTPExecCost'            
+                keys: [ca, "mintTCandTPExecCost"]            
             })
             
             
@@ -362,8 +334,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'maxQACToMintTP',
                 args: [currentBlockNumber],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'maxQACToMintTP'            
+                keys: [ca, "maxQACToMintTP"]            
             })
     
             callRequest.push({
@@ -371,8 +342,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'maxQACToRedeemTP',
                 args: [currentBlockNumber],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'maxQACToRedeemTP'            
+                keys: [ca, "maxQACToRedeemTP"]            
             })
     
             callRequest.push({
@@ -380,8 +350,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: 'paused',
                 args: [],
                 resultType: 'bool',
-                keyName: ca,
-                keyIndex: 'paused'            
+                keys: [ca, "paused"]            
             })
     
             callRequest.push({
@@ -389,8 +358,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 functionName: parsedPrices ? 'calcRealTCAvailableToRedeemWithPrices' : 'getRealTCAvailableToRedeem',
                 args: parsedPrices ? [Moc.address, bucketsPACtps] : [Moc.address],
                 resultType: 'uint256',
-                keyName: ca,
-                keyIndex: 'getRealTCAvailableToRedeem'            
+                keys: [ca, "getRealTCAvailableToRedeem"]            
             })
     
             let tpAddress;
@@ -414,9 +382,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                             "type": "bool"
                         }
                     ],
-                    keyName: ca,
-                    keyIndex: 'PP_TP',
-                    keySubIndex: tp
+                    keys: [ca, "PP_TP", tp]
                 });
     
                 callRequest.push({
@@ -424,9 +390,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                     functionName: 'tpMintFees',
                     args: [tpAddress],
                     resultType: 'uint256',
-                    keyName: ca,
-                    keyIndex: 'tpMintFees',
-                    keySubIndex: tp
+                    keys: [ca, "tpMintFees", tp]
                 });
                 
                 callRequest.push({
@@ -434,9 +398,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                     functionName: 'tpRedeemFees',
                     args: [tpAddress],
                     resultType: 'uint256',
-                    keyName: ca,
-                    keyIndex: 'tpRedeemFees',
-                    keySubIndex: tp
+                    keys: [ca, "tpRedeemFees", tp]
                 });
     
                 callRequest.push({
@@ -444,9 +406,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                     functionName: 'tpCtarg',
                     args: [tp],
                     resultType: 'uint256',
-                    keyName: ca,
-                    keyIndex: 'tpCtarg',
-                    keySubIndex: tp
+                    keys: [ca, "tpCtarg", tp]
                 });
     
                 callRequest.push({
@@ -454,9 +414,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                     functionName: 'pegContainer',
                     args: [tp],
                     resultType: 'uint256',
-                    keyName: ca,
-                    keyIndex: 'pegContainer',
-                    keySubIndex: tp
+                    keys: [ca, "pegContainer", tp]
                 });
     
                 callRequest.push({
@@ -464,9 +422,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                     functionName: parsedPrices ? 'calcTPAvailableToMint' : 'getTPAvailableToMint',
                     args: parsedPrices ? [tpAddresses[tp], priceOfflineTPs] : [tpAddress],
                     resultType: 'int256',
-                    keyName: ca,
-                    keyIndex: 'getTPAvailableToMint',
-                    keySubIndex: tp
+                    keys: [ca, "getTPAvailableToMint", tp]
                 });
     
                 callRequest.push({
@@ -474,9 +430,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                     functionName: 'tpEma',
                     args: [tp],
                     resultType: 'uint256',
-                    keyName: ca,
-                    keyIndex: 'tpEma',
-                    keySubIndex: tp
+                    keys: [ca, "tpEma", tp]
                 });
     
                 callRequest.push({
@@ -484,9 +438,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                     functionName: parsedPrices ? 'calcRealTPAvailableToMintWithPrices' : 'getRealTPAvailableToMint',
                     args: parsedPrices ? [Moc.address, tpAddresses[tp], bucketsPACtps] : [Moc.address, tpAddress],
                     resultType: 'uint256',
-                    keyName: ca,
-                    keyIndex: 'getRealTPAvailableToMint',
-                    keySubIndex: tp
+                    keys: [ca, "getRealTPAvailableToMint", tp]
                 });
             }
         }
@@ -496,7 +448,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
             functionName: parsedPrices ? 'calcCombinedCglbWithPrices' : 'getCombinedCglb',
             args: parsedPrices ? [bucketsPACtps] : [],
             resultType: 'uint256',
-            keyName: 'getCombinedCglb'        
+            keys: ['getCombinedCglb']        
         });        
     
         callRequest.push({
@@ -504,7 +456,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
             functionName: parsedPrices ? 'calcCombinedCtargemaCAWithPrices' : 'getCombinedCtargemaCA',
             args: parsedPrices ? [bucketsPACtps] : [],
             resultType: 'uint256',
-            keyName: 'getCombinedCtargemaCA'        
+            keys: ['getCombinedCtargemaCA']        
         });
     
         callRequest.push({
@@ -512,7 +464,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
             functionName: parsedPrices ? 'calcNormalizationFactorsWithPrices' : 'getNormalizationFactors',
             args: parsedPrices ? [bucketsPACtps] : [],
             resultType: 'uint256[]',
-            keyName: 'getNormalizationFactors'
+            keys: ['getNormalizationFactors']
         });
         
         
@@ -530,8 +482,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                     functionName: 'getBalance',
                     args: [Moc.address],
                     resultType: 'uint256',
-                    keyName: ca,
-                    keyIndex: 'getACBalance'
+                    keys: [ca, "getACBalance"]
                 });
             } else {
                 CA = contracts.CA[countRC20];
@@ -540,8 +491,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                     functionName: 'balanceOf',
                     args: [Moc.address],
                     resultType: 'uint256',
-                    keyName: ca,
-                    keyIndex: 'getACBalance'
+                    keys: [ca, "getACBalance"]
                 });
                 countRC20++;
             }
@@ -561,8 +511,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                         "type": "bool"
                     }
                 ],
-                keyName: ca,
-                KeyIndex: "PP_CA"
+                keys: [ca, "PP_CA"]
             });
         }
 

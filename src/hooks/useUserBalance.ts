@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useMultiCall } from "./useMultiCall";
+import { useMultiCall } from "./useMulticall";
 import settings from "../settings/settings.json";
 
 
@@ -27,9 +27,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                 functionName: 'balanceOf',
                 args: [userAddress],
                 resultType: "uint256",
-                keyName: ca,
-                keyIndex: "TC",
-                keySubIndex: "balance"
+                keys: [ca, "TC", "balance"]
             })
 
             callRequest.push({
@@ -37,9 +35,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                 functionName: 'allowance',
                 args: [userAddress, Moc.address],
                 resultType: "uint256",
-                keyName: ca,
-                keyIndex: "TC",
-                keySubIndex: "allowance"
+                keys: [ca, "TC", "allowance"]
             })
 
             callRequest.push({
@@ -47,9 +43,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                 functionName: 'balanceOf',
                 args: [userAddress],
                 resultType: "uint256",
-                keyName: ca,
-                keyIndex: "FeeToken",
-                keySubIndex: "balance"
+                keys: [ca, "FeeToken", "balance"]
             });
 
 
@@ -58,9 +52,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                 functionName: 'allowance',
                 args: [userAddress, Moc.address],
                 resultType: "uint256",
-                keyName: ca,
-                keyIndex: "FeeToken",
-                keySubIndex: "allowance"
+                keys: [ca, "FeeToken", "allowance"]
             });
         }
 
@@ -72,8 +64,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                 functionName: 'getBalance',
                 args: [userAddress],
                 resultType: "uint256",
-                keyName: "stakingmachine",
-                keyIndex: "getBalance"                
+                keys: ["stakingmachine", "getBalance"]                
             });
 
             callRequest.push({
@@ -81,8 +72,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                 functionName: 'getLockedBalance',
                 args: [userAddress],
                 resultType: "uint256",
-                keyName: "stakingmachine",
-                keyIndex: "getLockedBalance"
+                keys: ["stakingmachine", "getLockedBalance"]
             });
             
 
@@ -94,8 +84,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     { type: "uint256", name: "amount" },
                     { type: "uint256", name: "untilTimestamp" },
                 ],
-                keyName: "stakingmachine",
-                keyIndex: "getLockingInfo"
+                keys: ["stakingmachine", "getLockingInfo"]
             });
 
             callRequest.push({
@@ -107,8 +96,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     { type: "uint256[]", name: "amounts" },
                     { type: "uint256[]", name: "expirations" },
                 ],
-                keyName: "delaymachine",
-                keyIndex: "getTransactions"
+                keys: ["delaymachine", "getTransactions"]
             });
 
             callRequest.push({
@@ -116,8 +104,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                 functionName: 'getBalance',
                 args: [userAddress],
                 resultType: "uint256",
-                keyName: "delaymachine",
-                keyIndex: "getBalance"
+                keys: ["delaymachine", "getBalance"]
             });
             
             callRequest.push({
@@ -125,8 +112,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                 functionName: 'getBalance',
                 args: [userAddress],
                 resultType: "uint256",
-                keyName: "TG",
-                keyIndex: "balance"
+                keys: ["TG", "balance"]
             });
 
             callRequest.push({
@@ -134,8 +120,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                 functionName: 'allowance',
                 args: [userAddress, contracts.stakingmachine.address],
                 resultType: "uint256",
-                keyName: "stakingmachine",
-                keyIndex: "tgAllowance"
+                keys: ["stakingmachine", "tgAllowance"]
             });
 
             callRequest.push({
@@ -146,8 +131,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     { type: "address", name: "voteAddress" },
                     { type: "uint256", name: "voteRound" },
                 ],
-                keyName: "votingmachine",
-                keyIndex: "getUserVote"
+                keys: ["votingmachine", "getUserVote"]
             });
 
                 
@@ -158,8 +142,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     functionName: 'isTGEConfigured',
                     args: [],
                     resultType: "bool",
-                    keyName: "vestingfactory",
-                    keyIndex: "isTGEConfigured"
+                    keys: ["vestingfactory", "isTGEConfigured"]
                 });
 
                 callRequest.push({
@@ -167,8 +150,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     functionName: 'getTGETimestamp',
                     args: [],
                     resultType: "uint256",
-                    keyName: "vestingfactory",
-                    keyIndex: "getTGETimestamp"
+                    keys: ["vestingfactory", "getTGETimestamp"]
                 });
                 
                 callRequest.push({
@@ -179,8 +161,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                         { type: "uint256[]", name: "percentages" },
                         { type: "uint256[]", name: "timeDeltas" },
                     ],
-                    keyName: "vestingmachine",
-                    keyIndex: "getParameters"
+                    keys: ["vestingmachine", "getParameters"]
                 });
                 
                 
@@ -189,8 +170,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     functionName: 'getHolder',
                     args: [],
                     resultType: "address",
-                    keyName: "vestingmachine",
-                    keyIndex: "getHolder"
+                    keys: ["vestingmachine", "getHolder"]
                 });
                 
                 callRequest.push({
@@ -198,8 +178,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     functionName: 'getLocked',
                     args: [],
                     resultType: "uint256",
-                    keyName: "vestingmachine",
-                    keyIndex: "getLocked"
+                    keys: ["vestingmachine", "getLocked"]
                 });
 
                 callRequest.push({
@@ -207,8 +186,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     functionName: 'getAvailable',
                     args: [],
                     resultType: "uint256",
-                    keyName: "vestingmachine",
-                    keyIndex: "getAvailable"
+                    keys: ["vestingmachine", "getAvailable"]
                 });
                 
                 callRequest.push({
@@ -216,8 +194,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     functionName: 'isVerified',
                     args: [],
                     resultType: "bool",
-                    keyName: "vestingmachine",
-                    keyIndex: "isVerified"
+                    keys: ["vestingmachine", "isVerified"]
                 });
                 
                 callRequest.push({
@@ -225,8 +202,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     functionName: 'getTotal',
                     args: [],
                     resultType: "uint256",
-                    keyName: "vestingmachine",
-                    keyIndex: "getTotal"
+                    keys: ["vestingmachine", "getTotal"]
                 });
                 
                 callRequest.push({
@@ -234,8 +210,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     functionName: 'balanceOf',
                     args: [contracts.vestingmachine.address],
                     resultType: "uint256",
-                    keyName: "vestingmachine",
-                    keyIndex: "tgBalance"
+                    keys: ["vestingmachine", "tgBalance"]
                 });
 
                 callRequest.push({
@@ -243,8 +218,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     functionName: 'allowance',
                     args: [userAddress, contracts.vestingmachine.address],
                     resultType: "uint256",
-                    keyName: "vestingmachine",
-                    keyIndex: "tgAllowance"
+                    keys: ["vestingmachine", "tgAllowance"]
                 });
                 
                 callRequest.push({
@@ -252,18 +226,14 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     functionName: 'getBalance',
                     args: [contracts.vestingmachine.address],
                     resultType: "uint256",
-                    keyName: "vestingmachine",
-                    keyIndex: "staking",
-                    keySubIndex: "balance"
+                    keys: ["vestingmachine", "staking", "balance"]
                 });
                 callRequest.push({
                     contract: contracts.tg,
                     functionName: 'allowance',
                     args: [contracts.vestingmachine.address, contracts.stakingmachine.address],
                     resultType: "uint256",
-                    keyName: "vestingmachine",
-                    keyIndex: "staking",
-                    keySubIndex: "allowance"
+                    keys: ["vestingmachine", "staking", "allowance"]
                 });
 
                 callRequest.push({
@@ -271,9 +241,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     functionName: 'getBalance', 
                     args: [contracts.vestingmachine.address], 
                     resultType: "uint256", 
-                    keyName: "vestingmachine", 
-                    keyIndex: "delay", 
-                    keySubIndex: "balance"
+                    keys: ["vestingmachine", "delay", "balance"]
                 })
                 
 
@@ -283,9 +251,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     functionName: 'allowance',
                     args: [contracts.vestingmachine.address, contracts.delaymachine.address],
                     resultType: "uint256",
-                    keyName: "vestingmachine",
-                    keyIndex: "delay",
-                    keySubIndex: "allowance"
+                    keys: ["vestingmachine", "delay", "allowance"]
                 });
                 
                 callRequest.push({
@@ -293,9 +259,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     functionName: 'getBalance',
                     args: [contracts.vestingmachine.address],
                     resultType: "uint256",
-                    keyName: "vestingmachine",
-                    keyIndex: "staking",
-                    keySubIndex: "getBalance"
+                    keys: ["vestingmachine", "staking", "getBalance"]
                 });
 
                 callRequest.push({
@@ -303,9 +267,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     functionName: 'getLockedBalance',
                     args: [contracts.vestingmachine.address],
                     resultType: "uint256",
-                    keyName: "vestingmachine",
-                    keyIndex: "staking",
-                    keySubIndex: "getLockedBalance"
+                    keys: ["vestingmachine", "staking", "getLockedBalance"]
                 });
 
                 callRequest.push({
@@ -316,9 +278,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                         { type: "uint256", name: "amount" },
                         { type: "uint256", name: "untilTimestamp" },
                     ],
-                    keyName: "vestingmachine",
-                    keyIndex: "staking",
-                    keySubIndex: "getLockingInfo"
+                    keys: ["vestingmachine", "staking", "getLockingInfo"]
                 });
 
                 callRequest.push({
@@ -330,9 +290,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                         { type: "uint256[]", name: "amounts" },
                         { type: "uint256[]", name: "expirations" },
                     ],
-                    keyName: "vestingmachine",
-                    keyIndex: "delay",
-                    keySubIndex: "getTransactions"
+                    keys: ["vestingmachine", "delay", "getTransactions"]
                 });
 
                 callRequest.push({
@@ -340,9 +298,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     functionName: 'getBalance',
                     args: [contracts.vestingmachine.address],
                     resultType: "uint256",
-                    keyName: "vestingmachine",
-                    keyIndex: "delay",
-                    keySubIndex: "getBalance"
+                    keys: ["vestingmachine", "delay", "getBalance"]
                 });
                 
             }
@@ -355,8 +311,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     functionName: 'balanceOf',
                     args: [contracts.IncentiveV2.address],
                     resultType: "uint256",
-                    keyName: "incentiveV2",
-                    keyIndex: "contractBalance"
+                    keys: ["incentiveV2", "contractBalance"]
                 });
 
                 callRequest.push({
@@ -364,8 +319,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     functionName: 'get_balance',
                     args: [userAddress],
                     resultType: "uint256",
-                    keyName: "incentiveV2",
-                    keyIndex: "userBalance"
+                    keys: ["incentiveV2", "userBalance"]
                 });
                 
             }
@@ -382,9 +336,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     functionName: 'balanceOf',
                     args: [userAddress],
                     resultType: "uint256",
-                    keyName: ca,
-                    keyIndex: "TP_balance",
-                    keySubIndex: tp,
+                    keys: ["TP", ca,  tp, "balance"]
                 });
 
                 callRequest.push({
@@ -392,9 +344,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     functionName: 'allowance',
                     args: [userAddress, Moc.address],
                     resultType: "uint256",
-                    keyName: ca,
-                    keyIndex: "TP_allowance",
-                    keySubIndex: tp,
+                    keys: ["TP", ca,  tp, "allowance"]
                 });                
                 
             }
@@ -417,8 +367,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     functionName: 'balanceOf',
                     args: [userAddress],
                     resultType: "uint256",
-                    keyName: ca,
-                    keyIndex: "CA_balance"
+                    keys: ["CA", ca, "balance"]
                 });
 
                 callRequest.push({
@@ -426,8 +375,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                     functionName: 'allowance',
                     args: [userAddress, Moc.address],
                     resultType: "uint256",
-                    keyName: ca,
-                    keyIndex: "CA_allowance"
+                    keys: ["CA", ca, "allowance"]
                 });
                 
                 countRC20++
@@ -445,8 +393,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                 functionName: 'balanceOf',
                 args: [userAddress],
                 resultType: "uint256",
-                keyName: "tpLegacy",
-                keyIndex: "balance"
+                keys: ["tpLegacy", "balance"]
             });
 
             callRequest.push({
@@ -454,8 +401,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
                 functionName: 'allowance',
                 args: [userAddress, tokenMigrator.address],
                 resultType: "uint256",
-                keyName: "tpLegacy",
-                keyIndex: "allowance"
+                keys: ["tpLegacy", "allowance"]
             });
             
         }

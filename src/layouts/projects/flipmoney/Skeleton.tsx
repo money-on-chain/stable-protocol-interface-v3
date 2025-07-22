@@ -14,6 +14,7 @@ import { CheckStatusGlobal } from "../../../helpers/checkStatus";
 import DappFooter from "../../../components/Footer/index";
 import W3ErrorAlert from "../../../components/Notification/W3ErrorAlert";
 
+import { useWalletContext } from "../../../context/Wallet";
 import { readContracts } from "../../../lib/backend/contracts";
 //import { contractStatus } from "../../../lib/backend/multicall";
 import { useContractProtocolStatus } from "../../../hooks/useContractProtocolStatus";
@@ -48,108 +49,114 @@ interface AuthContext {
 
 
 function Wallet(): JSX.Element {
-    const { address, isConnected } = useAccount()
-    const { connect } = useConnect()
-    const { disconnect } = useDisconnect()
-    const publicClient = usePublicClient()
-    const [contractsAddress, setContractsAddress] = useState(null);
-    const [contractsAddressLoaded, setContractsAddressLoaded] = useState(false);
-    const [offChainPrices, setOffChainPrices] = useState(null);
+    const { isConnected, address, connect, disconnect, readContractsAddresses } = useWalletContext()
+    // const { address, isConnected } = useAccount()
+    // const { connect } = useConnect()
+    // const { disconnect } = useDisconnect()
+    // const publicClient = usePublicClient()
+    // const [contractsAddress, setContractsAddress] = useState(null);
+    // const [contractsAddressLoaded, setContractsAddressLoaded] = useState(false);
+    // const [offChainPrices, setOffChainPrices] = useState(null);
 
-    const { blockNumber } = useLatestBlockNumber(5_000)
+    // const { blockNumber } = useLatestBlockNumber(5_000)
 
-    const offChainPricesAPI = useOffchainPrices()
+    // const offChainPricesAPI = useOffchainPrices()
 
-    const contractProtocolStatus = useContractProtocolStatus(
-        contractsAddressLoaded ? contractsAddress : undefined,
-        Number(blockNumber),
-        offChainPrices ? offChainPrices : undefined
-    )
-    const { proposalCount } = useProposalCount( 
-        contractsAddressLoaded ? contractsAddress.VotingMachine : undefined, 
-        30_000
-    )
-    const contractStatusOmoc = useContractsOmocStatus(
-        contractsAddressLoaded ? contractsAddress : undefined,
-        proposalCount
-    )
+    // const contractProtocolStatus = useContractProtocolStatus(
+    //     contractsAddressLoaded ? contractsAddress : undefined,
+    //     Number(blockNumber),
+    //     offChainPrices ? offChainPrices : undefined
+    // )
+    // const { proposalCount } = useProposalCount( 
+    //     contractsAddressLoaded ? contractsAddress.VotingMachine : undefined, 
+    //     30_000
+    // )
+    // const contractStatusOmoc = useContractsOmocStatus(
+    //     contractsAddressLoaded ? contractsAddress : undefined,
+    //     proposalCount
+    // )
 
-    const userBalance = useUserBalance(
-        contractsAddressLoaded ? contractsAddress : undefined,
-        address
-    )
+    // const userBalance = useUserBalance(
+    //     contractsAddressLoaded ? contractsAddress : undefined,
+    //     address
+    // )
 
-    useEffect(() => {
-        if (offChainPricesAPI.parsedPrices) {            
-            setOffChainPrices(offChainPricesAPI.parsedPrices)
-        }
-    }, [offChainPricesAPI.parsedPrices])  
+    // useEffect(() => {
+    //     if (offChainPricesAPI.parsedPrices) {            
+    //         setOffChainPrices(offChainPricesAPI.parsedPrices)
+    //     }
+    // }, [offChainPricesAPI.parsedPrices])  
     
-    useEffect(() => {
-        if (contractProtocolStatus.storage) {
-            console.log('Protocol:', contractProtocolStatus.storage)
-        }
-    }, [contractProtocolStatus.storage])  
+    // useEffect(() => {
+    //     if (contractProtocolStatus.storage) {
+    //         console.log('Protocol:', contractProtocolStatus.storage)
+    //     }
+    // }, [contractProtocolStatus.storage])  
 
-    useEffect(() => {
-        if (contractStatusOmoc.storage) {
-            console.log('Omoc:', contractStatusOmoc.storage)
-        }
-    }, [contractStatusOmoc.storage])
+    // useEffect(() => {
+    //     if (contractStatusOmoc.storage) {
+    //         console.log('Omoc:', contractStatusOmoc.storage)
+    //     }
+    // }, [contractStatusOmoc.storage])
 
-    useEffect(() => {
-        if (userBalance.storage) {
-            console.log('User balance:', userBalance.storage)
-        }
-    }, [userBalance.storage])
+    // useEffect(() => {
+    //     if (userBalance.storage) {
+    //         console.log('User balance:', userBalance.storage)
+    //     }
+    // }, [userBalance.storage])
 
-    const initContractsConnection = async (): Promise<void> => {
-        let error = false;
-        if (!isConnected) {
-            return;
-        }
+    // const initContractsConnection = async (): Promise<void> => {
+    //     let error = false;
+    //     if (!isConnected) {
+    //         return;
+    //     }
 
-        if (contractsAddressLoaded) {
-            return;
-        }
+    //     if (contractsAddressLoaded) {
+    //         return;
+    //     }
 
-        try {
-            const contracts = await readContracts(publicClient);
-            setContractsAddress(contracts);
-        } catch (e) {
-            console.error(e);
-            error = true;
-        }
+    //     try {
+    //         const contracts = await readContracts(publicClient);
+    //         setContractsAddress(contracts);
+    //     } catch (e) {
+    //         console.error(e);
+    //         error = true;
+    //     }
 
-        if (!error) {
-            setContractsAddressLoaded(true);
-        }
+    //     if (!error) {
+    //         setContractsAddressLoaded(true);
+    //     }
 
-        /*if (!error) {
-            await loadContractsStatusAndUserBalance();
-        } else {
-            setWeb3Error(true);
-        }*/
-    };
+    //     /*if (!error) {
+    //         await loadContractsStatusAndUserBalance();
+    //     } else {
+    //         setWeb3Error(true);
+    //     }*/
+    // };
 
       
     return (
-      <div>
-        {isConnected ? (
-          <>
-            <p>Connected as: {address}</p>
-            <button onClick={() => disconnect()}>Disconnect</button>
-            <button onClick={() => initContractsConnection()}>Init Contracts</button>            
-          </>
-        ) : (
-          <button onClick={() => connect({ connector: config.connectors[0] })}>Connect Wallet</button>
-        )}
-      </div>
+        // <WagmiProvider config={config}>
+        //     <QueryClientProvider client={queryClient}>        
+                <div>
+                    {isConnected ? (
+                    <>
+                        <p>Connected as: {address}</p>
+                        <button onClick={() => disconnect()}>Disconnect</button>
+                        <button onClick={() => readContractsAddresses()}>Init Contracts</button>            
+                    </>
+                    ) : (
+                    <button onClick={() => connect({ connector: config.connectors[0] })}>Connect Wallet</button>
+                    )}
+                </div>
+        //     </WagmiProvider>
+        // </QueryClientProvider>
     )
   }
 
 export default function Skeleton(): JSX.Element {
     const auth = useContext(AuthenticateContext) as AuthContext;
+    
     const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(null);
     const { checkerStatus } = CheckStatusGlobal();
     
@@ -177,27 +184,22 @@ export default function Skeleton(): JSX.Element {
     };
 
     return (
+    <Layout>
+        <SectionHeader />
+        <Wallet />
+        <Content>
+            {/* TODO load an array of notifStatus items, and load a mapping for showing notifs here in this section , interact with a React Context */}
+            {notifStatus && <NotificationBody notifStatus={notifStatus} />}
 
-<WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>        
-        <Layout>
-            <SectionHeader />
-            <Wallet />
-            <Content>
-                {/* TODO load an array of notifStatus items, and load a mapping for showing notifs here in this section , interact with a React Context */}
-                {notifStatus && <NotificationBody notifStatus={notifStatus} />}
+            {auth.web3Error && <W3ErrorAlert />}
 
-                {auth.web3Error && <W3ErrorAlert />}
-
-                {!auth.web3Error && auth.isLoggedIn && <Outlet />}
-            </Content>
-            <Footer>
-                <div className="footer-container">
-                    <DappFooter></DappFooter>
-                </div>
-            </Footer>
-        </Layout>
-      </QueryClientProvider>
-    </WagmiProvider>        
+            {!auth.web3Error && auth.isLoggedIn && <Outlet />}
+        </Content>
+        <Footer>
+            <div className="footer-container">
+                <DappFooter></DappFooter>
+            </div>
+        </Footer>
+    </Layout>
     );
 }
