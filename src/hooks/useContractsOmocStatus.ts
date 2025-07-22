@@ -1,8 +1,6 @@
 import { useMemo } from 'react'
 import { useMultiCall } from "./useMultiCall";
 import omoc from "../settings/omoc/omoc.json";
-import settings from "../settings/settings.json";
-
 
 const onErrorProposal = () => {
     console.warn("Proposal not exist");
@@ -15,10 +13,15 @@ const onErrorProposal = () => {
  */
 export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bigint) {
     const callsRequests = useMemo(() => {
+
+        console.log('DEBUG')
+        console.log(contracts)
+        console.log(proposalCountVoting)
+
         if (!contracts) return []
 
-        if (!proposalCountVoting) return []
-        
+        if (!proposalCountVoting) proposalCountVoting = 0n
+                
         const callRequest = []        
 
         // OMOC

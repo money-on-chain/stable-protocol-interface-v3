@@ -27,6 +27,7 @@ export function useOffchainPrices(
     enabled,
     refetchInterval,
     queryFn: async () => {
+      
       const mapPrices = mapPricesOffchain.prices
       const coinpairs: string[] = []
 
@@ -74,6 +75,6 @@ export function useOffchainPrices(
       }
     },
   })
-
+  
   return { parsedPrices, isLoading, isFetching, refetch, error }
 }

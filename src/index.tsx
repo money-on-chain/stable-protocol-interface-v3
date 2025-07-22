@@ -15,6 +15,7 @@ import "./assets/css/customize4Overwrites.scss";
 import "./assets/css/global.scss";
 
 import { AuthenticateProvider } from "./context/Auth";
+import { WalletProvider } from "./context/Wallet";
 import IconLoading from "./assets/icons/LoaderAnim.svg";
 import Router from "./router";
 import es_ES from "./settings/locale/es_ES.json";
@@ -77,7 +78,7 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
     <React.StrictMode>
         <I18nextProvider i18n={i18next}>
-            
+            <WalletProvider>
                 <HashRouter>
                     {/*<React.Suspense fallback={ <span>Loading...</span> }>*/}
                     <React.Suspense
@@ -99,7 +100,7 @@ root.render(
                         <Router />
                     </React.Suspense>
                 </HashRouter>
-            
+            </WalletProvider>
         </I18nextProvider>
     </React.StrictMode>
 );

@@ -63,7 +63,7 @@ function Wallet(): JSX.Element {
     const contractProtocolStatus = useContractProtocolStatus(
         contractsAddressLoaded ? contractsAddress : undefined,
         Number(blockNumber),
-        offChainPrices ? offChainPrices.parsedPrices : undefined
+        offChainPrices ? offChainPrices : undefined
     )
     const { proposalCount } = useProposalCount( 
         contractsAddressLoaded ? contractsAddress.VotingMachine : undefined, 
@@ -80,10 +80,10 @@ function Wallet(): JSX.Element {
     )
 
     useEffect(() => {
-        if (offChainPricesAPI.storage) {
-            setOffChainPrices(offChainPricesAPI.storage)
+        if (offChainPricesAPI.parsedPrices) {            
+            setOffChainPrices(offChainPricesAPI.parsedPrices)
         }
-    }, [offChainPricesAPI.storage])  
+    }, [offChainPricesAPI.parsedPrices])  
     
     useEffect(() => {
         if (contractProtocolStatus.storage) {

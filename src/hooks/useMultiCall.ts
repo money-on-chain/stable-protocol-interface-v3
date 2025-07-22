@@ -113,6 +113,9 @@ export function useMultiCall(
         }
         canOperate = false
         console.warn(`Multicall failed for key [${keyName}] at index ${i}`)
+        console.warn('keyName', keyName)
+        console.warn('keyIndex', keyIndex)
+        console.warn('keySubIndex', keySubIndex)        
       }
     }
 
