@@ -11,7 +11,7 @@ import LogoIconTP_1 from "../assets/tokens/tp_1.svg?react";
 import LogoIconTG_0 from "../assets/tokens/tg_0.svg?react";
 import settings from "../settings/settings.json";
 import { fromContractPrecisionDecimals } from "./Formats";
-import { normalizeToBigInt, divPrecision } from "./precision";
+import { normalizeToBigInt, divPrecision, mulPrecision } from "./precision";
 
 interface Token {
     name: string;
@@ -117,31 +117,31 @@ function TokenSettings(tokenName: string): Token {
     return token;
 }
 
-function TokenBalance(auth: Auth, tokenName: string): number {
+function TokenBalance(userBalance: any, tokenName: string): bigint {
     // Ex. tokenName = CA_0, CA_1, TP_0, TP_1, TC_0, TC_1, COINBASE, TF_0, TF_1
-    let balance = 0;
+    let balance = 0n;
 
-    if (!auth.userBalanceData) return balance;
+    if (!userBalance) return balance;
 
     const aTokenName = tokenName.split("_");
     switch (aTokenName[0]) {
         case "CA":
-            balance = auth.userBalanceData.CA[parseInt(aTokenName[1])].balance;
+            balance = userBalance.data.CA[parseInt(aTokenName[1])].balance;
             break;
         case "TP":
-            balance = auth.userBalanceData.TP[0][parseInt(aTokenName[1])].balance;
+            balance = userBalance.data.TP[0][parseInt(aTokenName[1])].balance;
             break;
         case "TC":
-            balance = auth.userBalanceData[parseInt(aTokenName[1])].TC.balance;
+            balance = userBalance.data[parseInt(aTokenName[1])].TC.balance;
             break;
         case "COINBASE":
-            balance = auth.userBalanceData.coinbase;
+            balance = userBalance.data.coinbase;
             break;
         case "TF":
-            balance = auth.userBalanceData[parseInt(aTokenName[1])].FeeToken.balance;
+            balance = userBalance.data[parseInt(aTokenName[1])].FeeToken.balance;
             break;
         case "TG":
-            balance = auth.userBalanceData.TG.balance;
+            balance = userBalance.data.TG.balance;
             break;
         default:
             throw new Error("Invalid token name");
@@ -174,31 +174,15 @@ function ConvertBalance(auth: Auth, tokenExchange: string, tokenReceive: string)
 }
 
 function ConvertAmount(
-    auth: Auth,
+    contractProtocolStatus: any,
     tokenExchange: string,
     tokenReceive: string,
-    rawAmount: number,
-    amountInWei: boolean = true
-): BigNumber {
+    amount: bigint
+): bigint {
     const caIndex = getCAIndex(tokenExchange, tokenReceive);
-    const tokenExchangeSettings = TokenSettings(tokenExchange);
-    const tokenReceiveSettings = TokenSettings(tokenReceive);
 
-    let price = new BigNumber(0);
-
-    let amount: BigNumber;
-    if (amountInWei) {
-        amount = new BigNumber(
-            fromContractPrecisionDecimals(
-                rawAmount,
-                tokenReceiveSettings.decimals
-            )
-        );
-    } else {
-        amount = new BigNumber(rawAmount);
-    }
-
-    let cAmount = new BigNumber(0);
+    let price = 0n;
+    let cAmount = 0n;
 
     const aTokenExchange = tokenExchange.split("_");
     const aTokenReceive = tokenReceive.split("_");
@@ -206,63 +190,33 @@ function ConvertAmount(
 
     switch (aTokenMap) {
         case "CA,TC":
-            price = new BigNumber(
-                fromContractPrecisionDecimals(
-                    auth.contractStatusData?.[caIndex].getPTCac || "0",
-                    tokenReceiveSettings.decimals
-                )
-            );
-            cAmount = amount.div(price);
+            price = normalizeToBigInt(contractProtocolStatus.data[caIndex].getPTCac);
+            cAmount = divPrecision(amount, price);
             break;
         case "TP,CA":
             // Redeem Operation
-            price = new BigNumber(
-                fromContractPrecisionDecimals(
-                    auth.contractStatusData?.[caIndex].PP_TP[parseInt(aTokenExchange[1])][0] || "0",
-                    tokenExchangeSettings.decimals
-                )
-            );
-            cAmount = amount.div(price);
+            price = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_TP[parseInt(aTokenExchange[1])][0]);
+            cAmount = divPrecision(amount, price);
             break;
         case "CA,TP":
             // Mint Operation
-            price = new BigNumber(
-                fromContractPrecisionDecimals(
-                    auth.contractStatusData?.[caIndex].PP_TP[parseInt(aTokenReceive[1])][0] || "0",
-                    tokenReceiveSettings.decimals
-                )
-            );
-            cAmount = amount.times(price);
+            price = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_TP[parseInt(aTokenReceive[1])][0]);
+            cAmount = mulPrecision(amount, price);
             break;
         case "TC,CA":
             // Redeem Operation
-            price = new BigNumber(
-                fromContractPrecisionDecimals(
-                    auth.contractStatusData?.[caIndex].getPTCac || "0",
-                    tokenExchangeSettings.decimals
-                )
-            );
-            cAmount = amount.times(price);
+            price = normalizeToBigInt(contractProtocolStatus.data[caIndex].getPTCac);
+            cAmount = mulPrecision(amount, price);
             break;
         case "TG,CA":
             // TG
-            price = new BigNumber(
-                fromContractPrecisionDecimals(
-                    auth.contractStatusData?.[caIndex].PP_FeeToken[0] || "0",
-                    tokenExchangeSettings.decimals
-                )
-            );
-            cAmount = amount.times(price);
+            price = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_FeeToken[0]);
+            cAmount = mulPrecision(amount, price);
             break;
         case "COINBASE,CA":
             // COINBASE
-            price = new BigNumber(
-                fromContractPrecisionDecimals(
-                    auth.contractStatusData?.PP_COINBASE[0] || "0",
-                    tokenExchangeSettings.decimals
-                )
-            );
-            cAmount = amount.times(price);
+            price = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_COINBASE[0]);
+            cAmount = mulPrecision(amount, price);
             break;
         case "CA,CA":
             cAmount = amount;

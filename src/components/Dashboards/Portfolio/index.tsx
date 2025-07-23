@@ -34,6 +34,7 @@ export default function Portfolio(): JSX.Element {
     let price: bigint;
     let balanceUSD: bigint;
     let totalUSD: bigint = 0n;
+    
 
     // Total tokens
     if (contractProtocolStatus.data &&
@@ -57,7 +58,7 @@ export default function Portfolio(): JSX.Element {
             balance = userBalance.data[dataItem.key].TC.balance;
             const priceTEC: bigint = contractProtocolStatus.data[dataItem.key].getPTCac;
             const priceCA: bigint = normalizeToBigInt(contractProtocolStatus.data[dataItem.key].PP_CA[0]);
-
+            
             if (contractProtocolStatus.data.canOperate) {
                 price = mulPrecision(priceTEC, priceCA);
                 balanceUSD = mulPrecision(balance, price);
@@ -109,7 +110,7 @@ export default function Portfolio(): JSX.Element {
                             !contractProtocolStatus.data.canOperate
                                 ? "--"
                                 : PrecisionNumbers({
-                                      amount: 582540384143623408294078762n,
+                                      amount: totalUSD,
                                       token: settings.tokens.COINBASE[0],
                                       decimals: 2,
                                       i18n: i18n,

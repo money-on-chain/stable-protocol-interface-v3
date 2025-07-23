@@ -16,7 +16,7 @@ const onErrorLeverage = () => {
 
 
 const onErrorGetPTCac = () => {
-    return { value: 0, canOperate: true };
+    return { value: 0n, canOperate: true };
 };
 
 
@@ -25,6 +25,19 @@ const onErrorGetPTCac = () => {
  * Builds the call array with useMemo so it remains stable between renders.
  */
 export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: number, parsedPrices?: any, refetchInterval = 30_000) {
+    const externalData: any = {}
+
+    if (parsedPrices) {        
+        for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+            externalData[ca] = {}
+            externalData[ca].PP_TP = {}
+            externalData[ca].PP_CA = [parsedPrices[ca].CA, true]
+            for (let tp = 0; tp < settings.tokens.TP.length; tp++) {                
+                externalData[ca].PP_TP[tp] = [parsedPrices[ca].TP[tp], true]
+            }
+        }
+    }
+
     const callsRequests = useMemo(() => {
         if (!contracts) return []
 
@@ -53,6 +66,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
         let FC_MAX_ABSOLUTE_OP_PROVIDER;
         let FC_MAX_OP_DIFFERENCE_PROVIDER;
         let PP_TP;
+        
 
         let priceOfflineTPs
         const bucketsPACtps: any[] = [];
@@ -78,6 +92,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
             PP_FeeToken = contracts.PP_FeeToken[ca];
             FC_MAX_ABSOLUTE_OP_PROVIDER = contracts.FC_MAX_ABSOLUTE_OP_PROVIDER[ca];
             FC_MAX_OP_DIFFERENCE_PROVIDER = contracts.FC_MAX_OP_DIFFERENCE_PROVIDER[ca];
+            priceOfflineTPs = parsedPrices[ca].TP
             
             callRequest.push({
                 contract: Moc,
@@ -110,7 +125,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 resultType: 'uint256',
                 keys: [ca, "nACcb"]            
             })
-    
+                
             callRequest.push({
                 contract: Moc,
                 functionName: 'nTCcb',
@@ -147,11 +162,11 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: Moc,
                 functionName: parsedPrices ? 'calcPTCac' : 'getPTCac',
                 args: parsedPrices ? [priceOfflineTPs] : [],
-                resultType: 'uint256',
+                resultType: 'int256',
                 keys: [ca, "getPTCac"],            
                 onError: onErrorGetPTCac
             })
-            
+                        
             callRequest.push({
                 contract: Moc,
                 functionName: parsedPrices ? 'calcCglb' : 'getCglb',
@@ -178,10 +193,10 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
     
             callRequest.push({
                 contract: Moc,
-                functionName: 'getTotalACavailable',
+                functionName: parsedPrices ? 'nACcb' : 'getTotalACavailable',
                 args: [],
                 resultType: 'uint256',
-                keys: [ca, "getTotalACavailable"]            
+                keys: [ca, "getTotalACavailable"]
             })
     
             callRequest.push({
@@ -347,7 +362,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 resultType: 'uint256',
                 keys: [ca, "getRealTCAvailableToRedeem"]            
             })
-    
+                
             let tpAddress;
             for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
                 tpAddress = contracts.TP[tp].address;
@@ -427,6 +442,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                     resultType: 'uint256',
                     keys: [ca, "getRealTPAvailableToMint", tp]
                 });
+                
             }
         }
         
@@ -654,6 +670,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
     const multicallState = useMultiCall(callsRequests, {
       refetchInterval: refetchInterval,
       enabled: callsRequests.length > 0,
+      externalData: externalData
     })
   
     return multicallState

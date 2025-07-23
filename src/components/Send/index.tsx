@@ -1,6 +1,5 @@
 import { Input } from "antd";
 import React, { useContext, useState, useEffect } from "react";
-import BigNumber from "bignumber.js";
 
 import { useProjectTranslation } from "../../helpers/translations";
 import CurrencyPopUp from "../CurrencyPopUp";
@@ -10,16 +9,17 @@ import {
     ConvertAmount, getCAIndex
 } from '../../helpers/currencies';
 import { tokenExchange } from "../../helpers/exchange";
-import settings from "../../settings/settings.json";
-import { PrecisionNumbers } from "../PrecisionNumbers";
-import { AuthenticateContext } from "../../context/Auth";
+import { PrecisionNumbers } from "../PrecisionNumbers3";
 import InputAmount from "../InputAmount";
-import { fromContractPrecisionDecimals } from "../../helpers/Formats";
 import ModalConfirmSend from "../Modals/ConfirmSend";
+import { useWalletContext } from "../../context/Wallet";
+import { normalizeToBigInt, mulPrecision, divPrecision, toBigIntPrecision } from "../../helpers/precision";
+
 
 export default function Send(): JSX.Element {
     const { t, i18n } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext);
+    
+    const { contractProtocolStatus, userBalance } = useWalletContext()
 
     const tokenSend: string[] = tokenExchange();
     // Add Token Govern
@@ -33,7 +33,7 @@ export default function Send(): JSX.Element {
     const [amountYouSend, setAmountYouSend] = useState<string>("");
     const [destinationAddress, setDestinationAddress] = useState<string>("");
 
-    const [sendingUSD, setSendingUSD] = useState<BigNumber>(new BigNumber(0));
+    const [sendingUSD, setSendingUSD] = useState<bigint>(0n);
 
     //const [isDirtyYouSend, setIsDirtyYouSend] = useState(false);
 
@@ -76,26 +76,21 @@ export default function Send(): JSX.Element {
         let addressInputError: boolean = false;
 
         // 1. User Send Token Validation
-        const totalBalance: BigNumber = new BigNumber(
-            fromContractPrecisionDecimals(
-                TokenBalance(auth, currencyYouSend),
-                TokenSettings(currencyYouSend).decimals
-            )
-        );
+        const totalBalance: bigint = TokenBalance(userBalance, currencyYouSend);
         console.log("amount you send", amountYouSend);
-        const amountYouSendBig: BigNumber = new BigNumber(amountYouSend);
-        if (amountYouSendBig.gt(totalBalance)) {
+        const amountYouSendBig: bigint = normalizeToBigInt(amountYouSend);
+        if (amountYouSendBig > totalBalance) {
             setInputValidationErrorText(t("send.infoNoBalance"));
             amountInputError = true;
         }
-        if (amountYouSendBig.eq(0)) {
+        if (amountYouSendBig === 0n) {
             amountInputError = true;
         }
-        if (amountYouSendBig.lt(0)) {
+        if (amountYouSendBig < 0n) {
             setInputValidationErrorText(t("send.infoNoNegativeValues"));
             amountInputError = true;
         }
-        if (amountYouSendBig.toString() === "NaN") {
+        if (amountYouSendBig === null) {
             setInputValidationErrorText(t("send.infoNoNegativeValues"));
             amountInputError = true;
         }
@@ -126,7 +121,7 @@ export default function Send(): JSX.Element {
     };
 
     const onChangeAmountYouSend = (newAmount: string | number, isPriceOnly: boolean = false): void => {
-        const newAmountBig: BigNumber = new BigNumber(newAmount);
+        const newAmountBig: bigint = toBigIntPrecision(newAmount);
         if (!isPriceOnly) {
             //setIsDirtyYouSend(true);
             setAmountYouSend(newAmount.toString());
@@ -146,26 +141,20 @@ export default function Send(): JSX.Element {
                 break;
         }
 
-        const convertAmount: BigNumber = ConvertAmount(
-            auth,
+        const convertAmount: bigint = ConvertAmount(
+            contractProtocolStatus,
             currencyYouSend,
             `CA_${caIndex}`,
-            newAmountBig,
-            false
+            newAmountBig
         );
 
-        const priceCA: BigNumber = new BigNumber(
-            fromContractPrecisionDecimals(
-                auth.contractStatusData[caIndex].PP_CA[0],
-                settings.tokens.CA[caIndex].decimals
-            )
-        );
+        const priceCA: bigint = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_CA[0]);
 
-        let convertAmountUSD: BigNumber;
+        let convertAmountUSD: bigint;
         if (currencyYouSend === "COINBASE") {
             convertAmountUSD = convertAmount;
         } else {
-            convertAmountUSD = convertAmount.times(priceCA);
+            convertAmountUSD = mulPrecision(convertAmount, priceCA);
         }
 
         setSendingUSD(convertAmountUSD);
@@ -182,20 +171,11 @@ export default function Send(): JSX.Element {
     const setAddTotalAvailable = (): void => {
         //setIsDirtyYouSend(false);
 
-        const tokenSettings: any = TokenSettings(currencyYouSend);
-        const totalYouSend: BigNumber = new BigNumber(
-            fromContractPrecisionDecimals(
-                TokenBalance(auth, currencyYouSend),
-                tokenSettings.decimals
-            )
-        );
+        const totalYouSend: bigint = TokenBalance(userBalance, currencyYouSend);
         setAmountYouSend(totalYouSend.toString());
 
         onChangeAmountYouSend(
-            fromContractPrecisionDecimals(
-                TokenBalance(auth, currencyYouSend),
-                tokenSettings.decimals
-            ),
+            TokenBalance(userBalance, currencyYouSend),
             true
         );
     };
@@ -219,7 +199,7 @@ export default function Send(): JSX.Element {
                             onValueChange={onChangeAmountYouSend}
                             validateError={false}
                             balance={PrecisionNumbers({
-                                amount: TokenBalance(auth, currencyYouSend),
+                                amount: TokenBalance(userBalance, currencyYouSend),
                                 token: TokenSettings(currencyYouSend),
                                 decimals:
                                     TokenSettings(currencyYouSend)

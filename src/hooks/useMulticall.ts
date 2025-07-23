@@ -31,6 +31,32 @@ function assignNestedValue(obj: any, path: (string | number)[], value: any) {
   current[path[path.length - 1]] = value
 }
 
+
+function deepMerge(target: any, source: any): any {
+  if (typeof target !== 'object' || typeof source !== 'object' || target == null || source == null) {
+    return source
+  }
+
+  const merged = Array.isArray(target) ? [...target] : { ...target }
+
+  for (const key in source) {
+    if (source.hasOwnProperty(key)) {
+      if (
+        typeof source[key] === 'object' &&
+        source[key] !== null &&
+        typeof merged[key] === 'object' &&
+        merged[key] !== null
+      ) {
+        merged[key] = deepMerge(merged[key], source[key])
+      } else {
+        merged[key] = source[key]
+      }
+    }
+  }
+
+  return merged
+}
+
 /**
  * Custom hook to simulate multicall behavior using wagmi's useReadContracts.
  * It supports deeply nested storage mapping, error fallbacks, and custom value transforms.
@@ -39,7 +65,8 @@ export function useMultiCall(
   calls: MultiCallInput[] = [],
   options: {
     refetchInterval?: number
-    enabled?: boolean
+    enabled?: boolean,
+    externalData?: Record<string | number, any> 
   } = {}
 ) {
   // Step 1: Convert call definitions into wagmi-compatible format
@@ -141,6 +168,12 @@ export function useMultiCall(
     storage['canOperate'] = canOperate
   } else {
     storage = undefined
+  }
+
+  // merge with external data
+  if (storage && options.externalData) {
+    //storage = { ...storage, ...options.externalData }
+    storage = deepMerge(storage, options.externalData)    
   }
 
   return {

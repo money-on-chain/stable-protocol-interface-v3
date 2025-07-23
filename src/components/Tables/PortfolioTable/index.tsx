@@ -1,11 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Skeleton } from "antd";
-import BigNumber from "bignumber.js";
 
-import { AuthenticateContext } from "../../../context/Auth";
+
 import { useProjectTranslation } from "../../../helpers/translations";
 import settings from "../../../settings/settings.json";
-import { fromContractPrecisionDecimals } from "../../../helpers/Formats";
 import { ConvertPeggedTokenPrice } from "../../../helpers/currencies";
 import { generateTokenRow } from "./renderHelpers";
 import { useWalletContext } from "../../../context/Wallet";
@@ -313,7 +311,7 @@ export default function PortfolioTable() {
                     priceHistory = mulPrecision(priceHistory, priceCA);
 
                     priceDelta = price - priceHistory;
-                    variation = mulPrecision(divPrecision(absBigInt(priceDelta), priceHistory), 100n)
+                    variation = 0n;
                     break;
                 case "TF":
                     // CALCULATE TOKENS TF DATA
