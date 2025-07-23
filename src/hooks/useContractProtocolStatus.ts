@@ -14,19 +14,6 @@ const onErrorLeverage = () => {
     return { value, canOperate: true };
 };
 
-const onErrorProposal = () => {
-    console.warn("Proposal not exist");
-    return { value: null, canOperate: true };
-};
-
-const onErrorFluxCapacitor = () => {
-    console.warn("Flux capacitor is disabled");
-    return { value: null, canOperate: true };
-};
-
-const onErrorTP = () => {
-    return { value: null, canOperate: true };
-};
 
 const onErrorGetPTCac = () => {
     return { value: 0, canOperate: true };
@@ -37,7 +24,7 @@ const onErrorGetPTCac = () => {
  * React hook that wraps useMultiCall3 to fetch contract status data.
  * Builds the call array with useMemo so it remains stable between renders.
  */
-export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: number, parsedPrices?: any) {
+export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: number, parsedPrices?: any, refetchInterval = 30_000) {
     const callsRequests = useMemo(() => {
         if (!contracts) return []
 
@@ -665,7 +652,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
       
     // Pass calls into your multicall hook (safe: it's a hook calling a hook)
     const multicallState = useMultiCall(callsRequests, {
-      refetchInterval: 30_000,
+      refetchInterval: refetchInterval,
       enabled: callsRequests.length > 0,
     })
   

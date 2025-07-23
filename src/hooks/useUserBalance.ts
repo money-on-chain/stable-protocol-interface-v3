@@ -7,7 +7,7 @@ import settings from "../settings/settings.json";
  * React hook that wraps useMultiCall3 to fetch contract status data.
  * Builds the call array with useMemo so it remains stable between renders.
  */
-export function useUserBalance(contracts?: any, userAddress?: string) {
+export function useUserBalance(contracts?: any, userAddress?: string, refetchInterval = 30_000) {
     const callsRequests = useMemo(() => {
         if (!contracts) return []
         if (!userAddress) return []
@@ -415,7 +415,7 @@ export function useUserBalance(contracts?: any, userAddress?: string) {
       
     // Pass callsRequests into your multicall hook (safe: it's a hook calling a hook)
     const multicallState = useMultiCall(callsRequests, {
-      refetchInterval: 30_000,
+      refetchInterval: refetchInterval,
       enabled: callsRequests.length > 0,
     })
   

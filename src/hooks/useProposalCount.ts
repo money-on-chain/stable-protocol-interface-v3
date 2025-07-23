@@ -6,9 +6,10 @@ import { useQuery } from '@tanstack/react-query'
  * Custom hook to fetch and keep updated the proposal count from the VotingMachine contract.
  * If the contract env var is not defined, it skips execution and returns undefined.
  */
+
 export function useProposalCount(
   votingMachine: { address: `0x${string}`; abi: any },
-  refetchInterval = 10_000
+  refetchInterval = 60_000
 ) {
   const publicClient = usePublicClient()
 

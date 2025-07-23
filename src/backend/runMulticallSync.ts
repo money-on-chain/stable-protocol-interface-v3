@@ -35,7 +35,7 @@ function assignNestedValue(obj: any, path: (string | number)[], value: any) {
 export async function runMulticallSync(
   publicClient: PublicClient,
   calls: SyncMulticallInput[]
-): Promise<{ storage: Record<string | number, any>; canOperate: boolean }> {
+): Promise<{ data: Record<string | number, any> | undefined; canOperate: boolean }> {
   const contracts = calls.map(({ contract, functionName, args }) => ({
     address: contract.address,
     abi: contract.abi,
@@ -48,7 +48,7 @@ export async function runMulticallSync(
     allowFailure: true
   })
 
-  const storage: Record<string | number, any> = {}
+  let storage: Record<string | number, any> | undefined = {}
   let canOperate = true
 
   results.forEach((item, i) => {
@@ -92,6 +92,11 @@ export async function runMulticallSync(
     assignNestedValue(storage, keys, value)
   })
 
-  storage['canOperate'] = canOperate
-  return { storage, canOperate }
+  if (results && results.length > 0) {
+    storage['canOperate'] = canOperate
+  } else {
+    storage = undefined
+  }
+  
+  return { data: storage, canOperate }
 }

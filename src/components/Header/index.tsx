@@ -9,6 +9,8 @@ import ThemeMode from "../ThemeMode";
 import settings from "../../settings/settings.json";
 import menuOptionsData from "./menuOptions.json";
 import Brand from "./Brand";
+import { useWalletContext } from "../../context/Wallet";
+import { config } from "../../wagmiConfig";
 
 import "./Styles.scss";
 
@@ -30,6 +32,7 @@ interface LanguageOption {
 export default function SectionHeader(): JSX.Element {
     const navigate = useNavigate();
     const location = useLocation();
+    const { isConnected, address, connect, disconnect } = useWalletContext()
     const auth = useContext(AuthenticateContext);
     //const [css_disable, setCssDisable] = useState("disable-nav-item");
     const [showMoreDropdown, setShowMoreDropdown] = useState<boolean>(false);
@@ -183,9 +186,19 @@ export default function SectionHeader(): JSX.Element {
                         <i className="logo-translation"></i>
                     </div>
                     <div className="wallet-address">
-                        <a onClick={auth.onShowModalAccount}>
-                            {auth.accountData.truncatedAddress}
-                        </a>
+
+                        {isConnected ? (
+                        <>                            
+                            <a onClick={auth.onShowModalAccount}>
+                                {address}
+                            </a>
+                            <button onClick={() => disconnect()}>Disconnect</button>                            
+                        </>
+                        ) : (
+                            <button onClick={() => connect({ connector: config.connectors[0] })}>Connect Wallet</button>
+                        )}
+
+                        
                         <div className="logo-wallet"></div>
                     </div>
                     {showLanguageMenu && (

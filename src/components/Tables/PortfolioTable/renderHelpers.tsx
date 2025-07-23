@@ -1,8 +1,9 @@
 import PropTypes from "prop-types";
 import React from "react";
 
-import { PrecisionNumbers } from "../../PrecisionNumbers";
+import { PrecisionNumbers } from "../../PrecisionNumbers3";
 import settings from "../../../settings/settings.json";
+import { absBigInt } from "../../../helpers/precision";
 
 interface TokenRowProps {
     key: number;
@@ -16,15 +17,15 @@ interface TokenRowProps {
     tokenIcon: string;
     tokenName: string;
     tokenTicker: string;
-    price: BigNumber;
-    balance: BigNumber;
-    balanceUSD: BigNumber;
-    priceDelta: BigNumber;
-    variation: BigNumber;
+    price: bigint;
+    balance: bigint;
+    balanceUSD: bigint;
+    priceDelta: bigint;
+    variation: bigint;
     visiblePriceDecimals: number;
     visibleBalanceDecimals: number;
     visibleBalanceUSDDecimals: number;
-    auth: any;
+    contractProtocolStatus: any;
     i18n: any;
 }
 
@@ -47,12 +48,12 @@ export const generateTokenRow = ({
     visiblePriceDecimals,
     visibleBalanceDecimals,
     visibleBalanceUSDDecimals,
-    auth,
+    contractProtocolStatus,
     i18n,
 }: TokenRowProps): TokenRow => {
     const getSign = (): string => {
-        if (priceDelta.isZero()) return "";
-        return priceDelta.isPositive() ? "+" : "-";
+        if (priceDelta === 0n) return "";
+        return priceDelta > 0n ? "+" : "-";
     };
 
     return {
@@ -69,7 +70,7 @@ export const generateTokenRow = ({
                 </div>
                 {/* Token price */}
                 <div className="table__cell table__cell__price">
-                    {auth.contractStatusData.canOperate ? (
+                    {contractProtocolStatus.data.canOperate ? (
                         <PrecisionNumbers
                             amount={price}
                             token={{
@@ -78,7 +79,7 @@ export const generateTokenRow = ({
                             }}
                             decimals={visiblePriceDecimals}
                             i18n={i18n}
-                            skipContractConvert={true}
+                            skipContractConvert={false}
                         />
                     ) : (
                         <>--</>
@@ -89,18 +90,18 @@ export const generateTokenRow = ({
                 {/* Token 24h variation */}
                 {settings.showPriceVariation && (
                     <div className="table__cell">
-                        {auth.contractStatusData.canOperate ? (
+                        {contractProtocolStatus.data.canOperate ? (
                             <div className="table__cell__variation">
                                 {`${getSign()} `}
                                 <PrecisionNumbers
-                                    amount={variation.abs()}
+                                    amount={absBigInt(variation)}
                                     token={{
                                         decimals: 2,
                                         visibleDecimals: 2,
                                     }}
                                     decimals={2}
                                     i18n={i18n}
-                                    skipContractConvert={true}
+                                    skipContractConvert={false}
                                 />
                                 {" %"}
                                 <span
@@ -133,7 +134,7 @@ export const generateTokenRow = ({
                         }}
                         decimals={visibleBalanceDecimals}
                         i18n={i18n}
-                        skipContractConvert={true}
+                        skipContractConvert={false}
                     />{" "}
                     <div className="token__ticker">
                         {/* {tokenTicker}  */}
@@ -145,7 +146,7 @@ export const generateTokenRow = ({
                 </div>
                 {/* Token balance in USD */}
                 <div className="table__cell table__cell__usdBalance">
-                    {auth.contractStatusData.canOperate ? (
+                    {contractProtocolStatus.data.canOperate ? (
                         <PrecisionNumbers
                             amount={balanceUSD}
                             token={{
@@ -154,7 +155,7 @@ export const generateTokenRow = ({
                             }}
                             decimals={visibleBalanceUSDDecimals}
                             i18n={i18n}
-                            skipContractConvert={true}
+                            skipContractConvert={false}
                         />
                     ) : (
                         <>--</>
@@ -180,6 +181,6 @@ generateTokenRow.propTypes = {
     visiblePriceDecimals: PropTypes.number,
     visibleBalanceDecimals: PropTypes.number,
     visibleBalanceUSDDecimals: PropTypes.number,
-    auth: PropTypes.object,
+    contractProtocolStatus: PropTypes.object,
     i18n: PropTypes.object,
 };

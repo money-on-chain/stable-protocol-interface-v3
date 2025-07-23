@@ -14,6 +14,7 @@ import {
 } from "../../helpers/vesting";
 
 import VestingMachine from "../../contracts/omoc/VestingMachine.json";
+import { useWalletContext } from "../../context/Wallet";
 
 const { Option } = Select;
 
@@ -61,6 +62,7 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
 
     const { t } = useProjectTranslation();
     const auth = useContext(AuthenticateContext);
+    const { isConnected, address, disconnect } = useWalletContext()
     const [qrValue, setQrValue] = useState<string | null>(null);
     const [actionVesting, setActionVesting] = useState<"select" | "add">("select");
     const [addVestingAddress, setAddVestingAddress] = useState<string>("");
@@ -68,10 +70,10 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
     const [addVestingAddressErrorText, setAddVestingAddressErrorText] = useState<string>("");
 
     const defaultVestingAddresses: string[] = loadVestingAddressesFromLocalStorage(
-        auth.accountData.Wallet
+        address
     );
     let defaultVestingAddress: string | null = loadDefaultVestingFromLocalStorage(
-        auth.accountData.Wallet
+        address
     );
 
     // Select the first one from the list of vesting if not default vesting address
@@ -93,9 +95,9 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
         const url =
             import.meta.env.REACT_APP_ENVIRONMENT_EXPLORER_URL +
             "/address/" +
-            auth.accountData.Wallet;
+            address;
         setQrValue(url);
-    }, [auth, auth.accountData.Wallet]);
+    }, [address]);
 
     const onClose = (): void => {
         onCloseModal();
@@ -103,7 +105,7 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
 
     const onDisconnect = (): void => {
         onCloseModal();
-        auth.disconnect();
+        disconnect();
     };
 
     const onCopy = (e: React.MouseEvent): void => {
@@ -200,7 +202,7 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
             //add on storage
             // get vesting addresses
             const vestingFromStorage: string[] = loadVestingAddressesFromLocalStorage(
-                auth.accountData.Wallet
+                address
             );
 
             //Add the new one to the list
@@ -208,11 +210,11 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
 
             // Store vesting addresses
             saveVestingAddressesToLocalStorage(
-                auth.accountData.Wallet.toLowerCase(),
+                address.toLowerCase(),
                 vestingFromStorage
             );
             saveDefaultVestingToLocalStorage(
-                auth.accountData.Wallet.toLowerCase(),
+                address.toLowerCase(),
                 addVestingAddress
             );
 
@@ -237,7 +239,7 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
                 vestingAddressDefault
             );
             saveVestingAddressesToLocalStorage(
-                auth.accountData.Wallet.toLowerCase(),
+                address.toLowerCase(),
                 removeItems
             );
             setVestingAddressDefault(null);
@@ -264,7 +266,7 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
         const isLoaded = loadVesting(auth, selectAddress);
         setVestingAddressDefault(selectAddress);
         saveDefaultVestingToLocalStorage(
-            auth.accountData.Wallet.toLowerCase(),
+            address.toLowerCase(),
             selectAddress
         );
 

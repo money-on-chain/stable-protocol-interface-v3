@@ -184,14 +184,14 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
         const mocAddr = await mocAddresses(publicClient, contractMoc) as any;
         
         if (contractMocType !== 'coinbase') {
-            if (!contracts.CA.includes(mocAddr.storage.acToken)) {
+            if (!contracts.CA.includes(mocAddr.data.acToken)) {
                 console.log(
                     `${(settings.tokens.CA[ca] as any).name} Token Contract... address: `,
-                    mocAddr.storage.acToken
+                    mocAddr.data.acToken
                 );
                 
                 contractDict = {
-                    address: mocAddr.storage.acToken,
+                    address: mocAddr.data.acToken,
                     abi: CollateralAsset.abi,
                     name: 'CollateralAsset',
                     type: ''
@@ -203,11 +203,8 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
         let tpAddress: string;
         let tpIndex: any;
         let tpItem: any;
-        for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
-            console.log("DEBUG:")
-            console.log(mocAddr)
-            console.log(tp)
-            tpAddress = mocAddr.storage.tpTokens[tp];
+        for (let tp = 0; tp < settings.tokens.TP.length; tp++) {            
+            tpAddress = mocAddr.data.tpTokens[tp];
             if (!tpAddress || tpAddress === "0x") continue;
             // tpIndex = await contractMoc.methods
             //     .peggedTokenIndex(tpAddress)
@@ -254,10 +251,10 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
 
         console.log(
             "Collateral Token Contract... address: ",
-            mocAddr.storage.tcToken
+            mocAddr.data.tcToken
         );
         contractDict = {
-            address: mocAddr.storage.tcToken,
+            address: mocAddr.data.tcToken,
             abi: CollateralToken.abi,
             name: 'CollateralToken',
             type: ''
@@ -266,28 +263,28 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
 
         console.log(
             "Moc Vendors Contract... address: ",
-            mocAddr.storage.mocVendors
+            mocAddr.data.mocVendors
         );
         contractDict = {
-            address: mocAddr.storage.mocVendors,
+            address: mocAddr.data.mocVendors,
             abi: MocVendors.abi,
             name: 'MocVendors',
             type: ''
         }
         contracts.MocVendors.push(contractDict)
 
-        console.log("MocQueue Contract... address: ", mocAddr.storage.mocQueue);
+        console.log("MocQueue Contract... address: ", mocAddr.data.mocQueue);
         contractDict = {
-            address: mocAddr.storage.mocQueue,
+            address: mocAddr.data.mocQueue,
             abi: MocQueue.abi,
             name: 'MocQueue',
             type: ''
         }
         contracts.MocQueue.push(contractDict)
 
-        console.log("FeeToken Contract... address: ", mocAddr.storage.feeToken);
+        console.log("FeeToken Contract... address: ", mocAddr.data.feeToken);
         contractDict = {
-            address: mocAddr.storage.feeToken,
+            address: mocAddr.data.feeToken,
             abi: FeeToken.abi,
             name: 'FeeToken',
             type: ''
@@ -296,10 +293,10 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
 
         console.log(
             "Fee Token PP Contract... address: ",
-            mocAddr.storage.feeTokenPriceProvider
+            mocAddr.data.feeTokenPriceProvider
         );
         contractDict = {
-            address: mocAddr.storage.feeTokenPriceProvider,
+            address: mocAddr.data.feeTokenPriceProvider,
             abi: IPriceProvider.abi,
             name: 'PP',
             type: ''
@@ -308,10 +305,10 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
 
         console.log(
             "FC_MAX_ABSOLUTE_OP_PROVIDER Contract... address: ",
-            mocAddr.storage.maxAbsoluteOpProvider
+            mocAddr.data.maxAbsoluteOpProvider
         );
         contractDict = {
-            address: mocAddr.storage.maxAbsoluteOpProvider,
+            address: mocAddr.data.maxAbsoluteOpProvider,
             abi: IPriceProvider.abi,
             name: 'FC_MAX_ABSOLUTE_OP_PROVIDER',
             type: ''
@@ -320,10 +317,10 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
 
         console.log(
             "FC_MAX_OP_DIFFERENCE_PROVIDER Contract... address: ",
-            mocAddr.storage.maxOpDiffProvider
+            mocAddr.data.maxOpDiffProvider
         );
         contractDict = {
-            address: mocAddr.storage.maxOpDiffProvider,
+            address: mocAddr.data.maxOpDiffProvider,
             abi: IPriceProvider.abi,
             name: 'FC_MAX_OP_DIFFERENCE_PROVIDER',
             type: ''
@@ -364,10 +361,10 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
         
         console.log(
             "StakingMachine Contract... address: ",
-            registryAddr.storage.MOC_STAKING_MACHINE
+            registryAddr.data.MOC_STAKING_MACHINE
         );
         contractDict = {
-            address: registryAddr.storage.MOC_STAKING_MACHINE,
+            address: registryAddr.data.MOC_STAKING_MACHINE,
             abi: StakingMachine.abi,
             name: 'StakingMachine',
             type: ''
@@ -376,10 +373,10 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
 
         console.log(
             "Delay Machine Contract... address: ",
-            registryAddr.storage.MOC_DELAY_MACHINE
+            registryAddr.data.MOC_DELAY_MACHINE
         );
         contractDict = {
-            address: registryAddr.storage.MOC_DELAY_MACHINE,
+            address: registryAddr.data.MOC_DELAY_MACHINE,
             abi: DelayMachine.abi,
             name: 'DelayMachine',
             type: ''
@@ -388,10 +385,10 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
 
         console.log(
             "Supporters Contract... address: ",
-            registryAddr.storage.SUPPORTERS_ADDR
+            registryAddr.data.SUPPORTERS_ADDR
         );
         contractDict = {
-            address: registryAddr.storage.SUPPORTERS_ADDR,
+            address: registryAddr.data.SUPPORTERS_ADDR,
             abi: Supporters.abi,
             name: 'Supporters',
             type: ''
@@ -400,10 +397,10 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
 
         console.log(
             "Vesting Factory Contract... address: ",
-            registryAddr.storage.MOC_VESTING_MACHINE
+            registryAddr.data.MOC_VESTING_MACHINE
         );
         contractDict = {
-            address: registryAddr.storage.MOC_VESTING_MACHINE,
+            address: registryAddr.data.MOC_VESTING_MACHINE,
             abi: VestingFactory.abi,
             name: 'VestingFactory',
             type: ''
@@ -430,10 +427,10 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
 
         console.log(
             "Voting Machine Contract... address: ",
-            registryAddr.storage.MOC_VOTING_MACHINE
+            registryAddr.data.MOC_VOTING_MACHINE
         );
         contractDict = {
-            address: registryAddr.storage.MOC_VOTING_MACHINE,
+            address: registryAddr.data.MOC_VOTING_MACHINE,
             abi: VotingMachine.abi,
             name: 'VotingMachine',
             type: ''
@@ -442,10 +439,10 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
 
         console.log(
             "Token Govern Contract... address: ",
-            registryAddr.storage.MOC_TOKEN
+            registryAddr.data.MOC_TOKEN
         );
         contractDict = {
-            address: registryAddr.storage.MOC_TOKEN,
+            address: registryAddr.data.MOC_TOKEN,
             abi: IERC20.abi,
             name: 'TG',
             type: ''

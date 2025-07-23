@@ -16,6 +16,7 @@ import { PrecisionNumbers } from "../../PrecisionNumbers";
 import { fromContractPrecisionDecimals } from "../../../helpers/Formats";
 import { TokenSettings } from "../../../helpers/currencies";
 import AboutQueue from "../../Modals/AboutQueue";
+import { useWalletContext } from "../../../context/Wallet";
 import "./Styles.scss";
 
 // Type definitions
@@ -119,7 +120,8 @@ export default function LastOperations(props: LastOperationsProps) {
     const { token } = props;
     const [current, setCurrent] = useState(1);
     const { t, i18n, ns } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext);
+    //const auth = useContext(AuthenticateContext);
+    const { isConnected, address, contractProtocolStatus, userBalance } = useWalletContext()
     const [ready, setReady] = useState(false);
     /*useEffect(() => {
         if (auth.contractStatusData) {
@@ -127,7 +129,7 @@ export default function LastOperations(props: LastOperationsProps) {
         }
     }, [auth]);*/
 
-    const { accountData = {} as any } = auth;
+    //const { accountData = {} as any } = auth;
     const [dataJson, setDataJson] = useState<ApiResponse>({ operations: [], total: 0 });
     const [totalTable, setTotalTable] = useState(0);
     const [pageSize, setPageSize] = useState(10);
@@ -144,7 +146,7 @@ export default function LastOperations(props: LastOperationsProps) {
     const received_row: TableRowData[] = [];
     var txList: OperationData[] = [];
     const transactionsList = (/*skip*/) => {
-        if (auth.isLoggedIn) {
+        if (isConnected) {
             console.log("Loading table…");
             /*const datas = {
                 address: accountData.Owner,
@@ -154,7 +156,7 @@ export default function LastOperations(props: LastOperationsProps) {
             setTimeout(() => {
                 const baseUrl = `${import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS}operations/list/`;
                 const queryParams = new URLSearchParams({
-                    recipient: accountData.Owner,
+                    recipient: address,
                     limit: "1000",
                     skip: "0",
                 }).toString();
@@ -204,12 +206,12 @@ export default function LastOperations(props: LastOperationsProps) {
             transactionsList();
         }, 3000);
         return () => clearInterval(interval);
-    }, [accountData.Owner]);
+    }, [address]);
     useEffect(() => {
         transactionsList();
-    }, [accountData.Owner]);
+    }, [address]);
     const onChange = (page: number) => {
-        if (accountData !== undefined) {
+        if (isConnected) {
             setCurrent(page);
             data_row();
             transactionsList();
@@ -827,7 +829,7 @@ export default function LastOperations(props: LastOperationsProps) {
     function getTransferAction(row_operation: OperationData) {
         if (
             row_operation["params"]["sender"].toLowerCase() ===
-            accountData.Owner.toLowerCase()
+            address.toLowerCase()
         ) {
             return t("operations.actions.destination");
         } else {
@@ -846,7 +848,7 @@ export default function LastOperations(props: LastOperationsProps) {
     function getTransferAddress(row_operation: OperationData) {
         if (
             row_operation["params"]["sender"].toLowerCase() ===
-            accountData.Owner.toLowerCase()
+            address.toLowerCase()
         ) {
             // return truncateAddress(row_operation['params']['recipient'].toLowerCase())
             return row_operation["params"]["recipient"].toLowerCase();
@@ -869,8 +871,8 @@ export default function LastOperations(props: LastOperationsProps) {
             case 0:
                 if (
                     row_operation["params"] &&
-                    auth.contractStatusData &&
-                    BigInt(auth.contractStatusData.blockHeight || 0) <
+                    contractProtocolStatus.data &&
+                    BigInt(contractProtocolStatus.data.blockHeight || 0) <
                         BigInt(row_operation["params"]["blockNumber"] || 0) +
                             confirmedBlocks
                 )
@@ -879,16 +881,16 @@ export default function LastOperations(props: LastOperationsProps) {
             case 1:
                 if (
                     row_operation["executed"] &&
-                    auth.contractStatusData &&
-                    BigInt(auth.contractStatusData.blockHeight || 0) <
+                    contractProtocolStatus.data &&
+                    BigInt(contractProtocolStatus.data.blockHeight || 0) <
                         BigInt(row_operation["executed"]["blockNumber"] || 0) +
                             confirmedBlocks
                 )
                     return t("operations.actions.statusConfirming");
                 else if (
                     row_operation["operation"] === "Transfer" &&
-                    auth.contractStatusData &&
-                    BigInt(auth.contractStatusData.blockHeight || 0) <
+                    contractProtocolStatus.data &&
+                    BigInt(contractProtocolStatus.data.blockHeight || 0) <
                         BigInt(row_operation["blockNumber"] || 0) + confirmedBlocks
                 )
                     return t("operations.actions.statusConfirming");
@@ -1084,7 +1086,7 @@ export default function LastOperations(props: LastOperationsProps) {
                             },
                         }}
                         columns={tableColumns}
-                        dataSource={auth.isLoggedIn == true ? data : undefined}
+                        dataSource={isConnected == true ? data : undefined}
                         scroll={{ y: lastOperationsHeight }}
                         style={{}}
                     />

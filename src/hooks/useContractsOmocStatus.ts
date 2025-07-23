@@ -11,7 +11,7 @@ const onErrorProposal = () => {
  * React hook that wraps useMultiCall3 to fetch contract status data.
  * Builds the call array with useMemo so it remains stable between renders.
  */
-export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bigint) {
+export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bigint, refetchInterval = 30_000) {
     const callsRequests = useMemo(() => {
         
         if (!contracts) return []
@@ -286,7 +286,7 @@ export function useContractsOmocStatus(contracts?: any, proposalCountVoting?: bi
       
     // Pass callsRequests into your multicall hook (safe: it's a hook calling a hook)
     const multicallState = useMultiCall(callsRequests, {
-      refetchInterval: 30_000,
+      refetchInterval: refetchInterval,
       enabled: callsRequests.length > 0,
     })
   

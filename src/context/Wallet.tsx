@@ -7,6 +7,7 @@ import { useProposalCount } from '../hooks/useProposalCount'
 import { useContractsOmocStatus } from '../hooks/useContractsOmocStatus'
 import { useUserBalance } from '../hooks/useUserBalance'
 import { readContracts } from '../hooks/useReadContracts'
+import { useBaseCoinBalance } from '../hooks/useBaseCoinBalance'
 
 export type WalletContextType = {
   isConnected: boolean
@@ -42,30 +43,36 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
     const [contractsAddress, setContractsAddress] = useState(null)
     const [contractsAddressLoaded, setContractsAddressLoaded] = useState(false)
+
+    const userBaseCoinBalance = useBaseCoinBalance(address, 30_000)
+
     const [offChainPrices, setOffChainPrices] = useState(null)
 
     const { blockNumber } = useLatestBlockNumber(5_000)
-    const offChainPricesAPI = useOffchainPrices()
+    const offChainPricesAPI = useOffchainPrices(20_000)
 
     const contractProtocolStatus = useContractProtocolStatus(
         contractsAddressLoaded ? contractsAddress : undefined,
         Number(blockNumber),
-        offChainPrices ?? undefined
+        offChainPrices ?? undefined,
+        30_000
     )
 
     const { proposalCount } = useProposalCount(
         contractsAddressLoaded ? contractsAddress?.VotingMachine : undefined,
-        30_000
+        120_000
     )
 
     const contractStatusOmoc = useContractsOmocStatus(
         contractsAddressLoaded ? contractsAddress : undefined,
-        proposalCount
+        proposalCount,
+        30_000
     )
 
     const userBalance = useUserBalance(
         contractsAddressLoaded ? contractsAddress : undefined,
-        address
+        address,
+        30_000
     )
 
     useEffect(() => {
@@ -75,22 +82,22 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     }, [offChainPricesAPI.parsedPrices])
 
     useEffect(() => {
-        if (contractProtocolStatus.storage) {
-            console.log('Protocol:', contractProtocolStatus.storage)
+        if (contractProtocolStatus.data) {
+            console.log('Protocol:', contractProtocolStatus.data)
         }
-    }, [contractProtocolStatus.storage])  
+    }, [contractProtocolStatus.data])  
 
     useEffect(() => {
-        if (contractStatusOmoc.storage) {
-            console.log('Omoc:', contractStatusOmoc.storage)
+        if (contractStatusOmoc.data) {
+            console.log('Omoc:', contractStatusOmoc.data)
         }
-    }, [contractStatusOmoc.storage])
+    }, [contractStatusOmoc.data])
 
     useEffect(() => {
-        if (userBalance.storage) {
-            console.log('User balance:', userBalance.storage)
+        if (userBalance.data) {
+            console.log('User balance:', userBalance.data)
         }
-    }, [userBalance.storage])
+    }, [userBalance.data])
 
     useEffect(() => {
         if (!contractsAddressLoaded) {

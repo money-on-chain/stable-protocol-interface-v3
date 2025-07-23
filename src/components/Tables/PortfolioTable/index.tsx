@@ -8,6 +8,8 @@ import settings from "../../../settings/settings.json";
 import { fromContractPrecisionDecimals } from "../../../helpers/Formats";
 import { ConvertPeggedTokenPrice } from "../../../helpers/currencies";
 import { generateTokenRow } from "./renderHelpers";
+import { useWalletContext } from "../../../context/Wallet";
+import { normalizeToBigInt, mulPrecision, divPrecision, absBigInt } from "../../../helpers/precision";
 
 import "./Styles.scss";
 
@@ -117,7 +119,8 @@ interface Label {
 
 export default function PortfolioTable() {
     const { t, i18n } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext);
+    const { contractProtocolStatus, userBalance } = useWalletContext()
+    //const auth = useContext(AuthenticateContext);
     const [ready, setReady] = useState<boolean>(false);
 
     // Default values for all tokens
@@ -131,10 +134,10 @@ export default function PortfolioTable() {
 
     useEffect(() => {
         // Set component ready when contract status data is available
-        if (auth.contractStatusData) {
+        if (contractProtocolStatus.data && userBalance.data) {
             setReady(true);
         }
-    }, [auth]);
+    }, [contractProtocolStatus.data, userBalance.data]);
 
     const createAllTheTokens = (settings: Settings): Token[] => {
         let uniqueKeyCounter = 0;
@@ -176,9 +179,9 @@ export default function PortfolioTable() {
     const [nonUSDpriceTokensData, setNonUSDPriceTokensData] = useState<TokenRow[]>([]);
 
     const processTokens = (allTheTokens: Token[], settings: Settings, t: any): void => {
-        if (!auth?.contractStatusData) {
+        if (!contractProtocolStatus?.data) {
             console.warn(
-                "⚠️ auth.contractStatusData is missing, skipping processTokens."
+                "⚠️ contractProtocolStatus.data is missing, skipping processTokens."
             );
             return;
         }
@@ -186,14 +189,14 @@ export default function PortfolioTable() {
         let newUSDpeggedTokenRows: TokenRow[] = []; // ✅ Store all updated rows
 
         allTheTokens.forEach((token: Token) => {
-            let balance = new BigNumber(0);
-            let price = new BigNumber(0);
-            let priceTEC = new BigNumber(0);
-            let priceCA = new BigNumber(0);
-            let balanceUSD = new BigNumber(0);
-            let priceDelta = new BigNumber(0);
-            let variation = new BigNumber(0);
-            let priceHistory = new BigNumber(0);
+            let balance = 0n;
+            let price = 0n;
+            let priceTEC = 0n;
+            let priceCA = 0n;
+            let balanceUSD = 0n;
+            let priceDelta = 0n;
+            let variation = 0n;
+            let priceHistory = 0n;
             let tokenIcon = "";
 
             switch (token.type) {
@@ -201,37 +204,22 @@ export default function PortfolioTable() {
                     // CALCULATE COINBASE DATA
                     tokenIcon = "icon-token-" + token.type.toLowerCase();
 
-                    balance = new BigNumber(
-                        fromContractPrecisionDecimals(
-                            auth.userBalanceData?.coinbase || 0,
-                            token.decimals
-                        )
-                    );
+                    balance = contractProtocolStatus.data?.coinbase || 0n;
 
-                    price = new BigNumber(
-                        fromContractPrecisionDecimals(
-                            (auth.contractStatusData as any).PP_COINBASE?.[0] || 0,
-                            token.decimals
-                        )
-                    );
-                    balanceUSD = balance.times(price);
+                    price = normalizeToBigInt((contractProtocolStatus.data as any).PP_COINBASE?.[0] || 0n);
+                    balanceUSD = mulPrecision(balance, price);
 
-                    // variation
-                    priceHistory = new BigNumber(
-                        fromContractPrecisionDecimals(
-                            (auth.contractStatusData as any).historic?.PP_COINBASE?.[0] || 0,
-                            token.decimals
-                        )
-                    );
-                    priceDelta = price.minus(priceHistory);
-                    variation = priceDelta.abs().div(priceHistory).times(100);
+                    // variation No more historic data
+                    priceHistory = normalizeToBigInt((contractProtocolStatus.data as any).PP_COINBASE?.[0] || 0n);
+                    priceDelta = price - priceHistory;
+                    variation = divPrecision(priceDelta, priceHistory);
 
                     break;
                 case "CA":
                     // CALCULATE TOKENS CA DATA
                     if (
-                        auth.contractStatusData &&
-                        auth.userBalanceData &&
+                        contractProtocolStatus.data &&
+                        userBalance.data &&
                         token.collateralType &&
                         token.collateralType !== "coinbase"
                     ) {
@@ -242,34 +230,15 @@ export default function PortfolioTable() {
                             token.key;
 
                         // Convert balance to BigNumber with correct decimal precision
-                        balance = new BigNumber(
-                            fromContractPrecisionDecimals(
-                                auth.userBalanceData.CA[token.key]?.balance || 0,
-                                token.decimals
-                            )
-                        );
-                        price = new BigNumber(
-                            fromContractPrecisionDecimals(
-                                (auth.contractStatusData as any)[token.key]?.PP_CA?.[0] || 0,
-                                token.decimals
-                            )
-                        );
+                        balance = userBalance.data.CA[token.key]?.balance || 0n;
+                        price = normalizeToBigInt((contractProtocolStatus.data as any)[token.key]?.PP_CA?.[0] || 0n);
 
-                        balanceUSD = balance.times(price);
+                        balanceUSD = mulPrecision(balance, price);
 
-                        // variation
-                        priceHistory = new BigNumber(
-                            fromContractPrecisionDecimals(
-                                (auth.contractStatusData as any).historic?.[token.key]
-                                    ?.PP_CA?.[0] || 0,
-                                token.decimals
-                            )
-                        );
-                        priceDelta = price.minus(priceHistory);
-                        variation = priceDelta
-                            .abs()
-                            .div(priceHistory)
-                            .times(100);
+                        // variation No more historic data
+                        priceHistory = normalizeToBigInt((contractProtocolStatus.data as any)[token.key]?.PP_CA?.[0] || 0n);
+                        priceDelta = price - priceHistory;
+                        variation = divPrecision(priceDelta, priceHistory);
                     }
 
                     break;
@@ -283,27 +252,16 @@ export default function PortfolioTable() {
                     if (token.peggedUSD) {
                         // CALCULATE TOKENS TP USD-Pegged Tokens DATA
 
-                        balance = new BigNumber(
-                            fromContractPrecisionDecimals(
-                                auth.userBalanceData?.TP?.[0]?.[token.key]?.balance || 0,
-                                token.decimals
-                            )
-                        );
+                        balance = userBalance.data?.TP?.[0]?.[token.key]?.balance || 0n;
 
-                        price = new BigNumber(1);
+                        price = 1n;
 
-                        balanceUSD = balance.times(price);
+                        balanceUSD = mulPrecision(balance, price);
 
-                        // variation
-                        priceHistory = new BigNumber(
-                            fromContractPrecisionDecimals(
-                                (auth.contractStatusData as any).historic?.[token.key]
-                                    ?.PP_CA?.[0] || 0,
-                                token.decimals
-                            )
-                        );
-                        priceDelta = price.minus(priceHistory);
-                        priceDelta = new BigNumber(0);
+                        // variation No more historic data
+                        priceHistory = 1n;
+                        priceDelta = price - priceHistory;
+                        variation = divPrecision(priceDelta, priceHistory);
 
                         // const variation = priceDelta
                         //     .abs()
@@ -311,46 +269,26 @@ export default function PortfolioTable() {
                         //     .times(100);
                     } else {
                         //CALCULATE TOKENS TP NON-USD-Pegged Tokens DATA
-                        balance = new BigNumber(
-                            fromContractPrecisionDecimals(
-                                auth.userBalanceData?.TP?.[0]?.[token.key]?.balance || 0,
-                                token.decimals
-                            )
-                        );
-                        price = new BigNumber(
-                            fromContractPrecisionDecimals(
-                                (auth.contractStatusData as any)[0]?.PP_TP?.[token.key]?.[0] || 0,
-                                token.decimals
-                            )
-                        );
+                        balance = userBalance.data?.TP?.[0]?.[token.key]?.balance || 0n;
+                        price = normalizeToBigInt((contractProtocolStatus.data as any)[0]?.PP_TP?.[token.key]?.[0] || 0n);
                         price = ConvertPeggedTokenPrice(
-                            auth as any,
+                            contractProtocolStatus as any,
                             0,
                             token.key,
                             price
                         );
-                        balanceUSD = balance.div(price);
+                        balanceUSD = divPrecision(balance, price);
 
-                        //variation
-                        priceHistory = new BigNumber(
-                            fromContractPrecisionDecimals(
-                                (auth.contractStatusData as any).historic?.[0]?.PP_TP?.[
-                                    token.key
-                                ]?.[0] || 0,
-                                token.decimals
-                            )
-                        );
+                        //variation No more historic data
+                        priceHistory = normalizeToBigInt((contractProtocolStatus.data as any)[0]?.PP_TP?.[token.key]?.[0] || 0n);
                         priceHistory = ConvertPeggedTokenPrice(
-                            auth as any,
+                            contractProtocolStatus as any,
                             0,
                             token.key,
                             priceHistory
                         );
-                        priceDelta = price.minus(priceHistory);
-                        variation = priceDelta
-                            .abs()
-                            .div(priceHistory)
-                            .times(100);
+                        priceDelta = price - priceHistory;
+                        variation = mulPrecision(divPrecision(absBigInt(priceDelta), priceHistory), 100n)
                         //let signPriceDelta = "";
                         //if (priceDelta.gt(0)) signPriceDelta = "+";
                     }
@@ -363,82 +301,39 @@ export default function PortfolioTable() {
                         "_" +
                         token.key;
 
-                    balance = new BigNumber(
-                        fromContractPrecisionDecimals(
-                            auth.userBalanceData?.[token.key]?.TC?.balance || 0,
-                            token.decimals
-                        )
-                    );
+                    balance = userBalance.data?.[token.key]?.TC?.balance || 0n;
 
-                    priceTEC = new BigNumber(
-                        fromContractPrecisionDecimals(
-                            (auth.contractStatusData as any)[token.key]?.getPTCac || 0,
-                            token.decimals
-                        )
-                    );
-                    priceCA = new BigNumber(
-                        fromContractPrecisionDecimals(
-                            (auth.contractStatusData as any)[token.key]?.PP_CA?.[0] || 0,
-                            token.decimals
-                        )
-                    );
-                    price = priceTEC.times(priceCA);
-                    balanceUSD = balance.times(price);
+                    priceTEC = normalizeToBigInt((contractProtocolStatus.data as any)[token.key]?.getPTCac || 0n);
+                    priceCA = normalizeToBigInt((contractProtocolStatus.data as any)[token.key]?.PP_CA?.[0] || 0n);
+                    price = mulPrecision(priceTEC, priceCA);
+                    balanceUSD = mulPrecision(balance, price);
 
                     // variation
-                    priceHistory = new BigNumber(
-                        fromContractPrecisionDecimals(
-                            (auth.contractStatusData as any).historic?.[token.key]
-                                ?.getPTCac || 0,
-                            token.decimals
-                        )
-                    ).times(priceCA);
+                    priceHistory = normalizeToBigInt((contractProtocolStatus.data as any)[token.key]?.getPTCac || 0n);
+                    priceHistory = mulPrecision(priceHistory, priceCA);
 
-                    priceDelta = price.minus(priceHistory);
-                    variation = price
-                        .minus(priceHistory)
-                        .div(priceHistory)
-                        .times(100);
+                    priceDelta = price - priceHistory;
+                    variation = mulPrecision(divPrecision(absBigInt(priceDelta), priceHistory), 100n)
                     break;
                 case "TF":
                     // CALCULATE TOKENS TF DATA
 
                     tokenIcon = "icon-token-" + token.type.toLowerCase();
-                    balance = new BigNumber(
-                        fromContractPrecisionDecimals(
-                            auth.userBalanceData?.[token.key]?.FeeToken?.balance || 0,
-                            token.decimals
-                        )
-                    );
+                    balance = userBalance.data?.[token.key]?.FeeToken?.balance || 0n;
 
                     // RAW price for balance and variation calculation
-                    price = new BigNumber(
-                        fromContractPrecisionDecimals(
-                            (auth.contractStatusData as any)[0]?.PP_FeeToken?.[0] || 0,
-                            token.decimals
-                        )
-                    );
+                    price = normalizeToBigInt((contractProtocolStatus.data as any)[0]?.PP_FeeToken?.[0] || 0n);
 
-                    priceCA = new BigNumber(
-                        fromContractPrecisionDecimals(
-                            (auth.contractStatusData as any)[token.key]?.PP_CA?.[0] || 0,
-                            token.decimals
-                        )
-                    );
-                    balanceUSD = balance.times(price).times(priceCA);
+                    priceCA = normalizeToBigInt((contractProtocolStatus.data as any)[token.key]?.PP_CA?.[0] || 0n);
+                    balanceUSD = mulPrecision(mulPrecision(balance, price), priceCA);
 
                     // variation
-                    priceHistory = new BigNumber(
-                        fromContractPrecisionDecimals(
-                            (auth.contractStatusData as any).historic?.PP_FeeToken?.[0] || 0,
-                            token.decimals
-                        )
-                    );
-                    priceDelta = price.minus(priceHistory);
-                    variation = priceDelta.abs().div(priceHistory).times(100);
+                    priceHistory = normalizeToBigInt((contractProtocolStatus.data as any)[0]?.PP_FeeToken?.[0] || 0n);
+                    priceDelta = price - priceHistory;
+                    variation = mulPrecision(divPrecision(absBigInt(priceDelta), priceHistory), 100n)
 
                     // Now that balance and variation is calculated, is multiplied for priceCA for price final value
-                    price = price.times(priceCA);
+                    price = mulPrecision(price, priceCA);
 
                     break;
                 case "TG":
@@ -473,7 +368,7 @@ export default function PortfolioTable() {
                 visiblePriceDecimals: token.visiblePriceDecimals,
                 visibleBalanceDecimals: token.visibleBalanceDecimals,
                 visibleBalanceUSDDecimals: token.visibleBalanceUSDDecimals,
-                auth,
+                contractProtocolStatus,
                 i18n,
             });
 
@@ -490,10 +385,10 @@ export default function PortfolioTable() {
         setNonUSDPriceTokensData(newNonUSDpeggedTokenRows); // ✅ Overwrite the state instead of appending
     };
     useEffect(() => {
-        if (ready && auth?.contractStatusData) {
+        if (ready && contractProtocolStatus.data && userBalance.data) {
             processTokens(allTheTokens, settings, t);
         }
-    }, [ready, auth]); // Runs only when `ready` or `auth` changes
+    }, [ready, contractProtocolStatus.data, userBalance.data]); // Runs only when `ready` or `auth` changes
 
     return ready ? (
         <div className="portfolio-table">

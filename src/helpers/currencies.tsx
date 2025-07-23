@@ -11,6 +11,7 @@ import LogoIconTP_1 from "../assets/tokens/tp_1.svg?react";
 import LogoIconTG_0 from "../assets/tokens/tg_0.svg?react";
 import settings from "../settings/settings.json";
 import { fromContractPrecisionDecimals } from "./Formats";
+import { normalizeToBigInt, divPrecision } from "./precision";
 
 interface Token {
     name: string;
@@ -149,17 +150,12 @@ function TokenBalance(auth: Auth, tokenName: string): number {
     return balance;
 }
 
-function ConvertPeggedTokenPrice(auth: Auth, caIndex: number, tpIndex: number, price: BigNumber, inverted: boolean = false): BigNumber {
+function ConvertPeggedTokenPrice(contractProtocolStatus: any, caIndex: number, tpIndex: number, price: bigint, inverted: boolean = false): bigint {
     if (settings.tokens.TP[tpIndex].peggedUSD) {
         return price;
     } else {
-        const priceCA = new BigNumber(
-            fromContractPrecisionDecimals(
-                auth.contractStatusData?.[caIndex].PP_CA[0] || "0",
-                settings.tokens.CA[caIndex].decimals
-            )
-        );
-        return (inverted) ? new BigNumber(1).div(price.div(priceCA)) : price.div(priceCA);
+        const priceCA = normalizeToBigInt(contractProtocolStatus.data?.[caIndex].PP_CA[0] || "0");
+        return (inverted) ? divPrecision(1n, price) : divPrecision(price, priceCA);
     }
 }
 

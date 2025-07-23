@@ -88,9 +88,8 @@ export function useMultiCall(
   })
 
   // Step 3: Structure result into a nested dictionary, with optional transforms
-  const storage: Record<string | number, any> = {}
+  let storage: Record<string | number, any> | undefined = {}
   let canOperate = true
-
   results?.forEach((item, i) => {
     const {
       resultType,
@@ -135,13 +134,17 @@ export function useMultiCall(
       }
     }
 
-    assignNestedValue(storage, keys, value)
+    assignNestedValue(storage, keys, value)    
   })
 
-  storage['canOperate'] = canOperate
+  if (results && results.length > 0) {
+    storage['canOperate'] = canOperate
+  } else {
+    storage = undefined
+  }
 
   return {
-    storage,
+    data: storage,
     isLoading,
     isFetching,
     refetch,
