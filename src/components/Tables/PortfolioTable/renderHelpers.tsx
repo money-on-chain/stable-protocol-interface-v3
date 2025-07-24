@@ -55,7 +55,7 @@ export const generateTokenRow = ({
         if (priceDelta === 0n) return "";
         return priceDelta > 0n ? "+" : "-";
     };
-
+    
     return {
         key,
         renderRow: (
@@ -74,12 +74,11 @@ export const generateTokenRow = ({
                         <PrecisionNumbers
                             amount={price}
                             token={{
-                                decimals: { visiblePriceDecimals },
+                                decimals: 18,
                                 visibleDecimals: { visiblePriceDecimals },
                             }}
                             decimals={visiblePriceDecimals}
-                            i18n={i18n}
-                            skipContractConvert={false}
+                            i18n={i18n}                            
                         />
                     ) : (
                         <>--</>
@@ -96,12 +95,11 @@ export const generateTokenRow = ({
                                 <PrecisionNumbers
                                     amount={absBigInt(variation)}
                                     token={{
-                                        decimals: 2,
+                                        decimals: 18,
                                         visibleDecimals: 2,
                                     }}
                                     decimals={2}
-                                    i18n={i18n}
-                                    skipContractConvert={false}
+                                    i18n={i18n}                                    
                                 />
                                 {" %"}
                                 <span
@@ -129,12 +127,11 @@ export const generateTokenRow = ({
                     <PrecisionNumbers
                         amount={balance}
                         token={{
-                            decimals: { visibleBalanceDecimals },
+                            decimals: 18,
                             visibleDecimals: { visibleBalanceDecimals },
                         }}
                         decimals={visibleBalanceDecimals}
-                        i18n={i18n}
-                        skipContractConvert={false}
+                        i18n={i18n}                        
                     />{" "}
                     <div className="token__ticker">
                         {/* {tokenTicker}  */}
@@ -150,12 +147,11 @@ export const generateTokenRow = ({
                         <PrecisionNumbers
                             amount={balanceUSD}
                             token={{
-                                decimals: { visibleBalanceUSDDecimals },
+                                decimals: 18,
                                 visibleDecimals: { visibleBalanceUSDDecimals },
                             }}
                             decimals={visibleBalanceUSDDecimals}
-                            i18n={i18n}
-                            skipContractConvert={false}
+                            i18n={i18n}                            
                         />
                     ) : (
                         <>--</>

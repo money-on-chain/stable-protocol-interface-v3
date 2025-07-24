@@ -135,7 +135,7 @@ function TokenBalance(userBalance: any, tokenName: string): bigint {
             balance = userBalance.data[parseInt(aTokenName[1])].TC.balance;
             break;
         case "COINBASE":
-            balance = userBalance.data.coinbase;
+            balance = 0n; //userBalance.data.coinbase;
             break;
         case "TF":
             balance = userBalance.data[parseInt(aTokenName[1])].FeeToken.balance;
@@ -214,8 +214,8 @@ function ConvertAmount(
             cAmount = mulPrecision(amount, price);
             break;
         case "COINBASE,CA":
-            // COINBASE
-            price = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_COINBASE[0]);
+            // COINBASE            
+            price = normalizeToBigInt(contractProtocolStatus.data.PP_COINBASE[0]);
             cAmount = mulPrecision(amount, price);
             break;
         case "CA,CA":

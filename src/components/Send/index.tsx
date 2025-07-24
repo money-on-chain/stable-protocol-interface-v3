@@ -13,7 +13,7 @@ import { PrecisionNumbers } from "../PrecisionNumbers3";
 import InputAmount from "../InputAmount";
 import ModalConfirmSend from "../Modals/ConfirmSend";
 import { useWalletContext } from "../../context/Wallet";
-import { normalizeToBigInt, mulPrecision, divPrecision, toBigIntPrecision } from "../../helpers/precision";
+import { normalizeToBigInt, mulPrecision, toBigIntPrecision, fromWei } from "../../helpers/precision";
 
 
 export default function Send(): JSX.Element {
@@ -77,8 +77,8 @@ export default function Send(): JSX.Element {
 
         // 1. User Send Token Validation
         const totalBalance: bigint = TokenBalance(userBalance, currencyYouSend);
-        console.log("amount you send", amountYouSend);
-        const amountYouSendBig: bigint = normalizeToBigInt(amountYouSend);
+        const amountYouSendBig: bigint = toBigIntPrecision(amountYouSend);
+
         if (amountYouSendBig > totalBalance) {
             setInputValidationErrorText(t("send.infoNoBalance"));
             amountInputError = true;
@@ -121,7 +121,9 @@ export default function Send(): JSX.Element {
     };
 
     const onChangeAmountYouSend = (newAmount: string | number, isPriceOnly: boolean = false): void => {
+        
         const newAmountBig: bigint = toBigIntPrecision(newAmount);
+                
         if (!isPriceOnly) {
             //setIsDirtyYouSend(true);
             setAmountYouSend(newAmount.toString());
@@ -140,14 +142,14 @@ export default function Send(): JSX.Element {
                 caIndex = 0;
                 break;
         }
-
+                
         const convertAmount: bigint = ConvertAmount(
             contractProtocolStatus,
             currencyYouSend,
             `CA_${caIndex}`,
             newAmountBig
         );
-
+        
         const priceCA: bigint = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_CA[0]);
 
         let convertAmountUSD: bigint;
@@ -171,11 +173,12 @@ export default function Send(): JSX.Element {
     const setAddTotalAvailable = (): void => {
         //setIsDirtyYouSend(false);
 
-        const totalYouSend: bigint = TokenBalance(userBalance, currencyYouSend);
+        const totalYouSendWei: bigint = TokenBalance(userBalance, currencyYouSend);
+        const totalYouSend = fromWei(totalYouSendWei, TokenSettings(currencyYouSend).decimals);
         setAmountYouSend(totalYouSend.toString());
 
         onChangeAmountYouSend(
-            TokenBalance(userBalance, currencyYouSend),
+            totalYouSend,
             true
         );
     };
@@ -252,8 +255,7 @@ export default function Send(): JSX.Element {
                                     amount: sendingUSD,
                                     token: TokenSettings("CA_0"),
                                     decimals: 2,
-                                    i18n: i18n,
-                                    skipContractConvert: true,
+                                    i18n: i18n                                    
                                 })}
                             </span>
                         ) : (

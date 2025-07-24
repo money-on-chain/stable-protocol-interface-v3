@@ -16,9 +16,9 @@ interface PrecisionNumbersProps {
   token: Token
   decimals?: number
   i18n: I18n
-  skipContractConvert?: boolean
+  isInWei?: boolean
   isUSD?: boolean
-  compact?: boolean // 👉 nuevo: true para usar formato compacto ("1.2M")
+  compact?: boolean
 }
 
 export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
@@ -26,12 +26,12 @@ export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
   token,
   decimals,
   i18n,
-  skipContractConvert = false,
+  isInWei = true,
   isUSD = false,
   compact = false,
 }) => {
   if (typeof amount !== "bigint") {
-    console.warn("❌ amount debe ser bigint:", amount)
+    console.warn("❌ amount must be bigint:", amount)
     return <span>Error</span>
   }
 
@@ -40,11 +40,11 @@ export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
 
   let formattedString = "0"
   try {
-    formattedString = skipContractConvert
-      ? amount.toString()
-      : formatUnits(amount, tokenDecimals)
+    formattedString = isInWei
+      ? formatUnits(amount, tokenDecimals)
+      : amount.toString()
   } catch (err) {
-    console.error("❌ Error en formatUnits:", err)
+    console.error("❌ Error in formatUnits:", err)
     return <span>Error</span>
   }
 

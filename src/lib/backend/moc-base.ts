@@ -1,197 +1,177 @@
-import BigNumber from "bignumber.js";
-import Web3 from "web3";
 
-import { toContractPrecisionDecimals, getGasPrice } from "./utils";
+import { writeContract, simulateContract, waitForTransactionReceipt } from '@wagmi/core'
+import { config } from '../../wagmiConfig' 
 
-// Type definitions
-interface InterfaceContext {
-    web3: Web3;
-    account: string;
-    [key: string]: any;
-}
 
 type OnTransaction = (hash: string) => void;
 type OnReceipt = (receipt: any) => void;
 type OnError = (error: any) => void;
 
 const AllowanceAmount = async (
-    interfaceContext: InterfaceContext,
+    interfaceContext: any,
     token: any,
     contractAllow: any,
-    amountAllowance: string | number,
-    tokenDecimals: number,
+    amountAllowance: bigint,    
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
 ): Promise<any> => {
-    const { web3, account } = interfaceContext;
-    const contractAllowAddress = contractAllow.options.address;
+    const { address } = interfaceContext;
+    const contractAllowAddress = contractAllow.address;
 
-    // Calculate estimate gas cost
-    const estimateGas = await token.methods
-        .approve(
-            contractAllowAddress,
-            toContractPrecisionDecimals(amountAllowance, tokenDecimals)
-        )
-        .estimateGas({ from: account, value: 0 });
+    const { request } = await simulateContract(config, {
+        address: token.address,
+        abi: token.abi,
+        functionName: 'approve',
+        args: [contractAllowAddress, amountAllowance],
+        account: address,
+      })
+    
+    // Send transaction
+    const txHash = await writeContract(config, request)
 
-    // Send tx
-    const receipt = token.methods
-        .approve(
-            contractAllowAddress,
-            toContractPrecisionDecimals(amountAllowance, tokenDecimals)
-        )
-        .send({
-            from: account,
-            value: 0,
-            gasPrice: await getGasPrice(web3),
-            gas: estimateGas,
-            gasLimit: estimateGas,
-        })
-        .on("transactionHash", onTransaction)
-        .on("receipt", onReceipt);
+    if (onTransaction) onTransaction(txHash)
 
-    return receipt;
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+
+    if (onReceipt) onReceipt(receipt)
+
+    return receipt
+    
+    
 };
 
 const transferTokenTo = async (
-    interfaceContext: InterfaceContext,
+    interfaceContext: any,
     token: any,
-    tokenDecimals: number,
     to: string,
-    amount: string | number,
+    amount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
 ): Promise<any> => {
-    const { web3, account } = interfaceContext;
+    const { address } = interfaceContext;
 
-    const amountBN = new BigNumber(amount);
+    
+    const { request } = await simulateContract(config, {
+        address: token.address,
+        abi: token.abi,
+        functionName: 'transfer',
+        args: [to, amount],
+        account: address,
+      })
+    
+    // Send transaction
+    const txHash = await writeContract(config, request)
 
-    // Calculate estimate gas cost
-    const estimateGas = await token.methods
-        .transfer(to, toContractPrecisionDecimals(amountBN, tokenDecimals))
-        .estimateGas({ from: account, value: 0 });
+    if (onTransaction) onTransaction(txHash)
 
-    // Send tx
-    const receipt = token.methods
-        .transfer(to, toContractPrecisionDecimals(amountBN, tokenDecimals))
-        .send({
-            from: account,
-            value: 0,
-            gasPrice: await getGasPrice(web3),
-            gas: estimateGas,
-            gasLimit: estimateGas,
-        })
-        .on("transactionHash", onTransaction)
-        .on("receipt", onReceipt);
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
 
-    return receipt;
+    if (onReceipt) onReceipt(receipt)
+
+    return receipt
 };
 
 const transferCoinbaseTo = async (
-    interfaceContext: InterfaceContext,
+    interfaceContext: any,
     to: string,
-    amount: string | number,
+    amount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
 ): Promise<any> => {
-    const { web3, account } = interfaceContext;
+    
+    const { address, walletClient } = interfaceContext;
+    
+    const hash = await walletClient.sendTransaction({
+        to,
+        account: address,
+        value: amount,
+        //gas: 21_000n,        // fijo para transferencia simple
+        //gasPrice,            // opcional: si querés forzar gasPrice
+    })
 
-    const amountBN = new BigNumber(amount);
+    onTransaction?.(hash)
 
-    const receipt = web3.eth
-        .sendTransaction({
-            from: account.toLowerCase(),
-            to: to.toLowerCase(),
-            gasPrice: await getGasPrice(web3),
-            gasLimit: 21000,
-            value: toContractPrecisionDecimals(amountBN, 18),
-        })
-        .on("transactionHash", onTransaction)
-        .on("receipt", onReceipt);
+    const publicClient = walletClient.extendPublicClient() // si ya lo tenés, podés pasarlo directamente
 
-    return receipt;
+    const receipt = await publicClient.waitForTransactionReceipt({ hash })
+
+    onReceipt?.(receipt)
+
+    return receipt
 };
 
 const AllowUseTokenMigrator = async (
-    interfaceContext: InterfaceContext,
-    newAllowance: string | number,
+    interfaceContext: any,
+    newAllowance: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt,
     onError: OnError
 ): Promise<any> => {
-    const { web3, account } = interfaceContext;
-    const dContracts = (window as any).dContracts;
+    
+    const { address, contracts } = interfaceContext;
+    const tp_legacy = contracts.tp_legacy;
+    const tokenMigrator = contracts.token_migrator;
 
-    if (!dContracts.contracts.tp_legacy)
+    if (!contracts.tp_legacy)
         console.log(
             "Error: Please set token migrator address in environment vars!"
         );
 
-    const tp_legacy = dContracts.contracts.tp_legacy;
-    const tokenMigrator = dContracts.contracts.token_migrator;
+    const { request } = await simulateContract(config, {
+        address: tp_legacy.address,
+        abi: tp_legacy.abi,
+        functionName: 'approve',
+        args: [tokenMigrator.address, newAllowance],
+        account: address,
+      })
 
-    // Calculate estimate gas cost
-    const estimateGas = await tp_legacy.methods
-        .approve(
-            tokenMigrator._address,
-            toContractPrecisionDecimals(newAllowance, 18)
-        )
-        .estimateGas({ from: account, value: "0x" });
+    // Send transaction
+    const txHash = await writeContract(config, request)
 
-    // Send tx
-    const receipt = tp_legacy.methods
-        .approve(
-            tokenMigrator._address,
-            toContractPrecisionDecimals(newAllowance, 18)
-        )
-        .send({
-            from: account,
-            gasPrice: await getGasPrice(web3),
-            gas: estimateGas,
-            gasLimit: estimateGas,
-        })
-        .on("error", onError)
-        .on("transactionHash", onTransaction)
-        .on("receipt", onReceipt);
+    if (onTransaction) onTransaction(txHash)
 
-    return receipt;
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+
+    if (onReceipt) onReceipt(receipt)
+
+    return receipt
 };
 
 const MigrateToken = async (
-    interfaceContext: InterfaceContext,
+    interfaceContext: any,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt,
     onError: OnError
 ): Promise<any> => {
-    const { web3, account } = interfaceContext;
-    const dContracts = (window as any).dContracts;
+    const { address, contracts } = interfaceContext;
+    
 
-    if (!dContracts.contracts.token_migrator)
+    if (!contracts.token_migrator)
         console.log(
             "Error: Please set token migrator address in environment vars!"
         );
 
-    const tokenMigrator = dContracts.contracts.token_migrator;
+    const tokenMigrator = contracts.token_migrator;
 
-    // Calculate estimate gas cost
-    const estimateGas = await tokenMigrator.methods
-        .migrateToken()
-        .estimateGas({ from: account, value: "0x" });
+    const { request } = await simulateContract(config, {
+        address: tokenMigrator.address,
+        abi: tokenMigrator.abi,
+        functionName: 'migrateToken',
+        args: [],
+        account: address,
+      })
 
-    // Send tx
-    const receipt = tokenMigrator.methods
-        .migrateToken()
-        .send({
-            from: account,
-            gasPrice: await getGasPrice(web3),
-            gas: estimateGas,
-            gasLimit: estimateGas,
-        })
-        .on("error", onError)
-        .on("transactionHash", onTransaction)
-        .on("receipt", onReceipt);
+    // Send transaction
+    const txHash = await writeContract(config, request)
 
-    return receipt;
+    if (onTransaction) onTransaction(txHash)
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+
+    if (onReceipt) onReceipt(receipt)
+
+    return receipt
+    
 };
 
 export {

@@ -244,7 +244,7 @@ function ApproveTokenContract(dContracts: DContracts, tokenExchange: string, tok
     }
 }
 
-function TokenContract(dContracts: DContracts, tokenExchange: string): TokenContractResult {
+function TokenContract(contracts: any, tokenExchange: string): TokenContractResult {
     // Ex. aTokenMap = CA_0, CA_1, TP_0, TP_1, TC_0, TC_1, COINBASE, TF_0, TF_1
     const tokenExchangeSettings = TokenSettings(tokenExchange);
 
@@ -253,27 +253,27 @@ function TokenContract(dContracts: DContracts, tokenExchange: string): TokenCont
     switch (aTokenMap[0]) {
         case "CA":
             return {
-                token: dContracts.contracts.CA[parseInt(aTokenMap[1])],
+                token: contracts.CA[parseInt(aTokenMap[1])],
                 decimals: tokenExchangeSettings.decimals,
             };
         case "TP":
             return {
-                token: dContracts.contracts.TP[parseInt(aTokenMap[1])],
+                token: contracts.TP[parseInt(aTokenMap[1])],
                 decimals: tokenExchangeSettings.decimals,
             };
         case "TC":
             return {
-                token: dContracts.contracts.CollateralToken[parseInt(aTokenMap[1])],
+                token: contracts.CollateralToken[parseInt(aTokenMap[1])],
                 decimals: tokenExchangeSettings.decimals,
             };
         case "TF":
             return {
-                token: dContracts.contracts.FeeToken[parseInt(aTokenMap[1])],
+                token: contracts.FeeToken[parseInt(aTokenMap[1])],
                 decimals: tokenExchangeSettings.decimals,
             };
         case "TG":
             return {
-                token: dContracts.contracts.TG,
+                token: contracts.TG,
                 decimals: tokenExchangeSettings.decimals,
             };
         default:

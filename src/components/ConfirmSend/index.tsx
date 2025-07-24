@@ -8,6 +8,8 @@ import { PrecisionNumbers } from "../PrecisionNumbers";
 import { TokenSettings } from "../../helpers/currencies";
 import { AuthenticateContext } from "../../context/Auth";
 import CopyAddress from "../CopyAddress";
+import { toBigIntPrecision } from "../../helpers/precision";
+import { useWalletContext } from "../../context/Wallet";
 
 interface ConfirmSendProps {
     currencyYouExchange: string;
@@ -30,6 +32,7 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
 
     const { t, i18n, ns } = useProjectTranslation();
     const auth = useContext(AuthenticateContext);
+    const { interfaceTransferToken, interfaceTransferCoinbase } = useWalletContext()
 
     const [status, setStatus] = useState<StatusType>("SUBMIT");
     const [txID, setTxID] = useState<string>("");
@@ -37,10 +40,11 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
     const onSendTransaction = (): void => {
         // Real send transaction
         setStatus("SIGN");
+        const amountYouExchangeWei: bigint = toBigIntPrecision(amountYouExchange);
 
         if (currencyYouExchange === "COINBASE") {
-            auth.interfaceTransferCoinbase(
-                amountYouExchange,
+            interfaceTransferCoinbase(
+                amountYouExchangeWei,
                 destinationAddress.toLowerCase(),
                 onTransaction,
                 onReceipt
@@ -54,9 +58,9 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
                     console.log(error);
                 });
         } else {
-            auth.interfaceTransferToken(
+            interfaceTransferToken(
                 currencyYouExchange,
-                amountYouExchange,
+                amountYouExchangeWei,
                 destinationAddress.toLowerCase(),
                 onTransaction,
                 onReceipt
@@ -149,11 +153,11 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
                     <div className="tx-amount-data">
                         <div className="tx-amount">
                             {PrecisionNumbers({
-                                amount: new BigNumber(amountYouExchange),
+                                amount: amountYouExchange,
                                 token: TokenSettings(currencyYouExchange),
                                 decimals: 8,
                                 i18n: i18n,
-                                skipContractConvert: true,
+                                isInWei: false,
                             })}
                         </div>
                         <div className="tx-token">
@@ -190,8 +194,7 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
                                     amount: exchangingUSD,
                                     token: TokenSettings("CA_0"),
                                     decimals: 8,
-                                    i18n: i18n,
-                                    skipContractConvert: true,
+                                    i18n: i18n                                    
                                 })}
                             </div>
 

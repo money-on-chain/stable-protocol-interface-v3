@@ -113,8 +113,7 @@ export default function Portfolio(): JSX.Element {
                                       amount: totalUSD,
                                       token: settings.tokens.COINBASE[0],
                                       decimals: 2,
-                                      i18n: i18n,
-                                      skipContractConvert: false,
+                                      i18n: i18n,                                      
                                       compact: true,
                                   })}
                             {space}

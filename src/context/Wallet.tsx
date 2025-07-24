@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { useAccount, useConnect, useDisconnect, usePublicClient } from 'wagmi'
+import { useAccount, useConnect, useDisconnect, usePublicClient, useWalletClient } from 'wagmi'
 import { useLatestBlockNumber } from '../hooks/useLatestBlockNumber'
 import { useOffchainPrices } from '../hooks/useOffchainPrices'
 import { useContractProtocolStatus } from '../hooks/useContractProtocolStatus'
@@ -8,6 +8,9 @@ import { useContractsOmocStatus } from '../hooks/useContractsOmocStatus'
 import { useUserBalance } from '../hooks/useUserBalance'
 import { readContracts } from '../hooks/useReadContracts'
 import { useBaseCoinBalance } from '../hooks/useBaseCoinBalance'
+import { TokenContract, ApproveTokenContract } from '../helpers/exchange'
+import { transferTokenTo, transferCoinbaseTo, AllowanceAmount } from '../lib/backend/moc-base'
+
 
 export type WalletContextType = {
   isConnected: boolean
@@ -23,6 +26,19 @@ export type WalletContextType = {
   offChainPrices: any
   proposalCount?: bigint
   readContractsAddresses: () => Promise<void>
+  interfaceTransferToken: (
+    currencyYouExchange: string,
+    amount: bigint,
+    destinationAddress: string,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+  ) => Promise<void>
+  interfaceTransferCoinbase: (
+    amount: bigint,
+    destinationAddress: string,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+  ) => Promise<void>
 }
 
 export const WalletContext = createContext<WalletContextType | null>(null)
@@ -35,11 +51,17 @@ export const useWalletContext = () => {
   return ctx
 }
 
+type OnTransaction = (hash: string) => void;
+type OnReceipt = (receipt: any) => void;
+type OnError = (error: any) => void;
+
+
 export function WalletProvider({ children }: { children: React.ReactNode }) {
     const { address, isConnected } = useAccount()
     const { connect } = useConnect()
     const { disconnect } = useDisconnect()
     const publicClient = usePublicClient()
+    const walletClient = useWalletClient()
 
     const [contractsAddress, setContractsAddress] = useState(null)
     const [contractsAddressLoaded, setContractsAddressLoaded] = useState(false)
@@ -117,6 +139,83 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         }
     }
 
+    const buildInterfaceContext = (): any => {
+        return {
+            publicClient,
+            walletClient,
+            contractProtocolStatus,
+            userBalance,
+            address,
+            contracts: contractsAddress,
+        };
+    };
+
+    const interfaceTransferToken = async (
+        currencyYouExchange: string,
+        amount: bigint,
+        destinationAddress: string,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ): Promise<void> => {
+        if (!contractsAddress) return;
+    
+        const tContract = TokenContract(contractsAddress, currencyYouExchange);
+        if (tContract.token) {
+            const interfaceContext = buildInterfaceContext();
+            await transferTokenTo(
+                interfaceContext,
+                tContract.token,                
+                destinationAddress,
+                amount,
+                onTransaction,
+                onReceipt
+            );
+        }
+    };
+    
+    const interfaceTransferCoinbase = async (
+        amount: bigint,
+        destinationAddress: string,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ): Promise<void> => {
+        const interfaceContext = buildInterfaceContext();
+        await transferCoinbaseTo(
+            interfaceContext,
+            destinationAddress,
+            amount,
+            onTransaction,
+            onReceipt
+        );
+    };
+
+    const interfaceAllowanceAmount = async (
+        currencyYouExchange: string,
+        currencyYouReceive: string,
+        amountAllowance: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ): Promise<void> => {
+        if (!contractsAddress) return;
+
+        const approveInfo = ApproveTokenContract(
+            contractsAddress,
+            currencyYouExchange,
+            currencyYouReceive
+        );
+        if (approveInfo.token) {
+            const interfaceContext = buildInterfaceContext();
+            await AllowanceAmount(
+                interfaceContext,
+                approveInfo.token,
+                approveInfo.contractAllow,
+                amountAllowance,                
+                onTransaction,
+                onReceipt
+            );
+        }
+    };
+
     return (
         <WalletContext.Provider
         value={{
@@ -133,6 +232,9 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             offChainPrices,
             proposalCount,
             readContractsAddresses,
+            interfaceTransferToken,
+            interfaceTransferCoinbase,
+            interfaceAllowanceAmount,
         }}
         >
         {children}

@@ -212,6 +212,10 @@ export default function PortfolioTable() {
                     priceDelta = price - priceHistory;
                     variation = divPrecision(priceDelta, priceHistory);
 
+                    console.log("DEBUG>>>")
+                    console.log(price)
+                    console.log(balanceUSD)
+
                     break;
                 case "CA":
                     // CALCULATE TOKENS CA DATA

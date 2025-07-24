@@ -1,4 +1,4 @@
-import { parseUnits, isHex, hexToBigInt } from 'viem'
+import { parseUnits, isHex, hexToBigInt, formatUnits } from 'viem'
 
 
 const PRECISION_DECIMALS = 18n
@@ -10,14 +10,14 @@ const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
  * @param value - Float or decimal string (e.g. 1.23 or "0.0001")
  * @returns bigint representing value * 10^18
  */
-export const toBigIntPrecision = (value: number | string) => {
+export const toBigIntPrecision = (value: number | string, decimals: number = 18) => {
     if (typeof value === 'number') {
       // Convert to fixed string to avoid scientific notation issues
-      return parseUnits(value.toFixed(24), 18); // 24 = extra precision buffer
+      return parseUnits(value.toFixed(24), decimals); // 24 = extra precision buffer
     }
   
     if (typeof value === 'string') {
-      return parseUnits(value, 18);
+      return parseUnits(value, decimals);
     }
   
     throw new Error('Invalid input type for toBigIntPrecision');
@@ -79,3 +79,7 @@ export const absBigInt = (x: bigint): bigint => {
     return x < 0n ? -x : x
   }
   
+
+export const fromWei = (amount: bigint, decimals: number = 18) => {
+    return formatUnits(amount, decimals).toString()
+}
