@@ -11,7 +11,7 @@ import LogoIconTP_1 from "../assets/tokens/tp_1.svg?react";
 import LogoIconTG_0 from "../assets/tokens/tg_0.svg?react";
 import settings from "../settings/settings.json";
 import { fromContractPrecisionDecimals } from "./Formats";
-import { normalizeToBigInt, divPrecision, mulPrecision } from "./precision";
+import { normalizeToBigInt, divPrecision, mulPrecision, toBigIntPrecision, fromWei } from "./precision";
 
 interface Token {
     name: string;
@@ -56,16 +56,16 @@ interface Auth {
 }
 
 interface FeeInfo {
-    fee: BigNumber;
-    feeUSD: BigNumber;
-    percent: BigNumber;
-    markup: BigNumber;
-    markOperation: BigNumber;
-    feeTokenPrice: BigNumber;
-    feeTokenPct: BigNumber;
-    totalFeeToken: BigNumber;
-    totalFeeTokenUSD: BigNumber;
-    feeTokenPercent: BigNumber;
+    fee: bigint;
+    feeUSD: bigint;
+    percent: bigint;
+    markup: bigint;
+    markOperation: bigint;
+    feeTokenPrice: bigint;
+    feeTokenPct: bigint;
+    totalFeeToken: bigint;
+    totalFeeTokenUSD: bigint;
+    feeTokenPercent: bigint;
 }
 
 const currencies: Currency[] = [
@@ -168,9 +168,9 @@ function hasNonUSDPeggedTokens(): boolean {
     return has;
 }
 
-function ConvertBalance(auth: Auth, tokenExchange: string, tokenReceive: string): BigNumber {
-    const rawAmount = TokenBalance(auth, tokenExchange);
-    return ConvertAmount(auth, tokenExchange, tokenReceive, rawAmount);
+function ConvertBalance(contractProtocolStatus: any, userBalance: any, tokenExchange: string, tokenReceive: string): bigint {
+    const rawAmount = TokenBalance(userBalance, tokenExchange);
+    return ConvertAmount(contractProtocolStatus, tokenExchange, tokenReceive, rawAmount);
 }
 
 function ConvertAmount(
@@ -250,6 +250,31 @@ const AmountToVisibleValue = (
     });
 };
 
+const bigIntToInputValue = (
+    rawAmount: bigint,
+    tokenName: string,
+    decimals: number    
+): string => {
+
+    if (typeof rawAmount !== "bigint") {
+        console.warn("❌ amount must be bigint:", rawAmount)
+        return "Error"
+    }
+
+    const tokenSettings = TokenSettings(tokenName);
+    const amount = Number(fromWei(rawAmount, tokenSettings.decimals));
+
+    // Round down to the desired number of decimals
+    const factor = Math.pow(10, decimals);
+    const floored = Math.floor(amount * factor) / factor;
+
+    // Use toFixed to ensure fixed-point notation, then remove trailing zeros
+    return floored
+    .toFixed(decimals)
+    .replace(/\.?0+$/, ""); // remove unnecessary trailing zeros and dot if needed
+};
+
+
 const getCAIndex = (
     tokenExchange: string,
     tokenReceive: string
@@ -285,28 +310,14 @@ const getCAIndex = (
 };
 
 function CalcCommission(
-    auth: Auth,
+    contractProtocolStatus: any,
     tokenExchange: string,
     tokenReceive: string,
-    rawAmount: number,
-    amountInWei: boolean = true
+    rawAmount: bigint
 ): FeeInfo {
-    const tokenExchangeSettings = TokenSettings(tokenExchange);
-    const tokenReceiveSettings = TokenSettings(tokenReceive);
+    const amount: bigint = rawAmount;
 
-    let amount: BigNumber;
-    if (amountInWei) {
-        amount = new BigNumber(
-            fromContractPrecisionDecimals(
-                rawAmount,
-                tokenExchangeSettings.decimals
-            )
-        );
-    } else {
-        amount = new BigNumber(rawAmount);
-    }
-
-    let feeParam: BigNumber;
+    let feeParam: bigint;
 
     const aTokenExchange = tokenExchange.split("_");
     const aTokenReceive = tokenReceive.split("_");
@@ -316,95 +327,48 @@ function CalcCommission(
     switch (aTokenMap) {
         case "CA,TC":
             // Mint TC
-            feeParam = new BigNumber(
-                fromContractPrecisionDecimals(
-                    auth.contractStatusData?.[caIndex].tcMintFee || "0",
-                    tokenReceiveSettings.decimals
-                )
-            );
+            feeParam = contractProtocolStatus.data?.[caIndex].tcMintFee || 0n;
             break;
         case "TP,CA":
             // Redeem TP
-            feeParam = new BigNumber(
-                fromContractPrecisionDecimals(
-                    auth.contractStatusData?.[caIndex].tpRedeemFees[
-                        parseInt(aTokenExchange[1])
-                    ] || "0",
-                    tokenReceiveSettings.decimals
-                )
-            );
+            feeParam = contractProtocolStatus.data?.[caIndex].tpRedeemFees[parseInt(aTokenExchange[1])] || 0n;
             break;
         case "CA,TP":
             // Mint TP
-            feeParam = new BigNumber(
-                fromContractPrecisionDecimals(
-                    auth.contractStatusData?.[caIndex].tpMintFees[
-                        parseInt(aTokenReceive[1])
-                    ] || "0",
-                    tokenReceiveSettings.decimals
-                )
-            );
+            feeParam = contractProtocolStatus.data?.[caIndex].tpMintFees[parseInt(aTokenReceive[1])] || 0n;
             break;
         case "TC,CA":
             // Redeem TC
-            feeParam = new BigNumber(
-                fromContractPrecisionDecimals(
-                    auth.contractStatusData?.[caIndex].tcRedeemFee || "0",
-                    tokenReceiveSettings.decimals
-                )
-            );
+            feeParam = contractProtocolStatus.data?.[caIndex].tcRedeemFee || 0n;
             break;
         default:
             throw new Error("Invalid token name");
     }
 
     // Fee Paying with Token
-    const feeTokenPrice = new BigNumber(
-        fromContractPrecisionDecimals(
-            auth.contractStatusData?.[caIndex].PP_FeeToken[0] || "0",
-            tokenReceiveSettings.decimals
-        )
-    );
-    const feeTokenPct = new BigNumber(
-        fromContractPrecisionDecimals(
-            auth.contractStatusData?.[caIndex].feeTokenPct || "0",
-            tokenReceiveSettings.decimals
-        )
-    );
-    const priceCA = new BigNumber(
-        fromContractPrecisionDecimals(
-            auth.contractStatusData?.[caIndex].PP_CA[0] || "0",
-            settings.tokens.CA[caIndex].decimals
-        )
-    );
-    const qFeeToken = amount.times(feeParam.times(feeTokenPct));
+    const feeTokenPrice = normalizeToBigInt(contractProtocolStatus.data?.[caIndex].PP_FeeToken[0]) || 0n;
+    const feeTokenPct = contractProtocolStatus.data?.[caIndex].feeTokenPct || 0n;
+    const priceCA = normalizeToBigInt(contractProtocolStatus.data?.[caIndex].PP_CA[0]) || 0n;
+    const qFeeToken = mulPrecision(amount, mulPrecision(feeParam, feeTokenPct));
 
     // Markup Vendors
-    const vendorMarkup = new BigNumber(
-        fromContractPrecisionDecimals(
-            auth.contractStatusData?.[caIndex].vendorMarkup || "0",
-            tokenReceiveSettings.decimals
-        )
-    );
-    const markOperation = amount.times(vendorMarkup);
+    const vendorMarkup = contractProtocolStatus.data?.[caIndex].vendorMarkup || 0n;
+    const markOperation = mulPrecision(amount, vendorMarkup);
 
     // Total fee token
-    const totalFeeToken = qFeeToken.plus(markOperation);
+    const totalFeeToken = qFeeToken + markOperation;
 
     const feeInfo: FeeInfo = {
-        fee: amount.times(feeParam).plus(markOperation),
-        feeUSD: amount.times(feeParam).plus(markOperation).times(priceCA),
-        percent: feeParam.plus(vendorMarkup).times(100),
+        fee: mulPrecision(amount, feeParam) + markOperation,
+        feeUSD: mulPrecision(mulPrecision(amount, feeParam) + markOperation, priceCA),
+        percent: (feeParam + vendorMarkup) * 100n,
         markup: vendorMarkup,
         markOperation: markOperation,
         feeTokenPrice: feeTokenPrice,
         feeTokenPct: feeTokenPct,
-        totalFeeToken: totalFeeToken.div(feeTokenPrice),
-        totalFeeTokenUSD: totalFeeToken.times(priceCA),
-        feeTokenPercent: feeParam
-            .times(feeTokenPct)
-            .plus(vendorMarkup)
-            .times(100),
+        totalFeeToken: divPrecision(totalFeeToken, feeTokenPrice),
+        totalFeeTokenUSD: mulPrecision(totalFeeToken, priceCA),
+        feeTokenPercent: (mulPrecision(feeParam, feeTokenPct) + vendorMarkup) * 100n,
     };
 
     return feeInfo;
@@ -420,5 +384,6 @@ export {
     CalcCommission,
     ConvertPeggedTokenPrice,
     hasNonUSDPeggedTokens,
-    getCAIndex
+    getCAIndex,
+    bigIntToInputValue
 };

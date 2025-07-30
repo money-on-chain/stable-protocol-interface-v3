@@ -9,7 +9,10 @@ import { useUserBalance } from '../hooks/useUserBalance'
 import { readContracts } from '../hooks/useReadContracts'
 import { useBaseCoinBalance } from '../hooks/useBaseCoinBalance'
 import { TokenContract, ApproveTokenContract } from '../helpers/exchange'
-import { transferTokenTo, transferCoinbaseTo, AllowanceAmount } from '../lib/backend/moc-base'
+import { transferTokenTo, transferCoinbaseTo, AllowanceAmount, AllowUseTokenMigrator, MigrateToken } from '../lib/backend/moc-base'
+import ModalAccount from '../components/Modals/Account'
+import { exchangeMethod } from "../helpers/exchange";
+
 
 
 export type WalletContextType = {
@@ -25,6 +28,8 @@ export type WalletContextType = {
   blockNumber?: bigint
   offChainPrices: any
   proposalCount?: bigint
+  publicClient: any
+  walletClient: any
   readContractsAddresses: () => Promise<void>
   interfaceTransferToken: (
     currencyYouExchange: string,
@@ -39,6 +44,32 @@ export type WalletContextType = {
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
   ) => Promise<void>
+  interfaceAllowanceAmount: (
+    currencyYouExchange: string,
+    currencyYouReceive: string,
+    amountAllowance: bigint,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+  ) => Promise<void>
+  interfaceExchangeMethod: (
+    currencyYouExchange: string,
+    currencyYouReceive: string,
+    tokenAmount: string | number,
+    limitAmount: string | number,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+  ) => Promise<any>
+  interfaceAllowUseTokenMigrator: (
+    amount: bigint,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt,
+    onError: OnError
+  ) => Promise<any>
+  interfaceMigrateToken: (
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt,
+    onError: OnError
+  ) => Promise<any>
 }
 
 export const WalletContext = createContext<WalletContextType | null>(null)
@@ -69,6 +100,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const userBaseCoinBalance = useBaseCoinBalance(address, 30_000)
 
     const [offChainPrices, setOffChainPrices] = useState(null)
+    const [showModalAccount, setShowModalAccount] = useState<boolean>(false)
+    const [vestingOn, setVestingOn] = useState<boolean>(false)
 
     const { blockNumber } = useLatestBlockNumber(5_000)
     const offChainPricesAPI = useOffchainPrices(20_000)
@@ -105,19 +138,19 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         if (contractProtocolStatus.data) {
-            console.log('Protocol:', contractProtocolStatus.data)
+            //console.log('Protocol:', contractProtocolStatus.data)
         }
     }, [contractProtocolStatus.data])  
 
     useEffect(() => {
         if (contractStatusOmoc.data) {
-            console.log('Omoc:', contractStatusOmoc.data)
+            //console.log('Omoc:', contractStatusOmoc.data)
         }
     }, [contractStatusOmoc.data])
 
     useEffect(() => {
         if (userBalance.data) {
-            console.log('User balance:', userBalance.data)
+            //console.log('User balance:', userBalance.data)
         }
     }, [userBalance.data])
 
@@ -138,6 +171,19 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             console.error("Error loading contracts:", e)
         }
     }
+
+    const onShowModalAccount = (): void => {
+        setShowModalAccount(true);
+    };
+
+    const onShowModalAccountVesting = (): void => {
+        setVestingOn(true);
+        setShowModalAccount(true);
+    };
+
+    const onHideModalAccount = (): void => {
+        setShowModalAccount(false);
+    };
 
     const buildInterfaceContext = (): any => {
         return {
@@ -216,6 +262,56 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const interfaceExchangeMethod = async (
+        currencyYouExchange: string,
+        currencyYouReceive: string,
+        tokenAmount: string | number,
+        limitAmount: string | number,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ): Promise<any> => {
+        const interfaceContext = buildInterfaceContext();
+        return exchangeMethod(
+            interfaceContext,
+            currencyYouExchange,
+            currencyYouReceive,
+            tokenAmount,
+            limitAmount,
+            onTransaction,
+            onReceipt
+        );
+    };
+
+    const interfaceAllowUseTokenMigrator = async (
+        amount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ): Promise<any> => {
+        const interfaceContext = buildInterfaceContext();
+        return AllowUseTokenMigrator(
+            interfaceContext,
+            amount,
+            onTransaction,
+            onReceipt,
+            onError
+        );
+    };
+
+    const interfaceMigrateToken = async (
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ): Promise<any> => {
+        const interfaceContext = buildInterfaceContext();
+        return MigrateToken(
+            interfaceContext,
+            onTransaction,
+            onReceipt,
+            onError
+        );
+    };
+
     return (
         <WalletContext.Provider
         value={{
@@ -235,9 +331,22 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             interfaceTransferToken,
             interfaceTransferCoinbase,
             interfaceAllowanceAmount,
+            interfaceExchangeMethod,
+            interfaceAllowUseTokenMigrator,
+            interfaceMigrateToken,
+            publicClient,
+            walletClient,
         }}
         >
         {children}
+            <ModalAccount
+                truncatedAddress={address}
+                show={showModalAccount}
+                onShow={onShowModalAccount}
+                onHide={onHideModalAccount}
+                vestingOn={vestingOn}
+                setVestingOn={setVestingOn}
+            />
         </WalletContext.Provider>
     )
 }

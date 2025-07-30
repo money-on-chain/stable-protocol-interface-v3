@@ -1,5 +1,3 @@
-import BigNumber from "bignumber.js";
-import Web3 from "web3";
 import {
     mintTC as mintTC_,
     redeemTC as redeemTC_,
@@ -7,23 +5,15 @@ import {
     redeemTP as redeemTP_,
 } from "./moc-core";
 
-// Type definitions
-interface InterfaceContext {
-    web3: Web3;
-    contractStatusData: any[];
-    userBalanceData: any;
-    account: string;
-    [key: string]: any;
-}
 
 type OnTransaction = (hash: string) => void;
 type OnReceipt = (receipt: any) => void;
 
 const mintTC = async (
-    interfaceContext: InterfaceContext,
+    interfaceContext: any,
     caIndex: number,
-    qTC: string | number,
-    limitAmount: BigNumber,
+    qTC: bigint,
+    limitAmount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
 ): Promise<any> => {
@@ -39,10 +29,10 @@ const mintTC = async (
 };
 
 const redeemTC = async (
-    interfaceContext: InterfaceContext,
+    interfaceContext: any,
     caIndex: number,
-    qTC: string | number,
-    limitAmount: BigNumber,
+    qTC: bigint,
+    limitAmount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
 ): Promise<any> => {
@@ -58,11 +48,11 @@ const redeemTC = async (
 };
 
 const mintTP = async (
-    interfaceContext: InterfaceContext,
+    interfaceContext: any,
     caIndex: number,
     tpIndex: number,
-    qTP: string | number,
-    limitAmount: BigNumber,
+    qTP: bigint,
+    limitAmount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
 ): Promise<any> => {
@@ -79,11 +69,11 @@ const mintTP = async (
 };
 
 const redeemTP = async (
-    interfaceContext: InterfaceContext,
+    interfaceContext: any,
     caIndex: number,
     tpIndex: number,
-    qTP: string | number,
-    limitAmount: BigNumber,
+    qTP: bigint,
+    limitAmount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
 ): Promise<any> => {

@@ -1,25 +1,8 @@
-import { useContext } from "react";
-import { BigNumber } from "bignumber.js";
-
+import React from "react";
 import { useProjectTranslation } from "./translations";
-import { AuthenticateContext } from "../context/Auth";
-import { fromContractPrecisionDecimals } from "./Formats";
 import settings from "../settings/settings.json";
+import { useWalletContext } from "../context/Wallet";
 
-// Type definitions
-interface AuthContext {
-    contractStatusData: {
-        canOperate: boolean;
-        [key: number]: {
-            getCglb: string;
-            getCtargemaCA: string;
-            liqThrld: string;
-            protThrld: string;
-            liquidated: boolean;
-            paused: boolean;
-        };
-    } | null;
-}
 
 interface StatusResult {
     globalStatus: number;
@@ -29,7 +12,7 @@ interface StatusResult {
     statusCode: number[];
 }
 
-function CheckStatusCA(auth: AuthContext, caIndex: number): number {
+function CheckStatusCA(contractProtocolStatus: any, caIndex: number): number {
     /* Status Code:
     -1: Error - !auth.contractStatusData
      0: Optimal - globalCoverage > getCtargemaCA
@@ -42,39 +25,16 @@ function CheckStatusCA(auth: AuthContext, caIndex: number): number {
 
     let statusCode: number = -1;
 
-    if (!auth.contractStatusData) return statusCode;
+    if (!contractProtocolStatus.data) return statusCode;
 
-    const globalCoverage = new BigNumber(
-        fromContractPrecisionDecimals(
-            auth.contractStatusData[caIndex].getCglb,
-            settings.tokens.CA[caIndex].decimals
-        )
-    );
-    const getCtargemaCA = new BigNumber(
-        fromContractPrecisionDecimals(
-            auth.contractStatusData[caIndex].getCtargemaCA,
-            settings.tokens.CA[caIndex].decimals
-        )
-    );
-    const liqThrld = new BigNumber(
-        fromContractPrecisionDecimals(
-            auth.contractStatusData[caIndex].liqThrld,
-            settings.tokens.CA[caIndex].decimals
-        )
-    );
-    const protThrld = new BigNumber(
-        fromContractPrecisionDecimals(
-            auth.contractStatusData[caIndex].protThrld,
-            settings.tokens.CA[caIndex].decimals
-        )
-    );
+    const globalCoverage = contractProtocolStatus.data[caIndex].getCglb;
+    const getCtargemaCA = contractProtocolStatus.data[caIndex].getCtargemaCA;
+    const liqThrld = contractProtocolStatus.data[caIndex].liqThrld;
+    const protThrld = contractProtocolStatus.data[caIndex].protThrld;
 
-    if (globalCoverage.gt(getCtargemaCA)) {
+    if (globalCoverage > getCtargemaCA) {
         statusCode = 0;
-    } else if (
-        globalCoverage.gt(protThrld) &&
-        globalCoverage.lte(getCtargemaCA)
-    ) {
+    } else if (globalCoverage > protThrld && globalCoverage <= getCtargemaCA) {
         statusCode = 1;
     } else if (globalCoverage.gt(liqThrld) && globalCoverage.lte(protThrld)) {
         statusCode = 2;
@@ -82,15 +42,15 @@ function CheckStatusCA(auth: AuthContext, caIndex: number): number {
         statusCode = 3;
     }
 
-    if (auth.contractStatusData[caIndex].liquidated) {
+    if (contractProtocolStatus.data[caIndex].liquidated) {
         statusCode = 3;
     }
 
-    if (auth.contractStatusData[caIndex].paused) {
+    if (contractProtocolStatus.data[caIndex].paused) {
         statusCode = 4;
     }
 
-    if (!auth.contractStatusData.canOperate) {
+    if (!contractProtocolStatus.data.canOperate) {
         statusCode = 5;
     }
 
@@ -99,7 +59,7 @@ function CheckStatusCA(auth: AuthContext, caIndex: number): number {
 
 function CheckStatusGlobal() {
     const { t } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext) as AuthContext;
+    const { contractProtocolStatus } = useWalletContext()
 
     const checkerStatus = (): StatusResult => {
         let statusLabel: string = "--";
@@ -111,7 +71,7 @@ function CheckStatusGlobal() {
         let countValid: number = 0;
         let countProtected: number = 0;
         for (let caIndex = 0; caIndex < settings.tokens.CA.length; caIndex++) {
-            statusCodeCA = CheckStatusCA(auth, caIndex);
+            statusCodeCA = CheckStatusCA(contractProtocolStatus, caIndex);
             statusCode.push(statusCodeCA);
 
             if (statusCodeCA < 1) {

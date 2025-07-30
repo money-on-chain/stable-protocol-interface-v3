@@ -1,22 +1,24 @@
 import React, { Fragment, useState, useEffect } from "react";
-import { useContext } from "react";
 import { Skeleton } from "antd";
-import { AuthenticateContext } from "../../context/Auth";
+
 import LastOperations from "../../components/Tables/LastOperations";
 import { useProjectTranslation } from "../../helpers/translations";
 import Exchange from "../../components/Exchange";
 import "./Styles.scss";
+import { useWalletContext } from "../../context/Wallet";
 
 export default function SectionExchange(): React.ReactElement {
     const { t } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext);
+    
+    const { contractProtocolStatus, userBalance } = useWalletContext()
     const [ready, setReady] = useState<boolean>(false);
     
     useEffect(() => {
-        if (auth.contractStatusData && auth.userBalanceData) {
+        // Set component ready when contract status data is available
+        if (contractProtocolStatus.data && userBalance.data) {
             setReady(true);
         }
-    }, [auth]);
+    }, [contractProtocolStatus.data, userBalance.data]);
 
     return (
         <Fragment>

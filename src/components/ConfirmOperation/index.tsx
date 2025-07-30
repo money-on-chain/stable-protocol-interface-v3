@@ -1,38 +1,37 @@
-import BigNumber from "bignumber.js";
 import React, { useContext, useState, useEffect } from "react";
 import { Button, Collapse, Slider } from "antd";
 import axios from "axios";
 import PropTypes from "prop-types";
 
 import { useProjectTranslation } from "../../helpers/translations";
-import { fromContractPrecisionDecimals } from "../../helpers/Formats";
-import { PrecisionNumbers } from "../PrecisionNumbers";
+import { PrecisionNumbers } from "../PrecisionNumbers3";
 import { TokenSettings, TokenBalance } from "../../helpers/currencies";
-import { AuthenticateContext } from "../../context/Auth";
+
 import { isMintOperation, UserTokenAllowance } from "../../helpers/exchange";
 import ModalAllowanceOperation from "../Modals/Allowance";
 import CopyAddress from "../CopyAddress";
 //import settings from "../../settings/settings.json";
 import TXStatus from "./TXStatus";
 import { decodeEvents } from "../../lib/backend/transaction";
+import { useWalletContext } from "../../context/Wallet";
 
 const { Panel } = Collapse;
 
 interface ConfirmOperationProps {
     currencyYouExchange: string;
     currencyYouReceive: string;
-    exchangingUSD: BigNumber;
-    commission: BigNumber;
-    commissionUSD: BigNumber;
-    commissionPercent: BigNumber;
-    inputAmountYouExchange: BigNumber;
-    amountYouReceive: BigNumber;
+    exchangingUSD: bigint;
+    commission: bigint;
+    commissionUSD: bigint;
+    commissionPercent: bigint;
+    inputAmountYouExchange: bigint;
+    amountYouReceive: bigint;
     onCloseModal: () => void;
-    executionFee: BigNumber;
-    executionFeeUSD: BigNumber;
-    commissionFeeToken: BigNumber;
-    commissionFeeTokenUSD: BigNumber;
-    commissionPercentFeeToken: BigNumber;
+    executionFee: bigint;
+    executionFeeUSD: bigint;
+    commissionFeeToken: bigint;
+    commissionFeeTokenUSD: bigint;
+    commissionPercentFeeToken: bigint;
     radioSelectFee: number;
     caIndex: number;
 }
@@ -40,8 +39,8 @@ interface ConfirmOperationProps {
 type StatusType = "SUBMIT" | "SIGN" | "QUEUING" | "QUEUED" | "CONFIRMING" | "SUCCESS" | "ERROR";
 
 interface ToleranceLimits {
-    exchange: BigNumber;
-    receive: BigNumber;
+    exchange: bigint;
+    receive: bigint;
 }
 
 interface MarkStyle {
@@ -66,6 +65,27 @@ interface StatusLabels {
     DEFAULT: string;
 }
 
+
+/**
+ * Calculates the limit as: amount + amount * percentage
+ * using only BigInt arithmetic by scaling the percentage.
+ *
+ * @param {bigint} amount - The base amount as BigInt.
+ * @param {number} percentage - A decimal like 0.7 (70%).
+ * @param {bigint} scale - Precision scale (default: 1_000_000n = 6 decimals).
+ * @returns {bigint} The resulting amount with the percentage added.
+ */
+function calculateLimit(amount: bigint, percentage: number, scale = 1_000_000n): bigint {    
+    // Convert the decimal percentage to a scaled integer
+    const scaledPercentage = BigInt(Math.floor(percentage * Number(scale)));
+  
+    // Compute: amount * (1 + percentage) = amount * (scale + scaledPercentage) / scale
+    const limit = (amount * (scale + scaledPercentage)) / scale;
+  
+    return limit;
+}
+
+
 export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Element {
     const {
         currencyYouExchange,
@@ -87,10 +107,11 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
     } = props;
 
     const { t, i18n, ns } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext);
+    
+    const { contractProtocolStatus, userBalance, publicClient, interfaceExchangeMethod } = useWalletContext()
 
     const [status, setStatus] = useState<StatusType>("SUBMIT");
-    const [amountYouExchange, setAmountYouExchange] = useState<BigNumber>(
+    const [amountYouExchange, setAmountYouExchange] = useState<bigint>(
         inputAmountYouExchange
     );
     const [tolerance, setTolerance] = useState<number>(0.7);
@@ -136,21 +157,14 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
     }, [status]);
 
     const toleranceLimits = (newTolerance: number): ToleranceLimits => {
-        let limitExchange: BigNumber;
-        let limitReceive: BigNumber;
+        let limitExchange: bigint;
+        let limitReceive: bigint;
         if (IS_MINT) {
-            limitExchange = new BigNumber(amountYouExchange)
-                .times(new BigNumber(newTolerance))
-                .div(100)
-                .plus(new BigNumber(amountYouExchange));
+            limitExchange = calculateLimit(amountYouExchange, newTolerance / 100);
             limitReceive = amountYouReceive;
         } else {
             limitExchange = amountYouExchange;
-            limitReceive = new BigNumber(amountYouReceive)
-                .times(new BigNumber(newTolerance))
-                .div(100)
-                .minus(new BigNumber(amountYouReceive))
-                .abs();
+            limitReceive = calculateLimit(amountYouReceive, newTolerance / 100);
         }
 
         const limits: ToleranceLimits = {
@@ -163,10 +177,10 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
 
     const limits: ToleranceLimits = toleranceLimits(tolerance);
 
-    const [amountYouExchangeLimit, setAmountYouExchangeLimit] = useState<BigNumber>(
+    const [amountYouExchangeLimit, setAmountYouExchangeLimit] = useState<bigint>(
         limits.exchange
     );
-    const [amountYouReceiveLimit, setAmountYouReceiveLimit] = useState<BigNumber>(
+    const [amountYouReceiveLimit, setAmountYouReceiveLimit] = useState<bigint>(
         limits.receive
     );
     const [showModalAllowance, setShowModalAllowance] = useState<boolean>(false);
@@ -203,8 +217,8 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
     };
 
     const showAllowance = (): boolean => {
-        const tokenAllowance: BigNumber = UserTokenAllowance(auth, currencyYouExchange, caIndex);
-        return !!amountYouExchangeLimit.gt(tokenAllowance);
+        const tokenAllowance: bigint = UserTokenAllowance(userBalance, currencyYouExchange, caIndex);
+        return amountYouExchangeLimit > tokenAllowance;
     };
 
     const onHideModalAllowanceFeeToken = (): void => {
@@ -217,15 +231,15 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
 
     const showAllowanceFeeToken = (): boolean => {
         //const caIndex = getCAIndex(currencyYouExchange, currencyYouReceive);
-        const tokenAllowance: BigNumber = UserTokenAllowance(auth, `TF_${caIndex}`, caIndex);
+        const tokenAllowance: bigint = UserTokenAllowance(userBalance, `TF_${caIndex}`, caIndex);
 
-        if (radioSelectFee === 0 && tokenAllowance.gte(commissionFeeToken)) {
+        if (radioSelectFee === 0 && tokenAllowance >= commissionFeeToken) {
             // if we select not to pay with fee token, please disallow to use Fee token
             setDisAllowanceFeeToken(true);
             // show allowance window
             return true;
         } else if (radioSelectFee > 0) {
-            return !!commissionFeeToken.gte(tokenAllowance);
+            return !!commissionFeeToken >= tokenAllowance;
         }
 
         return false;
@@ -257,8 +271,8 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
         // Real send transaction
         setStatus("SIGN");
 
-        let tokenAmount: BigNumber;
-        let limitAmount: BigNumber;
+        let tokenAmount: bigint;
+        let limitAmount: bigint;
         if (IS_MINT) {
             tokenAmount = amountYouReceive;
             limitAmount = amountYouExchangeLimit;
@@ -267,7 +281,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
             limitAmount = amountYouReceiveLimit;
         }
 
-        auth.interfaceExchangeMethod(
+        interfaceExchangeMethod(
             currencyYouExchange,
             currencyYouReceive,
             tokenAmount,
@@ -338,11 +352,11 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                         setOpID(null);
 
                         // Refresh user balance
-                        auth.loadContractsStatusAndUserBalance().then(
-                            (/*value*/) => {
-                                console.log("Refresh user balance OK!");
-                            }
-                        );
+                        // auth.loadContractsStatusAndUserBalance().then(
+                        //     (/*value*/) => {
+                        //         console.log("Refresh user balance OK!");
+                        //     }
+                        // );
 
                         console.log("Operation Status: OK Executed.");
                     } else {
@@ -413,6 +427,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
             "OperationExecuted",
         ];
 
+        /*
         const contractName: string = "MocQueue";
 
         const txRcp = await auth.web3.eth.getTransactionReceipt(
@@ -422,6 +437,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
 
         // on Queue
         onQueued(filteredEvents);
+        */
     };
     
     const statusLabels: StatusLabels = {
@@ -489,13 +505,8 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
         setAmountChanged(true);
         setTolerance(newTolerance);
         const limits: ToleranceLimits = toleranceLimits(newTolerance);
-        const totalBalance: BigNumber = new BigNumber(
-            fromContractPrecisionDecimals(
-                TokenBalance(auth, currencyYouExchange),
-                TokenSettings(currencyYouExchange).decimals
-            )
-        );
-        if (limits.exchange.gt(totalBalance)) {
+        const totalBalance: bigint = TokenBalance(userBalance, currencyYouExchange);
+        if (limits.exchange > totalBalance) {
             console.log("Insufficient balance");
             setToleranceError("Tolerance exceeds user balance");
             setAmountYouExchangeLimit(limits.exchange);
@@ -514,9 +525,9 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
 
     // Commission Select Radio
 
-    let commissionPAY: BigNumber = commission;
-    let commissionPAYUSD: BigNumber = commissionUSD;
-    let commissionPercentPAY: BigNumber = commissionPercent;
+    let commissionPAY: bigint = commission;
+    let commissionPAYUSD: bigint = commissionUSD;
+    let commissionPercentPAY: bigint = commissionPercent;
     let commissionSettings: any = TokenSettings(`CA_${caIndex}`);
     let commissionTokenName: string;
 
@@ -548,13 +559,13 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                     <div className="tx-amount-data">
                         <div className="tx-amount">
                             {PrecisionNumbers({
-                                amount: new BigNumber(amountYouExchangeLimit),
+                                amount: amountYouExchangeLimit,
                                 token: TokenSettings(currencyYouExchange),
-                                decimals: amountYouExchangeLimit.lt(0.0000001)
+                                decimals: amountYouExchangeLimit < 1n
                                     ? 12
                                     : 8,
-                                i18n: i18n,
-                                skipContractConvert: true,
+                                i18n: i18n
+                                
                             })}
                         </div>
                         <div className="tx-token">
@@ -580,13 +591,12 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                     <div className="tx-amount-data">
                         <div className="tx-amount">
                             {PrecisionNumbers({
-                                amount: new BigNumber(amountYouReceive),
+                                amount: amountYouReceive,
                                 token: TokenSettings(currencyYouReceive),
-                                decimals: amountYouReceive.lt(0.0000001)
+                                decimals: amountYouReceive < 1n
                                     ? 12
                                     : 8,
-                                i18n: i18n,
-                                skipContractConvert: true,
+                                i18n: i18n                                
                             })}
                         </div>
                         <div className="tx-token">
@@ -601,15 +611,12 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                                 {t("exchange.confirm.minimumWarning")}
                                 <div className="">
                                     {PrecisionNumbers({
-                                        amount: new BigNumber(
-                                            amountYouReceiveLimit
-                                        ),
+                                        amount: amountYouReceiveLimit,
                                         token: TokenSettings(
                                             currencyYouReceive
                                         ),
                                         decimals: 4,
-                                        i18n: i18n,
-                                        skipContractConvert: true,
+                                        i18n: i18n                                        
                                     })}
                                 </div>
                                 {t("exchange.confirm.minimumExplanation")}
@@ -625,22 +632,20 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                         <span className={"token_exchange"}>
                             {t("fees.labelFee")} (
                             {PrecisionNumbers({
-                                amount: new BigNumber(commissionPercentPAY),
+                                amount: commissionPercentPAY,
                                 token: commissionSettings,
                                 decimals: 2,
-                                i18n: i18n,
-                                skipContractConvert: true,
+                                i18n: i18n                                
                             })}
                             %)
                         </span>
                         <span className={"symbol"}> ≈ </span>
                         <span className={"token_receive"}>
                             {PrecisionNumbers({
-                                amount: new BigNumber(commissionPAY),
+                                amount: commissionPAY,
                                 decimals: 10,
                                 token: commissionSettings,
-                                i18n: i18n,
-                                skipContractConvert: true,
+                                i18n: i18n                                
                             })}
                         </span>
                         <span className={"token_receive_name"}>
@@ -649,15 +654,14 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                         </span>
                         <span className={""}> (</span>
                         <span>
-                            {!auth.contractStatusData?.canOperate
+                            {!contractProtocolStatus?.data.canOperate
                                 ? "--"
                                 : PrecisionNumbers({
-                                      amount: new BigNumber(commissionPAYUSD),
+                                      amount: commissionPAYUSD,
                                       decimals: 2,
                                       token: TokenSettings(`CA_${caIndex}`),
                                       i18n: i18n,
-                                      isUSD: true,
-                                      skipContractConvert: true,
+                                      isUSD: true
                                   })}
                         </span>
                         <span className={""}>
@@ -676,8 +680,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                                 amount: executionFee,
                                 decimals: 10,
                                 token: TokenSettings("COINBASE"),
-                                i18n: i18n,
-                                skipContractConvert: true,
+                                i18n: i18n                                
                             })}
                         </span>
                         <span className={"token_receive_name"}>
@@ -689,15 +692,14 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
 
                         <span className={""}> (</span>
                         <span>
-                            {!auth.contractStatusData?.canOperate
+                            {!contractProtocolStatus?.data.canOperate
                                 ? "--"
                                 : PrecisionNumbers({
                                       amount: executionFeeUSD,
                                       decimals: 2,
                                       token: TokenSettings(`CA_${caIndex}`),
                                       i18n: i18n,
-                                      isUSD: true,
-                                      skipContractConvert: true,
+                                      isUSD: true                                      
                                   })}
                         </span>
                         <span className={""}>
@@ -769,8 +771,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                                         amount: exchangingUSD,
                                         token: TokenSettings(`CA_${caIndex}`),
                                         decimals: 4,
-                                        i18n: i18n,
-                                        skipContractConvert: true,
+                                        i18n: i18n,                                        
                                         isUSD: true,
                                     })}
                                 </div>

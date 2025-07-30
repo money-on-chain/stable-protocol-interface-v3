@@ -1,6 +1,4 @@
 import settings from "../settings/settings.json";
-import BigNumber from "bignumber.js";
-import { fromContractPrecisionDecimals } from "./Formats";
 import { TokenSettings } from "./currencies";
 import { mintTC, redeemTC, mintTP, redeemTP } from "../lib/backend/moc-rc20";
 import {
@@ -162,25 +160,25 @@ function isMintOperation(tokenExchange: string, tokenReceive: string): boolean {
     }
 }
 
-function TokenAllowance(auth: Auth, tokenExchange: string, caIndex: number): number {
+function TokenAllowance(userBalance: any, tokenExchange: string, caIndex: number): bigint {
     // Ex. tokenExchange = CA_0, CA_1, TP_0, TP_1, TC_0, TC_1, COINBASE, TF_0, TF_1
     //const tokenExchangeSettings = TokenSettings(tokenExchange);
     const aTokenExchange: string[] = tokenExchange.split("_");
-    let allowance: number = 0;
+    let allowance: bigint = 0n;
     switch (aTokenExchange[0]) {
         case "CA":
             allowance =
-                auth.userBalanceData.CA[parseInt(aTokenExchange[1])].allowance;
+            userBalance.data.CA[parseInt(aTokenExchange[1])].allowance;
             break;
         case "TP":
             allowance =
-                auth.userBalanceData.TP[caIndex][parseInt(aTokenExchange[1])].allowance;
+                userBalance.data.TP[caIndex][parseInt(aTokenExchange[1])].allowance;
             break;
         case "TC":
-            allowance = auth.userBalanceData[parseInt(aTokenExchange[1])].TC.allowance;
+            allowance = userBalance.data[parseInt(aTokenExchange[1])].TC.allowance;
             break;
         case "TF":
-            allowance = auth.userBalanceData[parseInt(aTokenExchange[1])].FeeToken.allowance;
+            allowance = userBalance.data[parseInt(aTokenExchange[1])].FeeToken.allowance;
             break;
         default:
             throw new Error("Invalid token name");
@@ -189,18 +187,11 @@ function TokenAllowance(auth: Auth, tokenExchange: string, caIndex: number): num
     return allowance;
 }
 
-function UserTokenAllowance(auth: Auth, tokenExchange: string, caIndex: number): BigNumber {
-    const tokenExchangeSettings = TokenSettings(tokenExchange);
-
-    return new BigNumber(
-        fromContractPrecisionDecimals(
-            TokenAllowance(auth, tokenExchange, caIndex),
-            tokenExchangeSettings.decimals
-        )
-    );
+function UserTokenAllowance(userBalance: any, tokenExchange: string, caIndex: number): bigint {
+    return TokenAllowance(userBalance, tokenExchange, caIndex);
 }
 
-function ApproveTokenContract(dContracts: DContracts, tokenExchange: string, tokenReceive: string): ApproveTokenContractResult {
+function ApproveTokenContract(contracts: any, tokenExchange: string, tokenReceive: string): ApproveTokenContractResult {
     const tokenExchangeSettings = TokenSettings(tokenExchange);
 
     const aTokenExchange: string[] = tokenExchange.split("_");
@@ -211,32 +202,32 @@ function ApproveTokenContract(dContracts: DContracts, tokenExchange: string, tok
         case "CA,TC":
         case "CA,TP":
             return {
-                token: dContracts.contracts.CA[parseInt(aTokenExchange[1])],
-                contractAllow: dContracts.contracts.Moc[parseInt(aTokenExchange[1])],
+                token: contracts.CA[parseInt(aTokenExchange[1])],
+                contractAllow: contracts.Moc[parseInt(aTokenExchange[1])],
                 decimals: tokenExchangeSettings.decimals,
             };
         case "TC,CA":
             return {
-                token: dContracts.contracts.CollateralToken[parseInt(aTokenExchange[1])],
-                contractAllow: dContracts.contracts.Moc[parseInt(aTokenReceive[1])],
+                token: contracts.CollateralToken[parseInt(aTokenExchange[1])],
+                contractAllow: contracts.Moc[parseInt(aTokenReceive[1])],
                 decimals: tokenExchangeSettings.decimals,
             };
         case "TP,CA":
             return {
-                token: dContracts.contracts.TP[parseInt(aTokenExchange[1])],
-                contractAllow: dContracts.contracts.Moc[parseInt(aTokenReceive[1])],
+                token: contracts.TP[parseInt(aTokenExchange[1])],
+                contractAllow: contracts.Moc[parseInt(aTokenReceive[1])],
                 decimals: tokenExchangeSettings.decimals,
             };
         case "TF,TF":
             return {
-                token: dContracts.contracts.FeeToken[parseInt(aTokenExchange[1])],
-                contractAllow: dContracts.contracts.Moc[parseInt(aTokenExchange[1])],
+                token: contracts.FeeToken[parseInt(aTokenExchange[1])],
+                contractAllow: contracts.Moc[parseInt(aTokenExchange[1])],
                 decimals: tokenExchangeSettings.decimals,
             };
         case "TG,ST": // Token Govern, Allow on Staking Machine
             return {
-                token: dContracts.contracts.TG,
-                contractAllow: dContracts.contracts.StakingMachine,
+                token: contracts.TG,
+                contractAllow: contracts.StakingMachine,
                 decimals: tokenExchangeSettings.decimals,
             };
         default:
@@ -285,8 +276,8 @@ function exchangeMethod(
     interfaceContext: InterfaceContext,
     tokenExchange: string,
     tokenReceive: string,
-    tokenAmount: TokenAmount,
-    limitAmount: LimitAmount,
+    tokenAmount: bigint,
+    limitAmount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
 ): Promise<any> {
@@ -400,19 +391,19 @@ function exchangeMethod(
     }
 }
 
-function executionFeeMap(tokenExchange: string, tokenReceive: string, auth: Auth): string {
+function executionFeeMap(tokenExchange: string, tokenReceive: string, contractProtocolStatus: any): bigint {
     const aTokenExchange: string[] = tokenExchange.split("_");
     const aTokenReceive: string[] = tokenReceive.split("_");
     const aTokenMap: string = `${aTokenExchange[0]},${aTokenReceive[0]}`;
     switch (aTokenMap) {
         case "CA,TC":
-            return auth.contractStatusData[parseInt(aTokenExchange[1])].tcMintExecCost;
+            return contractProtocolStatus.data[parseInt(aTokenExchange[1])].tcMintExecCost;
         case "CA,TP":
-            return auth.contractStatusData[parseInt(aTokenExchange[1])].tpMintExecCost;
+            return contractProtocolStatus.data[parseInt(aTokenExchange[1])].tpMintExecCost;
         case "TP,CA":
-            return auth.contractStatusData[parseInt(aTokenReceive[1])].tpRedeemExecCost;
+            return contractProtocolStatus.data[parseInt(aTokenReceive[1])].tpRedeemExecCost;
         case "TC,CA":
-            return auth.contractStatusData[parseInt(aTokenReceive[1])].tcRedeemExecCost;
+            return contractProtocolStatus.data[parseInt(aTokenReceive[1])].tcRedeemExecCost;
         default:
             throw new Error("Invalid token name map");
     }

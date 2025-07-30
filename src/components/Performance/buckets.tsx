@@ -1,58 +1,33 @@
-import React, { useContext } from "react";
-import BigNumber from "bignumber.js";
+import React from "react";
 
 import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers";
+import { PrecisionNumbers } from "../PrecisionNumbers3";
 import { TokenSettings } from "../../helpers/currencies";
-import { AuthenticateContext } from "../../context/Auth";
 import settings from "../../settings/settings.json";
-import { fromContractPrecisionDecimals } from "../../helpers/Formats";
 import Tokens from "./tokens";
+import { useWalletContext } from "../../context/Wallet";
+import { divPrecision } from "../../helpers/precision";
 
 // Type definitions
 interface BucketsProps {
     caIndex: number;
 }
 
-interface AuthContext {
-    contractStatusData: {
-        canOperate: boolean;
-        [key: number]: {
-            getLckAC: string;
-            nACcb: string;
-            getACBalance: string;
-            getCglb: string;
-            getCtargemaCA: string;
-        };
-    } | null;
-}
 
 export default function Buckets(props: BucketsProps): JSX.Element {
     const { caIndex } = props;
-    const { t, i18n, ns } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext) as AuthContext;
+    const { t, i18n, ns } = useProjectTranslation();    
+    const { contractProtocolStatus } = useWalletContext()
     const space = "\u00A0";
 
-    let lckAC: BigNumber | undefined;
-    let nACcb: BigNumber | undefined;
-    let leverage: BigNumber | undefined;
+    let lckAC: bigint = 0n;
+    let nACcb: bigint = 0n;
+    let leverage: bigint = 0n;
 
-    if (auth.contractStatusData) {
-        lckAC = new BigNumber(
-            fromContractPrecisionDecimals(
-                auth.contractStatusData[caIndex].getLckAC,
-                settings.tokens.CA[caIndex].decimals
-            )
-        );
-
-        nACcb = new BigNumber(
-            fromContractPrecisionDecimals(
-                auth.contractStatusData[caIndex].nACcb,
-                settings.tokens.CA[caIndex].decimals
-            )
-        );
-
-        leverage = nACcb.div(nACcb.minus(lckAC));
+    if (contractProtocolStatus.data) {
+        lckAC = contractProtocolStatus.data[caIndex].getLckAC;
+        nACcb = contractProtocolStatus.data[caIndex].nACcb;
+        leverage = divPrecision(nACcb, nACcb - lckAC);
     }
 
     return (
@@ -79,19 +54,19 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                     </div>
                     <div className="info">
                         <div className="amount">
-                            {!auth.contractStatusData?.canOperate
+                            {!contractProtocolStatus.data?.canOperate
                                 ? "--"
                                 : PrecisionNumbers({
-                                      amount: auth.contractStatusData
-                                          ? auth.contractStatusData[caIndex]
+                                      amount: contractProtocolStatus.data
+                                          ? contractProtocolStatus.data[caIndex]
                                                 .getACBalance
-                                          : new BigNumber(0),
+                                          : 0n,
                                       token: TokenSettings(`CA_${caIndex}`) as any,
                                       decimals:
                                           settings.tokens.CA[caIndex]
                                               .visibleDecimals,
                                       i18n: i18n,
-                                      skipContractConvert: false,
+                                      
                                   })}
                         </div>
                         <div className="label">Amount in protocol</div>
@@ -103,17 +78,17 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                     </div>
                     <div className="info">
                         <div className="amount">
-                            {!auth.contractStatusData?.canOperate
+                            {!contractProtocolStatus.data?.canOperate
                                 ? "--"
                                 : PrecisionNumbers({
-                                      amount: auth.contractStatusData
-                                          ? auth.contractStatusData[caIndex]
+                                      amount: contractProtocolStatus.data
+                                          ? contractProtocolStatus.data[caIndex]
                                                 .getCglb
-                                          : new BigNumber(0),
+                                          : 0n,
                                       token: settings.tokens.CA[caIndex] as any,
                                       decimals: 4,
                                       i18n: i18n,
-                                      skipContractConvert: false,
+                                      
                                   })}
                         </div>
                         <div className="label">Coverage</div>
@@ -125,17 +100,17 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                     </div>
                     <div className="info">
                         <div className="amount">
-                            {!auth.contractStatusData?.canOperate
+                            {!contractProtocolStatus.data?.canOperate
                                 ? "--"
                                 : PrecisionNumbers({
-                                      amount: auth.contractStatusData
-                                          ? auth.contractStatusData[caIndex]
+                                      amount: contractProtocolStatus.data
+                                          ? contractProtocolStatus.data[caIndex]
                                                 .getCtargemaCA
-                                          : new BigNumber(0),
+                                          : 0n,
                                       token: TokenSettings(`CA_${caIndex}`) as any,
                                       decimals: 4,
                                       i18n: i18n,
-                                      skipContractConvert: false,
+                                      
                                   })}
                         </div>
                         <div className="label">Target Coverage Adjusted</div>
@@ -147,16 +122,16 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                     </div>
                     <div className="info">
                         <div className="amount">
-                            {!auth.contractStatusData?.canOperate
+                            {!contractProtocolStatus.data?.canOperate
                                 ? "--"
                                 : PrecisionNumbers({
-                                      amount: auth.contractStatusData
+                                      amount: contractProtocolStatus.data
                                           ? leverage
-                                          : new BigNumber(0),
+                                          : 0n,
                                       token: TokenSettings(`CA_${caIndex}`) as any,
                                       decimals: 4,
                                       i18n: i18n,
-                                      skipContractConvert: true,
+                                      
                                   })}
                         </div>
                         <div className="label">Leverage</div>
@@ -168,18 +143,18 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                     </div>
                     <div className="info">
                         <div className="amount">
-                            {!auth.contractStatusData?.canOperate
+                            {!contractProtocolStatus.data?.canOperate
                                 ? "--"
                                 : PrecisionNumbers({
-                                      amount: auth.contractStatusData
+                                      amount: contractProtocolStatus.data
                                           ? lckAC
-                                          : new BigNumber(0),
+                                          : 0n,
                                       token: TokenSettings(`CA_${caIndex}`) as any,
                                       decimals:
                                           settings.tokens.CA[caIndex]
                                               .visibleDecimals,
                                       i18n: i18n,
-                                      skipContractConvert: true,
+                                      
                                   })}
                         </div>
                         <div className="label">Locked Collateral</div>

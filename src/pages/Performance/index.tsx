@@ -1,20 +1,21 @@
 import React, { Fragment, useEffect, useState } from "react";
-import { useContext } from "react";
 import { Skeleton } from "antd";
 
-import { AuthenticateContext } from "../../context/Auth";
 import Performance from "../../components/Performance";
+import { useWalletContext } from "../../context/Wallet";
 import "./Styles.scss";
 
+
 export default function SectionPerformance(): React.ReactElement {
-    const auth = useContext(AuthenticateContext);
+    const { contractProtocolStatus } = useWalletContext()
     const [ready, setReady] = useState<boolean>(false);
     
     useEffect(() => {
-        if (auth.contractStatusData) {
+        // Set component ready when contract status data is available
+        if (contractProtocolStatus.data) {
             setReady(true);
         }
-    }, [auth]);
+    }, [contractProtocolStatus.data]);
 
     return (
         <Fragment>

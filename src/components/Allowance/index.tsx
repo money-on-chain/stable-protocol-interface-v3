@@ -1,17 +1,16 @@
-import BigNumber from "bignumber.js";
 import React, { useContext, useState } from "react";
 import { Checkbox } from "antd";
 import PropTypes from "prop-types";
 
 import { useProjectTranslation } from "../../helpers/translations";
-import { AuthenticateContext } from "../../context/Auth";
+import { useWalletContext } from "@/context/Wallet";
 //import AccountDialog from '../Account';
 
 interface AllowanceDialogProps {
     onCloseModal: () => void;
     currencyYouExchange: string;
     currencyYouReceive: string;
-    amountYouExchangeLimit: BigNumber;
+    amountYouExchangeLimit: bigint;
     //amountYouReceiveLimit: BigNumber;
     onRealSendTransaction: () => void;
     disAllowance?: boolean;
@@ -31,7 +30,7 @@ export default function AllowanceDialog(props: AllowanceDialogProps): JSX.Elemen
     } = props;
 
     const { t } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext);
+    const { interfaceAllowanceAmount } = useWalletContext()
 
     const [status, setStatus] = useState<StatusType>("SUBMIT");
     let infinityAllowance: boolean = false;
@@ -78,20 +77,20 @@ export default function AllowanceDialog(props: AllowanceDialogProps): JSX.Elemen
     const onAuthorize = (): void => {
         // First change status to sign tx
         //amountAllowance = new BigNumber(1000) //Number.MAX_SAFE_INTEGER.toString()
-        let amountAllowance: BigNumber;
+        let amountAllowance: bigint;
         if (infinityAllowance) {
-            amountAllowance = new BigNumber(100000000000);
+            amountAllowance = 100000000000n;
         } else {
             amountAllowance = amountYouExchangeLimit;
         }
 
         if (disAllowance) {
             // Disallow to use the Token with amount 0
-            amountAllowance = new BigNumber(0);
+            amountAllowance = 0n;
         }
 
         setStatus("SIGN");
-        auth.interfaceAllowanceAmount(
+        interfaceAllowanceAmount(
             currencyYouExchange,
             currencyYouReceive,
             amountAllowance,

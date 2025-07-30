@@ -1,5 +1,6 @@
 import BigNumber from "bignumber.js";
 import { useMemo } from 'react'
+import { checksumAddress } from 'viem';
 
 
 import { useMultiCall } from "./useMulticall";
@@ -56,8 +57,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
             }
         )
 
-        const vendorAddress =
-        `${import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS}`.toLowerCase();
+        const vendorAddress = checksumAddress(import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS);        
         let contractMocType: string | undefined;
         let Moc;
         let MocVendors;

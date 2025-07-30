@@ -1,15 +1,13 @@
 import React, { useContext, useState } from "react";
 import { Button } from "antd";
-import BigNumber from "bignumber.js";
-import Web3 from "web3";
 import PropTypes from "prop-types";
 
 import { useProjectTranslation } from "../../../helpers/translations";
-import { AuthenticateContext } from "../../../context/Auth";
 import TokenMigratePNG from "./../../../assets/icons/tokenmigrate.png";
 import Copy from "../../Copy";
-import { PrecisionNumbers } from "../../PrecisionNumbers";
+import { PrecisionNumbers } from "../../PrecisionNumbers3";
 import { TokenSettings } from "../../../helpers/currencies";
+import { useWalletContext } from "../../../context/Wallet";
 import "./style.scss";
 
 interface SwapTokenProps {
@@ -36,7 +34,7 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
     );
 
     const { t, i18n } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext);
+    const { interfaceMigrateToken, interfaceAllowUseTokenMigrator, userBalance } = useWalletContext()
 
     const onClose = (): void => {
         setStatus("SUBMIT");
@@ -62,7 +60,7 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
     const onTokenMigration = (): void => {
         // First change status to sign tx
         setStatus("TOKEN-MIGRATION-SIGN");
-        auth.interfaceMigrateToken(
+        interfaceMigrateToken(
             onTransactionTokenMigration,
             onReceiptTokenMigration,
             onErrorTokenMigration
@@ -114,22 +112,18 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
 
         setStatus("ALLOWANCE-SIGN");
 
-        if (!auth.userBalanceData || !(auth.userBalanceData as any).tpLegacy) {
+        if (!userBalance.data || !userBalance.data.tpLegacy) {
             console.error("tpLegacy data not available");
             return;
         }
 
-        const allowanceAmount = new BigNumber(
-            Web3.utils.fromWei((auth.userBalanceData as any).tpLegacy.balance, "ether")
-        );
-        const oldAllowanceAmount = new BigNumber(
-            Web3.utils.fromWei((auth.userBalanceData as any).tpLegacy.allowance, "ether")
-        );
+        const allowanceAmount = userBalance.data.tpLegacy.balance
+        const oldAllowanceAmount = userBalance.data.tpLegacy.allowance
 
-        if (oldAllowanceAmount.gte(allowanceAmount)) {
+        if (oldAllowanceAmount >= allowanceAmount) {
             onTokenMigration();
         } else {
-            auth.interfaceAllowUseTokenMigrator(
+            interfaceAllowUseTokenMigrator(
                 allowanceAmount.toString(),
                 onTransactionAuthorize,
                 onReceiptAuthorize,
@@ -198,14 +192,12 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
     let btnLabel: string = t("swapModal.buttonConfirm");
     let btnDisable: boolean = false;
     
-    if (!auth.userBalanceData || !(auth.userBalanceData as any).tpLegacy) {
+    if (!userBalance.data || !userBalance.data.tpLegacy) {
         console.error("tpLegacy data not available");
         return <div>Error: Token data not available</div>;
     }
     
-    const tpLegacyBalance = new BigNumber(
-        Web3.utils.fromWei((auth.userBalanceData as any).tpLegacy.balance, "ether")
-    );
+    const tpLegacyBalance = userBalance.data.tpLegacy.balance
     
     switch (status) {
         case "SUBMIT":
@@ -215,7 +207,7 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
         case "CONFIRM":
             title = t("swapModal.modalTitle2");
             btnLabel = t("defaultCTA.buttonExchange");
-            if (tpLegacyBalance.eq(0)) btnDisable = true;
+            if (tpLegacyBalance === 0) btnDisable = true;
             break;
         case "ALLOWANCE-SIGN":
         case "ALLOWANCE-WAITING":
@@ -267,13 +259,11 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
                                 <div className="Amount">
                                     <div className="Value">
                                         {PrecisionNumbers({
-                                            amount: (auth.userBalanceData as any)
-                                                .tpLegacy.balance,
+                                            amount: userBalance.data.tpLegacy.balance,
                                             token: TokenSettings("TP_0"),
                                             decimals: 4,
                                             numericLabelParams: {},
-                                            i18n: i18n,
-                                            skipContractConvert: false,
+                                            i18n: i18n                                            
                                         })}
                                     </div>
                                     <div className="Token">RDOC</div>
@@ -286,13 +276,11 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
                                 <div className="Amount">
                                     <div className="Value">
                                         {PrecisionNumbers({
-                                            amount: (auth.userBalanceData as any)
-                                                .tpLegacy.balance,
+                                            amount: userBalance.data.tpLegacy.balance,
                                             token: TokenSettings("TP_0"),
                                             decimals: 4,
                                             numericLabelParams: {},
-                                            i18n: i18n,
-                                            skipContractConvert: false,
+                                            i18n: i18n                                            
                                         })}
                                     </div>
                                     <div className="Token">USDRIF</div>

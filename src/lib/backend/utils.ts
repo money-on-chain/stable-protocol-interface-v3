@@ -51,30 +51,32 @@ const getNetworkFromProject = (): NetworkType => {
 };
 
 const getExecutionFee = async (
-    web3: Web3Instance,
-    execCost: string | number,
+    publicClient: any,
+    execCost: bigint,
     slippage: number
-): Promise<BigNumber> => {
+): Promise<bigint> => {
     //const lastBlock = await web3.eth.getBlock("latest")
 
-    const lastBlock = await web3.currentProvider.request({
-        method: "eth_getBlockByNumber",
-        params: ["latest", false]
-    }) as BlockResponse;
+    const lastBlock = await publicClient.getBlock({ blockTag: 'latest' });
 
-    let latestBaseFee: string;
+    let latestBaseFee;
     if (getNetworkFromProject() === "rsk") {
-        latestBaseFee = lastBlock.minimumGasPrice || "0";
+        latestBaseFee = BigInt(lastBlock.minimumGasPrice ?? 0);
     } else {
-        latestBaseFee = lastBlock.baseFeePerGas || "0";
+        latestBaseFee = BigInt(lastBlock.baseFeePerGas ?? 0);
     }
+    
+    // calculate slippageMultiplier as bigint escalated to 6 decimals
+    // Ej: 1.005 → 1005000 / 1000000
+    const slippagePercent = typeof slippage === 'number' ? slippage : parseFloat(slippage);
+    const multiplier = Math.floor((1 + slippagePercent / 100) * 1_000_000); // escalated 1e6
+    const multiplierBigInt = BigInt(multiplier);
 
-    const execFee = new BigNumber(latestBaseFee)
-        .times(new BigNumber(execCost))
-        .times(new BigNumber(1 + (slippage / 100)));
+    // execFee = execCost * latestBaseFee * slippageMultiplier
+    const baseExecFee = execCost * latestBaseFee;
+    const execFee = (baseExecFee * multiplierBigInt) / 1_000_000n;
 
-    //const execFee = BigInt(execCost) * BigInt(latestBaseFee) * 1.01//BigInt( 1 + slippage / 100)
-    //console.log(`Using Base Fee: ${latestBaseFee} * slippage ${slippage.toString()} % = ${execFee.toString()}`)
+    console.log(`Using Base Fee: ${latestBaseFee.toString()} * slippage ${slippage}% = ${execFee.toString()}`);
     return execFee;
 };
 

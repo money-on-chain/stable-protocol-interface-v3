@@ -211,11 +211,7 @@ export default function PortfolioTable() {
                     priceHistory = normalizeToBigInt((contractProtocolStatus.data as any).PP_COINBASE?.[0] || 0n);
                     priceDelta = price - priceHistory;
                     variation = divPrecision(priceDelta, priceHistory);
-
-                    console.log("DEBUG>>>")
-                    console.log(price)
-                    console.log(balanceUSD)
-
+                    
                     break;
                 case "CA":
                     // CALCULATE TOKENS CA DATA
