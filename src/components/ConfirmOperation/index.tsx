@@ -427,17 +427,18 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
             "OperationExecuted",
         ];
 
-        /*
+        
         const contractName: string = "MocQueue";
 
-        const txRcp = await auth.web3.eth.getTransactionReceipt(
-            receipt.transactionHash
-        );
+        //const txRcp = await auth.web3.eth.getTransactionReceipt(
+        //    receipt.transactionHash
+        //);
+        const txRcp = receipt;
         const filteredEvents: any[] = decodeEvents(txRcp, contractName, filter);
 
         // on Queue
         onQueued(filteredEvents);
-        */
+        
     };
     
     const statusLabels: StatusLabels = {
