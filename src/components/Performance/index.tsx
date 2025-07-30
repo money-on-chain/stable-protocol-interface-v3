@@ -2,23 +2,15 @@ import React, { useContext, useState, useEffect } from "react";
 import { Modal } from "antd";
 
 import { useProjectTranslation } from "../../helpers/translations";
-import { AuthenticateContext } from "../../context/Auth";
 import { CheckStatusGlobal } from "../../helpers/checkStatus";
 import GlobalStatusModal from "../Modals/GlobalStatus";
 import settings from "../../settings/settings.json";
 import Buckets from "./buckets";
 import TVL from "./tvl";
 import MultiCollateral from "./multicollateral";
+import { useWalletContext } from "../../context/Wallet";
 
-// Type definitions
-interface AuthContext {
-    contractStatusData: {
-        blockHeight: string;
-        canOperate: boolean;
-        [key: number]: any;
-    } | null;
-    userBalanceData: any;
-}
+
 
 export default function Performance(): JSX.Element {
     const space = "\u00A0";
@@ -28,11 +20,11 @@ export default function Performance(): JSX.Element {
     const [statusCode, setStatusCode] = useState<number[]>([]);
     const [showGlobalStatusModal, setShowGlobalStatusModal] = useState<boolean>(false);
     const { t } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext) as AuthContext;
+    const { contractProtocolStatus, userBalance, blockNumber } = useWalletContext()
     const { checkerStatus } = CheckStatusGlobal();
     
     useEffect(() => {
-        if (auth.contractStatusData && auth.userBalanceData) {
+        if (contractProtocolStatus.data && userBalance.data) {
             const { statusLabel, statusLabelClass, statusText, statusCode } =
                 checkerStatus();
             setStatusLabel(statusLabel);
@@ -40,7 +32,7 @@ export default function Performance(): JSX.Element {
             setStatusLabelClass(statusLabelClass);
             setStatusCode(statusCode);
         }
-    }, [auth.contractStatusData, auth.userBalanceData]);
+    }, [contractProtocolStatus.data, userBalance.data]);
 
     const showModal = (): void => {
         setShowGlobalStatusModal(true);
@@ -75,11 +67,8 @@ export default function Performance(): JSX.Element {
                                     <div className="block-info">
                                         {t("performance.status.showingBlock")}
                                         {space}
-                                        {auth.contractStatusData
-                                            ? BigInt(
-                                                  auth.contractStatusData
-                                                      .blockHeight
-                                              ).toString()
+                                        {blockNumber
+                                            ? blockNumber.toString()
                                             : "--"}
                                     </div>
                                 </div>

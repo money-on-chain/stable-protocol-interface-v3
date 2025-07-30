@@ -83,3 +83,8 @@ export const absBigInt = (x: bigint): bigint => {
 export const fromWei = (amount: bigint, decimals: number = 18) => {
     return formatUnits(amount, decimals).toString()
 }
+
+export const divToFixed = (n: bigint, d: bigint, decimals: number) => {
+    const scale = 10n ** BigInt(decimals);
+    return (n * scale) / d; // entero que representa el número en "decimals" decimales
+  }

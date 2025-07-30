@@ -1,72 +1,44 @@
 import React, { useContext } from "react";
-import BigNumber from "bignumber.js";
 
 import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers";
+import { PrecisionNumbers } from "../PrecisionNumbers3";
 import { TokenSettings } from "../../helpers/currencies";
-import { AuthenticateContext } from "../../context/Auth";
 import settings from "../../settings/settings.json";
-import { fromContractPrecisionDecimals } from "../../helpers/Formats";
+import { useWalletContext } from "../../context/Wallet";
+import { divPrecision, mulPrecision } from "../../helpers/precision";
 
-// Type definitions
-interface AuthContext {
-    contractStatusData: {
-        canOperate: boolean;
-        getNormalizationFactors: string[];
-        getCombinedCglb: string;
-        getCombinedCtargemaCA: string;
-        [key: number]: {
-            getLckAC: string;
-            getTotalACavailable: string;
-        };
-    } | null;
-}
+
 
 export default function MultiCollateral(): JSX.Element {
-    const { i18n } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext) as AuthContext;
+    const { i18n } = useProjectTranslation();    
+    const { contractProtocolStatus } = useWalletContext()
 
-    let leverage = new BigNumber(0);
-    if (auth.contractStatusData) {
+    let leverage = 0n;
+    if (contractProtocolStatus.data) {
         const normalizationFactors =
-            auth.contractStatusData.getNormalizationFactors;
-        let factor: BigNumber;
-        let bucketLckAC: BigNumber;
-        let bucketAC: BigNumber;
-        let tvl = new BigNumber(0);
-        let lckAC = new BigNumber(0);
+            contractProtocolStatus.data.getNormalizationFactors;
+        let factor: bigint;
+        let bucketLckAC: bigint;
+        let bucketAC: bigint;
+        let tvl = 0n;
+        let lckAC = 0n;
         for (
             let caIndex = 0;
             caIndex < normalizationFactors.length;
             caIndex++
         ) {
-            factor = fromContractPrecisionDecimals(
-                normalizationFactors[caIndex],
-                settings.tokens.CA[caIndex].decimals
-            );
-
-            bucketLckAC = new BigNumber(
-                fromContractPrecisionDecimals(
-                    auth.contractStatusData[caIndex].getLckAC,
-                    settings.tokens.CA[caIndex].decimals
-                )
-            );
-
-            bucketAC = new BigNumber(
-                fromContractPrecisionDecimals(
-                    auth.contractStatusData[caIndex].getTotalACavailable,
-                    settings.tokens.CA[caIndex].decimals
-                )
-            );
+            factor = normalizationFactors[caIndex];
+            bucketLckAC = contractProtocolStatus.data[caIndex].getLckAC;
+            bucketAC = contractProtocolStatus.data[caIndex].getTotalACavailable;
 
             //tvl += bucketAC * factor;
             //lckAC += bucketLckAC * factor;
-            tvl = tvl.plus(bucketAC.times(factor));
-            lckAC = lckAC.plus(bucketLckAC.times(factor));
+            tvl = tvl + (mulPrecision(bucketAC, factor));
+            lckAC = lckAC + (mulPrecision(bucketLckAC, factor));
         }
 
         //leverage = tvl / (tvl - lckAC);
-        leverage = tvl.div(tvl.minus(lckAC));
+        leverage = divPrecision(tvl, tvl - lckAC);
     }
 
     return (
@@ -82,17 +54,16 @@ export default function MultiCollateral(): JSX.Element {
                     </div>
                     <div className="info">
                         <div className="amount">
-                            {!auth.contractStatusData?.canOperate
+                            {!contractProtocolStatus.data?.canOperate
                                 ? "--"
                                 : PrecisionNumbers({
-                                      amount: auth.contractStatusData
-                                          ? auth.contractStatusData
+                                      amount: contractProtocolStatus.data
+                                          ? contractProtocolStatus.data
                                                 .getCombinedCglb
-                                          : new BigNumber(0),
+                                          : 0n,
                                       token: TokenSettings("CA_0") as any,
                                       decimals: 4,
-                                      i18n: i18n,
-                                      skipContractConvert: false,
+                                      i18n: i18n                                      
                                   })}
                         </div>
                         <div className="label">Coverage</div>
@@ -104,17 +75,16 @@ export default function MultiCollateral(): JSX.Element {
                     </div>
                     <div className="info">
                         <div className="amount">
-                            {!auth.contractStatusData?.canOperate
+                            {!contractProtocolStatus.data?.canOperate
                                 ? "--"
                                 : PrecisionNumbers({
-                                      amount: auth.contractStatusData
-                                          ? auth.contractStatusData
+                                      amount: contractProtocolStatus.data
+                                          ? contractProtocolStatus.data
                                                 .getCombinedCtargemaCA
-                                          : new BigNumber(0),
+                                          : 0n,
                                       token: settings.tokens.CA[0] as any,
                                       decimals: 4,
-                                      i18n: i18n,
-                                      skipContractConvert: false,
+                                      i18n: i18n
                                   })}
                         </div>
                         <div className="label">Target Coverage Adjusted</div>
@@ -126,14 +96,13 @@ export default function MultiCollateral(): JSX.Element {
                     </div>
                     <div className="info">
                         <div className="amount">
-                            {!auth.contractStatusData?.canOperate
+                            {!contractProtocolStatus.data?.canOperate
                                 ? "--"
                                 : PrecisionNumbers({
                                       amount: leverage,
                                       token: TokenSettings("CA_0") as any,
                                       decimals: 4,
-                                      i18n: i18n,
-                                      skipContractConvert: true,
+                                      i18n: i18n
                                   })}
                         </div>
                         <div className="label">Leverage</div>

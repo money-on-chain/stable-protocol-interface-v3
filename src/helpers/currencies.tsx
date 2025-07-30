@@ -11,7 +11,7 @@ import LogoIconTP_1 from "../assets/tokens/tp_1.svg?react";
 import LogoIconTG_0 from "../assets/tokens/tg_0.svg?react";
 import settings from "../settings/settings.json";
 import { fromContractPrecisionDecimals } from "./Formats";
-import { normalizeToBigInt, divPrecision, mulPrecision, toBigIntPrecision, fromWei } from "./precision";
+import { normalizeToBigInt, divPrecision, mulPrecision, toBigIntPrecision, fromWei, divToFixed } from "./precision";
 
 interface Token {
     name: string;
@@ -155,7 +155,7 @@ function ConvertPeggedTokenPrice(contractProtocolStatus: any, caIndex: number, t
         return price;
     } else {
         const priceCA = normalizeToBigInt(contractProtocolStatus.data?.[caIndex].PP_CA[0] || "0");
-        return (inverted) ? divPrecision(1n, price) : divPrecision(price, priceCA);
+        return (inverted) ? divPrecision(1000000000000000000n, price) : divPrecision(price, priceCA);
     }
 }
 

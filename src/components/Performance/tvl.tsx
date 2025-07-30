@@ -1,49 +1,29 @@
-import React, { useContext } from "react";
-import BigNumber from "bignumber.js";
+import React from "react";
 
 import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers";
+import { PrecisionNumbers } from "../PrecisionNumbers3";
 import { TokenSettings } from "../../helpers/currencies";
-import { AuthenticateContext } from "../../context/Auth";
 import settings from "../../settings/settings.json";
-import { fromContractPrecisionDecimals } from '../../helpers/Formats';
+import { useWalletContext } from "../../context/Wallet";
+import { mulPrecision, normalizeToBigInt } from "../../helpers/precision";
 
-// Type definitions
-interface AuthContext {
-    contractStatusData: {
-        canOperate: boolean;
-        [key: number]: {
-            PP_CA: string[];
-            nACcb: string;
-        };
-    } | null;
-}
+
 
 export default function TVL(): JSX.Element {
     const { t, i18n } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext) as AuthContext;
+    const { contractProtocolStatus } = useWalletContext()
 
-    let collateralTotalInUSD = new BigNumber(0);
-    let collateralInUSD: BigNumber;
+    let collateralTotalInUSD = 0n;
+    let collateralInUSD: bigint;
 
-    if (auth.contractStatusData) {
+    if (contractProtocolStatus.data) {
         settings.tokens.CA.forEach(function (dataItem) {
 
-            const priceCA = new BigNumber(
-                fromContractPrecisionDecimals(
-                    auth.contractStatusData![dataItem.key].PP_CA[0],
-                    settings.tokens.CA[dataItem.key].decimals
-                )
-            );
+            const priceCA = normalizeToBigInt(contractProtocolStatus.data[dataItem.key].PP_CA[0]);
 
-            const nACcb = new BigNumber(
-                fromContractPrecisionDecimals(
-                    auth.contractStatusData![dataItem.key].nACcb,
-                    settings.tokens.TC[dataItem.key].decimals
-                )
-            );
-            collateralInUSD = nACcb.times(priceCA);
-            collateralTotalInUSD = collateralTotalInUSD.plus(collateralInUSD);
+            const nACcb = contractProtocolStatus.data[dataItem.key].nACcb;
+            collateralInUSD = mulPrecision(nACcb, priceCA);
+            collateralTotalInUSD = collateralTotalInUSD + collateralInUSD;
 
         })
     }
@@ -56,16 +36,15 @@ export default function TVL(): JSX.Element {
 
             <div className="card-content">
                 <div className="big-number">
-                    {!auth.contractStatusData?.canOperate
+                    {!contractProtocolStatus.data?.canOperate
                         ? "--"
                         : PrecisionNumbers({
                             amount: collateralTotalInUSD
                                 ? collateralTotalInUSD
-                                : new BigNumber(0),
+                                : 0n,
                             token: TokenSettings("CA_0") as any,
                             decimals: 2,
-                            i18n: i18n,
-                            skipContractConvert: true,
+                            i18n: i18n
                         })}
                 </div>
                 <div className="caption">
