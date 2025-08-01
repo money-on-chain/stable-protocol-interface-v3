@@ -1,16 +1,13 @@
 import React, { Fragment, useState, useEffect, useContext } from "react";
 import { useProjectTranslation } from "../../helpers/translations";
 import { pendingWithdrawalsFormat, tokenStake } from "../../helpers/staking";
-import BigNumber from "bignumber.js";
 import Stake from "./Stake";
 import PieChartComponent from "./PieChart";
 import PerformanceChart from "./performanceChart";
 import Withdraw from "./WithdrawV2";
 import DashBoard from "./StakingDashboard";
-import { AuthenticateContext } from "../../context/Auth";
-import Web3 from "web3";
-import { fromContractPrecisionDecimals } from "../../helpers/Formats";
 import { TokenSettings } from "../../helpers/currencies";
+import { useWalletContext } from "../../context/Wallet";
 
 interface WithdrawalStatus {
     pending: string;
@@ -25,18 +22,18 @@ interface PendingWithdrawal {
 }
 
 interface UserInfoStaking {
-    tgBalance: BigNumber;
-    stakedBalance: BigNumber;
-    lockedBalance: BigNumber;
+    tgBalance: bigint;
+    stakedBalance: bigint;
+    lockedBalance: bigint;
     pendingWithdrawals: PendingWithdrawal[];
-    totalPendingExpiration: BigNumber;
-    totalAvailableToWithdraw: BigNumber;
-    lockedInVoting: BigNumber;
-    unstakeBalance?: BigNumber;
+    totalPendingExpiration: bigint;
+    totalAvailableToWithdraw: bigint;
+    lockedInVoting: bigint;
+    unstakeBalance?: bigint;
 }
 
 interface VestingMachine {
-    tgBalance: string;
+    tgBalance: bigint;
     staking: {
         balance: string;
         getLockedBalance: string;
@@ -57,15 +54,6 @@ interface StakingMachine {
     };
 }
 
-interface UserBalanceData {
-    vestingmachine?: VestingMachine;
-    TG?: {
-        balance: string;
-    };
-    stakingmachine?: StakingMachine;
-    delaymachine?: any;
-}
-
 const withdrawalStatus: WithdrawalStatus = {
     pending: "PENDING",
     available: "AVAILABLE",
@@ -74,88 +62,64 @@ const withdrawalStatus: WithdrawalStatus = {
 const defaultTokenStake: string = tokenStake()[0];
 const tokenSettingsStake: any = TokenSettings(defaultTokenStake);
 
-const formatBigNumber = (amount: string): BigNumber => {
-    return new BigNumber(
-        fromContractPrecisionDecimals(amount, tokenSettingsStake.decimals)
-    );
-};
-
-export default function Staking(): JSX.Element {
-    const auth = useContext(AuthenticateContext);
+export default function Staking(): JSX.Element {    
+    const { contractProtocolStatus, userBalance, publicClient, isVestingLoaded } = useWalletContext()
     const { t } = useProjectTranslation();
     const [activeTab, setActiveTab] = useState<string>("tab1");
 
     const defaultUserInfoStaking: UserInfoStaking = {
-        tgBalance: new BigNumber(0),
-        stakedBalance: new BigNumber(0),
-        lockedBalance: new BigNumber(0),
+        tgBalance: 0n,
+        stakedBalance: 0n,
+        lockedBalance: 0n,
         pendingWithdrawals: [],
-        totalPendingExpiration: new BigNumber(0),
-        totalAvailableToWithdraw: new BigNumber(0),
-        lockedInVoting: new BigNumber(0),
+        totalPendingExpiration: 0n,
+        totalAvailableToWithdraw: 0n,
+        lockedInVoting: 0n,
     };
     const [userInfoStaking, setUserInfoStaking] = useState<UserInfoStaking>(
         defaultUserInfoStaking
     );
 
     useEffect(() => {
-        if (auth.accountData && auth.userBalanceData) {
+        if (contractProtocolStatus.data && userBalance.data) {
             refreshBalances();
         }
-    }, [auth]);
+    }, [contractProtocolStatus.data, userBalance.data]);
 
     const refreshBalances = (): void => {
         const cData: UserInfoStaking = { ...userInfoStaking };
-        const nowTimestamp: BigNumber = new BigNumber(Date.now());
+        const nowTimestamp: number = Date.now();
         let pendingWithdrawals: PendingWithdrawal[] = [];
         let vUsing: VestingMachine | StakingMachine;
         
-        if (auth.isVestingLoaded()) {
-            cData["tgBalance"] = formatBigNumber(
-                auth.userBalanceData.vestingmachine!.tgBalance
-            );
-            cData["stakedBalance"] = formatBigNumber(
-                auth.userBalanceData.vestingmachine!.staking.balance
-            );
-            cData["lockedBalance"] = formatBigNumber(
-                auth.userBalanceData.vestingmachine!.staking.getLockedBalance
-            );
+        if (isVestingLoaded()) {
+            cData["tgBalance"] = userBalance.data.vestingmachine!.tgBalance;
+            cData["stakedBalance"] = userBalance.data.vestingmachine!.staking.balance;
+            cData["lockedBalance"] = userBalance.data.vestingmachine!.staking.getLockedBalance;
             pendingWithdrawals = pendingWithdrawalsFormat(
-                auth.userBalanceData.vestingmachine!.delay
+                userBalance.data.vestingmachine!.delay
             );
-            vUsing = auth.userBalanceData.vestingmachine!.staking;
-        } else {
-            cData["tgBalance"] = formatBigNumber(
-                auth.userBalanceData.TG!.balance
-            );
-            cData["stakedBalance"] = formatBigNumber(
-                auth.userBalanceData.stakingmachine!.getBalance
-            );
-            cData["lockedBalance"] = formatBigNumber(
-                auth.userBalanceData.stakingmachine!.getLockedBalance
-            );
+            vUsing = userBalance.data.vestingmachine!.staking;
+        } else {            
+            cData["tgBalance"] = userBalance.data.TG.balance;
+            cData["stakedBalance"] = userBalance.data.stakingmachine!.getBalance;
+            cData["lockedBalance"] = userBalance.data.stakingmachine!.getLockedBalance;
             pendingWithdrawals = pendingWithdrawalsFormat(
-                auth.userBalanceData.delaymachine
+                userBalance.data.delaymachine
             );
-            vUsing = auth.userBalanceData.stakingmachine!;
+            vUsing = userBalance.data.stakingmachine!;            
         }
 
-        const lockedAmount: BigNumber = new BigNumber(
-            Web3.utils.fromWei(vUsing.getLockingInfo.amount, "ether")
-        );
-        const lockedUntilTimestamp: BigNumber = new BigNumber(
-            vUsing.getLockingInfo.untilTimestamp
-        ).times(1000);
+        const lockedAmount = vUsing.getLockingInfo.amount;
+        const lockedUntilTimestamp = vUsing.getLockingInfo.untilTimestamp * 1000;
 
-        if (lockedUntilTimestamp.gt(nowTimestamp)) {
+        if (lockedUntilTimestamp > nowTimestamp) {
             cData["lockedInVoting"] = lockedAmount;
         } else {
-            cData["lockedInVoting"] = new BigNumber(0);
+            cData["lockedInVoting"] = 0n;
         }
 
-        cData["unstakeBalance"] = cData["stakedBalance"].minus(
-            cData["lockedInVoting"]
-        );
+        cData["unstakeBalance"] = cData["stakedBalance"] - cData["lockedInVoting"];
 
         const pendingWithdrawalsFormatted: PendingWithdrawal[] = pendingWithdrawals
             .filter((withdrawal: PendingWithdrawal) => withdrawal.expiration)
@@ -171,19 +135,13 @@ export default function Staking(): JSX.Element {
                     status,
                 };
             });
-        let pendingExpirationAmount: BigNumber = new BigNumber(0);
-        let readyToWithdrawAmount: BigNumber = new BigNumber(0);
+        let pendingExpirationAmount: bigint = 0n;
+        let readyToWithdrawAmount: bigint = 0n;
         pendingWithdrawalsFormatted.forEach(({ status, amount }: PendingWithdrawal) => {
             if (status === withdrawalStatus.pending) {
-                pendingExpirationAmount = BigNumber.sum(
-                    pendingExpirationAmount,
-                    formatBigNumber(amount)
-                );
+                pendingExpirationAmount = pendingExpirationAmount + amount;
             } else {
-                readyToWithdrawAmount = BigNumber.sum(
-                    readyToWithdrawAmount,
-                    formatBigNumber(amount)
-                );
+                readyToWithdrawAmount = readyToWithdrawAmount + amount;
             }
         });
         const pendingWithdrawalsSort: PendingWithdrawal[] = pendingWithdrawalsFormatted.sort(

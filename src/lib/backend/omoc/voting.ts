@@ -1,191 +1,185 @@
-import { getGasPrice } from "../utils";
-import Web3 from "web3";
 
-// Type definitions
-interface InterfaceContext {
-    web3: any;
-    account: string;
-}
+import { writeContract, simulateContract, waitForTransactionReceipt } from '@wagmi/core'
+import { config } from '../../../wagmiConfig' 
+import { checksumAddress } from 'viem';
 
-interface DContracts {
-    contracts: {
-        VotingMachine: any;
-        [key: string]: any;
-    };
-}
 
 type TransactionCallback = (hash: string) => void;
 type ReceiptCallback = (receipt: any) => void;
 
 const preVote = async (
-    interfaceContext: InterfaceContext,
+    interfaceContext: any,
     changeContractAddress: string,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
-    const { web3, account } = interfaceContext;
-    const dContracts = (window as any).dContracts as DContracts;
-    const VotingMachine = dContracts.contracts.VotingMachine;
+    const { address, contracts } = interfaceContext;
+    const VotingMachine = contracts.VotingMachine;
 
-    const estimateGas = await VotingMachine.methods
-        .preVote(Web3.utils.toChecksumAddress(changeContractAddress))
-        .estimateGas({ from: account, value: "0x" });
+    const { request } = await simulateContract(config, {
+        address: VotingMachine.address,
+        abi: VotingMachine.abi,
+        functionName: 'preVote',
+        args: [checksumAddress(changeContractAddress)],
+        account: address,
+      })
 
-    const receipt = VotingMachine.methods
-        .preVote(Web3.utils.toChecksumAddress(changeContractAddress))
-        .send({
-            from: account,
-            value: 0,
-            gasPrice: await getGasPrice(web3),
-            gas: estimateGas,
-            gasLimit: estimateGas,
-        })
-        .on("transactionHash", onTransaction)
-        .on("receipt", onReceipt);
+    // Send transaction
+    const txHash = await writeContract(config, request)
 
-    return receipt;
+    if (onTransaction) onTransaction(txHash)
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+
+    if (onReceipt) onReceipt(receipt)
+
+    return receipt
+
 };
 
 const unRegister = async (
-    interfaceContext: InterfaceContext,
+    interfaceContext: any,
     changeContractAddress: string,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
-    const { web3, account } = interfaceContext;
-    const dContracts = (window as any).dContracts as DContracts;
-    const VotingMachine = dContracts.contracts.VotingMachine;
+    const { address, contracts } = interfaceContext;
+    const VotingMachine = contracts.VotingMachine;
 
-    const estimateGas = await VotingMachine.methods
-        .unregister(Web3.utils.toChecksumAddress(changeContractAddress))
-        .estimateGas({ from: account, value: "0x" });
+    const { request } = await simulateContract(config, {
+        address: VotingMachine.address,
+        abi: VotingMachine.abi,
+        functionName: 'unregister',
+        args: [checksumAddress(changeContractAddress)],
+        account: address,
+      })
 
-    const receipt = VotingMachine.methods
-        .unregister(Web3.utils.toChecksumAddress(changeContractAddress))
-        .send({
-            from: account,
-            value: 0,
-            gasPrice: await getGasPrice(web3),
-            gas: estimateGas,
-            gasLimit: estimateGas,
-        })
-        .on("transactionHash", onTransaction)
-        .on("receipt", onReceipt);
+    // Send transaction
+    const txHash = await writeContract(config, request)
 
-    return receipt;
+    if (onTransaction) onTransaction(txHash)
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+
+    if (onReceipt) onReceipt(receipt)
+
+    return receipt
+    
 };
 
 const vote = async (
-    interfaceContext: InterfaceContext,
+    interfaceContext: any,
     inFavorAgainst: boolean,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
-    const { web3, account } = interfaceContext;
-    const dContracts = (window as any).dContracts as DContracts;
-    const VotingMachine = dContracts.contracts.VotingMachine;
+    const { address, contracts } = interfaceContext;
+    const VotingMachine = contracts.VotingMachine;
 
-    const estimateGas = await VotingMachine.methods
-        .vote(inFavorAgainst)
-        .estimateGas({ from: account, value: "0x" });
+    const { request } = await simulateContract(config, {
+        address: VotingMachine.address,
+        abi: VotingMachine.abi,
+        functionName: 'vote',
+        args: [inFavorAgainst],
+        account: address,
+      })
 
-    const receipt = VotingMachine.methods
-        .vote(inFavorAgainst)
-        .send({
-            from: account,
-            value: 0,
-            gasPrice: await getGasPrice(web3),
-            gas: estimateGas,
-            gasLimit: estimateGas,
-        })
-        .on("transactionHash", onTransaction)
-        .on("receipt", onReceipt);
+    // Send transaction
+    const txHash = await writeContract(config, request)
 
-    return receipt;
+    if (onTransaction) onTransaction(txHash)
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+
+    if (onReceipt) onReceipt(receipt)
+
+    return receipt
+
 };
 
 const preVoteStep = async (
-    interfaceContext: InterfaceContext,
+    interfaceContext: any,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
-    const { web3, account } = interfaceContext;
-    const dContracts = (window as any).dContracts as DContracts;
-    const VotingMachine = dContracts.contracts.VotingMachine;
+    const { address, contracts } = interfaceContext;
+    const VotingMachine = contracts.VotingMachine;
 
-    const estimateGas = await VotingMachine.methods
-        .preVoteStep()
-        .estimateGas({ from: account, value: "0x" });
+    const { request } = await simulateContract(config, {
+        address: VotingMachine.address,
+        abi: VotingMachine.abi,
+        functionName: 'preVoteStep',
+        args: [],
+        account: address,
+      })
 
-    const receipt = VotingMachine.methods
-        .preVoteStep()
-        .send({
-            from: account,
-            value: 0,
-            gasPrice: await getGasPrice(web3),
-            gas: estimateGas,
-            gasLimit: estimateGas,
-        })
-        .on("transactionHash", onTransaction)
-        .on("receipt", onReceipt);
+    // Send transaction
+    const txHash = await writeContract(config, request)
+
+    if (onTransaction) onTransaction(txHash)
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+
+    if (onReceipt) onReceipt(receipt)
 
     return receipt;
 };
 
 const voteStep = async (
-    interfaceContext: InterfaceContext,
+    interfaceContext: any,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
-    const { web3, account } = interfaceContext;
-    const dContracts = (window as any).dContracts as DContracts;
-    const VotingMachine = dContracts.contracts.VotingMachine;
+    const { address, contracts } = interfaceContext;
+    const VotingMachine = contracts.VotingMachine;
 
-    const estimateGas = await VotingMachine.methods
-        .voteStep()
-        .estimateGas({ from: account, value: "0x" });
+    const { request } = await simulateContract(config, {
+        address: VotingMachine.address,
+        abi: VotingMachine.abi,
+        functionName: 'voteStep',
+        args: [],
+        account: address,
+      })
 
-    const receipt = VotingMachine.methods
-        .voteStep()
-        .send({
-            from: account,
-            value: 0,
-            gasPrice: await getGasPrice(web3),
-            gas: estimateGas,
-            gasLimit: estimateGas,
-        })
-        .on("transactionHash", onTransaction)
-        .on("receipt", onReceipt);
+    // Send transaction
+    const txHash = await writeContract(config, request)
 
+    if (onTransaction) onTransaction(txHash)
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+
+    if (onReceipt) onReceipt(receipt)
+    
     return receipt;
 };
 
 const acceptedStep = async (
-    interfaceContext: InterfaceContext,
+    interfaceContext: any,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
-    const { web3, account } = interfaceContext;
-    const dContracts = (window as any).dContracts as DContracts;
-    const VotingMachine = dContracts.contracts.VotingMachine;
+    const { address, contracts } = interfaceContext;
+    const VotingMachine = contracts.VotingMachine;
 
-    const estimateGas = await VotingMachine.methods
-        .acceptedStep()
-        .estimateGas({ from: account, value: "0x" });
+    const { request } = await simulateContract(config, {
+        address: VotingMachine.address,
+        abi: VotingMachine.abi,
+        functionName: 'acceptedStep',
+        args: [],
+        account: address,
+      })
 
-    const receipt = VotingMachine.methods
-        .acceptedStep()
-        .send({
-            from: account,
-            value: 0,
-            gasPrice: await getGasPrice(web3),
-            gas: estimateGas,
-            gasLimit: estimateGas,
-        })
-        .on("transactionHash", onTransaction)
-        .on("receipt", onReceipt);
+    // Send transaction
+    const txHash = await writeContract(config, request)
 
+    if (onTransaction) onTransaction(txHash)
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+
+    if (onReceipt) onReceipt(receipt)
+    
     return receipt;
+
 };
 
 export { preVote, vote, preVoteStep, voteStep, acceptedStep, unRegister };

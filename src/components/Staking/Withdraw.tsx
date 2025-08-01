@@ -6,12 +6,12 @@ import PropTypes from "prop-types";
 
 import date from "../../helpers/date";
 import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers";
-import { AuthenticateContext } from "../../context/Auth";
+import { PrecisionNumbers } from "../PrecisionNumbers3";
 import settings from "../../settings/settings.json";
 import ActionIcon from "../../assets/icons/Action.svg";
 import StakingOptionsModal from "../Modals/StakingOptionsModal/index";
 import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
+import { useWalletContext } from "../../context/Wallet";
 
 interface WithdrawProps {
     userInfoStaking: {
@@ -54,7 +54,7 @@ type ModalMode = "restake" | "withdraw" | null;
 export default function Withdraw(props: WithdrawProps): JSX.Element {
     const { userInfoStaking } = props;
     const { t, i18n, ns } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext);
+    const { contractProtocolStatus } = useWalletContext()
     const [totalTable, setTotalTable] = useState<number | null>(null);
     const [data, setData] = useState<TableDataItem[] | null>(null);
     const [modalMode, setModalMode] = useState<ModalMode>(null);
@@ -96,10 +96,10 @@ export default function Withdraw(props: WithdrawProps): JSX.Element {
     ];
     
     useEffect(() => {
-        if (auth && userInfoStaking["pendingWithdrawals"]) {
+        if (contractProtocolStatus.data && userInfoStaking["pendingWithdrawals"]) {
             getWithdrawals();
         }
-    }, [auth, userInfoStaking["pendingWithdrawals"], i18n.language]);
+    }, [contractProtocolStatus.data, userInfoStaking["pendingWithdrawals"], i18n.language]);
 
     const getWithdrawals = (): void => {
         setTotalTable(userInfoStaking["pendingWithdrawals"].length);
@@ -238,8 +238,7 @@ export default function Withdraw(props: WithdrawProps): JSX.Element {
                                     decimals: t("staking.display_decimals"),
                                     t: t,
                                     i18n: i18n,
-                                    ns: ns,
-                                    skipContractConvert: true,
+                                    ns: ns
                                 })}{" "}
                                 {`${settings.tokens.TG[0].name}`}
                             </div>
@@ -259,8 +258,7 @@ export default function Withdraw(props: WithdrawProps): JSX.Element {
                                     decimals: t("staking.display_decimals"),
                                     t: t,
                                     i18n: i18n,
-                                    ns: ns,
-                                    skipContractConvert: true,
+                                    ns: ns
                                 })}{" "}
                                 {`${settings.tokens.TG[0].name}`}
                             </div>

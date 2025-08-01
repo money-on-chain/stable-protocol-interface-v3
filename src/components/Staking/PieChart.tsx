@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
-import BigNumber from "bignumber.js";
 
 import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers";
+import { PrecisionNumbers } from "../PrecisionNumbers3";
 import settings from "../../settings/settings.json";
+import { toBigIntPrecision } from "../../helpers/precision";
+import { bigIntToInputValue } from "../../helpers/currencies";
 
 interface UserInfoStaking {
-    tgBalance: string | number;
-    stakedBalance: string | number;
-    totalPendingExpiration: string | number;
-    totalAvailableToWithdraw: string | number;
-    lockedInVoting: string | number;
+    tgBalance: bigint;
+    stakedBalance: bigint;
+    totalPendingExpiration: bigint;
+    totalAvailableToWithdraw: bigint;
+    lockedInVoting: bigint;
 }
 
 interface PieChartData {
@@ -23,10 +24,14 @@ interface PieChartComponentProps {
     userInfoStaking: UserInfoStaking;
 }
 
+const convertBigIntToNumber = (amount: bigint) => {
+    return Number(bigIntToInputValue(amount, 'TG', 2));
+}
+
 const PieChartComponent: React.FC<PieChartComponentProps> = (props) => {
     const { t, i18n } = useProjectTranslation();
     const [data, setData] = useState<PieChartData[]>([]);
-    const [total, setTotal] = useState<BigNumber>(new BigNumber(0));
+    const [total, setTotal] = useState<number>(0);
     const { userInfoStaking } = props;
     const space: string = "\u00A0";
 
@@ -41,52 +46,36 @@ const PieChartComponent: React.FC<PieChartComponentProps> = (props) => {
     ]);
 
     const readData = (): void => {
-        const total: BigNumber = getTotal();
+        const total: number = getTotal();        
         const _data: PieChartData[] = [
             {
                 type: t("staking.distribution.graph.balance"),
-                value: total.gt(0)
-                    ? BigNumber(userInfoStaking["tgBalance"])
-                          .div(total)
-                          .times(100)
-                          .toNumber()
+                value: total > 0
+                    ? convertBigIntToNumber(userInfoStaking["tgBalance"]) / total * 100
                     : 0,
             },
             {
                 type: t("staking.distribution.graph.processingUnstake"),
-                value: total.gt(0)
-                    ? BigNumber(userInfoStaking["totalPendingExpiration"])
-                          .div(total)
-                          .times(100)
-                          .toNumber()
+                value: total > 0
+                    ? convertBigIntToNumber(userInfoStaking["totalPendingExpiration"]) / total * 100
                     : 0,
             },
             {
                 type: t("staking.distribution.graph.readyWithdraw"),
-                value: total.gt(0)
-                    ? BigNumber(userInfoStaking["totalAvailableToWithdraw"])
-                          .div(total)
-                          .times(100)
-                          .toNumber()
+                value: total > 0
+                    ? convertBigIntToNumber(userInfoStaking["totalAvailableToWithdraw"]) / total * 100
                     : 0,
             },
             {
                 type: t("staking.distribution.graph.staked"),
-                value: total.gt(0)
-                    ? BigNumber(userInfoStaking["stakedBalance"])
-                          .minus(userInfoStaking["lockedInVoting"])
-                          .div(total)
-                          .times(100)
-                          .toNumber()
+                value: total > 0
+                    ? convertBigIntToNumber(userInfoStaking["stakedBalance"] - userInfoStaking["lockedInVoting"]) / total * 100
                     : 0,
             },
             {
                 type: "Staked in voting",
-                value: total.gt(0)
-                    ? BigNumber(userInfoStaking["lockedInVoting"])
-                          .div(total)
-                          .times(100)
-                          .toNumber()
+                value: total > 0
+                    ? convertBigIntToNumber(userInfoStaking["lockedInVoting"]) / total * 100
                     : 0,
             },
         ];
@@ -103,16 +92,13 @@ const PieChartComponent: React.FC<PieChartComponentProps> = (props) => {
         setTotal(total);
     };
 
-    const getTotal = (): BigNumber => {
-        return BigNumber.sum(
-            userInfoStaking["tgBalance"],
-            new BigNumber(userInfoStaking["stakedBalance"]).minus(
-                new BigNumber(userInfoStaking["lockedInVoting"])
-            ),
-            userInfoStaking["totalPendingExpiration"],
-            userInfoStaking["totalAvailableToWithdraw"],
-            userInfoStaking["lockedInVoting"]
-        );
+    const getTotal = (): number => {
+        return convertBigIntToNumber(userInfoStaking["tgBalance"]) +
+        convertBigIntToNumber(userInfoStaking["stakedBalance"] - userInfoStaking["lockedInVoting"]) +
+        convertBigIntToNumber(userInfoStaking["totalPendingExpiration"]) +
+        convertBigIntToNumber(userInfoStaking["totalAvailableToWithdraw"]) +
+        convertBigIntToNumber(userInfoStaking["lockedInVoting"])
+        
     };
 
     // Retrieve CSS color variables
@@ -145,14 +131,13 @@ const PieChartComponent: React.FC<PieChartComponentProps> = (props) => {
         <div>
             <div className="pie-chart-total">
                 <div className="pie-chart-total-amount">
-                    {PrecisionNumbers({
-                        amount: total,
+                    {total ? PrecisionNumbers({
+                        amount: toBigIntPrecision(total),
                         token: settings.tokens.TG[0],
                         decimals: 2,
-                        numericLabelParams: {},
-                        i18n: i18n,
-                        skipContractConvert: true,
-                    })}
+                        //numericLabelParams: {},
+                        i18n: i18n                        
+                    }) : "--"}
                     {space}
                     {t("staking.governanceToken")}
                 </div>

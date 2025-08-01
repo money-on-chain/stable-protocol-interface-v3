@@ -1,11 +1,10 @@
 import React, { useState, useContext, useEffect } from "react";
-import BigNumber from "bignumber.js";
-import { PrecisionNumbers } from "../../PrecisionNumbers";
+import { PrecisionNumbers } from "../../PrecisionNumbers3";
 import settings from "../../../settings/settings.json";
 
 import { pendingWithdrawalsFormat } from "../../../helpers/staking";
-import { AuthenticateContext } from "../../../context/Auth";
 import { useProjectTranslation } from "../../../helpers/translations";
+import { useWalletContext } from "../../../context/Wallet";
 
 interface WithdrawalStatus {
     pending: string;
@@ -25,43 +24,43 @@ const withdrawalStatus: WithdrawalStatus = {
 };
 
 const Dashboard = (): JSX.Element => {
-    const auth = useContext(AuthenticateContext);
+    const { contractProtocolStatus, userBalance, publicClient, isVestingLoaded } = useWalletContext()
     const { t, i18n, ns } = useProjectTranslation();
     //const [activeTab, setActiveTab] = useState("tab1");
-    const [tgBalance, setTgBalance] = useState<string>("0");
+    const [tgBalance, setTgBalance] = useState<bigint>(0n);
     //const [lockedBalance, setLockedBalance] = useState("0");
-    const [stakedBalance, setStakedBalance] = useState<string>("0");
+    const [stakedBalance, setStakedBalance] = useState<bigint>(0n);
     //const [pendingWithdrawals, setPendingWithdrawals] = useState(null);
-    const [totalPendingExpiration, setTotalPendingExpiration] = useState<string>("0");
+    const [totalPendingExpiration, setTotalPendingExpiration] = useState<bigint>(0n);
     const [totalAvailableToWithdraw, setTotalAvailableToWithdraw] =
-        useState<string>("0");
+        useState<bigint>(0n);
     //const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (auth.accountData && auth.userBalanceData) {
+        if (contractProtocolStatus.data && userBalance.data) {
             //setLoading(false);
             setStakingBalances();
         }
-    }, [auth]);
+    }, [contractProtocolStatus, userBalance]);
 
-    const setStakingBalances = async (): Promise<void> => {
+    const setStakingBalances = (): void => {
         //try {
-        let [_stakedBalance, _pendingWithdrawals]: [string, PendingWithdrawal[]] = ["0", []];
-        if (auth.userBalanceData) {
-            if (auth.isVestingLoaded() && auth.userBalanceData.vestingmachine) {
-                setTgBalance(auth.userBalanceData.vestingmachine.tgBalance?.toString() || "0");
+        let [_stakedBalance, _pendingWithdrawals]: [bigint, PendingWithdrawal[]] = [0n, []];
+        if (userBalance.data) {
+            if (isVestingLoaded() && userBalance.data.vestingmachine) {
+                setTgBalance(userBalance.data.vestingmachine.tgBalance || 0n);
                 _stakedBalance =
-                    auth.userBalanceData.vestingmachine.staking?.balance?.toString() || "0";
+                    userBalance.data.vestingmachine.staking?.balance || 0n;
                 //_lockedBalance = auth.userBalanceData.vestingmachine.staking.getLockedBalance;
                 _pendingWithdrawals = pendingWithdrawalsFormat(
-                    auth.userBalanceData.vestingmachine.delay
+                    userBalance.data.vestingmachine.delay
                 );
             } else {
-                setTgBalance(auth.userBalanceData.TG.balance?.toString() || "0");
-                _stakedBalance = (auth.userBalanceData as any).stakingmachine?.getBalance?.toString() || "0";
+                setTgBalance(userBalance.data.TG.balance || 0n);
+                _stakedBalance = (userBalance.data as any).stakingmachine?.getBalance || 0n;
                 //_lockedBalance = (auth.userBalanceData as any).stakingmachine.getLockedBalance;
                 _pendingWithdrawals = pendingWithdrawalsFormat(
-                    (auth.userBalanceData as any).delaymachine
+                    (userBalance.data as any).delaymachine
                 );
             }
         }
@@ -79,19 +78,13 @@ const Dashboard = (): JSX.Element => {
                     status,
                 };
             });
-        let pendingExpirationAmount: string = "0";
-        let readyToWithdrawAmount: string = "0";
+        let pendingExpirationAmount: bigint = 0n;
+        let readyToWithdrawAmount: bigint = 0n;
         pendingWithdrawalsFormatted.forEach(({ status, amount }: PendingWithdrawal) => {
             if (status === withdrawalStatus.pending) {
-                pendingExpirationAmount = BigNumber.sum(
-                    pendingExpirationAmount,
-                    amount
-                ).toFixed(0);
+                pendingExpirationAmount = pendingExpirationAmount + amount;
             } else {
-                readyToWithdrawAmount = BigNumber.sum(
-                    readyToWithdrawAmount,
-                    amount
-                ).toFixed(0);
+                readyToWithdrawAmount = readyToWithdrawAmount + amount;
             }
         });
         /*
@@ -108,6 +101,8 @@ const Dashboard = (): JSX.Element => {
         //console.log('Error getting staking balances', error);
         //}
     };
+
+    
     return (
         <div className="layout-card section__innerCard--big dashboard-staking-info">
             {/* Performance */}
@@ -118,12 +113,11 @@ const Dashboard = (): JSX.Element => {
                 <div className="stakingDash__data">
                     <div className="stakingDash__data__amount">
                         {PrecisionNumbers({
-                            amount: new BigNumber(tgBalance),
+                            amount: tgBalance,
                             token: settings.tokens.TG[0],
                             decimals: parseInt(t("staking.display_decimals")),
-                            numericLabelParams: {},
-                            i18n: i18n,
-                            skipContractConvert: true,
+                            //numericLabelParams: {},
+                            i18n: i18n                            
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -139,12 +133,11 @@ const Dashboard = (): JSX.Element => {
                 <div className="stakingDash__data">
                     <div className="stakingDash__data__amount">
                         {PrecisionNumbers({
-                            amount: new BigNumber(stakedBalance),
+                            amount: stakedBalance,
                             token: settings.tokens.TG[0],
                             decimals: parseInt(t("staking.display_decimals")),
-                            numericLabelParams: {},
-                            i18n: i18n,
-                            skipContractConvert: true,
+                            //numericLabelParams: {},
+                            i18n: i18n                            
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -160,12 +153,11 @@ const Dashboard = (): JSX.Element => {
                 <div className="stakingDash__data">
                     <div className="stakingDash__data__amount">
                         {PrecisionNumbers({
-                            amount: new BigNumber(totalPendingExpiration),
+                            amount: totalPendingExpiration,
                             token: settings.tokens.TG[0],
                             decimals: parseInt(t("staking.display_decimals")),
-                            numericLabelParams: {},
-                            i18n: i18n,
-                            skipContractConvert: true,
+                            //numericLabelParams: {},
+                            i18n: i18n
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -181,12 +173,11 @@ const Dashboard = (): JSX.Element => {
                 <div className="stakingDash__data">
                     <div className="stakingDash__data__amount">
                         {PrecisionNumbers({
-                            amount: new BigNumber(totalAvailableToWithdraw),
+                            amount: totalAvailableToWithdraw,
                             token: settings.tokens.TG[0],
                             decimals: parseInt(t("staking.display_decimals")),
-                            numericLabelParams: {},
-                            i18n: i18n,
-                            skipContractConvert: true,
+                            //numericLabelParams: {},
+                            i18n: i18n
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -202,12 +193,11 @@ const Dashboard = (): JSX.Element => {
                 <div className="stakingDash__data">
                     <div className="stakingDash__data__amount">
                         {PrecisionNumbers({
-                            amount: new BigNumber(totalAvailableToWithdraw),
+                            amount: totalAvailableToWithdraw,
                             token: settings.tokens.TG[0],
                             decimals: parseInt(t("staking.display_decimals")),
-                            numericLabelParams: {},
-                            i18n: i18n,
-                            skipContractConvert: true,
+                            //numericLabelParams: {},
+                            i18n: i18n
                         })}
                     </div>
                     <div className="stakingDash__data__label">

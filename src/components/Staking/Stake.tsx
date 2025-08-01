@@ -1,24 +1,23 @@
 import React, { useState, useContext, Fragment, useEffect } from "react";
-import BigNumber from "bignumber.js";
 import { Button } from "antd";
 import PropTypes from "prop-types";
 
-import { AuthenticateContext } from "../../context/Auth";
 import { TokenSettings, AmountToVisibleValue } from "../../helpers/currencies";
 import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers";
+import { PrecisionNumbers } from "../PrecisionNumbers3";
 import { tokenStake } from "../../helpers/staking";
 import CurrencyPopUp from "../CurrencyPopUp";
 import StakingOptionsModal from "../Modals/StakingOptionsModal/index";
 import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
 import InputAmount from "../InputAmount";
 import settings from "../../settings/settings.json";
+import { useWalletContext } from "../../context/Wallet";
 
 interface StakeProps {
     activeTab: string;
     userInfoStaking: {
-        tgBalance: BigNumber;
-        unstakeBalance: BigNumber;
+        tgBalance: bigint;
+        unstakeBalance: bigint;
         [key: string]: any;
     };
 }
@@ -34,7 +33,8 @@ const Stake = (props: StakeProps): JSX.Element => {
     const { activeTab, userInfoStaking } = props;
     const { t, i18n, ns } = useProjectTranslation();
 
-    const auth = useContext(AuthenticateContext);
+    const { contractProtocolStatus } = useWalletContext()
+
     const defaultTokenStake: string = tokenStake()[0];
     const [isUnstaking, setIsUnstaking] = useState<boolean>(false);
     const [inputValidationErrorText, setInputValidationErrorText] =
@@ -65,7 +65,7 @@ const Stake = (props: StakeProps): JSX.Element => {
             onClear();
             setCurrentTab(activeTab);
         }
-    }, [auth, activeTab]);
+    }, [contractProtocolStatus.data, activeTab]);
 
     useEffect(() => {
         onValidate();
@@ -74,28 +74,28 @@ const Stake = (props: StakeProps): JSX.Element => {
     const onValidate = (): void => {
         let amountInputError: boolean = false;
 
-        const totalBalance: BigNumber = isUnstaking
+        const totalBalance: bigint = isUnstaking
             ? userInfoStaking["unstakeBalance"]
             : userInfoStaking["tgBalance"];
-        const amountToProcess: BigNumber = isUnstaking
-            ? new BigNumber(amountToUnstake)
-            : new BigNumber(amountToStake);
+        const amountToProcess: bigint = isUnstaking
+            ? amountToUnstake
+            : amountToStake;
 
         //1. Input amount valid
         if (isNaN(parseFloat(isUnstaking ? amountToUnstake : amountToStake))) {
             //setInputValidationErrorText('Invalid amount');
             amountInputError = true;
-        } else if (amountToProcess.gt(totalBalance)) {
+        } else if (amountToProcess > totalBalance) {
             setInputValidationErrorText("Not enough balance in your wallet");
             amountInputError = true;
-        } else if (amountToProcess.lte(0)) {
+        } else if (amountToProcess <= 0) {
             if (amountToStake !== "" || amountToUnstake !== "") {
                 setInputValidationErrorText("Amount must be greater than 0");
                 amountInputError = true;
             } else {
                 amountInputError = true;
             }
-        } else if (amountToProcess.isNaN()) {
+        } else if (isNaN(parseFloat(amountToProcess))) {
             if (amountToStake !== "" || amountToUnstake !== "") {
                 setInputValidationErrorText("Invalid amount");
                 amountInputError = true;
@@ -120,10 +120,10 @@ const Stake = (props: StakeProps): JSX.Element => {
     };
     
     const setAddTotalAvailable = (): void => {
-        const total: BigNumber = isUnstaking
+        const total: bigint = isUnstaking
             ? userInfoStaking["unstakeBalance"]
             : userInfoStaking["tgBalance"];
-        if (isUnstaking) setAmountToUnstake(total.toString());
+        if (isUnstaking) setAmountToUnstake(total.toString()); 
         else setAmountToStake(total.toString());
     };
     
@@ -200,8 +200,7 @@ const Stake = (props: StakeProps): JSX.Element => {
                                 decimals: t("staking.staking.input_decimals"),
                                 t: t,
                                 i18n: i18n,
-                                ns: ns,
-                                skipContractConvert: true,
+                                ns: ns                                
                             })}
                             placeholder={"0.0"}
                             inputValue={
@@ -245,24 +244,22 @@ const Stake = (props: StakeProps): JSX.Element => {
                             ? amountToUnstake === ""
                                 ? ""
                                 : PrecisionNumbers({
-                                      amount: new BigNumber(amountToUnstake),
+                                      amount: amountToUnstake,
                                       token: settings.tokens.TG[0],
                                       decimals: t("staking.display_decimals"),
                                       t: t,
                                       i18n: i18n,
-                                      ns: ns,
-                                      skipContractConvert: true,
+                                      ns: ns                                      
                                   })
                             : amountToStake === ""
                               ? ""
                               : PrecisionNumbers({
-                                    amount: new BigNumber(amountToStake),
+                                    amount: amountToStake,
                                     token: settings.tokens.TG[0],
                                     decimals: t("staking.display_decimals"),
                                     t: t,
                                     i18n: i18n,
-                                    ns: ns,
-                                    skipContractConvert: true,
+                                    ns: ns                                    
                                 })}
                         {t("staking.governanceToken")}
                     </div>

@@ -12,7 +12,24 @@ import { TokenContract, ApproveTokenContract } from '../helpers/exchange'
 import { transferTokenTo, transferCoinbaseTo, AllowanceAmount, AllowUseTokenMigrator, MigrateToken } from '../lib/backend/moc-base'
 import ModalAccount from '../components/Modals/Account'
 import { exchangeMethod } from "../helpers/exchange";
-
+import {
+    addStake as addStakeVesting,
+    unStake as unStakeVesting,
+    delayMachineWithdraw as delayMachineWithdrawVesting,
+    delayMachineCancelWithdraw as delayMachineCancelWithdrawVesting,
+    approve as approveVesting,
+    withdrawAll,
+    vestingVerify,
+    preVote as preVoteVesting,
+    vote as voteVesting,
+} from "../lib/backend/omoc/vesting";
+import {
+    addStake,
+    unStake,
+    delayMachineWithdraw,
+    delayMachineCancelWithdraw,
+    approveStakingMachine,
+} from "../lib/backend/omoc/staking";
 
 
 export type WalletContextType = {
@@ -70,6 +87,33 @@ export type WalletContextType = {
     onReceipt: OnReceipt,
     onError: OnError
   ) => Promise<any>
+  interfaceStakingApprove: (
+    amount: bigint,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt,
+    onError: OnError
+  ) => Promise<any>
+  interfaceStakingAddStake: (
+    amount: string | number,
+    address: string,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt,
+    onError: OnError
+  ) => Promise<any>
+  interfaceStakingDelayMachineWithdraw: (
+    idWithdraw: string | number,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt,
+    onError: OnError
+  ) => Promise<any>
+  interfaceStakingDelayMachineCancelWithdraw: (
+    idWithdraw: string | number,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt,
+    onError: OnError
+  ) => Promise<any>
+  isVestingLoaded: () => boolean
+  vestingAddress: () => string | undefined
 }
 
 export const WalletContext = createContext<WalletContextType | null>(null)
@@ -196,6 +240,20 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         };
     };
 
+    const isVestingLoaded = (): boolean => {
+        return !!(
+            userBalance.data &&
+            typeof userBalance.data.vestingmachine !== "undefined"
+        );
+    };
+
+    const vestingAddress = (): string | undefined => {
+        if (isVestingLoaded()) {
+            return userBalance.data!.vestingmachine!.address;
+        }
+        return undefined;
+    };
+
     const interfaceTransferToken = async (
         currencyYouExchange: string,
         amount: bigint,
@@ -265,8 +323,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const interfaceExchangeMethod = async (
         currencyYouExchange: string,
         currencyYouReceive: string,
-        tokenAmount: string | number,
-        limitAmount: string | number,
+        tokenAmount: bigint,
+        limitAmount: bigint,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt
     ): Promise<any> => {
@@ -312,6 +370,107 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         );
     };
 
+    // OMOC methods
+    const interfaceStakingApprove = async (
+        amount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ): Promise<any> => {
+        const interfaceContext = buildInterfaceContext();
+        if (isVestingLoaded()) {
+            return approveVesting(
+                interfaceContext,
+                amount,
+                onTransaction,
+                onReceipt
+            );
+        } else {
+            return approveStakingMachine(
+                interfaceContext,
+                amount,
+                onTransaction,
+                onReceipt
+            );
+        }
+    };
+
+    const interfaceStakingAddStake = async (
+        amount: string | number,
+        address: string,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ): Promise<any> => {
+        const from = address;
+        const interfaceContext = buildInterfaceContext();
+        if (isVestingLoaded()) {
+            return addStakeVesting(
+                interfaceContext,
+                amount,
+                from,
+                onTransaction,
+                onReceipt
+            );
+        } else {
+            return addStake(
+                interfaceContext,
+                amount,
+                from,
+                onTransaction,
+                onReceipt
+            );
+        }
+    };
+
+    const interfaceStakingDelayMachineWithdraw = async (
+        idWithdraw: string | number,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ): Promise<any> => {
+        const interfaceContext = buildInterfaceContext();
+        if (isVestingLoaded()) {
+            return delayMachineWithdrawVesting(
+                interfaceContext,
+                idWithdraw,
+                onTransaction,
+                onReceipt
+            );
+        } else {
+            return delayMachineWithdraw(
+                interfaceContext,
+                idWithdraw,
+                onTransaction,
+                onReceipt
+            );
+        }
+    };
+
+    const interfaceStakingDelayMachineCancelWithdraw = async (
+        idWithdraw: string | number,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ): Promise<any> => {
+        const interfaceContext = buildInterfaceContext();
+        if (isVestingLoaded()) {
+            return delayMachineCancelWithdrawVesting(
+                interfaceContext,
+                idWithdraw,
+                onTransaction,
+                onReceipt
+            );
+        } else {
+            return delayMachineCancelWithdraw(
+                interfaceContext,
+                idWithdraw,
+                onTransaction,
+                onReceipt
+            );
+        }
+    };
+
     return (
         <WalletContext.Provider
         value={{
@@ -334,6 +493,12 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             interfaceExchangeMethod,
             interfaceAllowUseTokenMigrator,
             interfaceMigrateToken,
+            isVestingLoaded,
+            vestingAddress,
+            interfaceStakingApprove,
+            interfaceStakingAddStake,
+            interfaceStakingDelayMachineWithdraw,
+            interfaceStakingDelayMachineCancelWithdraw,
             publicClient,
             walletClient,
         }}

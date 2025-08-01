@@ -1,29 +1,28 @@
 import React, { Fragment, useState, useEffect } from "react";
-import { useContext } from "react";
 import { Skeleton } from "antd";
 
-import { AuthenticateContext } from "../../context/Auth";
 import Staking from "../../components/Staking";
 import UseVestingAlert from "../../components/Notification/UsingVestingAlert";
+import { useWalletContext } from "../../context/Wallet";
 
 import "./Styles.scss";
 
 export default function SectionStaking(): React.ReactElement {
-    const auth = useContext(AuthenticateContext);
+    const { contractProtocolStatus, userBalance, isVestingLoaded, vestingAddress } = useWalletContext()
     const [ready, setReady] = useState<boolean>(false);
     const [usingVestingAddress, setUsingVestingAddress] = useState<string>("");
     
     useEffect(() => {
-        if (auth.contractStatusData) {
+        if (contractProtocolStatus.data) {
             setReady(true);
         }
-        if (auth.userBalanceData && auth.isVestingLoaded()) {
-            const vestingAddress = auth.vestingAddress();
-            setUsingVestingAddress(vestingAddress || "");
+        if (userBalance.data && isVestingLoaded()) {
+            const vestingAddr = vestingAddress();
+            setUsingVestingAddress(vestingAddr || "");
         } else {
             setUsingVestingAddress("");
         }
-    }, [auth]);
+    }, [userBalance.data, contractProtocolStatus.data]);
 
     return (
         <Fragment>

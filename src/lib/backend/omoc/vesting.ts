@@ -1,399 +1,408 @@
-import BigNumber from "bignumber.js";
-import { getGasPrice, toContractPrecisionDecimals } from "../utils";
-import Web3 from "web3";
-import settings from "../../../settings/settings.json";
 
-// Type definitions
-interface InterfaceContext {
-    web3: any;
-    account: string;
-}
+import { writeContract, simulateContract, waitForTransactionReceipt } from '@wagmi/core'
+import { config } from '../../../wagmiConfig' 
+import { checksumAddress } from 'viem';
 
-interface DContracts {
-    contracts: {
-        VestingMachine: any;
-        StakingMachine: any;
-        DelayMachine: any;
-        VotingMachine: any;
-        TG: any;
-        [key: string]: any;
-    };
-}
 
 type TransactionCallback = (hash: string) => void;
 type ReceiptCallback = (receipt: any) => void;
 
 const vestingVerify = async (
-    interfaceContext: InterfaceContext,
+    interfaceContext: any,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
-    const { web3, account } = interfaceContext;
-    const dContracts = (window as any).dContracts as DContracts;
+    const { address, contracts } = interfaceContext;    
+    const VestingMachine = contracts.VestingMachine;
 
-    const VestingMachine = dContracts.contracts.VestingMachine;
+    const { request } = await simulateContract(config, {
+        address: VestingMachine.address,
+        abi: VestingMachine.abi,
+        functionName: 'verify',
+        args: [],
+        account: address,
+      })
 
-    const estimateGas = await VestingMachine.methods
-        .verify()
-        .estimateGas({ from: account, value: "0x" });
+    // Send transaction
+    const txHash = await writeContract(config, request)
 
-    const receipt = VestingMachine.methods
-        .verify()
-        .send({
-            from: account,
-            value: 0,
-            gasPrice: await getGasPrice(web3),
-            gas: estimateGas,
-            gasLimit: estimateGas,
-        })
-        .on("transactionHash", onTransaction)
-        .on("receipt", onReceipt);
+    if (onTransaction) onTransaction(txHash)
 
-    return receipt;
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+
+    if (onReceipt) onReceipt(receipt)
+
+    return receipt
+    
 };
 
 const approve = async (
-    interfaceContext: InterfaceContext,
-    amount: string | number | BigNumber,
+    interfaceContext: any,
+    amount: bigint,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
-    const { web3, account } = interfaceContext;
-    const dContracts = (window as any).dContracts as DContracts;
-    const tokenDecimals = settings.tokens.TG[0].decimals;
+    const { address, contracts } = interfaceContext;
+    
+    const VestingMachine = contracts.VestingMachine;
+    
+    const { request } = await simulateContract(config, {
+        address: VestingMachine.address,
+        abi: VestingMachine.abi,
+        functionName: 'approve',
+        args: [amount],
+        account: address,
+      })
 
-    const VestingMachine = dContracts.contracts.VestingMachine;
-    const amountBN = new BigNumber(amount);
+    // Send transaction
+    const txHash = await writeContract(config, request)
 
-    const estimateGas = await VestingMachine.methods
-        .approve(toContractPrecisionDecimals(amountBN, tokenDecimals))
-        .estimateGas({ from: account, value: "0x" });
+    if (onTransaction) onTransaction(txHash)
 
-    const receipt = VestingMachine.methods
-        .approve(toContractPrecisionDecimals(amountBN, tokenDecimals))
-        .send({
-            from: account,
-            value: 0,
-            gasPrice: await getGasPrice(web3),
-            gas: estimateGas,
-            gasLimit: estimateGas,
-        })
-        .on("transactionHash", onTransaction)
-        .on("receipt", onReceipt);
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
 
-    return receipt;
+    if (onReceipt) onReceipt(receipt)
+
+    return receipt
+    
 };
 
 const deposit = async (
-    interfaceContext: InterfaceContext,
-    amount: string | number | BigNumber,
+    interfaceContext: any,
+    amount: bigint,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
-    const { web3, account } = interfaceContext;
-    const dContracts = (window as any).dContracts as DContracts;
-    const tokenDecimals = settings.tokens.TG[0].decimals;
-    const VestingMachine = dContracts.contracts.VestingMachine;
+    const { address, contracts } = interfaceContext;
+    const VestingMachine = contracts.VestingMachine;
 
-    const amountBN = new BigNumber(amount);
+    const { request } = await simulateContract(config, {
+        address: VestingMachine.address,
+        abi: VestingMachine.abi,
+        functionName: 'deposit',
+        args: [amount],
+        account: address,
+      })
 
-    const estimateGas = await VestingMachine.methods
-        .deposit(toContractPrecisionDecimals(amountBN, tokenDecimals))
-        .estimateGas({ from: account, value: "0x" });
+    // Send transaction
+    const txHash = await writeContract(config, request)
 
-    const receipt = VestingMachine.methods
-        .deposit(toContractPrecisionDecimals(amountBN, tokenDecimals))
-        .send({
-            from: account,
-            value: 0,
-            gasPrice: await getGasPrice(web3),
-            gas: estimateGas,
-            gasLimit: estimateGas,
-        })
-        .on("transactionHash", onTransaction)
-        .on("receipt", onReceipt);
+    if (onTransaction) onTransaction(txHash)
 
-    return receipt;
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+
+    if (onReceipt) onReceipt(receipt)
+
+    return receipt
+    
 };
 
 const withdraw = async (
-    interfaceContext: InterfaceContext,
-    amount: string | number | BigNumber,
+    interfaceContext: any,
+    amount: bigint,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
-    const { web3, account } = interfaceContext;
-    const dContracts = (window as any).dContracts as DContracts;
-    const tokenDecimals = settings.tokens.TG[0].decimals;
-    const VestingMachine = dContracts.contracts.VestingMachine;
+    const { address, contracts } = interfaceContext;
+    const VestingMachine = contracts.VestingMachine;
 
-    const amountBN = new BigNumber(amount);
+    const { request } = await simulateContract(config, {
+        address: VestingMachine.address,
+        abi: VestingMachine.abi,
+        functionName: 'withdraw',
+        args: [amount],
+        account: address,
+      })
 
-    const estimateGas = await VestingMachine.methods
-        .withdraw(toContractPrecisionDecimals(amountBN, tokenDecimals))
-        .estimateGas({ from: account, value: "0x" });
+    // Send transaction
+    const txHash = await writeContract(config, request)
 
-    const receipt = VestingMachine.methods
-        .withdraw(toContractPrecisionDecimals(amountBN, tokenDecimals))
-        .send({
-            from: account,
-            value: 0,
-            gasPrice: await getGasPrice(web3),
-            gas: estimateGas,
-            gasLimit: estimateGas,
-        })
-        .on("transactionHash", onTransaction)
-        .on("receipt", onReceipt);
+    if (onTransaction) onTransaction(txHash)
 
-    return receipt;
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+
+    if (onReceipt) onReceipt(receipt)
+
+    return receipt
+    
 };
 
 const withdrawAll = async (
-    interfaceContext: InterfaceContext,
+    interfaceContext: any,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
-    const { web3, account } = interfaceContext;
-    const dContracts = (window as any).dContracts as DContracts;
+    const { address, contracts } = interfaceContext;
 
-    const VestingMachine = dContracts.contracts.VestingMachine;
+    const VestingMachine = contracts.VestingMachine;
 
-    const estimateGas = await VestingMachine.methods
-        .withdrawAll()
-        .estimateGas({ from: account, value: "0x" });
+    const { request } = await simulateContract(config, {
+        address: VestingMachine.address,
+        abi: VestingMachine.abi,
+        functionName: 'withdrawAll',
+        args: [],
+        account: address,
+      })
 
-    const receipt = VestingMachine.methods
-        .withdrawAll()
-        .send({
-            from: account,
-            value: 0,
-            gasPrice: await getGasPrice(web3),
-            gas: estimateGas,
-            gasLimit: estimateGas,
-        })
-        .on("transactionHash", onTransaction)
-        .on("receipt", onReceipt);
+    // Send transaction
+    const txHash = await writeContract(config, request)
 
-    return receipt;
+    if (onTransaction) onTransaction(txHash)
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+
+    if (onReceipt) onReceipt(receipt)
+
+    return receipt
 };
 
-const _callWithData = async (
-    interfaceContext: InterfaceContext,
-    target: string,
-    data: string,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
-): Promise<any> => {
-    const { web3, account } = interfaceContext;
-    const dContracts = (window as any).dContracts as DContracts;
-
-    const VestingMachine = dContracts.contracts.VestingMachine;
-
-    const estimateGas = await VestingMachine.methods
-        .callWithData(target, data)
-        .estimateGas({ from: account, value: "0x" });
-
-    const receipt = VestingMachine.methods
-        .callWithData(target, data)
-        .send({
-            from: account,
-            value: 0,
-            gasPrice: await getGasPrice(web3),
-            gas: estimateGas * BigInt(2),
-            gasLimit: estimateGas * BigInt(2),
-        })
-        .on("transactionHash", onTransaction)
-        .on("receipt", onReceipt);
-
-    return receipt;
-};
 
 const addStake = async (
-    interfaceContext: InterfaceContext,
-    amount: string | number | BigNumber,
-    address: string,
+    interfaceContext: any,
+    amount: bigint,
+    userAddress: string,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
-    const dContracts = (window as any).dContracts as DContracts;
-    const StakingMachine = dContracts.contracts.StakingMachine;
-    const VestingMachine = dContracts.contracts.VestingMachine;
-    const tokenDecimals = settings.tokens.TG[0].decimals;
+    const { address, contracts } = interfaceContext;
+    const StakingMachine = contracts.StakingMachine;
+    const VestingMachine = contracts.VestingMachine;
 
-    const amountBN = new BigNumber(amount);
-
-    const target = Web3.utils.toChecksumAddress(StakingMachine.options.address);
+    const target = checksumAddress(StakingMachine.address);
     const data = StakingMachine.methods
         .deposit(
-            toContractPrecisionDecimals(amountBN, tokenDecimals),
-            Web3.utils.toChecksumAddress(VestingMachine.options.address)
+            amount,
+            checksumAddress(userAddress)
         )
         .encodeABI();
 
-    const receipt = _callWithData(
-        interfaceContext,
-        target,
-        data,
-        onTransaction,
-        onReceipt
-    );
+    const { request } = await simulateContract(config, {
+        address: VestingMachine.address,
+        abi: VestingMachine.abi,
+        functionName: 'callWithData',
+        args: [target, data],
+        account: address,
+        })
 
-    return receipt;
+    // Send transaction
+    const txHash = await writeContract(config, request)
+
+    if (onTransaction) onTransaction(txHash)
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+
+    if (onReceipt) onReceipt(receipt)
+
+    return receipt    
+
 };
 
 const unStake = async (
-    interfaceContext: InterfaceContext,
-    amount: string | number | BigNumber,
+    interfaceContext: any,
+    amount: bigint,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
-    const dContracts = (window as any).dContracts as DContracts;
-    const StakingMachine = dContracts.contracts.StakingMachine;
-    const tokenDecimals = settings.tokens.TG[0].decimals;
+    const { address, contracts } = interfaceContext;
+    const StakingMachine = contracts.StakingMachine;
+    const VestingMachine = contracts.VestingMachine;
 
-    const amountBN = new BigNumber(amount);
-
-    const target = Web3.utils.toChecksumAddress(StakingMachine.options.address);
+    const target = checksumAddress(StakingMachine.address);
     const data = StakingMachine.methods
-        .withdraw(toContractPrecisionDecimals(amountBN, tokenDecimals))
+        .withdraw(amount)
         .encodeABI();
 
-    const receipt = _callWithData(
-        interfaceContext,
-        target,
-        data,
-        onTransaction,
-        onReceipt
-    );
+    const { request } = await simulateContract(config, {
+        address: VestingMachine.address,
+        abi: VestingMachine.abi,
+        functionName: 'callWithData',
+        args: [target, data],
+        account: address,
+        })
 
-    return receipt;
+    // Send transaction
+    const txHash = await writeContract(config, request)
+
+    if (onTransaction) onTransaction(txHash)
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+
+    if (onReceipt) onReceipt(receipt)
+
+    return receipt    
 };
 
 const delayMachineCancelWithdraw = async (
-    interfaceContext: InterfaceContext,
+    interfaceContext: any,
     idWithdraw: string | number,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
-    const dContracts = (window as any).dContracts as DContracts;
-    const DelayMachine = dContracts.contracts.DelayMachine;
+    const { address, contracts } = interfaceContext;
+    const DelayMachine = contracts.DelayMachine;
+    const VestingMachine = contracts.VestingMachine;
 
-    const target = Web3.utils.toChecksumAddress(DelayMachine.options.address);
+    const target = checksumAddress(DelayMachine.address);
     const data = DelayMachine.methods.cancel(idWithdraw).encodeABI();
 
-    const receipt = _callWithData(
-        interfaceContext,
-        target,
-        data,
-        onTransaction,
-        onReceipt
-    );
+    const { request } = await simulateContract(config, {
+        address: VestingMachine.address,
+        abi: VestingMachine.abi,
+        functionName: 'callWithData',
+        args: [target, data],
+        account: address,
+        })
 
-    return receipt;
+    // Send transaction
+    const txHash = await writeContract(config, request)
+
+    if (onTransaction) onTransaction(txHash)
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+
+    if (onReceipt) onReceipt(receipt)
+
+    return receipt    
 };
 
 const delayMachineWithdraw = async (
-    interfaceContext: InterfaceContext,
+    interfaceContext: any,
     idWithdraw: string | number,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
-    const dContracts = (window as any).dContracts as DContracts;
-    const DelayMachine = dContracts.contracts.DelayMachine;
+    const { address, contracts } = interfaceContext;
+    const DelayMachine = contracts.DelayMachine;
+    const VestingMachine = contracts.VestingMachine;
 
-    const target = Web3.utils.toChecksumAddress(DelayMachine.options.address);
+    const target = checksumAddress(DelayMachine.address);
     const data = DelayMachine.methods.withdraw(idWithdraw).encodeABI();
 
-    const receipt = _callWithData(
-        interfaceContext,
-        target,
-        data,
-        onTransaction,
-        onReceipt
-    );
+    const { request } = await simulateContract(config, {
+        address: VestingMachine.address,
+        abi: VestingMachine.abi,
+        functionName: 'callWithData',
+        args: [target, data],
+        account: address,
+        })
 
-    return receipt;
+    // Send transaction
+    const txHash = await writeContract(config, request)
+
+    if (onTransaction) onTransaction(txHash)
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+
+    if (onReceipt) onReceipt(receipt)
+
+    return receipt    
 };
 
 const approveStakingMachine = async (
-    interfaceContext: InterfaceContext,
-    amount: string | number | BigNumber,
+    interfaceContext: any,
+    amount: bigint,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
-    const dContracts = (window as any).dContracts as DContracts;
+    const { address, contracts } = interfaceContext;
+    const StakingMachine = contracts.StakingMachine;
+    const TG = contracts.TG;
+    const VestingMachine = contracts.VestingMachine;
 
-    const StakingMachine = dContracts.contracts.StakingMachine;
-    const TG = dContracts.contracts.TG;
-    const tokenDecimals = settings.tokens.TG[0].decimals;
-
-    const amountBN = new BigNumber(amount);
-
-    const target = Web3.utils.toChecksumAddress(TG.options.address);
+    const target = checksumAddress(TG.address);
     const data = TG.methods
         .approve(
-            Web3.utils.toChecksumAddress(StakingMachine.options.address),
-            toContractPrecisionDecimals(amountBN, tokenDecimals)
+            checksumAddress(StakingMachine.address),
+            amount
         )
         .encodeABI();
 
-    const receipt = _callWithData(
-        interfaceContext,
-        target,
-        data,
-        onTransaction,
-        onReceipt
-    );
+    const { request } = await simulateContract(config, {
+        address: VestingMachine.address,
+        abi: VestingMachine.abi,
+        functionName: 'callWithData',
+        args: [target, data],
+        account: address,
+        })
 
-    return receipt;
+    // Send transaction
+    const txHash = await writeContract(config, request)
+
+    if (onTransaction) onTransaction(txHash)
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+
+    if (onReceipt) onReceipt(receipt)
+
+    return receipt    
 };
 
 const preVote = async (
-    interfaceContext: InterfaceContext,
+    interfaceContext: any,
     changeContractAddress: string,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
-    const dContracts = (window as any).dContracts as DContracts;
-    const VotingMachine = dContracts.contracts.VotingMachine;
+    const { address, contracts } = interfaceContext;
+    const VotingMachine = contracts.VotingMachine;
+    const VestingMachine = contracts.VestingMachine;
 
-    const target = Web3.utils.toChecksumAddress(VotingMachine.options.address);
+    const target = checksumAddress(VotingMachine.address);
     const data = VotingMachine.methods
-        .preVote(Web3.utils.toChecksumAddress(changeContractAddress))
+        .preVote(checksumAddress(changeContractAddress))
         .encodeABI();
 
-    const receipt = _callWithData(
-        interfaceContext,
-        target,
-        data,
-        onTransaction,
-        onReceipt
-    );
+    const { request } = await simulateContract(config, {
+        address: VestingMachine.address,
+        abi: VestingMachine.abi,
+        functionName: 'callWithData',
+        args: [target, data],
+        account: address,
+        })
 
-    return receipt;
+    // Send transaction
+    const txHash = await writeContract(config, request)
+
+    if (onTransaction) onTransaction(txHash)
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+
+    if (onReceipt) onReceipt(receipt)
+
+    return receipt    
 };
 
 const vote = async (
-    interfaceContext: InterfaceContext,
+    interfaceContext: any,
     inFavorAgainst: boolean,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
-    const dContracts = (window as any).dContracts as DContracts;
-    const VotingMachine = dContracts.contracts.VotingMachine;
+    const { address, contracts } = interfaceContext;
+    const VotingMachine = contracts.VotingMachine;
+    const VestingMachine = contracts.VestingMachine;
 
-    const target = Web3.utils.toChecksumAddress(VotingMachine.options.address);
+    const target = checksumAddress(VotingMachine.address);
     const data = VotingMachine.methods.vote(inFavorAgainst).encodeABI();
 
-    const receipt = _callWithData(
-        interfaceContext,
-        target,
-        data,
-        onTransaction,
-        onReceipt
-    );
+    const { request } = await simulateContract(config, {
+        address: VestingMachine.address,
+        abi: VestingMachine.abi,
+        functionName: 'callWithData',
+        args: [target, data],
+        account: address,
+        })
 
-    return receipt;
+    // Send transaction
+    const txHash = await writeContract(config, request)
+
+    if (onTransaction) onTransaction(txHash)
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+
+    if (onReceipt) onReceipt(receipt)
+
+    return receipt    
 };
 
 export {
