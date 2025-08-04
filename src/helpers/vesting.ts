@@ -1,15 +1,12 @@
+import { readContract } from 'viem/actions'
 import VestingMachine from "../contracts/omoc/VestingMachine.json";
 
-interface Auth {
-    web3: {
-        eth: {
-            Contract: new (abi: any, address: string) => any;
-        };
-    };
-    loadContractsStatusAndUserBalance: () => Promise<any>;
-}
+
 
 const loadVestingAddressesFromLocalStorage = (accountAddress: string): string[] => {
+    if (!accountAddress) {
+        return [];
+    }
     const storageVestingAddresses = localStorage.getItem(
         `vesting-addresses-${accountAddress.toLowerCase()}`
     );
@@ -45,21 +42,21 @@ const loadDefaultVestingFromLocalStorage = (accountAddress: string): string | nu
     );
 };
 
-const loadVesting = async (auth: Auth, vAddress: string): Promise<boolean> => {
+const loadVesting = async (publicClient: any, vAddress: `0x${string}`): Promise<boolean> => {
     let loaded = false;
     try {
-        const vestingMachine = new auth.web3.eth.Contract(
-            VestingMachine.abi,
-            vAddress
-        );
-        const holder = await vestingMachine.methods.getHolder().call();
-        console.log(`Loaded Vesting Machine: ${vAddress} Holder: ${holder} `);
-        (window as any).dContracts.contracts.VestingMachine = vestingMachine;
-        loaded = true;
+        
+        const holder = await readContract(publicClient, {
+            address: vAddress,
+            abi: VestingMachine.abi,
+            functionName: 'getHolder',
+            args: [],
+        }) as string;
 
-        auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-            console.log("Refresh user balance OK!");
-        });
+        
+        console.log(`Loaded Vesting Machine: ${vAddress} Holder: ${holder} `);        
+        loaded = true;
+        
     } catch (error) {
         console.log(`Invalid Vesting address: ${error}`);
     }
@@ -67,7 +64,7 @@ const loadVesting = async (auth: Auth, vAddress: string): Promise<boolean> => {
     return loaded;
 };
 
-const onValidateVestingAddress = async (auth: Auth, addVestingAddress: string): Promise<boolean> => {
+const onValidateVestingAddress = async (publicClient: any, addVestingAddress: `0x${string}`): Promise<boolean> => {
     // 1. Input address valid
     if (addVestingAddress === "") {
         return false;
@@ -76,11 +73,14 @@ const onValidateVestingAddress = async (auth: Auth, addVestingAddress: string): 
     }
 
     try {
-        const vestingMachine = new auth.web3.eth.Contract(
-            VestingMachine.abi,
-            addVestingAddress
-        );
-        const holder = await vestingMachine.methods.getHolder().call();
+
+        const holder = await readContract(publicClient, {
+            address: addVestingAddress,
+            abi: VestingMachine.abi,
+            functionName: 'getHolder',
+            args: [],
+        }) as string;
+        
         console.log("Holder: ", holder);
 
         return true;

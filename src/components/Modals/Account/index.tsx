@@ -3,7 +3,6 @@ import Modal from "antd/lib/modal/Modal";
 import Account from "../../Account";
 
 interface ModalAccountProps {
-    truncatedAddress: string;
     show: boolean;
     onShow: () => void;
     onHide: () => void;
@@ -13,7 +12,7 @@ interface ModalAccountProps {
 }
 
 export default function ModalAccount(props: ModalAccountProps): JSX.Element {
-    const { truncatedAddress, show, onShow, onHide, vestingOn, setVestingOn } = props;
+    const { show, onShow, onHide, vestingOn, setVestingOn } = props;
 
     return (
         <Fragment>
@@ -31,8 +30,7 @@ export default function ModalAccount(props: ModalAccountProps): JSX.Element {
                 >
                     <Account
                         {...props}
-                        onCloseModal={onHide}
-                        truncatedAddress={truncatedAddress}
+                        onCloseModal={onHide}                        
                         vestingOn={vestingOn}
                         setVestingOn={setVestingOn}
                     />

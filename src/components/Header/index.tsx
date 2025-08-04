@@ -3,7 +3,6 @@ import React, { useContext, useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import { useProjectTranslation } from "../../helpers/translations";
-import { AuthenticateContext } from "../../context/Auth";
 import DappVersion from "../DappVersion";
 import ThemeMode from "../ThemeMode";
 import settings from "../../settings/settings.json";
@@ -29,11 +28,16 @@ interface LanguageOption {
     code: string;
 }
 
+const truncateAddress = (address: string): string => {
+    return address.substring(0, 6) +
+        "..." +
+        address.substring(address.length - 4, address.length);
+}
+
 export default function SectionHeader(): JSX.Element {
     const navigate = useNavigate();
     const location = useLocation();
-    const { isConnected, address, connect, disconnect } = useWalletContext()
-    const auth = useContext(AuthenticateContext);
+    const { isConnected, address, connect, onShowModalAccount } = useWalletContext()    
     //const [css_disable, setCssDisable] = useState("disable-nav-item");
     const [showMoreDropdown, setShowMoreDropdown] = useState<boolean>(false);
     const [showLanguageMenu, setShowLanguageMenu] = useState<boolean>(false);
@@ -189,10 +193,9 @@ export default function SectionHeader(): JSX.Element {
 
                         {isConnected ? (
                         <>                            
-                            <a onClick={auth.onShowModalAccount}>
-                                {address}
-                            </a>
-                            <button onClick={() => disconnect()}>Disconnect</button>                            
+                            <a onClick={onShowModalAccount}>
+                                {truncateAddress(address)}
+                            </a>                            
                         </>
                         ) : (
                             <button onClick={() => connect({ connector: config.connectors[0] })}>Connect Wallet</button>

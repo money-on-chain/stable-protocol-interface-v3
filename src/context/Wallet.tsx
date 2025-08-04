@@ -114,6 +114,10 @@ export type WalletContextType = {
   ) => Promise<any>
   isVestingLoaded: () => boolean
   vestingAddress: () => string | undefined
+  onShowModalAccount: () => void
+  onShowModalAccountVesting: () => void
+  onHideModalAccount: () => void
+  setVestingMachine: (vAddress: string) => void
 }
 
 export const WalletContext = createContext<WalletContextType | null>(null)
@@ -215,6 +219,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             console.error("Error loading contracts:", e)
         }
     }
+
+    const setVestingMachine = (vAddress: string): void => {
+        if (contractsAddress && contractsAddressLoaded) {
+            contractsAddress.VestingMachine = vAddress;
+            setContractsAddress(contractsAddress);
+        }
+    };
 
     const onShowModalAccount = (): void => {
         setShowModalAccount(true);
@@ -501,11 +512,14 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             interfaceStakingDelayMachineCancelWithdraw,
             publicClient,
             walletClient,
+            onShowModalAccount,
+            onShowModalAccountVesting,
+            onHideModalAccount,
+            setVestingMachine
         }}
         >
         {children}
             <ModalAccount
-                truncatedAddress={address}
                 show={showModalAccount}
                 onShow={onShowModalAccount}
                 onHide={onHideModalAccount}

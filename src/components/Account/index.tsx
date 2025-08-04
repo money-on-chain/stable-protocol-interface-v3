@@ -2,9 +2,8 @@ import React, { useContext, useState, useEffect } from "react";
 import QRCode from "react-qr-code";
 import { notification, Switch, Select, Input } from "antd";
 import PropTypes from "prop-types";
-
+import { readContract } from 'viem/actions'
 import { useProjectTranslation } from "../../helpers/translations";
-import { AuthenticateContext } from "../../context/Auth";
 import {
     loadVestingAddressesFromLocalStorage,
     saveVestingAddressesToLocalStorage,
@@ -21,28 +20,8 @@ const { Option } = Select;
 // Type definitions
 interface AccountDialogProps {
     onCloseModal: () => void;
-    truncatedAddress: string;
     vestingOn: boolean;
     setVestingOn: (checked: boolean) => void;
-}
-
-interface VestingMachineContract {
-    methods: {
-        getHolder: () => {
-            call: () => Promise<string>;
-        };
-    };
-}
-
-// Extend Window interface for global variables
-declare global {
-    interface Window {
-        dContracts: {
-            contracts: {
-                VestingMachine?: any;
-            };
-        };
-    }
 }
 
 function removeAllItem<T>(arr: T[], value: T): T[] {
@@ -57,12 +36,17 @@ function removeAllItem<T>(arr: T[], value: T): T[] {
     return arr;
 }
 
-export default function AccountDialog(props: AccountDialogProps): JSX.Element {
-    const { onCloseModal, truncatedAddress, vestingOn, setVestingOn } = props;
+const truncateAddress = (address: string): string => {
+    return address.substring(0, 6) +
+        "..." +
+        address.substring(address.length - 4, address.length);
+}
 
-    const { t } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext);
-    const { isConnected, address, disconnect } = useWalletContext()
+export default function AccountDialog(props: AccountDialogProps): JSX.Element {
+    const { onCloseModal, vestingOn, setVestingOn } = props;
+
+    const { t } = useProjectTranslation();    
+    const { address, disconnect, contractsAddress, userBalance, setVestingMachine, publicClient } = useWalletContext()
     const [qrValue, setQrValue] = useState<string | null>(null);
     const [actionVesting, setActionVesting] = useState<"select" | "add">("select");
     const [addVestingAddress, setAddVestingAddress] = useState<string>("");
@@ -173,11 +157,13 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
         }
 
         try {
-            const vestingMachine: VestingMachineContract = new auth.web3!.eth.Contract(
-                VestingMachine.abi,
-                addVestingAddress
-            ) as VestingMachineContract;
-            const holder: string = await vestingMachine.methods.getHolder().call();
+            const holder = await readContract(publicClient, {
+                address: addVestingAddress,
+                abi: VestingMachine.abi,
+                functionName: 'getHolder',
+                args: [],
+            }) as string;
+
             console.log("Holder: ", holder);
 
             return true;
@@ -194,10 +180,18 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
     const addVesting = async (): Promise<void> => {
         const isValidVesting = await onValidateVestingAddress();
         if (isValidVesting) {
-            const isLoaded = loadVesting(auth, addVestingAddress);
+            const isLoaded = loadVesting(publicClient, addVestingAddress);
             if (!isLoaded) {
                 return;
             }
+
+            // Set the vesting machine
+            setVestingMachine(addVestingAddress);
+
+            // We need to refresh the user balance
+            // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
+            //     console.log("Refresh user balance OK!");
+            // });
 
             //add on storage
             // get vesting addresses
@@ -263,7 +257,7 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
     const onChangeSelectVesting = (selectAddress: string): boolean => {
         if (!selectAddress) return false;
         if (vestingAddressDefault === selectAddress) return false;
-        const isLoaded = loadVesting(auth, selectAddress);
+        const isLoaded = loadVesting(publicClient, selectAddress);
         setVestingAddressDefault(selectAddress);
         saveDefaultVestingToLocalStorage(
             address.toLowerCase(),
@@ -277,28 +271,28 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
         let isLoaded = false;
         if (
             vestingOn &&
-            window.dContracts.contracts.VestingMachine === undefined
+            contractsAddress.VestingMachine === undefined
         ) {
             console.log("Vesting Switch: ON");
             // switch On Vesting
             if (vestingAddressDefault) {
-                isLoaded = loadVesting(auth, vestingAddressDefault);
+                isLoaded = loadVesting(publicClient, vestingAddressDefault);
             }
         } else if (
             !vestingOn &&
-            window.dContracts.contracts.VestingMachine !== undefined
+            contractsAddress.VestingMachine !== undefined
         ) {
             console.log("Vesting Switch: OFF");
             // Disable using vesting machine
-            window.dContracts.contracts.VestingMachine = undefined;
-            if (auth.userBalanceData) {
-                auth.userBalanceData.vestingmachine = undefined;
+            contractsAddress.VestingMachine = undefined;
+            if (userBalance.data) {
+                userBalance.data.vestingmachine = undefined;
             }
 
             // Refresh status
-            auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                console.log("Refresh user balance OK!");
-            });
+            // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
+            //     console.log("Refresh user balance OK!");
+            // });
         }
 
         return isLoaded;
@@ -335,7 +329,7 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
                                 }}
                             >
                                 <div className="truncate-address">
-                                    {truncatedAddress}
+                                    {truncateAddress(address)}
                                 </div>
                                 <div onClick={onCopy}>
                                     <div className="icon-copy"></div>
@@ -479,7 +473,6 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
 
 AccountDialog.propTypes = {
     onCloseModal: PropTypes.func.isRequired,
-    truncatedAddress: PropTypes.string.isRequired,
     vestingOn: PropTypes.bool.isRequired,
     setVestingOn: PropTypes.func.isRequired,
 }; 
