@@ -1,6 +1,6 @@
 
 import { writeContract, simulateContract, waitForTransactionReceipt } from '@wagmi/core'
-import { config } from '../../wagmiConfig' 
+import { config } from '../wagmiConfig' 
 
 
 type OnTransaction = (hash: string) => void;

@@ -1,21 +1,4 @@
 import BigNumber from "bignumber.js";
-import Web3 from "web3";
-
-// Type definitions
-interface Web3Instance {
-    eth: {
-        getGasPrice: () => Promise<string>;
-    };
-    currentProvider: {
-        request: (params: { method: string; params: any[] }) => Promise<any>;
-    };
-}
-
-interface BlockResponse {
-    minimumGasPrice?: string;
-    baseFeePerGas?: string;
-    [key: string]: any;
-}
 
 type NetworkType = "rsk" | "arbitrum";
 
@@ -24,16 +7,6 @@ BigNumber.config({
     FORMAT: { decimalSeparator: ".", groupSeparator: "," },
 });
 
-const getGasPrice = async (web3: Web3Instance): Promise<string | undefined> => {
-    try {
-        const gasPrice = await web3.eth.getGasPrice();
-        //gasPrice = web3.utils.fromWei(gasPrice);
-        return gasPrice.toString();
-    } catch (e) {
-        console.log(e);
-        return undefined;
-    }
-};
 
 const getNetworkFromProject = (): NetworkType => {
     let network: NetworkType;
@@ -80,21 +53,6 @@ const getExecutionFee = async (
     return execFee;
 };
 
-const toContractPrecision = (amount: string | number): string => {
-    return Web3.utils.toWei(
-        BigNumber(amount).toFormat(18, BigNumber.ROUND_DOWN),
-        "ether"
-    );
-};
-
-const toContractPrecisionDecimals = (amount: BigNumber, decimals: number): string => {
-    const result = new BigNumber(
-        amount.toFormat(decimals, BigNumber.ROUND_DOWN)
-    )
-        .times(precision(decimals))
-        .toFixed(0);
-    return result;
-};
 
 const precision = (contractDecimals: number): BigNumber =>
     new BigNumber(10).exponentiatedBy(contractDecimals);
@@ -104,9 +62,6 @@ const fromContractPrecisionDecimals = (amount: string | number, decimals: number
 };
 
 export {
-    getGasPrice,
-    toContractPrecision,
-    toContractPrecisionDecimals,
     fromContractPrecisionDecimals,
     getExecutionFee,
     getNetworkFromProject

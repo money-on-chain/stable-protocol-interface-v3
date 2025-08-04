@@ -9,7 +9,7 @@ import { useUserBalance } from '../hooks/useUserBalance'
 import { readContracts } from '../hooks/useReadContracts'
 import { useBaseCoinBalance } from '../hooks/useBaseCoinBalance'
 import { TokenContract, ApproveTokenContract } from '../helpers/exchange'
-import { transferTokenTo, transferCoinbaseTo, AllowanceAmount, AllowUseTokenMigrator, MigrateToken } from '../lib/backend/moc-base'
+import { transferTokenTo, transferCoinbaseTo, AllowanceAmount, AllowUseTokenMigrator, MigrateToken } from '../backend/moc-base'
 import ModalAccount from '../components/Modals/Account'
 import { exchangeMethod } from "../helpers/exchange";
 import {
@@ -22,14 +22,14 @@ import {
     vestingVerify,
     preVote as preVoteVesting,
     vote as voteVesting,
-} from "../lib/backend/omoc/vesting";
+} from "../backend/omoc/vesting";
 import {
     addStake,
     unStake,
     delayMachineWithdraw,
     delayMachineCancelWithdraw,
     approveStakingMachine,
-} from "../lib/backend/omoc/staking";
+} from "../backend/omoc/staking";
 
 
 export type WalletContextType = {

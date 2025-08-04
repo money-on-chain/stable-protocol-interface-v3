@@ -17,7 +17,7 @@ import {
     saveVestingAddressesToLocalStorage,
     onValidateVestingAddress,
 } from "../../helpers/vesting";
-import { decodeEvents } from "../../lib/backend/transaction";
+import { decodeEvents } from "../../backend/transaction";
 import "./Styles.scss";
 
 const { TextArea } = Input;

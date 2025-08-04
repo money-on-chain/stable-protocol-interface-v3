@@ -1,12 +1,12 @@
 import settings from "../settings/settings.json";
 import { TokenSettings } from "./currencies";
-import { mintTC, redeemTC, mintTP, redeemTP } from "../lib/backend/moc-rc20";
+import { mintTC, redeemTC, mintTP, redeemTP } from "../backend/moc-rc20";
 import {
     mintTC as mintTC_coinbase,
     redeemTC as redeemTC_coinbase,
     mintTP as mintTP_coinbase,
     redeemTP as redeemTP_coinbase,
-} from "../lib/backend/moc-coinbase";
+} from "../backend/moc-coinbase";
 
 // Type definitions
 interface InterfaceContext {

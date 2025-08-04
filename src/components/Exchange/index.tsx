@@ -25,7 +25,7 @@ import { PrecisionNumbers } from "../PrecisionNumbers3";
 import InputAmount from "../InputAmount/";
 
 import { CheckStatusGlobal } from "../../helpers/checkStatus";
-import { getExecutionFee } from "../../lib/backend/utils";
+import { getExecutionFee } from "../../backend/utils";
 import { useWalletContext } from "../../context/Wallet";
 import { normalizeToBigInt, mulPrecision, divPrecision, toBigIntPrecision } from "../../helpers/precision";
 

@@ -1,5 +1,5 @@
 import { writeContract, simulateContract, waitForTransactionReceipt } from '@wagmi/core'
-import { config } from '../../../wagmiConfig' 
+import { config } from '../../wagmiConfig' 
 
 
 // SignDataResponse can be a string (signature) or an object with signature property

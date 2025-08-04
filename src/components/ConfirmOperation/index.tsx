@@ -12,7 +12,7 @@ import ModalAllowanceOperation from "../Modals/Allowance";
 import CopyAddress from "../CopyAddress";
 //import settings from "../../settings/settings.json";
 import TXStatus from "./TXStatus";
-import { decodeEvents } from "../../lib/backend/transaction";
+import { decodeEvents } from "../../backend/transaction";
 import { useWalletContext } from "../../context/Wallet";
 
 const { Panel } = Collapse;

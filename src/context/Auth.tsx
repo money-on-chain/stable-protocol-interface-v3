@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useState, ReactNode } from "react";
-import getRLogin from "../lib/rLogin";
+//import getRLogin from "../lib/rLogin";
 import Web3 from "web3";
 import BigNumber from "bignumber.js";
 import PropTypes from "prop-types";
@@ -12,15 +12,15 @@ import {
     type DContracts,
 } from "../helpers/exchange";
 
-import { readContracts } from "../lib/backend/contracts";
-import { contractStatus, userBalance } from "../lib/backend/multicall";
+//import { readContracts } from "../backend/contracts";
+//import { contractStatus, userBalance } from "../backend/multicall";
 import {
     AllowanceAmount,
     transferTokenTo,
     MigrateToken,
     AllowUseTokenMigrator,
     transferCoinbaseTo,
-} from "../lib/backend/moc-base";
+} from "../backend/moc-base";
 
 import {
     addStake,
@@ -28,7 +28,7 @@ import {
     delayMachineWithdraw,
     delayMachineCancelWithdraw,
     approveStakingMachine,
-} from "../lib/backend/omoc/staking";
+} from "../backend/omoc/staking";
 
 import {
     addStake as addStakeVesting,
@@ -40,11 +40,11 @@ import {
     vestingVerify,
     preVote as preVoteVesting,
     vote as voteVesting,
-} from "../lib/backend/omoc/vesting";
+} from "../backend/omoc/vesting";
 
-import { claimV2 } from "../lib/backend/omoc/incentivev2";
+import { claimV2 } from "../backend/omoc/incentivev2";
 
-import { getGasPrice } from "../lib/backend/utils";
+
 import ModalAccount from "../components/Modals/Account";
 import api from "../services/api";
 import {
@@ -58,7 +58,7 @@ import {
     vote,
     voteStep,
     unRegister,
-} from "../lib/backend/omoc/voting";
+} from "../backend/omoc/voting";
 
 BigNumber.config({ ROUNDING_MODE: BigNumber.ROUND_DOWN });
 
@@ -335,7 +335,7 @@ const AuthenticateProvider: React.FC<AuthenticateProviderProps> = ({ children })
         // let css_logout = await import("../assets/css/logout.scss");
     }
 
-    useEffect(() => {
+    /*useEffect(() => {
         if (!window.rLogin) {
             window.rLogin = getRLogin(
                 import.meta.env.REACT_APP_ENVIRONMENT_CHAIN_ID
@@ -347,7 +347,7 @@ const AuthenticateProvider: React.FC<AuthenticateProviderProps> = ({ children })
                 disableLogin();
             }
         }
-    });
+    });*/
 
     const disableLogin = (): void => {
         const modalHitbox = document.querySelectorAll(".rlogin-modal-hitbox")[0];
@@ -713,7 +713,7 @@ const AuthenticateProvider: React.FC<AuthenticateProviderProps> = ({ children })
     };
 
     const interfaceGasPrice = async (): Promise<number> => {
-        return getGasPrice(web3!);
+        //return getGasPrice(web3!);
     };
 
     const onShowModalAccount = (): void => {

@@ -1,6 +1,6 @@
-import settings from "../../settings/settings.json";
+import settings from "../settings/settings.json";
 import { writeContract, simulateContract, waitForTransactionReceipt } from '@wagmi/core'
-import { config } from '../../wagmiConfig' 
+import { config } from '../wagmiConfig' 
 import {
     getExecutionFee, 
     getNetworkFromProject
