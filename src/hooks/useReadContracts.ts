@@ -56,6 +56,7 @@ interface DContracts {
         TG?: any;
         tp_legacy?: any;
         token_migrator?: any;
+        VestingMachine?: any;
     };
     contractsAddresses: Record<string, any>;
 }
@@ -113,6 +114,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
         VestingFactory: {},
         IncentiveV2: {},    
         TG: {},
+        VestingMachine: undefined
     };
         
     const contractPPCA =

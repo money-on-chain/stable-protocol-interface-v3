@@ -10,7 +10,7 @@ type ReceiptCallback = (receipt: any) => void;
 const addStake = async (
     interfaceContext: any,
     amount: bigint,
-    userAddress: string,
+    userAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {

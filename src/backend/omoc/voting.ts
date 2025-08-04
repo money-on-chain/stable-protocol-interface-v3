@@ -9,7 +9,7 @@ type ReceiptCallback = (receipt: any) => void;
 
 const preVote = async (
     interfaceContext: any,
-    changeContractAddress: string,
+    changeContractAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
@@ -39,7 +39,7 @@ const preVote = async (
 
 const unRegister = async (
     interfaceContext: any,
-    changeContractAddress: string,
+    changeContractAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {

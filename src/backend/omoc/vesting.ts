@@ -160,7 +160,7 @@ const withdrawAll = async (
 const addStake = async (
     interfaceContext: any,
     amount: bigint,
-    userAddress: string,
+    userAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
@@ -339,7 +339,7 @@ const approveStakingMachine = async (
 
 const preVote = async (
     interfaceContext: any,
-    changeContractAddress: string,
+    changeContractAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {

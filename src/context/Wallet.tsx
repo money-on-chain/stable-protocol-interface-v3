@@ -30,7 +30,20 @@ import {
     delayMachineCancelWithdraw,
     approveStakingMachine,
 } from "../backend/omoc/staking";
-
+import { claimV2 } from "../backend/omoc/incentivev2";
+import {
+    acceptedStep,
+    preVote,
+    preVoteStep,
+    vote,
+    voteStep,
+    unRegister,
+} from "../backend/omoc/voting";
+import {
+    loadVestingAddressesFromLocalStorage,
+    saveVestingAddressesToLocalStorage,
+} from "../helpers/vesting";
+import api from "../services/api";
 
 export type WalletContextType = {
   isConnected: boolean
@@ -94,7 +107,7 @@ export type WalletContextType = {
     onError: OnError
   ) => Promise<any>
   interfaceStakingAddStake: (
-    amount: string | number,
+    amount: bigint,
     address: string,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt,
@@ -118,6 +131,65 @@ export type WalletContextType = {
   onShowModalAccountVesting: () => void
   onHideModalAccount: () => void
   setVestingMachine: (vAddress: string) => void
+  interfaceIncentiveV2Claim: (
+    signDataResponse: any,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt,
+    onError: OnError
+  ) => Promise<any>
+  interfaceStakingUnStake: (
+    amount: bigint,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt,
+    onError: OnError
+  ) => Promise<any>
+  interfaceVestingWithdraw: (
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt,
+    onError: OnError
+  ) => Promise<any>
+  interfaceVestingVerify: (
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt,
+    onError: OnError
+  ) => Promise<any>
+  interfaceVotingPreVote: (
+    changeContractAddress: string,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt,
+    onError: OnError
+  ) => Promise<any>
+  interfaceVotingVote: (
+    inFavorAgainst: boolean,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt,
+    onError: OnError
+  ) => Promise<any>
+  interfaceVotingPreVoteStep: (
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt,
+    onError: OnError
+  ) => Promise<any>
+  interfaceVotingVoteStep: (
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt,
+    onError: OnError
+  ) => Promise<any>
+  interfaceVotingAcceptedStep: (
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt,
+    onError: OnError
+  ) => Promise<any>
+}
+
+interface VestingTransaction {
+    vesting: string;
+    [key: string]: any;
+}
+
+interface VestingResponse {
+    transactions?: VestingTransaction[];
+    [key: string]: any;
 }
 
 export const WalletContext = createContext<WalletContextType | null>(null)
@@ -220,12 +292,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         }
     }
 
-    const setVestingMachine = (vAddress: string): void => {
-        if (contractsAddress && contractsAddressLoaded) {
-            contractsAddress.VestingMachine = vAddress;
-            setContractsAddress(contractsAddress);
-        }
-    };
+    
 
     const onShowModalAccount = (): void => {
         setShowModalAccount(true);
@@ -249,6 +316,60 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             address,
             contracts: contractsAddress,
         };
+    };
+
+    /* OMOC VESTING */
+
+    const setVestingMachine = (vAddress: string): void => {
+        if (contractsAddress && contractsAddressLoaded) {
+            contractsAddress.VestingMachine = vAddress;
+            setContractsAddress(contractsAddress);
+        }
+    };
+
+    const saveUserVesting = (response: VestingResponse): void => {
+        if (
+            response.transactions !== undefined &&
+            response.transactions.length > 0
+        ) {
+            const vFromStorage = loadVestingAddressesFromLocalStorage(
+                window.address
+            );
+            let vLowerFromStorage = vFromStorage.map((v: string) => v.toLowerCase());
+
+            const newVesting: string[] = [];
+            response.transactions.forEach((data) => {
+                if (!vLowerFromStorage.includes(data.vesting.toLowerCase())) {
+                    newVesting.push(data.vesting.toLowerCase());
+                }
+            });
+
+            if (newVesting.length > 0) {
+                vLowerFromStorage.push(...newVesting);
+                saveVestingAddressesToLocalStorage(
+                    window.address,
+                    vLowerFromStorage
+                );
+            }
+        }
+    };
+
+    const readUserVesting = (): void => {
+        const baseUrl = `${import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS}omoc/vesting_created/`;
+        const queryParams = new URLSearchParams({
+            holder: window.address,
+            limit: "20",
+            skip: "0",
+        }).toString();
+        const url = `${baseUrl}?${queryParams}`;
+
+        api("get", url)
+            .then((response: VestingResponse) => {
+                saveUserVesting(response);
+            })
+            .catch((error: Error) => {
+                console.error(error);
+            });
     };
 
     const isVestingLoaded = (): boolean => {
@@ -407,8 +528,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     };
 
     const interfaceStakingAddStake = async (
-        amount: string | number,
-        address: string,
+        amount: bigint,
+        address: `0x${string}`,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
         onError: OnError
@@ -482,6 +603,162 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const interfaceIncentiveV2Claim = async (
+        signDataResponse: any,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ): Promise<any> => {
+        const interfaceContext = buildInterfaceContext();
+        return claimV2(
+            interfaceContext,
+            signDataResponse,
+            onTransaction,
+            onReceipt
+        );
+    };
+
+    const interfaceStakingUnStake = async (
+        amount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ): Promise<any> => {
+        const interfaceContext = buildInterfaceContext();
+        if (isVestingLoaded()) {
+            return unStakeVesting(
+                interfaceContext,
+                amount,
+                onTransaction,
+                onReceipt
+            );
+        } else {
+            return unStake(
+                interfaceContext,
+                amount,
+                onTransaction,
+                onReceipt
+            );
+        }
+    };
+
+    const interfaceVestingWithdraw = async (
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ): Promise<any> => {
+        const interfaceContext = buildInterfaceContext();
+        return withdrawAll(interfaceContext, onTransaction, onReceipt);
+    };
+
+    const interfaceVestingVerify = async (
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ): Promise<any> => {
+        const interfaceContext = buildInterfaceContext();
+        return vestingVerify(
+            interfaceContext,
+            onTransaction,
+            onReceipt
+        );
+    };
+
+    // OMOC Voting
+    const interfaceVotingPreVote = async (
+        changeContractAddress: `0x${string}`,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ): Promise<any> => {
+        const interfaceContext = buildInterfaceContext();
+        if (isVestingLoaded()) {
+            return preVoteVesting(
+                interfaceContext,
+                changeContractAddress,
+                onTransaction,
+                onReceipt
+            );
+        } else {
+            return preVote(
+                interfaceContext,
+                changeContractAddress,
+                onTransaction,
+                onReceipt
+            );
+        }
+    };
+
+    const interfaceVotingVote = async (
+        inFavorAgainst: boolean,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ): Promise<any> => {
+        const interfaceContext = buildInterfaceContext();
+        if (isVestingLoaded()) {
+            return voteVesting(
+                interfaceContext,
+                inFavorAgainst,
+                onTransaction,
+                onReceipt
+            );
+        } else {
+            return vote(
+                interfaceContext,
+                inFavorAgainst,
+                onTransaction,
+                onReceipt
+            );
+        }
+    };
+
+    const interfaceVotingPreVoteStep = async (
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ): Promise<any> => {
+        const interfaceContext = buildInterfaceContext();
+        return preVoteStep(interfaceContext, onTransaction, onReceipt);
+    };
+
+    const interfaceVotingVoteStep = async (
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ): Promise<any> => {
+        const interfaceContext = buildInterfaceContext();
+        return voteStep(interfaceContext, onTransaction, onReceipt);
+    };
+
+    const interfaceVotingAcceptedStep = async (
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ): Promise<any> => {
+        const interfaceContext = buildInterfaceContext();
+        return acceptedStep(
+            interfaceContext,
+            onTransaction,
+            onReceipt
+        );
+    };
+
+    const interfaceVotingUnRegister = async (
+        changeContractAddress: `0x${string}`,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ): Promise<any> => {
+        const interfaceContext = buildInterfaceContext();
+        return unRegister(
+            interfaceContext,
+            changeContractAddress,
+            onTransaction,
+            onReceipt
+        );
+    };
+
     return (
         <WalletContext.Provider
         value={{
@@ -515,7 +792,18 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             onShowModalAccount,
             onShowModalAccountVesting,
             onHideModalAccount,
-            setVestingMachine
+            setVestingMachine,
+            interfaceIncentiveV2Claim,
+            interfaceStakingUnStake,
+            interfaceVestingWithdraw,
+            interfaceVestingVerify,
+            interfaceVotingPreVote,
+            interfaceVotingVote,
+            interfaceVotingPreVoteStep,
+            interfaceVotingVoteStep,
+            interfaceVotingAcceptedStep,
+            interfaceVotingUnRegister,
+            readUserVesting
         }}
         >
         {children}
