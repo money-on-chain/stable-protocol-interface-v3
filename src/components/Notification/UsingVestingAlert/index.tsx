@@ -2,21 +2,17 @@ import React, { useContext } from "react";
 import { Alert, Button } from "antd";
 
 import { useProjectTranslation } from "../../../helpers/translations";
-import { AuthenticateContext } from "../../../context/Auth";
+import { useWalletContext } from "../../../context/Wallet";
 import "./Styles.scss";
 
 interface UseVestingAlertProps {
     address?: string;
 }
 
-interface AuthContext {
-    onShowModalAccount: (show: boolean) => void;
-}
-
 export default function UseVestingAlert(props: UseVestingAlertProps): React.ReactElement {
     const { t } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext) as AuthContext;
-
+    const { address, onShowModalAccount } = useWalletContext()
+    
     const truncateAddress = (address: string): string => {
         return (
             address.substring(0, 6) +
@@ -27,7 +23,7 @@ export default function UseVestingAlert(props: UseVestingAlertProps): React.Reac
     const space = "\u00A0";
 
     const onDisplayAccount = (): void => {
-        auth.onShowModalAccount(true);
+        onShowModalAccount(true);
     };
 
     return (

@@ -117,8 +117,7 @@ interface Label {
 
 export default function PortfolioTable() {
     const { t, i18n } = useProjectTranslation();
-    const { contractProtocolStatus, userBalance } = useWalletContext()
-    //const auth = useContext(AuthenticateContext);
+    const { contractProtocolStatus, userBalance } = useWalletContext()    
     const [ready, setReady] = useState<boolean>(false);
 
     // Default values for all tokens
@@ -386,7 +385,7 @@ export default function PortfolioTable() {
         if (ready && contractProtocolStatus.data && userBalance.data) {
             processTokens(allTheTokens, settings, t);
         }
-    }, [ready, contractProtocolStatus.data, userBalance.data]); // Runs only when `ready` or `auth` changes
+    }, [ready, contractProtocolStatus.data, userBalance.data]); // Runs only when `ready` 
 
     return ready ? (
         <div className="portfolio-table">

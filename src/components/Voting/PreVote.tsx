@@ -1,12 +1,11 @@
-import React, { Fragment, useContext, useEffect, useState } from "react";
-import BigNumber from "bignumber.js";
+import React, { Fragment, useEffect, useState } from "react";
 
 import { useProjectTranslation } from "../../helpers/translations";
 import CompletedBar from "./CompletedBar";
-import { PrecisionNumbers } from "../PrecisionNumbers";
+import { PrecisionNumbers } from "../PrecisionNumbers3";
 import { TokenSettings } from "../../helpers/currencies";
-import { AuthenticateContext } from "../../context/Auth";
 import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
+import { useWalletContext } from "../../context/Wallet";
 
 interface CreateBarGraphProps {
     id: number;
@@ -15,14 +14,14 @@ interface CreateBarGraphProps {
     needed: string;
     type: string;
     label1: string;
-    amount1: BigNumber;
-    percentage1: BigNumber;
+    amount1: bigint;
+    percentage1: bigint;
     label2: string;
-    amount2: BigNumber;
-    percentage2: BigNumber;
+    amount2: bigint;
+    percentage2: bigint;
     label3: string;
-    amount3: BigNumber;
-    percentage3: BigNumber;
+    amount3: bigint;
+    percentage3: bigint;
 }
 
 interface Proposal {
@@ -30,20 +29,20 @@ interface Proposal {
     canVote: boolean;
     canRunStep: boolean;
     canUnregister: boolean;
-    votesPositive: BigNumber;
-    votesPositivePCT: BigNumber;
+    votesPositive: bigint;
+    votesPositivePCT: bigint;
     expirationTimeStampFormat: string;
 }
 
 interface InfoVoting {
-    PRE_VOTE_MIN_PCT_TO_WIN: BigNumber;
-    PRE_VOTE_MIN_TO_WIN: BigNumber;
-    totalSupply: BigNumber;
+    PRE_VOTE_MIN_PCT_TO_WIN: bigint;
+    PRE_VOTE_MIN_TO_WIN: bigint;
+    totalSupply: bigint;
 }
 
 interface InfoUser {
-    Voting_Power: BigNumber;
-    Voting_Power_PCT: BigNumber;
+    Voting_Power: bigint;
+    Voting_Power_PCT: bigint;
 }
 
 interface PreVoteProps {
@@ -55,15 +54,7 @@ interface PreVoteProps {
     onRunPreVoteStep: () => void;
 }
 
-interface AuthContext {
-    interfaceVotingPreVote: (
-        changeContract: string,
-        onTransaction: (txHash: string) => void,
-        onReceipt: () => void,
-        onError: (error: any) => void
-    ) => Promise<any>;
-    loadContractsStatusAndUserBalance: () => Promise<any>;
-}
+
 
 const CreateBarGraph: React.FC<CreateBarGraphProps> = (props) => {
     return (
@@ -105,7 +96,7 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
     } = props;
     const { t, i18n, ns } = useProjectTranslation();
     const space: string = "\u00A0";
-    const auth = useContext(AuthenticateContext) as AuthContext;
+    const { interfaceVotingPreVote } = useWalletContext()
 
     const [isOperationModalVisible, setIsOperationModalVisible] =
         useState<boolean>(false);
@@ -120,7 +111,7 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
     }, [infoUser["Voting_Power"], proposal["canVote"]]);
 
     const onValidateVotingInFavor = (): boolean => {
-        if (infoUser["Voting_Power"].lte(new BigNumber(0))) {
+        if (infoUser["Voting_Power"] <= 0n) {
             // You need at least voting power > 0
             setVotingInFavorError(true);
             return false;
@@ -147,17 +138,17 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
             valueNeedIt: infoVoting["PRE_VOTE_MIN_TO_WIN"],
             valueTotal: infoVoting["totalSupply"],
             pctCurrent: proposal.votesPositivePCT,
-            pctNeedIt: new BigNumber(infoVoting["PRE_VOTE_MIN_PCT_TO_WIN"]),
+            pctNeedIt: infoVoting["PRE_VOTE_MIN_PCT_TO_WIN"],
 
             label1: "Votes received",
             amount1: proposal.votesPositive,
             percentage1: proposal.votesPositivePCT,
             label2: "Votes needed for Quroum",
             amount2: infoVoting["PRE_VOTE_MIN_TO_WIN"],
-            percentage2: new BigNumber(infoVoting["PRE_VOTE_MIN_PCT_TO_WIN"]),
+            percentage2: infoVoting["PRE_VOTE_MIN_PCT_TO_WIN"],
             label3: "Total circulating tokens",
             amount3: infoVoting["totalSupply"],
-            percentage3: new BigNumber(100),
+            percentage3: 100n,
         },
     ];
 
@@ -204,8 +195,7 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
             setOperationStatus("error");
         };
 
-        await auth
-            .interfaceVotingPreVote(
+        await interfaceVotingPreVote(
                 proposal.changeContract,
                 onTransaction,
                 onReceipt,
@@ -213,9 +203,9 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
             )
             .then((/*res*/) => {
                 // Refresh status
-                auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                    console.log("Refresh user balance OK!");
-                });
+                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
+                //     console.log("Refresh user balance OK!");
+                // });
             })
             .catch((e) => {
                 console.error(e);
@@ -319,9 +309,9 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
                                                     ],
                                                     token: TokenSettings("TG"),
                                                     decimals: 2,
-                                                    numericLabelParams: {},
+                                                    //numericLabelParams: {},
                                                     i18n: i18n,
-                                                    skipContractConvert: true,
+                                                    //skipContractConvert: true,
                                                 })}
                                                 {t("staking.tokens.TG.abbr", {
                                                     ns: ns,
@@ -333,9 +323,9 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
                                                     ],
                                                     token: TokenSettings("TG"),
                                                     decimals: 2,
-                                                    numericLabelParams: {},
+                                                    //numericLabelParams: {},
                                                     i18n: i18n,
-                                                    skipContractConvert: true,
+                                                    //skipContractConvert: true,
                                                 })}
                                                 %)
                                             </div>

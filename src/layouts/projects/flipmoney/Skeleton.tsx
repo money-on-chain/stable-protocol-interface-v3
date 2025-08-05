@@ -1,13 +1,11 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Layout } from "antd";
 
-import { AuthenticateContext } from "../../../context/Auth";
 import SectionHeader from "../../../components/Header";
 import NotificationBody from "../../../components/Notification";
 import { CheckStatusGlobal } from "../../../helpers/checkStatus";
 import DappFooter from "../../../components/Footer/index";
-import W3ErrorAlert from "../../../components/Notification/W3ErrorAlert";
 
 import { useWalletContext } from "../../../context/Wallet";
 
@@ -26,26 +24,20 @@ interface NotificationStatus {
     dismissTime: number;
 }
 
-interface AuthContext {
-    contractStatusData: any;
-    userBalanceData: any;
-    web3Error: any;
-    isLoggedIn: boolean;
-}
+
 
 
 export default function Skeleton(): JSX.Element {
-    const auth = useContext(AuthenticateContext) as AuthContext;
-    const { isConnected, address } = useWalletContext()
+    const { isConnected, address, contractProtocolStatus, userBalance } = useWalletContext()
     
     const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(null);
     const { checkerStatus } = CheckStatusGlobal();
     
     useEffect(() => {
-        if (auth.contractStatusData && auth.userBalanceData) {
+        if (contractProtocolStatus.data && userBalance.data) {
             readProtocolStatus();
         }
-    }, [auth.contractStatusData, auth.userBalanceData]);
+    }, [contractProtocolStatus.data, userBalance.data]);
 
     const readProtocolStatus = (): void => {
         const { globalStatus, statusLabel, statusText } = checkerStatus();
@@ -71,7 +63,7 @@ export default function Skeleton(): JSX.Element {
             {/* TODO load an array of notifStatus items, and load a mapping for showing notifs here in this section , interact with a React Context */}
             {notifStatus && <NotificationBody notifStatus={notifStatus} />}
 
-            {auth.web3Error && <W3ErrorAlert />}
+            {/* {auth.web3Error && <W3ErrorAlert />} */}
 
             {isConnected && <Outlet />}
         </Content>

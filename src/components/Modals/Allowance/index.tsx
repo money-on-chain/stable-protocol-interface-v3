@@ -9,7 +9,7 @@ interface ModalAllowanceOperationProps {
     title?: string;
     currencyYouExchange: string;
     currencyYouReceive: string;
-    amountYouExchangeLimit: any; // BigNumber type
+    amountYouExchangeLimit: any; 
     onRealSendTransaction: () => void;
     disAllowance?: boolean;
 }

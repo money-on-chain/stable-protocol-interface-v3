@@ -2,44 +2,21 @@ import React, { useContext } from "react";
 import { Table } from "antd";
 import BigNumber from "bignumber.js";
 
-import { AuthenticateContext } from "../../../context/Auth";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { formatTimestamp } from "../../../helpers/staking";
+import { useWalletContext } from "../../../context/Wallet";
 
-interface VestingParameters {
-    percentages: (string | number)[];
-    timeDeltas: (string | number)[];
-}
-
-interface VestingMachine {
-    getParameters: VestingParameters;
-    getTotal: string | number;
-}
-
-interface VestingFactory {
-    getTGETimestamp: string | number;
-}
-
-interface UserBalanceData {
-    vestingmachine?: VestingMachine;
-    vestingfactory?: VestingFactory;
-}
-
-interface AuthContext {
-    userBalanceData: UserBalanceData | null;
-}
 
 interface VestingDataItem {
     key: number;
     renderRow: React.ReactNode;
 }
 
-const precision = (contractDecimals: number): BigNumber =>
-    new BigNumber(10).exponentiatedBy(contractDecimals);
+const precision = (contractDecimals: number): bigint =>
+    10n ** BigInt(contractDecimals);
 
 const formatVisibleValue = (amount: string | number, decimals: number): string => {
-    return BigNumber(amount)
-        .div(precision(18))
+    return (BigInt(amount) / precision(18)).toString()
         .toFormat(decimals, BigNumber.ROUND_UP, {
             decimalSeparator: ".",
             groupSeparator: ",",
@@ -48,7 +25,7 @@ const formatVisibleValue = (amount: string | number, decimals: number): string =
 
 export default function VestingSchedule(): React.ReactElement {
     const { t, i18n } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext) as AuthContext;
+    const { userBalance } = useWalletContext()
 
     const vestingColumns = [
         {
@@ -57,23 +34,23 @@ export default function VestingSchedule(): React.ReactElement {
     ];
     const vestingData: VestingDataItem[] = [];
 
-    if (!auth.userBalanceData?.vestingmachine || !auth.userBalanceData?.vestingfactory) {
+    if (!userBalance.data?.vestingmachine || !userBalance.data?.vestingfactory) {
         return <div>No vesting data available</div>;
     }
 
-    const getParameters = auth.userBalanceData.vestingmachine.getParameters;
-    const tgeTimestamp = auth.userBalanceData.vestingfactory.getTGETimestamp;
-    const total = auth.userBalanceData.vestingmachine.getTotal;
+    const getParameters = userBalance.data.vestingmachine.getParameters;
+    const tgeTimestamp = userBalance.data.vestingfactory.getTGETimestamp;
+    const total = userBalance.data.vestingmachine.getTotal;
     const percentMultiplier = 10000;
 
     const percentages = getParameters.percentages;
     const timeDeltas = getParameters.timeDeltas;
     const deltas = [...timeDeltas];
-    if (timeDeltas && !new BigNumber(timeDeltas[0]).isZero()) {
+    if (timeDeltas && timeDeltas[0] !== 0) {
         deltas.unshift(0);
     }
 
-    if (new BigNumber(percentages[0]).lt(percentMultiplier)) {
+    if (percentages[0] < percentMultiplier) {
         percentages.unshift(10000);
     }
 
@@ -81,7 +58,7 @@ export default function VestingSchedule(): React.ReactElement {
         percentages[percentages.length - 1] = 0;
 
     const percents = percentages.map((x: string | number) =>
-        new BigNumber(percentMultiplier).minus(x)
+        percentMultiplier - x
     );
 
     let dates: (string | number)[] = [];
@@ -90,7 +67,7 @@ export default function VestingSchedule(): React.ReactElement {
             // Convert timestamp to date.
             dates = deltas.map((x: string | number) =>
                 formatTimestamp(
-                    new BigNumber(tgeTimestamp).plus(x).times(1000).toNumber()
+                    tgeTimestamp + x * 1000
                 )
             );
         } else {
@@ -99,17 +76,15 @@ export default function VestingSchedule(): React.ReactElement {
     }
 
     const tgeFormat = formatTimestamp(
-        new BigNumber(tgeTimestamp).times(1000).toNumber()
+        tgeTimestamp * 1000
     );
 
-    auth.userBalanceData &&
+    userBalance.data &&
         getParameters &&
-        percents.forEach(function (percent: BigNumber, itemIndex: number) {
+        percents.forEach(function (percent: bigint, itemIndex: number) {
             let strTotal = "";
-            if (total && !new BigNumber(total).isZero()) {
-                strTotal = new BigNumber(percent)
-                    .times(total)
-                    .div(percentMultiplier)
+            if (total && total !== 0) {
+                strTotal = (percent * total / percentMultiplier).toString()
                     .toString();
             }
 

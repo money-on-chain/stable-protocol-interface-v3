@@ -1,7 +1,7 @@
 import React from "react";
 
 import "./Styles.scss";
-import { PrecisionNumbers } from "../../PrecisionNumbers";
+import { PrecisionNumbers } from "../../PrecisionNumbers3";
 import { TokenSettings } from "../../../helpers/currencies";
 import { useProjectTranslation } from "../../../helpers/translations";
 
@@ -28,7 +28,7 @@ export default function BalanceBar(props: BalanceBarProps): React.ReactElement {
                         token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                         decimals: 2,
                         i18n: i18n,
-                        skipContractConvert: true,
+                        //skipContractConvert: true,
                     })}
                     {space}({props.against}) against
                 </div>
@@ -38,7 +38,7 @@ export default function BalanceBar(props: BalanceBarProps): React.ReactElement {
                         token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                         decimals: 2,
                         i18n: i18n,
-                        skipContractConvert: true,
+                        //skipContractConvert: true,
                     })}
                     {space}({props.infavor}) in favor
                 </div>

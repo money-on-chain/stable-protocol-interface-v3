@@ -2,12 +2,12 @@ import React, { Fragment } from "react";
 import { useProjectTranslation } from "../../helpers/translations";
 import { Button } from "antd";
 import PerformanceChart from "../Staking/performanceChart";
-//import { AuthenticateContext } from '../../context/Auth';
+
 import LiquidityMiningClaims from "../Tables/LiquidityMiningClaims";
 import "./Styles.scss";
 
 export default function LiquidityMiningClaim(): React.ReactElement {
-    //const auth = useContext(AuthenticateContext);
+    
     const { t } = useProjectTranslation();
 
     const space = "\u00A0";

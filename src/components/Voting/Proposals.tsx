@@ -1,23 +1,20 @@
-import React, { Fragment, useContext, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import BigNumber from "bignumber.js";
-import { Input } from "antd";
-import Web3 from "web3";
 
 import { useProjectTranslation } from "../../helpers/translations";
 import Proposal from "./Proposal";
 import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
-import { AuthenticateContext } from "../../context/Auth";
 import { formatTimestamp } from "../../helpers/staking";
 import PreVote from "./PreVote";
-import { PrecisionNumbers } from "../PrecisionNumbers";
-import { TokenSettings } from "../../helpers/currencies";
+
+import { useWalletContext } from "../../context/Wallet";
 
 interface ProposalData {
     id: number;
     changeContract: string;
-    votingRound: BigNumber;
-    votesPositive: BigNumber;
-    votesPositivePCT: BigNumber;
+    votingRound: bigint;
+    votesPositive: bigint;
+    votesPositivePCT: bigint;
     expirationTimeStampFormat: string;
     expired: boolean;
     canUnregister: boolean;
@@ -31,17 +28,17 @@ interface EmptyProposal {
 
 interface InfoVoting {
     proposals: any[];
-    globalVotingRound: BigNumber;
-    totalSupply: BigNumber;
-    PRE_VOTE_MIN_PCT_TO_WIN: BigNumber;
-    PRE_VOTE_MIN_TO_WIN: BigNumber;
+    globalVotingRound: bigint;
+    totalSupply: bigint;
+    PRE_VOTE_MIN_PCT_TO_WIN: bigint;
+    PRE_VOTE_MIN_TO_WIN: bigint;
     readyToPreVoteStep: number;
-    MIN_STAKE: BigNumber;
+    MIN_STAKE: bigint;
 }
 
 interface InfoUser {
-    Voting_Power: BigNumber;
-    Voting_Power_PCT: BigNumber;
+    Voting_Power: bigint;
+    Voting_Power_PCT: bigint;
 }
 
 interface ProposalsProps {
@@ -49,26 +46,6 @@ interface ProposalsProps {
     infoUser: InfoUser;
 }
 
-interface AuthContext {
-    interfaceVotingPreVote: (
-        proposalAddress: string,
-        onTransaction: (txHash: string) => void,
-        onReceipt: () => void,
-        onError: (error: any) => void
-    ) => Promise<any>;
-    interfaceVotingUnRegister: (
-        proposalAddress: string,
-        onTransaction: (txHash: string) => void,
-        onReceipt: () => void,
-        onError: (error: any) => void
-    ) => Promise<any>;
-    interfaceVotingPreVoteStep: (
-        onTransaction: (txHash: string) => void,
-        onReceipt: () => void,
-        onError: (error: any) => void
-    ) => Promise<any>;
-    loadContractsStatusAndUserBalance: () => Promise<any>;
-}
 
 const Proposals: React.FC<ProposalsProps> = (props) => {
     const { infoVoting, infoUser } = props;
@@ -90,13 +67,13 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
     const [modalTitle, setModalTitle] = useState<string>("Proposal");
     const [proposalsData, setProposalsData] = useState<ProposalData[]>([]);
 
-    const { t, i18n, ns } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext) as AuthContext;
+    const { t } = useProjectTranslation();
+    const { interfaceVotingPreVote, interfaceVotingUnRegister, interfaceVotingPreVoteStep, contractProtocolStatus } = useWalletContext()
     const space: string = "\u00A0";
 
     useEffect(() => {
         onValidateSubmitProposal();
-    }, [auth]);
+    }, [contractProtocolStatus.data]);
 
     useEffect(() => {
         if (infoVoting["proposals"] != null) {
@@ -108,9 +85,9 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         let proposal: ProposalData = {
             id: 0,
             changeContract: "",
-            votingRound: new BigNumber(0),
-            votesPositive: new BigNumber(0),
-            votesPositivePCT: new BigNumber(0),
+            votingRound: 0n,
+            votesPositive: 0n,
+            votesPositivePCT: 0n,
             expirationTimeStampFormat: "",
             expired: true,
             canUnregister: false,
@@ -140,9 +117,9 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         let count = 0;
         const nowTimestamp = new BigNumber(Date.now());
         let expirationTimestamp = 0;
-        let votesPositivePCT = new BigNumber(0);
-        let votesPositive = new BigNumber(0);
-        let votingRound = new BigNumber(0);
+        let votesPositivePCT = 0n;
+        let votesPositive = 0n;
+        let votingRound = 0n;
         const showLastRoundProposal = true;
 
         let lenProp = 0;
@@ -164,31 +141,20 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                 )
                     canUnregister = true;
 
-                votingRound = new BigNumber(
-                    infoVoting["proposals"][i].votingRound
-                );
+                votingRound = infoVoting["proposals"][i].votingRound;
                 if (
-                    votingRound.lt(infoVoting["globalVotingRound"]) &&
+                    votingRound < infoVoting["globalVotingRound"] &&
                     showLastRoundProposal
                 )
                     continue;
 
-                votesPositive = new BigNumber(
-                    Web3.utils.fromWei(
-                        infoVoting["proposals"][i].votes,
-                        "ether"
-                    )
-                );
+                votesPositive = infoVoting["proposals"][i].votes;
 
-                votesPositivePCT = votesPositive
-                    .times(100)
-                    .div(infoVoting["totalSupply"]);
+                votesPositivePCT = votesPositive * 100n / infoVoting["totalSupply"];
 
                 let canRunStep = false;
                 if (
-                    votesPositivePCT.gte(
-                        infoVoting["PRE_VOTE_MIN_PCT_TO_WIN"]
-                    ) &&
+                    votesPositivePCT >= infoVoting["PRE_VOTE_MIN_PCT_TO_WIN"] &&
                     infoVoting["readyToPreVoteStep"] === 1
                 )
                     canRunStep = true;
@@ -196,9 +162,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                 propData.push({
                     id: count,
                     changeContract: infoVoting["proposals"][i].proposalAddress,
-                    votingRound: new BigNumber(
-                        infoVoting["proposals"][i].votingRound
-                    ),
+                    votingRound: infoVoting["proposals"][i].votingRound,
                     votesPositive: votesPositive,
                     votesPositivePCT: votesPositivePCT,
                     expirationTimeStampFormat: formatTimestamp(
@@ -247,7 +211,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
     };
 
     const onValidateSubmitProposal = (): boolean => {
-        if (infoUser["Voting_Power"].lt(infoVoting["MIN_STAKE"])) {
+        if (infoUser["Voting_Power"] < infoVoting["MIN_STAKE"]) {
             setAddProposalAddressErrorText(
                 // `You need at least ${infoVoting['MIN_STAKE'].toString()} amount of tokens to submit the proposal`
                 "Not enough balance. See below."
@@ -319,8 +283,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             setOperationStatus("error");
         };
 
-        await auth
-            .interfaceVotingPreVote(
+        await interfaceVotingPreVote(
                 addProposalAddress,
                 onTransaction,
                 onReceipt,
@@ -328,9 +291,9 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             )
             .then((/*res*/) => {
                 // Refresh status
-                auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                    console.log("Refresh user balance OK!");
-                });
+                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
+                //     console.log("Refresh user balance OK!");
+                // });
             })
             .catch((e) => {
                 console.error(e);
@@ -385,8 +348,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             setOperationStatus("error");
         };
 
-        await auth
-            .interfaceVotingUnRegister(
+        await interfaceVotingUnRegister(
                 proposalAddress,
                 onTransaction,
                 onReceipt,
@@ -394,9 +356,9 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             )
             .then((/*res*/) => {
                 // Refresh status
-                auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                    console.log("Refresh user balance OK!");
-                });
+                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
+                //     console.log("Refresh user balance OK!");
+                // });
             })
             .catch((e) => {
                 console.error(e);
@@ -448,13 +410,12 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             setOperationStatus("error");
         };
 
-        await auth
-            .interfaceVotingPreVoteStep(onTransaction, onReceipt, onError)
+        await interfaceVotingPreVoteStep(onTransaction, onReceipt, onError)
             .then((/*res*/) => {
                 // Refresh status
-                auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                    console.log("Refresh user balance OK!");
-                });
+                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
+                //     console.log("Refresh user balance OK!");
+                // });
             })
             .catch((e) => {
                 console.error(e);

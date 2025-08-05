@@ -1,13 +1,13 @@
-import React, { Fragment, useContext, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import BigNumber from "bignumber.js";
 
 import { useProjectTranslation } from "../../helpers/translations";
 import CompletedBar from "./CompletedBar";
 import BalanceBar from "./BalanceBar";
-import { AuthenticateContext } from "../../context/Auth";
 import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
-import { PrecisionNumbers } from "../PrecisionNumbers";
+import { PrecisionNumbers } from "../PrecisionNumbers3";
 import { TokenSettings } from "../../helpers/currencies";
+import { useWalletContext } from "../../context/Wallet";
 
 interface CreateBarGraphProps {
     id: number;
@@ -16,43 +16,43 @@ interface CreateBarGraphProps {
     needed: string;
     type: string;
     label1?: string;
-    amount1?: BigNumber;
-    percentage1?: BigNumber;
+    amount1?: bigint;
+    percentage1?: bigint;
     label2?: string;
-    amount2?: BigNumber;
-    percentage2?: BigNumber;
+    amount2?: bigint;
+    percentage2?: bigint;
     label3?: string;
-    amount3?: BigNumber;
-    percentage3?: BigNumber;
+    amount3?: bigint;
+    percentage3?: bigint;
 }
 
 interface VoteProps {
     infoVoting: {
         votingData: {
             expired: boolean;
-            totalVoted: BigNumber;
+            totalVoted: bigint;
             totalVotedPCT: string;
-            againstVotesTotalSupplyPCT: BigNumber;
-            inFavorVotesTotalSupplyPCT: BigNumber;
-            inFavorVotes: BigNumber;
-            againstVotes: BigNumber;
-            inFavorVotesPCT: BigNumber;
-            againstVotesPCT: BigNumber;
+            againstVotesTotalSupplyPCT: bigint;
+            inFavorVotesTotalSupplyPCT: bigint;
+            inFavorVotes: bigint;
+            againstVotes: bigint;
+            inFavorVotesPCT: bigint;
+            againstVotesPCT: bigint;
             votingExpirationTimeFormat: string;
             winnerProposal: string;
-            VOTE_MIN_TO_VETO: BigNumber;
+            VOTE_MIN_TO_VETO: bigint;
         };
-        MIN_FOR_QUORUM: BigNumber;
+        MIN_FOR_QUORUM: bigint;
         MIN_PCT_FOR_QUORUM: string;
-        VOTE_MIN_TO_VETO: BigNumber;
+        VOTE_MIN_TO_VETO: bigint;
         VOTE_MIN_PCT_TO_VETO: string;
-        totalSupply: BigNumber;
+        totalSupply: bigint;
         readyToVoteStep: number;
         state: number;
     };
     infoUser: {
-        Voting_Power: BigNumber;
-        Voting_Power_PCT: BigNumber;
+        Voting_Power: bigint;
+        Voting_Power_PCT: bigint;
     };
 }
 
@@ -93,7 +93,7 @@ function Vote(props: VoteProps): JSX.Element {
     const [votingFinishReason, setVotingFinishReason] = useState<number>(0);
 
     const { t, i18n, ns } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext);
+    const { interfaceVotingVote, interfaceVotingVoteStep, interfaceVotingAcceptedStep } = useWalletContext()
     const space = "\u00A0";
 
     useEffect(() => {
@@ -119,16 +119,16 @@ function Vote(props: VoteProps): JSX.Element {
             setVotingFinish(true);
             setVotingInFavorOrAgainstError(true);
             if (
-                infoVoting["votingData"]["totalVoted"].lt(
+                infoVoting["votingData"]["totalVoted"] <
                     infoVoting["MIN_FOR_QUORUM"]
                 )
-            ) {
+            {
                 setVotingFinishReason(2);
             } else if (
-                infoVoting["votingData"]["againstVotesPCT"].gte(
+                infoVoting["votingData"]["againstVotesPCT"] >=
                     infoVoting["votingData"]["VOTE_MIN_TO_VETO"]
                 )
-            ) {
+            {
                 setVotingFinishReason(3);
             } else {
                 setVotingFinishReason(1);
@@ -141,30 +141,30 @@ function Vote(props: VoteProps): JSX.Element {
             id: 1,
             description: t("voting.statusGraph.castOverCirculation"),
             percentage: `${infoVoting["votingData"]["totalVotedPCT"]}%`,
-            needed: `${new BigNumber(infoVoting["MIN_PCT_FOR_QUORUM"])}%`,
+            needed: `${infoVoting["MIN_PCT_FOR_QUORUM"]}%`,
             type: "brand",
             label1: "Votes casted",
             amount1: infoVoting["votingData"]["totalVoted"],
-            percentage1: new BigNumber(infoVoting["votingData"]["totalVotedPCT"]),
+            percentage1: infoVoting["votingData"]["totalVotedPCT"],
             label2: "Votes needed for Quroum",
             amount2: infoVoting["MIN_FOR_QUORUM"],
-            percentage2: new BigNumber(infoVoting["MIN_PCT_FOR_QUORUM"]),
+            percentage2: infoVoting["MIN_PCT_FOR_QUORUM"],
             label3: "Total circulating tokens",
             amount3: infoVoting["totalSupply"],
-            percentage3: new BigNumber(100),
+            percentage3: 100n,
         },
         {
             id: 2,
             description: t("voting.statusGraph.negativeOverCirculation"),
             percentage: `${infoVoting["votingData"]["againstVotesTotalSupplyPCT"]}%`,
-            needed: `${new BigNumber(infoVoting["VOTE_MIN_PCT_TO_VETO"])}%`,
+            needed: `${infoVoting["VOTE_MIN_PCT_TO_VETO"]}%`,
             type: "negative",
             label1: "Votes Against",
             amount1: infoVoting["votingData"]["againstVotes"],
             percentage1: infoVoting["votingData"]["againstVotesTotalSupplyPCT"],
             label2: "Votes needed to reject proposal",
             amount2: infoVoting["VOTE_MIN_TO_VETO"],
-            percentage2: new BigNumber(infoVoting["VOTE_MIN_PCT_TO_VETO"]),
+            percentage2: infoVoting["VOTE_MIN_PCT_TO_VETO"],
         },
         {
             id: 3,
@@ -200,13 +200,12 @@ function Vote(props: VoteProps): JSX.Element {
             setOperationStatus("error");
         };
 
-        await auth
-            .interfaceVotingVote(inFavor, onTransaction, onReceipt, onError)
+        await interfaceVotingVote(inFavor, onTransaction, onReceipt, onError)
             .then((/*res*/) => {
                 // Refresh status
-                auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                    console.log("Refresh user balance OK!");
-                });
+                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
+                //     console.log("Refresh user balance OK!");
+                // });
             })
             .catch((e) => {
                 console.error(e);
@@ -235,13 +234,12 @@ function Vote(props: VoteProps): JSX.Element {
             setOperationStatus("error");
         };
 
-        await auth
-            .interfaceVotingVoteStep(onTransaction, onReceipt, onError)
+        await interfaceVotingVoteStep(onTransaction, onReceipt, onError)
             .then((/*res*/) => {
                 // Refresh status
-                auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                    console.log("Refresh user balance OK!");
-                });
+                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
+                //     console.log("Refresh user balance OK!");
+                // });
             })
             .catch((e) => {
                 console.error(e);
@@ -270,13 +268,12 @@ function Vote(props: VoteProps): JSX.Element {
             setOperationStatus("error");
         };
 
-        await auth
-            .interfaceVotingAcceptedStep(onTransaction, onReceipt, onError)
+        await interfaceVotingAcceptedStep(onTransaction, onReceipt, onError)
             .then((/*res*/) => {
                 // Refresh status
-                auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                    console.log("Refresh user balance OK!");
-                });
+                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
+                //     console.log("Refresh user balance OK!");
+                // });
             })
             .catch((e) => {
                 console.error(e);
@@ -285,7 +282,7 @@ function Vote(props: VoteProps): JSX.Element {
     };
 
     const onValidateVotingInFavorOrAgainst = (): boolean => {
-        if (infoUser["Voting_Power"].lte(new BigNumber(0))) {
+        if (infoUser["Voting_Power"] <= 0n) {
             // You need at least voting power > 0
             setVotingInFavorOrAgainstError(true);
             return false;
@@ -407,9 +404,9 @@ function Vote(props: VoteProps): JSX.Element {
                                                 ],
                                                 token: TokenSettings("TG"),
                                                 decimals: 2,
-                                                numericLabelParams: {},
+                                                //numericLabelParams: {},
                                                 i18n: i18n,
-                                                skipContractConvert: true,
+                                                //skipContractConvert: true,
                                             })}
                                             {t("staking.tokens.TG.abbr", {
                                                 ns: ns,
@@ -421,9 +418,9 @@ function Vote(props: VoteProps): JSX.Element {
                                                 ],
                                                 token: TokenSettings("TG"),
                                                 decimals: 4,
-                                                numericLabelParams: {},
+                                                //numericLabelParams: {},
                                                 i18n: i18n,
-                                                skipContractConvert: true,
+                                                //skipContractConvert: true,
                                             })}
                                             %)
                                         </div>

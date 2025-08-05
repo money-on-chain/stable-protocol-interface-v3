@@ -180,6 +180,12 @@ export type WalletContextType = {
     onReceipt: OnReceipt,
     onError: OnError
   ) => Promise<any>
+  interfaceVotingUnRegister: (
+    changeContractAddress: string,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt,
+    onError: OnError
+  ) => Promise<any>
 }
 
 interface VestingTransaction {

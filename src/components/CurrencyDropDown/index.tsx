@@ -3,7 +3,6 @@ import { Select } from "antd";
 import PropTypes from "prop-types";
 
 import { getCurrenciesDetail } from "../../helpers/currencies";
-//import { AuthenticateContext } from "../../context/Auth";
 import { useProjectTranslation } from "../../helpers/translations";
 
 const { Option } = Select;
@@ -37,7 +36,7 @@ export default function CurrencyDropDown(props: CurrencyDropDownProps): JSX.Elem
     const optionsFiltered: CurrencyOption[] = options.filter((it: CurrencyOption) =>
         currencyOptions.includes(it.value)
     );
-    //const auth = useContext(AuthenticateContext);
+    
     return (
         <div className={`SelectCurrency ${disabled ? "disabled" : ""}`}>
             <Select

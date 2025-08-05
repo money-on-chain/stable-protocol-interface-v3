@@ -9,17 +9,17 @@ interface ModalConfirmOperationProps {
     inputValidationError?: boolean;
     currencyYouExchange: string;
     currencyYouReceive: string;
-    exchangingUSD: any; // BigNumber type
-    commission: any; // BigNumber type
-    commissionUSD: any; // BigNumber type
-    commissionPercent: any; // BigNumber type
-    inputAmountYouExchange: any; // BigNumber type
-    amountYouReceive: any; // BigNumber type
-    executionFee: any; // BigNumber type
-    executionFeeUSD: any; // BigNumber type
-    commissionFeeToken: any; // BigNumber type
-    commissionFeeTokenUSD: any; // BigNumber type
-    commissionPercentFeeToken: any; // BigNumber type
+    exchangingUSD: bigint;     
+    commission: bigint; 
+    commissionUSD: bigint; 
+    commissionPercent: bigint; 
+    inputAmountYouExchange: bigint; 
+    amountYouReceive: bigint; 
+    executionFee: bigint; 
+    executionFeeUSD: bigint; 
+    commissionFeeToken: bigint; 
+    commissionFeeTokenUSD: bigint; 
+    commissionPercentFeeToken: bigint; 
     radioSelectFee: number;
     caIndex: number;
 }

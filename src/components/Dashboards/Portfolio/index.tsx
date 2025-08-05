@@ -13,21 +13,10 @@ interface TokenData {
     peggedUSD?: boolean;
 }
 
-interface ContractStatusData {
-    canOperate: boolean;
-    [key: string]: any;
-}
-
-interface UserBalanceData {
-    CA: { [key: string]: { balance: string } };
-    coinbase: string;
-    [key: string]: any;
-}
 
 export default function Portfolio(): JSX.Element {
     const space: string = "\u00A0";
-    const { t, i18n } = useProjectTranslation();
-    //const auth = useContext(AuthenticateContext);
+    const { t, i18n } = useProjectTranslation();    
     const { contractProtocolStatus, userBalance } = useWalletContext()
 
     let balance: bigint;

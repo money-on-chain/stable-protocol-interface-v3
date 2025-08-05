@@ -1,7 +1,7 @@
 import React from "react";
 
 import "./Styles.scss";
-import { PrecisionNumbers } from "../../PrecisionNumbers";
+import { PrecisionNumbers } from "../../PrecisionNumbers3";
 import { TokenSettings } from "../../../helpers/currencies";
 import { useProjectTranslation } from "../../../helpers/translations";
 
@@ -52,7 +52,7 @@ export default function CompletedBar(props: CompletedBarProps): React.ReactEleme
                             token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                             decimals: 2,
                             i18n: i18n,
-                            skipContractConvert: true,
+                            //skipContractConvert: true,
                         })}
                         {space}(
                         {PrecisionNumbers({
@@ -60,7 +60,7 @@ export default function CompletedBar(props: CompletedBarProps): React.ReactEleme
                             token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                             decimals: 2,
                             i18n: i18n,
-                            skipContractConvert: true,
+                            //skipContractConvert: true,
                         })}
                         %)
                     </div>
@@ -73,7 +73,7 @@ export default function CompletedBar(props: CompletedBarProps): React.ReactEleme
                             token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                             decimals: 2,
                             i18n: i18n,
-                            skipContractConvert: true,
+                            //skipContractConvert: true,
                         })}
                         {space}(
                         {PrecisionNumbers({
@@ -81,7 +81,7 @@ export default function CompletedBar(props: CompletedBarProps): React.ReactEleme
                             token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                             decimals: 2,
                             i18n: i18n,
-                            skipContractConvert: true,
+                            //skipContractConvert: true,
                         })}
                         %)
                     </div>
@@ -94,7 +94,7 @@ export default function CompletedBar(props: CompletedBarProps): React.ReactEleme
                             token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                             decimals: 2,
                             i18n: i18n,
-                            skipContractConvert: true,
+                            //skipContractConvert: true,
                         })}
                         {space}(
                         {PrecisionNumbers({
@@ -102,7 +102,7 @@ export default function CompletedBar(props: CompletedBarProps): React.ReactEleme
                             token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                             decimals: 2,
                             i18n: i18n,
-                            skipContractConvert: true,
+                            //skipContractConvert: true,
                         })}
                         %)
                     </div>

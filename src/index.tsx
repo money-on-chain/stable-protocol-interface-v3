@@ -17,7 +17,7 @@ import "./assets/css/customize4Overwrites.scss";
 
 import "./assets/css/global.scss";
 
-import { AuthenticateProvider } from "./context/Auth";
+
 import { WalletProvider } from "./context/Wallet";
 import IconLoading from "./assets/icons/LoaderAnim.svg";
 import Router from "./router";

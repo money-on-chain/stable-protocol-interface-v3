@@ -1,7 +1,6 @@
 import React from "react";
 import { Table } from "antd";
 
-//import { AuthenticateContext } from '../../../context/Auth';
 import { useProjectTranslation } from "../../../helpers/translations";
 import "./Styles.scss";
 
@@ -20,7 +19,6 @@ interface TableDataItem {
 
 export default function LiquidityMiningClaims(): React.ReactElement {
     const { t } = useProjectTranslation();
-    //const auth = useContext(AuthenticateContext);
 
     const tableColumns = [
         {

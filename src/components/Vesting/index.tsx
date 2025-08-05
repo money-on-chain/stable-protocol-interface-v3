@@ -1,12 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Input } from "antd";
-import BigNumber from "bignumber.js";
+import { recoverMessageAddress } from 'viem'
 
 import VestingSchedule from "../../components/Tables/VestingSchedule";
 import settings from "../../settings/settings.json";
 import { useProjectTranslation } from "../../helpers/translations";
-import { AuthenticateContext } from "../../context/Auth";
-import { PrecisionNumbers } from "../PrecisionNumbers";
+import { PrecisionNumbers } from "../PrecisionNumbers3";
 import { formatTimestamp } from "../../helpers/staking";
 import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
 import UseVestingAlert from "../Notification/UsingVestingAlert";
@@ -18,88 +17,21 @@ import {
     onValidateVestingAddress,
 } from "../../helpers/vesting";
 import { decodeEvents } from "../../backend/transaction";
+import { useWalletContext } from "../../context/Wallet";
 import "./Styles.scss";
 
 const { TextArea } = Input;
 const space: string = "\u00A0";
 
 interface VestedAmounts {
-    released: BigNumber;
-    vested: BigNumber;
-    total: BigNumber;
+    released: bigint;
+    vested: bigint;
+    total: bigint;
     daysToRelease: number;
 }
 
-interface VestingParameters {
-    percentages: (string | number)[];
-    timeDeltas: (string | number)[];
-}
 
-interface VestingMachine {
-    getAvailable: string | number;
-    isVerified: boolean;
-    getHolder: string;
-    getTotal: string | number;
-    getLocked: string | number;
-    getParameters: VestingParameters;
-    staking: {
-        balance: string | number;
-    };
-    delay: {
-        balance: string | number;
-    };
-}
 
-interface VestingFactory {
-    getTGETimestamp: string | number;
-}
-
-interface IncentiveV2 {
-    userBalance: string | number;
-}
-
-interface UserBalanceData {
-    vestingmachine: VestingMachine;
-    vestingfactory: VestingFactory;
-    incentiveV2: IncentiveV2;
-}
-
-interface AccountData {
-    Wallet: string;
-}
-
-interface AuthContext {
-    userBalanceData: UserBalanceData;
-    isVestingLoaded: () => boolean;
-    vestingAddress: () => string;
-    accountData: AccountData;
-    interfaceVestingWithdraw: (
-        onTransaction: (txHash: string) => void,
-        onReceipt: () => void,
-        onError: (error: any) => void
-    ) => Promise<any>;
-    interfaceVestingVerify: (
-        onTransaction: (txHash: string) => void,
-        onReceipt: () => void,
-        onError: (error: any) => void
-    ) => Promise<any>;
-    onShowModalAccountVesting: () => void;
-    loadContractsStatusAndUserBalance: () => Promise<any>;
-    interfaceIncentiveV2Claim: (
-        claimCode: string,
-        onTransaction: (txHash: string) => void,
-        onReceipt: (receipt: any) => void,
-        onError: (error: any) => void
-    ) => Promise<any>;
-    web3: {
-        eth: {
-            accounts: {
-                recover: (message: string, signature: string) => string;
-            };
-            getTransactionReceipt: (hash: string) => Promise<any>;
-        };
-    };
-}
 
 interface FilteredEvent {
     eventName: string;
@@ -108,7 +40,8 @@ interface FilteredEvent {
 
 const Vesting: React.FC = () => {
     const { t, i18n, ns } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext) as AuthContext;
+    
+    const { address, userBalance, isVestingLoaded, vestingAddress, interfaceVestingVerify, interfaceVestingWithdraw, interfaceIncentiveV2Claim, publicClient, contractsAddress, onShowModalAccountVesting } = useWalletContext()
 
     const [status, setStatus] = useState<string>("STEP_1");
     const [isOperationModalVisible, setIsOperationModalVisible] =
@@ -126,9 +59,9 @@ const Vesting: React.FC = () => {
     const [isHolderVesting, setIsHolderVesting] = useState<boolean>(false);
 
     useEffect(() => {
-        if (auth.userBalanceData && auth.isVestingLoaded()) {
+        if (userBalance.data && isVestingLoaded()) {
             setStatus("LOADED");
-            setUsingVestingAddress(auth.vestingAddress());
+            setUsingVestingAddress(vestingAddress());
             onValidateWithdraw();
             onCheckIsHolderVesting();
         } else {
@@ -138,7 +71,7 @@ const Vesting: React.FC = () => {
 
         // Validate incentive user balance
         onValidateIncentiveV2UserBalance();
-    }, [auth]);
+    }, [userBalance.data, isVestingLoaded, vestingAddress]);
 
     useEffect(() => {
         onValidateClaimCode();
@@ -158,11 +91,9 @@ const Vesting: React.FC = () => {
             setValidWithdraw(false);
             return;
         }
-        const availableForWithdraw = new BigNumber(
-            auth.userBalanceData.vestingmachine.getAvailable
-        );
-        if (availableForWithdraw.gt(new BigNumber(0))) {
-            if (auth.userBalanceData.vestingmachine.isVerified) {
+        const availableForWithdraw = userBalance.data.vestingmachine.getAvailable;
+        if (availableForWithdraw > 0) {
+            if (userBalance.data.vestingmachine.isVerified) {
                 setValidWithdraw(true);
             } else {
                 setValidWithdraw(false);
@@ -174,8 +105,8 @@ const Vesting: React.FC = () => {
 
     const getIsHolderVesting = (): boolean => {
         return (
-            auth.userBalanceData.vestingmachine.getHolder.toLowerCase() ===
-            auth.accountData.Wallet.toLowerCase()
+            userBalance.data.vestingmachine.getHolder.toLowerCase() ===
+            address.toLowerCase()
         );
     };
 
@@ -186,31 +117,31 @@ const Vesting: React.FC = () => {
 
     const vestedAmounts = (): VestedAmounts => {
         const amounts: VestedAmounts = {
-            released: new BigNumber(0),
-            vested: new BigNumber(0),
-            total: new BigNumber(0),
+            released: 0n,
+            vested: 0n,
+            total: 0n,
             daysToRelease: 0,
         };
 
-        if (!auth.isVestingLoaded()) {
+        if (!isVestingLoaded()) {
             return amounts;
         }
 
-        const getParameters = auth.userBalanceData.vestingmachine.getParameters;
+        const getParameters = userBalance.data.vestingmachine.getParameters;
         const tgeTimestamp =
-            auth.userBalanceData.vestingfactory.getTGETimestamp;
-        const total = auth.userBalanceData.vestingmachine.getTotal;
-        const lockedAmount = auth.userBalanceData.vestingmachine.getLocked;
+            userBalance.data.vestingfactory.getTGETimestamp;
+        const total = userBalance.data.vestingmachine.getTotal;
+        const lockedAmount = userBalance.data.vestingmachine.getLocked;
         const percentMultiplier = 10000;
         const percentages = getParameters.percentages;
         const timeDeltas = getParameters.timeDeltas;
         const deltas = [...timeDeltas];
 
-        if (timeDeltas && !new BigNumber(timeDeltas[0]).isZero()) {
-            deltas.unshift(new BigNumber(0));
+        if (timeDeltas && timeDeltas[0] !== 0) {
+            deltas.unshift(0n);
         }
 
-        if (new BigNumber(percentages[0]).lt(percentMultiplier)) {
+        if (percentages[0] < percentMultiplier) {
             percentages.unshift(BigInt(10000));
         }
 
@@ -218,7 +149,7 @@ const Vesting: React.FC = () => {
             percentages[percentages.length - 1] = 0;
 
         const percents = percentages.map((x) =>
-            new BigNumber(percentMultiplier).minus(x)
+            percentMultiplier - x
         );
 
         let dates: (string | number)[] = [];
@@ -227,10 +158,7 @@ const Vesting: React.FC = () => {
                 // Convert timestamp to date.
                 dates = deltas.map((x) =>
                     formatTimestamp(
-                        new BigNumber(tgeTimestamp)
-                            .plus(x)
-                            .times(1000)
-                            .toNumber()
+                        tgeTimestamp + x * 1000
                     )
                 );
             } else {
@@ -243,7 +171,7 @@ const Vesting: React.FC = () => {
         let daysToRelease = 0;
         let countVested = 0;
 
-        auth.userBalanceData &&
+        userBalance.data &&
             getParameters &&
             percents.forEach(function (percent, itemIndex) {
                 const date_release = new Date(dates[itemIndex] as string);
@@ -272,9 +200,7 @@ const Vesting: React.FC = () => {
                 }
             });
 
-        amounts.released = new BigNumber(total).minus(
-            new BigNumber(lockedAmount)
-        );
+        amounts.released = total - lockedAmount;
         amounts.vested = lockedAmount;
         amounts.total = total;
         amounts.daysToRelease = daysToRelease;
@@ -306,13 +232,12 @@ const Vesting: React.FC = () => {
             setOperationStatus("error");
         };
 
-        await auth
-            .interfaceVestingWithdraw(onTransaction, onReceipt, onError)
+        await interfaceVestingWithdraw(onTransaction, onReceipt, onError)
             .then((/*res*/) => {
                 // Refresh status
-                auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                    console.log("Refresh user balance OK!");
-                });
+                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
+                //     console.log("Refresh user balance OK!");
+                // });
             })
             .catch((e) => {
                 console.error(e);
@@ -342,13 +267,12 @@ const Vesting: React.FC = () => {
             setOperationStatus("error");
         };
 
-        await auth
-            .interfaceVestingVerify(onTransaction, onReceipt, onError)
+        await interfaceVestingVerify(onTransaction, onReceipt, onError)
             .then((/*res*/) => {
                 // Refresh status
-                auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                    console.log("Refresh user balance OK!");
-                });
+                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
+                //     console.log("Refresh user balance OK!");
+                // });
             })
             .catch((e) => {
                 console.error(e);
@@ -357,19 +281,17 @@ const Vesting: React.FC = () => {
     };
 
     const onDisplayAccount = (): void => {
-        auth.onShowModalAccountVesting();
+        onShowModalAccountVesting();
     };
 
     const onValidateIncentiveV2UserBalance = (): void => {
         let valid = false;
         if (
-            auth.userBalanceData &&
-            typeof auth.userBalanceData.incentiveV2 !== "undefined"
+            userBalance.data &&
+            typeof userBalance.data.incentiveV2 !== "undefined"
         ) {
             if (
-                new BigNumber(auth.userBalanceData.incentiveV2.userBalance).gt(
-                    new BigNumber(0)
-                )
+                userBalance.data.incentiveV2.userBalance > 0
             ) {
                 valid = true;
             }
@@ -385,16 +307,20 @@ const Vesting: React.FC = () => {
         setClaimCode(event.target.value.substring(0, 132));
     };
 
-    const recoverMessageClaimCode = (message: string): string => {
+    const recoverMessageClaimCode = async (message: string): Promise<string> => {
+        if (!address) return "";
         const chainId = import.meta.env.REACT_APP_ENVIRONMENT_CHAIN_ID;
-        const userAddress = auth.accountData.Wallet;
+        const userAddress = address;
         const fromAddress = userAddress.slice(2);
         const code = `:OMoC:${chainId}:address:${fromAddress}`;
 
         let recoveredAddress = "";
 
         try {
-            recoveredAddress = auth.web3.eth.accounts.recover(code, message);
+            recoveredAddress = await recoverMessageAddress({
+                message: code,
+                signature: message,
+              })
         } catch (err) {
             console.error(err);
         }
@@ -402,12 +328,12 @@ const Vesting: React.FC = () => {
         return recoveredAddress.toLowerCase();
     };
 
-    const onValidateClaimCode = (): void => {
+    const onValidateClaimCode = async (): Promise<void> => {
         let valid = false;
 
         if (claimCode.length === 132) {
-            const claimAddress = recoverMessageClaimCode(claimCode);
-            if (claimAddress === auth.accountData.Wallet.toLowerCase())
+            const claimAddress = await recoverMessageClaimCode(claimCode);
+            if (claimAddress === address.toLowerCase())
                 valid = true;
         }
 
@@ -476,10 +402,13 @@ const Vesting: React.FC = () => {
 
             const contractName = "VestingFactory";
 
-            const txRcp = await auth.web3.eth.getTransactionReceipt(
-                receipt.transactionHash
-            );
-            const filteredEvents = decodeEvents(txRcp, contractName, filter);
+            
+            //const txRcp = await auth.web3.eth.getTransactionReceipt(
+            //    receipt.transactionHash
+            //);
+            const txRcp = receipt;
+            const filteredEvents: any[] = decodeEvents(txRcp, contractName, filter);
+            
             onVestingCreated(filteredEvents);
         };
         const onError = (error: any): void => {
@@ -487,8 +416,7 @@ const Vesting: React.FC = () => {
             setOperationStatus("error");
         };
 
-        await auth
-            .interfaceIncentiveV2Claim(
+        await interfaceIncentiveV2Claim(
                 claimCode,
                 onTransaction,
                 onReceipt,
@@ -547,18 +475,18 @@ const Vesting: React.FC = () => {
 
     const addVesting = async (addVestingAddress: string): Promise<boolean> => {
         const isValidVesting = await onValidateVestingAddress(
-            auth,
+            publicClient,
             addVestingAddress
         );
         if (isValidVesting) {
-            const isLoaded = loadVesting(auth, addVestingAddress);
+            const isLoaded = loadVesting(publicClient, addVestingAddress);
             if (!isLoaded) {
                 return false;
             }
             //add on storage
             // get vesting addresses
             const vestingFromStorage = loadVestingAddressesFromLocalStorage(
-                auth.accountData.Wallet
+                address
             );
 
             //Add the new one to the list
@@ -566,11 +494,11 @@ const Vesting: React.FC = () => {
 
             // Store vesting addresses
             saveVestingAddressesToLocalStorage(
-                auth.accountData.Wallet.toLowerCase(),
+                address.toLowerCase(),
                 vestingFromStorage
             );
             saveDefaultVestingToLocalStorage(
-                auth.accountData.Wallet.toLowerCase(),
+                address.toLowerCase(),
                 addVestingAddress
             );
 
@@ -799,15 +727,15 @@ const Vesting: React.FC = () => {
                                 <div className="tx-amount-container">
                                     <div className="vesting-wallet-claim-amount tx-amount-data">
                                         {PrecisionNumbers({
-                                            amount: !auth.userBalanceData
+                                            amount: !userBalance.data
                                                 ? "0"
-                                                : auth.userBalanceData
+                                                : userBalance.data
                                                       .incentiveV2.userBalance,
                                             token: settings.tokens.TG[0],
                                             decimals: t(
                                                 "staking.display_decimals"
                                             ),
-                                            numericLabelParams: {},
+                                            //numericLabelParams: {},
                                             i18n: i18n,
                                         })}
                                         {t("staking.governanceToken")}
@@ -823,7 +751,7 @@ const Vesting: React.FC = () => {
                                         </div>
                                     </div>
                                     <div className="tx-destination-address">
-                                        {auth.accountData.Wallet}
+                                        {address}
                                     </div>
                                     <div className="tx-amount-info">
                                         {t(
@@ -982,7 +910,7 @@ const Vesting: React.FC = () => {
              VESTING SCHEDULE
 
              */}
-            {window.dContracts.contracts.VestingMachine !== undefined &&
+            {contractsAddress.VestingMachine !== undefined &&
                 status === "LOADED" && (
                     <div className="vesting">
                         <div
@@ -994,8 +922,8 @@ const Vesting: React.FC = () => {
                             <div className="layout-card-title">
                                 <h1>{t("vesting.cardTitle")}</h1>
                                 <div id="vesting-verification">
-                                    {auth.userBalanceData &&
-                                        auth.userBalanceData.vestingmachine
+                                    {userBalance.data &&
+                                        userBalance.data.vestingmachine
                                             .isVerified &&
                                         isHolderVesting && (
                                             <div
@@ -1019,8 +947,8 @@ const Vesting: React.FC = () => {
                                             )}
                                         </div>
                                     )}
-                                    {auth.userBalanceData &&
-                                        !auth.userBalanceData.vestingmachine
+                                    {userBalance.data &&
+                                        !userBalance.data.vestingmachine
                                             .isVerified &&
                                         isHolderVesting && (
                                             <div
@@ -1052,16 +980,16 @@ const Vesting: React.FC = () => {
                                         className="vesting__data"
                                     >
                                         {PrecisionNumbers({
-                                            amount: !auth.userBalanceData
-                                                ? "0"
-                                                : auth.userBalanceData
+                                            amount: !userBalance.data
+                                                ? 0n
+                                                : userBalance.data
                                                       .vestingmachine
                                                       .getAvailable,
                                             token: settings.tokens.TG[0],
                                             decimals: t(
                                                 "staking.display_decimals"
                                             ),
-                                            numericLabelParams: {},
+                                            //numericLabelParams: {},
                                             i18n: i18n,
                                         })}
                                     </div>
@@ -1090,12 +1018,12 @@ const Vesting: React.FC = () => {
                                     className="vesting__data"
                                 >
                                     {PrecisionNumbers({
-                                        amount: !auth.userBalanceData
-                                            ? "0"
+                                        amount: !userBalance.data
+                                            ? 0n
                                             : vestingTotals["vested"],
                                         token: settings.tokens.TG[0],
                                         decimals: t("staking.display_decimals"),
-                                        numericLabelParams: {},
+                                        //numericLabelParams: {},
                                         i18n: i18n,
                                     })}
                                 </div>
@@ -1122,14 +1050,14 @@ const Vesting: React.FC = () => {
                                     className="vesting__data"
                                 >
                                     {PrecisionNumbers({
-                                        amount: !auth.userBalanceData
-                                            ? "0"
-                                            : auth.userBalanceData
+                                        amount: !userBalance.data
+                                            ? 0n
+                                            : userBalance.data
                                                   .vestingmachine.staking
                                                   .balance,
                                         token: settings.tokens.TG[0],
                                         decimals: t("staking.display_decimals"),
-                                        numericLabelParams: {},
+                                        //numericLabelParams: {},
                                         i18n: i18n,
                                     })}{" "}
                                 </div>
@@ -1143,13 +1071,13 @@ const Vesting: React.FC = () => {
                                     className="vesting__data"
                                 >
                                     {PrecisionNumbers({
-                                        amount: !auth.userBalanceData
-                                            ? "0"
-                                            : auth.userBalanceData
+                                        amount: !userBalance.data
+                                            ? 0n
+                                            : userBalance.data
                                                   .vestingmachine.delay.balance,
                                         token: settings.tokens.TG[0],
                                         decimals: t("staking.display_decimals"),
-                                        numericLabelParams: {},
+                                        //numericLabelParams: {},
                                         i18n: i18n,
                                     })}
                                 </div>
@@ -1172,13 +1100,13 @@ const Vesting: React.FC = () => {
                             <div id="moc-total">
                                 <div className="total-data">
                                     {PrecisionNumbers({
-                                        amount: !auth.userBalanceData
-                                            ? "0"
-                                            : auth.userBalanceData
+                                        amount: !userBalance.data
+                                            ? 0n
+                                            : userBalance.data
                                                   .vestingmachine.getTotal,
                                         token: settings.tokens.TG[0],
                                         decimals: t("staking.display_decimals"),
-                                        numericLabelParams: {},
+                                        //numericLabelParams: {},
                                         i18n: i18n,
                                     })}
                                     {space}

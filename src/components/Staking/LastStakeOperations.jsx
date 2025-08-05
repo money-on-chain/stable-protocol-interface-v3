@@ -2,22 +2,10 @@ import React from "react";
 import { Skeleton, Table } from "antd";
 
 import { useProjectTranslation } from "../../helpers/translations";
-//import { AuthenticateContext } from '../../context/Auth';
 
 export default function LastStakeOperations() {
-    //const { userInfoStaking } = props;
     const { t } = useProjectTranslation();
-    //const auth = useContext(AuthenticateContext);
-    //const [totalTable, setTotalTable] = useState(null);
-    /*
-    const [data, setData] = useState(null);
-    const [modalMode, setModalMode] = useState(null);
-    const [withdrawalId, setWithdrawalId] = useState('0');
-    const [modalAmount, setModalAmount] = useState('0');
-    const [operationModalInfo, setOperationModalInfo] = useState({});
-    const [isOperationModalVisible, setIsOperationModalVisible] =
-        useState(false);
-     */
+    
 
     const tableColumns = [{ title: "Token", dataIndex: "details" }];
     // hay que agregar los encabezados como html?

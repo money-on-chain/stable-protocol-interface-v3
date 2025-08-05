@@ -1,50 +1,44 @@
 import { Modal, Button, Spin, notification, Checkbox } from "antd";
 import React, { useEffect, useState, useContext, Fragment } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
-import Web3 from "web3";
 
-import { AuthenticateContext } from "../../../context/Auth";
 import { useProjectTranslation } from "../../../helpers/translations";
-import { PrecisionNumbers } from "../../PrecisionNumbers";
-import BigNumber from "bignumber.js";
+import { PrecisionNumbers } from "../../PrecisionNumbers3";
 import settings from "../../../settings/settings.json";
+import { useWalletContext } from "../../../context/Wallet";
 
 interface StakingOptionsModalProps {
     mode?: string;
     onClose: () => void;
     visible?: boolean;
-    amount?: string | number;
+    amount?: bigint;
     onConfirm: (status: string, txHash: string) => void;
     withdrawalId?: string;
 }
 
-interface AccountData {
-    Wallet: string;
-}
 
-interface AuthContext {
-    accountData: AccountData;
-    userBalanceData: any;
-    isVestingLoaded: () => boolean;
-    interfaceStakingApprove: (amount: any, onTransaction: (txHash: string) => void, onReceipt: () => void, onError: (error: any) => void) => Promise<any>;
-    interfaceStakingAddStake: (amount: any, address: string, onTransaction: (txHash: string) => void, onReceipt: () => void, onError: (error: any) => void) => Promise<any>;
-    interfaceStakingDelayMachineCancelWithdraw: (withdrawalId: string, onTransaction: (txHash: string) => void, onReceipt: () => void, onError: (error: any) => void) => Promise<any>;
-    interfaceStakingUnStake: (amount: any, onTransaction: (txHash: string) => void, onReceipt: () => void, onError: (error: any) => void) => Promise<any>;
-    interfaceStakingDelayMachineWithdraw: (withdrawalId: string, onTransaction: (txHash: string) => void, onReceipt: () => void, onError: (error: any) => void) => Promise<any>;
-    loadContractsStatusAndUserBalance: () => Promise<any>;
-}
 
 type StepType = 0 | 1 | 2 | 3 | 99;
 type ModeType = 'staking' | 'unstaking' | 'withdraw' | 'restake';
 
 export default function StakingOptionsModal(props: StakingOptionsModalProps): React.ReactElement {
-    const auth = useContext(AuthenticateContext) as AuthContext;
+    const { 
+        address, 
+        userBalance, 
+        isVestingLoaded, 
+        interfaceStakingApprove, 
+        interfaceStakingAddStake, 
+        interfaceStakingDelayMachineCancelWithdraw, 
+        interfaceStakingUnStake, 
+        interfaceStakingDelayMachineWithdraw        
+    } = useWalletContext()
     const { t, i18n, ns } = useProjectTranslation();
-    const { accountData } = auth;
     const { mode, onClose, visible, amount, onConfirm, withdrawalId } = props;
 
     const [step, setStep] = useState<StepType>(0);
-    const amountInEth = Web3.utils.toWei(amount?.toString() || "0", "ether");
+    
+    const amountInEth = amount;
+
     let infinityAllowance = false;
 
     useEffect(() => {
@@ -57,10 +51,10 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
     };
 
     const checkAllowance = async (): Promise<void> => {
-        if (auth.accountData && auth.userBalanceData) {
-            const allowanceAmount = auth.isVestingLoaded()
-                ? auth.userBalanceData.vestingmachine?.staking?.allowance
-                : auth.userBalanceData.stakingmachine?.tgAllowance;
+        if (userBalance.data) {
+            const allowanceAmount = isVestingLoaded()
+                ? userBalance.data.vestingmachine?.staking?.allowance
+                : userBalance.data.stakingmachine?.tgAllowance;
 
             if (allowanceAmount > amountInEth) setStep(3);
         }
@@ -74,7 +68,7 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
 
         let amountAllowance;
         if (infinityAllowance) {
-            amountAllowance = new BigNumber(100000000000);
+            amountAllowance = 100000000000n;
         } else {
             amountAllowance = amount;
         }
@@ -90,8 +84,7 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
             console.log("Transaction allowance error!...:", error);
         };
 
-        await auth
-            .interfaceStakingApprove(
+        await interfaceStakingApprove(
                 amountAllowance,
                 onTransaction,
                 onReceipt,
@@ -125,10 +118,9 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
             console.log("Transaction add stake error!...:", error);
         };
         setStep(99);
-        await auth
-            .interfaceStakingAddStake(
+        await interfaceStakingAddStake(
                 amount,
-                accountData.Wallet,
+                address,
                 onTransaction,
                 onReceipt,
                 onError
@@ -137,9 +129,9 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                 const status = res.status ? "success" : "error";
                 onConfirm(status, res.transactionHash);
 
-                auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                    console.log("Refresh user balance OK!");
-                });
+                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
+                //     console.log("Refresh user balance OK!");
+                // });
 
                 return null;
             })
@@ -166,8 +158,7 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
         const onError = (error: any): void => {
             console.log("Transaction cancel withdraw error!...:", error);
         };
-        await auth
-            .interfaceStakingDelayMachineCancelWithdraw(
+        await interfaceStakingDelayMachineCancelWithdraw(
                 withdrawalId || "",
                 onTransaction,
                 onReceipt,
@@ -177,9 +168,9 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                 const status = res.status ? "success" : "error";
                 onConfirm(status, res.transactionHash);
 
-                auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                    console.log("Refresh user balance OK!");
-                });
+                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
+                //     console.log("Refresh user balance OK!");
+                // });
 
                 return null;
             })
@@ -207,15 +198,14 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
         const onError = (error: any): void => {
             console.log("Transaction unStake error!...:", error);
         };
-        await auth
-            .interfaceStakingUnStake(amount, onTransaction, onReceipt, onError)
+        await interfaceStakingUnStake(amount, onTransaction, onReceipt, onError)
             .then((res) => {
                 const status = res.status ? "success" : "error";
                 onConfirm(status, res.transactionHash);
 
-                auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                    console.log("Refresh user balance OK!");
-                });
+                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
+                //     console.log("Refresh user balance OK!");
+                // });
 
                 return null;
             })
@@ -244,7 +234,7 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
         const onError = (error: any): void => {
             console.log("Transaction withdraw error!...:", error);
         };
-        auth.interfaceStakingDelayMachineWithdraw(
+        interfaceStakingDelayMachineWithdraw(
             withdrawalId || "",
             onTransaction,
             onReceipt,
@@ -254,9 +244,9 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                 const status = res.status ? "success" : "error";
                 onConfirm(status, res.transactionHash);
 
-                auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                    console.log("Refresh user balance OK!");
-                });
+                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
+                //     console.log("Refresh user balance OK!");
+                // });
 
                 return null;
             })
@@ -400,14 +390,14 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                                     <div className="tx-amount-data">
                                         <div className="tx-amount">
                                             {PrecisionNumbers({
-                                                amount: new BigNumber(amount || 0),
+                                                amount: amount || 0n,
                                                 token: settings.tokens.TG[0],
                                                 decimals: t(
                                                     "staking.display_decimals"
                                                 ),
-                                                numericLabelParams: {},
+                                                //numericLabelParams: {},
                                                 i18n: i18n,
-                                                skipContractConvert: true,
+                                                //skipContractConvert: true,
                                             })}
                                         </div>
                                         <div className="tx-token">
@@ -488,12 +478,12 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                             {/* {t('staking.modal.StakingOptionsModal_AmountToUnstake')} */}
                             <div className="tx-amount">
                                 {PrecisionNumbers({
-                                    amount: new BigNumber(amount || 0),
+                                    amount: amount || 0n,
                                     token: settings.tokens.TG[0],
                                     decimals: t("staking.display_decimals"),
-                                    numericLabelParams: {},
+                                    //numericLabelParams: {},
                                     i18n: i18n,
-                                    skipContractConvert: true,
+                                    //skipContractConvert: true,
                                 })}
                                 <div className="tx-token">
                                     {t("staking.tokens.TG.abbr", {
@@ -546,12 +536,12 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                             <div className="tx-amount-data">
                                 <div className="tx-amount">
                                     {PrecisionNumbers({
-                                        amount: amount || 0,
+                                        amount: amount || 0n,
                                         token: settings.tokens.TG[0],
                                         decimals: t("staking.display_decimals"),
-                                        numericLabelParams: {},
+                                        //numericLabelParams: {},
                                         i18n: i18n,
-                                        skipContractConvert: false,
+                                        //skipContractConvert: false,
                                     })}{" "}
                                     <div className="tx-token">
                                         {t("staking.tokens.TG.abbr", {
@@ -610,7 +600,7 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                             <div className="tx-amount-data">
                                 <div className="tx-amount">
                                     {PrecisionNumbers({
-                                        amount: amount || 0,
+                                        amount: amount || 0n,
                                         token: settings.tokens.TG[0],
                                         decimals: t("staking.display_decimals"),
                                         i18n: i18n,

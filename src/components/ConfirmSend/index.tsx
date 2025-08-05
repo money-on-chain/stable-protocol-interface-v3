@@ -1,19 +1,17 @@
-import BigNumber from "bignumber.js";
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { Button } from "antd";
 import PropTypes from "prop-types";
 
 import { useProjectTranslation } from "../../helpers/translations";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import { TokenSettings } from "../../helpers/currencies";
-import { AuthenticateContext } from "../../context/Auth";
 import CopyAddress from "../CopyAddress";
 import { toBigIntPrecision } from "../../helpers/precision";
 import { useWalletContext } from "../../context/Wallet";
 
 interface ConfirmSendProps {
     currencyYouExchange: string;
-    exchangingUSD: BigNumber;
+    exchangingUSD: bigint;
     amountYouExchange: string;
     destinationAddress: string;
     onCloseModal: () => void;
@@ -30,8 +28,7 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
         onCloseModal,
     } = props;
 
-    const { t, i18n, ns } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext);
+    const { t, i18n, ns } = useProjectTranslation();    
     const { interfaceTransferToken, interfaceTransferCoinbase } = useWalletContext()
 
     const [status, setStatus] = useState<StatusType>("SUBMIT");
@@ -107,9 +104,9 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
         setStatus("SUCCESS");
 
         // Refresh user balance
-        auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-            console.log("Refresh user balance OK!");
-        });
+        // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
+        //     console.log("Refresh user balance OK!");
+        // });
     };
 
     let sentIcon: string = "";

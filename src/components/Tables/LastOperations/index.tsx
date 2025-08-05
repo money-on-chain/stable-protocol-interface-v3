@@ -9,7 +9,6 @@ import RowDetailMobile from "../RowDetailMobile";
 import api from "../../../services/api";
 import Copy from "../../Copy";
 import date from "../../../helpers/date";
-import { AuthenticateContext } from "../../../context/Auth";
 import { useProjectTranslation } from "../../../helpers/translations";
 import settings from "../../../settings/settings.json";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
@@ -120,7 +119,6 @@ export default function LastOperations(props: LastOperationsProps) {
     const { token } = props;
     const [current, setCurrent] = useState(1);
     const { t, i18n, ns } = useProjectTranslation();
-    //const auth = useContext(AuthenticateContext);
     const { isConnected, address, contractProtocolStatus, userBalance } = useWalletContext()
     const [ready, setReady] = useState(false);
     /*useEffect(() => {

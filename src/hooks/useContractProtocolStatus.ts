@@ -1,19 +1,9 @@
-import BigNumber from "bignumber.js";
 import { useMemo } from 'react'
 import { checksumAddress } from 'viem';
 
 
 import { useMultiCall } from "./useMulticall";
 import settings from "../settings/settings.json";
-
-
-const onErrorLeverage = () => {
-    const value = new BigNumber(
-        115792089237316200000000000000000000000000000000000000
-    );
-    console.warn("WARN: Leverage too high!");
-    return { value, canOperate: true };
-};
 
 
 const onErrorGetPTCac = () => {

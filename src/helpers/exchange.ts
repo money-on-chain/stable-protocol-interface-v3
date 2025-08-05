@@ -14,24 +14,6 @@ interface InterfaceContext {
     [key: string]: any;
 }
 
-interface Auth {
-    userBalanceData: {
-        CA: Array<{ balance: number; allowance: number }>;
-        TP: Array<Array<{ balance: number; allowance: number }>>;
-        [key: number]: {
-            TC: { balance: number; allowance: number };
-            FeeToken: { balance: number; allowance: number };
-        };
-        TG: { balance: number; allowance: number };
-    };
-    contractStatusData: Array<{
-        tcMintExecCost: string;
-        tpMintExecCost: string;
-        tpRedeemExecCost: string;
-        tcRedeemExecCost: string;
-    }>;
-}
-
 interface DContracts {
     contracts: {
         CA: Array<any>;
@@ -422,8 +404,7 @@ export {
 
 // Export types for use in other files
 export type {
-    InterfaceContext,
-    Auth,
+    InterfaceContext,    
     DContracts,
     TokenContractResult,
     ApproveTokenContractResult,

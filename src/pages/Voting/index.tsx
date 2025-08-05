@@ -1,28 +1,27 @@
 import React, { Fragment, useEffect, useState } from "react";
-import { useContext } from "react";
 import { Skeleton } from "antd";
 
-import { AuthenticateContext } from "../../context/Auth";
+import { useWalletContext } from "../../context/Wallet";
 import Voting from "../../components/Voting";
 import UseVestingAlert from "../../components/Notification/UsingVestingAlert";
 import "./Styles.scss";
 
 export default function SectionVoting(): React.ReactElement {
-    const auth = useContext(AuthenticateContext);
+    const { contractProtocolStatus, userBalance, isVestingLoaded, vestingAddress } = useWalletContext()
     const [ready, setReady] = useState<boolean>(false);
     const [usingVestingAddress, setUsingVestingAddress] = useState<string>("");
 
     useEffect(() => {
-        if (auth.contractStatusData) {
+        if (contractProtocolStatus.data) {
             setReady(true);
         }
-        if (auth.userBalanceData && auth.isVestingLoaded()) {
-            const vestingAddress = auth.vestingAddress();
-            setUsingVestingAddress(vestingAddress || "");
+        if (userBalance.data && isVestingLoaded()) {
+            const vAddress = vestingAddress();
+            setUsingVestingAddress(vAddress || "");
         } else {
             setUsingVestingAddress("");
         }
-    }, [auth]);
+    }, [contractProtocolStatus.data, userBalance.data, isVestingLoaded, vestingAddress]);
 
     return (
         <Fragment>

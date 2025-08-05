@@ -11,7 +11,7 @@ import LogoIconTP_1 from "../assets/tokens/tp_1.svg?react";
 import LogoIconTG_0 from "../assets/tokens/tg_0.svg?react";
 import settings from "../settings/settings.json";
 import { fromContractPrecisionDecimals } from "./Formats";
-import { normalizeToBigInt, divPrecision, mulPrecision, toBigIntPrecision, fromWei, divToFixed } from "./precision";
+import { normalizeToBigInt, divPrecision, mulPrecision, fromWei } from "./precision";
 
 interface Token {
     name: string;
@@ -29,30 +29,6 @@ interface Token {
 interface Currency {
     value: string;
     image: any;
-}
-
-interface Auth {
-    userBalanceData?: {
-        CA: Array<{ balance: number; allowance: number }>;
-        TP: Array<Array<{ balance: number; allowance: number }>>;
-        TC: Array<{ balance: number; allowance: number }>;
-        coinbase: number;
-        FeeToken: Array<{ balance: number; allowance: number }>;
-        TG: { balance: number };
-    };
-    contractStatusData?: {
-        PP_CA: Array<string>;
-        PP_TP: Array<Array<string>>;
-        getPTCac: string;
-        tcMintFee: string;
-        tpRedeemFees: Array<string>;
-        tpMintFees: Array<string>;
-        tcRedeemFee: string;
-        PP_FeeToken: Array<string>;
-        feeTokenPct: string;
-        vendorMarkup: string;
-        PP_COINBASE: Array<string>;
-    };
 }
 
 interface FeeInfo {

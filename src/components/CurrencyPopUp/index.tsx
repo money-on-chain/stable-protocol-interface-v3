@@ -2,7 +2,6 @@ import React, { /*useContext,*/ useState } from "react";
 import { Modal, Button } from "antd";
 
 import { getCurrenciesDetail } from "../../helpers/currencies";
-//import { AuthenticateContext } from "../../context/Auth";
 import { useProjectTranslation } from "../../helpers/translations";
 import "./Styles.scss";
 
@@ -55,8 +54,7 @@ export default function CurrencyPopUp(props: CurrencyPopUpProps): JSX.Element {
         currencyOptions.includes(currency.value)
     );
 
-    //const auth = useContext(AuthenticateContext);
-
+    
     // Function to open the modal
     const openModal = (): void => {
         if (!disabled) {

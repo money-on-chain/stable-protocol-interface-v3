@@ -14,13 +14,13 @@ interface StatusResult {
 
 function CheckStatusCA(contractProtocolStatus: any, caIndex: number): number {
     /* Status Code:
-    -1: Error - !auth.contractStatusData
+    -1: Error - 
      0: Optimal - globalCoverage > getCtargemaCA
      1: Warning - globalCoverage > protThrld && globalCoverage <= getCtargemaCA
      2: Protected Mode - globalCoverage > liqThrld && globalCoverage <= protThrld
-     3: Liquidated or in process of liquidation - auth.contractStatusData[caIndex].liquidated
-     4: Paused - auth.contractStatusData[caIndex].paused
-     5: Can't operate - !auth.contractStatusData.canOperate
+     3: Liquidated or in process of liquidation - contractStatusData[caIndex].liquidated
+     4: Paused - contractStatusData[caIndex].paused
+     5: Can't operate - !contractStatusData.canOperate
     */
 
     let statusCode: number = -1;
