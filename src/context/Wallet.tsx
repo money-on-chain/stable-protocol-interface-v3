@@ -7,7 +7,7 @@ import { useProposalCount } from '../hooks/useProposalCount'
 import { useContractsOmocStatus } from '../hooks/useContractsOmocStatus'
 import { useUserBalance } from '../hooks/useUserBalance'
 import { readContracts } from '../hooks/useReadContracts'
-import { useBaseCoinBalance } from '../hooks/useBaseCoinBalance'
+import { useBaseCoinBalance, UseBaseCoinBalanceReturn } from '../hooks/useBaseCoinBalance'
 import { TokenContract, ApproveTokenContract } from '../helpers/exchange'
 import { transferTokenTo, transferCoinbaseTo, AllowanceAmount, AllowUseTokenMigrator, MigrateToken } from '../backend/moc-base'
 import ModalAccount from '../components/Modals/Account'
@@ -186,6 +186,7 @@ export type WalletContextType = {
     onReceipt: OnReceipt,
     onError: OnError
   ) => Promise<any>
+  userBaseCoinBalance: UseBaseCoinBalanceReturn
 }
 
 interface VestingTransaction {
@@ -212,6 +213,11 @@ type OnTransaction = (hash: string) => void;
 type OnReceipt = (receipt: any) => void;
 type OnError = (error: any) => void;
 
+const REFRESH_INTERVAL_BLOCKS_NUMBER = 5_000
+const REFRESH_INTERVAL_OFFCHAIN_PRICES = 20_000
+const REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS = 30_000
+const REFRESH_INTERVAL_CONTRACT_STATUS_OMOC = 30_000
+const REFRESH_INTERVAL_USER_BALANCE = 30_000
 
 export function WalletProvider({ children }: { children: React.ReactNode }) {
     const { address, isConnected } = useAccount()
@@ -223,20 +229,20 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const [contractsAddress, setContractsAddress] = useState(null)
     const [contractsAddressLoaded, setContractsAddressLoaded] = useState(false)
 
-    const userBaseCoinBalance = useBaseCoinBalance(address, 30_000)
+    const userBaseCoinBalance = useBaseCoinBalance(address, REFRESH_INTERVAL_USER_BALANCE)
 
     const [offChainPrices, setOffChainPrices] = useState(null)
     const [showModalAccount, setShowModalAccount] = useState<boolean>(false)
     const [vestingOn, setVestingOn] = useState<boolean>(false)
 
-    const { blockNumber } = useLatestBlockNumber(5_000)
-    const offChainPricesAPI = useOffchainPrices(20_000)
+    const { blockNumber } = useLatestBlockNumber(REFRESH_INTERVAL_BLOCKS_NUMBER)
+    const offChainPricesAPI = useOffchainPrices(REFRESH_INTERVAL_OFFCHAIN_PRICES)
 
     const contractProtocolStatus = useContractProtocolStatus(
         contractsAddressLoaded ? contractsAddress : undefined,
         Number(blockNumber),
         offChainPrices ?? undefined,
-        30_000
+        REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS
     )
 
     const { proposalCount } = useProposalCount(
@@ -247,7 +253,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const contractStatusOmoc = useContractsOmocStatus(
         contractsAddressLoaded ? contractsAddress : undefined,
         proposalCount,
-        30_000
+        REFRESH_INTERVAL_CONTRACT_STATUS_OMOC
     )
 
     const userBalance = useUserBalance(
@@ -339,7 +345,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             response.transactions.length > 0
         ) {
             const vFromStorage = loadVestingAddressesFromLocalStorage(
-                window.address
+                address
             );
             let vLowerFromStorage = vFromStorage.map((v: string) => v.toLowerCase());
 
@@ -353,7 +359,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             if (newVesting.length > 0) {
                 vLowerFromStorage.push(...newVesting);
                 saveVestingAddressesToLocalStorage(
-                    window.address,
+                    address,
                     vLowerFromStorage
                 );
             }
@@ -780,6 +786,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             blockNumber,
             offChainPrices,
             proposalCount,
+            userBaseCoinBalance,
             readContractsAddresses,
             interfaceTransferToken,
             interfaceTransferCoinbase,

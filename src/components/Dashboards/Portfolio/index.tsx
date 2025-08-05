@@ -17,7 +17,7 @@ interface TokenData {
 export default function Portfolio(): JSX.Element {
     const space: string = "\u00A0";
     const { t, i18n } = useProjectTranslation();    
-    const { contractProtocolStatus, userBalance } = useWalletContext()
+    const { contractProtocolStatus, userBalance, userBaseCoinBalance } = useWalletContext()
 
     let balance: bigint;
     let price: bigint;
@@ -27,7 +27,8 @@ export default function Portfolio(): JSX.Element {
 
     // Total tokens
     if (contractProtocolStatus.data &&
-        userBalance.data ) {
+        userBalance.data && 
+        userBaseCoinBalance.balance ) {
 
         (settings.tokens.CA as TokenData[]).forEach(function (dataItem: TokenData) {
 
@@ -36,7 +37,7 @@ export default function Portfolio(): JSX.Element {
             ///////////////           
 
             balance = userBalance.data.CA[dataItem.key].balance;
-            price = normalizeToBigInt(contractProtocolStatus.data[dataItem.key].PP_CA[0]);
+            price = normalizeToBigInt(contractProtocolStatus.data[dataItem.key].PP_CA[0]) || 0n;
             
             balanceUSD = mulPrecision(balance, price);
             totalUSD = totalUSD + balanceUSD;
@@ -46,7 +47,7 @@ export default function Portfolio(): JSX.Element {
             ////////////
             balance = userBalance.data[dataItem.key].TC.balance;
             const priceTEC: bigint = contractProtocolStatus.data[dataItem.key].getPTCac;
-            const priceCA: bigint = normalizeToBigInt(contractProtocolStatus.data[dataItem.key].PP_CA[0]);
+            const priceCA: bigint = normalizeToBigInt(contractProtocolStatus.data[dataItem.key].PP_CA[0]) || 0n;
             
             if (contractProtocolStatus.data.canOperate) {
                 price = mulPrecision(priceTEC, priceCA);
@@ -62,7 +63,7 @@ export default function Portfolio(): JSX.Element {
             balance = userBalance.data.TP[0][dataItem.key].balance;
             price = dataItem.peggedUSD
                 ? 1n
-                : normalizeToBigInt(contractProtocolStatus.data[0].PP_TP[dataItem.key][0]);
+                : normalizeToBigInt(contractProtocolStatus.data[0].PP_TP[dataItem.key][0]) || 0n;
             balanceUSD = divPrecision(balance, price);
             totalUSD = totalUSD + balanceUSD;
         });
@@ -70,8 +71,8 @@ export default function Portfolio(): JSX.Element {
         ///////////////
         // Coinbase
         //////////////
-        balance = 0n//userBalance.data.coinbase;
-        price = normalizeToBigInt(contractProtocolStatus.data.PP_COINBASE[0]);        
+        balance = userBaseCoinBalance.balance || 0n;
+        price = normalizeToBigInt(contractProtocolStatus.data.PP_COINBASE[0]) || 0n;        
         balanceUSD = mulPrecision(balance, price);
         totalUSD = totalUSD + balanceUSD;
 
@@ -79,8 +80,8 @@ export default function Portfolio(): JSX.Element {
         // Fee Token (TF) the price provider is expressed in collateral
         ////////////////
         balance = userBalance.data[0].FeeToken.balance;
-        const priceCA_0: bigint = normalizeToBigInt(contractProtocolStatus.data[0].PP_CA[0]);
-        const priceInCA: bigint = normalizeToBigInt(contractProtocolStatus.data[0].PP_FeeToken[0]);
+        const priceCA_0: bigint = normalizeToBigInt(contractProtocolStatus.data[0].PP_CA[0]) || 0n;
+        const priceInCA: bigint = normalizeToBigInt(contractProtocolStatus.data[0].PP_FeeToken[0]) || 0n;
         balanceUSD = mulPrecision(mulPrecision(balance, priceInCA), priceCA_0);
         totalUSD = totalUSD + balanceUSD;
     }
