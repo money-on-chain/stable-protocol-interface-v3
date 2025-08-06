@@ -36,7 +36,8 @@ function removeAllItem<T>(arr: T[], value: T): T[] {
     return arr;
 }
 
-const truncateAddress = (address: string): string => {
+const truncateAddress = (address: string | undefined): string => {
+    if (!address || address === undefined) return "";
     return address.substring(0, 6) +
         "..." +
         address.substring(address.length - 4, address.length);
@@ -46,7 +47,7 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
     const { onCloseModal, vestingOn, setVestingOn } = props;
 
     const { t } = useProjectTranslation();    
-    const { address, disconnect, contractsAddress, userBalance, setVestingMachine, publicClient } = useWalletContext()
+    const { address, disconnect, contractsAddress, userBalance, vestingAddress, setVestingMachine, publicClient } = useWalletContext()
     const [qrValue, setQrValue] = useState<string | null>(null);
     const [actionVesting, setActionVesting] = useState<"select" | "add">("select");
     const [addVestingAddress, setAddVestingAddress] = useState<string>("");
@@ -271,7 +272,7 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
         let isLoaded = false;
         if (
             vestingOn &&
-            contractsAddress.VestingMachine === undefined
+            vestingAddress === undefined
         ) {
             console.log("Vesting Switch: ON");
             // switch On Vesting
@@ -280,11 +281,11 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
             }
         } else if (
             !vestingOn &&
-            contractsAddress.VestingMachine !== undefined
+            vestingAddress !== undefined
         ) {
             console.log("Vesting Switch: OFF");
             // Disable using vesting machine
-            contractsAddress.VestingMachine = undefined;
+            setVestingMachine(undefined);
             if (userBalance.data) {
                 userBalance.data.vestingmachine = undefined;
             }

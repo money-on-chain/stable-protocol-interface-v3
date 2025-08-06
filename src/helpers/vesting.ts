@@ -3,8 +3,8 @@ import VestingMachine from "../contracts/omoc/VestingMachine.json";
 
 
 
-const loadVestingAddressesFromLocalStorage = (accountAddress: string): string[] => {
-    if (!accountAddress) {
+const loadVestingAddressesFromLocalStorage = (accountAddress: string): string[] => {    
+    if (!accountAddress || accountAddress === "" || accountAddress === undefined) {
         return [];
     }
     const storageVestingAddresses = localStorage.getItem(
@@ -37,6 +37,7 @@ const saveDefaultVestingToLocalStorage = (accountAddress: string, vAddress: stri
 
 const loadDefaultVestingFromLocalStorage = (accountAddress: string): string | null => {
     // Save as the default vesting also
+    if (accountAddress === undefined) return null;
     return localStorage.getItem(
         `default-vesting-address-${accountAddress.toLowerCase()}`
     );

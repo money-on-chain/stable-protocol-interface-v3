@@ -239,15 +239,22 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const [contractsAddressLoaded, setContractsAddressLoaded] = useState(false)
     const [vestingAddress, setVestingAddress] = useState<string | undefined>(undefined)
 
-    const userBaseCoinBalance = useBaseCoinBalance(address, REFRESH_INTERVAL_USER_BALANCE)
-
     const [offChainPrices, setOffChainPrices] = useState(null)
     const [showModalAccount, setShowModalAccount] = useState<boolean>(false)
     const [showModalProviders, setShowModalProviders] = useState<boolean>(false)
     const [vestingOn, setVestingOn] = useState<boolean>(false)
 
+    useEffect(() => {
+        if (isConnected) {
+          console.log('🔄 Account changed:', address)
+        }
+      }, [address])
+
+    // Hooks for contract data
+
     const { blockNumber } = useLatestBlockNumber(REFRESH_INTERVAL_BLOCKS_NUMBER)
-    const offChainPricesAPI = useOffchainPrices(REFRESH_INTERVAL_OFFCHAIN_PRICES)
+    
+    const offChainPricesAPI = useOffchainPrices(REFRESH_INTERVAL_OFFCHAIN_PRICES)    
 
     const contractProtocolStatus = useContractProtocolStatus(
         contractsAddressLoaded ? contractsAddress : undefined,
@@ -266,6 +273,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         proposalCount,
         REFRESH_INTERVAL_CONTRACT_STATUS_OMOC
     )
+
+    // Hooks for user data
+
+    const userBaseCoinBalance = useBaseCoinBalance(address, REFRESH_INTERVAL_USER_BALANCE)
 
     const userBalance = useUserBalance(
         contractsAddressLoaded ? contractsAddress : undefined,
@@ -298,23 +309,23 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         }
     }, [offChainPricesAPI.parsedPrices])
 
-    useEffect(() => {
+    /*useEffect(() => {
         if (contractProtocolStatus.data) {
             //console.log('Protocol:', contractProtocolStatus.data)
         }
-    }, [contractProtocolStatus.data])  
+    }, [contractProtocolStatus.data])  */
 
-    useEffect(() => {
+    /*useEffect(() => {
         if (contractStatusOmoc.data) {
             //console.log('Omoc:', contractStatusOmoc.data)
         }
-    }, [contractStatusOmoc.data])
+    }, [contractStatusOmoc.data])  */
 
-    useEffect(() => {
+    /*useEffect(() => {
         if (userBalance.data) {
             //console.log('User balance:', userBalance.data)
         }
-    }, [userBalance.data])
+    }, [userBalance.data])*/
 
     useEffect(() => {
         if (!contractsAddressLoaded) {
