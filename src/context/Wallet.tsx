@@ -345,6 +345,9 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         }
     }
    
+    const onDisconnect = (): void => {
+        disconnect();
+    };
 
     const onShowModalAccount = (): void => {
         setShowModalAccount(true);

@@ -78,7 +78,7 @@ export default function Send(): JSX.Element {
         // 1. User Send Token Validation
         const totalBalance: bigint = TokenBalance(userBalance, currencyYouSend, userBaseCoinBalance);
         const amountYouSendBig: bigint = toBigIntPrecision(amountYouSend);
-
+        
         if (amountYouSendBig > totalBalance) {
             setInputValidationErrorText(t("send.infoNoBalance"));
             amountInputError = true;

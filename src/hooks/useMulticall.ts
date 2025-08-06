@@ -72,6 +72,7 @@ function deepMerge(target: any, source: any): any {
 export function useMultiCall(
   calls: MultiCallInput[] = [],
   options: {
+    batchSize?: number,
     refetchInterval?: number
     enabled?: boolean,
     externalData?: Record<string | number, any> 
@@ -115,7 +116,8 @@ export function useMultiCall(
     refetch,
     error,
   } = useReadContracts({
-    contracts,
+    batchSize: options.batchSize ?? 50,
+    contracts: contracts as any,
     query: {
       refetchInterval: options.refetchInterval ?? 30_000,
       enabled: options.enabled ?? true,
