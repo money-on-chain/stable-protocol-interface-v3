@@ -4,13 +4,18 @@ import { useLatestBlockNumber } from '../hooks/useLatestBlockNumber'
 import { useOffchainPrices } from '../hooks/useOffchainPrices'
 import { useContractProtocolStatus } from '../hooks/useContractProtocolStatus'
 import { useProposalCount } from '../hooks/useProposalCount'
-import { useContractsOmocStatus } from '../hooks/useContractsOmocStatus'
+import { useContractOmocStatus } from '../hooks/useContractOmocStatus'
+import { useUserOmocBalance } from '../hooks/useUserOmocBalance'
 import { useUserBalance } from '../hooks/useUserBalance'
 import { readContracts } from '../hooks/useReadContracts'
 import { useBaseCoinBalance, UseBaseCoinBalanceReturn } from '../hooks/useBaseCoinBalance'
+import { useUserVesting } from '../hooks/useUserVesting'
+import { useIncentiveV2 } from '../hooks/useIncentiveV2'
 import { TokenContract, ApproveTokenContract } from '../helpers/exchange'
+import { UseStorageResult } from '../hooks/useMulticall'
 import { transferTokenTo, transferCoinbaseTo, AllowanceAmount, AllowUseTokenMigrator, MigrateToken } from '../backend/moc-base'
 import ModalAccount from '../components/Modals/Account'
+import ModalProviders from '../components/Modals/Providers'
 import { exchangeMethod } from "../helpers/exchange";
 import {
     addStake as addStakeVesting,
@@ -187,6 +192,10 @@ export type WalletContextType = {
     onError: OnError
   ) => Promise<any>
   userBaseCoinBalance: UseBaseCoinBalanceReturn
+  userVesting: UseStorageResult<any>
+  userIncentiveV2: UseStorageResult<any>
+  onShowModalProviders: () => void
+  onHideModalProviders: () => void
 }
 
 interface VestingTransaction {
@@ -228,11 +237,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
     const [contractsAddress, setContractsAddress] = useState(null)
     const [contractsAddressLoaded, setContractsAddressLoaded] = useState(false)
+    const [vestingAddress, setVestingAddress] = useState<string | undefined>(undefined)
 
     const userBaseCoinBalance = useBaseCoinBalance(address, REFRESH_INTERVAL_USER_BALANCE)
 
     const [offChainPrices, setOffChainPrices] = useState(null)
     const [showModalAccount, setShowModalAccount] = useState<boolean>(false)
+    const [showModalProviders, setShowModalProviders] = useState<boolean>(false)
     const [vestingOn, setVestingOn] = useState<boolean>(false)
 
     const { blockNumber } = useLatestBlockNumber(REFRESH_INTERVAL_BLOCKS_NUMBER)
@@ -250,7 +261,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         120_000
     )
 
-    const contractStatusOmoc = useContractsOmocStatus(
+    const contractStatusOmoc = useContractOmocStatus(
         contractsAddressLoaded ? contractsAddress : undefined,
         proposalCount,
         REFRESH_INTERVAL_CONTRACT_STATUS_OMOC
@@ -259,7 +270,26 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const userBalance = useUserBalance(
         contractsAddressLoaded ? contractsAddress : undefined,
         address,
-        30_000
+        REFRESH_INTERVAL_USER_BALANCE
+    )
+
+    const userOmocBalance = useUserOmocBalance(
+        contractsAddressLoaded ? contractsAddress : undefined,
+        address,
+        REFRESH_INTERVAL_USER_BALANCE
+    )
+
+    const userVesting = useUserVesting(
+        contractsAddressLoaded ? contractsAddress : undefined,
+        address,
+        vestingAddress,
+        REFRESH_INTERVAL_USER_BALANCE
+    )
+
+    const userIncentiveV2 = useIncentiveV2(
+        contractsAddressLoaded ? contractsAddress : undefined,
+        address,
+        REFRESH_INTERVAL_USER_BALANCE
     )
 
     useEffect(() => {
@@ -303,11 +333,14 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             console.error("Error loading contracts:", e)
         }
     }
-
-    
+   
 
     const onShowModalAccount = (): void => {
         setShowModalAccount(true);
+    };
+
+    const onShowModalProviders = (): void => {
+        setShowModalProviders(true);
     };
 
     const onShowModalAccountVesting = (): void => {
@@ -317,6 +350,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
     const onHideModalAccount = (): void => {
         setShowModalAccount(false);
+    };
+
+    const onHideModalProviders = (): void => {
+        setShowModalProviders(false);
     };
 
     const buildInterfaceContext = (): any => {
@@ -330,13 +367,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         };
     };
 
-    /* OMOC VESTING */
+    /* VESTING */
 
     const setVestingMachine = (vAddress: string): void => {
-        if (contractsAddress && contractsAddressLoaded) {
-            contractsAddress.VestingMachine = vAddress;
-            setContractsAddress(contractsAddress);
-        }
+        setVestingAddress(vAddress)
     };
 
     const saveUserVesting = (response: VestingResponse): void => {
@@ -369,7 +403,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const readUserVesting = (): void => {
         const baseUrl = `${import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS}omoc/vesting_created/`;
         const queryParams = new URLSearchParams({
-            holder: window.address,
+            holder: address || "",
             limit: "20",
             skip: "0",
         }).toString();
@@ -385,19 +419,9 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     };
 
     const isVestingLoaded = (): boolean => {
-        return !!(
-            userBalance.data &&
-            typeof userBalance.data.vestingmachine !== "undefined"
-        );
+        return !!(vestingAddress);
     };
-
-    const vestingAddress = (): string | undefined => {
-        if (isVestingLoaded()) {
-            return userBalance.data!.vestingmachine!.address;
-        }
-        return undefined;
-    };
-
+    
     const interfaceTransferToken = async (
         currencyYouExchange: string,
         amount: bigint,
@@ -816,7 +840,12 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             interfaceVotingVoteStep,
             interfaceVotingAcceptedStep,
             interfaceVotingUnRegister,
-            readUserVesting
+            readUserVesting,
+            userVesting,
+            userOmocBalance,
+            userIncentiveV2,
+            onShowModalProviders,
+            onHideModalProviders
         }}
         >
         {children}
@@ -826,6 +855,12 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 onHide={onHideModalAccount}
                 vestingOn={vestingOn}
                 setVestingOn={setVestingOn}
+            />
+            <ModalProviders
+                show={showModalProviders}
+                onShow={onShowModalProviders}
+                onHide={onHideModalProviders}
+                
             />
         </WalletContext.Provider>
     )

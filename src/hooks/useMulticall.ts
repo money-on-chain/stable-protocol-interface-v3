@@ -16,6 +16,14 @@ type MultiCallInput = {
   onError?: () => { value: any; canOperate: boolean }
 }
 
+export interface UseStorageResult<T> {
+  data: T | undefined
+  isLoading: boolean
+  isFetching: boolean
+  refetch: () => Promise<{ data: T }>
+  error: Error | null
+}
+
 /**
  * Assigns a value into a nested object structure given a path of keys.
  */

@@ -93,7 +93,7 @@ function TokenSettings(tokenName: string): Token {
     return token;
 }
 
-function TokenBalance(userBalance: any, tokenName: string): bigint {
+function TokenBalance(userBalance: any, tokenName: string, userBaseCoinBalance: any = undefined): bigint {
     // Ex. tokenName = CA_0, CA_1, TP_0, TP_1, TC_0, TC_1, COINBASE, TF_0, TF_1
     let balance = 0n;
 
@@ -111,7 +111,7 @@ function TokenBalance(userBalance: any, tokenName: string): bigint {
             balance = userBalance.data[parseInt(aTokenName[1])].TC.balance;
             break;
         case "COINBASE":
-            balance = 0n; //userBalance.data.coinbase;
+            balance = userBaseCoinBalance?.balance || 0n;
             break;
         case "TF":
             balance = userBalance.data[parseInt(aTokenName[1])].FeeToken.balance;

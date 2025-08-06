@@ -15,7 +15,6 @@ import IRegistry from "../contracts/omoc/IRegistry.json";
 import StakingMachine from "../contracts/omoc/StakingMachine.json";
 import DelayMachine from "../contracts/omoc/DelayMachine.json";
 import Supporters from "../contracts/omoc/Supporters.json";
-//import VestingMachine from "../../contracts/omoc/VestingMachine.json";
 import VotingMachine from "../contracts/omoc/VotingMachine.json";
 import VestingFactory from "../contracts/omoc/VestingFactory.json";
 import IERC20 from "../contracts/omoc/IERC20.json";
@@ -28,8 +27,7 @@ import settings from "../settings/settings.json";
 import { readContract } from 'viem/actions'
 
 // Type definitions for dContracts
-interface DContracts {
-    json: Record<string, any>;
+interface DContracts {    
     contracts: Record<string, any> & {
         multicall?: any;
         PP_CA?: any[];
@@ -57,8 +55,7 @@ interface DContracts {
         tp_legacy?: any;
         token_migrator?: any;
         VestingMachine?: any;
-    };
-    contractsAddresses: Record<string, any>;
+    };    
 }
 
 const onErrorTP = () => {
@@ -68,9 +65,7 @@ const onErrorTP = () => {
 const readContracts = async (publicClient: PublicClient): Promise<DContracts> => {
     // Store contracts to later use
     const dContracts: DContracts = {
-        json: {},
-        contracts: {},
-        contractsAddresses: {},
+        contracts: {},        
     };
         
     dContracts.contracts.Moc = []
@@ -408,25 +403,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
             type: ''
         }
         contracts.VestingFactory = contractDict
-
-        // reading Incentive V2 from environment address
-        if (
-            typeof import.meta.env.REACT_APP_CONTRACT_INCENTIVE_V2 !==
-            "undefined"
-        ) {
-            console.log(
-                "Incentive V2 Contract... address: ",
-                import.meta.env.REACT_APP_CONTRACT_INCENTIVE_V2
-            );
-            contractDict = {
-                address: import.meta.env.REACT_APP_CONTRACT_INCENTIVE_V2,
-                abi: IncentiveV2.abi,
-                name: 'IncentiveV2',
-                type: ''
-            }
-            contracts.IncentiveV2 = contractDict
-        }
-
+        
         console.log(
             "Voting Machine Contract... address: ",
             registryAddr.data.MOC_VOTING_MACHINE
@@ -450,6 +427,24 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
             type: ''
         }
         contracts.TG = contractDict
+    }
+
+    // reading Incentive V2 from environment address
+    if (
+        typeof import.meta.env.REACT_APP_CONTRACT_INCENTIVE_V2 !==
+        "undefined"
+    ) {
+        console.log(
+            "Incentive V2 Contract... address: ",
+            import.meta.env.REACT_APP_CONTRACT_INCENTIVE_V2
+        );
+        contractDict = {
+            address: import.meta.env.REACT_APP_CONTRACT_INCENTIVE_V2,
+            abi: IncentiveV2.abi,
+            name: 'IncentiveV2',
+            type: ''
+        }
+        contracts.IncentiveV2 = contractDict
     }
 
     // Token migrator & Legacy token    

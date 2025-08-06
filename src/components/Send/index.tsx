@@ -19,7 +19,7 @@ import { normalizeToBigInt, mulPrecision, toBigIntPrecision, fromWei } from "../
 export default function Send(): JSX.Element {
     const { t, i18n } = useProjectTranslation();
     
-    const { contractProtocolStatus, userBalance } = useWalletContext()
+    const { contractProtocolStatus, userBalance, userBaseCoinBalance } = useWalletContext()
 
     const tokenSend: string[] = tokenExchange();
     // Add Token Govern
@@ -76,7 +76,7 @@ export default function Send(): JSX.Element {
         let addressInputError: boolean = false;
 
         // 1. User Send Token Validation
-        const totalBalance: bigint = TokenBalance(userBalance, currencyYouSend);
+        const totalBalance: bigint = TokenBalance(userBalance, currencyYouSend, userBaseCoinBalance);
         const amountYouSendBig: bigint = toBigIntPrecision(amountYouSend);
 
         if (amountYouSendBig > totalBalance) {
@@ -173,7 +173,7 @@ export default function Send(): JSX.Element {
     const setAddTotalAvailable = (): void => {
         //setIsDirtyYouSend(false);
 
-        const totalYouSendWei: bigint = TokenBalance(userBalance, currencyYouSend);
+        const totalYouSendWei: bigint = TokenBalance(userBalance, currencyYouSend, userBaseCoinBalance);
         const totalYouSend = fromWei(totalYouSendWei, TokenSettings(currencyYouSend).decimals);
         setAmountYouSend(totalYouSend.toString());
 
@@ -202,7 +202,7 @@ export default function Send(): JSX.Element {
                             onValueChange={onChangeAmountYouSend}
                             validateError={false}
                             balance={PrecisionNumbers({
-                                amount: TokenBalance(userBalance, currencyYouSend),
+                                amount: TokenBalance(userBalance, currencyYouSend, userBaseCoinBalance),
                                 token: TokenSettings(currencyYouSend),
                                 decimals:
                                     TokenSettings(currencyYouSend)

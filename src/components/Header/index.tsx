@@ -37,7 +37,7 @@ const truncateAddress = (address: string): string => {
 export default function SectionHeader(): JSX.Element {
     const navigate = useNavigate();
     const location = useLocation();
-    const { isConnected, address, connect, onShowModalAccount } = useWalletContext()    
+    const { isConnected, address, connect, onShowModalAccount, onShowModalProviders } = useWalletContext()    
     //const [css_disable, setCssDisable] = useState("disable-nav-item");
     const [showMoreDropdown, setShowMoreDropdown] = useState<boolean>(false);
     const [showLanguageMenu, setShowLanguageMenu] = useState<boolean>(false);
@@ -198,7 +198,7 @@ export default function SectionHeader(): JSX.Element {
                             </a>                            
                         </>
                         ) : (
-                            <button onClick={() => connect({ connector: config.connectors[0] })}>Connect Wallet</button>
+                            <button onClick={() => onShowModalProviders()}>Connect Wallet</button>
                         )}
 
                         
