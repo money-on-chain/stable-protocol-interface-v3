@@ -3,7 +3,7 @@ import { Button } from "antd";
 import PropTypes from "prop-types";
 
 import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers3";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 import { TokenSettings } from "../../helpers/currencies";
 import CopyAddress from "../CopyAddress";
 import { toBigIntPrecision } from "../../helpers/precision";

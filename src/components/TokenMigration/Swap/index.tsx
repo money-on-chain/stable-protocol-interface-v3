@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import { useProjectTranslation } from "../../../helpers/translations";
 import TokenMigratePNG from "./../../../assets/icons/tokenmigrate.png";
 import Copy from "../../Copy";
-import { PrecisionNumbers } from "../../PrecisionNumbers3";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
 import { TokenSettings } from "../../../helpers/currencies";
 import { useWalletContext } from "../../../context/Wallet";
 import "./style.scss";

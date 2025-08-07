@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState } from "react";
 
 import { useProjectTranslation } from "../../helpers/translations";
 import CompletedBar from "./CompletedBar";
-import { PrecisionNumbers } from "../PrecisionNumbers3";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 import { TokenSettings } from "../../helpers/currencies";
 import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
 import { useWalletContext } from "../../context/Wallet";

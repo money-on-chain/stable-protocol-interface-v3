@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers3";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 import settings from "../../settings/settings.json";
 import { toBigIntPrecision } from "../../helpers/precision";
 import { bigIntToInputValue } from "../../helpers/currencies";

@@ -5,7 +5,7 @@ import { useProjectTranslation } from "../../helpers/translations";
 import CompletedBar from "./CompletedBar";
 import BalanceBar from "./BalanceBar";
 import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
-import { PrecisionNumbers } from "../PrecisionNumbers3";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 import { TokenSettings } from "../../helpers/currencies";
 import { useWalletContext } from "../../context/Wallet";
 

@@ -3,7 +3,7 @@ import React, { useEffect, useState, useContext, Fragment } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
 
 import { useProjectTranslation } from "../../../helpers/translations";
-import { PrecisionNumbers } from "../../PrecisionNumbers3";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
 import settings from "../../../settings/settings.json";
 import { useWalletContext } from "../../../context/Wallet";
 

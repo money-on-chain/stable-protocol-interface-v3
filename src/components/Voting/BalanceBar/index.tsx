@@ -1,7 +1,7 @@
 import React from "react";
 
 import "./Styles.scss";
-import { PrecisionNumbers } from "../../PrecisionNumbers3";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
 import { TokenSettings } from "../../../helpers/currencies";
 import { useProjectTranslation } from "../../../helpers/translations";
 

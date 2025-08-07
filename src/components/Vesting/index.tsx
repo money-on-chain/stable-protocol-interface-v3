@@ -5,7 +5,7 @@ import { recoverMessageAddress } from 'viem'
 import VestingSchedule from "../../components/Tables/VestingSchedule";
 import settings from "../../settings/settings.json";
 import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers3";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 import { formatTimestamp } from "../../helpers/staking";
 import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
 import UseVestingAlert from "../Notification/UsingVestingAlert";

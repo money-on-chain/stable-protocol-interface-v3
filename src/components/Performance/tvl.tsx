@@ -1,7 +1,7 @@
 import React from "react";
 
 import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers3";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 import { TokenSettings } from "../../helpers/currencies";
 import settings from "../../settings/settings.json";
 import { useWalletContext } from "../../context/Wallet";

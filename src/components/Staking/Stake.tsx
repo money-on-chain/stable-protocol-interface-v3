@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 
 import { TokenSettings } from "../../helpers/currencies";
 import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers3";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 import { tokenStake } from "../../helpers/staking";
 import CurrencyPopUp from "../CurrencyPopUp";
 import StakingOptionsModal from "../Modals/StakingOptionsModal/index";

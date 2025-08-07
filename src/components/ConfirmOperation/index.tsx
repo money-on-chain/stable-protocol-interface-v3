@@ -4,7 +4,7 @@ import axios from "axios";
 import PropTypes from "prop-types";
 
 import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers3";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 import { TokenSettings, TokenBalance } from "../../helpers/currencies";
 
 import { isMintOperation, UserTokenAllowance } from "../../helpers/exchange";

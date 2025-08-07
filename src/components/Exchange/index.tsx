@@ -21,7 +21,7 @@ import {
 } from "../../helpers/exchange";
 
 
-import { PrecisionNumbers } from "../PrecisionNumbers3";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 import InputAmount from "../InputAmount/";
 
 import { CheckStatusGlobal } from "../../helpers/checkStatus";

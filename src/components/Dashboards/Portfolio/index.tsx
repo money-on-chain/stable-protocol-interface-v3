@@ -1,7 +1,7 @@
 import { useProjectTranslation } from "../../../helpers/translations";
 import settings from "../../../settings/settings.json";
 
-import { PrecisionNumbers } from "../../PrecisionNumbers3";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
 import PortfolioTable from "../../Tables/PortfolioTable";
 import { useWalletContext } from "../../../context/Wallet";
 import { mulPrecision, divPrecision, normalizeToBigInt } from "../../../helpers/precision";

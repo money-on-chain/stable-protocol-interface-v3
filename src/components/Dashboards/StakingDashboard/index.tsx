@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { PrecisionNumbers } from "../../PrecisionNumbers3";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
 import settings from "../../../settings/settings.json";
 
 import { pendingWithdrawalsFormat } from "../../../helpers/staking";

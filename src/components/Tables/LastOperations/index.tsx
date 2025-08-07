@@ -2,7 +2,6 @@ import React, { Fragment, useContext, useEffect, useState } from "react";
 import { DownCircleOutlined, UpCircleOutlined } from "@ant-design/icons";
 import { Table, Skeleton, Modal } from "antd";
 import Moment from "react-moment";
-import BigNumber from "bignumber.js";
 import PropTypes from "prop-types";
 
 import RowDetailMobile from "../RowDetailMobile";
@@ -12,7 +11,7 @@ import date from "../../../helpers/date";
 import { useProjectTranslation } from "../../../helpers/translations";
 import settings from "../../../settings/settings.json";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
-import { fromContractPrecisionDecimals } from "../../../helpers/Formats";
+
 import { TokenSettings } from "../../../helpers/currencies";
 import AboutQueue from "../../Modals/AboutQueue";
 import { useWalletContext } from "../../../context/Wallet";
@@ -119,7 +118,7 @@ export default function LastOperations(props: LastOperationsProps) {
     const { token } = props;
     const [current, setCurrent] = useState(1);
     const { t, i18n, ns } = useProjectTranslation();
-    const { isConnected, address, contractProtocolStatus, userBalance } = useWalletContext()
+    const { isConnected, address, blockNumber } = useWalletContext()
     const [ready, setReady] = useState(false);
     /*useEffect(() => {
         if (auth.contractStatusData) {
@@ -144,7 +143,7 @@ export default function LastOperations(props: LastOperationsProps) {
     const received_row: TableRowData[] = [];
     var txList: OperationData[] = [];
     const transactionsList = (/*skip*/) => {
-        if (isConnected) {
+        if (isConnected && blockNumber) {
             console.log("Loading table…");
             /*const datas = {
                 address: accountData.Owner,
@@ -154,7 +153,7 @@ export default function LastOperations(props: LastOperationsProps) {
             setTimeout(() => {
                 const baseUrl = `${import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS}operations/list/`;
                 const queryParams = new URLSearchParams({
-                    recipient: address,
+                    ...(address && { recipient: address }),
                     limit: "1000",
                     skip: "0",
                 }).toString();
@@ -561,7 +560,7 @@ export default function LastOperations(props: LastOperationsProps) {
                                         </div>
                                         <div className="table-amount">
                                             <PrecisionNumbers
-                                                amount={token.exchange.amount}
+                                                amount={BigInt(token.exchange.amount)}
                                                 token={token.exchange.token}
                                                 decimals={token.exchange.token.visibleDecimals ?? 2}
                                                 i18n={i18n}
@@ -602,16 +601,13 @@ export default function LastOperations(props: LastOperationsProps) {
                                             </div>
                                             <div className="lastOp__detail__amount">
                                                 {PrecisionNumbers({
-                                                    amount: token.receive
-                                                        .amount,
+                                                    amount: BigInt(token.receive.amount),
                                                     token: token.receive.token,
                                                     decimals:
                                                         token.receive.token
                                                             .visibleDecimals ??
-                                                        2,
-                                                    t: t,
-                                                    i18n: i18n,
-                                                    ns: ns,
+                                                        2,                                                    
+                                                    i18n: i18n                                                    
                                                 })}
                                             </div>
                                         </div>
@@ -747,28 +743,17 @@ export default function LastOperations(props: LastOperationsProps) {
         );
     }
     function getFee(row_operation: OperationData) {
-        const fee: { amount: BigNumber; token: string | null; decimals: number } = { amount: new BigNumber(0), token: null, decimals: 18 };
+        const fee: { amount: bigint; token: string | null; decimals: number } = { amount: 0n, token: null, decimals: 18 };
         const caIndex = row_operation["bucket_index"]
 
         if (
             row_operation["executed"] &&
             row_operation["executed"]["qFeeToken_"]
         ) {
-            const qFeeToken = new BigNumber(
-                fromContractPrecisionDecimals(
-                    row_operation["executed"]["qFeeToken_"],
-                    settings.tokens.TF[0].decimals
-                )
-            );
+            const qFeeToken = BigInt(row_operation["executed"]["qFeeToken_"]);
+            const qFeeTokenVendorMarkup = BigInt(row_operation["executed"]["qFeeTokenVendorMarkup_"]);
 
-            const qFeeTokenVendorMarkup = new BigNumber(
-                fromContractPrecisionDecimals(
-                    row_operation["executed"]["qFeeTokenVendorMarkup_"],
-                    settings.tokens.TF[0].decimals
-                )
-            );
-
-            fee["amount"] = qFeeToken.plus(qFeeTokenVendorMarkup);
+            fee["amount"] = qFeeToken + qFeeTokenVendorMarkup;
             fee["token"] = "TF";
             fee["decimals"] = settings.tokens.TF[0].decimals;
         }
@@ -776,39 +761,29 @@ export default function LastOperations(props: LastOperationsProps) {
         if (
             row_operation["executed"] &&
             row_operation["executed"]["qACfee_"] &&
-            fee["amount"].eq(0)
+            fee["amount"] === 0n
         ) {
-            const qACfee = new BigNumber(
-                fromContractPrecisionDecimals(
-                    row_operation["executed"]["qACfee_"],
-                    settings.tokens.CA[caIndex].decimals
-                )
-            );
+            const qACfee = BigInt(row_operation["executed"]["qACfee_"]);
 
-            const qACVendorMarkup = new BigNumber(
-                fromContractPrecisionDecimals(
-                    row_operation["executed"]["qACVendorMarkup_"],
-                    settings.tokens.CA[caIndex].decimals
-                )
-            );
+            const qACVendorMarkup = BigInt(row_operation["executed"]["qACVendorMarkup_"]);
 
-            fee["amount"] = qACfee.plus(qACVendorMarkup);
+            fee["amount"] = qACfee + qACVendorMarkup;
             fee["token"] = `CA_${caIndex}`;
             fee["decimals"] = settings.tokens.CA[caIndex].decimals;
         }
 
-        if (fee["amount"].gt(0)) {
+        if (fee["amount"] > 0n) {
             return (
                 <div className="LastOp__expanded__fee">
                     {/* <span className="value"> */}
                     {PrecisionNumbers({
-                        amount: new BigNumber(fee["amount"]),
+                        amount: fee["amount"],
                         token: TokenSettings(fee["token"]),
                         decimals: 6,
                         t: t,
                         i18n: i18n,
                         ns: ns,
-                        skipContractConvert: true,
+                        //skipContractConvert: true,
                     })}
                     {/* </span> */}
                     <span className="token">
@@ -868,9 +843,8 @@ export default function LastOperations(props: LastOperationsProps) {
                 return t("operations.actions.statusFailed");
             case 0:
                 if (
-                    row_operation["params"] &&
-                    contractProtocolStatus.data &&
-                    BigInt(contractProtocolStatus.data.blockHeight || 0) <
+                    row_operation["params"] &&                    
+                    BigInt(blockNumber || 0) <
                         BigInt(row_operation["params"]["blockNumber"] || 0) +
                             confirmedBlocks
                 )
@@ -878,17 +852,15 @@ export default function LastOperations(props: LastOperationsProps) {
                 else return t("operations.actions.statusQueued");
             case 1:
                 if (
-                    row_operation["executed"] &&
-                    contractProtocolStatus.data &&
-                    BigInt(contractProtocolStatus.data.blockHeight || 0) <
+                    row_operation["executed"] &&                    
+                    BigInt(blockNumber || 0) <
                         BigInt(row_operation["executed"]["blockNumber"] || 0) +
                             confirmedBlocks
                 )
                     return t("operations.actions.statusConfirming");
                 else if (
-                    row_operation["operation"] === "Transfer" &&
-                    contractProtocolStatus.data &&
-                    BigInt(contractProtocolStatus.data.blockHeight || 0) <
+                    row_operation["operation"] === "Transfer" &&                    
+                    BigInt(blockNumber || 0) <
                         BigInt(row_operation["blockNumber"] || 0) + confirmedBlocks
                 )
                     return t("operations.actions.statusConfirming");

@@ -9,7 +9,7 @@ import {
     ConvertAmount, getCAIndex
 } from '../../helpers/currencies';
 import { tokenExchange } from "../../helpers/exchange";
-import { PrecisionNumbers } from "../PrecisionNumbers3";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 import InputAmount from "../InputAmount";
 import ModalConfirmSend from "../Modals/ConfirmSend";
 import { useWalletContext } from "../../context/Wallet";
