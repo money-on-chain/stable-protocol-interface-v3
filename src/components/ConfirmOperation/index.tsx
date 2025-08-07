@@ -352,7 +352,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                         setOpID(null);
 
                         // Refresh user balance
-                        userBalance.refresh();
+                        userBalance.refetch();
                         // auth.loadContractsStatusAndUserBalance().then(
                         //     (/*value*/) => {
                         //         console.log("Refresh user balance OK!");

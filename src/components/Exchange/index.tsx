@@ -204,7 +204,7 @@ export default function Exchange(): JSX.Element {
             // There are sufficient PEGGED in the contracts to mint?
             tIndex = TokenSettings(currencyYouReceive).key;
             if (tIndex !== undefined) {
-                const tpAvailableToMint = contractProtocolStatus.data.getRealTPAvailableToMint[tIndex];
+                const tpAvailableToMint = contractProtocolStatus.data[caIndex].getRealTPAvailableToMint[tIndex];
                 if (amountYouReceive > tpAvailableToMint) {
                     setInputValidationErrorText(t("exchange.errors.noLiquidity"));
                     setInputValidationError(true);
@@ -216,7 +216,7 @@ export default function Exchange(): JSX.Element {
         // 3. REDEEM TC        
         if (arrCurrencyYouExchange[0] === "TC") {
             // There are sufficient TC in the contracts to redeem?
-            const tcAvailableToRedeem = contractProtocolStatus.data.getRealTCAvailableToRedeem;
+            const tcAvailableToRedeem = contractProtocolStatus.data[caIndex].getRealTCAvailableToRedeem;
             if (amountYouExchange > tcAvailableToRedeem) {
                 setInputValidationErrorText(t("exchange.errors.noLiquidity"));
                 setInputValidationError(true);
@@ -252,7 +252,7 @@ export default function Exchange(): JSX.Element {
         if (arrCurrencyYouReceive[0] === "TP") {
             tIndex = TokenSettings(currencyYouReceive).key;
             if (tIndex !== undefined) {
-                const maxQACToMintTP = contractProtocolStatus.data.maxQACToMintTP[tIndex];
+                const maxQACToMintTP = contractProtocolStatus.data[caIndex].maxQACToMintTP[tIndex];
                 if (amountYouExchange > maxQACToMintTP) {
                     setInputValidationErrorText(
                         t("exchange.errors.maxLimitedByProtocol")
@@ -270,7 +270,7 @@ export default function Exchange(): JSX.Element {
             // 7. Flux Capacitor
             tIndex = TokenSettings(currencyYouReceive).key;
             if (tIndex !== undefined) {
-                const maxQACToRedeemTP = contractProtocolStatus.data.maxQACToRedeemTP[tIndex];
+                const maxQACToRedeemTP = contractProtocolStatus.data[caIndex].maxQACToRedeemTP[tIndex];
                 console.log("maxQACToRedeemTP: ", maxQACToRedeemTP.toString());
                 console.log(
                     "amountYouReceive: ",
@@ -288,7 +288,7 @@ export default function Exchange(): JSX.Element {
             // 8 Available TP to redeem
             tIndex = TokenSettings(currencyYouExchange).key;
             if (tIndex !== undefined) {
-                const maxAvailableTP = contractProtocolStatus.data.pegContainer[tIndex];
+                const maxAvailableTP = contractProtocolStatus.data[caIndex].pegContainer[tIndex];
                 if (amountYouExchange > maxAvailableTP) {
                     setInputValidationErrorText(
                         t("exchange.errors.insufficientTPinCA")
