@@ -12,6 +12,7 @@ import ActionIcon from "../../assets/icons/Action.svg";
 import StakingOptionsModal from "../Modals/StakingOptionsModal/index";
 import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
 import { useWalletContext } from "../../context/Wallet";
+import { toBigIntPrecision } from "../../helpers/precision";
 
 interface WithdrawProps {
     userInfoStaking: {
@@ -290,7 +291,7 @@ export default function Withdraw(props: WithdrawProps): JSX.Element {
                     visible={modalMode !== null}
                     onClose={() => setModalMode(null)}
                     withdrawalId={withdrawalId}
-                    amount={modalAmount}
+                    amount={toBigIntPrecision(modalAmount)}
                     onConfirm={onConfirm}
                 />
             )}

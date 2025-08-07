@@ -25,6 +25,7 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
     const { 
         address, 
         userBalance, 
+        userOmocBalance,
         isVestingLoaded, 
         interfaceStakingApprove, 
         interfaceStakingAddStake, 
@@ -51,7 +52,7 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
     };
 
     const checkAllowance = async (): Promise<void> => {
-        if (userBalance.data) {
+        if (userBalance.data && amountInEth) {
             const allowanceAmount = isVestingLoaded()
                 ? userBalance.data.vestingmachine?.staking?.allowance
                 : userBalance.data.stakingmachine?.tgAllowance;
@@ -84,6 +85,8 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
             console.log("Transaction allowance error!...:", error);
         };
 
+        if (!amountAllowance) return;
+        
         await interfaceStakingApprove(
                 amountAllowance,
                 onTransaction,
@@ -117,6 +120,8 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
         const onError = (error: any): void => {
             console.log("Transaction add stake error!...:", error);
         };
+        if (!amount || !address) return;
+        
         setStep(99);
         await interfaceStakingAddStake(
                 amount,
@@ -129,9 +134,8 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                 const status = res.status ? "success" : "error";
                 onConfirm(status, res.transactionHash);
 
-                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                //     console.log("Refresh user balance OK!");
-                // });
+                // Refresh user balance
+                userOmocBalance.refetch();
 
                 return null;
             })
@@ -168,9 +172,8 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                 const status = res.status ? "success" : "error";
                 onConfirm(status, res.transactionHash);
 
-                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                //     console.log("Refresh user balance OK!");
-                // });
+                // Refresh user balance
+                userOmocBalance.refetch();
 
                 return null;
             })
@@ -198,14 +201,15 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
         const onError = (error: any): void => {
             console.log("Transaction unStake error!...:", error);
         };
+        if (!amount) return;
+        
         await interfaceStakingUnStake(amount, onTransaction, onReceipt, onError)
             .then((res) => {
                 const status = res.status ? "success" : "error";
                 onConfirm(status, res.transactionHash);
 
-                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                //     console.log("Refresh user balance OK!");
-                // });
+                // Refresh user balance
+                userOmocBalance.refetch();
 
                 return null;
             })
@@ -244,9 +248,8 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                 const status = res.status ? "success" : "error";
                 onConfirm(status, res.transactionHash);
 
-                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                //     console.log("Refresh user balance OK!");
-                // });
+                // Refresh user balance
+                userOmocBalance.refetch();
 
                 return null;
             })

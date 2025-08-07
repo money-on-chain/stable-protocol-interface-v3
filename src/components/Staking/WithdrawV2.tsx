@@ -11,6 +11,7 @@ import settings from "../../settings/settings.json";
 import StakingOptionsModal from "../Modals/StakingOptionsModal/index";
 import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
 import { useWalletContext } from "../../context/Wallet";
+import { toBigIntPrecision } from "../../helpers/precision";
 import "./WithdrawV2.scss";
 
 interface WithdrawV2Props {
@@ -56,7 +57,7 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
     const [data, setData] = useState<TableDataItem[] | null>(null);
     const [modalMode, setModalMode] = useState<ModalMode>(null);
     const [withdrawalId, setWithdrawalId] = useState<string>("0");
-    const [modalAmount, setModalAmount] = useState<string>("0");
+    const [modalAmount, setModalAmount] = useState<bigint>(0n);
     const [operationModalInfo, setOperationModalInfo] = useState<OperationModalInfo>({
         operationStatus: "",
         txHash: ""
@@ -192,9 +193,9 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
             setModalMode("restake");
         } else {
             setModalMode("withdraw");
-        }
+        }        
         setWithdrawalId(withdrawal.id.toString());
-        setModalAmount(withdrawal.amount.toString());
+        setModalAmount(withdrawal.amount);
     };
 
     return (
