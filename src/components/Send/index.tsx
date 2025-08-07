@@ -189,7 +189,6 @@ export default function Send(): JSX.Element {
                 <div className="inputFields">
                     <div className="tokenSelector">
                         <CurrencyPopUp
-                            className="select-token"
                             value={currencyYouSend}
                             currencyOptions={tokenSend}
                             onChange={onChangeCurrencyYouSend}

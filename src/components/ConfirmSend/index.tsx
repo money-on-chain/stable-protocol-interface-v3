@@ -3,7 +3,7 @@ import { Button } from "antd";
 import PropTypes from "prop-types";
 
 import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers";
+import { PrecisionNumbers } from "../PrecisionNumbers3";
 import { TokenSettings } from "../../helpers/currencies";
 import CopyAddress from "../CopyAddress";
 import { toBigIntPrecision } from "../../helpers/precision";
@@ -150,11 +150,10 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
                     <div className="tx-amount-data">
                         <div className="tx-amount">
                             {PrecisionNumbers({
-                                amount: amountYouExchange,
+                                amount: toBigIntPrecision(amountYouExchange),
                                 token: TokenSettings(currencyYouExchange),
                                 decimals: 8,
-                                i18n: i18n,
-                                isInWei: false,
+                                i18n: i18n                                
                             })}
                         </div>
                         <div className="tx-token">
