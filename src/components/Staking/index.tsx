@@ -63,7 +63,7 @@ const defaultTokenStake: string = tokenStake()[0];
 const tokenSettingsStake: any = TokenSettings(defaultTokenStake);
 
 export default function Staking(): JSX.Element {    
-    const { contractProtocolStatus, userBalance, publicClient, isVestingLoaded } = useWalletContext()
+    const { contractProtocolStatus, userOmocBalance, publicClient, isVestingLoaded } = useWalletContext()
     const { t } = useProjectTranslation();
     const [activeTab, setActiveTab] = useState<string>("tab1");
 
@@ -81,10 +81,10 @@ export default function Staking(): JSX.Element {
     );
 
     useEffect(() => {
-        if (contractProtocolStatus.data && userBalance.data) {
+        if (contractProtocolStatus.data && userOmocBalance.data) {
             refreshBalances();
         }
-    }, [contractProtocolStatus.data, userBalance.data]);
+    }, [contractProtocolStatus.data, userOmocBalance.data]);
 
     const refreshBalances = (): void => {
         const cData: UserInfoStaking = { ...userInfoStaking };
@@ -93,21 +93,21 @@ export default function Staking(): JSX.Element {
         let vUsing: VestingMachine | StakingMachine;
         
         if (isVestingLoaded()) {
-            cData["tgBalance"] = userBalance.data.vestingmachine!.tgBalance;
-            cData["stakedBalance"] = userBalance.data.vestingmachine!.staking.balance;
-            cData["lockedBalance"] = userBalance.data.vestingmachine!.staking.getLockedBalance;
+            cData["tgBalance"] = userOmocBalance.data.vestingmachine!.tgBalance;
+            cData["stakedBalance"] = userOmocBalance.data.vestingmachine!.staking.balance;
+            cData["lockedBalance"] = userOmocBalance.data.vestingmachine!.staking.getLockedBalance;
             pendingWithdrawals = pendingWithdrawalsFormat(
-                userBalance.data.vestingmachine!.delay
+                userOmocBalance.data.vestingmachine!.delay
             );
-            vUsing = userBalance.data.vestingmachine!.staking;
+            vUsing = userOmocBalance.data.vestingmachine!.staking;
         } else {            
-            cData["tgBalance"] = userBalance.data.TG.balance;
-            cData["stakedBalance"] = userBalance.data.stakingmachine!.getBalance;
-            cData["lockedBalance"] = userBalance.data.stakingmachine!.getLockedBalance;
+            cData["tgBalance"] = userOmocBalance.data.TG.balance;
+            cData["stakedBalance"] = userOmocBalance.data.stakingmachine!.getBalance;
+            cData["lockedBalance"] = userOmocBalance.data.stakingmachine!.getLockedBalance;
             pendingWithdrawals = pendingWithdrawalsFormat(
-                userBalance.data.delaymachine
+                userOmocBalance.data.delaymachine
             );
-            vUsing = userBalance.data.stakingmachine!;            
+            vUsing = userOmocBalance.data.stakingmachine!;            
         }
 
         const lockedAmount = vUsing.getLockingInfo.amount;

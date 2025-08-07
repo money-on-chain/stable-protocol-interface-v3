@@ -2,7 +2,7 @@ import React, { useState, useContext, Fragment, useEffect } from "react";
 import { Button } from "antd";
 import PropTypes from "prop-types";
 
-import { TokenSettings, AmountToVisibleValue } from "../../helpers/currencies";
+import { TokenSettings } from "../../helpers/currencies";
 import { useProjectTranslation } from "../../helpers/translations";
 import { PrecisionNumbers } from "../PrecisionNumbers3";
 import { tokenStake } from "../../helpers/staking";
@@ -12,6 +12,8 @@ import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatus
 import InputAmount from "../InputAmount";
 import settings from "../../settings/settings.json";
 import { useWalletContext } from "../../context/Wallet";
+import { toBigIntPrecision } from "../../helpers/precision";
+import { bigIntToInputValue } from "../../helpers/currencies";
 
 interface StakeProps {
     activeTab: string;
@@ -40,7 +42,7 @@ const Stake = (props: StakeProps): JSX.Element => {
     const [inputValidationErrorText, setInputValidationErrorText] =
         useState<string>("");
     const [modalMode, setModalMode] = useState<ModalMode>(null);
-    const [modalAmount, setModalAmount] = useState<string>("0");
+    const [modalAmount, setModalAmount] = useState<bigint>(0n);
     const [operationModalInfo, setOperationModalInfo] = useState<OperationModalInfo>({
         operationStatus: "",
         txHash: ""
@@ -78,8 +80,8 @@ const Stake = (props: StakeProps): JSX.Element => {
             ? userInfoStaking["unstakeBalance"]
             : userInfoStaking["tgBalance"];
         const amountToProcess: bigint = isUnstaking
-            ? amountToUnstake
-            : amountToStake;
+            ? toBigIntPrecision(amountToUnstake)
+            : toBigIntPrecision(amountToStake);
 
         //1. Input amount valid
         if (isNaN(parseFloat(isUnstaking ? amountToUnstake : amountToStake))) {
@@ -95,12 +97,12 @@ const Stake = (props: StakeProps): JSX.Element => {
             } else {
                 amountInputError = true;
             }
-        } else if (isNaN(parseFloat(amountToProcess))) {
+        } else if (isNaN(parseFloat(isUnstaking ? amountToUnstake : amountToStake))) {
             if (amountToStake !== "" || amountToUnstake !== "") {
                 setInputValidationErrorText("Invalid amount");
                 amountInputError = true;
             }
-        } else if (amountToProcess.toString().length < 1) {
+        } else if ((isUnstaking ? amountToUnstake : amountToStake).toString().length < 1) {
             setInputValidationErrorText("Amount field cannot be empty");
             amountInputError = true;
         }
@@ -123,31 +125,26 @@ const Stake = (props: StakeProps): JSX.Element => {
         const total: bigint = isUnstaking
             ? userInfoStaking["unstakeBalance"]
             : userInfoStaking["tgBalance"];
-        if (isUnstaking) setAmountToUnstake(total.toString()); 
-        else setAmountToStake(total.toString());
+        if (isUnstaking) setAmountToUnstake(bigIntToInputValue(total, 'TG', 2)); 
+        else setAmountToStake(bigIntToInputValue(total, 'TG', 2));
     };
     
-    const getAmount = (): number => {
+    const getAmount = (): bigint => {
         if (isUnstaking) {
             if (amountToUnstake === "0") {
-                return 0;
+                return 0n;
             }
         } else {
             if (amountToStake === "0") {
-                return 0;
+                return 0n;
             }
         }
-        return AmountToVisibleValue(
-            isUnstaking ? amountToUnstake : amountToStake,
-            defaultTokenStake,
-            4,
-            false
-        );
+        return toBigIntPrecision(isUnstaking ? amountToUnstake : amountToStake);
     };
     
     const onStakeButton = (): void => {
-        if (getAmount() > 0) {
-            setModalAmount(getAmount().toString());
+        if (getAmount() > 0n) {
+            setModalAmount(getAmount());
             setModalMode(isUnstaking ? "unstaking" : "staking");
         } else {
             alert("Please fill amount you want to stake");
@@ -244,7 +241,7 @@ const Stake = (props: StakeProps): JSX.Element => {
                             ? amountToUnstake === ""
                                 ? ""
                                 : PrecisionNumbers({
-                                      amount: amountToUnstake,
+                                      amount: toBigIntPrecision(amountToUnstake),
                                       token: settings.tokens.TG[0],
                                       decimals: t("staking.display_decimals"),
                                       t: t,
@@ -254,7 +251,7 @@ const Stake = (props: StakeProps): JSX.Element => {
                             : amountToStake === ""
                               ? ""
                               : PrecisionNumbers({
-                                    amount: amountToStake,
+                                    amount: toBigIntPrecision(amountToStake),
                                     token: settings.tokens.TG[0],
                                     decimals: t("staking.display_decimals"),
                                     t: t,

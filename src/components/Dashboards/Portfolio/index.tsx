@@ -7,13 +7,6 @@ import { useWalletContext } from "../../../context/Wallet";
 import { mulPrecision, divPrecision, normalizeToBigInt } from "../../../helpers/precision";
 
 
-interface TokenData {
-    key: string;
-    decimals: number;
-    peggedUSD?: boolean;
-}
-
-
 export default function Portfolio(): JSX.Element {
     const space: string = "\u00A0";
     const { t, i18n } = useProjectTranslation();    
@@ -30,7 +23,7 @@ export default function Portfolio(): JSX.Element {
         userBalance.data && 
         userBaseCoinBalance.balance ) {
 
-        (settings.tokens.CA as TokenData[]).forEach(function (dataItem: TokenData) {
+        (settings.tokens.CA).forEach(function (dataItem: any) {
 
             ////////////////
             // Tokens CA
@@ -59,7 +52,7 @@ export default function Portfolio(): JSX.Element {
         ///////////////
         // Tokens TP
         //////////////
-        (settings.tokens.TP as TokenData[]).forEach(function (dataItem: TokenData) {
+        (settings.tokens.TP).forEach(function (dataItem: any) {
             balance = userBalance.data.TP[0][dataItem.key].balance;
             price = dataItem.peggedUSD
                 ? 1n

@@ -89,8 +89,8 @@ export type WalletContextType = {
   interfaceExchangeMethod: (
     currencyYouExchange: string,
     currencyYouReceive: string,
-    tokenAmount: string | number,
-    limitAmount: string | number,
+    tokenAmount: bigint,
+    limitAmount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
   ) => Promise<any>
@@ -196,6 +196,7 @@ export type WalletContextType = {
   userIncentiveV2: UseStorageResult<any>
   onShowModalProviders: () => void
   onHideModalProviders: () => void
+  userOmocBalance: UseStorageResult<any>
 }
 
 interface VestingTransaction {

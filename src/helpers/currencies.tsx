@@ -1,5 +1,4 @@
 import React from "react";
-import BigNumber from "bignumber.js";
 
 import LogoIconCA_0 from "../assets/tokens/ca_0.svg?react";
 import LogoIconCA_1 from "../assets/tokens/ca_1.svg?react";
@@ -10,7 +9,6 @@ import LogoIconTP_0 from "../assets/tokens/tp_0.svg?react";
 import LogoIconTP_1 from "../assets/tokens/tp_1.svg?react";
 import LogoIconTG_0 from "../assets/tokens/tg_0.svg?react";
 import settings from "../settings/settings.json";
-import { fromContractPrecisionDecimals } from "./Formats";
 import { normalizeToBigInt, divPrecision, mulPrecision, fromWei } from "./precision";
 
 interface Token {
@@ -166,32 +164,32 @@ function ConvertAmount(
 
     switch (aTokenMap) {
         case "CA,TC":
-            price = normalizeToBigInt(contractProtocolStatus.data[caIndex].getPTCac);
+            price = normalizeToBigInt(contractProtocolStatus.data[caIndex].getPTCac) || 0n;
             cAmount = divPrecision(amount, price);
             break;
         case "TP,CA":
             // Redeem Operation
-            price = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_TP[parseInt(aTokenExchange[1])][0]);
+            price = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_TP[parseInt(aTokenExchange[1])][0]) || 0n;
             cAmount = divPrecision(amount, price);
             break;
         case "CA,TP":
             // Mint Operation
-            price = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_TP[parseInt(aTokenReceive[1])][0]);
+            price = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_TP[parseInt(aTokenReceive[1])][0]) || 0n;
             cAmount = mulPrecision(amount, price);
             break;
         case "TC,CA":
             // Redeem Operation
-            price = normalizeToBigInt(contractProtocolStatus.data[caIndex].getPTCac);
+            price = normalizeToBigInt(contractProtocolStatus.data[caIndex].getPTCac) || 0n;
             cAmount = mulPrecision(amount, price);
             break;
         case "TG,CA":
             // TG
-            price = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_FeeToken[0]);
+            price = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_FeeToken[0]) || 0n;
             cAmount = mulPrecision(amount, price);
             break;
         case "COINBASE,CA":
             // COINBASE            
-            price = normalizeToBigInt(contractProtocolStatus.data.PP_COINBASE[0]);
+            price = normalizeToBigInt(contractProtocolStatus.data.PP_COINBASE[0]) || 0n;
             cAmount = mulPrecision(amount, price);
             break;
         case "CA,CA":
@@ -204,27 +202,6 @@ function ConvertAmount(
     return cAmount;
 }
 
-const AmountToVisibleValue = (
-    rawAmount: number,
-    tokenName: string,
-    decimals: number,
-    amountInWei: boolean = true
-): string => {
-    const tokenSettings = TokenSettings(tokenName);
-
-    let amount: BigNumber;
-    if (amountInWei) {
-        amount = new BigNumber(
-            fromContractPrecisionDecimals(rawAmount, tokenSettings.decimals)
-        );
-    } else {
-        amount = new BigNumber(rawAmount);
-    }
-    return amount.toFormat(decimals, BigNumber.ROUND_DOWN, {
-        decimalSeparator: ".",
-        groupSeparator: ",",
-    });
-};
 
 const bigIntToInputValue = (
     rawAmount: bigint,
@@ -356,7 +333,6 @@ export {
     TokenBalance,
     ConvertBalance,
     ConvertAmount,
-    AmountToVisibleValue,
     CalcCommission,
     ConvertPeggedTokenPrice,
     hasNonUSDPeggedTokens,

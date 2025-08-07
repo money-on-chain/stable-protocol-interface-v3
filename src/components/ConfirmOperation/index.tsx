@@ -352,6 +352,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                         setOpID(null);
 
                         // Refresh user balance
+                        userBalance.refresh();
                         // auth.loadContractsStatusAndUserBalance().then(
                         //     (/*value*/) => {
                         //         console.log("Refresh user balance OK!");
@@ -872,7 +873,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                 currencyYouExchange={currencyYouExchange}
                 currencyYouReceive={currencyYouReceive}
                 amountYouExchangeLimit={amountYouExchangeLimit}
-                amountYouReceiveLimit={amountYouReceiveLimit}
+                //amountYouReceiveLimit={amountYouReceiveLimit}
                 onRealSendTransaction={onRealSendTransaction}
                 disAllowance={false}
             />
@@ -887,7 +888,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                 currencyYouExchange={`TF_${caIndex}`}
                 currencyYouReceive={`TF_${caIndex}`}
                 amountYouExchangeLimit={commissionFeeToken}
-                amountYouReceiveLimit={commissionFeeToken}
+                //amountYouReceiveLimit={commissionFeeToken}
                 onRealSendTransaction={onSendTransaction}
                 disAllowance={disAllowanceFeeToken}
             />

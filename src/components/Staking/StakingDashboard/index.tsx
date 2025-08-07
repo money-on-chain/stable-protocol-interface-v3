@@ -18,7 +18,7 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = (props) => {
-    const { t, i18n, ns } = useProjectTranslation();
+    const { t, i18n } = useProjectTranslation();
     const { userInfoStaking } = props;
     
     return (
