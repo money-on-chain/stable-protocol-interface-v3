@@ -31,14 +31,14 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                 <div className="stakingDash__data">
                     <div className="stakingDash__data__amount">
                         {" "}
-                        {PrecisionNumbers({
+                        {userInfoStaking["tgBalance"] ? PrecisionNumbers({
                             amount: userInfoStaking["tgBalance"],
                             token: settings.tokens.TG[0],
                             decimals: Number(t("staking.display_decimals")),
                             //numericLabelParams: {},
                             i18n: i18n,
                             
-                        })}
+                        }) : "--"}
                     </div>
                     <div className="stakingDash__data__label">
                         {t("staking.dashLabels.balance")}
@@ -52,14 +52,14 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                 </div>
                 <div className="stakingDash__data">
                     <div className="stakingDash__data__amount">
-                        {PrecisionNumbers({
+                        {userInfoStaking["unstakeBalance"] ? PrecisionNumbers({
                             amount: userInfoStaking["unstakeBalance"],
                             token: settings.tokens.TG[0],
                             decimals: Number(t("staking.display_decimals")),
                             //numericLabelParams: {},
                             i18n: i18n,
                             
-                        })}
+                        }) : "--"}
                     </div>
                     <div className="stakingDash__data__label">
                         {t("staking.dashLabels.staked")}
@@ -74,14 +74,14 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                 <div className="stakingDash__data">
                     <div className="stakingDash__data__amount">
                         {" "}
-                        {PrecisionNumbers({
+                        {userInfoStaking["totalPendingExpiration"] ? PrecisionNumbers({
                             amount: userInfoStaking["totalPendingExpiration"],
                             token: settings.tokens.TG[0],
                             decimals: Number(t("staking.display_decimals")),
                             //numericLabelParams: {},
                             i18n: i18n,
                             
-                        })}
+                        }) : "--"}
                     </div>
                     <div className="stakingDash__data__label">
                         {t("staking.dashLabels.unstaking")}
@@ -96,14 +96,14 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                 </div>
                 <div className="stakingDash__data">
                     <div className="stakingDash__data__amount">
-                        {PrecisionNumbers({
+                        {userInfoStaking["totalAvailableToWithdraw"] ? PrecisionNumbers({
                             amount: userInfoStaking["totalAvailableToWithdraw"],
                             token: settings.tokens.TG[0],
                             decimals: Number(t("staking.display_decimals")),
                             //numericLabelParams: {},
                             i18n: i18n,
                             
-                        })}
+                        }) : "--"}
                     </div>
                     <div className="stakingDash__data__label">
                         {t("staking.dashLabels.ready")}
@@ -119,14 +119,14 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                     </div>
                     <div className="stakingDash__data">
                         <div className="stakingDash__data__amount">
-                            {PrecisionNumbers({
+                            {userInfoStaking["lockedInVoting"] ? PrecisionNumbers({
                                 amount: userInfoStaking["lockedInVoting"],
                                 token: settings.tokens.TG[0],
                                 decimals: Number(t("staking.display_decimals")),
                                 //numericLabelParams: {},
                                 i18n: i18n,
                                 
-                            })}
+                            }) : "--"}
                         </div>
                         <div className="stakingDash__data__label">
                             {t("staking.dashLabels.lockedVoting")}

@@ -191,8 +191,8 @@ const Stake = (props: StakeProps): JSX.Element => {
                             }
                             balance={PrecisionNumbers({
                                 amount: isUnstaking
-                                    ? userInfoStaking["unstakeBalance"]
-                                    : userInfoStaking["tgBalance"],
+                                    ? userInfoStaking["unstakeBalance"] || 0n
+                                    : userInfoStaking["tgBalance"] || 0n,
                                 token: TokenSettings(defaultTokenStake),
                                 decimals: t("staking.staking.input_decimals"),
                                 t: t,
