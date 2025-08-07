@@ -1,15 +1,17 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Layout } from "antd";
 
-import { AuthenticateContext } from "../../../context/Auth";
 import SectionHeader from "../../../components/Header";
 import NotificationBody from "../../../components/Notification";
 import { CheckStatusGlobal } from "../../../helpers/checkStatus";
 import DappFooter from "../../../components/Footer/index";
-import W3ErrorAlert from "../../../components/Notification/W3ErrorAlert";
+
+import { useWalletContext } from "../../../context/Wallet";
+
 
 const { Content, Footer } = Layout;
+
 
 // Type definitions
 interface NotificationStatus {
@@ -22,27 +24,21 @@ interface NotificationStatus {
     dismissTime: number;
 }
 
-interface AuthContext {
-    contractStatusData: any;
-    userBalanceData: any;
-    web3Error: any;
-    isLoggedIn: boolean;
-}
-
 export default function Skeleton(): JSX.Element {
-    const auth = useContext(AuthenticateContext) as AuthContext;
+    const { isConnected, contractProtocolStatus, userBalance, userOmocBalance } = useWalletContext()
+    
     const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(null);
     const { checkerStatus } = CheckStatusGlobal();
     
     useEffect(() => {
-        if (auth.contractStatusData && auth.userBalanceData) {
+        if (contractProtocolStatus.data && userBalance.data && userOmocBalance.data) {
             readProtocolStatus();
         }
-    }, [auth.contractStatusData, auth.userBalanceData]);
+    }, [contractProtocolStatus.data, userBalance.data, userOmocBalance.data]);
 
     const readProtocolStatus = (): void => {
         const { globalStatus, statusLabel, statusText } = checkerStatus();
-        if (globalStatus > 1) {            
+        if (globalStatus > 1) {
             setNotifStatus({
                 id: -1,
                 title: `Warning, protocol status is ${statusLabel}`,
@@ -58,21 +54,21 @@ export default function Skeleton(): JSX.Element {
     };
 
     return (
-        <Layout>
-            <SectionHeader />
-            <Content>
-                {/* TODO load an array of notifStatus items, and load a mapping for showing notifs here in this section , interact with a React Context */}
-                {notifStatus && <NotificationBody notifStatus={notifStatus} />}
+    <Layout>
+        <SectionHeader />        
+        <Content>
+            {/* TODO load an array of notifStatus items, and load a mapping for showing notifs here in this section , interact with a React Context */}
+            {notifStatus && <NotificationBody notifStatus={notifStatus} />}
 
-                {auth.web3Error && <W3ErrorAlert />}
+            {/* {auth.web3Error && <W3ErrorAlert />} */}
 
-                {!auth.web3Error && auth.isLoggedIn && <Outlet />}
-            </Content>
-            <Footer>
-                <div className="footer-container">
-                    <DappFooter></DappFooter>
-                </div>
-            </Footer>
-        </Layout>
+            {isConnected && <Outlet />}
+        </Content>
+        <Footer>
+            <div className="footer-container">
+                <DappFooter></DappFooter>
+            </div>
+        </Footer>
+    </Layout>
     );
 }

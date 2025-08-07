@@ -1,16 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { Layout } from "antd";
-import BigNumber from "bignumber.js";
-import Web3 from "web3";
 
-import { AuthenticateContext } from "../../../context/Auth";
 import SectionHeader from "../../../components/Header";
 import ModalTokenMigration from "../../../components/TokenMigration/Modal";
 import NotificationBody from "../../../components/Notification";
 import { CheckStatusGlobal } from "../../../helpers/checkStatus";
 import DappFooter from "../../../components/Footer/index";
-import W3ErrorAlert from "../../../components/Notification/W3ErrorAlert";
+import { useWalletContext } from "../../../context/Wallet";
 
 const { Content, Footer } = Layout;
 
@@ -25,25 +22,20 @@ interface NotificationStatus {
     dismissTime: number;
 }
 
-interface AuthContext {
-    contractStatusData: any;
-    userBalanceData: any;
-    web3Error: any;
-    isLoggedIn: boolean;
-}
+
 
 export default function Skeleton(): JSX.Element {
-    const auth = useContext(AuthenticateContext) as AuthContext;
+    const { isConnected, contractProtocolStatus, userBalance, userOmocBalance } = useWalletContext()
     const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(null);
     const [canSwap, setCanSwap] = useState<boolean>(false);
     const { checkerStatus } = CheckStatusGlobal();
     
     useEffect(() => {
-        if (auth.contractStatusData && auth.userBalanceData) {
+        if (contractProtocolStatus.data && userBalance.data && userOmocBalance.data) {
             readProtocolStatus();
             readTpLegacyBalance();
         }
-    }, [auth.contractStatusData, auth.userBalanceData]);
+    }, [contractProtocolStatus.data, userBalance.data, userOmocBalance.data]);
 
     const readProtocolStatus = (): void => {
         const { globalStatus, statusLabel, statusText } = checkerStatus();
@@ -63,11 +55,8 @@ export default function Skeleton(): JSX.Element {
     };
 
     const readTpLegacyBalance = (): void => {
-        const tpLegacyBalance = new BigNumber(
-            Web3.utils.fromWei(auth.userBalanceData.tpLegacy.balance, "ether")
-        );
-
-        if (tpLegacyBalance.gt(0)) {
+        const tpLegacyBalance = userBalance.data.tpLegacy.balance;
+        if (tpLegacyBalance > 0n) {
             setCanSwap(true);
         } else {
             setCanSwap(false);
@@ -83,9 +72,9 @@ export default function Skeleton(): JSX.Element {
                 {/* TODO load an array of notifStatus items, and load a mapping for showing notifs here in this section , interact with a React Context */}
                 {notifStatus && <NotificationBody notifStatus={notifStatus} />}
 
-                {auth.web3Error && <W3ErrorAlert />}
+                {/* {auth.web3Error && <W3ErrorAlert />} */}
 
-                {!auth.web3Error && auth.isLoggedIn && <Outlet />}
+                {isConnected && <Outlet />}
             </Content>
             <Footer>
                 <div className="footer-container">

@@ -24,20 +24,17 @@ interface NotificationStatus {
     dismissTime: number;
 }
 
-
-
-
 export default function Skeleton(): JSX.Element {
-    const { isConnected, address, contractProtocolStatus, userBalance } = useWalletContext()
+    const { isConnected, contractProtocolStatus, userBalance, userOmocBalance } = useWalletContext()
     
     const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(null);
     const { checkerStatus } = CheckStatusGlobal();
     
     useEffect(() => {
-        if (contractProtocolStatus.data && userBalance.data) {
+        if (contractProtocolStatus.data && userBalance.data && userOmocBalance.data) {
             readProtocolStatus();
         }
-    }, [contractProtocolStatus.data, userBalance.data]);
+    }, [contractProtocolStatus.data, userBalance.data, userOmocBalance.data]);
 
     const readProtocolStatus = (): void => {
         const { globalStatus, statusLabel, statusText } = checkerStatus();
