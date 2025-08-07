@@ -29,7 +29,7 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
     } = props;
 
     const { t, i18n, ns } = useProjectTranslation();    
-    const { interfaceTransferToken, interfaceTransferCoinbase } = useWalletContext()
+    const { interfaceTransferToken, interfaceTransferCoinbase, userBalance } = useWalletContext()
 
     const [status, setStatus] = useState<StatusType>("SUBMIT");
     const [txID, setTxID] = useState<string>("");
@@ -104,9 +104,7 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
         setStatus("SUCCESS");
 
         // Refresh user balance
-        // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-        //     console.log("Refresh user balance OK!");
-        // });
+        userBalance.refetch();
     };
 
     let sentIcon: string = "";
