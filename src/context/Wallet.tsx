@@ -234,7 +234,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const { disconnect } = useDisconnect()
     const publicClient = usePublicClient()
     const walletClient = useWalletClient()
-
+    
     const [contractsAddress, setContractsAddress] = useState(null)
     const [contractsAddressLoaded, setContractsAddressLoaded] = useState(false)
     const [vestingAddress, setVestingAddress] = useState<string | undefined>(undefined)
@@ -244,11 +244,25 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const [showModalProviders, setShowModalProviders] = useState<boolean>(false)
     const [vestingOn, setVestingOn] = useState<boolean>(false)
 
-    useEffect(() => {
+    /*useEffect(() => {
         if (isConnected) {
           console.log('🔄 Account changed:', address)
+          // invalidate queries
+          if (userBalance.queryKey) {            
+            queryClient.invalidateQueries({ queryKey: userBalance.queryKey })
+          }
+          if (userOmocBalance.queryKey) {
+            queryClient.invalidateQueries({ queryKey: userOmocBalance.queryKey })
+          }
+          if (userVesting.queryKey) {
+            queryClient.invalidateQueries({ queryKey: userVesting.queryKey })
+          }
+          if (userIncentiveV2.queryKey) {
+            queryClient.invalidateQueries({ queryKey: userIncentiveV2.queryKey })
+          }
         }
-      }, [address])
+        
+      }, [address])*/
 
     // Hooks for contract data
 
@@ -323,7 +337,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
     /*useEffect(() => {
         if (userBalance.data) {
-            //console.log('User balance:', userBalance.data)
+            console.log('User balance:', userBalance.data)
         }
     }, [userBalance.data])*/
 

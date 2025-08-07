@@ -194,13 +194,14 @@ export function useUserVesting(contracts?: any, userAddress?: string, userVestin
 
         return callRequest
 
-    }, [contracts])
+    }, [contracts, userAddress, userVestingAddress])
 
       
     // Pass callsRequests into your multicall hook (safe: it's a hook calling a hook)
     const multicallState = useMultiCall(callsRequests, {
       refetchInterval: refetchInterval,
       enabled: callsRequests.length > 0,
+      scopeKey: ['userVesting', userAddress, userVestingAddress].join(':')
     })
   
     return multicallState

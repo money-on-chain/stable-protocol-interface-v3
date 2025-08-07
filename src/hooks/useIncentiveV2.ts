@@ -37,13 +37,14 @@ export function useIncentiveV2(contracts?: any, userAddress?: string, refetchInt
 
         return callRequest
 
-    }, [contracts])
+    }, [contracts, userAddress])
 
       
     // Pass callsRequests into your multicall hook (safe: it's a hook calling a hook)
     const multicallState = useMultiCall(callsRequests, {
       refetchInterval: refetchInterval,
       enabled: callsRequests.length > 0,
+      scopeKey: ['userIncentiveV2', userAddress].join(':')
     })
   
     return multicallState

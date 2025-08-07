@@ -73,9 +73,10 @@ export function useMultiCall(
   calls: MultiCallInput[] = [],
   options: {
     batchSize?: number,
-    refetchInterval?: number
+    refetchInterval?: number,
     enabled?: boolean,
-    externalData?: Record<string | number, any> 
+    externalData?: Record<string | number, any>,
+    scopeKey?: string | undefined
   } = {}
 ) {
   // Step 1: Convert call definitions into wagmi-compatible format
@@ -115,9 +116,11 @@ export function useMultiCall(
     isFetching,
     refetch,
     error,
+    queryKey
   } = useReadContracts({
     batchSize: options.batchSize ?? 50,
     contracts: contracts as any,
+    scopeKey: options.scopeKey ?? undefined,
     query: {
       refetchInterval: options.refetchInterval ?? 30_000,
       enabled: options.enabled ?? true,
@@ -192,5 +195,6 @@ export function useMultiCall(
     isFetching,
     refetch,
     error,
+    queryKey
   }
 }
