@@ -4,6 +4,11 @@ import { useProjectTranslation } from "../../helpers/translations";
 import CompletedBar from "./CompletedBar";
 import ProposalStats from "./ProposalStats";
 
+
+const PRECISION_DECIMALS = 18n
+const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
+
+
 interface CreateBarGraphProps {
     id: number;
     description: string;
@@ -114,11 +119,11 @@ const Proposal: React.FC<ProposalProps> = (props) => {
             amount1: proposal.votesPositive,
             percentage1: proposal.votesPositivePCT,
             label2: "Votes needed for Quroum",
-            amount2: infoVoting["PRE_VOTE_MIN_TO_WIN"],
-            percentage2: infoVoting["PRE_VOTE_MIN_PCT_TO_WIN"],
+            amount2: infoVoting["PRE_VOTE_MIN_TO_WIN"] * DECIMALS_18,
+            percentage2: infoVoting["PRE_VOTE_MIN_PCT_TO_WIN"] * DECIMALS_18,
             label3: "Total circulating tokens",
             amount3: infoVoting["totalSupply"],
-            percentage3: 100n,
+            percentage3: 100n * DECIMALS_18,
         },
     ];
 
@@ -132,14 +137,14 @@ const Proposal: React.FC<ProposalProps> = (props) => {
         {
             id: 1,
             label: "Requiered Quorum",
-            amount: infoVoting["PRE_VOTE_MIN_TO_WIN"],
-            percentage: infoVoting["PRE_VOTE_MIN_PCT_TO_WIN"],
+            amount: infoVoting["PRE_VOTE_MIN_TO_WIN"] * DECIMALS_18,
+            percentage: infoVoting["PRE_VOTE_MIN_PCT_TO_WIN"] * DECIMALS_18,
         },
         {
             id: 2,
             label: "Total circulating Tokens",
             amount: infoVoting["totalSupply"],
-            percentage: 100n,
+            percentage: 100n * DECIMALS_18,
         },
     ];
 

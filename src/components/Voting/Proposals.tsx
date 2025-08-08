@@ -1,6 +1,5 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { Input } from "antd";
-import BigNumber from "bignumber.js";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import { TokenSettings } from "../../helpers/currencies";
 
@@ -120,8 +119,8 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
     const refreshProposals = (): void => {
         const propData: ProposalData[] = [];
         let count = 0;
-        const nowTimestamp = new BigNumber(Date.now());
-        let expirationTimestamp = 0;
+        const nowTimestamp = BigInt(Date.now());
+        let expirationTimestamp = 0n;
         let votesPositivePCT = 0n;
         let votesPositive = 0n;
         let votingRound = 0n;
@@ -134,9 +133,9 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             if (infoVoting["proposals"][i] != null) {
 
                 const [proposalAddress, propVotingRound, propVotes, propExpirationTimeStamp] = infoVoting["proposals"][i];
-                expirationTimestamp = new BigNumber(propExpirationTimeStamp).times(1000).toNumber();
+                expirationTimestamp = propExpirationTimeStamp * 1000n;
                 let expired = true;
-                if (new BigNumber(expirationTimestamp).gt(nowTimestamp)) expired = false;
+                if (expirationTimestamp > nowTimestamp) expired = false;
 
                 let canUnregister = false;
                 if (
@@ -168,7 +167,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                     votesPositive: votesPositive,
                     votesPositivePCT: votesPositivePCT,
                     expirationTimeStampFormat: formatTimestamp(
-                        expirationTimestamp
+                        Number(expirationTimestamp)
                     ),
                     expired: expired,
                     canUnregister: canUnregister,
@@ -553,7 +552,8 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                                             amount: infoVoting["MIN_STAKE"],
                                             token: TokenSettings("TG"),
                                             decimals: 2,
-                                            i18n: i18n                                            
+                                            i18n: i18n,
+                                            isInWei: false,
                                         })}
                                         {space}{" "}
                                         {t("voting.feedback.stakeRequiered2")}

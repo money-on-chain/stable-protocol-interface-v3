@@ -13,7 +13,16 @@ interface CreateBarGraphProps {
     percentage: string;
     needed: string;
     type: string;
+    labelCurrent: string;
+    labelNeedIt: string;
+    labelTotal: string;
     label1: string;
+    valueCurrent: bigint;
+    valueNeedIt: bigint;
+    valueTotal: bigint;
+    pctCurrent: bigint;
+    pctNeedIt: bigint;
+    
     amount1: bigint;
     percentage1: bigint;
     label2: string;
@@ -139,7 +148,6 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
             valueTotal: infoVoting["totalSupply"],
             pctCurrent: proposal.votesPositivePCT,
             pctNeedIt: infoVoting["PRE_VOTE_MIN_PCT_TO_WIN"],
-
             label1: "Votes received",
             amount1: proposal.votesPositive,
             percentage1: proposal.votesPositivePCT,

@@ -1,5 +1,4 @@
 import React, { Fragment, useEffect, useState } from "react";
-import BigNumber from "bignumber.js";
 
 import { useProjectTranslation } from "../../helpers/translations";
 import CompletedBar from "./CompletedBar";
@@ -31,7 +30,7 @@ interface VoteProps {
         votingData: {
             expired: boolean;
             totalVoted: bigint;
-            totalVotedPCT: string;
+            totalVotedPCT: bigint;
             againstVotesTotalSupplyPCT: bigint;
             inFavorVotesTotalSupplyPCT: bigint;
             inFavorVotes: bigint;
@@ -42,9 +41,9 @@ interface VoteProps {
             winnerProposal: string;            
         };
         MIN_FOR_QUORUM: bigint;
-        MIN_PCT_FOR_QUORUM: string;
+        MIN_PCT_FOR_QUORUM: bigint;
         VOTE_MIN_TO_VETO: bigint;
-        VOTE_MIN_PCT_TO_VETO: string;
+        VOTE_MIN_PCT_TO_VETO: bigint;
         totalSupply: bigint;
         readyToVoteStep: boolean;
         state: number;
@@ -370,8 +369,8 @@ function Vote(props: VoteProps): JSX.Element {
                         </p>
                         <BalanceBar
                             key="1"
-                            infavor={`${infoVoting["votingData"]["inFavorVotesPCT"].toFormat(2, BigNumber.ROUND_UP, { decimalSeparator: ".", groupSeparator: "," })}%`}
-                            against={`${infoVoting["votingData"]["againstVotesPCT"].toFormat(2, BigNumber.ROUND_UP, { decimalSeparator: ".", groupSeparator: "," })}%`}
+                            infavor={`${infoVoting["votingData"]["inFavorVotesPCT"]}%`}
+                            against={`${infoVoting["votingData"]["againstVotesPCT"]}%`}
                             infavorVotes={
                                 infoVoting["votingData"]["inFavorVotes"]
                             }
@@ -492,7 +491,7 @@ function Vote(props: VoteProps): JSX.Element {
                         proposalChanger={
                             infoVoting.votingData["winnerProposal"]
                         }
-                        votingInFavor={voteInFavor ? 1 : 0}
+                        votingInFavor={voteInFavor}
                         showProposal={showProposalModal}
                     />
                 )}

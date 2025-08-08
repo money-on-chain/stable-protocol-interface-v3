@@ -174,6 +174,10 @@ const Voting: React.FC = () => {
         cDataUser["Voting_Power_PCT"] = divPrecision(cDataUser["Voting_Power"] * 100n, cData["totalSupply"]);
 
         setInfoUser(cDataUser);
+
+        console.log("DEBUG>>>")
+        console.log(cDataUser)
+        console.log(cData)
     };
 
     return (
