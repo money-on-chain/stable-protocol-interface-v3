@@ -8,7 +8,7 @@ import { Button } from "antd";
 interface ModalConfirmSendProps {
     inputValidationError?: boolean;
     currencyYouExchange: string;
-    exchangingUSD: any; // BigNumber type
+    exchangingUSD: any; //
     amountYouExchange: string;
     destinationAddress: string;
 }

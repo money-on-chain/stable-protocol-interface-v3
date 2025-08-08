@@ -1,11 +1,4 @@
-import BigNumber from "bignumber.js";
-
 type NetworkType = "rsk" | "arbitrum";
-
-BigNumber.config({
-    ROUNDING_MODE: BigNumber.ROUND_DOWN,
-    FORMAT: { decimalSeparator: ".", groupSeparator: "," },
-});
 
 
 const getNetworkFromProject = (): NetworkType => {
@@ -54,15 +47,7 @@ const getExecutionFee = async (
 };
 
 
-const precision = (contractDecimals: number): BigNumber =>
-    new BigNumber(10).exponentiatedBy(contractDecimals);
-
-const fromContractPrecisionDecimals = (amount: string | number, decimals: number): BigNumber => {
-    return new BigNumber(amount).div(precision(decimals));
-};
-
 export {
-    fromContractPrecisionDecimals,
     getExecutionFee,
     getNetworkFromProject
 };

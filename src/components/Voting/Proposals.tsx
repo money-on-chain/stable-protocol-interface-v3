@@ -1,5 +1,9 @@
 import React, { Fragment, useEffect, useState } from "react";
+import { Input } from "antd";
 import BigNumber from "bignumber.js";
+import { PrecisionNumbers } from "../PrecisionNumbers";
+import { TokenSettings } from "../../helpers/currencies";
+
 
 import { useProjectTranslation } from "../../helpers/translations";
 import Proposal from "./Proposal";
@@ -8,6 +12,7 @@ import { formatTimestamp } from "../../helpers/staking";
 import PreVote from "./PreVote";
 
 import { useWalletContext } from "../../context/Wallet";
+import { divPrecision } from "../../helpers/precision";
 
 interface ProposalData {
     id: number;
@@ -32,7 +37,7 @@ interface InfoVoting {
     totalSupply: bigint;
     PRE_VOTE_MIN_PCT_TO_WIN: bigint;
     PRE_VOTE_MIN_TO_WIN: bigint;
-    readyToPreVoteStep: number;
+    readyToPreVoteStep: boolean;
     MIN_STAKE: bigint;
 }
 
@@ -67,13 +72,13 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
     const [modalTitle, setModalTitle] = useState<string>("Proposal");
     const [proposalsData, setProposalsData] = useState<ProposalData[]>([]);
 
-    const { t } = useProjectTranslation();
-    const { interfaceVotingPreVote, interfaceVotingUnRegister, interfaceVotingPreVoteStep, contractProtocolStatus } = useWalletContext()
+    const { t, i18n, ns } = useProjectTranslation();
+    const { interfaceVotingPreVote, interfaceVotingUnRegister, interfaceVotingPreVoteStep, contractStatusOmoc, userOmocBalance } = useWalletContext()
     const space: string = "\u00A0";
 
     useEffect(() => {
         onValidateSubmitProposal();
-    }, [contractProtocolStatus.data]);
+    }, [contractStatusOmoc.data]);
 
     useEffect(() => {
         if (infoVoting["proposals"] != null) {
@@ -127,42 +132,39 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             lenProp = Object.keys(infoVoting["proposals"]).length;
         for (let i = 0; i < lenProp; i++) {
             if (infoVoting["proposals"][i] != null) {
-                expirationTimestamp = new BigNumber(
-                    infoVoting["proposals"][i].expirationTimeStamp
-                ).times(1000).toNumber();
+
+                const [proposalAddress, propVotingRound, propVotes, propExpirationTimeStamp] = infoVoting["proposals"][i];
+                expirationTimestamp = new BigNumber(propExpirationTimeStamp).times(1000).toNumber();
                 let expired = true;
                 if (new BigNumber(expirationTimestamp).gt(nowTimestamp)) expired = false;
 
                 let canUnregister = false;
                 if (
-                    new BigNumber(infoVoting["proposals"][i].votingRound).lt(
-                        infoVoting["globalVotingRound"]
-                    )
+                    propVotingRound < infoVoting["globalVotingRound"]
                 )
                     canUnregister = true;
 
-                votingRound = infoVoting["proposals"][i].votingRound;
+                votingRound = propVotingRound;
                 if (
                     votingRound < infoVoting["globalVotingRound"] &&
                     showLastRoundProposal
                 )
                     continue;
 
-                votesPositive = infoVoting["proposals"][i].votes;
-
-                votesPositivePCT = votesPositive * 100n / infoVoting["totalSupply"];
+                votesPositive = propVotes;                
+                votesPositivePCT = divPrecision(votesPositive * 100n, infoVoting["totalSupply"]);
 
                 let canRunStep = false;
                 if (
                     votesPositivePCT >= infoVoting["PRE_VOTE_MIN_PCT_TO_WIN"] &&
-                    infoVoting["readyToPreVoteStep"] === 1
+                    infoVoting["readyToPreVoteStep"]
                 )
                     canRunStep = true;
 
                 propData.push({
                     id: count,
-                    changeContract: infoVoting["proposals"][i].proposalAddress,
-                    votingRound: infoVoting["proposals"][i].votingRound,
+                    changeContract: proposalAddress,
+                    votingRound: propVotingRound,
                     votesPositive: votesPositive,
                     votesPositivePCT: votesPositivePCT,
                     expirationTimeStampFormat: formatTimestamp(
@@ -171,7 +173,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                     expired: expired,
                     canUnregister: canUnregister,
                     canRunStep: canRunStep,
-                    canVote: !expired && infoVoting["readyToPreVoteStep"] === 0,
+                    canVote: !expired && !infoVoting["readyToPreVoteStep"],
                 });
                 count += 1;
             }
@@ -291,9 +293,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             )
             .then((/*res*/) => {
                 // Refresh status
-                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                //     console.log("Refresh user balance OK!");
-                // });
+                userOmocBalance.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -356,9 +356,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             )
             .then((/*res*/) => {
                 // Refresh status
-                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                //     console.log("Refresh user balance OK!");
-                // });
+                userOmocBalance.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -413,9 +411,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         await interfaceVotingPreVoteStep(onTransaction, onReceipt, onError)
             .then((/*res*/) => {
                 // Refresh status
-                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                //     console.log("Refresh user balance OK!");
-                // });
+                userOmocBalance.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -444,7 +440,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                     )}
                     {actionProposal === "LIST" &&
                         proposalsData.length > 0 &&
-                        infoVoting["readyToPreVoteStep"] === 1 && (
+                        infoVoting["readyToPreVoteStep"] && (
                             <div className="votingStatus__finished">
                                 {t("voting.status.firstStageOver")}
                             </div>
@@ -455,7 +451,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             <div className="proposalsList__wrapper">
                 <div className={"title"}>
                     <h1>{t("voting.cardTitle.proposalsList")}</h1>
-                </div>
+                </div>                
                 {/* PROPOSALS LIST */}
                 {actionProposal === "LIST" &&
                     proposalsData.length > 0 &&
@@ -487,10 +483,10 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                             </div>
                         </>
                     )}
-                {/* actionProposal === 'LIST' && infoVoting['readyToPreVoteStep'] === 0 && */}
+                {/* actionProposal === 'LIST' && !infoVoting['readyToPreVoteStep'] && */}                
                 {actionProposal === "LIST" &&
-                    infoVoting["readyToPreVoteStep"] === 0 && (
-                        <>
+                    !infoVoting["readyToPreVoteStep"] && (
+                        <> 
                             {actionProposal === "LIST" &&
                                 proposalsData.length === 0 && (
                                     <div className="proposals__empty">
@@ -506,6 +502,120 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                             </div>
                         </>
                     )}
+                    {actionProposal === "ADD" && (
+                    <div className="proposalsContainer">
+                        <div className="addProposal">
+                            <h2>{t("voting.cardTitle.addNewProposal")}</h2>
+                            <div className="inputFields">
+                                <div className="tokenSelector">
+                                    <div className="amountInput">
+                                        <div className="amountInput__infoBar">
+                                            <div className="amountInput__label">
+                                                {t(
+                                                    "voting.labels.proposalChangerContract"
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="proposal__add__text amountInput__amount">
+                                            <Input
+                                                type="text"
+                                                placeholder="Changer address"
+                                                className="proposal__add__input amountInput__value"
+                                                onChange={
+                                                    onChangeInputAddProposal
+                                                }
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="amountInput__feedback amountInput__feedback--error">
+                                        {addProposalAddressError &&
+                                            addProposalAddressErrorText !==
+                                                "" && (
+                                                <div
+                                                    className={
+                                                        "input-error amountInput__feedback amountInput__feedback--error"
+                                                    }
+                                                >
+                                                    {
+                                                        addProposalAddressErrorText
+                                                    }
+                                                </div>
+                                            )}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="cta-container">
+                                <div className="cta-info-group">
+                                    <div className="cta-info-detail">
+                                        {t("voting.feedback.stakeRequiered1")}
+                                        {space}
+                                        {PrecisionNumbers({
+                                            amount: infoVoting["MIN_STAKE"],
+                                            token: TokenSettings("TG"),
+                                            decimals: 2,
+                                            i18n: i18n                                            
+                                        })}
+                                        {space}{" "}
+                                        {t("voting.feedback.stakeRequiered2")}
+                                    </div>
+                                    <div className="cta-info-summary ">
+                                        <div className="label">
+                                            {t("voting.userPower.votingPower")}
+                                        </div>
+
+                                        <div className="data">
+                                            {PrecisionNumbers({
+                                                amount: infoUser[
+                                                    "Voting_Power"
+                                                ],
+                                                token: TokenSettings("TG"),
+                                                decimals: 2,
+                                                i18n: i18n
+                                            })}
+                                            {space}
+                                            {t("staking.tokens.TG.abbr", {
+                                                ns: ns,
+                                            })}
+                                            {space}(
+                                            {PrecisionNumbers({
+                                                amount: infoUser[
+                                                    "Voting_Power_PCT"
+                                                ],
+                                                token: TokenSettings("TG"),
+                                                decimals: 4,
+                                                t: t,
+                                                i18n: i18n,
+                                                ns: ns,
+                                                
+                                            })}
+                                            % )
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="cta-options-group">
+                                    <button
+                                        type="button"
+                                        className="button secondary"
+                                        onClick={onCloseAddProposal}
+                                    >
+                                        {t("voting.cta.cancel")}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="button"
+                                        onClick={onAddProposal}
+                                        disabled={addProposalAddressError}
+                                    >
+                                        {t("voting.cta.addProposal")}
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="wallet__vesting__options__buttons"></div>
+
+                            <div className="additional-text"></div>
+                        </div>
+                    </div>
+                )}
                 {/*{infoVoting['readyToPreVoteStep'] === 1 && (*/}
                 {/*    <div className="pre-vote-step">*/}
                 {/*        <div className="pre-vote-info">Please run Step to advance to vote stage</div>*/}

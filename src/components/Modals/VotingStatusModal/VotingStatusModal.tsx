@@ -12,7 +12,7 @@ interface VotingStatusModalProps {
     operationStatus?: string;
     txHash?: string;
     proposalChanger?: string;
-    votingInFavor?: number;
+    votingInFavor?: boolean;
     showProposal?: boolean;
 }
 

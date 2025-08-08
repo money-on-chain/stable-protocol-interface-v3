@@ -42,8 +42,8 @@ interface InfoVoting {
     VOTE_MIN_TO_VETO: bigint;
     proposals: any[];
     state: number;
-    readyToPreVoteStep: number;
-    readyToVoteStep: number;
+    readyToPreVoteStep: boolean;
+    readyToVoteStep: boolean;
     votingData: VotingData;
     votingInfo: VotingInfo;
 }
@@ -53,19 +53,12 @@ interface InfoUser {
     Voting_Power_PCT: bigint;
 }
 
-interface StakingMachine {
-    getBalance: string | number;
-    getLockingInfo: {
-        amount: string | number;
-        untilTimestamp: string | number;
-    };
-}
 
 
 const Voting: React.FC = () => {
     const { t } = useProjectTranslation();
 
-    const { userBalance, contractProtocolStatus, isVestingLoaded } = useWalletContext()
+    const { userOmocBalance, contractStatusOmoc, isVestingLoaded } = useWalletContext()
 
     const nowTimestamp: bigint = BigInt(Date.now());
     const defaultInfoVoting: InfoVoting = {
@@ -81,8 +74,8 @@ const Voting: React.FC = () => {
         VOTE_MIN_TO_VETO: 0n,
         proposals: [],
         state: 0,
-        readyToPreVoteStep: 0,
-        readyToVoteStep: 0,
+        readyToPreVoteStep: false,
+        readyToVoteStep: false,
         votingData: {
             winnerProposal: "",
             inFavorVotes: 0n,
@@ -107,50 +100,44 @@ const Voting: React.FC = () => {
     const [infoUser, setInfoUser] = useState<InfoUser>(defaultInfoUser);
 
     useEffect(() => {
-        if (contractProtocolStatus.data && userBalance.data) {
+        if (contractStatusOmoc.data && userOmocBalance.data) {
             refreshData();
         }
-    }, [contractProtocolStatus.data, userBalance.data]);
+    }, [contractStatusOmoc.data, userOmocBalance.data]);
 
     const refreshData = (): void => {
-        if (!contractProtocolStatus.data) return;
-        if (!userBalance.data) return;
+        if (!contractStatusOmoc.data) return;
+        if (!userOmocBalance.data) return;
         
         const cData: InfoVoting = { ...infoVoting };
-        cData["proposals"] =
-            contractProtocolStatus.data.votingmachine.getProposalByIndex;
-        cData["state"] = contractProtocolStatus.data.votingmachine.getState;
-        cData["readyToPreVoteStep"] = contractProtocolStatus.data.votingmachine.readyToPreVoteStep;
-        cData["readyToVoteStep"] = contractProtocolStatus.data.votingmachine.readyToVoteStep;
-        cData["globalVotingRound"] = contractProtocolStatus.data.votingmachine.getVotingRound;
-        cData["totalSupply"] = contractProtocolStatus.data.votingmachine.totalSupply;
-        cData["PRE_VOTE_MIN_PCT_TO_WIN"] = contractProtocolStatus.data.votingmachine.PRE_VOTE_MIN_PCT_TO_WIN;
+        cData["proposals"] = contractStatusOmoc.data.votingmachine.getProposalByIndex
+        cData["state"] = Number(contractStatusOmoc.data.votingmachine.getState);
+        cData["readyToPreVoteStep"] = contractStatusOmoc.data.votingmachine.readyToPreVoteStep;                
+        cData["readyToVoteStep"] = contractStatusOmoc.data.votingmachine.readyToVoteStep;
+        cData["globalVotingRound"] = contractStatusOmoc.data.votingmachine.getVotingRound;
+        cData["totalSupply"] = contractStatusOmoc.data.votingmachine.totalSupply;
+        cData["PRE_VOTE_MIN_PCT_TO_WIN"] = contractStatusOmoc.data.votingmachine.PRE_VOTE_MIN_PCT_TO_WIN;
         cData["PRE_VOTE_MIN_TO_WIN"] = mulPrecision(cData["totalSupply"], cData["PRE_VOTE_MIN_PCT_TO_WIN"]) / 100n;
-        cData["MIN_STAKE"] = contractProtocolStatus.data.votingmachine.MIN_STAKE;
-        cData["MIN_PCT_FOR_QUORUM"] = contractProtocolStatus.data.votingmachine.MIN_PCT_FOR_QUORUM;
+        cData["MIN_STAKE"] = contractStatusOmoc.data.votingmachine.MIN_STAKE;
+        cData["MIN_PCT_FOR_QUORUM"] = contractStatusOmoc.data.votingmachine.MIN_PCT_FOR_QUORUM;
         cData["MIN_FOR_QUORUM"] = mulPrecision(cData["totalSupply"], cData["MIN_PCT_FOR_QUORUM"]) / 100n;
-        cData["VOTE_MIN_PCT_TO_VETO"] = contractProtocolStatus.data.votingmachine.VOTE_MIN_PCT_TO_VETO;
+        cData["VOTE_MIN_PCT_TO_VETO"] = contractStatusOmoc.data.votingmachine.VOTE_MIN_PCT_TO_VETO;
         cData["VOTE_MIN_TO_VETO"] = mulPrecision(cData["totalSupply"], cData["VOTE_MIN_PCT_TO_VETO"]) / 100n;
 
         // Voting Data
-        cData["votingData"]["winnerProposal"] =
-            contractProtocolStatus.data.votingmachine.getVotingData[
-                "winnerProposal"
-            ];
-        cData["votingData"]["inFavorVotes"] = contractProtocolStatus.data.votingmachine.getVotingData["inFavorVotes"];
-        cData["votingData"]["againstVotes"] = contractProtocolStatus.data.votingmachine.getVotingData["againstVotes"];
-        cData["votingData"]["votingExpirationTime"] = contractProtocolStatus.data.votingmachine.getVotingData["votingExpirationTime"];
-        cData["votingData"]["votingExpirationTimeFormat"] = formatTimestamp(cData["votingData"]["votingExpirationTime"]);
+        const [winnerProposal, inFavorVotes, againstVotes, votingExpirationTime] =  contractStatusOmoc.data.votingmachine.getVotingData        
+        cData["votingData"]["winnerProposal"] = winnerProposal;        
+        cData["votingData"]["inFavorVotes"] = inFavorVotes;
+        cData["votingData"]["againstVotes"] = againstVotes;
+        cData["votingData"]["votingExpirationTime"] = votingExpirationTime;
+        cData["votingData"]["votingExpirationTimeFormat"] = formatTimestamp(Number(cData["votingData"]["votingExpirationTime"]));
 
         let expired: boolean = true;
         if (cData["votingData"]["votingExpirationTime"] > nowTimestamp)
             expired = false;
         cData["votingData"]["expired"] = expired;
-
-        cData["votingData"]["totalVoted"] = cData["votingData"][
-            "inFavorVotes"
-        ] + cData["votingData"]["againstVotes"];
-        cData["votingData"]["totalVotedPCT"] = cData["votingData"]["totalVoted"] * 100n / cData["totalSupply"];
+        cData["votingData"]["totalVoted"] = cData["votingData"]["inFavorVotes"] + cData["votingData"]["againstVotes"];        
+        cData["votingData"]["totalVotedPCT"] = divPrecision(cData["votingData"]["totalVoted"] * 100n, cData["totalSupply"]);
         cData["votingData"]["inFavorVotesTotalSupplyPCT"] = divPrecision(cData["votingData"]["inFavorVotes"] * 100n, cData["totalSupply"]);
         cData["votingData"]["againstVotesTotalSupplyPCT"] = divPrecision(cData["votingData"]["againstVotes"] * 100n, cData["totalSupply"]);
 
@@ -158,31 +145,30 @@ const Voting: React.FC = () => {
         cData["votingData"]["againstVotesPCT"] = divPrecision(cData["votingData"]["againstVotes"] * 100n, cData["votingData"]["totalVoted"]);
 
         // Voting Info
-        cData["votingInfo"]["winnerProposal"] =
-            contractProtocolStatus.data.votingmachine.getVoteInfo["winnerProposal"];
-        cData["votingInfo"]["inFavorVotes"] = contractProtocolStatus.data.votingmachine.getVoteInfo["inFavorVotes"];
-        cData["votingInfo"]["againstVotes"] = contractProtocolStatus.data.votingmachine.getVoteInfo["againstVotes"];
+        const [infoWinnerProposal, infoInFavorVotes, infoAgainstVotes] =  contractStatusOmoc.data.votingmachine.getVoteInfo
+
+        cData["votingInfo"]["winnerProposal"] = infoWinnerProposal;
+        cData["votingInfo"]["inFavorVotes"] = infoInFavorVotes;
+        cData["votingInfo"]["againstVotes"] = infoAgainstVotes;
         setInfoVoting(cData);
 
         
         const cDataUser: InfoUser = { ...infoUser };
-        let vUsing: StakingMachine;
+        let vUsing: any;
         if (isVestingLoaded()) {
-            vUsing = userBalance.data.vestingmachine.staking;
+            vUsing = userOmocBalance.data.vestingmachine.staking;
         } else {
-            vUsing = userBalance.data.stakingmachine;
+            vUsing = userOmocBalance.data.stakingmachine;
         }
 
-        const userBalance: bigint = vUsing.getBalance;
+        const uBalance: bigint = vUsing.getBalance;
 
-        const lockedAmount: bigint = vUsing.getLockingInfo.amount;
-
-        const untilTimestamp: bigint = vUsing.getLockingInfo.untilTimestamp;
-
+        const [lockedAmount, untilTimestamp] =  vUsing.getLockingInfo;
+        
         if (untilTimestamp > nowTimestamp) {
-            cDataUser["Voting_Power"] = userBalance - lockedAmount;
+            cDataUser["Voting_Power"] = uBalance - lockedAmount;
         } else {
-            cDataUser["Voting_Power"] = userBalance;
+            cDataUser["Voting_Power"] = uBalance;
         }
 
         cDataUser["Voting_Power_PCT"] = divPrecision(cDataUser["Voting_Power"] * 100n, cData["totalSupply"]);

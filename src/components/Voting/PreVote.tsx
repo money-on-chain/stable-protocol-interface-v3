@@ -96,7 +96,7 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
     } = props;
     const { t, i18n, ns } = useProjectTranslation();
     const space: string = "\u00A0";
-    const { interfaceVotingPreVote } = useWalletContext()
+    const { interfaceVotingPreVote, userOmocBalance } = useWalletContext()
 
     const [isOperationModalVisible, setIsOperationModalVisible] =
         useState<boolean>(false);
@@ -203,9 +203,7 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
             )
             .then((/*res*/) => {
                 // Refresh status
-                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                //     console.log("Refresh user balance OK!");
-                // });
+                userOmocBalance.refetch();
             })
             .catch((e) => {
                 console.error(e);

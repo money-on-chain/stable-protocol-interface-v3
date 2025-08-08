@@ -142,7 +142,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.VotingMachine,
                 functionName: 'readyToPreVoteStep',
                 args: [],
-                resultType: 'uint256',
+                resultType: 'bool',
                 keys: ["votingmachine", "readyToPreVoteStep"]
             });
 
@@ -150,7 +150,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.VotingMachine,
                 functionName: 'readyToVoteStep',
                 args: [],
-                resultType: 'uint256',
+                resultType: 'bool',
                 keys: ["votingmachine", "readyToVoteStep"]
             });
 

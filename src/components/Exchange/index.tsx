@@ -387,9 +387,10 @@ export default function Exchange(): JSX.Element {
         setCommissionPercentFeeToken(infoFee.feeTokenPercent);
 
         const priceCA = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_CA[0]);
-
-        convertAmountUSD = mulPrecision(convertAmountUSD, priceCA);
-        setExchangingUSD(convertAmountUSD);
+        if (priceCA) {
+            convertAmountUSD = mulPrecision(convertAmountUSD, priceCA);
+            setExchangingUSD(convertAmountUSD);
+        }
 
         const execCost = executionFeeMap(
             currencyYouExchange,
@@ -400,11 +401,13 @@ export default function Exchange(): JSX.Element {
         const execFee = await getExecutionFee(publicClient as any, execCost, 2)
 
         const priceCoinbase = normalizeToBigInt(contractProtocolStatus.data.PP_COINBASE[0]);
-        const execFeeUSD = mulPrecision(execFee, priceCoinbase);
+        if (priceCoinbase) {
+            const execFeeUSD = mulPrecision(execFee, priceCoinbase);
+            setExecutionFeeUSD(execFeeUSD);
+        }
 
         // Execution fee load
         setExecutionFee(execFee);
-        setExecutionFeeUSD(execFeeUSD);
     };
 
     const onChangeAmountYouExchange = (newAmount: string | number): void => {
@@ -463,7 +466,7 @@ export default function Exchange(): JSX.Element {
             currencyYouReceive,
             totalbalance            
         );
-        setValueExchange(totalbalance.toFixed(8, 2));
+        setValueExchange(totalbalance.toString());
         setAmountYouExchange(totalbalance);
         onChangeAmounts(totalbalance, convertAmountReceive, "exchange");
     };

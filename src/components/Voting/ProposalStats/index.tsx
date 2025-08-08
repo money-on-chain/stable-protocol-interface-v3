@@ -13,8 +13,7 @@ interface ProposalStatsProps {
 
 export default function ProposalStats(props: ProposalStatsProps): React.ReactElement {
     const { i18n } = useProjectTranslation();
-
-    // Check that amount and percentage are an instance of BigNumber
+    
     const amountBig =props.amount;
     const percentageBig = props.percentage;
 

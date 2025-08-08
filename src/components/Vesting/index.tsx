@@ -41,7 +41,7 @@ interface FilteredEvent {
 const Vesting: React.FC = () => {
     const { t, i18n, ns } = useProjectTranslation();
     
-    const { address, userBalance, isVestingLoaded, vestingAddress, interfaceVestingVerify, interfaceVestingWithdraw, interfaceIncentiveV2Claim, publicClient, contractsAddress, onShowModalAccountVesting } = useWalletContext()
+    const { address, userOmocBalance, isVestingLoaded, vestingAddress, interfaceVestingVerify, interfaceVestingWithdraw, interfaceIncentiveV2Claim, publicClient, contractsAddress, onShowModalAccountVesting } = useWalletContext()
 
     const [status, setStatus] = useState<string>("STEP_1");
     const [isOperationModalVisible, setIsOperationModalVisible] =
@@ -59,7 +59,7 @@ const Vesting: React.FC = () => {
     const [isHolderVesting, setIsHolderVesting] = useState<boolean>(false);
 
     useEffect(() => {
-        if (userBalance.data && isVestingLoaded()) {
+        if (userOmocBalance.data && isVestingLoaded()) {
             setStatus("LOADED");
             setUsingVestingAddress(vestingAddress());
             onValidateWithdraw();
@@ -71,7 +71,7 @@ const Vesting: React.FC = () => {
 
         // Validate incentive user balance
         onValidateIncentiveV2UserBalance();
-    }, [userBalance.data, isVestingLoaded, vestingAddress]);
+    }, [userOmocBalance.data, isVestingLoaded, vestingAddress]);
 
     useEffect(() => {
         onValidateClaimCode();
@@ -91,9 +91,9 @@ const Vesting: React.FC = () => {
             setValidWithdraw(false);
             return;
         }
-        const availableForWithdraw = userBalance.data.vestingmachine.getAvailable;
+        const availableForWithdraw = userOmocBalance.data.vestingmachine.getAvailable;
         if (availableForWithdraw > 0) {
-            if (userBalance.data.vestingmachine.isVerified) {
+            if (userOmocBalance.data.vestingmachine.isVerified) {
                 setValidWithdraw(true);
             } else {
                 setValidWithdraw(false);
@@ -105,7 +105,7 @@ const Vesting: React.FC = () => {
 
     const getIsHolderVesting = (): boolean => {
         return (
-            userBalance.data.vestingmachine.getHolder.toLowerCase() ===
+            userOmocBalance.data.vestingmachine.getHolder.toLowerCase() ===
             address.toLowerCase()
         );
     };
@@ -127,11 +127,11 @@ const Vesting: React.FC = () => {
             return amounts;
         }
 
-        const getParameters = userBalance.data.vestingmachine.getParameters;
+        const getParameters = userOmocBalance.data.vestingmachine.getParameters;
         const tgeTimestamp =
-            userBalance.data.vestingfactory.getTGETimestamp;
-        const total = userBalance.data.vestingmachine.getTotal;
-        const lockedAmount = userBalance.data.vestingmachine.getLocked;
+            userOmocBalance.data.vestingfactory.getTGETimestamp;
+        const total = userOmocBalance.data.vestingmachine.getTotal;
+        const lockedAmount = userOmocBalance.data.vestingmachine.getLocked;
         const percentMultiplier = 10000;
         const percentages = getParameters.percentages;
         const timeDeltas = getParameters.timeDeltas;
@@ -171,7 +171,7 @@ const Vesting: React.FC = () => {
         let daysToRelease = 0;
         let countVested = 0;
 
-        userBalance.data &&
+        userOmocBalance.data &&
             getParameters &&
             percents.forEach(function (percent, itemIndex) {
                 const date_release = new Date(dates[itemIndex] as string);
@@ -235,9 +235,7 @@ const Vesting: React.FC = () => {
         await interfaceVestingWithdraw(onTransaction, onReceipt, onError)
             .then((/*res*/) => {
                 // Refresh status
-                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                //     console.log("Refresh user balance OK!");
-                // });
+                userOmocBalance.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -270,9 +268,7 @@ const Vesting: React.FC = () => {
         await interfaceVestingVerify(onTransaction, onReceipt, onError)
             .then((/*res*/) => {
                 // Refresh status
-                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                //     console.log("Refresh user balance OK!");
-                // });
+                userOmocBalance.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -287,11 +283,11 @@ const Vesting: React.FC = () => {
     const onValidateIncentiveV2UserBalance = (): void => {
         let valid = false;
         if (
-            userBalance.data &&
-            typeof userBalance.data.incentiveV2 !== "undefined"
+            userOmocBalance.data &&
+            typeof userOmocBalance.data.incentiveV2 !== "undefined"
         ) {
             if (
-                userBalance.data.incentiveV2.userBalance > 0
+                userOmocBalance.data.incentiveV2.userBalance > 0
             ) {
                 valid = true;
             }
@@ -424,11 +420,7 @@ const Vesting: React.FC = () => {
             )
             .then((/*res*/) => {
                 // Refresh status
-                /*auth.loadContractsStatusAndUserBalance().then(
-                    (value) => {
-                        console.log('Refresh user balance OK!');
-                    }
-                );*/
+                userOmocBalance.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -922,8 +914,8 @@ const Vesting: React.FC = () => {
                             <div className="layout-card-title">
                                 <h1>{t("vesting.cardTitle")}</h1>
                                 <div id="vesting-verification">
-                                    {userBalance.data &&
-                                        userBalance.data.vestingmachine
+                                    {userOmocBalance.data &&
+                                        userOmocBalance.data.vestingmachine
                                             .isVerified &&
                                         isHolderVesting && (
                                             <div
@@ -947,8 +939,8 @@ const Vesting: React.FC = () => {
                                             )}
                                         </div>
                                     )}
-                                    {userBalance.data &&
-                                        !userBalance.data.vestingmachine
+                                    {userOmocBalance.data &&
+                                        !userOmocBalance.data.vestingmachine
                                             .isVerified &&
                                         isHolderVesting && (
                                             <div
@@ -980,9 +972,9 @@ const Vesting: React.FC = () => {
                                         className="vesting__data"
                                     >
                                         {PrecisionNumbers({
-                                            amount: !userBalance.data
+                                            amount: !userOmocBalance.data
                                                 ? 0n
-                                                : userBalance.data
+                                                : userOmocBalance.data
                                                       .vestingmachine
                                                       .getAvailable,
                                             token: settings.tokens.TG[0],
@@ -1018,7 +1010,7 @@ const Vesting: React.FC = () => {
                                     className="vesting__data"
                                 >
                                     {PrecisionNumbers({
-                                        amount: !userBalance.data
+                                        amount: !userOmocBalance.data
                                             ? 0n
                                             : vestingTotals["vested"],
                                         token: settings.tokens.TG[0],
@@ -1050,9 +1042,9 @@ const Vesting: React.FC = () => {
                                     className="vesting__data"
                                 >
                                     {PrecisionNumbers({
-                                        amount: !userBalance.data
+                                        amount: !userOmocBalance.data
                                             ? 0n
-                                            : userBalance.data
+                                            : userOmocBalance.data
                                                   .vestingmachine.staking
                                                   .balance,
                                         token: settings.tokens.TG[0],
@@ -1071,9 +1063,9 @@ const Vesting: React.FC = () => {
                                     className="vesting__data"
                                 >
                                     {PrecisionNumbers({
-                                        amount: !userBalance.data
+                                        amount: !userOmocBalance.data
                                             ? 0n
-                                            : userBalance.data
+                                            : userOmocBalance.data
                                                   .vestingmachine.delay.balance,
                                         token: settings.tokens.TG[0],
                                         decimals: t("staking.display_decimals"),
@@ -1100,9 +1092,9 @@ const Vesting: React.FC = () => {
                             <div id="moc-total">
                                 <div className="total-data">
                                     {PrecisionNumbers({
-                                        amount: !userBalance.data
+                                        amount: !userOmocBalance.data
                                             ? 0n
-                                            : userBalance.data
+                                            : userOmocBalance.data
                                                   .vestingmachine.getTotal,
                                         token: settings.tokens.TG[0],
                                         decimals: t("staking.display_decimals"),

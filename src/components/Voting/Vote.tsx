@@ -39,15 +39,14 @@ interface VoteProps {
             inFavorVotesPCT: bigint;
             againstVotesPCT: bigint;
             votingExpirationTimeFormat: string;
-            winnerProposal: string;
-            VOTE_MIN_TO_VETO: bigint;
+            winnerProposal: string;            
         };
         MIN_FOR_QUORUM: bigint;
         MIN_PCT_FOR_QUORUM: string;
         VOTE_MIN_TO_VETO: bigint;
         VOTE_MIN_PCT_TO_VETO: string;
         totalSupply: bigint;
-        readyToVoteStep: number;
+        readyToVoteStep: boolean;
         state: number;
     };
     infoUser: {
@@ -93,7 +92,7 @@ function Vote(props: VoteProps): JSX.Element {
     const [votingFinishReason, setVotingFinishReason] = useState<number>(0);
 
     const { t, i18n, ns } = useProjectTranslation();
-    const { interfaceVotingVote, interfaceVotingVoteStep, interfaceVotingAcceptedStep } = useWalletContext()
+    const { interfaceVotingVote, interfaceVotingVoteStep, interfaceVotingAcceptedStep, userOmocBalance } = useWalletContext()
     const space = "\u00A0";
 
     useEffect(() => {
@@ -126,7 +125,7 @@ function Vote(props: VoteProps): JSX.Element {
                 setVotingFinishReason(2);
             } else if (
                 infoVoting["votingData"]["againstVotesPCT"] >=
-                    infoVoting["votingData"]["VOTE_MIN_TO_VETO"]
+                    infoVoting["VOTE_MIN_TO_VETO"]
                 )
             {
                 setVotingFinishReason(3);
@@ -203,9 +202,7 @@ function Vote(props: VoteProps): JSX.Element {
         await interfaceVotingVote(inFavor, onTransaction, onReceipt, onError)
             .then((/*res*/) => {
                 // Refresh status
-                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                //     console.log("Refresh user balance OK!");
-                // });
+                userOmocBalance.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -237,9 +234,7 @@ function Vote(props: VoteProps): JSX.Element {
         await interfaceVotingVoteStep(onTransaction, onReceipt, onError)
             .then((/*res*/) => {
                 // Refresh status
-                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                //     console.log("Refresh user balance OK!");
-                // });
+                userOmocBalance.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -271,9 +266,7 @@ function Vote(props: VoteProps): JSX.Element {
         await interfaceVotingAcceptedStep(onTransaction, onReceipt, onError)
             .then((/*res*/) => {
                 // Refresh status
-                // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                //     console.log("Refresh user balance OK!");
-                // });
+                userOmocBalance.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -392,7 +385,7 @@ function Vote(props: VoteProps): JSX.Element {
                     </div>
                     <div className="cta">
                         <div className="cta-container">
-                            {infoVoting["readyToVoteStep"] === 0 && (
+                            {!infoVoting["readyToVoteStep"] && (
                                 <>
                                     <div className="cta-info-group">
                                         <div className="cta-info-summary">
@@ -449,7 +442,7 @@ function Vote(props: VoteProps): JSX.Element {
                                     </div>
                                 </>
                             )}
-                            {infoVoting["readyToVoteStep"] === 1 &&
+                            {infoVoting["readyToVoteStep"] &&
                                 infoVoting["state"] !== 2 && (
                                     <>
                                         <div className="cta-info-group center">

@@ -10,7 +10,6 @@ import { TokenSettings, TokenBalance } from "../../helpers/currencies";
 import { isMintOperation, UserTokenAllowance } from "../../helpers/exchange";
 import ModalAllowanceOperation from "../Modals/Allowance";
 import CopyAddress from "../CopyAddress";
-//import settings from "../../settings/settings.json";
 import TXStatus from "./TXStatus";
 import { decodeEvents } from "../../backend/transaction";
 import { useWalletContext } from "../../context/Wallet";
@@ -239,7 +238,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
             // show allowance window
             return true;
         } else if (radioSelectFee > 0) {
-            return !!commissionFeeToken >= tokenAllowance;
+            return commissionFeeToken >= tokenAllowance;
         }
 
         return false;
@@ -435,7 +434,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
         //    receipt.transactionHash
         //);
         const txRcp = receipt;
-        const filteredEvents: any[] = decodeEvents(txRcp, contractName, filter);
+        const filteredEvents: any[] = decodeEvents(txRcp, contractName as any, filter) || [];
 
         // on Queue
         onQueued(filteredEvents);
