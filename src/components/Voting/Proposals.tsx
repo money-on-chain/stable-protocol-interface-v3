@@ -13,6 +13,7 @@ import PreVote from "./PreVote";
 import { useWalletContext } from "../../context/Wallet";
 import { divPrecision } from "../../helpers/precision";
 
+
 interface ProposalData {
     id: number;
     changeContract: string;
@@ -585,11 +586,8 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                                                     "Voting_Power_PCT"
                                                 ],
                                                 token: TokenSettings("TG"),
-                                                decimals: 4,
-                                                t: t,
-                                                i18n: i18n,
-                                                ns: ns,
-                                                
+                                                decimals: 4,                                                
+                                                i18n: i18n                                                
                                             })}
                                             % )
                                         </div>

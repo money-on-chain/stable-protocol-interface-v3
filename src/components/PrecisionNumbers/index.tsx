@@ -1,11 +1,8 @@
 import React, { Fragment } from "react"
 import { Tooltip } from "antd"
 import { formatUnits } from "viem"
+import { TokenConfig } from "../../helpers/currencies"
 
-interface Token {
-  decimals: number
-  visibleDecimals: number
-}
 
 interface I18n {
   languages: readonly string[]
@@ -13,7 +10,7 @@ interface I18n {
 
 interface PrecisionNumbersProps {
   amount: bigint
-  token: Token
+  token: TokenConfig
   decimals?: number
   i18n: I18n
   isInWei?: boolean

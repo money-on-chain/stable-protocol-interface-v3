@@ -11,7 +11,7 @@ import LogoIconTG_0 from "../assets/tokens/tg_0.svg?react";
 import settings from "../settings/settings.json";
 import { normalizeToBigInt, divPrecision, mulPrecision, fromWei } from "./precision";
 
-interface Token {
+export interface TokenConfig {
     name: string;
     fullName?: string;
     decimals: number;
@@ -61,10 +61,10 @@ const currencies: Currency[] = [
 
 const getCurrenciesDetail = (): Currency[] => currencies;
 
-function TokenSettings(tokenName: string): Token {
+function TokenSettings(tokenName: string): TokenConfig {
     // Ex. tokenName = CA_0, CA_1, TP_0, TP_1, TC_0, TC_1, COINBASE, TF_0, TF_1
     const aTokenName = tokenName.split("_");
-    let token: Token = settings.tokens.CA[0];
+    let token: TokenConfig = settings.tokens.CA[0];
     switch (aTokenName[0]) {
         case "CA":
             token = settings.tokens.CA[parseInt(aTokenName[1])];
@@ -337,5 +337,5 @@ export {
     ConvertPeggedTokenPrice,
     hasNonUSDPeggedTokens,
     getCAIndex,
-    bigIntToInputValue
+    bigIntToInputValue,
 };
