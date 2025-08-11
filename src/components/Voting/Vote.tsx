@@ -8,11 +8,15 @@ import { PrecisionNumbers } from "../PrecisionNumbers";
 import { TokenSettings } from "../../helpers/currencies";
 import { useWalletContext } from "../../context/Wallet";
 
+
+const PRECISION_DECIMALS = 18n
+const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
+
 interface CreateBarGraphProps {
     id: number;
     description: string;
-    percentage: string;
-    needed: string;
+    percentage: bigint;
+    needed: bigint;
     type: string;
     label1?: string;
     amount1?: bigint;
@@ -91,7 +95,7 @@ function Vote(props: VoteProps): JSX.Element {
     const [votingFinishReason, setVotingFinishReason] = useState<number>(0);
 
     const { t, i18n, ns } = useProjectTranslation();
-    const { interfaceVotingVote, interfaceVotingVoteStep, interfaceVotingAcceptedStep, userOmocBalance } = useWalletContext()
+    const { interfaceVotingVote, interfaceVotingVoteStep, interfaceVotingAcceptedStep, userOmocBalance, contractStatusOmoc } = useWalletContext()
     const space = "\u00A0";
 
     useEffect(() => {
@@ -118,13 +122,13 @@ function Vote(props: VoteProps): JSX.Element {
             setVotingInFavorOrAgainstError(true);
             if (
                 infoVoting["votingData"]["totalVoted"] <
-                    infoVoting["MIN_FOR_QUORUM"]
+                    infoVoting["MIN_FOR_QUORUM"] * DECIMALS_18
                 )
             {
                 setVotingFinishReason(2);
             } else if (
                 infoVoting["votingData"]["againstVotesPCT"] >=
-                    infoVoting["VOTE_MIN_TO_VETO"]
+                    infoVoting["VOTE_MIN_TO_VETO"] * DECIMALS_18
                 )
             {
                 setVotingFinishReason(3);
@@ -138,37 +142,37 @@ function Vote(props: VoteProps): JSX.Element {
         {
             id: 1,
             description: t("voting.statusGraph.castOverCirculation"),
-            percentage: `${infoVoting["votingData"]["totalVotedPCT"]}%`,
-            needed: `${infoVoting["MIN_PCT_FOR_QUORUM"]}%`,
+            percentage: infoVoting["votingData"]["totalVotedPCT"],
+            needed: infoVoting["MIN_PCT_FOR_QUORUM"] * DECIMALS_18,
             type: "brand",
             label1: "Votes casted",
             amount1: infoVoting["votingData"]["totalVoted"],
             percentage1: infoVoting["votingData"]["totalVotedPCT"],
             label2: "Votes needed for Quroum",
-            amount2: infoVoting["MIN_FOR_QUORUM"],
-            percentage2: infoVoting["MIN_PCT_FOR_QUORUM"],
+            amount2: infoVoting["MIN_FOR_QUORUM"] * DECIMALS_18,
+            percentage2: infoVoting["MIN_PCT_FOR_QUORUM"] * DECIMALS_18,
             label3: "Total circulating tokens",
             amount3: infoVoting["totalSupply"],
-            percentage3: 100n,
+            percentage3: 100n * DECIMALS_18,
         },
         {
             id: 2,
             description: t("voting.statusGraph.negativeOverCirculation"),
-            percentage: `${infoVoting["votingData"]["againstVotesTotalSupplyPCT"]}%`,
-            needed: `${infoVoting["VOTE_MIN_PCT_TO_VETO"]}%`,
+            percentage: infoVoting["votingData"]["againstVotesTotalSupplyPCT"],
+            needed: infoVoting["VOTE_MIN_PCT_TO_VETO"] * DECIMALS_18,
             type: "negative",
             label1: "Votes Against",
             amount1: infoVoting["votingData"]["againstVotes"],
             percentage1: infoVoting["votingData"]["againstVotesTotalSupplyPCT"],
             label2: "Votes needed to reject proposal",
-            amount2: infoVoting["VOTE_MIN_TO_VETO"],
-            percentage2: infoVoting["VOTE_MIN_PCT_TO_VETO"],
+            amount2: infoVoting["VOTE_MIN_TO_VETO"] * DECIMALS_18,
+            percentage2: infoVoting["VOTE_MIN_PCT_TO_VETO"] * DECIMALS_18,
         },
         {
             id: 3,
             description: t("voting.statusGraph.positiveOverCirculation"),
-            percentage: `${infoVoting["votingData"]["inFavorVotesTotalSupplyPCT"]}%`,
-            needed: `0%`,
+            percentage: infoVoting["votingData"]["inFavorVotesTotalSupplyPCT"],
+            needed: 0n,
             type: "positive",
             label1: "Votes in favor",
             amount1: infoVoting["votingData"]["inFavorVotes"],
@@ -202,6 +206,7 @@ function Vote(props: VoteProps): JSX.Element {
             .then((/*res*/) => {
                 // Refresh status
                 userOmocBalance.refetch();
+                contractStatusOmoc.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -234,6 +239,7 @@ function Vote(props: VoteProps): JSX.Element {
             .then((/*res*/) => {
                 // Refresh status
                 userOmocBalance.refetch();
+                contractStatusOmoc.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -266,6 +272,7 @@ function Vote(props: VoteProps): JSX.Element {
             .then((/*res*/) => {
                 // Refresh status
                 userOmocBalance.refetch();
+                contractStatusOmoc.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -369,8 +376,8 @@ function Vote(props: VoteProps): JSX.Element {
                         </p>
                         <BalanceBar
                             key="1"
-                            infavor={`${infoVoting["votingData"]["inFavorVotesPCT"]}%`}
-                            against={`${infoVoting["votingData"]["againstVotesPCT"]}%`}
+                            infavor={infoVoting["votingData"]["inFavorVotesPCT"]}
+                            against={infoVoting["votingData"]["againstVotesPCT"]}
                             infavorVotes={
                                 infoVoting["votingData"]["inFavorVotes"]
                             }
@@ -395,10 +402,8 @@ function Vote(props: VoteProps): JSX.Element {
                                                     "Voting_Power"
                                                 ],
                                                 token: TokenSettings("TG"),
-                                                decimals: 2,
-                                                //numericLabelParams: {},
-                                                i18n: i18n,
-                                                //skipContractConvert: true,
+                                                decimals: 2,                                                
+                                                i18n: i18n                                                
                                             })}
                                             {t("staking.tokens.TG.abbr", {
                                                 ns: ns,
@@ -410,9 +415,7 @@ function Vote(props: VoteProps): JSX.Element {
                                                 ],
                                                 token: TokenSettings("TG"),
                                                 decimals: 4,
-                                                //numericLabelParams: {},
-                                                i18n: i18n,
-                                                //skipContractConvert: true,
+                                                i18n: i18n                                                
                                             })}
                                             %)
                                         </div>

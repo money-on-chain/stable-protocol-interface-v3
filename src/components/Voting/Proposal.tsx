@@ -12,8 +12,8 @@ const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
 interface CreateBarGraphProps {
     id: number;
     description: string;
-    percentage: string;
-    needed: string;
+    percentage: bigint;
+    needed: bigint;
     type: string;
     label1: string;
     amount1: bigint;
@@ -103,8 +103,8 @@ const Proposal: React.FC<ProposalProps> = (props) => {
         {
             id: 0,
             description: "Votes required to move to the next stage",
-            percentage: `${proposal.votesPositivePCT}%`,
-            needed: `${infoVoting.PRE_VOTE_MIN_PCT_TO_WIN}%`,
+            percentage: proposal.votesPositivePCT,
+            needed: infoVoting.PRE_VOTE_MIN_PCT_TO_WIN * DECIMALS_18,
             type: "brand",
             // labelCurrent: 'Votes',
             // labelNeedIt: 'Quorum',

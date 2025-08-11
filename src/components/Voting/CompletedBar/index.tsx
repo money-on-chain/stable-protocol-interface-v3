@@ -4,21 +4,22 @@ import "./Styles.scss";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 import { TokenSettings } from "../../../helpers/currencies";
 import { useProjectTranslation } from "../../../helpers/translations";
+import { fromWei } from "../../../helpers/precision";
 
 interface CompletedBarProps {
     description: string;
     type: string;
-    percentage: string;
-    needed: string;
+    percentage: bigint; // BigInt with 18 decimals
+    needed: bigint; // BigInt with 18 decimals
     label1?: string;
-    amount1?: any; // Replace 'any' with the correct type if known
-    percentage1?: any; // Replace 'any' with the correct type if known
+    amount1?: bigint; // BigInt with 18 decimals
+    percentage1?: bigint; // BigInt with 18 decimals
     label2?: string;
-    amount2?: any; // Replace 'any' with the correct type if known
-    percentage2?: any; // Replace 'any' with the correct type if known
+    amount2?: bigint; // BigInt with 18 decimals
+    percentage2?: bigint; // BigInt with 18 decimals
     label3?: string;
-    amount3?: any; // Replace 'any' with the correct type if known
-    percentage3?: any; // Replace 'any' with the correct type if known
+    amount3?: bigint; // BigInt with 18 decimals
+    percentage3?: bigint; // BigInt with 18 decimals
 }
 
 export default function CompletedBar(props: CompletedBarProps): React.ReactElement {
@@ -30,14 +31,14 @@ export default function CompletedBar(props: CompletedBarProps): React.ReactEleme
             {props.description}
             <div className="CompletedBar__container">
                 <div
-                    className={`gauge ${props.type} ${props.percentage === "100%" ? " maxvalue" : ""}`}
-                    style={{ width: props.percentage }}
+                    className={`gauge ${props.type} ${props.percentage === 100000000000000000000n ? " maxvalue" : ""}`}
+                    style={{ width: fromWei(props.percentage) + "%" }}
                 ></div>
                 <div
                     className={"needed " + props.type}
                     style={{
                         position: "absolute",
-                        width: props.needed,
+                        width: fromWei(props.needed) + "%",
                         zIndex: 100,
                     }}
                 ></div>
@@ -48,19 +49,17 @@ export default function CompletedBar(props: CompletedBarProps): React.ReactEleme
                     <div className="dataItem">
                         {props.label1}:{space}
                         {PrecisionNumbers({
-                            amount: props.amount1,
+                            amount: props.amount1 || 0n,
                             token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                             decimals: 2,
                             i18n: i18n,
-                            //skipContractConvert: true,
                         })}
                         {space}(
                         {PrecisionNumbers({
-                            amount: props.percentage1,
+                            amount: props.percentage1 || 0n,
                             token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                             decimals: 2,
                             i18n: i18n,
-                            //skipContractConvert: true,
                         })}
                         %)
                     </div>
@@ -69,19 +68,17 @@ export default function CompletedBar(props: CompletedBarProps): React.ReactEleme
                     <div className="dataItem">
                         {props.label2}:{space}
                         {PrecisionNumbers({
-                            amount: props.amount2,
+                            amount: props.amount2 || 0n,
                             token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                             decimals: 2,
                             i18n: i18n,
-                            //skipContractConvert: true,
                         })}
                         {space}(
                         {PrecisionNumbers({
-                            amount: props.percentage2,
+                            amount: props.percentage2 || 0n,
                             token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                             decimals: 2,
                             i18n: i18n,
-                            //skipContractConvert: true,
                         })}
                         %)
                     </div>
@@ -90,19 +87,17 @@ export default function CompletedBar(props: CompletedBarProps): React.ReactEleme
                     <div className="dataItem">
                         {props.label3}:{space}
                         {PrecisionNumbers({
-                            amount: props.amount3,
+                            amount: props.amount3 || 0n,
                             token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                             decimals: 2,
                             i18n: i18n,
-                            //skipContractConvert: true,
                         })}
                         {space}(
                         {PrecisionNumbers({
-                            amount: props.percentage3,
+                            amount: props.percentage3 || 0n,
                             token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
                             decimals: 2,
                             i18n: i18n,
-                            //skipContractConvert: true,
                         })}
                         %)
                     </div>

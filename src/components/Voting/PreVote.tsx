@@ -7,11 +7,14 @@ import { TokenSettings } from "../../helpers/currencies";
 import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
 import { useWalletContext } from "../../context/Wallet";
 
+const PRECISION_DECIMALS = 18n
+const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
+
 interface CreateBarGraphProps {
     id: number;
     description: string;
-    percentage: string;
-    needed: string;
+    percentage: bigint;
+    needed: bigint;
     type: string;
     labelCurrent: string;
     labelNeedIt: string;
@@ -21,8 +24,7 @@ interface CreateBarGraphProps {
     valueNeedIt: bigint;
     valueTotal: bigint;
     pctCurrent: bigint;
-    pctNeedIt: bigint;
-    
+    pctNeedIt: bigint;    
     amount1: bigint;
     percentage1: bigint;
     label2: string;
@@ -105,7 +107,7 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
     } = props;
     const { t, i18n, ns } = useProjectTranslation();
     const space: string = "\u00A0";
-    const { interfaceVotingPreVote, userOmocBalance } = useWalletContext()
+    const { interfaceVotingPreVote, userOmocBalance, contractStatusOmoc } = useWalletContext()
 
     const [isOperationModalVisible, setIsOperationModalVisible] =
         useState<boolean>(false);
@@ -137,8 +139,8 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
         {
             id: 0,
             description: "votes need to advance to next step",
-            percentage: `${proposal.votesPositivePCT}%`,
-            needed: `${infoVoting.PRE_VOTE_MIN_PCT_TO_WIN}%`,
+            percentage: proposal.votesPositivePCT,
+            needed: infoVoting.PRE_VOTE_MIN_PCT_TO_WIN * DECIMALS_18,
             type: "brand",
             labelCurrent: "Votes",
             labelNeedIt: "Quorum",
@@ -152,11 +154,11 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
             amount1: proposal.votesPositive,
             percentage1: proposal.votesPositivePCT,
             label2: "Votes needed for Quroum",
-            amount2: infoVoting["PRE_VOTE_MIN_TO_WIN"],
-            percentage2: infoVoting["PRE_VOTE_MIN_PCT_TO_WIN"],
+            amount2: infoVoting["PRE_VOTE_MIN_TO_WIN"] * DECIMALS_18,
+            percentage2: infoVoting["PRE_VOTE_MIN_PCT_TO_WIN"] * DECIMALS_18,
             label3: "Total circulating tokens",
             amount3: infoVoting["totalSupply"],
-            percentage3: 100n,
+            percentage3: 100n * DECIMALS_18,
         },
     ];
 
@@ -212,6 +214,7 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
             .then((/*res*/) => {
                 // Refresh status
                 userOmocBalance.refetch();
+                contractStatusOmoc.refetch();
             })
             .catch((e) => {
                 console.error(e);

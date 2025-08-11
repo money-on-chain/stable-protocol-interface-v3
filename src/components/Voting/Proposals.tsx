@@ -72,7 +72,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
     const [proposalsData, setProposalsData] = useState<ProposalData[]>([]);
 
     const { t, i18n, ns } = useProjectTranslation();
-    const { interfaceVotingPreVote, interfaceVotingUnRegister, interfaceVotingPreVoteStep, contractStatusOmoc, userOmocBalance } = useWalletContext()
+    const { interfaceVotingPreVote, interfaceVotingUnRegister, interfaceVotingPreVoteStep, contractStatusOmoc, userOmocBalance, proposalCount } = useWalletContext()
     const space: string = "\u00A0";
 
     useEffect(() => {
@@ -293,6 +293,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             .then((/*res*/) => {
                 // Refresh status
                 userOmocBalance.refetch();
+                contractStatusOmoc.refetch();                
             })
             .catch((e) => {
                 console.error(e);
@@ -356,6 +357,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             .then((/*res*/) => {
                 // Refresh status
                 userOmocBalance.refetch();
+                contractStatusOmoc.refetch();                
             })
             .catch((e) => {
                 console.error(e);
@@ -411,6 +413,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             .then((/*res*/) => {
                 // Refresh status
                 userOmocBalance.refetch();
+                contractStatusOmoc.refetch();
             })
             .catch((e) => {
                 console.error(e);
