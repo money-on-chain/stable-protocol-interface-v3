@@ -143,7 +143,7 @@ export default function LastOperations(props: LastOperationsProps) {
     const received_row: TableRowData[] = [];
     var txList: OperationData[] = [];
     const transactionsList = (/*skip*/) => {
-        if (isConnected && blockNumber) {
+        if (isConnected && blockNumber && address) {
             console.log("Loading table…");
             /*const datas = {
                 address: accountData.Owner,
@@ -153,7 +153,7 @@ export default function LastOperations(props: LastOperationsProps) {
             setTimeout(() => {
                 const baseUrl = `${import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS}operations/list/`;
                 const queryParams = new URLSearchParams({
-                    ...(address && { recipient: address }),
+                    recipient: address || "",
                     limit: "1000",
                     skip: "0",
                 }).toString();
@@ -168,7 +168,7 @@ export default function LastOperations(props: LastOperationsProps) {
                     .catch((error) => {
                         console.error(error);
                     });
-            }, 500);
+            }, 5000);
         }
     };
     // #section Operation detail custom expand function
@@ -201,7 +201,7 @@ export default function LastOperations(props: LastOperationsProps) {
     useEffect(() => {
         const interval = setInterval(() => {
             transactionsList();
-        }, 3000);
+        }, 10000);
         return () => clearInterval(interval);
     }, [address]);
     useEffect(() => {

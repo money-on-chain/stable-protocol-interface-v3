@@ -6,6 +6,7 @@ import SectionHeader from "../../../components/Header";
 import NotificationBody from "../../../components/Notification";
 import { CheckStatusGlobal } from "../../../helpers/checkStatus";
 import DappFooter from "../../../components/Footer/index";
+import NotConnected from "../../../components/NotConnected";
 
 import { useWalletContext } from "../../../context/Wallet";
 
@@ -57,12 +58,8 @@ export default function Skeleton(): JSX.Element {
     <Layout>
         <SectionHeader />        
         <Content>
-            {/* TODO load an array of notifStatus items, and load a mapping for showing notifs here in this section , interact with a React Context */}
-            {notifStatus && <NotificationBody notifStatus={notifStatus} />}
-
-            {/* {auth.web3Error && <W3ErrorAlert />} */}
-
-            {isConnected && <Outlet />}
+            {notifStatus && <NotificationBody notifStatus={notifStatus} />}           
+            {isConnected ? <Outlet /> : <NotConnected />}
         </Content>
         <Footer>
             <div className="footer-container">
