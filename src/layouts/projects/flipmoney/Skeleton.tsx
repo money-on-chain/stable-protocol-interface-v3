@@ -9,6 +9,7 @@ import DappFooter from "../../../components/Footer/index";
 import NotConnected from "../../../components/NotConnected";
 
 import { useWalletContext } from "../../../context/Wallet";
+import { AutoReconnect } from "../../../components/AutoReconnect";
 
 
 const { Content, Footer } = Layout;
@@ -56,6 +57,7 @@ export default function Skeleton(): JSX.Element {
 
     return (
     <Layout>
+        {/* <AutoReconnect />  Always runs on mount */}
         <SectionHeader />        
         <Content>
             {notifStatus && <NotificationBody notifStatus={notifStatus} />}           
