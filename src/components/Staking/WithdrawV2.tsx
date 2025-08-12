@@ -11,24 +11,28 @@ import settings from "../../settings/settings.json";
 import StakingOptionsModal from "../Modals/StakingOptionsModal/index";
 import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
 import { useWalletContext } from "../../context/Wallet";
-import { toBigIntPrecision } from "../../helpers/precision";
+
 import "./WithdrawV2.scss";
+
+
+interface PendingWithdrawalItem {
+    id: bigint;
+    amount: bigint;
+    expiration: bigint;
+    status: string;
+}
+
 
 interface WithdrawV2Props {
     userInfoStaking: {
-        pendingWithdrawals: WithdrawalItem[];
+        pendingWithdrawals: PendingWithdrawalItem[];
         totalPendingExpiration: any;
         totalAvailableToWithdraw: any;
         [key: string]: any;
+        
     };
 }
 
-interface WithdrawalItem {
-    id: number;
-    expiration: number;
-    amount: any;
-    status: string;
-}
 
 interface OperationModalInfo {
     operationStatus: string;
@@ -51,7 +55,7 @@ type ModalMode = "restake" | "withdraw" | null;
 
 export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
     const { userInfoStaking } = props;
-    const { t, i18n, ns } = useProjectTranslation();
+    const { t, i18n } = useProjectTranslation();
     const { contractProtocolStatus } = useWalletContext()
     const [totalTable, setTotalTable] = useState<number | null>(null);
     const [data, setData] = useState<TableDataItem[] | null>(null);
@@ -79,7 +83,7 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
     const getWithdrawals = (): void => {
         setTotalTable(userInfoStaking["pendingWithdrawals"].length);
         const tokensData: TableDataItem[] = userInfoStaking["pendingWithdrawals"].map(
-            (withdrawal: WithdrawalItem, index: number) => ({
+            (withdrawal: PendingWithdrawalItem, index: number) => ({
                 key: index,
                 rowContent: (
                     <div className="withdraw__row">
@@ -92,7 +96,7 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
                                             : date.DATE_ES
                                     }
                                     date={moment.tz(
-                                        parseInt(withdrawal.expiration.toString()) * 1000,
+                                        Number(withdrawal.expiration) * 1000,
                                         moment.tz.guess()
                                     )}
                                 />
@@ -101,10 +105,8 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
                                 {PrecisionNumbers({
                                     amount: withdrawal.amount,
                                     token: settings.tokens.TG[0],
-                                    decimals: t("staking.display_decimals"),
-                                    t: t,
+                                    decimals: Number(t("staking.display_decimals")),
                                     i18n: i18n,
-                                    ns: ns,
                                 })}
                             </div>{" "}
                             <div className="item-data withdraw__status">
@@ -186,7 +188,7 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
         }
     };
 
-    const handleActionClick = (action: "restake" | "withdraw", withdrawal: WithdrawalItem): void => {
+    const handleActionClick = (action: "restake" | "withdraw", withdrawal: PendingWithdrawalItem): void => {
         // if (status !== 'PENDING' && status !== 'AVAILABLE' && action === 'restake') return;
         if (withdrawal.status === "PENDING" && action === "withdraw") return;
         if (action === "restake") {
@@ -214,10 +216,8 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
                                         "totalPendingExpiration"
                                     ],
                                     token: settings.tokens.TG[0],
-                                    decimals: t("staking.display_decimals"),
-                                    t: t,
+                                    decimals: Number(t("staking.display_decimals")),
                                     i18n: i18n,
-                                    ns: ns
                                 })}{" "}
                                 {`${settings.tokens.TG[0].name}`}
                             </div>
@@ -234,10 +234,8 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
                                         "totalAvailableToWithdraw"
                                     ],
                                     token: settings.tokens.TG[0],
-                                    decimals: t("staking.display_decimals"),
-                                    t: t,
+                                    decimals: Number(t("staking.display_decimals")),
                                     i18n: i18n,
-                                    ns: ns
                                 })}{" "}
                                 {`${settings.tokens.TG[0].name}`}
                             </div>
@@ -273,9 +271,9 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
                         dataSource={data}
                         pagination={{
                             pageSize: 1000,
-                            position: ["none", "bottomRight"],
+                            position: ["bottomRight"],
                             defaultCurrent: 1,
-                            total: totalTable,
+                            total: totalTable || 0,
                         }}
                         showHeader={false}
                         scroll={{ y: "auto" }}

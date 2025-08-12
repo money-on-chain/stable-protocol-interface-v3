@@ -19,7 +19,7 @@ export default function TVL(): JSX.Element {
     if (contractProtocolStatus.data) {
         settings.tokens.CA.forEach(function (dataItem) {
 
-            const priceCA = normalizeToBigInt(contractProtocolStatus.data[dataItem.key].PP_CA[0]);
+            const priceCA = normalizeToBigInt(contractProtocolStatus.data[dataItem.key].PP_CA[0]) || 0n;
 
             const nACcb = contractProtocolStatus.data[dataItem.key].nACcb;
             collateralInUSD = mulPrecision(nACcb, priceCA);
@@ -42,7 +42,7 @@ export default function TVL(): JSX.Element {
                             amount: collateralTotalInUSD
                                 ? collateralTotalInUSD
                                 : 0n,
-                            token: TokenSettings("CA_0") as any,
+                            token: TokenSettings("CA_0"),
                             decimals: 2,
                             i18n: i18n
                         })}

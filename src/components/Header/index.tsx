@@ -1,5 +1,5 @@
 import { Layout } from "antd";
-import React, { useContext, useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import { useProjectTranslation } from "../../helpers/translations";
@@ -9,7 +9,6 @@ import settings from "../../settings/settings.json";
 import menuOptionsData from "./menuOptions.json";
 import Brand from "./Brand";
 import { useWalletContext } from "../../context/Wallet";
-import { config } from "../../wagmiConfig";
 
 import "./Styles.scss";
 
@@ -37,8 +36,7 @@ const truncateAddress = (address: string): string => {
 export default function SectionHeader(): JSX.Element {
     const navigate = useNavigate();
     const location = useLocation();
-    const { isConnected, address, connect, onShowModalAccount, onShowModalProviders } = useWalletContext()    
-    //const [css_disable, setCssDisable] = useState("disable-nav-item");
+    const { isConnected, address, onShowModalAccount, onShowModalProviders } = useWalletContext()    
     const [showMoreDropdown, setShowMoreDropdown] = useState<boolean>(false);
     const [showLanguageMenu, setShowLanguageMenu] = useState<boolean>(false);
 
@@ -194,7 +192,7 @@ export default function SectionHeader(): JSX.Element {
                         {isConnected ? (
                         <>                            
                             <a onClick={onShowModalAccount}>
-                                {truncateAddress(address)}
+                                {truncateAddress(address || "")}
                             </a>                            
                         </>
                         ) : (

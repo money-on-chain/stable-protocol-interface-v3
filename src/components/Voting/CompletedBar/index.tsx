@@ -50,14 +50,14 @@ export default function CompletedBar(props: CompletedBarProps): React.ReactEleme
                         {props.label1}:{space}
                         {PrecisionNumbers({
                             amount: props.amount1 || 0n,
-                            token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
+                            token: TokenSettings("TG"),
                             decimals: 2,
                             i18n: i18n,
                         })}
                         {space}(
                         {PrecisionNumbers({
                             amount: props.percentage1 || 0n,
-                            token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
+                            token: TokenSettings("TG"),
                             decimals: 2,
                             i18n: i18n,
                         })}
@@ -69,14 +69,14 @@ export default function CompletedBar(props: CompletedBarProps): React.ReactEleme
                         {props.label2}:{space}
                         {PrecisionNumbers({
                             amount: props.amount2 || 0n,
-                            token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
+                            token: TokenSettings("TG"),
                             decimals: 2,
                             i18n: i18n,
                         })}
                         {space}(
                         {PrecisionNumbers({
                             amount: props.percentage2 || 0n,
-                            token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
+                            token: TokenSettings("TG"),
                             decimals: 2,
                             i18n: i18n,
                         })}
@@ -88,14 +88,14 @@ export default function CompletedBar(props: CompletedBarProps): React.ReactEleme
                         {props.label3}:{space}
                         {PrecisionNumbers({
                             amount: props.amount3 || 0n,
-                            token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
+                            token: TokenSettings("TG"),
                             decimals: 2,
                             i18n: i18n,
                         })}
                         {space}(
                         {PrecisionNumbers({
                             amount: props.percentage3 || 0n,
-                            token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
+                            token: TokenSettings("TG"),
                             decimals: 2,
                             i18n: i18n,
                         })}

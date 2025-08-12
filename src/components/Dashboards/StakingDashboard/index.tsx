@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 import settings from "../../../settings/settings.json";
 
@@ -12,10 +12,16 @@ interface WithdrawalStatus {
 }
 
 interface PendingWithdrawal {
-    expiration: string;
-    amount: string;
-    status?: string;
-    id?: string;
+    id: bigint;
+    amount: bigint;
+    expiration: bigint;
+}
+
+interface PendingWithdrawalStatus {
+    id: bigint;
+    amount: bigint;
+    expiration: bigint;
+    status: string;
 }
 
 const withdrawalStatus: WithdrawalStatus = {
@@ -24,8 +30,8 @@ const withdrawalStatus: WithdrawalStatus = {
 };
 
 const Dashboard = (): JSX.Element => {
-    const { contractProtocolStatus, userBalance, publicClient, isVestingLoaded } = useWalletContext()
-    const { t, i18n, ns } = useProjectTranslation();
+    const { contractProtocolStatus, userBalance, isVestingLoaded } = useWalletContext()
+    const { t, i18n } = useProjectTranslation();
     //const [activeTab, setActiveTab] = useState("tab1");
     const [tgBalance, setTgBalance] = useState<bigint>(0n);
     //const [lockedBalance, setLockedBalance] = useState("0");
@@ -57,18 +63,18 @@ const Dashboard = (): JSX.Element => {
                 );
             } else {
                 setTgBalance(userBalance.data.TG.balance || 0n);
-                _stakedBalance = (userBalance.data as any).stakingmachine?.getBalance || 0n;
+                _stakedBalance = userBalance.data.stakingmachine?.getBalance || 0n;
                 //_lockedBalance = (auth.userBalanceData as any).stakingmachine.getLockedBalance;
                 _pendingWithdrawals = pendingWithdrawalsFormat(
-                    (userBalance.data as any).delaymachine
+                    userBalance.data.delaymachine
                 );
             }
         }
-        const pendingWithdrawalsFormatted: PendingWithdrawal[] = _pendingWithdrawals
+        const pendingWithdrawalsFormatted: PendingWithdrawalStatus[] = _pendingWithdrawals
             .filter((withdrawal: PendingWithdrawal) => withdrawal.expiration)
             .map((withdrawal: PendingWithdrawal) => {
                 const status: string =
-                    new Date(parseInt(withdrawal.expiration) * 1000) >
+                    new Date(Number(withdrawal.expiration) * 1000) >
                     new Date()
                         ? withdrawalStatus.pending
                         : withdrawalStatus.available;
@@ -80,11 +86,11 @@ const Dashboard = (): JSX.Element => {
             });
         let pendingExpirationAmount: bigint = 0n;
         let readyToWithdrawAmount: bigint = 0n;
-        pendingWithdrawalsFormatted.forEach(({ status, amount }: PendingWithdrawal) => {
+        pendingWithdrawalsFormatted.forEach(({ status, amount }: PendingWithdrawalStatus) => {
             if (status === withdrawalStatus.pending) {
-                pendingExpirationAmount = pendingExpirationAmount + amount;
+                pendingExpirationAmount = pendingExpirationAmount + BigInt(amount);
             } else {
-                readyToWithdrawAmount = readyToWithdrawAmount + amount;
+                readyToWithdrawAmount = readyToWithdrawAmount + BigInt(amount);
             }
         });
         /*

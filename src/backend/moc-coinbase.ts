@@ -75,9 +75,8 @@ const mintTC = async (
         args: [qTC, address, vendorAddress],
         account: address,
         value: valueToSend
-      })
+      })    
     
-    console.log("request", request);
     // Send transaction
     const txHash = await writeContract(config, request)
     console.log("txHash", txHash);
@@ -187,8 +186,7 @@ const mintTP = async (
         account: address,
         value: valueToSend
       })
-    
-    console.log("request", request);
+        
     // Send transaction
     const txHash = await writeContract(config, request)
     console.log("txHash", txHash);

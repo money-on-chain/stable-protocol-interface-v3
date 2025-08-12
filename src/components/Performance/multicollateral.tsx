@@ -61,7 +61,7 @@ export default function MultiCollateral(): JSX.Element {
                                           ? contractProtocolStatus.data
                                                 .getCombinedCglb
                                           : 0n,
-                                      token: TokenSettings("CA_0") as any,
+                                      token: TokenSettings("CA_0"),
                                       decimals: 4,
                                       i18n: i18n                                      
                                   })}
@@ -82,7 +82,7 @@ export default function MultiCollateral(): JSX.Element {
                                           ? contractProtocolStatus.data
                                                 .getCombinedCtargemaCA
                                           : 0n,
-                                      token: settings.tokens.CA[0] as any,
+                                      token: settings.tokens.CA[0],
                                       decimals: 4,
                                       i18n: i18n
                                   })}
@@ -100,7 +100,7 @@ export default function MultiCollateral(): JSX.Element {
                                 ? "--"
                                 : PrecisionNumbers({
                                       amount: leverage,
-                                      token: TokenSettings("CA_0") as any,
+                                      token: TokenSettings("CA_0"),
                                       decimals: 4,
                                       i18n: i18n
                                   })}

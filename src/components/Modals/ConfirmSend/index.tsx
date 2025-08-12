@@ -11,6 +11,7 @@ interface ModalConfirmSendProps {
     exchangingUSD: any; //
     amountYouExchange: string;
     destinationAddress: string;
+    onClear: () => void;
 }
 
 export default function ModalConfirmSend(props: ModalConfirmSendProps): React.ReactElement {

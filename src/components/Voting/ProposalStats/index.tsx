@@ -30,7 +30,7 @@ export default function ProposalStats(props: ProposalStatsProps): React.ReactEle
                     <div className="statAmount">
                         {PrecisionNumbers({
                             amount: amountBig,
-                            token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
+                            token: TokenSettings("TG"),
                             decimals: 2,
                             i18n: i18n,
                             //skipContractConvert: true,
@@ -40,7 +40,7 @@ export default function ProposalStats(props: ProposalStatsProps): React.ReactEle
                         (
                         {PrecisionNumbers({
                             amount: percentageBig,
-                            token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
+                            token: TokenSettings("TG"),
                             decimals: 2,
                             i18n: i18n,
                             //skipContractConvert: true,

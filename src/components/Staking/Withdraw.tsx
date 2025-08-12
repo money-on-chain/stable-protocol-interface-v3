@@ -54,7 +54,7 @@ type ModalMode = "restake" | "withdraw" | null;
 
 export default function Withdraw(props: WithdrawProps): JSX.Element {
     const { userInfoStaking } = props;
-    const { t, i18n, ns } = useProjectTranslation();
+    const { t, i18n } = useProjectTranslation();
     const { contractProtocolStatus } = useWalletContext()
     const [totalTable, setTotalTable] = useState<number | null>(null);
     const [data, setData] = useState<TableDataItem[] | null>(null);
@@ -127,10 +127,8 @@ export default function Withdraw(props: WithdrawProps): JSX.Element {
                         {PrecisionNumbers({
                             amount: withdrawal.amount,
                             token: settings.tokens.TG[0],
-                            decimals: t("staking.display_decimals"),
-                            t: t,
+                            decimals: Number(t("staking.display_decimals")),
                             i18n: i18n,
-                            ns: ns,
                         })}
                     </div>
                 ),
@@ -236,10 +234,8 @@ export default function Withdraw(props: WithdrawProps): JSX.Element {
                                         "totalPendingExpiration"
                                     ],
                                     token: settings.tokens.TG[0],
-                                    decimals: t("staking.display_decimals"),
-                                    t: t,
+                                    decimals: Number(t("staking.display_decimals")),
                                     i18n: i18n,
-                                    ns: ns
                                 })}{" "}
                                 {`${settings.tokens.TG[0].name}`}
                             </div>
@@ -256,10 +252,8 @@ export default function Withdraw(props: WithdrawProps): JSX.Element {
                                         "totalAvailableToWithdraw"
                                     ],
                                     token: settings.tokens.TG[0],
-                                    decimals: t("staking.display_decimals"),
-                                    t: t,
+                                    decimals: Number(t("staking.display_decimals")),
                                     i18n: i18n,
-                                    ns: ns
                                 })}{" "}
                                 {`${settings.tokens.TG[0].name}`}
                             </div>
@@ -276,9 +270,9 @@ export default function Withdraw(props: WithdrawProps): JSX.Element {
                     dataSource={data}
                     pagination={{
                         pageSize: 1000,
-                        position: ["none", "bottomRight"],
+                        position: ["bottomRight"],
                         defaultCurrent: 1,
-                        total: totalTable,
+                        total: totalTable || 0,
                     }}
                     scroll={{ y: 200 }}
                 />
