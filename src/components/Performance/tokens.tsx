@@ -74,8 +74,8 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
 
     if (contractProtocolStatus.data) {
         // TC row
-        const priceTEC = contractProtocolStatus.data[caIndex].getPTCac;
-        const priceCA = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_CA[0]);
+        const priceTEC = contractProtocolStatus.data[caIndex].getPTCac || 0n;
+        const priceCA = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_CA[0]) || 0n;
         const price = mulPrecision(priceTEC, priceCA);
 
         tokensData.push({
@@ -94,7 +94,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                 ? "--"
                 : PrecisionNumbers({
                       amount: price,
-                      token: settings.tokens.TC[caIndex] as any,
+                      token: settings.tokens.TC[caIndex],
                       decimals: 3,
                       i18n,                      
                   }),
@@ -103,7 +103,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                 ? "--"
                 : PrecisionNumbers({
                       amount: contractProtocolStatus.data[caIndex].nTCcb,
-                      token: settings.tokens.TC[caIndex] as any,
+                      token: settings.tokens.TC[caIndex],
                       decimals: settings.tokens.CA[caIndex].visibleDecimals,
                       i18n                      
                   }),
@@ -113,7 +113,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                 : PrecisionNumbers({
                       amount: contractProtocolStatus.data[caIndex]
                           .getRealTCAvailableToRedeem,
-                      token: settings.tokens.TC[caIndex] as any,
+                      token: settings.tokens.TC[caIndex],
                       decimals: settings.tokens.CA[caIndex].visibleDecimals,
                       i18n                      
                   }),
@@ -122,7 +122,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
 
         // TP rows
         settings.tokens.TP.forEach((dataItem) => {
-            let price = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_TP[dataItem.key][0]);
+            let price = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_TP[dataItem.key][0]) || 0n;
             price = ConvertPeggedTokenPrice(
                 contractProtocolStatus,
                 caIndex,
@@ -168,7 +168,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                     ? "--"
                     : PrecisionNumbers({
                           amount: price,
-                          token: settings.tokens.TP[dataItem.key] as any,
+                          token: settings.tokens.TP[dataItem.key],
                           decimals:
                               settings.tokens.TP[dataItem.key].visiblePriceUSD,
                           i18n,
@@ -177,7 +177,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                     ? "--"
                     : PrecisionNumbers({
                           amount: tpEMA,
-                          token: settings.tokens.TP[dataItem.key] as any,
+                          token: settings.tokens.TP[dataItem.key],
                           decimals:
                               settings.tokens.TP[dataItem.key].visiblePriceUSD,
                           i18n,
@@ -188,7 +188,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                           amount: contractProtocolStatus.data[caIndex].pegContainer[
                               dataItem.key
                           ][0],
-                          token: settings.tokens.TP[dataItem.key] as any,
+                          token: settings.tokens.TP[dataItem.key],
                           decimals:
                               settings.tokens.TP[caIndex]
                                   .visibleBalanceDecimals,
@@ -198,7 +198,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                     ? "--"
                     : PrecisionNumbers({
                           amount: tpAvailableToMint,
-                          token: settings.tokens.TP[dataItem.key] as any,
+                          token: settings.tokens.TP[dataItem.key],
                           decimals:
                               settings.tokens.TP[caIndex]
                                   .visibleBalanceDecimals,
@@ -211,7 +211,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                           amount: contractProtocolStatus.data[caIndex].tpCtarg[
                               dataItem.key
                           ],
-                          token: settings.tokens.TP[dataItem.key] as any,
+                          token: settings.tokens.TP[dataItem.key],
                           decimals: 2,
                           i18n
                       }),

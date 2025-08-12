@@ -395,10 +395,10 @@ export default function Exchange(): JSX.Element {
         const execCost = executionFeeMap(
             currencyYouExchange,
             currencyYouReceive,
-            contractProtocolStatus as any
+            contractProtocolStatus
         )
 
-        const execFee = await getExecutionFee(publicClient as any, execCost, 2)
+        const execFee = await getExecutionFee(publicClient, execCost, 2)
 
         const priceCoinbase = normalizeToBigInt(contractProtocolStatus.data.PP_COINBASE[0]);
         if (priceCoinbase) {
@@ -458,7 +458,6 @@ export default function Exchange(): JSX.Element {
     };
 
     const setAddTotalAvailable = (): void => {
-        const tokenSettings = TokenSettings(currencyYouExchange);
         const totalbalance = TokenBalance(userBalance, currencyYouExchange);
         const convertAmountReceive = ConvertAmount(
             contractProtocolStatus,
@@ -480,7 +479,6 @@ export default function Exchange(): JSX.Element {
 
         let arrCurrencyYouExchange = currencyYouExchange.split("_");
         if (arrCurrencyYouExchange[0] === "CA") {
-            const tokenSettings = TokenSettings(currencyYouExchange);
             const totalbalance = TokenBalance(userBalance, currencyYouExchange);
             const tolerance = 7n / 10n;
             if (amountYouExchange > totalbalance) {
@@ -521,7 +519,7 @@ export default function Exchange(): JSX.Element {
                                           ),
                                           token: TokenSettings(
                                               currencyYouExchange
-                                          ) as any,
+                                          ),
                                           decimals: 8,
                                           i18n: i18n,
                                       })
@@ -564,7 +562,7 @@ export default function Exchange(): JSX.Element {
                                           ),
                                           token: TokenSettings(
                                               currencyYouReceive
-                                          ) as any,
+                                          ),
                                           decimals: 8,
                                           i18n: i18n                                          
                                       })
@@ -607,7 +605,7 @@ export default function Exchange(): JSX.Element {
                                                   ).visibleDecimals || 2,
                                                   token: TokenSettings(
                                                       currencyYouReceive
-                                                  ) as any,
+                                                  ),
                                                   i18n: i18n                                                  
                                               })}
                                     </span>
@@ -647,7 +645,7 @@ export default function Exchange(): JSX.Element {
                                                   ).visibleDecimals || 2,
                                                   token: TokenSettings(
                                                       currencyYouExchange
-                                                  ) as any,
+                                                  ),
                                                   i18n: i18n                                                  
                                               })}
                                     </span>
@@ -681,7 +679,7 @@ export default function Exchange(): JSX.Element {
                                                               amount: commissionPercent,
                                                               token: TokenSettings(
                                                                   currencyYouExchange
-                                                              ) as any,
+                                                              ),
                                                               decimals: 2,
                                                               i18n: i18n                                                              
                                                           })}
@@ -696,7 +694,7 @@ export default function Exchange(): JSX.Element {
                                                               amount: commission,
                                                               token: TokenSettings(
                                                                   `CA_${caIndex}`
-                                                              ) as any,
+                                                              ),
                                                               i18n: i18n                                                              
                                                           })}
                                                 </span>
@@ -722,7 +720,7 @@ export default function Exchange(): JSX.Element {
                                                               decimals: 2,
                                                               token: TokenSettings(
                                                                   `CA_${caIndex}`
-                                                              ) as any,
+                                                              ),
                                                               i18n: i18n,
                                                               isUSD: true                                                              
                                                           })}
@@ -750,7 +748,7 @@ export default function Exchange(): JSX.Element {
                                                               amount: commissionPercentFeeToken,
                                                               token: TokenSettings(
                                                                   currencyYouExchange
-                                                              ) as any,
+                                                              ),
                                                               decimals: 2,
                                                               i18n: i18n                                                              
                                                           })}
@@ -765,7 +763,7 @@ export default function Exchange(): JSX.Element {
                                                               amount: commissionFeeToken,
                                                               token: TokenSettings(
                                                                   `TF_${caIndex}`
-                                                              ) as any,
+                                                              ),
                                                               i18n: i18n                                                              
                                                           })}
                                                 </span>
@@ -786,7 +784,7 @@ export default function Exchange(): JSX.Element {
                                                               decimals: 2,
                                                               token: TokenSettings(
                                                                   `CA_${caIndex}`
-                                                              ) as any,
+                                                              ),
                                                               i18n: i18n,
                                                               isUSD: true                                                              
                                                           })}
@@ -823,7 +821,7 @@ export default function Exchange(): JSX.Element {
                                     ? "--"
                                     : PrecisionNumbers({
                                           amount: exchangingUSD,
-                                          token: TokenSettings(`CA_${caIndex}`) as any,
+                                          token: TokenSettings(`CA_${caIndex}`),
                                           decimals: 2,
                                           i18n: i18n,                                          
                                           isUSD: true,

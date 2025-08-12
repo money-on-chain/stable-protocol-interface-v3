@@ -1,5 +1,5 @@
 import { Modal, Button, Spin, notification, Checkbox } from "antd";
-import React, { useEffect, useState, useContext, Fragment } from "react";
+import React, { useEffect, useState, Fragment } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
 
 import { useProjectTranslation } from "../../../helpers/translations";
@@ -16,7 +16,8 @@ interface StakingOptionsModalProps {
     withdrawalId?: string;
 }
 
-
+const PRECISION_DECIMALS = 18n
+const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
 
 type StepType = 0 | 1 | 2 | 3 | 99;
 type ModeType = 'staking' | 'unstaking' | 'withdraw' | 'restake';
@@ -69,7 +70,7 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
 
         let amountAllowance;
         if (infinityAllowance) {
-            amountAllowance = 100000000000n;
+            amountAllowance = 100000000000n * DECIMALS_18;
         } else {
             amountAllowance = amount;
         }
@@ -395,9 +396,9 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                                             {PrecisionNumbers({
                                                 amount: amount || 0n,
                                                 token: settings.tokens.TG[0],
-                                                decimals: t(
+                                                decimals: Number(t(
                                                     "staking.display_decimals"
-                                                ),
+                                                )),
                                                 //numericLabelParams: {},
                                                 i18n: i18n,
                                                 //skipContractConvert: true,
@@ -483,7 +484,7 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                                 {PrecisionNumbers({
                                     amount: amount || 0n,
                                     token: settings.tokens.TG[0],
-                                    decimals: t("staking.display_decimals"),
+                                    decimals: Number(t("staking.display_decimals")),
                                     //numericLabelParams: {},
                                     i18n: i18n,
                                     //skipContractConvert: true,
@@ -541,7 +542,7 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                                     {PrecisionNumbers({
                                         amount: amount || 0n,
                                         token: settings.tokens.TG[0],
-                                        decimals: t("staking.display_decimals"),
+                                        decimals: Number(t("staking.display_decimals")),
                                         //numericLabelParams: {},
                                         i18n: i18n,
                                         //skipContractConvert: false,
@@ -605,7 +606,7 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                                     {PrecisionNumbers({
                                         amount: amount || 0n,
                                         token: settings.tokens.TG[0],
-                                        decimals: t("staking.display_decimals"),
+                                        decimals: Number(t("staking.display_decimals")),
                                         i18n: i18n,
                                     })}
                                     <div className="tx-token">
@@ -652,7 +653,7 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
     };
 
     const render = (): React.ReactElement | null => {
-        const modes: Record<ModeType, () => React.ReactElement> = {
+        const modes: Record<ModeType, () => React.ReactElement | null> = {
             staking: renderStaking,
             unstaking: renderUnstaking,
             withdraw: renderWithdraw,

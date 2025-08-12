@@ -3,17 +3,13 @@ interface TokenMap {
 }
 
 interface DelayMachine {
-    getTransactions: {
-        ids: string[];
-        amounts: string[];
-        expirations: number[];
-    };
+    getTransactions: [bigint[], bigint[], bigint[]];
 }
 
 interface Withdrawal {
-    id: string;
-    amount: string;
-    expiration: number;
+    id: bigint;
+    amount: bigint;
+    expiration: bigint;
 }
 
 function loadTokenMap(): TokenMap {

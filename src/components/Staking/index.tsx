@@ -1,12 +1,11 @@
-import React, { Fragment, useState, useEffect, useContext } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 import { useProjectTranslation } from "../../helpers/translations";
-import { pendingWithdrawalsFormat, tokenStake } from "../../helpers/staking";
+import { pendingWithdrawalsFormat } from "../../helpers/staking";
 import Stake from "./Stake";
 import PieChartComponent from "./PieChart";
 import PerformanceChart from "./performanceChart";
 import Withdraw from "./WithdrawV2";
 import DashBoard from "./StakingDashboard";
-import { TokenSettings } from "../../helpers/currencies";
 import { useWalletContext } from "../../context/Wallet";
 
 interface WithdrawalStatus {
@@ -15,10 +14,9 @@ interface WithdrawalStatus {
 }
 
 interface PendingWithdrawal {
-    id: string;
-    amount: string;
-    expiration: string;
-    status?: string;
+    id: bigint;
+    amount: bigint;
+    expiration: bigint;
 }
 
 interface UserInfoStaking {
@@ -29,29 +27,20 @@ interface UserInfoStaking {
     totalPendingExpiration: bigint;
     totalAvailableToWithdraw: bigint;
     lockedInVoting: bigint;
-    unstakeBalance?: bigint;
+    unstakeBalance: bigint;
 }
 
-interface VestingMachine {
-    tgBalance: bigint;
-    staking: {
-        balance: string;
-        getLockedBalance: string;
-        getLockingInfo: {
-            amount: string;
-            untilTimestamp: string;
-        };
-    };
-    delay: any;
+
+interface vUsing {
+    getLockingInfo: [bigint, bigint];
 }
 
-interface StakingMachine {
-    getBalance: string;
-    getLockedBalance: string;
-    getLockingInfo: {
-        amount: string;
-        untilTimestamp: string;
-    };
+
+interface PendingWithdrawalStatus {
+    id: bigint;
+    amount: bigint;
+    expiration: bigint;
+    status: string;
 }
 
 const withdrawalStatus: WithdrawalStatus = {
@@ -59,11 +48,9 @@ const withdrawalStatus: WithdrawalStatus = {
     available: "AVAILABLE",
 };
 
-const defaultTokenStake: string = tokenStake()[0];
-const tokenSettingsStake: any = TokenSettings(defaultTokenStake);
 
 export default function Staking(): JSX.Element {    
-    const { contractProtocolStatus, userOmocBalance, publicClient, isVestingLoaded } = useWalletContext()
+    const { contractProtocolStatus, userOmocBalance, isVestingLoaded } = useWalletContext()
     const { t } = useProjectTranslation();
     const [activeTab, setActiveTab] = useState<string>("tab1");
 
@@ -75,6 +62,7 @@ export default function Staking(): JSX.Element {
         totalPendingExpiration: 0n,
         totalAvailableToWithdraw: 0n,
         lockedInVoting: 0n,
+        unstakeBalance: 0n,
     };
     const [userInfoStaking, setUserInfoStaking] = useState<UserInfoStaking>(
         defaultUserInfoStaking
@@ -90,7 +78,7 @@ export default function Staking(): JSX.Element {
         const cData: UserInfoStaking = { ...userInfoStaking };
         const nowTimestamp: number = Date.now();
         let pendingWithdrawals: PendingWithdrawal[] = [];
-        let vUsing: VestingMachine | StakingMachine;
+        let vUsing: vUsing;
         
         if (isVestingLoaded()) {
             cData["tgBalance"] = userOmocBalance.data.vestingmachine!.tgBalance;
@@ -110,10 +98,9 @@ export default function Staking(): JSX.Element {
             vUsing = userOmocBalance.data.stakingmachine!;            
         }
 
-        const lockedAmount = vUsing.getLockingInfo.amount;
-        const lockedUntilTimestamp = vUsing.getLockingInfo.untilTimestamp * 1000;
+        const [lockedAmount, lockedUntilTimestamp] = vUsing.getLockingInfo;        
 
-        if (lockedUntilTimestamp > nowTimestamp) {
+        if (lockedUntilTimestamp * 1000n > BigInt(nowTimestamp)) {
             cData["lockedInVoting"] = lockedAmount;
         } else {
             cData["lockedInVoting"] = 0n;
@@ -121,11 +108,11 @@ export default function Staking(): JSX.Element {
 
         cData["unstakeBalance"] = cData["stakedBalance"] - cData["lockedInVoting"];
 
-        const pendingWithdrawalsFormatted: PendingWithdrawal[] = pendingWithdrawals
+        const pendingWithdrawalsFormatted: PendingWithdrawalStatus[] = pendingWithdrawals
             .filter((withdrawal: PendingWithdrawal) => withdrawal.expiration)
             .map((withdrawal: PendingWithdrawal) => {
                 const status: string =
-                    new Date(parseInt(withdrawal.expiration) * 1000) >
+                    new Date(Number(withdrawal.expiration) * 1000) >
                     new Date()
                         ? withdrawalStatus.pending
                         : withdrawalStatus.available;
@@ -137,7 +124,7 @@ export default function Staking(): JSX.Element {
             });
         let pendingExpirationAmount: bigint = 0n;
         let readyToWithdrawAmount: bigint = 0n;
-        pendingWithdrawalsFormatted.forEach(({ status, amount }: PendingWithdrawal) => {
+        pendingWithdrawalsFormatted.forEach(({ status, amount }: PendingWithdrawalStatus) => {
             if (status === withdrawalStatus.pending) {
                 pendingExpirationAmount = pendingExpirationAmount + amount;
             } else {
@@ -146,7 +133,7 @@ export default function Staking(): JSX.Element {
         });
         const pendingWithdrawalsSort: PendingWithdrawal[] = pendingWithdrawalsFormatted.sort(
             function (a: PendingWithdrawal, b: PendingWithdrawal) {
-                return parseInt(b.id) - parseInt(a.id);
+                return Number(b.id) - Number(a.id);
             }
         );
 

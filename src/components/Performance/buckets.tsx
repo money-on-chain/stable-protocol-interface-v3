@@ -61,7 +61,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                           ? contractProtocolStatus.data[caIndex]
                                                 .getACBalance
                                           : 0n,
-                                      token: TokenSettings(`CA_${caIndex}`) as any,
+                                      token: TokenSettings(`CA_${caIndex}`),
                                       decimals:
                                           settings.tokens.CA[caIndex]
                                               .visibleDecimals,
@@ -85,7 +85,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                           ? contractProtocolStatus.data[caIndex]
                                                 .getCglb
                                           : 0n,
-                                      token: settings.tokens.CA[caIndex] as any,
+                                      token: settings.tokens.CA[caIndex],
                                       decimals: 4,
                                       i18n: i18n,
                                       
@@ -107,7 +107,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                           ? contractProtocolStatus.data[caIndex]
                                                 .getCtargemaCA
                                           : 0n,
-                                      token: TokenSettings(`CA_${caIndex}`) as any,
+                                      token: TokenSettings(`CA_${caIndex}`),
                                       decimals: 4,
                                       i18n: i18n,
                                       
@@ -128,7 +128,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                       amount: contractProtocolStatus.data
                                           ? leverage
                                           : 0n,
-                                      token: TokenSettings(`CA_${caIndex}`) as any,
+                                      token: TokenSettings(`CA_${caIndex}`),
                                       decimals: 4,
                                       i18n: i18n,
                                       
@@ -149,7 +149,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                       amount: contractProtocolStatus.data
                                           ? lckAC
                                           : 0n,
-                                      token: TokenSettings(`CA_${caIndex}`) as any,
+                                      token: TokenSettings(`CA_${caIndex}`),
                                       decimals:
                                           settings.tokens.CA[caIndex]
                                               .visibleDecimals,

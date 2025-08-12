@@ -11,7 +11,7 @@ interface UseVestingAlertProps {
 
 export default function UseVestingAlert(props: UseVestingAlertProps): React.ReactElement {
     const { t } = useProjectTranslation();
-    const { address, onShowModalAccount } = useWalletContext()
+    const { onShowModalAccount } = useWalletContext()
     
     const truncateAddress = (address: string): string => {
         return (
@@ -23,7 +23,8 @@ export default function UseVestingAlert(props: UseVestingAlertProps): React.Reac
     const space = "\u00A0";
 
     const onDisplayAccount = (): void => {
-        onShowModalAccount(true);
+        //onShowModalAccount(true);
+        onShowModalAccount();
     };
 
     return (

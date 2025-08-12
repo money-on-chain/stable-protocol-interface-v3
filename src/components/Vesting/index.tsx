@@ -104,6 +104,7 @@ const Vesting: React.FC = () => {
     };
 
     const getIsHolderVesting = (): boolean => {
+        if (!address) return false;
         return (
             userOmocBalance.data.vestingmachine.getHolder.toLowerCase() ===
             address.toLowerCase()
