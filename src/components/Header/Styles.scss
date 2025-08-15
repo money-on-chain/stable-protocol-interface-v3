@@ -41,16 +41,24 @@ $breakpoint-mobile: 600px;
             font-weight: 400;
             font-size: 14px;
             line-height: 17px; // identical to box height
-
             font-family: var(--main-font);
-
             text-align: center;
         }
 
-        .wallet-address a {
+        .walletDisconnected a {
+            color: var(--color-semantic-negative);
+            // color: var(--color-icon-link-filter);
+        }
+        .walletConnected a {
             color: var(--color-icon-link-filter);
         }
-
+        .walletDisconnected .logo-wallet {
+            filter: var(--filter-semantic-negative);
+            background-image: url("../../assets/icons/walletIconDisconnected.svg");
+        }
+        a:hover {
+            color: var(--color-btn-tertiary-txt-hover);
+        }
         .logo-wallet {
             filter: var(--color-nav-icon-filter-default);
             background-image: url("../../assets/icons/WalletOutline.svg");
@@ -62,7 +70,6 @@ $breakpoint-mobile: 600px;
 
         .wallet-address:hover {
             .logo-wallet {
-                // background-image: url('../../assets/icons/WalletFilled.svg');
                 filter: var(--color-nav-icon-filter-hover);
                 width: 24px;
                 height: 24px;

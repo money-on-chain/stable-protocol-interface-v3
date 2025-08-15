@@ -1,11 +1,17 @@
 import React from "react";
-
+import { useProjectTranslation } from "../../helpers/translations";
+import "./Styles.scss";
 export default function NotConnected(): React.ReactElement {
+    const { t } = useProjectTranslation();
+
     return (
         <div className="section-container">
             <div className="content-page">
-                <div className="content-page-header">
-                    <h1>Please connect your wallet</h1>
+                <div className="layout-card notConnectedSplash decontent-page-header">
+                    <h1>{t("exchange.cardTitle")}</h1>
+                    {/* replace key for walletProvider.something */}
+                    {/* <div>Wallet not connected, connecto your wallet</div> */}
+                    {/* <div className="graphicWallet"></div> */}
                 </div>
             </div>
         </div>
