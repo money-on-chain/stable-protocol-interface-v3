@@ -35,7 +35,6 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                             amount: userInfoStaking["tgBalance"],
                             token: settings.tokens.TG[0],
                             decimals: Number(t("staking.display_decimals")),
-                            //numericLabelParams: {},
                             i18n: i18n,
                             
                         }) : "--"}
@@ -56,7 +55,6 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                             amount: userInfoStaking["unstakeBalance"],
                             token: settings.tokens.TG[0],
                             decimals: Number(t("staking.display_decimals")),
-                            //numericLabelParams: {},
                             i18n: i18n,
                             
                         }) : "--"}
@@ -78,7 +76,6 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                             amount: userInfoStaking["totalPendingExpiration"],
                             token: settings.tokens.TG[0],
                             decimals: Number(t("staking.display_decimals")),
-                            //numericLabelParams: {},
                             i18n: i18n,
                             
                         }) : "--"}
@@ -100,7 +97,6 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                             amount: userInfoStaking["totalAvailableToWithdraw"],
                             token: settings.tokens.TG[0],
                             decimals: Number(t("staking.display_decimals")),
-                            //numericLabelParams: {},
                             i18n: i18n,
                             
                         }) : "--"}
@@ -123,7 +119,6 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                                 amount: userInfoStaking["lockedInVoting"],
                                 token: settings.tokens.TG[0],
                                 decimals: Number(t("staking.display_decimals")),
-                                //numericLabelParams: {},
                                 i18n: i18n,
                                 
                             }) : "--"}

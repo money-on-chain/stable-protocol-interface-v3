@@ -128,7 +128,7 @@ function ConvertPeggedTokenPrice(contractProtocolStatus: any, caIndex: number, t
     if (settings.tokens.TP[tpIndex].peggedUSD) {
         return price;
     } else {
-        const priceCA = normalizeToBigInt(contractProtocolStatus.data?.[caIndex].PP_CA[0] || "0");
+        const priceCA = normalizeToBigInt(contractProtocolStatus.data?.[caIndex].PP_CA[0]) || 0n;
         return (inverted) ? divPrecision(1000000000000000000n, price) : divPrecision(price, priceCA);
     }
 }

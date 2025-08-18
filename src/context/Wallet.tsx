@@ -131,7 +131,7 @@ export type WalletContextType = {
     onError: OnError
   ) => Promise<any>
   isVestingLoaded: () => boolean
-  vestingAddress: () => string | undefined
+  vestingAddress: string | undefined
   onShowModalAccount: () => void
   onShowModalAccountVesting: () => void
   onHideModalAccount: () => void

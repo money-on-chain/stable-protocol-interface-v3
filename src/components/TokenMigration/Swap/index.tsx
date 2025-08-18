@@ -262,7 +262,6 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
                                             amount: userBalance.data.tpLegacy.balance,
                                             token: TokenSettings("TP_0"),
                                             decimals: 4,
-                                            numericLabelParams: {},
                                             i18n: i18n                                            
                                         })}
                                     </div>
@@ -279,7 +278,6 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
                                             amount: userBalance.data.tpLegacy.balance,
                                             token: TokenSettings("TP_0"),
                                             decimals: 4,
-                                            numericLabelParams: {},
                                             i18n: i18n                                            
                                         })}
                                     </div>

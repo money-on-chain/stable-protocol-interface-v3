@@ -74,8 +74,9 @@ export const generateTokenRow = ({
                         <PrecisionNumbers
                             amount={price}
                             token={{
+                                name: "",
                                 decimals: 18,
-                                visibleDecimals: { visiblePriceDecimals },
+                                visibleDecimals: visiblePriceDecimals,
                             }}
                             decimals={visiblePriceDecimals}
                             i18n={i18n}                            
@@ -95,6 +96,7 @@ export const generateTokenRow = ({
                                 <PrecisionNumbers
                                     amount={absBigInt(variation)}
                                     token={{
+                                        name: "",
                                         decimals: 18,
                                         visibleDecimals: 2,
                                     }}
@@ -127,8 +129,9 @@ export const generateTokenRow = ({
                     <PrecisionNumbers
                         amount={balance}
                         token={{
+                            name: "",
                             decimals: 18,
-                            visibleDecimals: { visibleBalanceDecimals },
+                            visibleDecimals: visibleBalanceDecimals,
                         }}
                         decimals={visibleBalanceDecimals}
                         i18n={i18n}                        
@@ -147,8 +150,9 @@ export const generateTokenRow = ({
                         <PrecisionNumbers
                             amount={balanceUSD}
                             token={{
+                                name: "",
                                 decimals: 18,
-                                visibleDecimals: { visibleBalanceUSDDecimals },
+                                visibleDecimals: visibleBalanceUSDDecimals,
                             }}
                             decimals={visibleBalanceUSDDecimals}
                             i18n={i18n}                            
