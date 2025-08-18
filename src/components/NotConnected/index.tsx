@@ -9,9 +9,6 @@ export default function NotConnected(): React.ReactElement {
             <div className="content-page">
                 <div className="layout-card notConnectedSplash decontent-page-header">
                     <h1>{t("exchange.cardTitle")}</h1>
-                    {/* replace key for walletProvider.something */}
-                    {/* <div>Wallet not connected, connecto your wallet</div> */}
-                    {/* <div className="graphicWallet"></div> */}
                 </div>
             </div>
         </div>

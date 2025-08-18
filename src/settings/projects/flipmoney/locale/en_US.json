@@ -100,6 +100,7 @@
         }
     },
     "walletProviders": {
+        "connectWalletButton": "Connect Wallet",
         "connectYourWallet": "Connect your Wallet",
         "noBrowserWallets": "No browser wallets detected",
         "providers": {
@@ -404,6 +405,7 @@
     },
 
     "language": {
+        "languageCTA": "Selecet Language:",
         "en": "🇬🇧 English",
         "es": "🇪🇸 Español"
     },

@@ -219,7 +219,7 @@ export default function SectionHeader(): JSX.Element {
                             </>
                         ) : (
                             <a onClick={() => onShowModalProviders()}>
-                                Connect Wallet
+                                {t("walletProviders.connectWalletButton")}
                             </a>
                         )}
                         <div className="logo-wallet"></div>
@@ -292,7 +292,7 @@ export default function SectionHeader(): JSX.Element {
                                     >
                                         {showLanguageSubmenu ? (
                                             <div className="mobile-language-title">
-                                                Select Language:
+                                                {t("language.languageCTA")}{" "}
                                             </div>
                                         ) : (
                                             languageOptions.find(
