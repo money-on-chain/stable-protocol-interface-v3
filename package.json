@@ -10,7 +10,6 @@
         "@vitejs/plugin-react-swc": "^3.10.0",
         "antd": "^4.24.16",
         "axios": "^1.9.0",
-        "bignumber.js": "^9.3.0",
         "env-cmd": "^10.1.0",
         "i18next": "^23.16.8",
         "moment": "^2.30.1",

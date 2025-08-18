@@ -528,7 +528,7 @@ export default function LastOperations(props: LastOperationsProps) {
                         "--"
                     ),
                 block: data["blockNumber"] || "--",
-                tx_hash_truncate: TruncatedAddress(data["hash"]) || "--",
+                tx_hash_truncate: TruncatedAddress(data["hash"] || "") || "--",
                 tx_hash: data["hash"] || "--",
                 gas_fee: data["gas_fee"] || data["gasFeeRBTC"] || "--",
                 gas: data["gas"] || "--",
@@ -540,7 +540,7 @@ export default function LastOperations(props: LastOperationsProps) {
                     t("operations.errors.noMessage"),
                 reason: data["reason_"] || "--",
                 executed_tx_hash_truncate:
-                    TruncatedAddress(data["params"]["hash"]) || "--",
+                    TruncatedAddress(data["params"]["hash"] || "") || "--",
                 executed_tx_hash: data["params"]["hash"] || "--",
                 status: getStatus(data) || "--",
                 fee: getFee(data) || "--",
@@ -751,7 +751,7 @@ export default function LastOperations(props: LastOperationsProps) {
             row_operation["executed"]["qFeeToken_"]
         ) {
             const qFeeToken = BigInt(row_operation["executed"]["qFeeToken_"]);
-            const qFeeTokenVendorMarkup = BigInt(row_operation["executed"]["qFeeTokenVendorMarkup_"]);
+            const qFeeTokenVendorMarkup = BigInt(row_operation["executed"]["qFeeTokenVendorMarkup_"] || "0");
 
             fee["amount"] = qFeeToken + qFeeTokenVendorMarkup;
             fee["token"] = "TF";
@@ -765,7 +765,7 @@ export default function LastOperations(props: LastOperationsProps) {
         ) {
             const qACfee = BigInt(row_operation["executed"]["qACfee_"]);
 
-            const qACVendorMarkup = BigInt(row_operation["executed"]["qACVendorMarkup_"]);
+            const qACVendorMarkup = BigInt(row_operation["executed"]["qACVendorMarkup_"] || "0");
 
             fee["amount"] = qACfee + qACVendorMarkup;
             fee["token"] = `CA_${caIndex}`;
@@ -778,12 +778,9 @@ export default function LastOperations(props: LastOperationsProps) {
                     {/* <span className="value"> */}
                     {PrecisionNumbers({
                         amount: fee["amount"],
-                        token: TokenSettings(fee["token"]),
+                        token: TokenSettings(fee["token"] || ""),
                         decimals: 6,
-                        t: t,
                         i18n: i18n,
-                        ns: ns,
-                        //skipContractConvert: true,
                     })}
                     {/* </span> */}
                     <span className="token">
