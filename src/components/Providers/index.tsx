@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Divider, Typography, notification, Tooltip } from "antd";
+import { Typography, notification, Tooltip } from "antd";
 import { Connector, useConnect, useAccount } from "wagmi";
 import { useProjectTranslation } from "../../helpers/translations";
 import "./Styles.scss";
@@ -86,13 +86,13 @@ export default function WalletProviders({ onCloseModal }: ProvidersProps) {
     return (
         <div className="providers__settings">
             <header>
-                <h1>Connect Wallet</h1>
+                <h1>{t("walletProviders.connectYourWallet")}</h1>
             </header>
             <section>
-                <h2>Installed Wallets</h2>
-                {/* <Title level={5}>Installed</Title> */}
                 {installed.length === 0 && (
-                    <Text type="secondary">No browser wallets detected.</Text>
+                    <Text type="secondary">
+                        {t("walletProviders.noBrowserWallets")}
+                    </Text>
                 )}
                 <div className="providers__connectors">
                     {installed.map((c) => (
@@ -108,15 +108,7 @@ export default function WalletProviders({ onCloseModal }: ProvidersProps) {
                                 isWalletConnect
                             )}
                         />
-                    ))}
-                </div>
-            </section>
-            <div className="spacer"></div>
-            <section>
-                <h2>Other Options</h2>
-
-                {/* <Title level={5}>Other options</Title> */}
-                <div className="providers__connectors">
+                    ))}{" "}
                     {othersOrdered.map((c) => (
                         <WalletOption
                             key={c.uid}
@@ -164,12 +156,14 @@ function WalletOption({
 }
 
 function labelFor(c: Connector) {
+    const { t } = useProjectTranslation();
     const n = c.name.toLowerCase();
-    if (n.includes("metamask")) return "MetaMask";
-    if (n.includes("coinbase")) return "Coinbase Wallet";
-    if (c.id === "walletConnect") return "WalletConnect (QR / mobile)";
-    if (c.id === "safe") return "Safe (multi-sig)";
-    if (c.id === "injected") return "Browser Wallet";
+    if (n.includes("metamask")) return t("walletProviders.providers.metamask");
+    if (n.includes("coinbase")) return t("walletProviders.providers.coinbase");
+    if (c.id === "walletConnect")
+        return t("walletProviders.providers.walletconnect");
+    if (c.id === "safe") return t("walletProviders.providers.multisig");
+    if (c.id === "injected") return t("walletProviders.providers.injected");
     return c.name;
 }
 
@@ -182,17 +176,16 @@ function getTooltip(
     isMetaMask: (c: Connector) => boolean,
     isWalletConnect: (c: Connector) => boolean
 ): string | undefined {
+    const { t } = useProjectTranslation();
+
     if (isWalletConnect(c)) {
-        return `For hardware wallets like Ledger Live, Keystone, GridPlus:
-1) Open your wallet app
-2) Select "Connect with WalletConnect"
-3) Scan the QR code shown here.`;
+        return t("walletProviders.toolTip.walletConnected");
     }
-    if (isInjected(c) || isMetaMask(c)) {
-        return `To use Ledger or Trezor:
-1) Open MetaMask or Rabby
-2) Connect your hardware wallet in settings
-3) Select the account here.`;
+    if (isMetaMask(c)) {
+        return t("walletProviders.toolTip.metamask");
+    }
+    if (isInjected(c)) {
+        return t("walletProviders.toolTip.injected");
     }
     return undefined;
 }
