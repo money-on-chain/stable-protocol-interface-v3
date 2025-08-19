@@ -1,0 +1,13 @@
+.notConnectedSplash {
+    display: none;
+}
+
+.graphicWallet {
+    width: 128px;
+    height: 128px;
+    background-image: url("../../assets/icons/graphicWalletOutline.svg");
+    background-size: 128px 128px;
+    background-repeat: no-repeat;
+    display: block;
+    filter: var(--color-btn-primary-icon-filter-default);
+}

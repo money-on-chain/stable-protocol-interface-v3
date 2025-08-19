@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Icon/WalletDisconnected/Outline</title>
+    <g id="Icon/WalletDisconnected/Outline" stroke="none" fill="none" fill-rule="nonzero" stroke-width="1">
+        <g id="Group" fill-rule="evenodd" transform="translate(4, 3)" stroke="#000000">
+            <path d="M4,1.97199248 C1.60879111,3.3643356 0,5.96673614 0,8.94732604 C0,13.3947284 3.58172444,17 8,17 C12.4183111,17 16,13.3947284 16,8.94732604 C16,5.96673614 14.3912,3.3643356 12,1.97199248" id="Path" stroke-width="1.75042735"></path>
+            <line x1="8" y1="8.05267396" x2="8" y2="0" id="Path" stroke-width="1.75042735"></line>
+        </g>
+    </g>
+</svg>

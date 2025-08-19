@@ -1,0 +1,71 @@
+.providers__settings {
+    background-color: var(--surface-color-2);
+}
+header {
+}
+h2 {
+    width: 100%;
+    text-align: center;
+}
+.providers__connectors {
+    color: var(--color-txt-secondary);
+    font-family: var(--main-font);
+    font-weight: 600;
+    line-height: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    button {
+        transition:
+            background-color 0.3s,
+            color 0.3s,
+            border-color 0.3s;
+        border: none;
+        border-radius: var(--data-background-radius);
+        box-shadow: none;
+        background-color: var(--data-background-color);
+        outline: 1px solid var(--dividers);
+        padding: var(--data-background-padding);
+        height: var(--btn-heigh);
+        color: var(--color-txt-primary);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        box-shadow: var(--surface-shadow-2);
+    }
+    button:hover {
+        outline: 1px solid var(--color-btn-secondary-txt-hover);
+        // background-color: var(--color-btn-primary-background-active);
+    }
+    button:active {
+        background-color: var(--color-btn-primary-background-active);
+    }
+}
+.spacer {
+    height: 32px;
+}
+.walletIcon {
+    width: 32px;
+    height: 32px;
+    background-size: 32px 32px;
+    background-repeat: no-repeat;
+    display: block;
+}
+.walletIcon-MetaMask {
+    background-image: url("../../assets/icons/walletIcon_MetaMask_Fox.svg");
+}
+.walletIcon-Coinbase {
+    background-image: url("../../assets/icons/walletIcon_cbw.svg");
+    border-radius: 4px;
+}
+.walletIcon-WalletConnect {
+    background-image: url("../../assets/icons/walletIcon_WalletConnect.svg");
+}
+.walletIcon-safe {
+    background-image: url("../../assets/icons/graphicWalletOutline.svg");
+}
+.walletIcon-Injected {
+    background-image: url("../../assets/icons/walletIcon_BrowserWallet.svg");
+    filter: var(--color-icon-link-filter);
+}
