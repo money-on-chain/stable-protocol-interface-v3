@@ -17,7 +17,7 @@ export default function SectionStaking(): React.ReactElement {
             setReady(true);
         }
         if (userBalance.data && isVestingLoaded()) {
-            const vestingAddr = vestingAddress();
+            const vestingAddr = vestingAddress;
             setUsingVestingAddress(vestingAddr || "");
         } else {
             setUsingVestingAddress("");

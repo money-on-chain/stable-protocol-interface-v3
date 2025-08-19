@@ -1,12 +1,12 @@
 import { Input } from "antd";
-import React, { useContext, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 import { useProjectTranslation } from "../../helpers/translations";
 import CurrencyPopUp from "../CurrencyPopUp";
 import {
     TokenSettings,
     TokenBalance,
-    ConvertAmount, getCAIndex
+    ConvertAmount
 } from '../../helpers/currencies';
 import { tokenExchange } from "../../helpers/exchange";
 import { PrecisionNumbers } from "../PrecisionNumbers";
@@ -150,7 +150,7 @@ export default function Send(): JSX.Element {
             newAmountBig
         );
         
-        const priceCA: bigint = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_CA[0]);
+        const priceCA: bigint = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_CA[0]) || 0n;
 
         let convertAmountUSD: bigint;
         if (currencyYouSend === "COINBASE") {

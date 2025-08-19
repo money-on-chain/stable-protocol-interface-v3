@@ -4,7 +4,11 @@ import PropTypes from "prop-types";
 
 import { useProjectTranslation } from "../../helpers/translations";
 import { useWalletContext } from "@/context/Wallet";
-//import AccountDialog from '../Account';
+
+
+const PRECISION_DECIMALS = 18n
+const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
+
 
 interface AllowanceDialogProps {
     onCloseModal: () => void;
@@ -79,7 +83,7 @@ export default function AllowanceDialog(props: AllowanceDialogProps): JSX.Elemen
         //amountAllowance = new BigNumber(1000) //Number.MAX_SAFE_INTEGER.toString()
         let amountAllowance: bigint;
         if (infinityAllowance) {
-            amountAllowance = 100000000000n;
+            amountAllowance = 100000000n * DECIMALS_18; // very high value
         } else {
             amountAllowance = amountYouExchangeLimit;
         }

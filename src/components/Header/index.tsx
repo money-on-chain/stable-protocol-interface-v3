@@ -1,5 +1,5 @@
 import { Layout } from "antd";
-import React, { useContext, useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import { useProjectTranslation } from "../../helpers/translations";
@@ -9,7 +9,6 @@ import settings from "../../settings/settings.json";
 import menuOptionsData from "./menuOptions.json";
 import Brand from "./Brand";
 import { useWalletContext } from "../../context/Wallet";
-import { config } from "../../wagmiConfig";
 
 import "./Styles.scss";
 
@@ -212,11 +211,11 @@ export default function SectionHeader(): JSX.Element {
                         className={`wallet-address ${isConnected ? "walletConnected" : "walletDisconnected"}`}
                     >
                         {isConnected ? (
-                            <>
-                                <a onClick={onShowModalAccount}>
-                                    {truncateAddress(address)}
-                                </a>
-                            </>
+                        <>                            
+                            <a onClick={onShowModalAccount}>
+                                {truncateAddress(address || "")}
+                            </a>                            
+                        </>
                         ) : (
                             <a onClick={() => onShowModalProviders()}>
                                 {t("walletProviders.connectWalletButton")}

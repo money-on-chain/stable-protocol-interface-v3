@@ -67,7 +67,7 @@ const loadVesting = async (publicClient: any, vAddress: `0x${string}`): Promise<
 
 const onValidateVestingAddress = async (publicClient: any, addVestingAddress: `0x${string}`): Promise<boolean> => {
     // 1. Input address valid
-    if (addVestingAddress === "") {
+    if (addVestingAddress === undefined || addVestingAddress === null ) {
         return false;
     } else if (addVestingAddress.length < 42 || addVestingAddress.length > 42) {
         return false;

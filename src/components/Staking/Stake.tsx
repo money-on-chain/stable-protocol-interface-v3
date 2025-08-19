@@ -1,4 +1,4 @@
-import React, { useState, useContext, Fragment, useEffect } from "react";
+import React, { useState, Fragment, useEffect } from "react";
 import { Button } from "antd";
 import PropTypes from "prop-types";
 
@@ -33,7 +33,7 @@ type ModalMode = "staking" | "unstaking" | null;
 
 const Stake = (props: StakeProps): JSX.Element => {
     const { activeTab, userInfoStaking } = props;
-    const { t, i18n, ns } = useProjectTranslation();
+    const { t, i18n } = useProjectTranslation();
 
     const { contractProtocolStatus } = useWalletContext()
 
@@ -175,7 +175,6 @@ const Stake = (props: StakeProps): JSX.Element => {
                 <div className="inputFields">
                     <div className="tokenSelector">
                         <CurrencyPopUp
-                            className="select-token"
                             value={defaultTokenStake}
                             currencyOptions={tokenStake()}
                             onChange={onChangeCurrency}
@@ -194,10 +193,8 @@ const Stake = (props: StakeProps): JSX.Element => {
                                     ? userInfoStaking["unstakeBalance"] || 0n
                                     : userInfoStaking["tgBalance"] || 0n,
                                 token: TokenSettings(defaultTokenStake),
-                                decimals: t("staking.staking.input_decimals"),
-                                t: t,
-                                i18n: i18n,
-                                ns: ns                                
+                                decimals: Number(t("staking.staking.input_decimals")),
+                                i18n: i18n,                                
                             })}
                             placeholder={"0.0"}
                             inputValue={
@@ -243,20 +240,16 @@ const Stake = (props: StakeProps): JSX.Element => {
                                 : PrecisionNumbers({
                                       amount: toBigIntPrecision(amountToUnstake),
                                       token: settings.tokens.TG[0],
-                                      decimals: t("staking.display_decimals"),
-                                      t: t,
-                                      i18n: i18n,
-                                      ns: ns                                      
+                                      decimals: Number(t("staking.display_decimals")),
+                                      i18n: i18n,                                      
                                   })
                             : amountToStake === ""
                               ? ""
                               : PrecisionNumbers({
                                     amount: toBigIntPrecision(amountToStake),
                                     token: settings.tokens.TG[0],
-                                    decimals: t("staking.display_decimals"),
-                                    t: t,
-                                    i18n: i18n,
-                                    ns: ns                                    
+                                    decimals: Number(t("staking.display_decimals")),
+                                    i18n: i18n,                                    
                                 })}
                         {t("staking.governanceToken")}
                     </div>
@@ -283,7 +276,7 @@ const Stake = (props: StakeProps): JSX.Element => {
                     mode={modalMode}
                     visible={modalMode !== null}
                     onClose={() => setModalMode(null)}
-                    withdrawalId={null}
+                    withdrawalId={undefined}
                     amount={modalAmount}
                     onConfirm={onStakingModalConfirm}
                 />

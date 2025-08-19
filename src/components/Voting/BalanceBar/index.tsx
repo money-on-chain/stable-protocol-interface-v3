@@ -23,7 +23,7 @@ export default function BalanceBar(props: BalanceBarProps): React.ReactElement {
                 <div className="label">
                     {PrecisionNumbers({
                         amount: props.againstVotes,
-                        token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
+                        token: TokenSettings("TG"),
                         decimals: 2,
                         i18n: i18n                        
                     })}
@@ -31,7 +31,7 @@ export default function BalanceBar(props: BalanceBarProps): React.ReactElement {
                     ({
                     PrecisionNumbers({
                         amount: props.against,
-                        token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
+                        token: TokenSettings("TG"),
                         decimals: 2,
                         i18n: i18n                        
                         })}
@@ -41,14 +41,14 @@ export default function BalanceBar(props: BalanceBarProps): React.ReactElement {
                 <div className="label">
                     {PrecisionNumbers({
                         amount: props.infavorVotes,
-                        token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
+                        token: TokenSettings("TG"),
                         decimals: 2,
                         i18n: i18n                        
                     })}
                     {space}(
                         {PrecisionNumbers({
                             amount: props.infavor,
-                            token: TokenSettings("TG") as any, // Type assertion to fix type mismatch
+                            token: TokenSettings("TG"),
                             decimals: 2,
                             i18n: i18n                        
                         })}

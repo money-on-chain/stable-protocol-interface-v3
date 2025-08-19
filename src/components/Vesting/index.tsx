@@ -104,6 +104,7 @@ const Vesting: React.FC = () => {
     };
 
     const getIsHolderVesting = (): boolean => {
+        if (!address) return false;
         return (
             userOmocBalance.data.vestingmachine.getHolder.toLowerCase() ===
             address.toLowerCase()
@@ -165,9 +166,7 @@ const Vesting: React.FC = () => {
                 dates = deltas.map((x) => x / 60 / 60 / 24);
             }
         }
-
-        //let vestedAmount = new BigNumber(0);
-        //let releasedAmount = new BigNumber(0);
+        
         let daysToRelease = 0;
         let countVested = 0;
 

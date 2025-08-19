@@ -51,6 +51,7 @@ interface MarkStyle {
 
 interface PriceVariationToleranceMarks {
     [key: number]: MarkStyle & { label: string };
+    [key: string]: MarkStyle & { label: string };
 }
 
 interface StatusLabels {
@@ -62,6 +63,7 @@ interface StatusLabels {
     SUCCESS: string;
     ERROR: string;
     DEFAULT: string;
+    [key: string]: string;
 }
 
 
@@ -107,7 +109,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
 
     const { t, i18n, ns } = useProjectTranslation();
     
-    const { contractProtocolStatus, userBalance, publicClient, interfaceExchangeMethod } = useWalletContext()
+    const { contractProtocolStatus, userBalance, interfaceExchangeMethod } = useWalletContext()
 
     const [status, setStatus] = useState<StatusType>("SUBMIT");
     const [amountYouExchange, setAmountYouExchange] = useState<bigint>(
