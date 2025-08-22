@@ -76,7 +76,7 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
             onValueChange("");
         }
     };
-    
+
     return (
         <div className="amountInput">
             <div className="amountInput__infoBar">
@@ -110,4 +110,4 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
     );
 };
 
-export default InputAmount; 
+export default InputAmount;

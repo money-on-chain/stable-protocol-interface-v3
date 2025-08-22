@@ -14,9 +14,7 @@ import { AutoReconnect } from "../../../components/AutoReconnect";
 import { NetworkGuard } from "../../../components/NetworkGuard";
 import { ALLOWED_CHAIN } from "../../../wagmiConfig";
 
-
 const { Content, Footer } = Layout;
-
 
 // Type definitions
 interface NotificationStatus {
@@ -30,18 +28,35 @@ interface NotificationStatus {
 }
 
 export default function Skeleton(): JSX.Element {
-    const { isConnected, contractProtocolStatus, userBalance, userOmocBalance } = useWalletContext()
-    const chainId = useChainId()
-    const isWrongNetwork = isConnected && chainId !== ALLOWED_CHAIN.id
-    
-    const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(null);
+    const {
+        isConnected,
+        contractProtocolStatus,
+        userBalance,
+        userOmocBalance,
+    } = useWalletContext();
+    const chainId = useChainId();
+    const isWrongNetwork = isConnected && chainId !== ALLOWED_CHAIN.id;
+
+    const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(
+        null
+    );
     const { checkerStatus } = CheckStatusGlobal();
-    
+
     useEffect(() => {
-        if (contractProtocolStatus.data && userBalance.data && userOmocBalance.data && !isWrongNetwork) {
+        if (
+            contractProtocolStatus.data &&
+            userBalance.data &&
+            userOmocBalance.data &&
+            !isWrongNetwork
+        ) {
             readProtocolStatus();
         }
-    }, [contractProtocolStatus.data, userBalance.data, userOmocBalance.data, isWrongNetwork]);
+    }, [
+        contractProtocolStatus.data,
+        userBalance.data,
+        userOmocBalance.data,
+        isWrongNetwork,
+    ]);
 
     const readProtocolStatus = (): void => {
         const { globalStatus, statusLabel, statusText } = checkerStatus();
@@ -61,19 +76,19 @@ export default function Skeleton(): JSX.Element {
     };
 
     return (
-    <Layout>
-        {/* <AutoReconnect />  Always runs on mount */}        
-        <SectionHeader />        
-        <Content>
-            <NetworkGuard />
-            {notifStatus && <NotificationBody notifStatus={notifStatus} />}           
-            {isConnected && !isWrongNetwork ? <Outlet /> : <NotConnected />}
-        </Content>
-        <Footer>
-            <div className="footer-container">
-                <DappFooter></DappFooter>
-            </div>
-        </Footer>
-    </Layout>
+        <Layout>
+            {/* <AutoReconnect />  Always runs on mount */}
+            <SectionHeader />
+            <Content>
+                <NetworkGuard />
+                {notifStatus && <NotificationBody notifStatus={notifStatus} />}
+                {isConnected && !isWrongNetwork ? <Outlet /> : <NotConnected />}
+            </Content>
+            <Footer>
+                <div className="footer-container">
+                    <DappFooter></DappFooter>
+                </div>
+            </Footer>
+        </Layout>
     );
 }

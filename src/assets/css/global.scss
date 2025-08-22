@@ -1355,6 +1355,7 @@ h2 {
                 .ant-slider-mark-text,
                 .ant-slider-mark-txt-active {
                     color: var(--color-controls-foreground-on) !important;
+                    font-size: 10px;
                 }
             }
         }
@@ -1367,6 +1368,9 @@ h2 {
             .SliderText {
                 margin-left: 8px;
                 color: var(--color-txt-primary);
+            }
+            .icon-preferences {
+                filter: var(--color-icon-link-secondary-filter);
             }
         }
     }

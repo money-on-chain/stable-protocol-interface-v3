@@ -176,6 +176,12 @@ icons.css contains all the css code for Icons across the Dapp
     background-image: url("../icons/Preferences.svg");
     background-size: 16px 16px;
     background-repeat: no-repeat;
+
+    width: 16px;
+    height: 16px;
+    background-image: url("../icons/Preferences.svg");
+    background-size: 16px 16px;
+    background-repeat: no-repeat;
 }
 
 .icon-arrow-down {
@@ -397,6 +403,14 @@ icons.css contains all the css code for Icons across the Dapp
 }
 .icon__toggle__expand {
     background-image: url("../icons/IconToggleExpand.svg");
+    filter: var(--color-icon-link-secondary-filter);
+    background-size: 24px 24px;
+    background-repeat: no-repeat;
+    width: 24px;
+    height: 24px;
+}
+.icon__select__token {
+    background-image: url("../icons/SelectToken.svg");
     filter: var(--color-icon-link-secondary-filter);
     background-size: 24px 24px;
     background-repeat: no-repeat;

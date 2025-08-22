@@ -32,7 +32,7 @@ export default function CopyAddress(props: CopyAddressProps): JSX.Element {
             description: `${address} ` + t("feedback.clipboardTo"),
             placement: "bottomRight",
             onClose: () => {
-                // Destruye el contenedor cuando se cierra la notificación
+                // Deletes containers after the notification is closed
                 notification.destroy();
             },
         });

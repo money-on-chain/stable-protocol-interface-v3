@@ -13,11 +13,10 @@ interface BucketsProps {
     caIndex: number;
 }
 
-
 export default function Buckets(props: BucketsProps): JSX.Element {
     const { caIndex } = props;
-    const { t, i18n, ns } = useProjectTranslation();    
-    const { contractProtocolStatus } = useWalletContext()
+    const { t, i18n, ns } = useProjectTranslation();
+    const { contractProtocolStatus } = useWalletContext();
     const space = "\u00A0";
 
     let lckAC: bigint = 0n;
@@ -31,21 +30,15 @@ export default function Buckets(props: BucketsProps): JSX.Element {
     }
 
     return (
-        // <div className="section__innerCard--big dash__perfBucket">
         <div className="layout-card section__innerCard--big perfGlobalMetrics">
-            {/* <div className="token"> */}
-            {/* <div
-                        className={`icon-token-ca_${caIndex} token__icon`}
-                    ></div> */}
             <div className="layout-card-title">
                 <h1>
                     {t(`exchange.tokens.CA_${caIndex}.label`, {
                         ns: ns,
                     })}
-                    {space} Collateral
+                    {space} {t("performance.collateral.cardTitle")}
                 </h1>
             </div>
-            {/* </div> */}
 
             <div className="metrics">
                 <div className="dataGroup">
@@ -66,10 +59,11 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                           settings.tokens.CA[caIndex]
                                               .visibleDecimals,
                                       i18n: i18n,
-                                      
                                   })}
                         </div>
-                        <div className="label">Amount in protocol</div>
+                        <div className="label">
+                            {t("performance.collateral.labelAmountInProtocol")}
+                        </div>
                     </div>
                 </div>
                 <div className="dataGroup">
@@ -88,10 +82,11 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                       token: settings.tokens.CA[caIndex],
                                       decimals: 4,
                                       i18n: i18n,
-                                      
                                   })}
                         </div>
-                        <div className="label">Coverage</div>
+                        <div className="label">
+                            {t("performance.collateral.labelAmountInProtocol")}
+                        </div>
                     </div>
                 </div>
                 <div className="dataGroup">
@@ -110,10 +105,11 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                       token: TokenSettings(`CA_${caIndex}`),
                                       decimals: 4,
                                       i18n: i18n,
-                                      
                                   })}
                         </div>
-                        <div className="label">Target Coverage Adjusted</div>
+                        <div className="label">
+                            {t("performance.collateral.labelTargetAdjusted")}
+                        </div>
                     </div>
                 </div>
                 <div className="dataGroup">
@@ -131,10 +127,11 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                       token: TokenSettings(`CA_${caIndex}`),
                                       decimals: 4,
                                       i18n: i18n,
-                                      
                                   })}
                         </div>
-                        <div className="label">Leverage</div>
+                        <div className="label">
+                            {t("performance.collateral.labelLeverage")}
+                        </div>
                     </div>
                 </div>
                 <div className="dataGroup">
@@ -154,17 +151,17 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                           settings.tokens.CA[caIndex]
                                               .visibleDecimals,
                                       i18n: i18n,
-                                      
                                   })}
                         </div>
-                        <div className="label">Locked Collateral</div>
+                        <div className="label">
+                            {t("performance.collateral.labelLocked")}
+                        </div>
                     </div>
                 </div>
             </div>
             {/* </div> */}
 
             {/* Tokens Performance Table */}
-            {/* <div className="section__innerCard--big dash__perfPegged"> */}
             <div className="buckets">
                 <div className="desktop-only">
                     <Tokens caIndex={caIndex} />

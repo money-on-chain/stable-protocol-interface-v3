@@ -76,7 +76,8 @@
     },
     "feedback": {
         "clipboardCopy": "Copied",
-        "clipboardTo": "to the clipboard"
+        "clipboardTo": "to the clipboard",
+        "errors": { "generic": "Error" }
     },
 
     "wallet": {
@@ -272,18 +273,27 @@
             "cardTitle": "Total Value Locked",
             "expressedIn": "Expressed in USD"
         },
-
         "tc": {
             "priceIn": "Price in USD",
             "currentLeverage": "Current leverage",
             "totalInSystem": "Total in the system",
             "redeemable": "Available to redeem"
         },
-
+        "globalMetrics": {
+            "cardTitle": "Global Metrics",
+            "labelCoverage": "Coverage",
+            "labelTargetAdjusted": "Target Coverage Adjusted",
+            "labelLeverage": "Leverage"
+        },
         "collateral": {
             "cardTitle": "Collateral",
             "totalIn": "Total collateral in USD",
-            "globalCoverage": "Global coverage"
+            "globalCoverage": "Global coverage",
+            "labelAmountInProtocol": "Amount in protocol",
+            "labelCoverage": "Coverage",
+            "labelTargetAdjusted": "Target Coverage Adjusted",
+            "labelLeverage": "Leverage",
+            "labelLocked": "Locked Collateral"
         },
 
         "pegged": {
@@ -735,6 +745,17 @@
             "changerAddress": "Proposal Changer Address",
             "votingInFavor": "You are voting in favor!",
             "votingAgainst": "You are voting against!"
+        },
+        "preVoting": {
+            "CTA": {
+                "pushToNextStep": "Push to Next Step",
+                "backToProposals": "Back to Proposals",
+                "unregisterProposal": "Unregister Proposal"
+            }
+        },
+        "proposal": {
+            "votingPowerLabel": "Your voting power stats:",
+            "CTA": { "pushToNextStep": "Push to Next Step" }
         }
     },
     "alert": {
@@ -767,5 +788,9 @@
             "statusReceived": "Received",
             "statusInProgress": "In progress"
         }
+    },
+    "networkGuard": {
+        "displayMessage": "You are connected to the wrong network. Please switch to",
+        "switchMessage": "Switch to"
     }
 }

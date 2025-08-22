@@ -16,7 +16,6 @@
     gap: 8px;
     transition: background 0.2s ease-in-out;
     cursor: pointer;
-    // border: 1px solid #ccc;
     border-radius: 6px;
     padding: 10px;
 
@@ -24,7 +23,7 @@
         background: rgba(0, 0, 0, 0.05);
     }
 }
-.icon__toggle__expand {
+.icon__select__token {
     margin-left: auto;
 }
 /* Token list inside modal */
@@ -34,7 +33,6 @@
     gap: 10px;
     max-height: 60vh; /* Keeps the list scrollable */
     overflow-y: auto;
-    // padding-right: 5px;
 }
 
 /* Individual token item inside modal */
@@ -45,8 +43,6 @@
     gap: 8px;
     transition: background 0.2s ease-in-out;
     cursor: pointer;
-    // box-shadow: var(--surface-shadow-3);
-    // border: 1px solid var(--dividers);
     border-radius: 4px;
     background-color: var(--surface-color-3);
     padding: 10px;
@@ -56,21 +52,12 @@
         background-color: var(--surface-color-1);
     }
     &.is-selected {
-        // border: 2px solid #0056b3;
-        // background: #007bff; /* Highlight color */
-        // color: white;
-        // font-weight: bold;
-        // background-color: var(--surface-color-1);
     }
 }
 
 /* Checkmark icon */
 .selected-icon {
-    // font-size: 18px;
-    // color: white;
-    // font-weight: bold;
     margin-left: auto; /* Pushes the icon to the right */
-    // padding-left: 10px;
 }
 
 // A smaller modal than default since this list doesn't need a wider one

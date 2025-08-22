@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Controls/SelectToken</title>
+    <g id="Controls/SelectToken" stroke="none" fill="none" fill-rule="nonzero">
+        <rect id="Area" x="0" y="0" width="24" height="24"></rect>
+        <g id="Group" stroke-width="1" fill-rule="evenodd" transform="translate(1, 0)">
+            <path d="M6.76315789,19 C8.28921053,19 9.52631579,17.7812222 9.52631579,16.2777778 C9.52631579,14.7743333 8.28921053,13.5555556 6.76315789,13.5555556 C5.23710526,13.5555556 4,14.7743333 4,16.2777778 C4,17.7812222 5.23710526,19 6.76315789,19 Z" id="Path" stroke="#101214" stroke-width="2"></path>
+            <path d="M6.76315789,10.4444444 C8.28921053,10.4444444 9.52631579,9.22566667 9.52631579,7.72222222 C9.52631579,6.21877778 8.28921053,5 6.76315789,5 C5.23710526,5 4,6.21877778 4,7.72222222 C4,9.22566667 5.23710526,10.4444444 6.76315789,10.4444444 Z" id="Path" stroke="#101214" stroke-width="2"></path>
+            <line x1="13.4736842" y1="16.2777778" x2="19" y2="16.2777778" id="Path" stroke="#101214" stroke-width="2"></line>
+            <line x1="13.4736842" y1="7.72222222" x2="19" y2="7.72222222" id="Path" stroke="#101214" stroke-width="2"></line>
+            <rect id="Rectangle" stroke="#000000" stroke-width="2" x="0" y="1" width="22" height="22" rx="2"></rect>
+        </g>
+    </g>
+</svg>

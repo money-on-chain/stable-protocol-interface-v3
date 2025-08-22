@@ -36,7 +36,9 @@ export default function CurrencyPopUp(props: CurrencyPopUpProps): JSX.Element {
 
     // Remove duplicated items, except on action exchange & coinbase
     const arrayAdded: string[] = [];
-    const optionsFiltered: CurrencyOption[] = options.filter(function (item: CurrencyOption /*index, array*/) {
+    const optionsFiltered: CurrencyOption[] = options.filter(function (
+        item: CurrencyOption /*index, array*/
+    ) {
         if (!arrayAdded.includes(item.abbreviation)) {
             if (!(action === "exchange" && item.value === "COINBASE"))
                 arrayAdded.push(item.abbreviation);
@@ -50,11 +52,10 @@ export default function CurrencyPopUp(props: CurrencyPopUpProps): JSX.Element {
     );
 
     // Filter options to only include allowed currencies
-    const filteredOptions: CurrencyOption[] = optionsFiltered.filter((currency) =>
-        currencyOptions.includes(currency.value)
+    const filteredOptions: CurrencyOption[] = optionsFiltered.filter(
+        (currency) => currencyOptions.includes(currency.value)
     );
 
-    
     // Function to open the modal
     const openModal = (): void => {
         if (!disabled) {
@@ -86,7 +87,7 @@ export default function CurrencyPopUp(props: CurrencyPopUpProps): JSX.Element {
                             {selectedCurrency.label}
                         </div>
                         <div className="token__ticker">{`(${selectedCurrency.abbreviation})`}</div>
-                        <div className="icon__toggle__expand"></div>
+                        <div className="icon__select__token"></div>
                     </div>
                 ) : (
                     <Button type="primary" disabled={disabled}>
@@ -124,4 +125,4 @@ export default function CurrencyPopUp(props: CurrencyPopUpProps): JSX.Element {
             </Modal>
         </div>
     );
-} 
+}

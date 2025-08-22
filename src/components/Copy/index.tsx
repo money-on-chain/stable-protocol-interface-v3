@@ -28,7 +28,7 @@ export default function Copy(props: CopyProps): JSX.Element {
             description: `${textToCopy} to clipboard`,
             placement: "bottomRight",
             onClose: () => {
-                // Destruye el contenedor cuando se cierra la notificación
+                // Deletes containers after the notification is closed
                 notification.destroy();
             },
         });

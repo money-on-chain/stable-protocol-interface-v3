@@ -1,19 +1,33 @@
 {
     "project": "flipmoney",
-    "showPriceVariation":false,
-    "tokens": {
-        "COINBASE": [{
+    "showPriceVariation": false,
+    "userDisplayCurrency": [
+        {
             "key": 0,
-            "name": "RBTC",
-            "fullName": "Smart Bitcoin",
-            "decimals": 18,
-            "visibleDecimals": 6,
-            "visiblePriceDecimals": 2,
-            "visiblePriceUSD": 8,
-            "visibleBalanceDecimals": 8,
-            "visibleBalanceUSDDecimals": 2,
-            "peggedUSD": false
-        }],
+            "symbol": "USD",
+            "displayName": "US Dollar"
+        },
+        {
+            "key": 1,
+            "symbol": "ARS",
+            "displayName": "Argentinian Peso"
+        }
+    ],
+    "tokens": {
+        "COINBASE": [
+            {
+                "key": 0,
+                "name": "RBTC",
+                "fullName": "Smart Bitcoin",
+                "decimals": 18,
+                "visibleDecimals": 6,
+                "visiblePriceDecimals": 2,
+                "visiblePriceUSD": 8,
+                "visibleBalanceDecimals": 8,
+                "visibleBalanceUSDDecimals": 2,
+                "peggedUSD": false
+            }
+        ],
         "CA": [
             {
                 "key": 0,
@@ -112,17 +126,20 @@
                 "visibleBalanceDecimals": 4,
                 "visibleBalanceUSDDecimals": 2,
                 "peggedUSD": false
-            }],
-        "TG": [{
-            "key": 0,
-            "name": "FLIP",
-            "decimals": 18,
-            "visibleDecimals": 8,
-            "visiblePriceDecimals": 2,
-            "visiblePriceUSD": 8,
-            "visibleBalanceDecimals": 4,
-            "visibleBalanceUSDDecimals": 2,
-            "peggedUSD": false
-        }]
+            }
+        ],
+        "TG": [
+            {
+                "key": 0,
+                "name": "FLIP",
+                "decimals": 18,
+                "visibleDecimals": 8,
+                "visiblePriceDecimals": 2,
+                "visiblePriceUSD": 8,
+                "visibleBalanceDecimals": 4,
+                "visibleBalanceUSDDecimals": 2,
+                "peggedUSD": false
+            }
+        ]
     }
 }

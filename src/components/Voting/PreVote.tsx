@@ -7,7 +7,7 @@ import { TokenSettings } from "../../helpers/currencies";
 import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
 import { useWalletContext } from "../../context/Wallet";
 
-const PRECISION_DECIMALS = 18n
+const PRECISION_DECIMALS = 18n;
 const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
 
 interface CreateBarGraphProps {
@@ -24,7 +24,7 @@ interface CreateBarGraphProps {
     valueNeedIt: bigint;
     valueTotal: bigint;
     pctCurrent: bigint;
-    pctNeedIt: bigint;    
+    pctNeedIt: bigint;
     amount1: bigint;
     percentage1: bigint;
     label2: string;
@@ -64,8 +64,6 @@ interface PreVoteProps {
     onUnRegisterProposal: (changeContract: string) => void;
     onRunPreVoteStep: () => void;
 }
-
-
 
 const CreateBarGraph: React.FC<CreateBarGraphProps> = (props) => {
     return (
@@ -107,14 +105,16 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
     } = props;
     const { t, i18n, ns } = useProjectTranslation();
     const space: string = "\u00A0";
-    const { interfaceVotingPreVote, userOmocBalance, contractStatusOmoc } = useWalletContext()
+    const { interfaceVotingPreVote, userOmocBalance, contractStatusOmoc } =
+        useWalletContext();
 
     const [isOperationModalVisible, setIsOperationModalVisible] =
         useState<boolean>(false);
     const [txHash, setTxHash] = useState<string>("");
     const [operationStatus, setOperationStatus] = useState<string>("sign");
     const [modalTitle, setModalTitle] = useState<string>("Voting in favor");
-    const [votingInFavorError, setVotingInFavorError] = useState<boolean>(false);
+    const [votingInFavorError, setVotingInFavorError] =
+        useState<boolean>(false);
     const [showProposalModal, setShowProposalModal] = useState<boolean>(false);
 
     useEffect(() => {
@@ -206,11 +206,11 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
         };
 
         await interfaceVotingPreVote(
-                proposal.changeContract,
-                onTransaction,
-                onReceipt,
-                onError
-            )
+            proposal.changeContract,
+            onTransaction,
+            onReceipt,
+            onError
+        )
             .then((/*res*/) => {
                 // Refresh status
                 userOmocBalance.refetch();
@@ -360,7 +360,9 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
                                             className="button secondary"
                                             onClick={() => onRunPreVoteStep()}
                                         >
-                                            Push to Next Step
+                                            {t(
+                                                "voting.preVoting.CTA.pushToNextStep"
+                                            )}
                                         </button>
                                     )}
                                 </div>
@@ -371,7 +373,7 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
                 </div>
                 <div className="go-back">
                     <button className="button" onClick={() => onBack()}>
-                        Back to Proposals
+                        {t("voting.preVoting.CTA.backToProposals")}
                     </button>
 
                     {proposal.canUnregister && (
@@ -381,7 +383,7 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
                                 onUnRegisterProposal(proposal.changeContract)
                             }
                         >
-                            Unregister Proposal
+                            {t("voting.preVoting.CTA.unregisterProposal")}
                         </button>
                     )}
                 </div>
@@ -402,4 +404,4 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
     );
 };
 
-export default PreVote; 
+export default PreVote;

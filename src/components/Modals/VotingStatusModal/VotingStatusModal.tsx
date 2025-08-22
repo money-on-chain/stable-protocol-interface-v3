@@ -121,10 +121,6 @@ const VotingStatusModal: React.FC<VotingStatusModalProps> = ({
                                         address={txHash}
                                         type={"tx"}
                                     ></CopyAddress>
-                                    {/*<span className="address">*/}
-                                    {/*    {truncateTxId(txID)}*/}
-                                    {/*</span>*/}
-                                    {/*<i className="icon-copy"></i>*/}
                                 </div>
                             </div>
                         )}

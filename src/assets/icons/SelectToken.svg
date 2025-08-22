@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Controls/SelectToken</title>
+    <g id="Controls/SelectToken" stroke="none" fill="none" fill-rule="nonzero">
+        <rect id="Area" x="0" y="0" width="24" height="24"></rect>
+        <g id="dots-vertical" fill="#101214" fill-rule="evenodd" stroke="#101214" stroke-width="1">
+            <g id="Group" transform="translate(6, 0)">
+                <circle id="Oval" stroke-width="2" fill-rule="nonzero" cx="12" cy="12" r="1"></circle>
+                <circle id="Oval" stroke-width="2" fill-rule="nonzero" cx="12" cy="3.75" r="1"></circle>
+                <circle id="Oval" stroke-width="2" fill-rule="nonzero" cx="12" cy="20.25" r="1"></circle>
+            </g>
+        </g>
+    </g>
+</svg>

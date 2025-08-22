@@ -4,10 +4,8 @@ import { useProjectTranslation } from "../../helpers/translations";
 import CompletedBar from "./CompletedBar";
 import ProposalStats from "./ProposalStats";
 
-
-const PRECISION_DECIMALS = 18n
+const PRECISION_DECIMALS = 18n;
 const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
-
 
 interface CreateBarGraphProps {
     id: number;
@@ -200,7 +198,7 @@ const Proposal: React.FC<ProposalProps> = (props) => {
                             <div className="cta-info-detail">
                                 <div className="votingPowerContainer">
                                     <div className="votingPowerLabel">
-                                        Your voting power stats:
+                                        {t("voting.proposal.votingPowerLabel")}
                                     </div>
                                     <div className="votingPowerData">
                                         {preVotingStats.map(CreateStats)}
@@ -215,7 +213,7 @@ const Proposal: React.FC<ProposalProps> = (props) => {
                                     className="button secondary"
                                     onClick={() => onRunPreVoteStep()}
                                 >
-                                    Push to Next Step
+                                    {t("voting.proposal.CTA.pushToNextStep")}
                                 </button>
                             )}
                             <button
@@ -234,4 +232,4 @@ const Proposal: React.FC<ProposalProps> = (props) => {
     );
 };
 
-export default Proposal; 
+export default Proposal;

@@ -7,11 +7,9 @@ import settings from "../../settings/settings.json";
 import { useWalletContext } from "../../context/Wallet";
 import { divPrecision, mulPrecision } from "../../helpers/precision";
 
-
-
 export default function MultiCollateral(): JSX.Element {
-    const { i18n } = useProjectTranslation();    
-    const { contractProtocolStatus } = useWalletContext()
+    const { t, i18n } = useProjectTranslation();
+    const { contractProtocolStatus } = useWalletContext();
 
     let leverage = 0n;
     if (contractProtocolStatus.data) {
@@ -33,8 +31,8 @@ export default function MultiCollateral(): JSX.Element {
 
             //tvl += bucketAC * factor;
             //lckAC += bucketLckAC * factor;
-            tvl = tvl + (mulPrecision(bucketAC, factor));
-            lckAC = lckAC + (mulPrecision(bucketLckAC, factor));
+            tvl = tvl + mulPrecision(bucketAC, factor);
+            lckAC = lckAC + mulPrecision(bucketLckAC, factor);
         }
 
         //leverage = tvl / (tvl - lckAC);
@@ -44,7 +42,7 @@ export default function MultiCollateral(): JSX.Element {
     return (
         <div className="layout-card section__innerCard--big perfGlobalMetrics">
             <div className="layout-card-title">
-                <h1>Global Metrics</h1>
+                <h1>{t("performance.globalMetrics.cardTitle")}</h1>
             </div>
 
             <div className="metrics">
@@ -63,10 +61,12 @@ export default function MultiCollateral(): JSX.Element {
                                           : 0n,
                                       token: TokenSettings("CA_0"),
                                       decimals: 4,
-                                      i18n: i18n                                      
+                                      i18n: i18n,
                                   })}
                         </div>
-                        <div className="label">Coverage</div>
+                        <div className="label">
+                            {t("performance.globalMetrics.labelCoverage")}
+                        </div>
                     </div>
                 </div>
                 <div className="dataGroup">
@@ -84,10 +84,12 @@ export default function MultiCollateral(): JSX.Element {
                                           : 0n,
                                       token: settings.tokens.CA[0],
                                       decimals: 4,
-                                      i18n: i18n
+                                      i18n: i18n,
                                   })}
                         </div>
-                        <div className="label">Target Coverage Adjusted</div>
+                        <div className="label">
+                            {t("performance.globalMetrics.labelTargetAdjusted")}
+                        </div>
                     </div>
                 </div>
                 <div className="dataGroup">
@@ -102,10 +104,12 @@ export default function MultiCollateral(): JSX.Element {
                                       amount: leverage,
                                       token: TokenSettings("CA_0"),
                                       decimals: 4,
-                                      i18n: i18n
+                                      i18n: i18n,
                                   })}
                         </div>
-                        <div className="label">Leverage</div>
+                        <div className="label">
+                            {t("performance.globalMetrics.labelLeverage")}
+                        </div>
                     </div>
                 </div>
             </div>
