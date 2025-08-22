@@ -139,206 +139,209 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
         type: ''
     }
     contracts.PP_COINBASE = contractDict
-    
-    
-    console.log(
-        "MocMultiCollateralGuard Contract... address: ",
-        import.meta.env.REACT_APP_CONTRACT_MULTICOLLATERAL_GUARD
-    );
-    contractDict = {
-        address: import.meta.env.REACT_APP_CONTRACT_MULTICOLLATERAL_GUARD,
-        abi: MocMultiCollateralGuard.abi,
-        name: 'MocMultiCollateralGuard',
-        type: ''
-    }
-    contracts.MocMultiCollateralGuard = contractDict
-    
-    for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
-        // Get MoC Bucket address from multi-collateral guard
-        //contractMocAddress = await dContracts.contracts.MocMultiCollateralGuard.methods.buckets(ca).call();
 
-        contractMocAddress = await readContract(publicClient, {
+    if (typeof import.meta.env.REACT_APP_CONTRACT_MULTICOLLATERAL_GUARD !== "undefined") {
+
+        console.log(
+            "MocMultiCollateralGuard Contract... address: ",
+            import.meta.env.REACT_APP_CONTRACT_MULTICOLLATERAL_GUARD
+        );
+        contractDict = {
             address: import.meta.env.REACT_APP_CONTRACT_MULTICOLLATERAL_GUARD,
             abi: MocMultiCollateralGuard.abi,
-            functionName: 'buckets',
-            args: [ca],
-        }) as string;
-        
-        contractMocType = (settings.tokens.CA[ca] as any).type;
-        if (contractMocType === "coinbase") collateralMoCAbi = MocCACoinbase as any;
-        console.log('Moc Contract... address: ', contractMocAddress);
-
-        contractMoc = {
-            address: contractMocAddress,
-            abi: collateralMoCAbi.abi,
-            name: 'Moc',
-            type: contractMocType
+            name: 'MocMultiCollateralGuard',
+            type: ''
         }
-
-        contracts.Moc.push(contractMoc)
-                
-        // Read contracts addresses from MoC
-        const mocAddr = await mocAddresses(publicClient, contractMoc) as any;
+        contracts.MocMultiCollateralGuard = contractDict
         
-        if (contractMocType !== 'coinbase') {
-            if (!contracts.CA.includes(mocAddr.data.acToken)) {
+        for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+            // Get MoC Bucket address from multi-collateral guard
+            //contractMocAddress = await dContracts.contracts.MocMultiCollateralGuard.methods.buckets(ca).call();
+    
+            contractMocAddress = await readContract(publicClient, {
+                address: import.meta.env.REACT_APP_CONTRACT_MULTICOLLATERAL_GUARD,
+                abi: MocMultiCollateralGuard.abi,
+                functionName: 'buckets',
+                args: [ca],
+            }) as string;
+            
+            contractMocType = (settings.tokens.CA[ca] as any).type;
+            if (contractMocType === "coinbase") collateralMoCAbi = MocCACoinbase as any;
+            console.log('Moc Contract... address: ', contractMocAddress);
+    
+            contractMoc = {
+                address: contractMocAddress,
+                abi: collateralMoCAbi.abi,
+                name: 'Moc',
+                type: contractMocType
+            }
+    
+            contracts.Moc.push(contractMoc)
+                    
+            // Read contracts addresses from MoC
+            const mocAddr = await mocAddresses(publicClient, contractMoc) as any;
+            
+            if (contractMocType !== 'coinbase') {
+                if (!contracts.CA.includes(mocAddr.data.acToken)) {
+                    console.log(
+                        `${(settings.tokens.CA[ca] as any).name} Token Contract... address: `,
+                        mocAddr.data.acToken
+                    );
+                    
+                    contractDict = {
+                        address: mocAddr.data.acToken,
+                        abi: CollateralAsset.abi,
+                        name: 'CollateralAsset',
+                        type: ''
+                    }
+                    contracts.CA.push(contractDict);
+                }
+            }
+    
+            let tpAddress: string;
+            let tpIndex: any;
+            let tpItem: any;
+            for (let tp = 0; tp < settings.tokens.TP.length; tp++) {            
+                tpAddress = mocAddr.data.tpTokens[tp];
+                if (!tpAddress || tpAddress === "0x") continue;
+                // tpIndex = await contractMoc.methods
+                //     .peggedTokenIndex(tpAddress)
+                //     .call();
+    
+                tpIndex = await readContract(publicClient, {
+                    address: contractMoc.address,
+                    abi: collateralMoCAbi.abi,
+                    functionName: 'peggedTokenIndex',
+                    args: [tpAddress],
+                    })
+            
+                // tpIndex:  [ 1n, true ]
+                if (!tpIndex) continue
+    
+                // tpItem:  [price, priceProvider]
+                tpItem = await readContract(publicClient, {
+                    address: contractMoc.address,
+                    abi: collateralMoCAbi.abi,
+                    functionName: 'pegContainer',
+                    args: [tpIndex[0]],
+                    })
+    
+                if (!tpAddresses.includes(tpAddress)) {
+                    tpAddresses.push(tpAddress);
+                    //tpAddressesProviders.push(tpItem.priceProvider);
+                }
+    
                 console.log(
-                    `${(settings.tokens.CA[ca] as any).name} Token Contract... address: `,
-                    mocAddr.data.acToken
+                    `Reading Price Provider Pair ${(settings.tokens.TP[tp] as any).name}/${(settings.tokens.CA[ca] as any).name} Contract... address: `,
+                    tpItem[1]
                 );
-                
+                if (!contracts.PP_TP[ca]) contracts.PP_TP[ca] = [];
+    
                 contractDict = {
-                    address: mocAddr.data.acToken,
-                    abi: CollateralAsset.abi,
-                    name: 'CollateralAsset',
+                    address: tpItem[1],
+                    abi: IPriceProvider.abi,
+                    name: 'PP',
                     type: ''
                 }
-                contracts.CA.push(contractDict);
+                contracts.PP_TP[ca].push(contractDict)
+                
             }
-        }
-
-        let tpAddress: string;
-        let tpIndex: any;
-        let tpItem: any;
-        for (let tp = 0; tp < settings.tokens.TP.length; tp++) {            
-            tpAddress = mocAddr.data.tpTokens[tp];
-            if (!tpAddress || tpAddress === "0x") continue;
-            // tpIndex = await contractMoc.methods
-            //     .peggedTokenIndex(tpAddress)
-            //     .call();
-
-            tpIndex = await readContract(publicClient, {
-                address: contractMoc.address,
-                abi: collateralMoCAbi.abi,
-                functionName: 'peggedTokenIndex',
-                args: [tpAddress],
-                })
-        
-            // tpIndex:  [ 1n, true ]
-            if (!tpIndex) continue
-
-            // tpItem:  [price, priceProvider]
-            tpItem = await readContract(publicClient, {
-                address: contractMoc.address,
-                abi: collateralMoCAbi.abi,
-                functionName: 'pegContainer',
-                args: [tpIndex[0]],
-                })
-
-            if (!tpAddresses.includes(tpAddress)) {
-                tpAddresses.push(tpAddress);
-                //tpAddressesProviders.push(tpItem.priceProvider);
-            }
-
+    
             console.log(
-                `Reading Price Provider Pair ${(settings.tokens.TP[tp] as any).name}/${(settings.tokens.CA[ca] as any).name} Contract... address: `,
-                tpItem[1]
+                "Collateral Token Contract... address: ",
+                mocAddr.data.tcToken
             );
-            if (!contracts.PP_TP[ca]) contracts.PP_TP[ca] = [];
-
             contractDict = {
-                address: tpItem[1],
+                address: mocAddr.data.tcToken,
+                abi: CollateralToken.abi,
+                name: 'CollateralToken',
+                type: ''
+            }
+            contracts.CollateralToken.push(contractDict)
+    
+            console.log(
+                "Moc Vendors Contract... address: ",
+                mocAddr.data.mocVendors
+            );
+            contractDict = {
+                address: mocAddr.data.mocVendors,
+                abi: MocVendors.abi,
+                name: 'MocVendors',
+                type: ''
+            }
+            contracts.MocVendors.push(contractDict)
+    
+            console.log("MocQueue Contract... address: ", mocAddr.data.mocQueue);
+            contractDict = {
+                address: mocAddr.data.mocQueue,
+                abi: MocQueue.abi,
+                name: 'MocQueue',
+                type: ''
+            }
+            contracts.MocQueue.push(contractDict)
+    
+            console.log("FeeToken Contract... address: ", mocAddr.data.feeToken);
+            contractDict = {
+                address: mocAddr.data.feeToken,
+                abi: FeeToken.abi,
+                name: 'FeeToken',
+                type: ''
+            }
+            contracts.FeeToken.push(contractDict)
+    
+            console.log(
+                "Fee Token PP Contract... address: ",
+                mocAddr.data.feeTokenPriceProvider
+            );
+            contractDict = {
+                address: mocAddr.data.feeTokenPriceProvider,
                 abi: IPriceProvider.abi,
                 name: 'PP',
                 type: ''
             }
-            contracts.PP_TP[ca].push(contractDict)
-            
+            contracts.PP_FeeToken.push(contractDict)
+    
+            console.log(
+                "FC_MAX_ABSOLUTE_OP_PROVIDER Contract... address: ",
+                mocAddr.data.maxAbsoluteOpProvider
+            );
+            contractDict = {
+                address: mocAddr.data.maxAbsoluteOpProvider,
+                abi: IPriceProvider.abi,
+                name: 'FC_MAX_ABSOLUTE_OP_PROVIDER',
+                type: ''
+            }
+            contracts.FC_MAX_ABSOLUTE_OP_PROVIDER.push(contractDict)
+    
+            console.log(
+                "FC_MAX_OP_DIFFERENCE_PROVIDER Contract... address: ",
+                mocAddr.data.maxOpDiffProvider
+            );
+            contractDict = {
+                address: mocAddr.data.maxOpDiffProvider,
+                abi: IPriceProvider.abi,
+                name: 'FC_MAX_OP_DIFFERENCE_PROVIDER',
+                type: ''
+            }
+            contracts.FC_MAX_OP_DIFFERENCE_PROVIDER.push(contractDict)
+        }
+        
+        for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
+            console.log(
+                `${settings.tokens.TP[tp].name} Token Contract... address: `,
+                tpAddresses[tp]
+            );
+            contractDict = {
+                address: tpAddresses[tp],
+                abi: TokenPegged.abi,
+                name: 'TP',
+                type: ''
+            }
+            contracts.TP.push(contractDict)
         }
 
-        console.log(
-            "Collateral Token Contract... address: ",
-            mocAddr.data.tcToken
-        );
-        contractDict = {
-            address: mocAddr.data.tcToken,
-            abi: CollateralToken.abi,
-            name: 'CollateralToken',
-            type: ''
-        }
-        contracts.CollateralToken.push(contractDict)
-
-        console.log(
-            "Moc Vendors Contract... address: ",
-            mocAddr.data.mocVendors
-        );
-        contractDict = {
-            address: mocAddr.data.mocVendors,
-            abi: MocVendors.abi,
-            name: 'MocVendors',
-            type: ''
-        }
-        contracts.MocVendors.push(contractDict)
-
-        console.log("MocQueue Contract... address: ", mocAddr.data.mocQueue);
-        contractDict = {
-            address: mocAddr.data.mocQueue,
-            abi: MocQueue.abi,
-            name: 'MocQueue',
-            type: ''
-        }
-        contracts.MocQueue.push(contractDict)
-
-        console.log("FeeToken Contract... address: ", mocAddr.data.feeToken);
-        contractDict = {
-            address: mocAddr.data.feeToken,
-            abi: FeeToken.abi,
-            name: 'FeeToken',
-            type: ''
-        }
-        contracts.FeeToken.push(contractDict)
-
-        console.log(
-            "Fee Token PP Contract... address: ",
-            mocAddr.data.feeTokenPriceProvider
-        );
-        contractDict = {
-            address: mocAddr.data.feeTokenPriceProvider,
-            abi: IPriceProvider.abi,
-            name: 'PP',
-            type: ''
-        }
-        contracts.PP_FeeToken.push(contractDict)
-
-        console.log(
-            "FC_MAX_ABSOLUTE_OP_PROVIDER Contract... address: ",
-            mocAddr.data.maxAbsoluteOpProvider
-        );
-        contractDict = {
-            address: mocAddr.data.maxAbsoluteOpProvider,
-            abi: IPriceProvider.abi,
-            name: 'FC_MAX_ABSOLUTE_OP_PROVIDER',
-            type: ''
-        }
-        contracts.FC_MAX_ABSOLUTE_OP_PROVIDER.push(contractDict)
-
-        console.log(
-            "FC_MAX_OP_DIFFERENCE_PROVIDER Contract... address: ",
-            mocAddr.data.maxOpDiffProvider
-        );
-        contractDict = {
-            address: mocAddr.data.maxOpDiffProvider,
-            abi: IPriceProvider.abi,
-            name: 'FC_MAX_OP_DIFFERENCE_PROVIDER',
-            type: ''
-        }
-        contracts.FC_MAX_OP_DIFFERENCE_PROVIDER.push(contractDict)
     }
     
-    for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
-        console.log(
-            `${settings.tokens.TP[tp].name} Token Contract... address: `,
-            tpAddresses[tp]
-        );
-        contractDict = {
-            address: tpAddresses[tp],
-            abi: TokenPegged.abi,
-            name: 'TP',
-            type: ''
-        }
-        contracts.TP.push(contractDict)
-    }
-
     
     if (typeof import.meta.env.REACT_APP_CONTRACT_IREGISTRY !== "undefined") {
         console.log(

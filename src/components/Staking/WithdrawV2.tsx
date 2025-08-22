@@ -56,7 +56,7 @@ type ModalMode = "restake" | "withdraw" | null;
 export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
     const { userInfoStaking } = props;
     const { t, i18n } = useProjectTranslation();
-    const { contractProtocolStatus } = useWalletContext()
+    const { contractStatusOmoc } = useWalletContext()
     const [totalTable, setTotalTable] = useState<number | null>(null);
     const [data, setData] = useState<TableDataItem[] | null>(null);
     const [modalMode, setModalMode] = useState<ModalMode>(null);
@@ -75,10 +75,10 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
     ];
     
     useEffect(() => {
-        if (contractProtocolStatus.data && userInfoStaking["pendingWithdrawals"]) {
+        if (contractStatusOmoc.data && userInfoStaking["pendingWithdrawals"]) {
             getWithdrawals();
         }
-    }, [contractProtocolStatus.data, userInfoStaking["pendingWithdrawals"], i18n.language]);
+    }, [contractStatusOmoc.data, userInfoStaking["pendingWithdrawals"], i18n.language]);
 
     const getWithdrawals = (): void => {
         setTotalTable(userInfoStaking["pendingWithdrawals"].length);

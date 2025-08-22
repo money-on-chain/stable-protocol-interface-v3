@@ -50,7 +50,7 @@ const withdrawalStatus: WithdrawalStatus = {
 
 
 export default function Staking(): JSX.Element {    
-    const { contractProtocolStatus, userOmocBalance, isVestingLoaded } = useWalletContext()
+    const { userOmocBalance, isVestingLoaded } = useWalletContext()
     const { t } = useProjectTranslation();
     const [activeTab, setActiveTab] = useState<string>("tab1");
 
@@ -69,10 +69,10 @@ export default function Staking(): JSX.Element {
     );
 
     useEffect(() => {
-        if (contractProtocolStatus.data && userOmocBalance.data) {
+        if (userOmocBalance.data) {
             refreshBalances();
         }
-    }, [contractProtocolStatus.data, userOmocBalance.data]);
+    }, [userOmocBalance.data]);
 
     const refreshBalances = (): void => {
         const cData: UserInfoStaking = { ...userInfoStaking };

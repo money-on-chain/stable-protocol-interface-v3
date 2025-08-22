@@ -8,12 +8,12 @@ import { useWalletContext } from "../../context/Wallet";
 import "./Styles.scss";
 
 export default function SectionStaking(): React.ReactElement {
-    const { contractProtocolStatus, userBalance, isVestingLoaded, vestingAddress } = useWalletContext()
+    const { contractStatusOmoc, userBalance, isVestingLoaded, vestingAddress } = useWalletContext()
     const [ready, setReady] = useState<boolean>(false);
     const [usingVestingAddress, setUsingVestingAddress] = useState<string>("");
     
     useEffect(() => {
-        if (contractProtocolStatus.data) {
+        if (contractStatusOmoc.data) {
             setReady(true);
         }
         if (userBalance.data && isVestingLoaded()) {
@@ -22,7 +22,7 @@ export default function SectionStaking(): React.ReactElement {
         } else {
             setUsingVestingAddress("");
         }
-    }, [userBalance.data, contractProtocolStatus.data]);
+    }, [userBalance.data, contractStatusOmoc.data]);
 
     return (
         <Fragment>

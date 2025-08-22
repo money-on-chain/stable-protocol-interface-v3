@@ -5,15 +5,7 @@
     "tokens": {
 
         "CA": [
-            {
-                "key": 0,
-                "name": "RIF",
-                "decimals": 18,
-                "visiblePriceDecimals": 4,
-                "visibleBalanceDecimals": 4,
-                "visibleBalanceUSDDecimals": 2
-
-            }
+            
         ],
         "TC": [{
             "name": "RIFP",
