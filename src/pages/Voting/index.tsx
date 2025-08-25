@@ -7,12 +7,12 @@ import UseVestingAlert from "../../components/Notification/UsingVestingAlert";
 import "./Styles.scss";
 
 export default function SectionVoting(): React.ReactElement {
-    const { contractProtocolStatus, userBalance, isVestingLoaded, vestingAddress } = useWalletContext()
+    const { contractStatusOmoc, userBalance, isVestingLoaded, vestingAddress } = useWalletContext()
     const [ready, setReady] = useState<boolean>(false);
     const [usingVestingAddress, setUsingVestingAddress] = useState<string>("");
 
     useEffect(() => {
-        if (contractProtocolStatus.data) {
+        if (contractStatusOmoc.data) {
             setReady(true);
         }
         if (userBalance.data && isVestingLoaded()) {
@@ -21,7 +21,7 @@ export default function SectionVoting(): React.ReactElement {
         } else {
             setUsingVestingAddress("");
         }
-    }, [contractProtocolStatus.data, userBalance.data, isVestingLoaded, vestingAddress]);
+    }, [contractStatusOmoc.data, userBalance.data, isVestingLoaded, vestingAddress]);
 
     return (
         <Fragment>

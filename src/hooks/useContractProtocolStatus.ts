@@ -35,6 +35,8 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
         if (!currentBlockNumber) return []
 
         if ((typeof import.meta.env.REACT_APP_PRICE_OFFCHAIN_API !== 'undefined') && !parsedPrices) return []
+
+        if (typeof import.meta.env.REACT_APP_CONTRACT_MULTICOLLATERAL_GUARD === 'undefined') return []
                 
         const callRequest = []
         callRequest.push(

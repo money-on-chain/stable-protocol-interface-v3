@@ -6,14 +6,14 @@ import Vesting from "../../components/Vesting";
 import "./Styles.scss";
 
 export default function SectionVesting(): React.ReactElement {
-    const { contractProtocolStatus } = useWalletContext()
+    const { contractStatusOmoc } = useWalletContext()
     const [ready, setReady] = useState<boolean>(false);
     
     useEffect(() => {
-        if (contractProtocolStatus.data) {
+        if (contractStatusOmoc.data) {
             setReady(true);
         }
-    }, [contractProtocolStatus.data]);
+    }, [contractStatusOmoc.data]);
 
     return (
         <Fragment>

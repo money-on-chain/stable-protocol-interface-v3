@@ -35,7 +35,7 @@ const Stake = (props: StakeProps): JSX.Element => {
     const { activeTab, userInfoStaking } = props;
     const { t, i18n } = useProjectTranslation();
 
-    const { contractProtocolStatus } = useWalletContext()
+    const { contractStatusOmoc } = useWalletContext()
 
     const defaultTokenStake: string = tokenStake()[0];
     const [isUnstaking, setIsUnstaking] = useState<boolean>(false);
@@ -67,7 +67,7 @@ const Stake = (props: StakeProps): JSX.Element => {
             onClear();
             setCurrentTab(activeTab);
         }
-    }, [contractProtocolStatus.data, activeTab]);
+    }, [contractStatusOmoc.data, activeTab]);
 
     useEffect(() => {
         onValidate();
