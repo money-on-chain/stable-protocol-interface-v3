@@ -545,6 +545,7 @@
         },
         "modal": {
             "options": {
+                "StakingOptions_AvailableToWithdraw": "Listo para hacer Withdraw",
                 "availableToWithdraw": "Ready to Withdraw",
                 "unstaking": "Processing unstake",
                 "withdrawAll": "Withdraw all available",

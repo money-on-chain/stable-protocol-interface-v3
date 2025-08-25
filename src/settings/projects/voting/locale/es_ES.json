@@ -91,6 +91,29 @@
         "cta": {
             "disconnect": "Desconectar",
             "close": "Cerrar"
+        },
+        "vestingFeedback": {
+            "empty": "Debes especificar una dirección de la Vesting Machine",
+            "notValid": "Dirección de la Vesting Machine no válida",
+            "alreadyLoaded": "La Vesting Machine ya está cargada",
+            "incorrect": "El formato de la dirección de la Vesting Machine parece incorrecto"
+        }
+    },
+    "walletProviders": {
+        "connectWalletButton": "Conectar Wallet",
+        "connectYourWallet": "Conecta tu Wallet",
+        "noBrowserWallets": "No se detectaron wallets en el navegador",
+        "providers": {
+            "injected": "Wallet del navegador",
+            "metamask": "Wallet de MetaMask",
+            "coinbase": "Wallet de Coinbase",
+            "multisig": "Safe (multi-sig)",
+            "walletconnect": "WalletConnect (QR / móvil)"
+        },
+        "toolTip": {
+            "walletConnected": "Para wallets de hardware como Ledger Live, Keystone, GridPlus: 1) Abre tu app de wallet 2) Selecciona Conectar con WalletConnect 3) Escanea el código QR que se muestra aquí.",
+            "injected": "Para usar Ledger o Trezor: 1) Abre MetaMask o Rabby 2) Conecta tu wallet de hardware en la configuración 3) Selecciona la cuenta aquí.",
+            "metamask": "Para usar Ledger o Trezor: 1) Abre MetaMask o Rabby 2) Conecta tu wallet de hardware en la configuración 3) Selecciona la cuenta aquí."
         }
     },
 
@@ -169,7 +192,8 @@
             "amountInvalid": "La cantidad debe ser válida",
             "notBalance": "No hay balance suficiente en tu billetera",
             "noLiquidity": "No hay suficiente liquidez en el protocolo",
-            "maxLimitedByProtocol": "Maximos limitados temporalmente por el protocolo"
+            "maxLimitedByProtocol": "Maximos limitados temporalmente por el protocolo",
+            "insufficientTPinCA": "Tokens insuficientes en este bucket"
         }
     },
     "portfolio": {
@@ -197,6 +221,9 @@
             "statusTitleFull": "Totalmente Operativo",
             "statusDescriptionFull": "Sistema en condiciones óptimas",
 
+            "statusTitleGood": "Buena Condición",
+            "statusDescriptionGood": "Vea el Estado por Colateral usando el botón de abajo:",
+
             "stuatusTitleWarning": "Parcialmente Operativo",
             "statusDescriptionWarning": "El Token Colateral no se puede redimir. El token anclado no se puede mintear",
 
@@ -212,24 +239,48 @@
             "statusTitleUnavailable": "No puede operar",
             "statusDescreiptionUnavailable": "Uno o más contratos se encuentran temporalmente no disponibles. Intenta nuevamente más tarde.",
 
-            "showingBlock": "Mostrando bloque"
+            "showingBlock": "Mostrando bloque",
+            "buttonDetails": "Ver Estado por Colateral"
+        },
+        "detailedStatus": {
+            "modalTitle": "Estado del Sitema por Colateral",
+            "collateralStatus": {
+                "fullyOperational": "Totalmente Operativo",
+                "partiallyOperational": "Parcialmente Operativo",
+                "protectedMode": "Modo Protegido",
+                "liquidated": "Liquidado"
+            },
+            "headerOperations": {
+                "token": "Token",
+                "mint": "Mintear",
+                "redeem": "Redimir"
+            }
         },
         "tvl": {
             "cardTitle": "Valor Total Bloqueado",
             "expressedIn": "Expresado en USD"
         },
-
         "tc": {
             "priceIn": "Precio en USD",
             "currentLeverage": "Apalancamiento actual",
             "totalInSystem": "Total en el sistema",
             "redeemable": "Disponible para redimir"
         },
-
+        "globalMetrics": {
+            "cardTitle": "Métricas Globales",
+            "labelCoverage": "Cobertura",
+            "labelTargetAdjusted": "Cobertura Objetivo Ajustada",
+            "labelLeverage": "Apalancamiento"
+        },
         "collateral": {
             "cardTitle": "Colateral",
             "totalIn": "Colateral total en USD",
-            "globalCoverage": "Cobertura Global"
+            "globalCoverage": "Cobertura Global",
+            "labelAmountInProtocol": "Monto en el protocolo",
+            "labelCoverage": "Cobertura",
+            "labelTargetAdjusted": "Cobertura Objetivo Ajustada",
+            "labelLeverage": "Apalancamiento",
+            "labelLocked": "Colateral Bloqueado"
         },
 
         "pegged": {
@@ -339,6 +390,7 @@
     },
 
     "language": {
+        "languageCTA": "Selecet Language:",
         "en": "🇬🇧 English",
         "es": "🇪🇸 Español"
     },
@@ -448,6 +500,18 @@
                 "actions": "Acciones disponibles"
             }
         },
+        "history": {
+            "title": "Staking - Últimas Operaciones",
+            "columnDate": "Fecha",
+            "columnAmount": "Cantidad",
+            "columnOperation": "Operación",
+            "operatons": {
+                "stake": "Stake",
+                "unstake": "Unstake",
+                "restake": "Restake",
+                "withdraw": "Withdraw"
+            }
+        },
         "tokens": {
             "TG": {
                 "label": "MoC",
@@ -475,7 +539,7 @@
                 "cta": "Authorize"
             },
             "StakingOptionsModal_SetAllowance": "Autorizar Allowance",
-            "StakingOptionsModal_Authorize": "Autorizar",
+            "StakingOptionsModal_ReviewYourWallet": "Billetera",
             "StakingOptionsModal_ReviewYourWalletDescription": "Por favor revise su billetera",
             "StakingOptionsModal_Authorize": "Authorize",
             "StakingOptionsModal_AllowanceDescription": "Antes de continuar con el staking deberás permitir el \"allowance\" para que el sistema pueda acceder a los tokens. Esto solo debe hacerse la primera vez y no bloquea ningún token de tu billetera.",
@@ -563,6 +627,8 @@
         "cardTitle": "Vesting Machine",
         "status": {
             "verified": "Vesting Machine verificada",
+            "verifyCTA": "¡Verificar ahora!",
+
             "notVerified": "Esta Vesting Machine aún no fue verificada",
             "notFromThisUser": "Esta Vesting Machine no pertenece a esta cuenta"
         },
@@ -573,7 +639,7 @@
             "released": "MOC Bloqueados",
             "staked": "MOC en Staking",
             "unstaking": "MOC en progreso de unstaking",
-            "daysToRelease": "Days to next release"
+            "daysToRelease": "Días a próxima liberación"
         },
         "releaseSchedule": {
             "cardTitle": "Calendario de liberación",
@@ -658,6 +724,17 @@
             "changerAddress": "Dirección del Cambio de Propuesta",
             "votingInFavor": "¡Estás votando a favor!",
             "votingAgainst": "¡Estás votando en contra!"
+        },
+        "preVoting": {
+            "CTA": {
+                "pushToNextStep": "Pasar al siguiente paso",
+                "backToProposals": "Volver a Propuestas",
+                "unregisterProposal": "Anular Propuesta"
+            }
+        },
+        "proposal": {
+            "votingPowerLabel": "Tus estadísticas de poder de voto:",
+            "CTA": { "pushToNextStep": "Mover al siguiente paso" }
         }
     },
     "alert": {
@@ -680,15 +757,20 @@
         "stakingCTA": {
             "button": "Ir a Staking",
             "explanation": "Stakea tokens MOC — ¡es rápido y sencillo!"
+        },
+
+        "claimsTable": {
+            "date": "Fecha",
+            "asset": "Token",
+            "amount": "Cantidad",
+            "event": "Evento",
+            "status": "Estado",
+            "statusReceived": "Recibido",
+            "statusInProgress": "En progreso"
         }
     },
-    "claimsTable": {
-        "date": "Fecha",
-        "asset": "Token",
-        "amount": "Cantidad",
-        "event": "Evento",
-        "status": "Estado",
-        "statusReceived": "Recibido",
-        "statusInProgress": "En progreso"
+    "networkGuard": {
+        "displayMessage": "Estás conectado a la red incorrecta. Por favor cambia a",
+        "switchMessage": "Cambiar a"
     }
 }

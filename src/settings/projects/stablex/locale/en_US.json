@@ -76,7 +76,8 @@
     },
     "feedback": {
         "clipboardCopy": "Copied",
-        "clipboardTo": "to the clipboard"
+        "clipboardTo": "to the clipboard",
+        "errors": { "generic": "Error" }
     },
 
     "wallet": {
@@ -91,6 +92,29 @@
         "cta": {
             "disconnect": "Disconnect",
             "close": "Close"
+        },
+        "vestingFeedback": {
+            "empty": "You must specify a Vesting Machine address",
+            "notValid": "Vesting Machine Address not valid",
+            "alreadyLoaded": "Vesting Machine already loaded",
+            "incorrect": "Vesting Machine Address format appears to be incorrect"
+        }
+    },
+    "walletProviders": {
+        "connectWalletButton": "Connect Wallet",
+        "connectYourWallet": "Connect your Wallet",
+        "noBrowserWallets": "No browser wallets detected",
+        "providers": {
+            "injected": "Browser Wallet",
+            "metamask": "MetaMask Wallet",
+            "coinbase": "Coinbase Walle",
+            "multisig": "Safe (multi-sig)",
+            "walletconnect": "WalletConnect (QR / mobile)"
+        },
+        "toolTip": {
+            "walletConnected": "For hardware wallets like Ledger Live, Keystone, GridPlus: 1) Open your wallet app 2) Select Connect with WalletConnect 3) Scan the QR code shown here.",
+            "injected": "To use Ledger or Trezor: 1) Open MetaMask or Rabby 2) Connect your hardware wallet in settings 3) Select the account here.",
+            "metamask": "To use Ledger or Trezor: 1) Open MetaMask or Rabby 2) Connect your hardware wallet in settings 3) Select the account here. "
         }
     },
 
@@ -169,7 +193,8 @@
             "amountInvalid": "Amount must be valid",
             "notBalance": "Not enough balance in your wallet",
             "noLiquidity": "Not enough liquidity in the protocol",
-            "maxLimitedByProtocol": "Maximum temporarily limited by the protocol"
+            "maxLimitedByProtocol": "Maximum temporarily limited by the protocol",
+            "insufficientTPinCA": "Insufficient tokens in this bucket"
         }
     },
     "portfolio": {
@@ -197,6 +222,9 @@
             "statusTitleFull": "Fully Operational",
             "statusDescriptionFull": "The system is in optimal condition",
 
+            "statusTitleGood": "Good Condition",
+            "statusDescriptionGood": "See Status by Collateral using the button bellow:",
+
             "stuatusTitleWarning": "Partially Operational",
             "statusDescriptionWarning": "Token Collateral cannot be redeemed. Token Pegged cannot be minted",
 
@@ -212,24 +240,48 @@
             "statusTitleUnavailable": "Cannot operate",
             "statusDescreiptionUnavailable": "One or more contracts are temporarily unavailable. Please try again later.",
 
-            "showingBlock": "Showing block"
+            "showingBlock": "Showing block",
+            "buttonDetails": "View Status by Collateral"
+        },
+        "detailedStatus": {
+            "modalTitle": "System Status by Collateral",
+            "collateralStatus": {
+                "fullyOperational": "Fully Operational",
+                "partiallyOperational": "Partially Operational",
+                "protectedMode": "Protected Mode",
+                "liquidated": "Liquidated"
+            },
+            "headerOperations": {
+                "token": "Token",
+                "mint": "Mint",
+                "redeem": "Redeem"
+            }
         },
         "tvl": {
             "cardTitle": "Total Value Locked",
             "expressedIn": "Expressed in USD"
         },
-
         "tc": {
             "priceIn": "Price in USD",
             "currentLeverage": "Current leverage",
             "totalInSystem": "Total in the system",
             "redeemable": "Available to redeem"
         },
-
+        "globalMetrics": {
+            "cardTitle": "Global Metrics",
+            "labelCoverage": "Coverage",
+            "labelTargetAdjusted": "Target Coverage Adjusted",
+            "labelLeverage": "Leverage"
+        },
         "collateral": {
             "cardTitle": "Collateral",
             "totalIn": "Total collateral in USD",
-            "globalCoverage": "Global coverage"
+            "globalCoverage": "Global coverage",
+            "labelAmountInProtocol": "Amount in protocol",
+            "labelCoverage": "Coverage",
+            "labelTargetAdjusted": "Target Coverage Adjusted",
+            "labelLeverage": "Leverage",
+            "labelLocked": "Locked Collateral"
         },
 
         "pegged": {
@@ -342,6 +394,7 @@
     },
 
     "language": {
+        "languageCTA": "Selecet Language:",
         "en": "🇬🇧 English",
         "es": "🇪🇸 Español"
     },
@@ -451,6 +504,18 @@
                 "actions": "Acciones disponibles"
             }
         },
+        "history": {
+            "title": "Staking Last Operations",
+            "columnDate": "Date",
+            "columnAmount": "Amount",
+            "columnOperation": "Operation",
+            "operatons": {
+                "stake": "Stake",
+                "unstake": "Unstake",
+                "restake": "Restake",
+                "withdraw": "Withdraw"
+            }
+        },
         "tokens": {
             "TG": {
                 "label": "MOC",
@@ -459,6 +524,7 @@
         },
         "modal": {
             "options": {
+                "StakingOptions_AvailableToWithdraw": "Listo para hacer Withdraw",
                 "availableToWithdraw": "Ready to Withdraw",
                 "unstaking": "Processing unstake",
                 "withdrawAll": "Withdraw all available",
@@ -590,7 +656,6 @@
             "status": "Status"
         }
     },
-
     "voting": {
         "cardTitle": {
             "section": "Voting",
@@ -636,7 +701,6 @@
             "negativeOverCirculation": "negative votes over circulating for vetoing"
         },
         "labels": { "proposalChangerContract": "Proposal Changer Contract" },
-
         "votingOptions": {
             "against": "Vote Against",
             "inFavor": "Vote In Favor"
@@ -662,6 +726,17 @@
             "changerAddress": "Proposal Changer Address",
             "votingInFavor": "You are voting in favor!",
             "votingAgainst": "You are voting against!"
+        },
+        "preVoting": {
+            "CTA": {
+                "pushToNextStep": "Push to Next Step",
+                "backToProposals": "Back to Proposals",
+                "unregisterProposal": "Unregister Proposal"
+            }
+        },
+        "proposal": {
+            "votingPowerLabel": "Your voting power stats:",
+            "CTA": { "pushToNextStep": "Push to Next Step" }
         }
     },
     "alert": {
@@ -694,5 +769,9 @@
             "statusReceived": "Received",
             "statusInProgress": "In progress"
         }
+    },
+    "networkGuard": {
+        "displayMessage": "You are connected to the wrong network. Please switch to",
+        "switchMessage": "Switch to"
     }
 }
