@@ -179,6 +179,8 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
     };
 
     const addVesting = async (): Promise<void> => {
+        if (!address) return;
+        if (!addVestingAddress) return;
         const isValidVesting = await onValidateVestingAddress();
         if (isValidVesting) {
             const isLoaded = loadVesting(publicClient, addVestingAddress);

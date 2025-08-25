@@ -61,7 +61,7 @@ const Vesting: React.FC = () => {
     useEffect(() => {
         if (userOmocBalance.data && isVestingLoaded()) {
             setStatus("LOADED");
-            setUsingVestingAddress(vestingAddress());
+            setUsingVestingAddress(vestingAddress || "");
             onValidateWithdraw();
             onCheckIsHolderVesting();
         } else {
@@ -127,7 +127,7 @@ const Vesting: React.FC = () => {
         if (!isVestingLoaded()) {
             return amounts;
         }
-
+        
         const getParameters = userOmocBalance.data.vestingmachine.getParameters;
         const tgeTimestamp =
             userOmocBalance.data.vestingfactory.getTGETimestamp;

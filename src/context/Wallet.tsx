@@ -447,7 +447,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             });
     };
 
-    const isVestingLoaded = (): boolean => {
+    const isVestingLoaded = (): boolean => {        
         return !!(vestingAddress);
     };
     

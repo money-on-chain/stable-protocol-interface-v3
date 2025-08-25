@@ -133,8 +133,9 @@ const Voting: React.FC = () => {
         cData["votingData"]["votingExpirationTimeFormat"] = formatTimestamp(Number(cData["votingData"]["votingExpirationTime"] * 1000n));
         
         let expired: boolean = true;
-        if (cData["votingData"]["votingExpirationTime"] > nowTimestamp)
+        if (cData["votingData"]["votingExpirationTime"] * 1000n > nowTimestamp)
             expired = false;
+        
         cData["votingData"]["expired"] = expired;
         cData["votingData"]["totalVoted"] = cData["votingData"]["inFavorVotes"] + cData["votingData"]["againstVotes"];        
         cData["votingData"]["totalVotedPCT"] = divPrecision(cData["votingData"]["totalVoted"] * 100n, cData["totalSupply"]);
