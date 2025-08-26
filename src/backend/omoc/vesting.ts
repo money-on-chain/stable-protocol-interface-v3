@@ -175,26 +175,19 @@ const addStake = async (
     const VestingMachine = contracts.VestingMachine;
     
     const target = checksumAddress(StakingMachine.address);
-
     const data = encodeFunctionData({
         abi: StakingMachine.abi,
         functionName: 'deposit',
         args: [amount, checksumAddress(userAddress)],
         }) 
         
-    console.log("DEBUG>>>")
-    console.log(target)
-    console.log(data)
-
     const { request } = await simulateContract(config, {
         address: vestingAddress,
         abi: VestingMachine.abi,
         functionName: 'callWithData',
         args: [target, data],
         account: address,
-        })
-
-    console.log("DEBUG2>>>")
+        }) 
 
     // Send transaction
     const txHash = await writeContract(config, request)
@@ -219,11 +212,13 @@ const unStake = async (
     const { address, contracts } = interfaceContext;
     const StakingMachine = contracts.StakingMachine;
     const VestingMachine = contracts.VestingMachine;
-
+    
     const target = checksumAddress(StakingMachine.address);
-    const data = StakingMachine.methods
-        .withdraw(amount)
-        .encodeABI();
+    const data = encodeFunctionData({
+        abi: StakingMachine.abi,
+        functionName: 'withdraw',
+        args: [amount],
+        })     
 
     const { request } = await simulateContract(config, {
         address: vestingAddress,
@@ -255,9 +250,13 @@ const delayMachineCancelWithdraw = async (
     const { address, contracts } = interfaceContext;
     const DelayMachine = contracts.DelayMachine;
     const VestingMachine = contracts.VestingMachine;
-
+    
     const target = checksumAddress(DelayMachine.address);
-    const data = DelayMachine.methods.cancel(idWithdraw).encodeABI();
+    const data = encodeFunctionData({
+        abi: DelayMachine.abi,
+        functionName: 'cancel',
+        args: [idWithdraw],
+        })
 
     const { request } = await simulateContract(config, {
         address: vestingAddress,
@@ -289,9 +288,13 @@ const delayMachineWithdraw = async (
     const { address, contracts } = interfaceContext;
     const DelayMachine = contracts.DelayMachine;
     const VestingMachine = contracts.VestingMachine;
-
+    
     const target = checksumAddress(DelayMachine.address);
-    const data = DelayMachine.methods.withdraw(idWithdraw).encodeABI();
+    const data = encodeFunctionData({
+        abi: DelayMachine.abi,
+        functionName: 'withdraw',
+        args: [idWithdraw],
+        })
 
     const { request } = await simulateContract(config, {
         address: vestingAddress,
@@ -326,12 +329,12 @@ const approveStakingMachine = async (
     const VestingMachine = contracts.VestingMachine;
 
     const target = checksumAddress(TG.address);
-    const data = TG.methods
-        .approve(
-            checksumAddress(StakingMachine.address),
-            amount
-        )
-        .encodeABI();
+    
+    const data = encodeFunctionData({
+        abi: TG.abi,
+        functionName: 'approve',
+        args: [checksumAddress(StakingMachine.address), amount],
+        })    
 
     const { request } = await simulateContract(config, {
         address: vestingAddress,
@@ -365,9 +368,12 @@ const preVote = async (
     const VestingMachine = contracts.VestingMachine;
 
     const target = checksumAddress(VotingMachine.address);
-    const data = VotingMachine.methods
-        .preVote(checksumAddress(changeContractAddress))
-        .encodeABI();
+
+    const data = encodeFunctionData({
+        abi: VotingMachine.abi,
+        functionName: 'preVote',
+        args: [checksumAddress(changeContractAddress)],
+        })    
 
     const { request } = await simulateContract(config, {
         address: vestingAddress,
@@ -401,7 +407,12 @@ const vote = async (
     const VestingMachine = contracts.VestingMachine;
 
     const target = checksumAddress(VotingMachine.address);
-    const data = VotingMachine.methods.vote(inFavorAgainst).encodeABI();
+    
+    const data = encodeFunctionData({
+        abi: VotingMachine.abi,
+        functionName: 'vote',
+        args: [inFavorAgainst],
+        })
 
     const { request } = await simulateContract(config, {
         address: vestingAddress,
