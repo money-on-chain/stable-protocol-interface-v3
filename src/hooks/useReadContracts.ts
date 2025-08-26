@@ -19,6 +19,7 @@ import VotingMachine from "../contracts/omoc/VotingMachine.json";
 import VestingFactory from "../contracts/omoc/VestingFactory.json";
 import IERC20 from "../contracts/omoc/IERC20.json";
 import IncentiveV2 from "../contracts/omoc/IncentiveV2.json";
+import VestingMachine from "../contracts/omoc/VestingMachine.json";
 
 import { runMulticallSync } from '../backend/runMulticallSync'
 import omoc from "../settings/omoc/omoc.json";
@@ -109,7 +110,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
         VestingFactory: {},
         IncentiveV2: {},    
         TG: {},
-        VestingMachine: undefined
+        VestingMachine: {}
     };
         
     const contractPPCA =
@@ -430,6 +431,15 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
             type: ''
         }
         contracts.TG = contractDict
+
+        // Vesting Machine
+        contractDict = {
+            address: '',
+            abi: VestingMachine.abi,
+            name: 'VestingMachine',
+            type: ''
+        }
+        contracts.VestingMachine = contractDict
     }
 
     // reading Incentive V2 from environment address

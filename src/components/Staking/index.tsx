@@ -50,7 +50,7 @@ const withdrawalStatus: WithdrawalStatus = {
 
 
 export default function Staking(): JSX.Element {    
-    const { userOmocBalance, isVestingLoaded } = useWalletContext()
+    const { userOmocBalance, isVestingLoaded, userVesting } = useWalletContext()
     const { t } = useProjectTranslation();
     const [activeTab, setActiveTab] = useState<string>("tab1");
 
@@ -69,10 +69,10 @@ export default function Staking(): JSX.Element {
     );
 
     useEffect(() => {
-        if (userOmocBalance.data) {
+        if (userOmocBalance.data || userVesting.data) {
             refreshBalances();
         }
-    }, [userOmocBalance.data]);
+    }, [userOmocBalance.data, userVesting.data]);
 
     const refreshBalances = (): void => {
         const cData: UserInfoStaking = { ...userInfoStaking };
@@ -80,14 +80,14 @@ export default function Staking(): JSX.Element {
         let pendingWithdrawals: PendingWithdrawal[] = [];
         let vUsing: vUsing;
         
-        if (isVestingLoaded()) {
-            cData["tgBalance"] = userOmocBalance.data.vestingmachine!.tgBalance;
-            cData["stakedBalance"] = userOmocBalance.data.vestingmachine!.staking.balance;
-            cData["lockedBalance"] = userOmocBalance.data.vestingmachine!.staking.getLockedBalance;
+        if (isVestingLoaded() && userVesting.data) {
+            cData["tgBalance"] = userVesting.data.vestingmachine!.tgBalance;
+            cData["stakedBalance"] = userVesting.data.vestingmachine!.staking.balance;
+            cData["lockedBalance"] = userVesting.data.vestingmachine!.staking.getLockedBalance;
             pendingWithdrawals = pendingWithdrawalsFormat(
-                userOmocBalance.data.vestingmachine!.delay
+                userVesting.data.vestingmachine!.delay
             );
-            vUsing = userOmocBalance.data.vestingmachine!.staking;
+            vUsing = userVesting.data.vestingmachine!.staking;
         } else {            
             cData["tgBalance"] = userOmocBalance.data.TG.balance;
             cData["stakedBalance"] = userOmocBalance.data.stakingmachine!.getBalance;

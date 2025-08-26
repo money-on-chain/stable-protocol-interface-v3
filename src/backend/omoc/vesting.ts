@@ -1,7 +1,7 @@
 
 import { writeContract, simulateContract, waitForTransactionReceipt } from '@wagmi/core'
 import { config } from '../../wagmiConfig' 
-import { checksumAddress } from 'viem';
+import { checksumAddress, encodeFunctionData } from 'viem';
 
 
 type TransactionCallback = (hash: string) => void;
@@ -9,6 +9,7 @@ type ReceiptCallback = (receipt: any) => void;
 
 const vestingVerify = async (
     interfaceContext: any,
+    vestingAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
@@ -16,7 +17,7 @@ const vestingVerify = async (
     const VestingMachine = contracts.VestingMachine;
 
     const { request } = await simulateContract(config, {
-        address: VestingMachine.address,
+        address: vestingAddress,
         abi: VestingMachine.abi,
         functionName: 'verify',
         args: [],
@@ -39,6 +40,7 @@ const vestingVerify = async (
 const approve = async (
     interfaceContext: any,
     amount: bigint,
+    vestingAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
@@ -47,7 +49,7 @@ const approve = async (
     const VestingMachine = contracts.VestingMachine;
     
     const { request } = await simulateContract(config, {
-        address: VestingMachine.address,
+        address: vestingAddress,
         abi: VestingMachine.abi,
         functionName: 'approve',
         args: [amount],
@@ -70,6 +72,7 @@ const approve = async (
 const deposit = async (
     interfaceContext: any,
     amount: bigint,
+    vestingAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
@@ -77,7 +80,7 @@ const deposit = async (
     const VestingMachine = contracts.VestingMachine;
 
     const { request } = await simulateContract(config, {
-        address: VestingMachine.address,
+        address: vestingAddress,
         abi: VestingMachine.abi,
         functionName: 'deposit',
         args: [amount],
@@ -100,6 +103,7 @@ const deposit = async (
 const withdraw = async (
     interfaceContext: any,
     amount: bigint,
+    vestingAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
@@ -107,7 +111,7 @@ const withdraw = async (
     const VestingMachine = contracts.VestingMachine;
 
     const { request } = await simulateContract(config, {
-        address: VestingMachine.address,
+        address: vestingAddress,
         abi: VestingMachine.abi,
         functionName: 'withdraw',
         args: [amount],
@@ -129,6 +133,7 @@ const withdraw = async (
 
 const withdrawAll = async (
     interfaceContext: any,
+    vestingAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
@@ -137,7 +142,7 @@ const withdrawAll = async (
     const VestingMachine = contracts.VestingMachine;
 
     const { request } = await simulateContract(config, {
-        address: VestingMachine.address,
+        address: vestingAddress,
         abi: VestingMachine.abi,
         functionName: 'withdrawAll',
         args: [],
@@ -161,28 +166,35 @@ const addStake = async (
     interfaceContext: any,
     amount: bigint,
     userAddress: `0x${string}`,
+    vestingAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     const StakingMachine = contracts.StakingMachine;
     const VestingMachine = contracts.VestingMachine;
-
+    
     const target = checksumAddress(StakingMachine.address);
-    const data = StakingMachine.methods
-        .deposit(
-            amount,
-            checksumAddress(userAddress)
-        )
-        .encodeABI();
+
+    const data = encodeFunctionData({
+        abi: StakingMachine.abi,
+        functionName: 'deposit',
+        args: [amount, checksumAddress(userAddress)],
+        }) 
+        
+    console.log("DEBUG>>>")
+    console.log(target)
+    console.log(data)
 
     const { request } = await simulateContract(config, {
-        address: VestingMachine.address,
+        address: vestingAddress,
         abi: VestingMachine.abi,
         functionName: 'callWithData',
         args: [target, data],
         account: address,
         })
+
+    console.log("DEBUG2>>>")
 
     // Send transaction
     const txHash = await writeContract(config, request)
@@ -200,6 +212,7 @@ const addStake = async (
 const unStake = async (
     interfaceContext: any,
     amount: bigint,
+    vestingAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
@@ -213,7 +226,7 @@ const unStake = async (
         .encodeABI();
 
     const { request } = await simulateContract(config, {
-        address: VestingMachine.address,
+        address: vestingAddress,
         abi: VestingMachine.abi,
         functionName: 'callWithData',
         args: [target, data],
@@ -235,6 +248,7 @@ const unStake = async (
 const delayMachineCancelWithdraw = async (
     interfaceContext: any,
     idWithdraw: string | number,
+    vestingAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
@@ -246,7 +260,7 @@ const delayMachineCancelWithdraw = async (
     const data = DelayMachine.methods.cancel(idWithdraw).encodeABI();
 
     const { request } = await simulateContract(config, {
-        address: VestingMachine.address,
+        address: vestingAddress,
         abi: VestingMachine.abi,
         functionName: 'callWithData',
         args: [target, data],
@@ -268,6 +282,7 @@ const delayMachineCancelWithdraw = async (
 const delayMachineWithdraw = async (
     interfaceContext: any,
     idWithdraw: string | number,
+    vestingAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
@@ -279,7 +294,7 @@ const delayMachineWithdraw = async (
     const data = DelayMachine.methods.withdraw(idWithdraw).encodeABI();
 
     const { request } = await simulateContract(config, {
-        address: VestingMachine.address,
+        address: vestingAddress,
         abi: VestingMachine.abi,
         functionName: 'callWithData',
         args: [target, data],
@@ -301,6 +316,7 @@ const delayMachineWithdraw = async (
 const approveStakingMachine = async (
     interfaceContext: any,
     amount: bigint,
+    vestingAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
@@ -318,7 +334,7 @@ const approveStakingMachine = async (
         .encodeABI();
 
     const { request } = await simulateContract(config, {
-        address: VestingMachine.address,
+        address: vestingAddress,
         abi: VestingMachine.abi,
         functionName: 'callWithData',
         args: [target, data],
@@ -340,6 +356,7 @@ const approveStakingMachine = async (
 const preVote = async (
     interfaceContext: any,
     changeContractAddress: `0x${string}`,
+    vestingAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
@@ -353,7 +370,7 @@ const preVote = async (
         .encodeABI();
 
     const { request } = await simulateContract(config, {
-        address: VestingMachine.address,
+        address: vestingAddress,
         abi: VestingMachine.abi,
         functionName: 'callWithData',
         args: [target, data],
@@ -375,6 +392,7 @@ const preVote = async (
 const vote = async (
     interfaceContext: any,
     inFavorAgainst: boolean,
+    vestingAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
@@ -386,7 +404,7 @@ const vote = async (
     const data = VotingMachine.methods.vote(inFavorAgainst).encodeABI();
 
     const { request } = await simulateContract(config, {
-        address: VestingMachine.address,
+        address: vestingAddress,
         abi: VestingMachine.abi,
         functionName: 'callWithData',
         args: [target, data],

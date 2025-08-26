@@ -25,8 +25,8 @@ type ModeType = 'staking' | 'unstaking' | 'withdraw' | 'restake';
 export default function StakingOptionsModal(props: StakingOptionsModalProps): React.ReactElement {
     const { 
         address, 
-        userBalance, 
         userOmocBalance,
+        userVesting,
         isVestingLoaded, 
         interfaceStakingApprove, 
         interfaceStakingAddStake, 
@@ -44,22 +44,24 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
     let infinityAllowance = false;
 
     useEffect(() => {
-        checkAllowance();
-    }, []);
+        if (userOmocBalance.data && amountInEth || userVesting.data && amountInEth) checkAllowance();        
+    }, [userOmocBalance.data, amountInEth, userVesting.data]);
 
     const onChangeInfinity = (e: any): void => {
         console.log(`checked = ${e.target.checked}`);
         infinityAllowance = e.target.checked;
     };
 
-    const checkAllowance = async (): Promise<void> => {
-        if (userBalance.data && amountInEth) {
-            const allowanceAmount = isVestingLoaded()
-                ? userBalance.data.vestingmachine?.staking?.allowance
-                : userBalance.data.stakingmachine?.tgAllowance;
-
-            if (allowanceAmount > amountInEth) setStep(3);
-        }
+    const checkAllowance = (): void => {    
+        
+        if (!amountInEth) return;
+        
+        const allowanceAmount = isVestingLoaded()
+            ? userVesting.data.vestingmachine?.staking?.allowance
+            : userOmocBalance.data.stakingmachine?.tgAllowance;
+                
+        if (allowanceAmount >= amountInEth) setStep(3);
+        
     };
 
     if (!mode) return <></>;
@@ -136,18 +138,18 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                 onConfirm(status, res.transactionHash);
 
                 // Refresh user balance
-                userOmocBalance.refetch();
+                isVestingLoaded() ? userVesting.refetch() : userOmocBalance.refetch();
 
                 return null;
             })
-            .catch((/*e*/) => {
-                notification["error"]({
-                    message: t("global.RewardsError_Title"),
-                    description: t("global.RewardsError_Message"),
-                    duration: 10,
-                });
-                onConfirm("error", "");
-            });
+            // .catch((/*e*/) => {
+            //     notification["error"]({
+            //         message: t("global.RewardsError_Title"),
+            //         description: t("global.RewardsError_Message"),
+            //         duration: 10,
+            //     });
+            //     onConfirm("error", "");
+            // });
     };
 
     const CancelWithdraw = async (): Promise<void> => {
@@ -174,7 +176,7 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                 onConfirm(status, res.transactionHash);
 
                 // Refresh user balance
-                userOmocBalance.refetch();
+                isVestingLoaded() ? userVesting.refetch() : userOmocBalance.refetch();
 
                 return null;
             })
@@ -210,7 +212,7 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                 onConfirm(status, res.transactionHash);
 
                 // Refresh user balance
-                userOmocBalance.refetch();
+                isVestingLoaded() ? userVesting.refetch() : userOmocBalance.refetch();
 
                 return null;
             })
@@ -250,7 +252,7 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                 onConfirm(status, res.transactionHash);
 
                 // Refresh user balance
-                userOmocBalance.refetch();
+                isVestingLoaded() ? userVesting.refetch() : userOmocBalance.refetch();
 
                 return null;
             })
@@ -296,7 +298,7 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                                         <Button
                                             type="default"
                                             className="button secondary"
-                                            onClick={setAllowance}
+                                            onClick={onClose}
                                         >
                                             {t("allowance.confirm.cancel")}
                                         </Button>

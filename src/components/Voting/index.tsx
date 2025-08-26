@@ -58,7 +58,7 @@ interface InfoUser {
 const Voting: React.FC = () => {
     const { t } = useProjectTranslation();
 
-    const { userOmocBalance, contractStatusOmoc, isVestingLoaded } = useWalletContext()
+    const { userOmocBalance, contractStatusOmoc, isVestingLoaded, userVesting } = useWalletContext()
 
     const nowTimestamp: bigint = BigInt(Date.now());
     const defaultInfoVoting: InfoVoting = {
@@ -157,7 +157,7 @@ const Voting: React.FC = () => {
         const cDataUser: InfoUser = { ...infoUser };
         let vUsing: any;
         if (isVestingLoaded()) {
-            vUsing = userOmocBalance.data.vestingmachine.staking;
+            vUsing = userVesting.data.vestingmachine.staking;
         } else {
             vUsing = userOmocBalance.data.stakingmachine;
         }

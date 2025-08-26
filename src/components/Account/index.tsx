@@ -279,7 +279,9 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
             console.log("Vesting Switch: ON");
             // switch On Vesting
             if (vestingAddressDefault) {
+                console.log('vestingAddressDefault', vestingAddressDefault)
                 isLoaded = loadVesting(publicClient, vestingAddressDefault);
+                setVestingMachine(vestingAddressDefault);
             }
         } else if (
             !vestingOn &&
