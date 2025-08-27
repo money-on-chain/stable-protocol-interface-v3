@@ -45,3 +45,4 @@ yarn-error.log*
 
 .vscode
 /src/settings/prices-offchain.json
+/dist
