@@ -115,7 +115,7 @@ function Vote(props: VoteProps): JSX.Element {
         /* 0 - No reason */
         /* 1 - Success */
         /* 2 - No Quorum */
-        /* 3 - Proposal rejected by votes against */
+        /* 3 - Proposal rejected by votes against */        
 
         if (infoVoting["votingData"]["expired"]) {
             setVotingFinish(true);
@@ -181,6 +181,8 @@ function Vote(props: VoteProps): JSX.Element {
     ];
 
     const onVote = async (inFavor: boolean): Promise<void> => {
+
+        console.log("onVote", inFavor);
         setModalTitle("Vote proposal");
         setVoteInFavor(inFavor);
         setShowProposalModal(true);
@@ -280,7 +282,7 @@ function Vote(props: VoteProps): JSX.Element {
             });
     };
 
-    const onValidateVotingInFavorOrAgainst = (): boolean => {
+    const onValidateVotingInFavorOrAgainst = (): boolean => {        
         if (infoUser["Voting_Power"] <= 0n) {
             // You need at least voting power > 0
             setVotingInFavorOrAgainstError(true);

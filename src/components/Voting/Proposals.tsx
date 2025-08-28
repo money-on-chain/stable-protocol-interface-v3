@@ -557,7 +557,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                                             token: TokenSettings("TG"),
                                             decimals: 2,
                                             i18n: i18n,
-                                            isInWei: false,
+                                            //isInWei: false,
                                         })}
                                         {space}{" "}
                                         {t("voting.feedback.stakeRequiered2")}

@@ -400,6 +400,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
     const setVestingMachine = (vAddress: string): void => {
         setVestingAddress(vAddress)
+        userVesting.refetch()
     };
 
     const saveUserVesting = (response: VestingResponse): void => {
@@ -408,7 +409,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             response.transactions.length > 0
         ) {
             const vFromStorage = loadVestingAddressesFromLocalStorage(
-                address
+                address as `0x${string}`
             );
             let vLowerFromStorage = vFromStorage.map((v: string) => v.toLowerCase());
 
@@ -422,7 +423,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             if (newVesting.length > 0) {
                 vLowerFromStorage.push(...newVesting);
                 saveVestingAddressesToLocalStorage(
-                    address,
+                    address as `0x${string}`,
                     vLowerFromStorage
                 );
             }
@@ -447,7 +448,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             });
     };
 
-    const isVestingLoaded = (): boolean => {
+    const isVestingLoaded = (): boolean => { 
+        console.log('vestingAddress', vestingAddress)       
         return !!(vestingAddress);
     };
     
@@ -575,10 +577,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         onError: OnError
     ): Promise<any> => {
         const interfaceContext = buildInterfaceContext();
-        if (isVestingLoaded()) {
+        if (isVestingLoaded() && vestingAddress) {
             return approveVesting(
                 interfaceContext,
                 amount,
+                vestingAddress as `0x${string}`,
                 onTransaction,
                 onReceipt
             );
@@ -601,11 +604,12 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     ): Promise<any> => {
         const from = address;
         const interfaceContext = buildInterfaceContext();
-        if (isVestingLoaded()) {
+        if (isVestingLoaded() && vestingAddress) {
             return addStakeVesting(
                 interfaceContext,
                 amount,
                 from,
+                vestingAddress as `0x${string}`,
                 onTransaction,
                 onReceipt
             );
@@ -627,10 +631,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         onError: OnError
     ): Promise<any> => {
         const interfaceContext = buildInterfaceContext();
-        if (isVestingLoaded()) {
+        if (isVestingLoaded() && vestingAddress) {
             return delayMachineWithdrawVesting(
                 interfaceContext,
                 idWithdraw,
+                vestingAddress as `0x${string}`,
                 onTransaction,
                 onReceipt
             );
@@ -651,10 +656,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         onError: OnError
     ): Promise<any> => {
         const interfaceContext = buildInterfaceContext();
-        if (isVestingLoaded()) {
+        if (isVestingLoaded() && vestingAddress) {
             return delayMachineCancelWithdrawVesting(
                 interfaceContext,
                 idWithdraw,
+                vestingAddress as `0x${string}`,
                 onTransaction,
                 onReceipt
             );
@@ -690,10 +696,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         onError: OnError
     ): Promise<any> => {
         const interfaceContext = buildInterfaceContext();
-        if (isVestingLoaded()) {
+        if (isVestingLoaded() && vestingAddress) {
             return unStakeVesting(
                 interfaceContext,
                 amount,
+                vestingAddress as `0x${string}`,
                 onTransaction,
                 onReceipt
             );
@@ -713,7 +720,12 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         onError: OnError
     ): Promise<any> => {
         const interfaceContext = buildInterfaceContext();
-        return withdrawAll(interfaceContext, onTransaction, onReceipt);
+        return withdrawAll(
+            interfaceContext,
+            vestingAddress as `0x${string}`,
+            onTransaction,
+            onReceipt
+        );
     };
 
     const interfaceVestingVerify = async (
@@ -724,6 +736,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         const interfaceContext = buildInterfaceContext();
         return vestingVerify(
             interfaceContext,
+            vestingAddress as `0x${string}`,
             onTransaction,
             onReceipt
         );
@@ -737,10 +750,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         onError: OnError
     ): Promise<any> => {
         const interfaceContext = buildInterfaceContext();
-        if (isVestingLoaded()) {
+        if (isVestingLoaded() && vestingAddress) {
             return preVoteVesting(
                 interfaceContext,
                 changeContractAddress,
+                vestingAddress as `0x${string}`,
                 onTransaction,
                 onReceipt
             );
@@ -761,10 +775,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         onError: OnError
     ): Promise<any> => {
         const interfaceContext = buildInterfaceContext();
-        if (isVestingLoaded()) {
+        if (isVestingLoaded() && vestingAddress) {
             return voteVesting(
                 interfaceContext,
                 inFavorAgainst,
+                vestingAddress as `0x${string}`,
                 onTransaction,
                 onReceipt
             );

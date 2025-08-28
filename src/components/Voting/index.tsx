@@ -58,7 +58,7 @@ interface InfoUser {
 const Voting: React.FC = () => {
     const { t } = useProjectTranslation();
 
-    const { userOmocBalance, contractStatusOmoc, isVestingLoaded } = useWalletContext()
+    const { userOmocBalance, contractStatusOmoc, isVestingLoaded, userVesting } = useWalletContext()
 
     const nowTimestamp: bigint = BigInt(Date.now());
     const defaultInfoVoting: InfoVoting = {
@@ -133,8 +133,9 @@ const Voting: React.FC = () => {
         cData["votingData"]["votingExpirationTimeFormat"] = formatTimestamp(Number(cData["votingData"]["votingExpirationTime"] * 1000n));
         
         let expired: boolean = true;
-        if (cData["votingData"]["votingExpirationTime"] > nowTimestamp)
+        if (cData["votingData"]["votingExpirationTime"] * 1000n > nowTimestamp)
             expired = false;
+        
         cData["votingData"]["expired"] = expired;
         cData["votingData"]["totalVoted"] = cData["votingData"]["inFavorVotes"] + cData["votingData"]["againstVotes"];        
         cData["votingData"]["totalVotedPCT"] = divPrecision(cData["votingData"]["totalVoted"] * 100n, cData["totalSupply"]);
@@ -156,7 +157,7 @@ const Voting: React.FC = () => {
         const cDataUser: InfoUser = { ...infoUser };
         let vUsing: any;
         if (isVestingLoaded()) {
-            vUsing = userOmocBalance.data.vestingmachine.staking;
+            vUsing = userVesting.data.vestingmachine.staking;
         } else {
             vUsing = userOmocBalance.data.stakingmachine;
         }

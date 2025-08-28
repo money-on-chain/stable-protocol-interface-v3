@@ -4,6 +4,9 @@ import { Table } from "antd";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { formatTimestamp } from "../../../helpers/staking";
 import { useWalletContext } from "../../../context/Wallet";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
+import settings from "../../../settings/settings.json";
+
 
 
 interface VestingDataItem {
@@ -14,7 +17,7 @@ interface VestingDataItem {
 
 export default function VestingSchedule(): React.ReactElement {
     const { t, i18n } = useProjectTranslation();
-    const { userBalance } = useWalletContext()
+    const { userVesting } = useWalletContext()
 
     const vestingColumns = [
         {
@@ -23,24 +26,24 @@ export default function VestingSchedule(): React.ReactElement {
     ];
     const vestingData: VestingDataItem[] = [];
 
-    if (!userBalance.data?.vestingmachine || !userBalance.data?.vestingfactory) {
+    if (!userVesting.data?.vestingmachine || !userVesting.data?.vestingfactory) {
         return <div>No vesting data available</div>;
     }
 
-    const getParameters = userBalance.data.vestingmachine.getParameters;
-    const tgeTimestamp = userBalance.data.vestingfactory.getTGETimestamp;
-    const total = userBalance.data.vestingmachine.getTotal;
+    const getParameters = userVesting.data.vestingmachine.getParameters;
+    const tgeTimestamp = userVesting.data.vestingfactory.getTGETimestamp;
+    const total = userVesting.data.vestingmachine.getTotal;
     const percentMultiplier = 10000n;
 
     const [percentages, timeDeltas] = getParameters;
 
     const deltas = [...timeDeltas];
-    if (timeDeltas && timeDeltas[0] !== 0) {
-        deltas.unshift(0);
+    if (timeDeltas && timeDeltas[0] !== 0n) {
+        deltas.unshift(0n);
     }
 
     if (percentages[0] < percentMultiplier) {
-        percentages.unshift(10000n);
+        percentages.unshift(percentMultiplier);
     }
 
     if (percentages && percentages.length > 0)
@@ -56,7 +59,7 @@ export default function VestingSchedule(): React.ReactElement {
             // Convert timestamp to date.
             dates = deltas.map((x: bigint) =>
                 formatTimestamp(
-                    tgeTimestamp + x * 1000n
+                    Number(tgeTimestamp) + Number(x) * 1000
                 )
             );
         } else {
@@ -68,13 +71,12 @@ export default function VestingSchedule(): React.ReactElement {
         Number(tgeTimestamp) * 1000
     );
 
-    userBalance.data &&
+    userVesting.data &&
         getParameters &&
         percents.forEach(function (percent: bigint, itemIndex: number) {
-            let strTotal = "";
-            if (total && total !== 0) {
-                strTotal = (percent * total / percentMultiplier).toString()
-                    .toString();
+            let strTotal: bigint | undefined = undefined;
+            if (total && total !== 0n) {
+                strTotal = percent * total / percentMultiplier
             }
 
             const date_release = new Date(dates[itemIndex]);
@@ -97,7 +99,14 @@ export default function VestingSchedule(): React.ReactElement {
                             </div>
                             <div className="percentage">{`${((Number(percent) / Number(percentMultiplier)) * 100).toFixed(2)}%`}</div>
                             <div className="amount">
-                                {strTotal}
+                                {PrecisionNumbers({
+                                            amount: strTotal || 0n,
+                                            token: settings.tokens.TG[0],
+                                            decimals: Number(t(
+                                                "staking.display_decimals"
+                                            )),                                            
+                                            i18n: i18n,
+                                        })}
                             </div>
                             <div className="status">
                                 {dayLefts > 0

@@ -179,6 +179,8 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
     };
 
     const addVesting = async (): Promise<void> => {
+        if (!address) return;
+        if (!addVestingAddress) return;
         const isValidVesting = await onValidateVestingAddress();
         if (isValidVesting) {
             const isLoaded = loadVesting(publicClient, addVestingAddress);
@@ -277,7 +279,9 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
             console.log("Vesting Switch: ON");
             // switch On Vesting
             if (vestingAddressDefault) {
+                console.log('vestingAddressDefault', vestingAddressDefault)
                 isLoaded = loadVesting(publicClient, vestingAddressDefault);
+                setVestingMachine(vestingAddressDefault);
             }
         } else if (
             !vestingOn &&
