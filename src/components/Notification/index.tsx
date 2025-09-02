@@ -9,6 +9,7 @@ interface NotifStatus {
     title: string;
     textContent: string;
     isDismisable?: boolean;
+    button?: { class: string; label: string; onClick: () => void };
 }
 
 interface NotificationBodyProps {
@@ -52,6 +53,13 @@ export default function NotificationBody(props: NotificationBodyProps): React.Re
                     </div>
                 )}
             </div>
+            {notifStatus.button && (
+                <div className={`${notifStatus.button.class}-notif`}>
+                    <button onClick={notifStatus.button.onClick}>
+                        {notifStatus.button.label}
+                    </button>
+                </div>
+            )}
         </div>
     );
 } 

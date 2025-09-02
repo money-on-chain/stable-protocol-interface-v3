@@ -114,13 +114,13 @@ export function useUserOmocBalance(contracts?: any, userAddress?: string, refetc
                 keys: ["incentiveV2", "contractBalance"]
             });
 
-            // callRequest.push({
-            //     contract: contracts.IncentiveV2,
-            //     functionName: 'get_balance',
-            //     args: [userAddress],
-            //     resultType: "uint256",
-            //     keys: ["incentiveV2", "userBalance"]
-            // });            
+            callRequest.push({
+                contract: contracts.IncentiveV2,
+                functionName: 'get_balance',
+                args: [userAddress],
+                resultType: "uint256",
+                keys: ["incentiveV2", "userBalance"]
+            });            
         }             
 
         return callRequest

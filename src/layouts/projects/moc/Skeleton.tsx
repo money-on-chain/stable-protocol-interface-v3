@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { Layout } from "antd";
 
 import SectionHeader from "../../../components/Header";
@@ -14,6 +14,7 @@ const { Content, Footer } = Layout;
 
 
 // Type definitions
+
 interface NotificationStatus {
     id: number;
     title: string;
@@ -22,19 +23,20 @@ interface NotificationStatus {
     iconLeft: string;
     isDismisable: boolean;
     dismissTime: number;
+    button?: { class: string; label: string; onClick: () => void };
 }
-
 export default function Skeleton(): JSX.Element {
-    const { isConnected, contractProtocolStatus, userBalance, userOmocBalance } = useWalletContext()
-    
+    const { isConnected, contractProtocolStatus, userBalance, userOmocBalance, userVeto } = useWalletContext()
+    const navigate = useNavigate();
     const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(null);
+    const [vetoWithdraw, setVetoWithdraw] = useState<NotificationStatus | null>(null);
     const { checkerStatus } = CheckStatusGlobal();
     
     useEffect(() => {
-        if (contractProtocolStatus.data && userBalance.data && userOmocBalance.data) {
+        if (contractProtocolStatus.data && userBalance.data && userOmocBalance.data && userVeto.data) {
             readProtocolStatus();
         }
-    }, [contractProtocolStatus.data, userBalance.data, userOmocBalance.data]);
+    }, [contractProtocolStatus.data, userBalance.data, userOmocBalance.data, userVeto.data]);
 
     const readProtocolStatus = (): void => {
         const { globalStatus, statusLabel, statusText } = checkerStatus();
@@ -51,6 +53,24 @@ export default function Skeleton(): JSX.Element {
         } else {
             setNotifStatus(null);
         }
+        if (true) {
+            setVetoWithdraw({
+                id: -1,
+                title: `Collateral Tokens ready to Withdraw`,
+                textContent: `Collateral Tokens used for vetoing were released. You must withdraw them to your wallet.`,
+                notifClass: "warning",
+                iconLeft: "warning-icon",
+                isDismisable: false,
+                dismissTime: 0,
+                button: {
+                    class: "button-withdraw",
+                    label: "Withdraw Collateral",
+                    onClick: () => { navigate("/veto/withdraw"); }
+                }
+            });
+        } else {
+            setVetoWithdraw(null);
+        }
     };
 
     return (
@@ -59,6 +79,7 @@ export default function Skeleton(): JSX.Element {
         <Content>
             {/* TODO load an array of notifStatus items, and load a mapping for showing notifs here in this section , interact with a React Context */}
             {notifStatus && <NotificationBody notifStatus={notifStatus} />}
+            {vetoWithdraw && <NotificationBody notifStatus={vetoWithdraw} />}
 
             {/* {auth.web3Error && <W3ErrorAlert />} */}
 

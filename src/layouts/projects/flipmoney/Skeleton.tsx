@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { Layout } from "antd";
 import { useChainId } from "wagmi";
 
@@ -28,23 +28,23 @@ interface NotificationStatus {
     isDismisable: boolean;
     dismissTime: number;
 }
-
 export default function Skeleton(): JSX.Element {
-    const { isConnected, contractProtocolStatus, userBalance, userOmocBalance } = useWalletContext()
+    const { isConnected, contractProtocolStatus, userBalance, userOmocBalance, userVeto } = useWalletContext()
     const chainId = useChainId()
     const isWrongNetwork = isConnected && chainId !== ALLOWED_CHAIN.id
-    
     const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(null);
+    const [vetoWithdraw, setVetoWithdraw] = useState<NotificationStatus | null>(null);
     const { checkerStatus } = CheckStatusGlobal();
+    const navigate = useNavigate();
     
     useEffect(() => {
-        if (contractProtocolStatus.data && userBalance.data && userOmocBalance.data && !isWrongNetwork) {
+        if (contractProtocolStatus.data && userBalance.data && userOmocBalance.data && userVeto.data && !isWrongNetwork) {
             readProtocolStatus();
         }
-    }, [contractProtocolStatus.data, userBalance.data, userOmocBalance.data, isWrongNetwork]);
-
+    }, [contractProtocolStatus.data, userBalance.data, userOmocBalance.data, userVeto.data, isWrongNetwork]);
     const readProtocolStatus = (): void => {
         const { globalStatus, statusLabel, statusText } = checkerStatus();
+        
         if (globalStatus > 1) {
             setNotifStatus({
                 id: -1,
@@ -58,6 +58,24 @@ export default function Skeleton(): JSX.Element {
         } else {
             setNotifStatus(null);
         }
+        if (true) {
+            setVetoWithdraw({
+                id: -1,
+                title: `Collateral Tokens ready to Withdraw`,
+                textContent: `Collateral Tokens used for vetoing were released. You must withdraw them to your wallet.`,
+                notifClass: "warning",
+                iconLeft: "warning-icon", // Default icon since statusIcon doesn't exist
+                isDismisable: false,
+                dismissTime: 0,
+                button: {
+                    class: "button-withdraw",
+                    label: "Withdraw Collateral",
+                    onClick: () => { navigate("/veto/withdraw"); }
+                }
+            });
+        } else {
+            setVetoWithdraw(null);
+        }
     };
 
     return (
@@ -66,7 +84,8 @@ export default function Skeleton(): JSX.Element {
         <SectionHeader />        
         <Content>
             <NetworkGuard />
-            {notifStatus && <NotificationBody notifStatus={notifStatus} />}           
+            {notifStatus && <NotificationBody notifStatus={notifStatus} />}
+            {vetoWithdraw && <NotificationBody notifStatus={vetoWithdraw} />}
             {isConnected && !isWrongNetwork ? <Outlet /> : <NotConnected />}
         </Content>
         <Footer>
