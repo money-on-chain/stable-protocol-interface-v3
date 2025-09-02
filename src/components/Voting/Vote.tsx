@@ -7,7 +7,7 @@ import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import { TokenSettings } from "../../helpers/currencies";
 import { useWalletContext } from "../../context/Wallet";
-
+import { VetoGraph } from "./Veto";
 
 const PRECISION_DECIMALS = 18n
 const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
@@ -485,7 +485,8 @@ function Vote(props: VoteProps): JSX.Element {
                         </div>
                     </div>
                 </div>
-
+                {/* TODO: only show if a proposal is being voted */}
+                <VetoGraph />
                 {isOperationModalVisible && (
                     <VotingStatusModal
                         title={modalTitle}

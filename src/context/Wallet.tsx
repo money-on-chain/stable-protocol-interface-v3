@@ -6,6 +6,7 @@ import { useContractProtocolStatus } from '../hooks/useContractProtocolStatus'
 import { useProposalCount } from '../hooks/useProposalCount'
 import { useContractOmocStatus } from '../hooks/useContractOmocStatus'
 import { useUserOmocBalance } from '../hooks/useUserOmocBalance'
+import { useUserVeto } from "../hooks/useUserVeto"
 import { useUserBalance } from '../hooks/useUserBalance'
 import { readContracts } from '../hooks/useReadContracts'
 import { useBaseCoinBalance, UseBaseCoinBalanceReturn } from '../hooks/useBaseCoinBalance'
@@ -44,6 +45,7 @@ import {
     voteStep,
     unRegister,
 } from "../backend/omoc/voting";
+import { vetoVote, vetoWithdraw } from "../backend/omoc/veto";
 import {
     loadVestingAddressesFromLocalStorage,
     saveVestingAddressesToLocalStorage,
@@ -191,12 +193,27 @@ export type WalletContextType = {
     onReceipt: OnReceipt,
     onError: OnError
   ) => Promise<any>
+  interfaceVetoVote: (
+    proposalAddress: string,
+    caIndex: number,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt,
+    onError: OnError
+  ) => Promise<any>
+  interfaceVetoWithdraw: (
+    proposalAddress: string,
+    caIndex: number,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt,
+    onError: OnError
+  ) => Promise<any>
   userBaseCoinBalance: UseBaseCoinBalanceReturn
   userVesting: UseStorageResult<any>
   userIncentiveV2: UseStorageResult<any>
   onShowModalProviders: () => void
   onHideModalProviders: () => void
   userOmocBalance: UseStorageResult<any>
+  userVeto: UseStorageResult<any>
 }
 
 interface VestingTransaction {
@@ -314,6 +331,14 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
     const userIncentiveV2 = useIncentiveV2(
         contractsAddressLoaded ? contractsAddress : undefined,
+        address,
+        REFRESH_INTERVAL_USER_BALANCE
+    )
+
+    const userVeto = useUserVeto(
+        contractsAddressLoaded ? contractsAddress : undefined,
+        userBalance.data,
+        contractStatusOmoc.data,
         address,
         REFRESH_INTERVAL_USER_BALANCE
     )
@@ -839,6 +864,40 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         );
     };
 
+    const interfaceVetoVote = async (
+    proposalAddress: `0x${string}`,
+    caIndex: number,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt,
+    onError: OnError
+  ): Promise<any> => {
+    const interfaceContext = buildInterfaceContext();
+    return vetoVote(
+      interfaceContext,
+      proposalAddress,
+      caIndex,
+      onTransaction,
+      onReceipt,
+    );
+  };
+
+  const interfaceVetoWithdraw = async (
+    proposalAddress: `0x${string}`,
+    caIndex: number,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt,
+    onError: OnError
+  ): Promise<any> => {
+    const interfaceContext = buildInterfaceContext();
+    return vetoWithdraw(
+      interfaceContext,
+      proposalAddress,
+      caIndex,
+      onTransaction,
+      onReceipt,
+    );
+  };
+
     return (
         <WalletContext.Provider
         value={{
@@ -884,10 +943,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             interfaceVotingVoteStep,
             interfaceVotingAcceptedStep,
             interfaceVotingUnRegister,
+            interfaceVetoVote,
+            interfaceVetoWithdraw,
             readUserVesting,
             userVesting,
             userOmocBalance,
             userIncentiveV2,
+            userVeto,
             onShowModalProviders,
             onHideModalProviders
         }}

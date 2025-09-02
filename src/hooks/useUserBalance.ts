@@ -135,8 +135,15 @@ export function useUserBalance(contracts?: any, userAddress?: string, refetchInt
             });
             
         }
-
-        
+        if(import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting") {
+            callRequest.push({
+                contract: contracts.CollateralToken[0],
+                functionName: 'balanceOf',
+                args: [userAddress],
+                resultType: "uint256",
+                keys: [0, "TC", "balance"]
+            })
+        }
 
         return callRequest
 
