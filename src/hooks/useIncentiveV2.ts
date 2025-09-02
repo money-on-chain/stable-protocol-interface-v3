@@ -25,13 +25,13 @@ export function useIncentiveV2(contracts?: any, userAddress?: string, refetchInt
                 keys: ["incentiveV2", "contractBalance"]
             });
 
-            // callRequest.push({
-            //     contract: contracts.IncentiveV2,
-            //     functionName: 'get_balance',
-            //     args: [userAddress],
-            //     resultType: "uint256",
-            //     keys: ["incentiveV2", "userBalance"]
-            // });
+            callRequest.push({
+                contract: contracts.IncentiveV2,
+                functionName: 'get_balance',
+                args: [userAddress],
+                resultType: "uint256",
+                keys: ["incentiveV2", "userBalance"]
+            });
             
         }                
 

@@ -278,6 +278,16 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 resultType: 'uint256',
                 keys: ["votingmachine", "VOTING_TIME_DELTA"]
             });
+
+            if (contracts.VetoMachine.address) {
+                callRequest.push({
+                    contract: contracts.VetoMachine,
+                    functionName: "getVetoPctForWinnerProposal",
+                    args: [],
+                    resultType: "uint256",
+                    keys: ["vetomachine", "getVetoPctForWinnerProposal"],
+                });
+            }
         }
 
       return callRequest

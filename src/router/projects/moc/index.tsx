@@ -14,6 +14,7 @@ const Performance = React.lazy(
 const Staking = React.lazy(() => import("../../../pages/Staking/index"));
 const Vesting = React.lazy(() => import("../../../pages/Vesting/index"));
 const Voting = React.lazy(() => import("../../../pages/Voting/index"));
+const VetoWithdraw = React.lazy(() => import("../../../pages/Veto/Withdraw"));
 const LiquidityMining = React.lazy(
     () => import("../../../pages/LiquidityMining/index")
 );
@@ -59,6 +60,10 @@ export default function Router(): React.ReactElement | null {
                 {
                     path: "liquidity-mining",
                     element: <LiquidityMining />,
+                },
+                {
+                    path: "veto/withdraw",
+                    element: <VetoWithdraw />,
                 },
                 { path: "404", element: <NotFound /> },
                 { path: "*", element: <Navigate to="/404" /> },

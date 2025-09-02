@@ -16,6 +16,7 @@ import StakingMachine from "../contracts/omoc/StakingMachine.json";
 import DelayMachine from "../contracts/omoc/DelayMachine.json";
 import Supporters from "../contracts/omoc/Supporters.json";
 import VotingMachine from "../contracts/omoc/VotingMachine.json";
+import VetoMachine from "../contracts/omoc/VetoMachine.json";
 import VestingFactory from "../contracts/omoc/VestingFactory.json";
 import IERC20 from "../contracts/omoc/IERC20.json";
 import IncentiveV2 from "../contracts/omoc/IncentiveV2.json";
@@ -52,6 +53,7 @@ interface DContracts {
         VestingFactory?: any;
         IncentiveV2?: any;
         VotingMachine?: any;
+        VetoMachine?: any;
         TG?: any;
         tp_legacy?: any;
         token_migrator?: any;
@@ -103,6 +105,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
         PP_CA: [],
         PP_COINBASE: {},
         VotingMachine: {},
+        VetoMachine: {},
         IRegistry: {},
         StakingMachine: {},
         DelayMachine: {},
@@ -341,8 +344,23 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
             contracts.TP.push(contractDict)
         }
 
+    } 
+
+    if(import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting"){
+        // For single collateral protocol(voting )
+        const tcAddress = import.meta.env.REACT_APP_CONTRACT_TC;
+        console.log(
+                "Collateral Token Contract... address: ",
+                tcAddress
+            );
+            contractDict = {
+                address: tcAddress,
+                abi: CollateralToken.abi,
+                name: 'CollateralToken',
+                type: ''
+            }
+        contracts.CollateralToken.push(contractDict)
     }
-    
     
     if (typeof import.meta.env.REACT_APP_CONTRACT_IREGISTRY !== "undefined") {
         console.log(
@@ -419,6 +437,18 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
             type: ''
         }
         contracts.VotingMachine = contractDict
+
+        console.log(
+            "Veto Machine Contract... address: ",
+            registryAddr.data.MOC_VETO_MACHINE
+        );
+        contractDict = {
+            address: registryAddr.data.MOC_VETO_MACHINE,
+            abi: VetoMachine.abi,
+            name: 'VetoMachine',
+            type: ''
+        }
+        contracts.VetoMachine = contractDict
 
         console.log(
             "Token Govern Contract... address: ",
@@ -532,6 +562,14 @@ const registryAddresses = async (
         args: [omoc.RegistryConstants.MOC_VOTING_MACHINE],
         resultType: 'address',
         keys: ['MOC_VOTING_MACHINE']        
+    })
+
+    callRequest.push({
+        contract: contractRegistry,
+        functionName: 'getAddress',
+        args: [omoc.RegistryConstants.MOC_VETO_MACHINE],
+        resultType: 'address',
+        keys: ['MOC_VETO_MACHINE']        
     })
 
     callRequest.push({

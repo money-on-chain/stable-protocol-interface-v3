@@ -6,6 +6,7 @@ const Skeleton = React.lazy(
     () => import("../../../layouts/projects/roc/Skeleton")
 );
 const Home = React.lazy(() => import("../../../pages/Home/index"));
+const VetoWithdraw = React.lazy(() => import("../../../pages/Veto/Withdraw"));
 const Exchange = React.lazy(() => import("../../../pages/Exchange/index"));
 const Send = React.lazy(() => import("../../../pages/Send/index"));
 const Performance = React.lazy(
@@ -55,6 +56,10 @@ export default function Router(): React.ReactElement | null {
                 {
                     path: "voting",
                     element: <Voting />,
+                },
+                {
+                    path: "veto/withdraw",
+                    element: <VetoWithdraw />,
                 },
                 { path: "404", element: <NotFound /> },
                 { path: "*", element: <Navigate to="/404" /> },

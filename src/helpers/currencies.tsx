@@ -61,6 +61,12 @@ const currencies: Currency[] = [
 
 const getCurrenciesDetail = (): Currency[] => currencies;
 
+const getCurrencyByValue = (value: string): Currency => {
+    const currency = currencies.find((currency) => currency.value === value);
+    if (!currency) throw new Error("Currency not found");
+    return currency;
+};
+
 function TokenSettings(tokenName: string): TokenConfig {
     // Ex. tokenName = CA_0, CA_1, TP_0, TP_1, TC_0, TC_1, COINBASE, TF_0, TF_1
     const aTokenName = tokenName.split("_");
@@ -329,6 +335,7 @@ function CalcCommission(
 
 export {
     getCurrenciesDetail,
+    getCurrencyByValue,
     TokenSettings,
     TokenBalance,
     ConvertBalance,
