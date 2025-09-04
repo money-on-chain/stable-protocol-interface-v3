@@ -67,6 +67,19 @@ const getCurrencyByValue = (value: string): Currency => {
     return currency;
 };
 
+function getTCTokenIndex(collateralTokens: any[], tokenAddress: string): number {
+    const tcIndex = collateralTokens.findIndex(
+        (token) => token.address.toLowerCase() === tokenAddress.toLowerCase()
+    );
+
+    if (tcIndex !== -1) {
+        return tcIndex;
+    }
+
+    throw new Error("Token address not found");
+}
+
+
 function TokenSettings(tokenName: string): TokenConfig {
     // Ex. tokenName = CA_0, CA_1, TP_0, TP_1, TC_0, TC_1, COINBASE, TF_0, TF_1
     const aTokenName = tokenName.split("_");
@@ -345,4 +358,5 @@ export {
     hasNonUSDPeggedTokens,
     getCAIndex,
     bigIntToInputValue,
+    getTCTokenIndex
 };

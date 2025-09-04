@@ -203,7 +203,7 @@ export type WalletContextType = {
   ) => Promise<any>
   interfaceVetoWithdraw: (
     proposalAddress: string,
-    caIndex: number,
+    tcAddress: string,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt,
     onError: OnError
@@ -872,7 +872,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
   const interfaceVetoWithdraw = async (
     proposalAddress: `0x${string}`,
-    caIndex: number,
+    tcAddress: `0x${string}`,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt,
     onError: OnError
@@ -881,7 +881,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     return vetoWithdraw(
       interfaceContext,
       proposalAddress,
-      caIndex,
+      tcAddress,
       onTransaction,
       onReceipt,
     );

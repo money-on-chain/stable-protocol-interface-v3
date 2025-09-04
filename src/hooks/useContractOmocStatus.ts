@@ -279,7 +279,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 keys: ["votingmachine", "VOTING_TIME_DELTA"]
             });
 
-            if (contracts.VetoMachine.address) {
+            if (contracts.VetoMachine.address != "0x") {
                 callRequest.push({
                     contract: contracts.VetoMachine,
                     functionName: "getVetoPctForWinnerProposal",

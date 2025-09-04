@@ -14,6 +14,7 @@ import { AutoReconnect } from "../../../components/AutoReconnect";
 import { NetworkGuard } from "../../../components/NetworkGuard";
 import { ALLOWED_CHAIN } from "../../../wagmiConfig";
 
+import { isSomeTCLockedByVeto } from "../../../helpers/veto";
 
 const { Content, Footer } = Layout;
 
@@ -31,7 +32,7 @@ interface NotificationStatus {
     button?: { class: string; label: string; onClick: () => void };
 }
 export default function Skeleton(): JSX.Element {
-    const { isConnected, contractProtocolStatus, userBalance, userOmocBalance, userVeto } = useWalletContext()
+    const { isConnected, contractProtocolStatus, userBalance, userOmocBalance, userVeto, address } = useWalletContext()
     const navigate = useNavigate();
     const chainId = useChainId()
     const isWrongNetwork = isConnected && chainId !== ALLOWED_CHAIN.id
@@ -41,10 +42,10 @@ export default function Skeleton(): JSX.Element {
     const { checkerStatus } = CheckStatusGlobal();
     
     useEffect(() => {
-        if (contractProtocolStatus.data && userBalance.data && userOmocBalance.data && userVeto.data && !isWrongNetwork) {
+        if (contractProtocolStatus.data && userBalance.data && userOmocBalance.data && !isWrongNetwork) {
             readProtocolStatus();
         }
-    }, [contractProtocolStatus.data, userBalance.data, userOmocBalance.data, userVeto.data, isWrongNetwork]);
+    }, [contractProtocolStatus.data, userBalance.data, userOmocBalance.data, userVeto.data, address, isWrongNetwork]);
 
     const readProtocolStatus = (): void => {
         const { globalStatus, statusLabel, statusText } = checkerStatus();
@@ -61,7 +62,7 @@ export default function Skeleton(): JSX.Element {
         } else {
             setNotifStatus(null);
         }
-        if (true) {
+        if (userVeto.data && address && isSomeTCLockedByVeto(userVeto.data, address)) {
             setVetoWithdraw({
                 id: -1,
                 title: `Collateral Tokens ready to Withdraw`,
