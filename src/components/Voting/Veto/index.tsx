@@ -5,12 +5,16 @@ import { formatTimestamp } from "../../../helpers/staking";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { useWalletContext } from "../../../context/Wallet";
 import { mulPrecision, divPrecision } from "../../../helpers/precision";
+import VetoStatusModal from "../../Modals/VetoStatusModal/VetoStatusModal";
 
 import "../Styles.scss";
 import { useNavigate } from "react-router-dom";
 import BalanceBar from "../BalanceBar";
 import CompletedBar from "../CompletedBar";
-import { TokenSettings } from "@/helpers/currencies";
+import { TokenSettings } from "../../../helpers/currencies";
+
+const PRECISION_DECIMALS = 18n;
+const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
 
 interface VotingData {
     winnerProposal: string;
@@ -18,54 +22,27 @@ interface VotingData {
     againstVotes: bigint;
     votingExpirationTime: bigint;
     expired: boolean;
-    totalVotedPCT: bigint;
     totalVoted: bigint;
     votingExpirationTimeFormat?: string;
-    inFavorVotesTotalSupplyPCT?: bigint;
-    againstVotesTotalSupplyPCT?: bigint;
-    inFavorVotesPCT?: bigint;
-    againstVotesPCT?: bigint;
+    inFavorVotesPCT: bigint;
+    againstVotesPCT: bigint;
+    totalVetoPCT: bigint;
 }
-
-interface VotingInfo {
-    winnerProposal: string;
-    inFavorVotes: bigint;
-    againstVotes: bigint;
-}
-
 interface InfoVoting {
-    globalVotingRound: bigint;
-    totalSupply: bigint;
-    PRE_VOTE_MIN_TO_WIN: bigint;
-    PRE_VOTE_MIN_PCT_TO_WIN: bigint;
-    MIN_PCT_FOR_QUORUM: bigint;
-    MIN_FOR_QUORUM: bigint;
-    MIN_STAKE: bigint;
-    VOTING_POWER: bigint;
     VOTE_MIN_PCT_TO_VETO: bigint;
-    VOTE_MIN_TO_VETO: bigint;
-    proposals: any[];
     state: number;
-    readyToPreVoteStep: boolean;
-    readyToVoteStep: boolean;
     votingData: VotingData;
-    votingInfo: VotingInfo;
 }
 
 interface InfoUser {
-    Voting_Power: bigint;
-    Voting_Power_PCT: bigint;
-    Total_Veto_Power: bigint;
-    Total_Veto_Power_PCT: bigint;
     InfoUserTC: InfoUserTC[];
 }
-
 interface InfoUserTC {
+    index: number;
     address: string;
     name: string;
     balance: bigint;
-    vetoingPower: bigint;
-    lockedAmount: bigint;
+    votingPower: bigint;
 }
 
 const Veto: React.FC = () => {
@@ -73,97 +50,70 @@ const Veto: React.FC = () => {
     const navigate = useNavigate();
 
     const {
+        interfaceVetoVote,
         userOmocBalance,
         contractStatusOmoc,
-        isVestingLoaded,
-        userVesting,
         userBalance,
         contractsAddress,
         userVeto,
     } = useWalletContext();
 
+    const [isOperationModalVisible, setIsOperationModalVisible] =
+        useState<boolean>(false);
+    const [modalTitle, setModalTitle] = useState<string>("Veto Proposal");
+    const [showProposalModal, setShowProposalModal] = useState<boolean>(false);
+    const [txHash, setTxHash] = useState<string>("");
+    const [operationStatus, setOperationStatus] = useState<string>("sign");
+
     const nowTimestamp: bigint = BigInt(Date.now());
     const defaultInfoVoting: InfoVoting = {
-        globalVotingRound: 0n,
-        totalSupply: 0n,
-        PRE_VOTE_MIN_TO_WIN: 0n,
-        PRE_VOTE_MIN_PCT_TO_WIN: 0n,
-        MIN_PCT_FOR_QUORUM: 0n,
-        MIN_FOR_QUORUM: 0n,
-        MIN_STAKE: 0n,
-        VOTING_POWER: 0n,
         VOTE_MIN_PCT_TO_VETO: 0n,
-        VOTE_MIN_TO_VETO: 0n,
-        proposals: [],
         state: 0,
-        readyToPreVoteStep: false,
-        readyToVoteStep: false,
         votingData: {
             winnerProposal: "",
             inFavorVotes: 0n,
             againstVotes: 0n,
             votingExpirationTime: 0n,
             expired: true,
-            totalVotedPCT: 0n,
             totalVoted: 0n,
-        },
-        votingInfo: {
-            winnerProposal: "",
-            inFavorVotes: 0n,
-            againstVotes: 0n,
+            inFavorVotesPCT: 0n,
+            againstVotesPCT: 0n,
+            totalVetoPCT: 0n,
         },
     };
     const [infoVoting, setInfoVoting] = useState<InfoVoting>(defaultInfoVoting);
 
     const defaultInfoUser: InfoUser = {
-        Voting_Power: 0n,
-        Voting_Power_PCT: 0n,
-        Total_Veto_Power: 0n,
-        Total_Veto_Power_PCT: 0n,
         InfoUserTC: [],
     };
     const [infoUser, setInfoUser] = useState<InfoUser>(defaultInfoUser);
 
     useEffect(() => {
-        if (contractStatusOmoc.data && userOmocBalance.data) {
+        if (
+            contractStatusOmoc.data &&
+            userOmocBalance.data &&
+            userVeto.data &&
+            userBalance.data
+        ) {
             refreshData();
         }
-    }, [contractStatusOmoc.data, userOmocBalance.data]);
+    }, [
+        contractStatusOmoc.data,
+        userOmocBalance.data,
+        userVeto.data,
+        userBalance.data,
+    ]);
 
     const refreshData = (): void => {
         if (!contractStatusOmoc.data) return;
         if (!userOmocBalance.data) return;
+        if (!userVeto.data) return;
+        if (!userBalance.data) return;
 
         const cData: InfoVoting = { ...infoVoting };
-        cData["proposals"] =
-            contractStatusOmoc.data.votingmachine.getProposalByIndex;
         cData["state"] = Number(contractStatusOmoc.data.votingmachine.getState);
-        cData["readyToPreVoteStep"] =
-            contractStatusOmoc.data.votingmachine.readyToPreVoteStep;
-        cData["readyToVoteStep"] =
-            contractStatusOmoc.data.votingmachine.readyToVoteStep;
-        cData["globalVotingRound"] =
-            contractStatusOmoc.data.votingmachine.getVotingRound;
-        cData["totalSupply"] =
-            contractStatusOmoc.data.votingmachine.totalSupply;
-        cData["PRE_VOTE_MIN_PCT_TO_WIN"] =
-            contractStatusOmoc.data.votingmachine.PRE_VOTE_MIN_PCT_TO_WIN;
-        cData["PRE_VOTE_MIN_TO_WIN"] =
-            mulPrecision(
-                cData["totalSupply"],
-                cData["PRE_VOTE_MIN_PCT_TO_WIN"]
-            ) / 100n;
-        cData["MIN_STAKE"] = contractStatusOmoc.data.votingmachine.MIN_STAKE;
-        cData["MIN_PCT_FOR_QUORUM"] =
-            contractStatusOmoc.data.votingmachine.MIN_PCT_FOR_QUORUM;
-        cData["MIN_FOR_QUORUM"] =
-            mulPrecision(cData["totalSupply"], cData["MIN_PCT_FOR_QUORUM"]) /
-            100n;
         cData["VOTE_MIN_PCT_TO_VETO"] =
             contractStatusOmoc.data.votingmachine.VOTE_MIN_PCT_TO_VETO;
-        cData["VOTE_MIN_TO_VETO"] =
-            mulPrecision(cData["totalSupply"], cData["VOTE_MIN_PCT_TO_VETO"]) /
-            100n;
 
         // Voting Data
         const [
@@ -188,18 +138,6 @@ const Veto: React.FC = () => {
         cData["votingData"]["totalVoted"] =
             cData["votingData"]["inFavorVotes"] +
             cData["votingData"]["againstVotes"];
-        cData["votingData"]["totalVotedPCT"] = divPrecision(
-            cData["votingData"]["totalVoted"] * 100n,
-            cData["totalSupply"]
-        );
-        cData["votingData"]["inFavorVotesTotalSupplyPCT"] = divPrecision(
-            cData["votingData"]["inFavorVotes"] * 100n,
-            cData["totalSupply"]
-        );
-        cData["votingData"]["againstVotesTotalSupplyPCT"] = divPrecision(
-            cData["votingData"]["againstVotes"] * 100n,
-            cData["totalSupply"]
-        );
 
         cData["votingData"]["inFavorVotesPCT"] = divPrecision(
             cData["votingData"]["inFavorVotes"] * 100n,
@@ -210,49 +148,97 @@ const Veto: React.FC = () => {
             cData["votingData"]["totalVoted"]
         );
 
-        // Voting Info
-        const [infoWinnerProposal, infoInFavorVotes, infoAgainstVotes] =
-            contractStatusOmoc.data.votingmachine.getVoteInfo;
-
-        cData["votingInfo"]["winnerProposal"] = infoWinnerProposal;
-        cData["votingInfo"]["inFavorVotes"] = infoInFavorVotes;
-        cData["votingInfo"]["againstVotes"] = infoAgainstVotes;
+        cData["votingData"]["totalVetoPCT"] =
+            contractStatusOmoc.data.vetomachine.getVetoPctForWinnerProposal;
         setInfoVoting(cData);
 
         const cDataUser: InfoUser = { ...infoUser };
-        let vUsing: any;
-        if (isVestingLoaded()) {
-            vUsing = userVesting.data.vestingmachine.staking;
-        } else {
-            vUsing = userOmocBalance.data.stakingmachine;
-        }
-
-        const uBalance: bigint = vUsing.getBalance;
-
-        const [lockedAmount, untilTimestamp] = vUsing.getLockingInfo;
-
-        if (untilTimestamp > nowTimestamp) {
-            cDataUser["Voting_Power"] = uBalance - lockedAmount;
-        } else {
-            cDataUser["Voting_Power"] = uBalance;
-        }
-
-        cDataUser["Voting_Power_PCT"] = divPrecision(
-            cDataUser["Voting_Power"] * 100n,
-            cData["totalSupply"]
-        );
         cDataUser["InfoUserTC"] = [];
+
         contractsAddress.CollateralToken.forEach((tc, index) => {
             const tokenInfo: InfoUserTC = {
+                index,
                 address: tc.address,
                 name: TokenSettings("TC_" + index).name,
                 balance: userBalance.data[index].TC.balance,
-                lockedAmount: 0n,
-                vetoingPower: 0n,
+                votingPower:
+                    userVeto.data.vetoMachine.getVotingPower[tc.address] || 0n,
             };
             cDataUser["InfoUserTC"].push(tokenInfo);
         });
         setInfoUser(cDataUser);
+    };
+
+    const onVote = async (proposal: string, index: number): Promise<void> => {
+        setModalTitle("Veto proposal");
+        setShowProposalModal(true);
+
+        setOperationStatus("sign");
+        setIsOperationModalVisible(true);
+
+        const onTransaction = (txHash: string): void => {
+            console.log("Sent transaction in Favor proposal...: ", txHash);
+            setTxHash(txHash);
+            setOperationStatus("pending");
+        };
+        const onReceipt = (/*receipt*/): void => {
+            console.log("Transaction in Favor proposal mined!...");
+            setOperationStatus("success");
+        };
+        const onError = (error: any): void => {
+            console.log("Transaction in Favor proposal error!...:", error);
+            setOperationStatus("error");
+        };
+
+        await interfaceVetoVote(
+            proposal,
+            index,
+            onTransaction,
+            onReceipt,
+            onError
+        )
+            .then((/*res*/) => {
+                // Refresh status
+                userOmocBalance.refetch();
+                contractStatusOmoc.refetch();
+                userVeto.refetch();
+                userBalance.refetch();
+            })
+            .catch((e) => {
+                console.error(e);
+                setOperationStatus("error");
+            });
+    };
+
+    const VetoTokenCard: React.FC<{ token: any }> = ({ token }) => {
+        return (
+            <div className="vetoPage__tokenTitle">
+                {token.name} vetoing
+                <div className="voting__status__container">
+                    <div className="graphs">
+                        <div className="vetoPage__tokenInfo">
+                            <div>{`balance: ${token.balance} tokens`}</div>
+                            <div>{`Voting power: ${token.votingPower} %`}</div>
+                        </div>
+                    </div>
+                    <div className="cta">
+                        <div className="cta-container">
+                            <button
+                                className="vetoPage__vetoBtn"
+                                onClick={() =>
+                                    onVote(
+                                        infoVoting.votingData["winnerProposal"],
+                                        token.index
+                                    )
+                                }
+                            >
+                                VETO with {token.name}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
     };
 
     return (
@@ -314,12 +300,12 @@ const Veto: React.FC = () => {
                                     infavor={
                                         infoVoting["votingData"][
                                             "inFavorVotesPCT"
-                                        ] ?? 0n
+                                        ]
                                     }
                                     against={
                                         infoVoting["votingData"][
                                             "againstVotesPCT"
-                                        ] ?? 0n
+                                        ]
                                     }
                                     infavorVotes={
                                         infoVoting["votingData"]["inFavorVotes"]
@@ -329,16 +315,7 @@ const Veto: React.FC = () => {
                                     }
                                 />
                                 <div className="voting__status__graphs">
-                                    <CompletedBar
-                                        key={1}
-                                        description={"Collateral-Backed Votes Supporting Veto"}
-                                        percentage={10n}
-                                        needed={10n * 10n ** 18n}
-                                        type={"brand"}
-                                        label1={"veto casted"}
-                                        amount1={10n * 10n ** 18n}
-                                        percentage1={10n * 10n ** 18n}
-                                    />
+                                    <VetoBar infoVoting={infoVoting} />
                                 </div>
                             </div>
                             <div className="cta">
@@ -355,6 +332,21 @@ const Veto: React.FC = () => {
                         {infoUser["InfoUserTC"].map((tc: any) => (
                             <VetoTokenCard key={tc.address} token={tc} />
                         ))}
+                        {isOperationModalVisible && (
+                            <VetoStatusModal
+                                title={modalTitle}
+                                visible={isOperationModalVisible}
+                                onCancel={() =>
+                                    setIsOperationModalVisible(false)
+                                }
+                                operationStatus={operationStatus}
+                                txHash={txHash}
+                                proposalChanger={
+                                    infoVoting.votingData["winnerProposal"]
+                                }
+                                showProposal={showProposalModal}
+                            />
+                        )}
                     </div>
                 </div>
             </div>
@@ -363,56 +355,32 @@ const Veto: React.FC = () => {
 };
 export default Veto;
 
-const VetoTokenCard: React.FC<{ token: any }> = ({ token }) => {
+const VetoBar: React.FC<{ infoVoting: any }> = ({ infoVoting }) => {
     return (
-        <div className="vetoPage__tokenTitle">
-            {token.name} vetoing
-            <div className="voting__status__container">
-                <div className="graphs">
-                    <div className="vetoPage__tokenInfo">
-                        <div>
-                            Voting power 5.0 tokens 5000000000000000000 wei
-                        </div>
-                        <div>
-                            Total {token.name} in circulation{" "}
-                            <span>
-                                480.0 tokens (480000000000000000000 wei)
-                            </span>
-                        </div>
-                        <div>
-                            Total Supply <span>1.041666 %</span>
-                        </div>
-                    </div>
-                </div>
-                <div className="cta">
-                    <div className="cta-container">
-                        <button className="vetoPage__vetoBtn">
-                            VETO with {token.name}
-                        </button>
-                    </div>
-                </div>
-            </div>
+        <div className="voting__status__graphs">
+            <CompletedBar
+                key={4}
+                description={"Collateral-Backed Votes Supporting Veto"}
+                percentage={
+                    infoVoting["votingData"]["totalVetoPCT"] * DECIMALS_18
+                }
+                needed={infoVoting["VOTE_MIN_PCT_TO_VETO"] * DECIMALS_18}
+                type={"brand"}
+                label1={"veto casted"}
+                percentage1={
+                    infoVoting["votingData"]["totalVetoPCT"] * DECIMALS_18
+                }
+            />
         </div>
     );
 };
 
-export const VetoGraph: React.FC = () => {
+export const VetoGraph: React.FC<{ infoVoting: any }> = ({ infoVoting }) => {
     const navigate = useNavigate();
     return (
         <div className="voting__status__container">
             <div className="graphs">
-                <div className="voting__status__graphs">
-                    <CompletedBar
-                        key={4}
-                        description={"Collateral-Backed Votes Supporting Veto"}
-                        percentage={10n}
-                        needed={10n * 10n ** 18n}
-                        type={"brand"}
-                        label1={"veto casted"}
-                        amount1={10n * 10n ** 18n}
-                        percentage1={10n * 10n ** 18n}
-                    />
-                </div>
+                <VetoBar infoVoting={infoVoting} />
             </div>
             <div className="cta">
                 <div className="votingButtons">

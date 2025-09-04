@@ -486,7 +486,7 @@ function Vote(props: VoteProps): JSX.Element {
                     </div>
                 </div>
                 {/* TODO: only show if a proposal is being voted */}
-                <VetoGraph />
+                <VetoGraph infoVoting={infoVoting} />
                 {isOperationModalVisible && (
                     <VotingStatusModal
                         title={modalTitle}

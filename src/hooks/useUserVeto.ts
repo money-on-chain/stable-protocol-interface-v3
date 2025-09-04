@@ -23,7 +23,7 @@ export function useUserVeto(
 
         const callRequest = [];
 
-        if (contracts.VetoMachine.address) {
+        if (contracts.VetoMachine.address != "0x") {
             for (let ca = 0; ca < contracts.CollateralToken.length; ca++) {
                 const CollateralToken = contracts.CollateralToken[ca];
                 const userTCBalance = userBalance[ca].TC.balance || 0n;
@@ -54,8 +54,8 @@ export function useUserVeto(
                             "vetoMachine",
                             "getUserLockedAmount",
                             userAddress,
-                            proposal,
                             CollateralToken.address,
+                            proposal,
                         ],
                         onError: onErrorProposal,
                     });

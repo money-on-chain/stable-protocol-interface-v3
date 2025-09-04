@@ -9,6 +9,7 @@ import DappFooter from "../../../components/Footer/index";
 
 import { useWalletContext } from "../../../context/Wallet";
 
+import { isSomeTCLockedByVeto } from "../../../helpers/veto";
 
 const { Content, Footer } = Layout;
 
@@ -26,17 +27,17 @@ interface NotificationStatus {
     button?: { class: string; label: string; onClick: () => void };
 }
 export default function Skeleton(): JSX.Element {
-    const { isConnected, contractProtocolStatus, userBalance, userOmocBalance, userVeto } = useWalletContext()
+    const { isConnected, contractProtocolStatus, userBalance, userOmocBalance, userVeto, address } = useWalletContext()
     const navigate = useNavigate();
     const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(null);
     const [vetoWithdraw, setVetoWithdraw] = useState<NotificationStatus | null>(null);
     const { checkerStatus } = CheckStatusGlobal();
     
     useEffect(() => {
-        if (contractProtocolStatus.data && userBalance.data && userOmocBalance.data && userVeto.data) {
+        if (contractProtocolStatus.data && userBalance.data && userOmocBalance.data) {
             readProtocolStatus();
         }
-    }, [contractProtocolStatus.data, userBalance.data, userOmocBalance.data, userVeto.data]);
+    }, [contractProtocolStatus.data, userBalance.data, userOmocBalance.data, userVeto.data, address]);
 
     const readProtocolStatus = (): void => {
         const { globalStatus, statusLabel, statusText } = checkerStatus();
@@ -53,7 +54,7 @@ export default function Skeleton(): JSX.Element {
         } else {
             setNotifStatus(null);
         }
-        if (true) {
+        if (userVeto.data && address && isSomeTCLockedByVeto(userVeto.data, address)) {
             setVetoWithdraw({
                 id: -1,
                 title: `Collateral Tokens ready to Withdraw`,

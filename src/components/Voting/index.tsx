@@ -21,6 +21,7 @@ interface VotingData {
     againstVotesTotalSupplyPCT?: bigint;
     inFavorVotesPCT?: bigint;
     againstVotesPCT?: bigint;
+    totalVetoPCT?: bigint;
 }
 
 interface VotingInfo {
@@ -84,6 +85,7 @@ const Voting: React.FC = () => {
             expired: true,
             totalVotedPCT: 0n,
             totalVoted: 0n,
+            totalVetoPCT: 0n,
         },
         votingInfo: {
             winnerProposal: "",
@@ -151,6 +153,7 @@ const Voting: React.FC = () => {
         cData["votingInfo"]["winnerProposal"] = infoWinnerProposal;
         cData["votingInfo"]["inFavorVotes"] = infoInFavorVotes;
         cData["votingInfo"]["againstVotes"] = infoAgainstVotes;
+        cData["votingData"]["totalVetoPCT"] = contractStatusOmoc.data.vetomachine.getVetoPctForWinnerProposal;
         setInfoVoting(cData);
 
         

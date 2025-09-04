@@ -14,14 +14,14 @@ const vetoVote = async (
 ): Promise<any> => {
 
     const { address, contracts, userBalance } = interfaceContext;
-    const VotingMachine = contracts.VotingMachine;
+    const VetoMachine = contracts.VetoMachine;
 
-    const tcAddress = contracts.CollateralToken[caIndex];
+    const tcAddress = contracts.CollateralToken[caIndex].address;
     const userTCBalance = userBalance.data[caIndex].TC.balance;
 
     const { request } = await simulateContract(config, {
-        address: VotingMachine.address,
-        abi: VotingMachine.abi,
+        address: VetoMachine.address,
+        abi: VetoMachine.abi,
         functionName: 'vote',
         args: [checksumAddress(proposalAddress), checksumAddress(tcAddress), userTCBalance],
         account: address,
@@ -43,17 +43,16 @@ const vetoVote = async (
 const vetoWithdraw = async (
     interfaceContext: any,
     proposalAddress: `0x${string}`,
-    caIndex: number,
+    tcAddress:  `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
-    const VotingMachine = contracts.VotingMachine;
-    const tcAddress = contracts.CollateralToken[caIndex];
+    const VetoMachine = contracts.VetoMachine;
 
     const { request } = await simulateContract(config, {
-        address: VotingMachine.address,
-        abi: VotingMachine.abi,
+        address: VetoMachine.address,
+        abi: VetoMachine.abi,
         functionName: 'vote',
         args: [checksumAddress(proposalAddress), address, checksumAddress(tcAddress)],
         account: address,
