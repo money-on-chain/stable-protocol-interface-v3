@@ -9,7 +9,7 @@ import { TokenSettings } from "../../helpers/currencies";
 import { useWalletContext } from "../../context/Wallet";
 import { VetoGraph } from "./Veto";
 
-const PRECISION_DECIMALS = 18n
+const PRECISION_DECIMALS = 18n;
 const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
 
 interface CreateBarGraphProps {
@@ -42,7 +42,7 @@ interface VoteProps {
             inFavorVotesPCT: bigint;
             againstVotesPCT: bigint;
             votingExpirationTimeFormat: string;
-            winnerProposal: string;            
+            winnerProposal: string;
         };
         MIN_FOR_QUORUM: bigint;
         MIN_PCT_FOR_QUORUM: bigint;
@@ -95,7 +95,13 @@ function Vote(props: VoteProps): JSX.Element {
     const [votingFinishReason, setVotingFinishReason] = useState<number>(0);
 
     const { t, i18n, ns } = useProjectTranslation();
-    const { interfaceVotingVote, interfaceVotingVoteStep, interfaceVotingAcceptedStep, userOmocBalance, contractStatusOmoc } = useWalletContext()
+    const {
+        interfaceVotingVote,
+        interfaceVotingVoteStep,
+        interfaceVotingAcceptedStep,
+        userOmocBalance,
+        contractStatusOmoc,
+    } = useWalletContext();
     const space = "\u00A0";
 
     useEffect(() => {
@@ -124,15 +130,13 @@ function Vote(props: VoteProps): JSX.Element {
             setVotingInFavorOrAgainstError(true);
             if (
                 infoVoting["votingData"]["totalVoted"] <
-                    infoVoting["MIN_FOR_QUORUM"] * DECIMALS_18
-                )
-            {
+                infoVoting["MIN_FOR_QUORUM"] * DECIMALS_18
+            ) {
                 setVotingFinishReason(2);
             } else if (
                 infoVoting["votingData"]["againstVotesPCT"] >=
-                    infoVoting["VOTE_MIN_TO_VETO"] * DECIMALS_18
-                )
-            {
+                infoVoting["VOTE_MIN_TO_VETO"] * DECIMALS_18
+            ) {
                 setVotingFinishReason(3);
             } else if (
                 infoVoting["votingData"]["totalVetoPCT"] * 100n >=
@@ -188,7 +192,6 @@ function Vote(props: VoteProps): JSX.Element {
     ];
 
     const onVote = async (inFavor: boolean): Promise<void> => {
-
         console.log("onVote", inFavor);
         setModalTitle("Vote proposal");
         setVoteInFavor(inFavor);
@@ -289,7 +292,7 @@ function Vote(props: VoteProps): JSX.Element {
             });
     };
 
-    const onValidateVotingInFavorOrAgainst = (): boolean => {        
+    const onValidateVotingInFavorOrAgainst = (): boolean => {
         if (infoUser["Voting_Power"] <= 0n) {
             // You need at least voting power > 0
             setVotingInFavorOrAgainstError(true);
@@ -391,8 +394,12 @@ function Vote(props: VoteProps): JSX.Element {
                         </p>
                         <BalanceBar
                             key="1"
-                            infavor={infoVoting["votingData"]["inFavorVotesPCT"]}
-                            against={infoVoting["votingData"]["againstVotesPCT"]}
+                            infavor={
+                                infoVoting["votingData"]["inFavorVotesPCT"]
+                            }
+                            against={
+                                infoVoting["votingData"]["againstVotesPCT"]
+                            }
                             infavorVotes={
                                 infoVoting["votingData"]["inFavorVotes"]
                             }
@@ -417,8 +424,8 @@ function Vote(props: VoteProps): JSX.Element {
                                                     "Voting_Power"
                                                 ],
                                                 token: TokenSettings("TG"),
-                                                decimals: 2,                                                
-                                                i18n: i18n                                                
+                                                decimals: 2,
+                                                i18n: i18n,
                                             })}
                                             {t("staking.tokens.TG.abbr", {
                                                 ns: ns,
@@ -430,7 +437,7 @@ function Vote(props: VoteProps): JSX.Element {
                                                 ],
                                                 token: TokenSettings("TG"),
                                                 decimals: 4,
-                                                i18n: i18n                                                
+                                                i18n: i18n,
                                             })}
                                             %)
                                         </div>
@@ -518,4 +525,4 @@ function Vote(props: VoteProps): JSX.Element {
     );
 }
 
-export default Vote; 
+export default Vote;

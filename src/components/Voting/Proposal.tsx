@@ -4,10 +4,8 @@ import { useProjectTranslation } from "../../helpers/translations";
 import CompletedBar from "./CompletedBar";
 import ProposalStats from "./ProposalStats";
 
-
-const PRECISION_DECIMALS = 18n
+const PRECISION_DECIMALS = 18n;
 const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
-
 
 interface CreateBarGraphProps {
     id: number;
@@ -234,4 +232,4 @@ const Proposal: React.FC<ProposalProps> = (props) => {
     );
 };
 
-export default Proposal; 
+export default Proposal;

@@ -31,8 +31,7 @@ export default function SectionVeto(): React.ReactElement {
         <Fragment>
             <div className="section-container">
                 {usingVestingAddress !== "" && (
-                    <div className={"content-page"}>
-                    </div>
+                    <div className={"content-page"}></div>
                 )}
                 {ready ? <Veto /> : <Skeleton active />}
             </div>
