@@ -71,18 +71,42 @@ const VetoWithdraw: React.FC = () => {
 
     return (
         <div className="section-container">
-            {/* <div className="content-page"> */}
-            <div className={"layout-card"}>
-                <div className={"layout-card-title"}>
-                    <h1>{"Withdraw tokens after vetoing"}</h1>
+            <div className="layout-card">
+                <div className="layout-card-title">
+                    <h1>Withdraw tokens after vetoing</h1>
                 </div>
-                <div className="section voting">
-                    <div className="voting__status__container">
-                        {infoUser.InfoUserTC.map((token, index) => (
-                            <VetoWithdrawTokenCard key={index} token={token} />
-                        ))}
+                <div className="vetoWithdraw">
+                    <div className="vetoWithdrawContainer">
+                        <div className="vetoWithdrawList">
+                            <div className="vetoWithdrawHeader">
+                                <div className="vetoWithdrawToken">
+                                    {t(`voting.veto.vetoWithdraw.headerToken`)}
+                                </div>
+                                <div className="vetoWithdrawAmount">
+                                    {t(`voting.veto.vetoWithdraw.headerAmount`)}
+                                </div>
+                            </div>
+                            {infoUser.InfoUserTC.map((token, index) => (
+                                <VetoWithdrawTokenCard
+                                    key={index}
+                                    token={token}
+                                />
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="cta">
+                        <div className="cta-container">
+                            <div className="cta-info-group">
+                                <div className="cta-info-detail">
+                                    {t(`voting.veto.vetoWithdraw.note`)}
+                                </div>
+                            </div>
+                            {/* <button className="button">Back to previous????</button> */}
+                        </div>
                     </div>
                 </div>
+                {/* </div> */}
             </div>
         </div>
     );
@@ -91,20 +115,22 @@ const VetoWithdraw: React.FC = () => {
 export default VetoWithdraw;
 
 const VetoWithdrawTokenCard: React.FC<{ token: any }> = ({ token }) => {
+    const { t } = useProjectTranslation();
+
     return (
-        <div className="vetoPage__tokenTitle">
-            {token.name} available to withdraw
-            <div className="voting__status__container">
-                        <div className="token__icon">
-                            {token.image}
-                        </div>
-                        <div className="token__amount">
-                            amount 100.00
-                        </div>
+        <div className="vetoWithdrawRow">
+            <div className="withdrawItem">
+                <div className="vetoWithdrawToken">
+                    <div className="token__icon">{token.image}</div>
+                    <div className="token__name">{token.name}</div>
+                </div>
+                <div className="vetoWithdrawAmount">
+                    <div className="token__amount">100.00</div>
+                </div>
                 <div className="cta">
                     <div className="cta-container">
-                        <button className="button">
-                            Withdraw
+                        <button className="button--small">
+                            {t(`voting.veto.vetoWithdraw.button`)}
                         </button>
                     </div>
                 </div>

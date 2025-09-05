@@ -331,7 +331,9 @@ const Veto: React.FC = () => {
                                 <div className="voting__status__graphs">
                                     <CompletedBar
                                         key={1}
-                                        description={"Collateral-Backed Votes Supporting Veto"}
+                                        description={
+                                            "Collateral-Backed Votes Supporting Veto"
+                                        }
                                         percentage={10n}
                                         needed={10n * 10n ** 18n}
                                         type={"brand"}
@@ -344,7 +346,7 @@ const Veto: React.FC = () => {
                             <div className="cta">
                                 <div className="cta-container">
                                     <button
-                                        className="vetoPage__backBtn"
+                                        className="button secondary vetoPage__backBtn"
                                         onClick={() => navigate("/voting")}
                                     >
                                         Back to Governance Voting
@@ -364,30 +366,39 @@ const Veto: React.FC = () => {
 export default Veto;
 
 const VetoTokenCard: React.FC<{ token: any }> = ({ token }) => {
+    const { t } = useProjectTranslation();
+    const space = "\u00A0";
+
     return (
         <div className="vetoPage__tokenTitle">
             {token.name} vetoing
-            <div className="voting__status__container">
+            <div className="voting__status__container vetoContainer">
                 <div className="graphs">
                     <div className="vetoPage__tokenInfo">
                         <div>
-                            Voting power 5.0 tokens 5000000000000000000 wei
+                            Voting power {space} 5.0 tokens 5000000000000000000
+                            wei
                         </div>
                         <div>
-                            Total {token.name} in circulation{" "}
+                            Total {token.name} {space} in circulation{space}
                             <span>
                                 480.0 tokens (480000000000000000000 wei)
                             </span>
                         </div>
                         <div>
-                            Total Supply <span>1.041666 %</span>
+                            {t(`voting.veto.row.totalSupply`)}
+                            {space}
+                            <span>1.041666 %</span>
                         </div>
                     </div>
                 </div>
                 <div className="cta">
-                    <div className="cta-container">
-                        <button className="vetoPage__vetoBtn">
-                            VETO with {token.name}
+                    <div className="cta-container vetoCTA">
+                        <button className="button vetoBtn">
+                            <div className="icon icon__vote__veto"></div>
+                            {t(`voting.veto.row.ctaVeto`)}
+                            {space}
+                            {token.name}
                         </button>
                     </div>
                 </div>
@@ -398,17 +409,18 @@ const VetoTokenCard: React.FC<{ token: any }> = ({ token }) => {
 
 export const VetoGraph: React.FC = () => {
     const navigate = useNavigate();
+    const { t } = useProjectTranslation();
     return (
         <div className="voting__status__container">
             <div className="graphs">
                 <div className="voting__status__graphs">
                     <CompletedBar
                         key={4}
-                        description={"Collateral-Backed Votes Supporting Veto"}
+                        description={t("voting.veto.outsideVetoing.statsTitle")}
                         percentage={10n}
                         needed={10n * 10n ** 18n}
                         type={"brand"}
-                        label1={"veto casted"}
+                        label1={t("voting.veto.outsideVetoing.statsLabel")}
                         amount1={10n * 10n ** 18n}
                         percentage1={10n * 10n ** 18n}
                     />
@@ -417,12 +429,12 @@ export const VetoGraph: React.FC = () => {
             <div className="cta">
                 <div className="votingButtons">
                     <button
-                        className="button veto"
+                        className="button"
                         onClick={() => navigate("/veto")}
                         disabled={false}
                     >
-                        <div className="icon icon__veto"></div>
-                        {"Use Collateral to Veto"}
+                        <div className="icon icon__vote__veto"></div>
+                        {t("voting.veto.outsideVetoing.cta")}
                     </button>
                 </div>
             </div>
