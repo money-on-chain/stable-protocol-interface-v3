@@ -983,9 +983,21 @@ h2 {
         margin-bottom: 16px;
     }
 }
-
+.notification-container-warning {
+    .text-content,
+    h4 {
+        color: var(--notification-warning-text) !important;
+    }
+    button {
+        @extend .button;
+        background-color: var(--notification-warning-text) !important;
+        color: var(--notification-warning-background) !important;
+        width: 250px !important;
+    }
+}
 .alert-success {
     background-color: var(--color-semantic-positive);
+
     > .anticon {
         background-image: url("../icons/NotificationSuccessOutline.svg");
         svg {

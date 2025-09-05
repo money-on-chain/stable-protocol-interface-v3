@@ -66,7 +66,8 @@ const Veto: React.FC = () => {
         useState<boolean>(false);
     const [modalTitle, setModalTitle] = useState<string>("Veto Proposal");
     const [showProposalModal, setShowProposalModal] = useState<boolean>(false);
-    const [showModalAllowance, setShowModalAllowance] = useState<boolean>(false);
+    const [showModalAllowance, setShowModalAllowance] =
+        useState<boolean>(false);
     const [txHash, setTxHash] = useState<string>("");
     const [operationStatus, setOperationStatus] = useState<string>("sign");
 
@@ -175,7 +176,8 @@ const Veto: React.FC = () => {
                 index,
                 address: tc.address,
                 settings: TokenSettings("TC_" + index),
-                allowance: userVeto.data.vetoMachine.allowance[tc.address] || 0n,
+                allowance:
+                    userVeto.data.vetoMachine.allowance[tc.address] || 0n,
                 balance: userBalance.data[index].TC.balance,
                 proposal: infoVoting.votingData["winnerProposal"],
                 votingPower:
@@ -187,17 +189,16 @@ const Veto: React.FC = () => {
     };
 
     const onHideModalAllowance = (): void => {
-            setShowModalAllowance(false);
-        };
+        setShowModalAllowance(false);
+    };
 
-        const onShowModalAllowance = (): void => {
-            setShowModalAllowance(true);
-        };
+    const onShowModalAllowance = (): void => {
+        setShowModalAllowance(true);
+    };
 
-        const showAllowance = (): boolean => {
-            return infoUserTC.balance > infoUserTC.allowance;
-        };
-
+    const showAllowance = (): boolean => {
+        return infoUserTC.balance > infoUserTC.allowance;
+    };
 
     const onAllowance = async (infoUserTC: InfoUserTC): Promise<void> => {
         setInfoUserTC(infoUserTC);
@@ -212,7 +213,7 @@ const Veto: React.FC = () => {
     };
 
     const onRealSendTransaction = async (): Promise<void> => {
-       onVote(infoUserTC.proposal, infoUserTC.index);
+        onVote(infoUserTC.proposal, infoUserTC.index);
     };
 
     const onVote = async (proposal: string, index: number): Promise<void> => {
@@ -257,39 +258,41 @@ const Veto: React.FC = () => {
     };
 
     const VetoTokenCard: React.FC<{ token: any }> = ({ token }) => {
+        const { t } = useProjectTranslation();
+        const space = "\u00A0";
+
         return (
             <div className="vetoPage__tokenTitle">
                 {token.settings.name} vetoing
-                <div className="voting__status__container">
+                <div className="voting__status__container vetoContainer">
                     <div className="graphs">
                         <div className="vetoPage__tokenInfo">
+                            balance:{" "}
+                            {PrecisionNumbers({
+                                amount: token.balance,
+                                token: token.settings,
+                                decimals: parseInt(
+                                    t("staking.display_decimals")
+                                ),
+                                i18n: i18n,
+                            })}{" "}
+                            tokens
                             <div>
-                                balance:{" "}
-                                {PrecisionNumbers({
-                                    amount: token.balance,
-                                    token: token.settings,
-                                    decimals: parseInt(
-                                        t("staking.display_decimals")
-                                    ),
-                                    i18n: i18n,
-                                })}{" "}
-                                tokens
+                                <div>{`Voting power: ${mulPrecision(token.votingPower, 100n)} %`}</div>
                             </div>
-                            <div>{`Voting power: ${mulPrecision(token.votingPower, 100n)} %`}</div>
                         </div>
                     </div>
                     <div className="cta">
-                        <div className="cta-container">
+                        <div className="cta-container vetoCTA">
                             <button
-                                className="vetoPage__vetoBtn"
+                                className="button vetoBtn"
                                 disabled={token.balance === 0n}
-                                onClick={() =>
-                                    onAllowance(
-                                        token,
-                                    )
-                                }
+                                onClick={() => onAllowance(token)}
                             >
-                                VETO with {token.settings.name}
+                                <div className="icon icon__vote__veto"></div>
+                                {t(`voting.veto.row.ctaVeto`)}
+                                {space}
+                                {token.settings.name}
                             </button>
                         </div>
                     </div>
@@ -378,7 +381,7 @@ const Veto: React.FC = () => {
                             <div className="cta">
                                 <div className="cta-container">
                                     <button
-                                        className="vetoPage__backBtn"
+                                        className="button secondary vetoPage__backBtn"
                                         onClick={() => navigate("/voting")}
                                     >
                                         Back to Governance Voting
@@ -404,16 +407,17 @@ const Veto: React.FC = () => {
                                 showProposal={showProposalModal}
                             />
                         )}
-                        {showModalAllowance && (<ModalAllowanceOperation
-                            title={`${t("allowance.cardTitle")}  ${t(`exchange.tokens.${"TC_" + infoUserTC.index}.label`, { ns: ns })}`}
-                            visible={showModalAllowance}
-                            onHideModalAllowance={onHideModalAllowance}
-                            currencyYouExchange={"TC_" + infoUserTC.index}
-                            currencyYouReceive={"VM"}
-                            amountYouExchangeLimit={infoUserTC.balance}
-                            onRealSendTransaction={onRealSendTransaction}
-                            disAllowance={false}
-                        />
+                        {showModalAllowance && (
+                            <ModalAllowanceOperation
+                                title={`${t("allowance.cardTitle")}  ${t(`exchange.tokens.${"TC_" + infoUserTC.index}.label`, { ns: ns })}`}
+                                visible={showModalAllowance}
+                                onHideModalAllowance={onHideModalAllowance}
+                                currencyYouExchange={"TC_" + infoUserTC.index}
+                                currencyYouReceive={"VM"}
+                                amountYouExchangeLimit={infoUserTC.balance}
+                                onRealSendTransaction={onRealSendTransaction}
+                                disAllowance={false}
+                            />
                         )}
                     </div>
                 </div>
@@ -424,21 +428,18 @@ const Veto: React.FC = () => {
 export default Veto;
 
 const VetoBar: React.FC<{ infoVoting: any }> = ({ infoVoting }) => {
+    const { t } = useProjectTranslation();
     return (
         <div className="voting__status__graphs">
             <CompletedBar
                 key={4}
-                description={"Collateral-Backed Votes Supporting Veto"}
-                percentage={
-                    infoVoting["votingData"]["totalVetoPCT"] * 100n
-                }
+                description={t("voting.veto.outsideVetoing.statsTitle")}
+                percentage={infoVoting["votingData"]["totalVetoPCT"] * 100n}
                 needed={infoVoting["VOTE_MIN_PCT_TO_VETO"] * 100n}
                 type={"brand"}
-                label1={"veto casted"}
-                amount1={ infoVoting["votingData"]["totalVetoPCT"] * 100n}
-                percentage1={
-                    infoVoting["votingData"]["totalVetoPCT"] * 100n
-                }
+                label1={t("voting.veto.outsideVetoing.statsLabel")}
+                amount1={infoVoting["votingData"]["totalVetoPCT"] * 100n}
+                percentage1={infoVoting["votingData"]["totalVetoPCT"] * 100n}
             />
         </div>
     );
@@ -446,6 +447,7 @@ const VetoBar: React.FC<{ infoVoting: any }> = ({ infoVoting }) => {
 
 export const VetoGraph: React.FC<{ infoVoting: any }> = ({ infoVoting }) => {
     const navigate = useNavigate();
+    const { t } = useProjectTranslation();
     return (
         <div className="voting__status__container">
             <div className="graphs">
@@ -454,12 +456,12 @@ export const VetoGraph: React.FC<{ infoVoting: any }> = ({ infoVoting }) => {
             <div className="cta">
                 <div className="votingButtons">
                     <button
-                        className="button veto"
+                        className="button"
                         onClick={() => navigate("/veto")}
                         disabled={false}
                     >
-                        <div className="icon icon__veto"></div>
-                        {"Use Collateral to Veto"}
+                        <div className="icon icon__vote__veto"></div>
+                        {t("voting.veto.outsideVetoing.cta")}
                     </button>
                 </div>
             </div>
