@@ -53,7 +53,7 @@ const vetoWithdraw = async (
     const { request } = await simulateContract(config, {
         address: VetoMachine.address,
         abi: VetoMachine.abi,
-        functionName: 'vote',
+        functionName: 'withdraw',
         args: [checksumAddress(proposalAddress), address, checksumAddress(tcAddress)],
         account: address,
       })

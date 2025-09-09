@@ -677,7 +677,8 @@
             "ongoing": "• The voting is in progress!",
             "approved": "• Proposal was approved",
             "noQuorum": "• No reach quorum for this proposal!",
-            "rejected": "• Proposal was rejected by votess against!"
+            "rejected": "• Proposal was rejected by votes against!",
+            "vetoed": "• Proposal was vetoed by Collateral Token holders!"
         },
         "balanceGraph": { "against": "Against", "inFavor": "In Favor" },
         "statusGraph": {

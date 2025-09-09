@@ -212,6 +212,12 @@ function ApproveTokenContract(contracts: any, tokenExchange: string, tokenReceiv
                 contractAllow: contracts.StakingMachine,
                 decimals: tokenExchangeSettings.decimals,
             };
+        case "TC,VM":
+            return {
+                token: contracts.CollateralToken[parseInt(aTokenExchange[1])],
+                contractAllow: contracts.VetoMachine,
+                decimals: tokenExchangeSettings.decimals,
+            };
         default:
             throw new Error("Invalid token name");
     }

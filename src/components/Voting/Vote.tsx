@@ -115,9 +115,11 @@ function Vote(props: VoteProps): JSX.Element {
         /* 0 - No reason */
         /* 1 - Success */
         /* 2 - No Quorum */
-        /* 3 - Proposal rejected by votes against */        
+        /* 3 - Proposal rejected by votes against */
+        /* 4 - Proposal vetoed by Collateral Token holders */
 
         if (infoVoting["votingData"]["expired"]) {
+            console.log(infoVoting)
             setVotingFinish(true);
             setVotingInFavorOrAgainstError(true);
             if (
@@ -132,6 +134,11 @@ function Vote(props: VoteProps): JSX.Element {
                 )
             {
                 setVotingFinishReason(3);
+            } else if (
+                infoVoting["votingData"]["totalVetoPCT"] * 100n >=
+                    infoVoting["VOTE_MIN_PCT_TO_VETO"] * DECIMALS_18
+            ) {
+                setVotingFinishReason(4);
             } else {
                 setVotingFinishReason(1);
             }
@@ -329,6 +336,12 @@ function Vote(props: VoteProps): JSX.Element {
                         {t("voting.status.rejected")}
                     </div>
                 )}
+
+                {votingFinishReason === 4 && (
+                    <div className="voting-status">
+                        {t("voting.status.vetoed")}
+                    </div>
+                )}
             </div>
             <div className="votingDetails__wrapper">
                 <div className={"layout-card-title"}>
@@ -485,7 +498,6 @@ function Vote(props: VoteProps): JSX.Element {
                         </div>
                     </div>
                 </div>
-                {/* TODO: only show if a proposal is being voted */}
                 <VetoGraph infoVoting={infoVoting} />
                 {isOperationModalVisible && (
                     <VotingStatusModal
