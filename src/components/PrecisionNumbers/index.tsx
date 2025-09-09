@@ -47,7 +47,7 @@ export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
 
   const floatValue = parseFloat(formattedString)
 
-  // Formateador usando Intl.NumberFormat
+  // Formatter using Intl.NumberFormat
   const formatter = new Intl.NumberFormat(i18n.languages[0] || "en-US", {
     notation: compact ? "compact" : "standard", // 👈 formato compacto
     maximumFractionDigits: precision,
@@ -56,7 +56,7 @@ export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
 
   const displayValue = formatter.format(floatValue)
 
-  // Prevenir render de números extremadamente grandes
+  // Avoid rendering extremely large numbers
   if (amount >= 2n ** 255n) {
     return <span>Infinity +</span>
   }
