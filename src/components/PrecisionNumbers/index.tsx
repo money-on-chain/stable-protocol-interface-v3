@@ -51,7 +51,7 @@ export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
   const formatter = new Intl.NumberFormat(i18n.languages[0] || "en-US", {
     notation: compact ? "compact" : "standard", // 👈 formato compacto
     maximumFractionDigits: precision,
-    minimumFractionDigits: 0,
+    minimumFractionDigits: precision,
   })
 
   const displayValue = formatter.format(floatValue)
