@@ -3,9 +3,9 @@ export function tcLockedByVeto(userVeto: any, userAddress: string): {tcAddress: 
     const lockedTokens: {tcAddress: string, proposal: string, amount: bigint}[] = [];
     Object.entries(userVeto.vetoMachine.getUserLockedAmount[userAddress]).forEach(([tcAddress, proposals]) => {
         Object.entries(proposals).forEach(([proposal, amount]) => {
-            //if (amount && amount > 0n) {
+            if (amount && amount > 0n) {
                 lockedTokens.push({ tcAddress, proposal, amount  });
-            //}
+            }
         });
     });
     return lockedTokens;

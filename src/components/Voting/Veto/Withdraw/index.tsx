@@ -3,9 +3,15 @@ import { useProjectTranslation } from "../../../../helpers/translations";
 import { useWalletContext } from "../../../../context/Wallet";
 
 import "../../Styles.scss";
-import { getCurrencyByValue, getTCTokenIndex, TokenSettings } from "@/helpers/currencies";
+import {
+    getCurrencyByValue,
+    getTCTokenIndex,
+    TokenConfig,
+    TokenSettings,
+} from "../../../../helpers/currencies";
 import { tcLockedByVeto } from "../../../../helpers/veto";
 import VetoStatusModal from "../../../Modals/VetoStatusModal/VetoStatusModal";
+import { PrecisionNumbers } from "@/components/PrecisionNumbers";
 
 interface InfoUser {
     Voting_Power: bigint;
@@ -17,14 +23,14 @@ interface InfoUser {
 
 interface InfoUserTC {
     address: string;
-    name: string;
+    settings: TokenConfig;
     image: any;
     lockedAmount: bigint;
     proposal: string;
 }
 
 const VetoWithdraw: React.FC = () => {
-    const { t } = useProjectTranslation();
+    const { t, i18n } = useProjectTranslation();
 
     const {
         interfaceVetoWithdraw,
@@ -35,11 +41,11 @@ const VetoWithdraw: React.FC = () => {
         userVeto,
     } = useWalletContext();
 
-        const [isOperationModalVisible, setIsOperationModalVisible] =
-            useState<boolean>(false);
-        const [modalTitle, setModalTitle] = useState<string>("Veto Withdraw");
-        const [txHash, setTxHash] = useState<string>("");
-        const [operationStatus, setOperationStatus] = useState<string>("sign");
+    const [isOperationModalVisible, setIsOperationModalVisible] =
+        useState<boolean>(false);
+    const [modalTitle, setModalTitle] = useState<string>("Veto Withdraw");
+    const [txHash, setTxHash] = useState<string>("");
+    const [operationStatus, setOperationStatus] = useState<string>("sign");
 
     const defaultInfoUser: InfoUser = {
         Voting_Power: 0n,
@@ -64,13 +70,16 @@ const VetoWithdraw: React.FC = () => {
 
         const cDataUser: InfoUser = { ...infoUser };
         cDataUser["InfoUserTC"] = [];
-        
+
         const lockedByVeto = tcLockedByVeto(userVeto.data, address);
         lockedByVeto.forEach((locked) => {
-            const tcIndex = getTCTokenIndex(contractsAddress.CollateralToken, locked.tcAddress);
+            const tcIndex = getTCTokenIndex(
+                contractsAddress.CollateralToken,
+                locked.tcAddress
+            );
             const tokenInfo: InfoUserTC = {
                 address: locked.tcAddress,
-                name: TokenSettings("TC_" + tcIndex).name,
+                settings: TokenSettings("TC_" + tcIndex),
                 image: getCurrencyByValue("TC_" + tcIndex).image,
                 lockedAmount: locked.amount,
                 proposal: locked.proposal,
@@ -80,7 +89,10 @@ const VetoWithdraw: React.FC = () => {
         setInfoUser(cDataUser);
     };
 
-    const onVetoWithdraw = async (proposal: string, tcAddress: string): Promise<void> => {
+    const onVetoWithdraw = async (
+        proposal: string,
+        tcAddress: string
+    ): Promise<void> => {
         setModalTitle("Veto withdraw");
 
         setOperationStatus("sign");
@@ -120,30 +132,39 @@ const VetoWithdraw: React.FC = () => {
     };
 
     const VetoWithdrawTokenCard: React.FC<{ token: any }> = ({ token }) => {
-    return (
-        <div className="vetoPage__tokenTitle">
-            {token.name} available to withdraw
-            <div className="voting__status__container">
-                        <div className="token__icon">
-                            {token.image}
+        return (
+            <div className="vetoPage__tokenTitle">
+                {token.settings.name} available to withdraw
+                <div className="voting__status__container">
+                    <div className="token__icon">{token.image}</div>
+                    <div className="token__amount">
+                        amount:{" "}
+                        {PrecisionNumbers({
+                            amount: token.lockedAmount,
+                            token: token.settings,
+                            decimals: parseInt(t("staking.display_decimals")),
+                            i18n: i18n,
+                        })}{" "}
+                    </div>
+                    <div className="cta">
+                        <div className="cta-container">
+                            <button
+                                className="button"
+                                onClick={() =>
+                                    onVetoWithdraw(
+                                        token.proposal,
+                                        token.address
+                                    )
+                                }
+                            >
+                                Withdraw
+                            </button>
                         </div>
-                        <div className="token__amount">
-                            {`amount ${token.lockedAmount}`}
-                        </div>
-                <div className="cta">
-                    <div className="cta-container">
-                        <button 
-                            className="button"
-                            onClick={() => onVetoWithdraw(token.proposal, token.address)}
-                        >
-                            Withdraw
-                        </button>
                     </div>
                 </div>
             </div>
-        </div>
-    );
-};
+        );
+    };
 
     return (
         <div className="section-container">
@@ -158,17 +179,15 @@ const VetoWithdraw: React.FC = () => {
                             <VetoWithdrawTokenCard key={index} token={token} />
                         ))}
                     </div>
-                                            {isOperationModalVisible && (
-                            <VetoStatusModal
-                                title={modalTitle}
-                                visible={isOperationModalVisible}
-                                onCancel={() =>
-                                    setIsOperationModalVisible(false)
-                                }
-                                operationStatus={operationStatus}
-                                txHash={txHash}
-                            />
-                        )}
+                    {isOperationModalVisible && (
+                        <VetoStatusModal
+                            title={modalTitle}
+                            visible={isOperationModalVisible}
+                            onCancel={() => setIsOperationModalVisible(false)}
+                            operationStatus={operationStatus}
+                            txHash={txHash}
+                        />
+                    )}
                 </div>
             </div>
         </div>

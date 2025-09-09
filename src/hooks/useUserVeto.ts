@@ -39,6 +39,18 @@ export function useUserVeto(
                     ],
                 });
 
+                callRequest.push({
+                    contract: CollateralToken,
+                    functionName: "allowance",
+                    args: [userAddress, contracts.VetoMachine.address],
+                    resultType: "uint256",
+                    keys: [
+                        "vetoMachine",
+                        "allowance",
+                        CollateralToken.address,
+                    ],
+                });
+
                 for (const key in contractStatusOmoc.votingmachine
                     .getProposalByIndex) {
                     const [proposal, , ,] =

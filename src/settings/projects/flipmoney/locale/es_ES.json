@@ -676,7 +676,8 @@
             "ongoing": "• ¡La votación está en progreso!",
             "approved": "• La propuesta fue aprobada",
             "noQuorum": "• ¡No se alcanzó el quórum para esta propuesta!",
-            "rejected": "• ¡La propuesta fue rechazada por votos en contra!"
+            "rejected": "• ¡La propuesta fue rechazada por votos en contra!",
+            "vetoed": "• ¡La propuesta fue vetada por los tenedores de tokens colaterales!"
         },
         "balanceGraph": { "against": "En Contra", "inFavor": "A Favor" },
         "statusGraph": {
