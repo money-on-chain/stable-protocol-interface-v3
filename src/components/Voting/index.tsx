@@ -156,7 +156,7 @@ const Voting: React.FC = () => {
         
         const cDataUser: InfoUser = { ...infoUser };
         let vUsing: any;
-        if (isVestingLoaded()) {
+        if (isVestingLoaded() && userVesting.data) {
             vUsing = userVesting.data.vestingmachine.staking;
         } else {
             vUsing = userOmocBalance.data.stakingmachine;

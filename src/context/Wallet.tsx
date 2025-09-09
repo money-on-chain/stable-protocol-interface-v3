@@ -23,7 +23,8 @@ import {
     delayMachineWithdraw as delayMachineWithdrawVesting,
     delayMachineCancelWithdraw as delayMachineCancelWithdrawVesting,
     approve as approveVesting,
-    withdrawAll,
+    withdraw as withdrawVesting,
+    withdrawAll as withdrawAllVesting,
     vestingVerify,
     preVote as preVoteVesting,
     vote as voteVesting,
@@ -449,7 +450,6 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     };
 
     const isVestingLoaded = (): boolean => { 
-        console.log('vestingAddress', vestingAddress)       
         return !!(vestingAddress);
     };
     
@@ -720,12 +720,21 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         onError: OnError
     ): Promise<any> => {
         const interfaceContext = buildInterfaceContext();
-        return withdrawAll(
+        return withdrawAllVesting(
             interfaceContext,
             vestingAddress as `0x${string}`,
             onTransaction,
             onReceipt
         );
+        /*
+        return withdrawVesting(
+            interfaceContext,
+            1_000_000_000_000_000_000n,
+            vestingAddress as `0x${string}`,
+            onTransaction,
+            onReceipt
+        );
+         */
     };
 
     const interfaceVestingVerify = async (

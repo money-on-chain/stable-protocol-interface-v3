@@ -41,7 +41,7 @@ interface FilteredEvent {
 const Vesting: React.FC = () => {
     const { t, i18n, ns } = useProjectTranslation();
     
-    const { address, userOmocBalance, userVesting, isVestingLoaded, vestingAddress, interfaceVestingVerify, interfaceVestingWithdraw, interfaceIncentiveV2Claim, publicClient, contractsAddress, onShowModalAccountVesting } = useWalletContext()
+    const { address, userOmocBalance, userVesting, isVestingLoaded, vestingAddress, interfaceVestingVerify, interfaceVestingWithdraw, interfaceIncentiveV2Claim, publicClient, onShowModalAccountVesting } = useWalletContext()
 
     const [status, setStatus] = useState<string>("STEP_1");
     const [isOperationModalVisible, setIsOperationModalVisible] =
@@ -155,24 +155,25 @@ const Vesting: React.FC = () => {
 
         let dates: (string | number)[] = [];
         if (deltas) {
-            if (tgeTimestamp) {
+            
+            if (tgeTimestamp) {                
                 // Convert timestamp to date.
                 dates = deltas.map((x) =>
                     formatTimestamp(
-                        Number(tgeTimestamp) + Number(x) * 1000
+                        (Number(tgeTimestamp) + Number(x)) * 1000
                     )
                 );
             } else {
                 dates = deltas.map((x) => Number(x) / 60 / 60 / 24);
             }
         }
-        
+                
         let daysToRelease = 0;
         let countVested = 0;
         
         getParameters &&
             percents.forEach(function (percent: bigint, itemIndex: number) {
-                const date_release = new Date(dates[itemIndex] as string);
+                const date_release = new Date(dates[itemIndex] as string);                
                 const date_now = new Date();
                 const timeDifference =
                     date_release.getTime() - date_now.getTime();

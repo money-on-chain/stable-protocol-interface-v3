@@ -34,10 +34,10 @@ export default function VestingSchedule(): React.ReactElement {
     const tgeTimestamp = userVesting.data.vestingfactory.getTGETimestamp;
     const total = userVesting.data.vestingmachine.getTotal;
     const percentMultiplier = 10000n;
-
     const [percentages, timeDeltas] = getParameters;
 
     const deltas = [...timeDeltas];
+
     if (timeDeltas && timeDeltas[0] !== 0n) {
         deltas.unshift(0n);
     }
@@ -52,14 +52,15 @@ export default function VestingSchedule(): React.ReactElement {
     const percents = percentages.map((x: bigint) =>
         percentMultiplier - x
     );
-
+    
     let dates: (string | number)[] = [];
     if (deltas) {
+
         if (tgeTimestamp) {
             // Convert timestamp to date.
             dates = deltas.map((x: bigint) =>
                 formatTimestamp(
-                    Number(tgeTimestamp) + Number(x) * 1000
+                    (Number(tgeTimestamp) + Number(x)) * 1000
                 )
             );
         } else {
@@ -70,7 +71,7 @@ export default function VestingSchedule(): React.ReactElement {
     const tgeFormat = formatTimestamp(
         Number(tgeTimestamp) * 1000
     );
-
+        
     userVesting.data &&
         getParameters &&
         percents.forEach(function (percent: bigint, itemIndex: number) {
@@ -83,7 +84,7 @@ export default function VestingSchedule(): React.ReactElement {
             const date_now = new Date();
             const timeDifference = date_release.getTime() - date_now.getTime();
             const dayLefts = Math.round(timeDifference / (1000 * 3600 * 24));
-
+            
             if (!(tgeFormat === dates[itemIndex])) {
                 vestingData.push({
                     key: itemIndex,
