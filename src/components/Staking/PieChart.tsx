@@ -134,8 +134,7 @@ const PieChartComponent: React.FC<PieChartComponentProps> = (props) => {
                     {total ? PrecisionNumbers({
                         amount: toBigIntPrecision(total),
                         token: settings.tokens.TG[0],
-                        decimals: 2,
-                        //numericLabelParams: {},
+                        decimals: 2,                        
                         i18n: i18n                        
                     }) : "--"}
                     {space}
