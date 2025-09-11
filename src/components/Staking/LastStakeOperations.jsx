@@ -5,7 +5,6 @@ import { useProjectTranslation } from "../../helpers/translations";
 
 export default function LastStakeOperations() {
     const { t } = useProjectTranslation();
-    
 
     const tableColumns = [{ title: "Token", dataIndex: "details" }];
     // hay que agregar los encabezados como html?
