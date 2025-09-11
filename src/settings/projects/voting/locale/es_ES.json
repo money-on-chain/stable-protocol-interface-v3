@@ -212,7 +212,22 @@
             "statusTitleUnavailable": "No puede operar",
             "statusDescreiptionUnavailable": "Uno o más contratos se encuentran temporalmente no disponibles. Intenta nuevamente más tarde.",
 
-            "showingBlock": "Mostrando bloque"
+            "showingBlock": "Mostrando bloque",
+            "buttonDetails": "Ver Estado por Colateral"
+        },
+        "detailedStatus": {
+            "modalTitle": "Estado del Sitema por Colateral",
+            "collateralStatus": {
+                "fullyOperational": "Totalmente Operativo",
+                "partiallyOperational": "Parcialmente Operativo",
+                "protectedMode": "Modo Protegido",
+                "liquidated": "Liquidado"
+            },
+            "headerOperations": {
+                "token": "Token",
+                "mint": "Mintear",
+                "redeem": "Redimir"
+            }
         },
         "tvl": {
             "cardTitle": "Valor Total Bloqueado",
@@ -446,6 +461,18 @@
                 "amount": "Cantidad",
                 "status": "Estado",
                 "actions": "Acciones disponibles"
+            }
+        },
+        "history": {
+            "title": "Staking - Últimas Operaciones",
+            "columnDate": "Fecha",
+            "columnAmount": "Cantidad",
+            "columnOperation": "Operación",
+            "operatons": {
+                "stake": "Stake",
+                "unstake": "Unstake",
+                "restake": "Restake",
+                "withdraw": "Withdraw"
             }
         },
         "tokens": {

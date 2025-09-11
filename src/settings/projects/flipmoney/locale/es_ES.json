@@ -1,7 +1,7 @@
 {
     "CustomizePrize_VariationToleranceTitle": "Tolerancia a la variación de precio",
     "NoConnection_alertTitle": "¡Billetera no conectada!",
-    "NoConnection_alertPleaseConnect": "Por favor, conecta tu billetera utilizando el botón “conectar” en la sección superior derecha de la plataforma.",
+    "NoConnection_alertPleaseConnect": "or favor, conecta tu billetera utilizando el botón “conectar” en la sección superior derecha de la plataforma.",
     "invalidValueDescription": "No hay ningún valor para mostrar",
     "invalidValuePlaceholder": "--",
     "notification": {
@@ -63,7 +63,7 @@
             "reason": "Motivo"
         },
         "errors": {
-            "qACBelow": "Subió el precio, la cantidad está debajo del mínimo requerido",
+            "qACBelow": "${this.ex} precio subió, la cantidad está debajo del mínimo requerido",
             "insufficientQAC1": "token bajó, insuficiente",
             "insufficientQAC2": "enviado",
             "lowCoverage": "El sistema está bajo cobertura global protegida",
@@ -97,36 +97,24 @@
     "exchange": {
         "tokens": {
             "CA_0": {
-                "label": "BPro",
-                "abbr": "BPRO"
+                "label": "RIF",
+                "abbr": "RIF"
             },
-            "CA_1": {
-                "label": "Dollar on Chain",
-                "abbr": "DOC"
-            },
-            "TC_0": {
-                "label": "BPro Max",
-                "abbr": "BPROX"
-            },
-            "TC_1": {
-                "label": "DOC Max",
-                "abbr": "DOCX"
+            "TC": {
+                "label": "RIF Pro",
+                "abbr": "RIFP"
             },
             "TP_0": {
-                "label": "ARS",
-                "abbr": "ArsFlip"
-            },
-            "TP_1": {
-                "label": "COP",
-                "abbr": "CopFlip"
+                "label": "RIF Dollar",
+                "abbr": "USDRIF"
             },
             "COINBASE": {
-                "label": "Smart Bitcoin",
+                "label": "rBTC",
                 "abbr": "RBTC"
             },
             "TF": {
-                "label": "Flip",
-                "abbr": "FLIP"
+                "label": "MoC",
+                "abbr": "MoC"
             }
         },
 
@@ -209,9 +197,6 @@
             "statusTitleFull": "Totalmente Operativo",
             "statusDescriptionFull": "Sistema en condiciones óptimas",
 
-            "statusTitleGood": "Buena Condición",
-            "statusDescriptionGood": "Vea el Estado por Colateral usando el botón de abajo:",
-
             "stuatusTitleWarning": "Parcialmente Operativo",
             "statusDescriptionWarning": "El Token Colateral no se puede redimir. El token anclado no se puede mintear",
 
@@ -263,7 +248,7 @@
         },
 
         "pegged": {
-            "cardTitle": "Rendimiento de los Tokens-Pegged",
+            "cardTitle": "Rendimiento del USDRIF",
             "colName": "Nombre",
             "colTokensPer": "Tokens por USD",
             "colMinted": "Minteados",
@@ -277,38 +262,26 @@
     "send": {
         "tokens": {
             "CA_0": {
-                "label": "BPro",
-                "abbr": "BPRO"
+                "label": "RIF",
+                "abbr": "RIF"
             },
-            "CA_1": {
-                "label": "Dollar on Chain",
-                "abbr": "DOC"
-            },
-            "TC_0": {
-                "label": "BPro Max",
-                "abbr": "BPROX"
-            },
-            "TC_1": {
-                "label": "DOC Max",
-                "abbr": "DOCX"
+            "TC": {
+                "label": "RIFPro",
+                "abbr": "RIFP"
             },
             "TP_0": {
-                "label": "ARS",
-                "abbr": "ArsFlip"
-            },
-            "TP_1": {
-                "label": "COP",
-                "abbr": "CopFlip"
+                "label": "RIF US Dollar",
+                "abbr": "USDRIF"
             },
             "COINBASE": {
                 "label": "Smart Bitcoin",
                 "abbr": "RBTC"
             },
             "TF": {
-                "label": "Flip",
-                "abbr": "FLIP"
+                "label": "MOC",
+                "abbr": "MOC"
             },
-            "TG": { "label": "Flip", "abbr": "FLIP" }
+            "TG": { "label": "MOC", "abbr": "MOC" }
         },
         "cardTitle": "Enviar",
         "labelSending": "enviando",
@@ -424,10 +397,10 @@
     "staking": {
         "display_decimals": 2,
         "cardTitle": "Staking",
-        "governanceToken": "Flip",
+        "governanceToken": "MOC",
         "dashLabels": {
             "balance": "Balance",
-            "staked": "Flip en Stake",
+            "staked": "MoC en Stake",
             "unstaking": "Sacando de Stake",
             "ready": "Listos para retirar",
             "lockedVoting": "Bloqueados por voto"
@@ -450,23 +423,23 @@
             }
         },
         "distribution": {
-            "title": "Distribución de Flip",
+            "title": "Distribución de MOC",
             "graph": {
                 "balance": "Balance (libre)",
                 "processingUnstake": "Unstake en proceso",
                 "readyWithdraw": "Listo para retirar",
                 "staked": "En stake",
-                "totalLabel": "Total tokens FLIP"
+                "totalLabel": "Total tokens MOC"
             },
             "bar": {
-                "desc": "Desempeño del stake anual de Flip"
+                "desc": "Desempeño del stake anual de MOC"
             }
         },
         "performance": {
             "title": "Desempeño",
             "bar": {
-                "description": "Desempeño anual del Flip",
-                "base": "Flip",
+                "description": "Desempeño anual del MOC",
+                "base": "MoC",
                 "sign": "+",
                 "staking": "Stacking"
             }
@@ -476,12 +449,12 @@
             "processing_unstake": "Procesando desbloqueo",
             "ready_to_withdraw": "Listo para retirar",
             "buttons": {
-                "withdraw": "Withdraw",
+                "withdraw": "Retirar",
                 "restake": "Restake"
             },
             "status": {
                 "PENDING": "Procesando Unstake",
-                "AVAILABLE": "Disponible para Withdraw"
+                "AVAILABLE": "Unstaking"
             },
             "table": {
                 "expiration": "Expiración",
@@ -504,29 +477,29 @@
         },
         "tokens": {
             "TG": {
-                "label": "Flip",
-                "abbr": "FLIP"
+                "label": "MoC",
+                "abbr": "MoC"
             }
         },
         "modal": {
             "StakingOptions_AvailableToWithdraw": "Listo para hacer Withdraw",
             "options": {
-                "availableToWithdraw": "Listo para Withdraw",
-                "unstaking": "Procesando unstake",
-                "withdrawAll": "Retirar todo",
+                "availableToWithdraw": "Ready to Withdraw",
+                "unstaking": "Processing unstake",
+                "withdrawAll": "Withdraw all available",
                 "restake": "Restake",
                 "withdraw": "Withdraw"
             },
-            "StakingOptions_AvailableToWithdraw": "Listo para Retirar",
+            "StakingOptions_AvailableToWithdraw": "Ready to Withdraw",
             "StakingOptions_PendingExpiration": "Procesando unstake",
             "StakingOptions_WithdrawAll": "Hacer Withdraw del total",
             "StakingOptions_Restake": "Restake",
             "StakingOptions_Withdraw": "Withdraw",
             "allowance": {
-                "title": "Elegir Allowance",
-                "description": "Antes de continuar con el staking, debes establecer la autorización para que el sistema de staking pueda acceder a los tokens. Esto solo se tiene que hacer una vez y no bloquea ningún token de tu billetera.",
-                "setUnlimited": "Autoriza allowance ilimitado. No preguntarme nuevamente.",
-                "cta": "Autorizar"
+                "title": "Set the allowance",
+                "description": "Before continuing with the staking you must set the allowance so that the staking system can access the tokens. This has to be done only once and it doesn't lock any tokens from your wallet.",
+                "setUnlimited": "Set unlimited allowance. Don't ask me again.",
+                "cta": "Authorize"
             },
             "StakingOptionsModal_SetAllowance": "Autorizar Allowance",
             "StakingOptionsModal_Authorize": "Autorizar",
@@ -599,7 +572,7 @@
             },
             "page4": {
                 "stepTitle": "¡Vesting Machine creada con éxito!",
-                "successMessage": "¡Felicitaciones! Has hecho el claim de tus tokens Flip y has creado una Vesting Machine (VM). Por favor, lee cuidadosamente la información de abajo y no olivdes guardar la dirección de tu vesting como se indica.",
+                "successMessage": "¡Felicitaciones! Has hecho el claim de tus tokens MoC y has creado una Vesting Machine (VM). Por favor, lee cuidadosamente la información de abajo y no olivdes guardar la dirección de tu vesting como se indica.",
                 "addressLabel": "Dirección de la Vesting Machine creada",
                 "buttonDownloadAddress": "Descargar Dirección",
                 "buttonCopyAddress": "Copiar Dirección",
@@ -620,13 +593,13 @@
             "notVerified": "Esta Vesting Machine aún no fue verificada",
             "notFromThisUser": "Esta Vesting Machine no pertenece a esta cuenta"
         },
-        "tokensAvailableToWithdraw": "Balance de FLIP disponibles",
+        "tokensAvailableToWithdraw": "Balance de MOC disponibles",
         "withdrawToWallet": "Enviar a mi billetera",
         "dashDistribution": {
-            "vested": "FLIP Bloqueados",
-            "released": "FLIP para retirar",
-            "staked": "FLIP en Staking",
-            "unstaking": "FLIP en progreso de unstaking",
+            "vested": "MOC para retirar",
+            "released": "MOC Bloqueados",
+            "staked": "MOC en Staking",
+            "unstaking": "MOC en progreso de unstaking",
             "daysToRelease": "Days to next release"
         },
         "releaseSchedule": {
@@ -718,7 +691,7 @@
         "walletNotConnected": "¡Billetera no conectada!"
     },
     "settings": {
-        "protocolName": "Flipmoney",
+        "protocolName": "MOC",
         "themeMode": {
             "light": "Modo claro",
             "dark": "Modo oscuro"
@@ -734,15 +707,15 @@
         "stakingCTA": {
             "button": "Ir a Staking",
             "explanation": "Stakea tokens MOC — ¡es rápido y sencillo!"
-        },
-        "claimsTable": {
-            "date": "Fecha",
-            "asset": "Token",
-            "amount": "Cantidad",
-            "event": "Evento",
-            "status": "Estado",
-            "statusReceived": "Recibido",
-            "statusInProgress": "En progreso"
         }
+    },
+    "claimsTable": {
+        "date": "Fecha",
+        "asset": "Token",
+        "amount": "Cantidad",
+        "event": "Evento",
+        "status": "Estado",
+        "statusReceived": "Recibido",
+        "statusInProgress": "En progreso"
     }
 }

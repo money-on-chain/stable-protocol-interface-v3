@@ -120,36 +120,24 @@
     "exchange": {
         "tokens": {
             "CA_0": {
-                "label": "BPro",
-                "abbr": "BPRO"
+                "label": "RIF",
+                "abbr": "RIF"
             },
-            "CA_1": {
-                "label": "Dollar on Chain",
-                "abbr": "DOC"
-            },
-            "TC_0": {
-                "label": "BPro Max",
-                "abbr": "BPROX"
-            },
-            "TC_1": {
-                "label": "DOC Max",
-                "abbr": "DOCX"
+            "TC": {
+                "label": "RIF Pro",
+                "abbr": "RIFP"
             },
             "TP_0": {
-                "label": "ARS",
-                "abbr": "ArsFlip"
-            },
-            "TP_1": {
-                "label": "COP",
-                "abbr": "CopFlip"
+                "label": "RIF Dollar",
+                "abbr": "USDRIF"
             },
             "COINBASE": {
-                "label": "Smart Bitcoin",
+                "label": "rBTC",
                 "abbr": "RBTC"
             },
             "TF": {
-                "label": "Flip",
-                "abbr": "FLIP"
+                "label": "MoC",
+                "abbr": "MoC"
             }
         },
 
@@ -204,13 +192,12 @@
             "amountInvalid": "Amount must be valid",
             "notBalance": "Not enough balance in your wallet",
             "noLiquidity": "Not enough liquidity in the protocol",
-            "maxLimitedByProtocol": "Maximum temporarily limited by the protocol",
-            "insufficientTPinCA": "Insufficient tokens in this bucket"
+            "maxLimitedByProtocol": "Maximum temporarily limited by the protocol"
         }
     },
     "portfolio": {
         "tokensTable": {
-            "tokenName": "Token Name",
+            "tokenName": "Token",
             "variation": "Variation 24hs",
             "balance": "Balance",
             "usdBalance": "Balance in USD",
@@ -233,9 +220,6 @@
             "statusTitleFull": "Fully Operational",
             "statusDescriptionFull": "The system is in optimal condition",
 
-            "statusTitleGood": "Good Condition",
-            "statusDescriptionGood": "See Status by Collateral using the button bellow:",
-
             "stuatusTitleWarning": "Partially Operational",
             "statusDescriptionWarning": "Token Collateral cannot be redeemed. Token Pegged cannot be minted",
 
@@ -251,22 +235,7 @@
             "statusTitleUnavailable": "Cannot operate",
             "statusDescreiptionUnavailable": "One or more contracts are temporarily unavailable. Please try again later.",
 
-            "showingBlock": "Showing block",
-            "buttonDetails": "View Status by Collateral"
-        },
-        "detailedStatus": {
-            "modalTitle": "System Status by Collateral",
-            "collateralStatus": {
-                "fullyOperational": "Fully Operational",
-                "partiallyOperational": "Partially Operational",
-                "protectedMode": "Protected Mode",
-                "liquidated": "Liquidated"
-            },
-            "headerOperations": {
-                "token": "Token",
-                "mint": "Mint",
-                "redeem": "Redeem"
-            }
+            "showingBlock": "Showing block"
         },
         "tvl": {
             "cardTitle": "Total Value Locked",
@@ -287,7 +256,7 @@
         },
 
         "pegged": {
-            "cardTitle": "Pegged-Tokens Performance",
+            "cardTitle": "USDRIF Performance",
             "colName": "Name",
             "colTokensPer": "Tokens per USD",
             "colMinted": "Minted",
@@ -301,38 +270,26 @@
     "send": {
         "tokens": {
             "CA_0": {
-                "label": "BPro",
-                "abbr": "BPRO"
+                "label": "RIF",
+                "abbr": "RIF"
             },
-            "CA_1": {
-                "label": "Dollar on Chain",
-                "abbr": "DOC"
-            },
-            "TC_0": {
-                "label": "BPro Max",
-                "abbr": "BPROX"
-            },
-            "TC_1": {
-                "label": "DOC Max",
-                "abbr": "DOCX"
+            "TC": {
+                "label": "RIFPro",
+                "abbr": "RIFP"
             },
             "TP_0": {
-                "label": "ARS",
-                "abbr": "ArsFlip"
-            },
-            "TP_1": {
-                "label": "COP",
-                "abbr": "CopFlip"
+                "label": "RIF US Dollar",
+                "abbr": "USDRIF"
             },
             "COINBASE": {
                 "label": "Smart Bitcoin",
                 "abbr": "RBTC"
             },
             "TF": {
-                "label": "Flip",
-                "abbr": "FLIP"
+                "label": "MOC",
+                "abbr": "MOC"
             },
-            "TG": { "label": "Flip", "abbr": "FLIP" }
+            "TG": { "label": "MOC", "abbr": "MOC" }
         },
         "cardTitle": "Send",
         "labelSending": "Sending",
@@ -405,7 +362,6 @@
     },
 
     "language": {
-        "languageCTA": "Selecet Language:",
         "en": "🇬🇧 English",
         "es": "🇪🇸 Español"
     },
@@ -449,10 +405,10 @@
     "staking": {
         "display_decimals": 2,
         "cardTitle": "Staking",
-        "governanceToken": "Flip",
+        "governanceToken": "MOC",
         "dashLabels": {
             "balance": "Balance",
-            "staked": "Flip Staked",
+            "staked": "MoC Staked",
             "unstaking": "Unstaking",
             "ready": "Ready to Withdraw",
             "lockedVoting": "Locked while Voting"
@@ -475,23 +431,23 @@
             }
         },
         "distribution": {
-            "title": "Flip Distribution",
+            "title": "MoC Distribution",
             "graph": {
                 "balance": "Balance (free)",
                 "processingUnstake": "Processing unstake",
                 "readyWithdraw": "Ready for withdraw",
                 "staked": "Staked",
-                "totalLabel": "Total FLIP tokens"
+                "totalLabel": "Total MOC tokens"
             },
             "bar": {
-                "desc": "Flip staking annualized performance"
+                "desc": "MoC staking annualized performance"
             }
         },
         "performance": {
             "title": "Staking Performance",
             "bar": {
-                "description": "Flip staking annualized performance",
-                "base": "Flip",
+                "description": "MoC staking annualized performance",
+                "base": "MoC",
                 "sign": "+",
                 "staking": "Stacking"
             }
@@ -529,8 +485,8 @@
         },
         "tokens": {
             "TG": {
-                "label": "Flip",
-                "abbr": "FLIP"
+                "label": "MoC",
+                "abbr": "MoC"
             }
         },
         "modal": {
@@ -558,7 +514,7 @@
             "StakingOptionsModal_Authorize": "Authorize",
             "StakingOptionsModal_AllowanceDescription": "Before continuing with the staking you must set the allowance so that the staking system can access the tokens. This has to be done only once and it doesn't lock any tokens from your wallet.",
             "StakingOptionsModal_ProccessingAllowance": "Processing Allowance, please wait.",
-            "StakingOptionsModal_StakingDescription": "Staked Flips will receive rewards from the Flip Staking Rewards Program. You can unstake your Flips whenever you want, the withdraw process will take 30 days",
+            "StakingOptionsModal_StakingDescription": "Staked MoCs will receive rewards from the MoC Staking Rewards Program. You can unstake your MoC's whenever you want, the withdraw process will take 30 days",
             "StakingOptionsModal_AmountToStake": "Amount to Stake",
             "StakingOptionsModal_Title": "Stake",
             "StakingOptionsModal_Comfirm": "Confirm",
@@ -566,15 +522,15 @@
 
             "StakingOptionsModal_UnstakeTitle": "Unstake",
             "StakingOptionsModal_AmountToUnstake": "Amount to Unstake",
-            "StakingOptionsModal_UnstakingDescription": "You will be able to withdraw your Flip Tokens to your wallet in 30 days. You can restake them anytime in this period.",
+            "StakingOptionsModal_UnstakingDescription": "You will be able to withdraw your MoC Tokens to your wallet in 30 days. You can restake them anytime in this period.",
 
             "StakingOptionsModal_WithdrawTitle": "Withdraw",
             "StakingOptionsModal_AmountToWithdraw": "Amount to Withdraw",
-            "StakingOptionsModal_WithdrawDescription": "After withdrawal your Flip tokens will be available in your wallet",
+            "StakingOptionsModal_WithdrawDescription": "After withdrawal your MoCs tokens will be available in your wallet",
 
             "StakingOptionsModal_RestakeTitle": "Restake",
             "StakingOptionsModal_AmountToRestake": "Amount to Restake",
-            "StakingOptionsModal_RestakeDescription": "After confirming, this amount of Flipl Tokens will be removed from the processing queue and staked again. They will immediately start receiving Flip Staking Rewards.",
+            "StakingOptionsModal_RestakeDescription": "After confirming, this amount of MoC Tokens will be removed from the processing queue and staked again. They will immediately start receiving MoC Staking Rewards.",
 
             "StatusModal_Modal_Title": "Operation details",
             "StatusModal_Modal_Close": "Close",
@@ -595,7 +551,7 @@
             "page1": {
                 "stepTitle": "You don’t have any Vesting Machine (VM) Loaded yet",
                 "explanation1": "If you have a VM address, please click 'Load VM' button to access it.",
-                "explanation2": "If you are a MOC staker with a claim code, congrats! Please click 'Use Claim Code' button to create the Vesting Machine for your Flip tokens.",
+                "explanation2": "If you are a MOC staker with a claim code, congrats! Please click 'Use Claim Code' button to create the Vesting Machine for your MoC tokens.",
                 "ctaPrimary": "Use Claim Code",
                 "ctaSecondary": "Load VM"
             },
@@ -623,7 +579,7 @@
             },
             "page4": {
                 "stepTitle": "Vesting Machine Created Successfully!",
-                "successMessage": "Congratulations! You have successfully claimed your Flip tokens and created a Vesting Machine (VM). Please, read carefully the information below and don't forget to save your vesting address as indicated.",
+                "successMessage": "Congratulations! You have successfully claimed your MoC tokens and created a Vesting Machine (VM). Please, read carefully the information below and don't forget to save your vesting address as indicated.",
                 "addressLabel": "Created Vesting Machine Address",
                 "buttonDownloadAddress": "Download Address",
                 "buttonCopyAddress": "Copy Address",
@@ -645,13 +601,13 @@
             "notVerified": "This Vesting Machine is not verified yet",
             "notFromThisUser": "Vesting Machine doesn't belong to this account"
         },
-        "tokensAvailableToWithdraw": "Available Free FLIP balance",
+        "tokensAvailableToWithdraw": "Available Free MOC balance",
         "withdrawToWallet": "Send to my wallet",
         "dashDistribution": {
-            "vested": "Vested FLIP",
-            "released": "Ready to withdraw FLIP",
-            "staked": "Staked FLIP",
-            "unstaking": "Unstaking FLIP in progress",
+            "vested": "Ready to withdraw MOC",
+            "released": "Vested MOC",
+            "staked": "Staked MOC",
+            "unstaking": "Unstaking MOC in progress",
             "daysToRelease": "Days to next release"
         },
         "releaseSchedule": {
@@ -741,7 +697,7 @@
         "walletNotConnected": "Wallet not connected!"
     },
     "settings": {
-        "protocolName": "Flipmoney",
+        "protocolName": "MOC",
         "themeMode": {
             "light": "Light Mode",
             "dark": "Dark mode"
