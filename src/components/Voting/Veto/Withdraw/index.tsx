@@ -71,7 +71,7 @@ const VetoWithdraw: React.FC = () => {
         const cDataUser: InfoUser = { ...infoUser };
         cDataUser["InfoUserTC"] = [];
 
-        const lockedByVeto = tcLockedByVeto(userVeto.data, address);
+        const lockedByVeto = tcLockedByVeto(userVeto.data, contractStatusOmoc.data, address);
         lockedByVeto.forEach((locked) => {
             const tcIndex = getTCTokenIndex(
                 contractsAddress.CollateralToken,
