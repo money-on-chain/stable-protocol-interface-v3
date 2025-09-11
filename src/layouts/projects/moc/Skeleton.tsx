@@ -10,9 +10,9 @@ import DappFooter from "../../../components/Footer/index";
 import { useWalletContext } from "../../../context/Wallet";
 
 import { isSomeTCLockedByVeto } from "../../../helpers/veto";
+import { useProjectTranslation } from "../../../helpers/translations";
 
 const { Content, Footer } = Layout;
-
 
 // Type definitions
 
@@ -27,17 +27,44 @@ interface NotificationStatus {
     button?: { class: string; label: string; onClick: () => void };
 }
 export default function Skeleton(): JSX.Element {
-    const { isConnected, contractProtocolStatus, userBalance, userOmocBalance, userVeto, address } = useWalletContext()
+    const { t } = useProjectTranslation();
+    const {
+        isConnected,
+        contractProtocolStatus,
+        userBalance,
+        userOmocBalance,
+        userVeto,
+        contractStatusOmoc,
+        address,
+    } = useWalletContext();
     const navigate = useNavigate();
-    const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(null);
-    const [vetoWithdraw, setVetoWithdraw] = useState<NotificationStatus | null>(null);
+    const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(
+        null
+    );
+    const [vetoWithdraw, setVetoWithdraw] = useState<NotificationStatus | null>(
+        null
+    );
     const { checkerStatus } = CheckStatusGlobal();
-    
+
     useEffect(() => {
-        if (contractProtocolStatus.data && userBalance.data && userOmocBalance.data) {
+        if (
+            contractProtocolStatus.data &&
+            userBalance.data &&
+            userOmocBalance.data
+        ) {
             readProtocolStatus();
         }
-    }, [contractProtocolStatus.data, userBalance.data, userOmocBalance.data, userVeto.data, address]);
+        if (userVeto.data && contractStatusOmoc.data && address) {
+            readWithdrawStatus();
+        }
+    }, [
+        contractProtocolStatus.data,
+        userBalance.data,
+        userOmocBalance.data,
+        userVeto.data,
+        contractStatusOmoc.data,
+        address,
+    ]);
 
     const readProtocolStatus = (): void => {
         const { globalStatus, statusLabel, statusText } = checkerStatus();
@@ -54,20 +81,31 @@ export default function Skeleton(): JSX.Element {
         } else {
             setNotifStatus(null);
         }
-        if (userVeto.data && address && isSomeTCLockedByVeto(userVeto.data, address)) {
+    };
+
+    const readWithdrawStatus = (): void => {
+        if (
+            isSomeTCLockedByVeto(
+                userVeto.data,
+                contractStatusOmoc.data,
+                address
+            )
+        ) {
             setVetoWithdraw({
                 id: -1,
-                title: `Collateral Tokens ready to Withdraw`,
-                textContent: `Collateral Tokens used for vetoing were released. You must withdraw them to your wallet.`,
+                title: t(`voting.veto.alert.title`),
+                textContent: t(`voting.veto.alert.text`),
                 notifClass: "warning",
-                iconLeft: "warning-icon",
+                iconLeft: "warning-icon", // Default icon since statusIcon doesn't exist
                 isDismisable: false,
                 dismissTime: 0,
                 button: {
                     class: "button-withdraw",
-                    label: "Withdraw Collateral",
-                    onClick: () => { navigate("/veto/withdraw"); }
-                }
+                    label: t(`voting.veto.alert.cta`),
+                    onClick: () => {
+                        navigate("/veto/withdraw");
+                    },
+                },
             });
         } else {
             setVetoWithdraw(null);
@@ -75,22 +113,24 @@ export default function Skeleton(): JSX.Element {
     };
 
     return (
-    <Layout>
-        <SectionHeader />        
-        <Content>
-            {/* TODO load an array of notifStatus items, and load a mapping for showing notifs here in this section , interact with a React Context */}
-            {notifStatus && <NotificationBody notifStatus={notifStatus} />}
-            {vetoWithdraw && <NotificationBody notifStatus={vetoWithdraw} />}
+        <Layout>
+            <SectionHeader />
+            <Content>
+                {/* TODO load an array of notifStatus items, and load a mapping for showing notifs here in this section , interact with a React Context */}
+                {notifStatus && <NotificationBody notifStatus={notifStatus} />}
+                {vetoWithdraw && (
+                    <NotificationBody notifStatus={vetoWithdraw} />
+                )}
 
-            {/* {auth.web3Error && <W3ErrorAlert />} */}
+                {/* {auth.web3Error && <W3ErrorAlert />} */}
 
-            {isConnected && <Outlet />}
-        </Content>
-        <Footer>
-            <div className="footer-container">
-                <DappFooter></DappFooter>
-            </div>
-        </Footer>
-    </Layout>
+                {isConnected && <Outlet />}
+            </Content>
+            <Footer>
+                <div className="footer-container">
+                    <DappFooter></DappFooter>
+                </div>
+            </Footer>
+        </Layout>
     );
 }

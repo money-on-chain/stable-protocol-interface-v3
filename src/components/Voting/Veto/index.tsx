@@ -267,16 +267,20 @@ const Veto: React.FC = () => {
                 <div className="voting__status__container vetoContainer">
                     <div className="graphs">
                         <div className="vetoPage__tokenInfo">
-                            balance:{" "}
-                            {PrecisionNumbers({
-                                amount: token.balance,
-                                token: token.settings,
-                                decimals: parseInt(
-                                    t("staking.display_decimals")
-                                ),
-                                i18n: i18n,
-                            })}{" "}
-                            tokens
+                            <div>
+                                {" "}
+                                balance:{space}
+                                {PrecisionNumbers({
+                                    amount: token.balance,
+                                    token: token.settings,
+                                    decimals: parseInt(
+                                        t("staking.display_decimals")
+                                    ),
+                                    i18n: i18n,
+                                })}
+                                {space}
+                                tokens
+                            </div>
                             <div>
                                 <div>{`Voting power: ${mulPrecision(token.votingPower, 100n)} %`}</div>
                             </div>

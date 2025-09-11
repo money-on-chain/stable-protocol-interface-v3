@@ -14,7 +14,7 @@ import { useWalletContext } from "../../../context/Wallet";
 import { AutoReconnect } from "../../../components/AutoReconnect";
 import { NetworkGuard } from "../../../components/NetworkGuard";
 import { ALLOWED_CHAIN } from "../../../wagmiConfig";
-import { isSomeTCLockedByVeto } from "@/helpers/veto";
+import { isSomeTCLockedByVeto } from "../../../helpers/veto";
 import UpdateToast from '../../../components/UpdateToast'
 
 const { Content, Footer } = Layout;
@@ -30,13 +30,14 @@ interface NotificationStatus {
     dismissTime: number;
 }
 export default function Skeleton(): JSX.Element {
-    const { t, i18n } = useProjectTranslation();
+    const { t } = useProjectTranslation();
 
     const {
         isConnected,
         contractProtocolStatus,
         userBalance,
         userOmocBalance,
+        contractStatusOmoc,
         userVeto,
         address,
     } = useWalletContext();
@@ -60,10 +61,14 @@ export default function Skeleton(): JSX.Element {
         ) {
             readProtocolStatus();
         }
+        if (userVeto.data && contractStatusOmoc.data && address) {
+            readWithdrawStatus();
+        }
     }, [
         contractProtocolStatus.data,
         userBalance.data,
         userOmocBalance.data,
+        contractStatusOmoc.data,
         userVeto.data,
         address,
         isWrongNetwork,
@@ -84,7 +89,10 @@ export default function Skeleton(): JSX.Element {
         } else {
             setNotifStatus(null);
         }
-        if (userVeto.data && address && isSomeTCLockedByVeto(userVeto.data, address)) {
+    };
+
+    const readWithdrawStatus = (): void => {
+        if (isSomeTCLockedByVeto(userVeto.data, contractStatusOmoc.data, address)) {
             setVetoWithdraw({
                 id: -1,
                 title: t(`voting.veto.alert.title`),
@@ -101,6 +109,8 @@ export default function Skeleton(): JSX.Element {
                     },
                 },
             });
+        } else {
+            setVetoWithdraw(null);
         }
     };
 

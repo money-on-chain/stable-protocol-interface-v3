@@ -102,9 +102,8 @@ export function useUserOmocBalance(contracts?: any, userAddress?: string, refetc
             });        
             
         }
-
         // Incentive V2
-        if (typeof contracts.IncentiveV2 !== "undefined") {
+        if (contracts.IncentiveV2.address) {
 
             callRequest.push({
                 contract: contracts.TG,

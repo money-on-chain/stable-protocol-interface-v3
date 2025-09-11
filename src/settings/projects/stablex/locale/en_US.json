@@ -663,6 +663,31 @@
             "changerAddress": "Proposal Changer Address",
             "votingInFavor": "You are voting in favor!",
             "votingAgainst": "You are voting against!"
+        },
+        "veto": {
+            "alert": {
+                "title": "Collateral Tokens ready to Withdraw",
+                "text": "Collateral Tokens used for vetoing were released. You must withdraw them to your wallet.",
+                "cta": "Withdraw Collateral"
+            },
+            "outsideVetoing": {
+                "statsTitle": "Collateral-Backed Votes Supporting Veto",
+                "statsLabel": "veto casted",
+                "cta": "Collateral Veto"
+            },
+            "backToGovernanceButton": "Back to Governance Voting",
+            "row": {
+                "votingPower": "Voting Power",
+                "totalSupply": "Total Supply",
+                "ctaVeto": "Veto with"
+            },
+            "vetoWithdraw": {
+                "title": "Withdraw released tokens used for veto",
+                "headerToken": "Token",
+                "headerAmount": "Amount",
+                "button": "Withdraw",
+                "note": "Note: Each veto action locks the tokens used independently. As a result, you may have multiple available balances to withdraw for the same token if they were originally used in different veto operations."
+            }
         }
     },
     "alert": {

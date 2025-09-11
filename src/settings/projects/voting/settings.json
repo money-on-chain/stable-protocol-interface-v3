@@ -12,8 +12,8 @@
             
         ],
         "TC": [{
-            "name": "RIFP",
-            "fullName": "RIFPro",
+            "name": "BPRO",
+            "fullName": "BITPro",
             "decimals": 18,
             "visiblePriceDecimals": 4,
             "visibleBalanceDecimals": 4,

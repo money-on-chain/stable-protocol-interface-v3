@@ -13,9 +13,8 @@ export function useIncentiveV2(contracts?: any, userAddress?: string, refetchInt
 
         const callRequest = []        
                 
-        
         // Incentive V2
-        if (typeof contracts.IncentiveV2 !== "undefined") {
+        if (contracts.IncentiveV2.address) {
 
             callRequest.push({
                 contract: contracts.TG,

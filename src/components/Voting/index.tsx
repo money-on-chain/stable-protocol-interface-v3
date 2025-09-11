@@ -47,6 +47,7 @@ interface InfoVoting {
     readyToVoteStep: boolean;
     votingData: VotingData;
     votingInfo: VotingInfo;
+    isVetoMachine: boolean;
 }
 
 interface InfoUser {
@@ -153,7 +154,8 @@ const Voting: React.FC = () => {
         cData["votingInfo"]["winnerProposal"] = infoWinnerProposal;
         cData["votingInfo"]["inFavorVotes"] = infoInFavorVotes;
         cData["votingInfo"]["againstVotes"] = infoAgainstVotes;
-        cData["votingData"]["totalVetoPCT"] = contractStatusOmoc.data.vetomachine.getVetoPctForWinnerProposal;
+        cData["votingData"]["totalVetoPCT"] = contractStatusOmoc.data.vetomachine?.getVetoPctForWinnerProposal || 0n;
+        cData["isVetoMachine"] = contractStatusOmoc.data.vetomachine ? true : false;
         setInfoVoting(cData);
 
         

@@ -472,23 +472,17 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
         contracts.VestingMachine = contractDict
     }
 
-    // reading Incentive V2 from environment address
-    if (
-        typeof import.meta.env.REACT_APP_CONTRACT_INCENTIVE_V2 !==
-        "undefined"
-    ) {
-        console.log(
-            "Incentive V2 Contract... address: ",
-            import.meta.env.REACT_APP_CONTRACT_INCENTIVE_V2
-        );
-        contractDict = {
-            address: import.meta.env.REACT_APP_CONTRACT_INCENTIVE_V2,
-            abi: IncentiveV2.abi,
-            name: 'IncentiveV2',
-            type: ''
-        }
-        contracts.IncentiveV2 = contractDict
+    console.log(
+        "Incentive V2 Contract... address: ",
+        import.meta.env.REACT_APP_CONTRACT_INCENTIVE_V2
+    );
+    contractDict = {
+        address: import.meta.env.REACT_APP_CONTRACT_INCENTIVE_V2,
+        abi: IncentiveV2.abi,
+        name: 'IncentiveV2',
+        type: ''
     }
+    contracts.IncentiveV2 = contractDict
 
     // Token migrator & Legacy token    
     if (import.meta.env.REACT_APP_CONTRACT_LEGACY_TP) {

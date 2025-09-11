@@ -15,9 +15,9 @@ import { NetworkGuard } from "../../../components/NetworkGuard";
 import { ALLOWED_CHAIN } from "../../../wagmiConfig";
 
 import { isSomeTCLockedByVeto } from "../../../helpers/veto";
+import { useProjectTranslation } from "../../../helpers/translations";
 
 const { Content, Footer } = Layout;
-
 
 // Type definitions
 
@@ -32,20 +32,49 @@ interface NotificationStatus {
     button?: { class: string; label: string; onClick: () => void };
 }
 export default function Skeleton(): JSX.Element {
-    const { isConnected, contractProtocolStatus, userBalance, userOmocBalance, userVeto, address } = useWalletContext()
+    const { t } = useProjectTranslation();
+    const {
+        isConnected,
+        contractProtocolStatus,
+        userBalance,
+        userOmocBalance,
+        userVeto,
+        contractStatusOmoc,
+        address,
+    } = useWalletContext();
     const navigate = useNavigate();
-    const chainId = useChainId()
-    const isWrongNetwork = isConnected && chainId !== ALLOWED_CHAIN.id
-    
-    const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(null);
-    const [vetoWithdraw, setVetoWithdraw] = useState<NotificationStatus | null>(null);
+    const chainId = useChainId();
+    const isWrongNetwork = isConnected && chainId !== ALLOWED_CHAIN.id;
+
+    const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(
+        null
+    );
+    const [vetoWithdraw, setVetoWithdraw] = useState<NotificationStatus | null>(
+        null
+    );
     const { checkerStatus } = CheckStatusGlobal();
-    
+
     useEffect(() => {
-        if (contractProtocolStatus.data && userBalance.data && userOmocBalance.data && !isWrongNetwork) {
+        if (
+            contractProtocolStatus.data &&
+            userBalance.data &&
+            userOmocBalance.data &&
+            !isWrongNetwork
+        ) {
             readProtocolStatus();
         }
-    }, [contractProtocolStatus.data, userBalance.data, userOmocBalance.data, userVeto.data, address, isWrongNetwork]);
+        if (userVeto.data && contractStatusOmoc.data && address) {
+            readWithdrawStatus();
+        }
+    }, [
+        contractProtocolStatus.data,
+        userBalance.data,
+        userOmocBalance.data,
+        userVeto.data,
+        contractStatusOmoc.data,
+        address,
+        isWrongNetwork,
+    ]);
 
     const readProtocolStatus = (): void => {
         const { globalStatus, statusLabel, statusText } = checkerStatus();
@@ -62,20 +91,31 @@ export default function Skeleton(): JSX.Element {
         } else {
             setNotifStatus(null);
         }
-        if (userVeto.data && address && isSomeTCLockedByVeto(userVeto.data, address)) {
+    };
+
+    const readWithdrawStatus = (): void => {
+        if (
+            isSomeTCLockedByVeto(
+                userVeto.data,
+                contractStatusOmoc.data,
+                address
+            )
+        ) {
             setVetoWithdraw({
                 id: -1,
-                title: `Collateral Tokens ready to Withdraw`,
-                textContent: `Collateral Tokens used for vetoing were released. You must withdraw them to your wallet.`,
+                title: t(`voting.veto.alert.title`),
+                textContent: t(`voting.veto.alert.text`),
                 notifClass: "warning",
-                iconLeft: "warning-icon",
+                iconLeft: "warning-icon", // Default icon since statusIcon doesn't exist
                 isDismisable: false,
                 dismissTime: 0,
                 button: {
                     class: "button-withdraw",
-                    label: "Withdraw Collateral",
-                    onClick: () => { navigate("/veto/withdraw"); }
-                }
+                    label: t(`voting.veto.alert.cta`),
+                    onClick: () => {
+                        navigate("/veto/withdraw");
+                    },
+                },
             });
         } else {
             setVetoWithdraw(null);
@@ -83,20 +123,22 @@ export default function Skeleton(): JSX.Element {
     };
 
     return (
-    <Layout>
-        {/* <AutoReconnect />  Always runs on mount */}        
-        <SectionHeader />        
-        <Content>
-            <NetworkGuard />
-            {notifStatus && <NotificationBody notifStatus={notifStatus} />}           
-            {vetoWithdraw && <NotificationBody notifStatus={vetoWithdraw} />}
-            {isConnected && !isWrongNetwork ? <Outlet /> : <NotConnected />}
-        </Content>
-        <Footer>
-            <div className="footer-container">
-                <DappFooter></DappFooter>
-            </div>
-        </Footer>
-    </Layout>
+        <Layout>
+            {/* <AutoReconnect />  Always runs on mount */}
+            <SectionHeader />
+            <Content>
+                <NetworkGuard />
+                {notifStatus && <NotificationBody notifStatus={notifStatus} />}
+                {vetoWithdraw && (
+                    <NotificationBody notifStatus={vetoWithdraw} />
+                )}
+                {isConnected && !isWrongNetwork ? <Outlet /> : <NotConnected />}
+            </Content>
+            <Footer>
+                <div className="footer-container">
+                    <DappFooter></DappFooter>
+                </div>
+            </Footer>
+        </Layout>
     );
 }
