@@ -23,7 +23,7 @@ interface UserInfoStaking {
     tgBalance: bigint;
     stakedBalance: bigint;
     lockedBalance: bigint;
-    pendingWithdrawals: PendingWithdrawal[];
+    pendingWithdrawals: PendingWithdrawalStatus[];
     totalPendingExpiration: bigint;
     totalAvailableToWithdraw: bigint;
     lockedInVoting: bigint;

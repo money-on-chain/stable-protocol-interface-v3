@@ -114,7 +114,7 @@ export type WalletContextType = {
   ) => Promise<any>
   interfaceStakingAddStake: (
     amount: bigint,
-    address: string,
+    address: `0x${string}`,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt,
     onError: OnError
@@ -160,7 +160,7 @@ export type WalletContextType = {
     onError: OnError
   ) => Promise<any>
   interfaceVotingPreVote: (
-    changeContractAddress: string,
+    changeContractAddress: `0x${string}`,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt,
     onError: OnError
@@ -187,7 +187,7 @@ export type WalletContextType = {
     onError: OnError
   ) => Promise<any>
   interfaceVotingUnRegister: (
-    changeContractAddress: string,
+    changeContractAddress: `0x${string}`,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt,
     onError: OnError
@@ -237,11 +237,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const publicClient = usePublicClient()
     const walletClient = useWalletClient()
     
-    const [contractsAddress, setContractsAddress] = useState(null)
+    const [contractsAddress, setContractsAddress] = useState<any>(null)
     const [contractsAddressLoaded, setContractsAddressLoaded] = useState(false)
     const [vestingAddress, setVestingAddress] = useState<string | undefined>(undefined)
 
-    const [offChainPrices, setOffChainPrices] = useState(null)
+    const [offChainPrices, setOffChainPrices] = useState<any>(null)
     const [showModalAccount, setShowModalAccount] = useState<boolean>(false)
     const [showModalProviders, setShowModalProviders] = useState<boolean>(false)
     const [vestingOn, setVestingOn] = useState<boolean>(false)
@@ -280,13 +280,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     )
 
     const { proposalCount } = useProposalCount(
-        contractsAddressLoaded ? contractsAddress?.VotingMachine : undefined,
+        contractsAddressLoaded ? (contractsAddress as any)?.VotingMachine : undefined,
         120_000
     )
 
     const contractStatusOmoc = useContractOmocStatus(
         contractsAddressLoaded ? contractsAddress : undefined,
-        proposalCount,
+        proposalCount as bigint | undefined,
         REFRESH_INTERVAL_CONTRACT_STATUS_OMOC
     )
 
@@ -348,6 +348,14 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             readContractsAddresses()
         }
     }, [contractsAddressLoaded])
+
+
+    useEffect(() => {
+        if (!isConnected && !showModalProviders) {
+            setShowModalProviders(true);
+        }
+    }, [isConnected])
+
 
     const readContractsAddresses = async (): Promise<void> => {    
         if (!isConnected || contractsAddressLoaded) return
@@ -853,8 +861,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         value={{
             isConnected,
             address,
-            connect,
-            disconnect,
+            
             contractsAddress,
             contractsAddressLoaded,
             contractStatusOmoc,
@@ -862,8 +869,16 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             userBalance,
             blockNumber,
             offChainPrices,
-            proposalCount,
+            proposalCount: proposalCount as bigint | undefined,
             userBaseCoinBalance,
+            vestingAddress,
+            publicClient,
+            walletClient,
+            userVesting,
+            userOmocBalance,
+            userIncentiveV2,
+            connect,
+            disconnect,
             readContractsAddresses,
             interfaceTransferToken,
             interfaceTransferCoinbase,
@@ -871,14 +886,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             interfaceExchangeMethod,
             interfaceAllowUseTokenMigrator,
             interfaceMigrateToken,
-            isVestingLoaded,
-            vestingAddress,
+            isVestingLoaded,            
             interfaceStakingApprove,
             interfaceStakingAddStake,
             interfaceStakingDelayMachineWithdraw,
-            interfaceStakingDelayMachineCancelWithdraw,
-            publicClient,
-            walletClient,
+            interfaceStakingDelayMachineCancelWithdraw,            
             onShowModalAccount,
             onShowModalAccountVesting,
             onHideModalAccount,
@@ -893,10 +905,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             interfaceVotingVoteStep,
             interfaceVotingAcceptedStep,
             interfaceVotingUnRegister,
-            readUserVesting,
-            userVesting,
-            userOmocBalance,
-            userIncentiveV2,
+            readUserVesting,            
             onShowModalProviders,
             onHideModalProviders
         }}

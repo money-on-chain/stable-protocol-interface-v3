@@ -41,7 +41,6 @@ export default function SectionHeader(): JSX.Element {
     const {
         isConnected,
         address,
-        connect,
         onShowModalAccount,
         onShowModalProviders,
     } = useWalletContext();
@@ -77,7 +76,7 @@ export default function SectionHeader(): JSX.Element {
             )
             .map((option: MenuOption) => ({
                 ...option,
-                name: option.name, // No ejecutamos name() aquí, mantenemos la función
+                name: option.name, // keep the function
             }));
         setDisplayOptions(filteredOptions);
     }, [currentProject, lang, t]);
