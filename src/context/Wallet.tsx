@@ -245,29 +245,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const [showModalAccount, setShowModalAccount] = useState<boolean>(false)
     const [showModalProviders, setShowModalProviders] = useState<boolean>(false)
     const [vestingOn, setVestingOn] = useState<boolean>(false)
-
-    /*useEffect(() => {
-        if (isConnected) {
-          console.log('🔄 Account changed:', address)
-          // invalidate queries
-          if (userBalance.queryKey) {            
-            queryClient.invalidateQueries({ queryKey: userBalance.queryKey })
-          }
-          if (userOmocBalance.queryKey) {
-            queryClient.invalidateQueries({ queryKey: userOmocBalance.queryKey })
-          }
-          if (userVesting.queryKey) {
-            queryClient.invalidateQueries({ queryKey: userVesting.queryKey })
-          }
-          if (userIncentiveV2.queryKey) {
-            queryClient.invalidateQueries({ queryKey: userIncentiveV2.queryKey })
-          }
-        }
-        
-      }, [address])*/
-
+    
     // Hooks for contract data
-
     const { blockNumber } = useLatestBlockNumber(REFRESH_INTERVAL_BLOCKS_NUMBER)
     
     const offChainPricesAPI = useOffchainPrices(REFRESH_INTERVAL_OFFCHAIN_PRICES)    
@@ -325,24 +304,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         }
     }, [offChainPricesAPI.parsedPrices])
 
-    /*useEffect(() => {
-        if (contractProtocolStatus.data) {
-            //console.log('Protocol:', contractProtocolStatus.data)
-        }
-    }, [contractProtocolStatus.data])  */
-
-    /*useEffect(() => {
-        if (contractStatusOmoc.data) {
-            //console.log('Omoc:', contractStatusOmoc.data)
-        }
-    }, [contractStatusOmoc.data])  */
-
-    /*useEffect(() => {
-        if (userBalance.data) {
-            console.log('User balance:', userBalance.data)
-        }
-    }, [userBalance.data])*/
-
+    
     useEffect(() => {
         if (!contractsAddressLoaded) {
             readContractsAddresses()
@@ -355,6 +317,16 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             setShowModalProviders(true);
         }
     }, [isConnected])
+
+    useEffect(() => {
+        // Refetch user data when address changes
+        if (!address) return        
+        userBaseCoinBalance?.refetch?.()
+        userBalance?.refetch?.()
+        userOmocBalance?.refetch?.()
+        userVesting?.refetch?.()
+        userIncentiveV2?.refetch?.()
+      }, [address]) // eslint-disable-line react-hooks/exhaustive-deps
 
 
     const readContractsAddresses = async (): Promise<void> => {    
