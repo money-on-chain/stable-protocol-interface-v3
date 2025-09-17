@@ -13,6 +13,7 @@ import { useWalletContext } from "../../../context/Wallet";
 import { AutoReconnect } from "../../../components/AutoReconnect";
 import { NetworkGuard } from "../../../components/NetworkGuard";
 import { ALLOWED_CHAIN } from "../../../wagmiConfig";
+import UpdateToast from '../../../components/UpdateToast'
 
 
 const { Content, Footer } = Layout;
@@ -66,6 +67,7 @@ export default function Skeleton(): JSX.Element {
         <SectionHeader />        
         <Content>
             <NetworkGuard />
+            <UpdateToast />
             {notifStatus && <NotificationBody notifStatus={notifStatus} />}           
             {isConnected && !isWrongNetwork ? <Outlet /> : <NotConnected />}
         </Content>

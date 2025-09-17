@@ -1,6 +1,10 @@
 {
     "collateral": "rc20",
     "project": "roc",
+    "dapp": {
+        "name": "ROC UI",
+        "description": "ROC UI"
+    },
     "showPriceVariation":true,
     "tokens": {
         

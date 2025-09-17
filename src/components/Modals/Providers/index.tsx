@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect } from "react";
 import Modal from "antd/lib/modal/Modal";
 import Providers from "../../Providers";
 
@@ -12,10 +12,21 @@ interface ModalProvidersProps {
 export default function ModalProviders(props: ModalProvidersProps): JSX.Element {
     const { show, onShow, onHide } = props;
 
+    useEffect(() => {
+        if (show) {
+          // prevent scroll on body
+          document.body.style.overflow = "hidden";
+        } else {
+          document.body.style.overflow = "";
+        }
+        return () => {
+          document.body.style.overflow = "";
+        };
+      }, [show]);
+
     return (
         <Fragment>
-            <div className="ShowModalProviders">
-                {/*<a onClick={onShow}>{truncatedAddress}</a>*/}
+            <div className="ShowModalProviders">                
                 <Modal
                     width={505}
                     open={show}
@@ -25,6 +36,9 @@ export default function ModalProviders(props: ModalProvidersProps): JSX.Element 
                     className="ModalProviders"
                     centered={true}
                     maskStyle={{}}
+                    maskClosable={false}
+                    keyboard={false}                    
+                    //zIndex={1300}
                 >
                     <Providers
                         {...props}

@@ -5,6 +5,7 @@ import { I18nextProvider } from "react-i18next";
 import i18next from "i18next";
 import { WagmiProvider } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { registerSW } from 'virtual:pwa-register'
 import { config } from './wagmiConfig'
 
 import "antd/dist/antd.css";
@@ -25,6 +26,9 @@ import es_ES from "./settings/locale/es_ES.json";
 import en_US from "./settings/locale/en_US.json";
 
 console.log(`Starting app version: ${import.meta.env.REACT_APP_VERSION}`);
+
+registerSW({ immediate: true })
+
 const queryClient = new QueryClient()
 
 window.addEventListener("vite:preloadError", (event) => {
