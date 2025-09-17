@@ -1,6 +1,10 @@
 {
     "collateral": "coinbase",
     "project": "moc",
+    "dapp": {
+        "name": "MOC UI",
+        "description": "MOC UI"
+    },
     "showPriceVariation":true,
     "tokens": {
         "COINBASE": [{

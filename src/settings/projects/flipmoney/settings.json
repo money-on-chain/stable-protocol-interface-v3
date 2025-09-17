@@ -1,5 +1,9 @@
 {
     "project": "flipmoney",
+    "dapp": {
+        "name": "Flipmoney UI",
+        "description": "Flipmoney UI"
+    },
     "showPriceVariation":false,
     "tokens": {
         "COINBASE": [{

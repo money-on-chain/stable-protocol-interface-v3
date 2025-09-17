@@ -1,6 +1,10 @@
 {
     "collateral": "rc20",
     "project": "voting",
+    "dapp": {
+        "name": "Voting UI",
+        "description": "Voting UI"
+    },
     "showPriceVariation":true,
     "tokens": {
 

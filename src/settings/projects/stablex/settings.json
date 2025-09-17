@@ -1,6 +1,10 @@
 {
     "collateral": "coinbase",
     "project": "stablex",
+    "dapp": {
+        "name": "StableX UI",
+        "description": "StableX UI"
+    },
     "showPriceVariation": true,
     "tokens": {
         "COINBASE": [{
