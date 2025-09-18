@@ -58,7 +58,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.DelayMachine,
                 functionName: 'getLastId',
                 args: [],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: ["delaymachine", "getLastId"]
             });
 
@@ -90,7 +90,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.Supporters,
                 functionName: 'period',
                 args: [],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: ["supporters", "period"]
             });
 
@@ -98,7 +98,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.Supporters,
                 functionName: 'totalMoc',
                 args: [],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: ["supporters", "totalMoc"]
             });
 
@@ -106,7 +106,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.Supporters,
                 functionName: 'totalToken',
                 args: [],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: ["supporters", "totalToken"]
             });
 
@@ -114,7 +114,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.VotingMachine,
                 functionName: 'getState',
                 args: [],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: ["votingmachine", "getState"]
             });
 
@@ -122,7 +122,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.VotingMachine,
                 functionName: 'getVotingRound',
                 args: [],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: ["votingmachine", "getVotingRound"]
             });
 
@@ -158,7 +158,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.VotingMachine,
                 functionName: 'getProposalCount',
                 args: [],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: ["votingmachine", "getProposalCount"]
             });
 
@@ -179,7 +179,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.TG,
                 functionName: 'totalSupply',
                 args: [],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: ["votingmachine", "totalSupply"]
             });
 
@@ -199,7 +199,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                                 { type: "uint256", name: "votes" },
                                 { type: "uint256", name: "expirationTimeStamp" },
                             ] as any,
-                            keys: ["votingmachine", "getProposalByIndex", indexProp],
+                            keys: ["votingmachine", "getProposalByIndex", Number(indexProp)],
                             onError: onErrorProposal
                         });
                     }
@@ -211,7 +211,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.IRegistry,
                 functionName: 'getUint',
                 args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_MIN_STAKE],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: ["votingmachine", "MIN_STAKE"]
             });
 
@@ -219,7 +219,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.IRegistry,
                 functionName: 'getUint',
                 args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_PRE_VOTE_EXPIRATION_TIME_DELTA],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: ["votingmachine", "PRE_VOTE_EXPIRATION_TIME_DELTA"]
             });
 
@@ -227,7 +227,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.IRegistry,
                 functionName: 'getUint',
                 args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_MAX_PRE_PROPOSALS],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: ["votingmachine", "MAX_PRE_PROPOSALS"]
             });
 
@@ -235,7 +235,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.IRegistry,
                 functionName: 'getUint',
                 args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_PRE_VOTE_MIN_PCT_TO_WIN],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: ["votingmachine", "PRE_VOTE_MIN_PCT_TO_WIN"]
             });
 
@@ -243,7 +243,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.IRegistry,
                 functionName: 'getUint',
                 args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_VOTE_MIN_PCT_TO_VETO],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: ["votingmachine", "VOTE_MIN_PCT_TO_VETO"]
             });
 
@@ -251,7 +251,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.IRegistry,
                 functionName: 'getUint',
                 args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_VOTE_MIN_PCT_FOR_QUORUM],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: ["votingmachine", "MIN_PCT_FOR_QUORUM"]
             });
 
@@ -259,7 +259,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.IRegistry,
                 functionName: 'getUint',
                 args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_VOTE_MIN_PCT_TO_ACCEPT],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: ["votingmachine", "VOTE_MIN_PCT_TO_ACCEPT"]
             });
 
@@ -267,7 +267,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.IRegistry,
                 functionName: 'getUint',
                 args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_PCT_PRECISION],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: ["votingmachine", "PCT_PRECISION"]
             });
 
@@ -275,7 +275,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.IRegistry,
                 functionName: 'getUint',
                 args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_VOTING_TIME_DELTA],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: ["votingmachine", "VOTING_TIME_DELTA"]
             });
 
