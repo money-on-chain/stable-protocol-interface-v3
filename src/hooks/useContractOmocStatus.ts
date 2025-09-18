@@ -26,7 +26,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.StakingMachine,
                 functionName: 'getWithdrawLockTime',
                 args: [],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["stakingmachine", "getWithdrawLockTime"]
             });
 
@@ -34,7 +34,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.StakingMachine,
                 functionName: 'getSupporters',
                 args: [],
-                resultType: 'address',
+                resultType: 'address' as any,
                 keys: ["stakingmachine", "getSupporters"]
             });
 
@@ -42,7 +42,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.StakingMachine,
                 functionName: 'getOracleManager',
                 args: [],
-                resultType: 'address',
+                resultType: 'address' as any,
                 keys: ["stakingmachine", "getOracleManager"]
             });
 
@@ -50,7 +50,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.StakingMachine,
                 functionName: 'getDelayMachine',
                 args: [],
-                resultType: 'address',
+                resultType: 'address' as any,
                 keys: ["stakingmachine", "getDelayMachine"]
             });
 
@@ -66,7 +66,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.DelayMachine,
                 functionName: 'getSource',
                 args: [],
-                resultType: 'address',
+                resultType: 'address' as any,
                 keys: ["delaymachine", "getSource"]
             });
 
@@ -74,7 +74,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.Supporters,
                 functionName: 'isReadyToDistribute',
                 args: [],
-                resultType: 'bool',
+                resultType: 'bool' as any,
                 keys: ["supporters", "isReadyToDistribute"]
             });
 
@@ -82,7 +82,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.Supporters,
                 functionName: 'mocToken',
                 args: [],
-                resultType: 'address',
+                resultType: 'address' as any,
                 keys: ["supporters", "mocToken"]
             });
 
@@ -134,7 +134,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                     { type: "address", name: "winnerProposal" },
                     { type: "uint256", name: "inFavorVotes" },
                     { type: "uint256", name: "againstVotes" }
-                ],
+                ] as any,
                 keys: ["votingmachine", "getVoteInfo"]
             });
 
@@ -142,7 +142,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.VotingMachine,
                 functionName: 'readyToPreVoteStep',
                 args: [],
-                resultType: 'bool',
+                resultType: 'bool' as any,
                 keys: ["votingmachine", "readyToPreVoteStep"]
             });
 
@@ -150,7 +150,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                 contract: contracts.VotingMachine,
                 functionName: 'readyToVoteStep',
                 args: [],
-                resultType: 'bool',
+                resultType: 'bool' as any,
                 keys: ["votingmachine", "readyToVoteStep"]
             });
 
@@ -171,7 +171,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                     { type: "uint256", name: "inFavorVotes" },
                     { type: "uint256", name: "againstVotes" },
                     { type: "uint256", name: "votingExpirationTime" },
-                ],
+                ] as any,
                 keys: ["votingmachine", "getVotingData"]
             });
 
@@ -198,7 +198,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                                 { type: "uint256", name: "votingRound" },
                                 { type: "uint256", name: "votes" },
                                 { type: "uint256", name: "expirationTimeStamp" },
-                            ],
+                            ] as any,
                             keys: ["votingmachine", "getProposalByIndex", indexProp],
                             onError: onErrorProposal
                         });
@@ -284,7 +284,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                     contract: contracts.VetoMachine,
                     functionName: "getVetoPctForWinnerProposal",
                     args: [],
-                    resultType: "uint256",
+                    resultType: "uint256" as any,
                     keys: ["vetomachine", "getVetoPctForWinnerProposal"],
                 });
             }

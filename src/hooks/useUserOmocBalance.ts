@@ -24,7 +24,7 @@ export function useUserOmocBalance(contracts?: any, userAddress?: string, refetc
                     { type: "uint256[]", name: "ids" },
                     { type: "uint256[]", name: "amounts" },
                     { type: "uint256[]", name: "expirations" },
-                ],
+                ] as any,
                 keys: ["delaymachine", "getTransactions"]
             });
 
@@ -32,7 +32,7 @@ export function useUserOmocBalance(contracts?: any, userAddress?: string, refetc
                 contract: contracts.DelayMachine,
                 functionName: 'getBalance',
                 args: [userAddress],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["delaymachine", "getBalance"]
             });
 
@@ -43,7 +43,7 @@ export function useUserOmocBalance(contracts?: any, userAddress?: string, refetc
                 contract: contracts.TG,
                 functionName: 'balanceOf',
                 args: [userAddress],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["TG", "balance"]
             });
 
@@ -51,7 +51,7 @@ export function useUserOmocBalance(contracts?: any, userAddress?: string, refetc
                 contract: contracts.TG,
                 functionName: 'allowance',
                 args: [userAddress, contracts.StakingMachine.address],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["stakingmachine", "tgAllowance"]
             });
 
@@ -66,7 +66,7 @@ export function useUserOmocBalance(contracts?: any, userAddress?: string, refetc
                 resultType: [
                     { type: "address", name: "voteAddress" },
                     { type: "uint256", name: "voteRound" },
-                ],
+                ] as any,
                 keys: ["votingmachine", "getUserVote"]
             });
 
@@ -78,7 +78,7 @@ export function useUserOmocBalance(contracts?: any, userAddress?: string, refetc
                 contract: contracts.StakingMachine,
                 functionName: 'getBalance',
                 args: [userAddress],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["stakingmachine", "getBalance"]                
             });
 
@@ -86,7 +86,7 @@ export function useUserOmocBalance(contracts?: any, userAddress?: string, refetc
                 contract: contracts.StakingMachine,
                 functionName: 'getLockedBalance',
                 args: [userAddress],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["stakingmachine", "getLockedBalance"]
             });            
 
@@ -97,7 +97,7 @@ export function useUserOmocBalance(contracts?: any, userAddress?: string, refetc
                 resultType: [
                     { type: "uint256", name: "amount" },
                     { type: "uint256", name: "untilTimestamp" },
-                ],
+                ] as any,
                 keys: ["stakingmachine", "getLockingInfo"]
             });        
             
@@ -109,7 +109,7 @@ export function useUserOmocBalance(contracts?: any, userAddress?: string, refetc
                 contract: contracts.TG,
                 functionName: 'balanceOf',
                 args: [contracts.IncentiveV2.address],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["incentiveV2", "contractBalance"]
             });
 
@@ -117,7 +117,7 @@ export function useUserOmocBalance(contracts?: any, userAddress?: string, refetc
                 contract: contracts.IncentiveV2,
                 functionName: 'get_balance',
                 args: [userAddress],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["incentiveV2", "userBalance"]
             });            
         }             

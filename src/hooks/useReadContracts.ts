@@ -27,6 +27,7 @@ import omoc from "../settings/omoc/omoc.json";
 import settings from "../settings/settings.json";
 
 import { readContract } from 'viem/actions'
+import type { PublicClient } from 'viem'
 
 // Type definitions for dContracts
 interface DContracts {    
@@ -89,7 +90,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
     const tpAddresses: string[] = [];
     dContracts.contracts.PP_TP = {};
 
-    const contracts = {
+    const contracts: any = {
         MocMultiCollateralGuard: {},
         Moc: [],
         CA: [],
@@ -529,7 +530,7 @@ const registryAddresses = async (
         contract: contractRegistry,
         functionName: 'getAddress',
         args: [omoc.RegistryConstants.MOC_STAKING_MACHINE],
-        resultType: 'address',
+        resultType: 'address' as any,
         keys: ['MOC_STAKING_MACHINE']        
     })
 
@@ -537,7 +538,7 @@ const registryAddresses = async (
         contract: contractRegistry,
         functionName: 'getAddress',
         args: [omoc.RegistryConstants.SUPPORTERS_ADDR],
-        resultType: 'address',
+        resultType: 'address' as any,
         keys: ['SUPPORTERS_ADDR']        
     })
 
@@ -545,7 +546,7 @@ const registryAddresses = async (
         contract: contractRegistry,
         functionName: 'getAddress',
         args: [omoc.RegistryConstants.MOC_DELAY_MACHINE],
-        resultType: 'address',
+        resultType: 'address' as any,
         keys: ['MOC_DELAY_MACHINE']        
     })
 
@@ -553,7 +554,7 @@ const registryAddresses = async (
         contract: contractRegistry,
         functionName: 'getAddress',
         args: [omoc.RegistryConstants.MOC_VESTING_MACHINE],
-        resultType: 'address',
+        resultType: 'address' as any,
         keys: ['MOC_VESTING_MACHINE']        
     })
 
@@ -561,7 +562,7 @@ const registryAddresses = async (
         contract: contractRegistry,
         functionName: 'getAddress',
         args: [omoc.RegistryConstants.MOC_VOTING_MACHINE],
-        resultType: 'address',
+        resultType: 'address' as any,
         keys: ['MOC_VOTING_MACHINE']        
     })
 
@@ -569,7 +570,7 @@ const registryAddresses = async (
         contract: contractRegistry,
         functionName: 'getAddress',
         args: [omoc.RegistryConstants.MOC_VETO_MACHINE],
-        resultType: 'address',
+        resultType: 'address' as any,
         keys: ['MOC_VETO_MACHINE']        
     })
 
@@ -577,7 +578,7 @@ const registryAddresses = async (
         contract: contractRegistry,
         functionName: 'getAddress',
         args: [omoc.RegistryConstants.MOC_PRICE_PROVIDER_REGISTRY],
-        resultType: 'address',
+        resultType: 'address' as any,
         keys: ['MOC_PRICE_PROVIDER_REGISTRY']        
     })
 
@@ -585,7 +586,7 @@ const registryAddresses = async (
         contract: contractRegistry,
         functionName: 'getAddress',
         args: [omoc.RegistryConstants.ORACLE_MANAGER_ADDR],
-        resultType: 'address',
+        resultType: 'address' as any,
         keys: ['ORACLE_MANAGER_ADDR']        
     })
 
@@ -593,7 +594,7 @@ const registryAddresses = async (
         contract: contractRegistry,
         functionName: 'getAddress',
         args: [omoc.RegistryConstants.MOC_TOKEN],
-        resultType: 'address',
+        resultType: 'address' as any,
         keys: ['MOC_TOKEN']        
     })       
 
@@ -611,7 +612,7 @@ const mocAddresses = async (
         contract: contractMoc,
         functionName: 'feeToken',
         args: [],
-        resultType: 'address',
+        resultType: 'address' as any,
         keys: ['feeToken']        
     })
 
@@ -619,7 +620,7 @@ const mocAddresses = async (
         contract: contractMoc,
         functionName: 'feeTokenPriceProvider',
         args: [],
-        resultType: 'address',
+        resultType: 'address' as any,
         keys: ['feeTokenPriceProvider']        
     })
 
@@ -628,7 +629,7 @@ const mocAddresses = async (
             contract: contractMoc,
             functionName: 'acToken',
             args: [],
-            resultType: 'address',
+            resultType: 'address' as any,
             keys: ['acToken']        
         })        
     }
@@ -637,7 +638,7 @@ const mocAddresses = async (
         contract: contractMoc,
         functionName: 'tcToken',
         args: [],
-        resultType: 'address',
+        resultType: 'address' as any,
         keys: ['tcToken']        
     })
 
@@ -645,7 +646,7 @@ const mocAddresses = async (
         contract: contractMoc,
         functionName: 'maxAbsoluteOpProvider',
         args: [],
-        resultType: 'address',
+        resultType: 'address' as any,
         keys: ['maxAbsoluteOpProvider']        
     })
 
@@ -653,7 +654,7 @@ const mocAddresses = async (
         contract: contractMoc,
         functionName: 'maxOpDiffProvider',
         args: [],
-        resultType: 'address',
+        resultType: 'address' as any,
         keys: ['maxOpDiffProvider']        
     })
 
@@ -661,7 +662,7 @@ const mocAddresses = async (
         contract: contractMoc,
         functionName: 'mocQueue',
         args: [],
-        resultType: 'address',
+        resultType: 'address' as any,
         keys: ['mocQueue']        
     })
 
@@ -669,7 +670,7 @@ const mocAddresses = async (
         contract: contractMoc,
         functionName: 'mocVendors',
         args: [],
-        resultType: 'address',
+        resultType: 'address' as any,
         keys: ['mocVendors']        
     })
 
@@ -678,7 +679,7 @@ const mocAddresses = async (
             contract: contractMoc,
             functionName: 'tpTokens',
             args: [i],
-            resultType: 'address',
+            resultType: 'address' as any,
             keys: ['tpTokens', i],
             onError: onErrorTP
         })        

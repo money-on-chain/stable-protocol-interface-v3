@@ -17,7 +17,10 @@ export function useLatestBlockNumber(refetchInterval = 10_000) {
     error,
   } = useQuery({
     queryKey: ['latestBlockNumber'],
-    queryFn: () => getBlockNumber(publicClient),
+    queryFn: () => {
+      if (!publicClient) throw new Error('Public client not available')
+      return getBlockNumber(publicClient)
+    },
     refetchInterval, // default: 10 seconds
     enabled: !!publicClient,
   })

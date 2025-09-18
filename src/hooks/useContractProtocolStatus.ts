@@ -44,7 +44,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: contracts.PP_COINBASE,
                 functionName: 'peek',
                 args: [],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: ['PP_COINBASE']            
             }
         )
@@ -76,7 +76,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
         }
 
         for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
-            const caToken = settings.tokens.CA[ca] as CAToken;
+            const caToken = settings.tokens.CA[ca] as any;
             contractMocType = caToken.type;
             Moc = contracts.Moc[ca];
             MocVendors = contracts.MocVendors[ca];
@@ -90,7 +90,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: Moc,
                 functionName: 'protThrld',
                 args: [],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "protThrld"]            
             })
 
@@ -98,7 +98,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: Moc,
                 functionName: 'liqThrld',
                 args: [],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "liqThrld"]            
             })
             
@@ -106,7 +106,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: Moc,
                 functionName: 'liquidated',
                 args: [],
-                resultType: 'bool',
+                resultType: 'bool' as any,
                 keys: [ca, "liquidated"]            
             })
     
@@ -114,7 +114,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: Moc,
                 functionName: 'nACcb',
                 args: [],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "nACcb"]            
             })
                 
@@ -122,7 +122,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: Moc,
                 functionName: 'nTCcb',
                 args: [],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "nTCcb"]            
             })
     
@@ -130,7 +130,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: Moc,
                 functionName: 'tcMintFee',
                 args: [],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "tcMintFee"]            
             })
     
@@ -138,7 +138,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: Moc,
                 functionName: 'tcMintFee',
                 args: [],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "tcMintFee"]            
             })
     
@@ -146,7 +146,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: Moc,
                 functionName: 'tcRedeemFee',
                 args: [],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "tcRedeemFee"]            
             })
     
@@ -154,7 +154,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: Moc,
                 functionName: parsedPrices ? 'calcPTCac' : 'getPTCac',
                 args: parsedPrices ? [priceOfflineTPs] : [],
-                resultType: 'int256',
+                resultType: 'int256' as any,
                 keys: [ca, "getPTCac"],            
                 onError: onErrorGetPTCac
             })
@@ -163,7 +163,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: Moc,
                 functionName: parsedPrices ? 'calcCglb' : 'getCglb',
                 args: parsedPrices ? [priceOfflineTPs] : [],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "getCglb"]            
             })
     
@@ -171,7 +171,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: Moc,
                 functionName: parsedPrices ? 'calcLckAC' : 'getLckAC',
                 args: parsedPrices ? [priceOfflineTPs] : [],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "getLckAC"]            
             })
             
@@ -179,7 +179,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: Moc,
                 functionName: parsedPrices ? 'calcTCAvailableToRedeem' : 'getTCAvailableToRedeem',
                 args: parsedPrices ? [priceOfflineTPs] : [],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "getTCAvailableToRedeem"]            
             })
     
@@ -187,7 +187,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: Moc,
                 functionName: parsedPrices ? 'nACcb' : 'getTotalACavailable',
                 args: [],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "getTotalACavailable"]
             })
     
@@ -195,7 +195,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: Moc,
                 functionName: parsedPrices ? 'calcCtargemaCA' : 'getCtargemaCA',
                 args: parsedPrices ? [priceOfflineTPs] : [],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "getCtargemaCA"]            
             })
             
@@ -203,7 +203,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: Moc,
                 functionName: 'feeTokenPct',
                 args: [],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "feeTokenPct"]            
             })
     
@@ -211,7 +211,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: Moc,
                 functionName: 'feeToken',
                 args: [],
-                resultType: 'address',
+                resultType: 'address' as any,
                 keys: [ca, "feeToken"]            
             })
     
@@ -219,7 +219,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: Moc,
                 functionName: 'feeToken',
                 args: [],
-                resultType: 'address',
+                resultType: 'address' as any,
                 keys: [ca, "feeToken"]            
             })
     
@@ -238,7 +238,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                         "name": "",
                         "type": "bool"
                     }
-                ],
+                ] as any,
                 keys: [ca, "PP_FeeToken"]            
             })
     
@@ -246,7 +246,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: MocVendors,
                 functionName: 'vendorMarkup',
                 args: [vendorAddress],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "vendorMarkup"]            
             })
             
@@ -254,7 +254,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: MocQueue,
                 functionName: 'execCost',
                 args: [1],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "tcMintExecCost"]            
             })
     
@@ -262,7 +262,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: MocQueue,
                 functionName: 'execCost',
                 args: [2],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "tcRedeemExecCost"]            
             })
     
@@ -270,7 +270,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: MocQueue,
                 functionName: 'execCost',
                 args: [3],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "tpMintExecCost"]            
             })
     
@@ -278,7 +278,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: MocQueue,
                 functionName: 'execCost',
                 args: [4],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "tpRedeemExecCost"]            
             })
     
@@ -286,7 +286,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: MocQueue,
                 functionName: 'execCost',
                 args: [9],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "swapTPforTPExecCost"]            
             })
     
@@ -294,7 +294,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: MocQueue,
                 functionName: 'execCost',
                 args: [8],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "swapTPforTCExecCost"]            
             })
             
@@ -302,7 +302,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: MocQueue,
                 functionName: 'execCost',
                 args: [7],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "swapTCforTPExecCost"]            
             })
             
@@ -310,7 +310,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: MocQueue,
                 functionName: 'execCost',
                 args: [6],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "redeemTCandTPExecCost"]            
             })
             
@@ -318,7 +318,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: MocQueue,
                 functionName: 'execCost',
                 args: [5],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "mintTCandTPExecCost"]            
             })
             
@@ -327,7 +327,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: Moc,
                 functionName: 'maxQACToMintTP',
                 args: [currentBlockNumber],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "maxQACToMintTP"]            
             })
     
@@ -335,7 +335,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: Moc,
                 functionName: 'maxQACToRedeemTP',
                 args: [currentBlockNumber],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "maxQACToRedeemTP"]            
             })
     
@@ -343,7 +343,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: Moc,
                 functionName: 'paused',
                 args: [],
-                resultType: 'bool',
+                resultType: 'bool' as any,
                 keys: [ca, "paused"]            
             })
     
@@ -351,7 +351,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                 contract: contracts.MocMultiCollateralGuard,
                 functionName: parsedPrices ? 'calcRealTCAvailableToRedeemWithPrices' : 'getRealTCAvailableToRedeem',
                 args: parsedPrices ? [Moc.address, bucketsPACtps] : [Moc.address],
-                resultType: 'uint256',
+                resultType: 'uint256' as any,
                 keys: [ca, "getRealTCAvailableToRedeem"]            
             })
                 
@@ -383,7 +383,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                     contract: Moc,
                     functionName: 'tpMintFees',
                     args: [tpAddress],
-                    resultType: 'uint256',
+                    resultType: 'uint256' as any,
                     keys: [ca, "tpMintFees", tp]
                 });
                 
@@ -391,7 +391,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                     contract: Moc,
                     functionName: 'tpRedeemFees',
                     args: [tpAddress],
-                    resultType: 'uint256',
+                    resultType: 'uint256' as any,
                     keys: [ca, "tpRedeemFees", tp]
                 });
     
@@ -399,7 +399,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                     contract: Moc,
                     functionName: 'tpCtarg',
                     args: [tp],
-                    resultType: 'uint256',
+                    resultType: 'uint256' as any,
                     keys: [ca, "tpCtarg", tp]
                 });
     
@@ -407,7 +407,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                     contract: Moc,
                     functionName: 'pegContainer',
                     args: [tp],
-                    resultType: 'uint256',
+                    resultType: 'uint256' as any,
                     keys: [ca, "pegContainer", tp]
                 });
     
@@ -415,7 +415,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                     contract: Moc,
                     functionName: parsedPrices ? 'calcTPAvailableToMint' : 'getTPAvailableToMint',
                     args: parsedPrices ? [tpAddresses[tp], priceOfflineTPs] : [tpAddress],
-                    resultType: 'int256',
+                    resultType: 'int256' as any,
                     keys: [ca, "getTPAvailableToMint", tp]
                 });
     
@@ -423,7 +423,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                     contract: Moc,
                     functionName: 'tpEma',
                     args: [tp],
-                    resultType: 'uint256',
+                    resultType: 'uint256' as any,
                     keys: [ca, "tpEma", tp]
                 });
     
@@ -431,7 +431,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                     contract: contracts.MocMultiCollateralGuard,
                     functionName: parsedPrices ? 'calcRealTPAvailableToMintWithPrices' : 'getRealTPAvailableToMint',
                     args: parsedPrices ? [Moc.address, tpAddresses[tp], bucketsPACtps] : [Moc.address, tpAddress],
-                    resultType: 'uint256',
+                    resultType: 'uint256' as any,
                     keys: [ca, "getRealTPAvailableToMint", tp]
                 });
                 
@@ -458,7 +458,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
             contract: contracts.MocMultiCollateralGuard,
             functionName: parsedPrices ? 'calcNormalizationFactorsWithPrices' : 'getNormalizationFactors',
             args: parsedPrices ? [bucketsPACtps] : [],
-            resultType: 'uint256[]',
+                resultType: 'uint256[]' as any,
             keys: ['getNormalizationFactors']
         });
         
@@ -469,14 +469,14 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
         for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
             PP_CA = contracts.PP_CA[ca];
             Moc = contracts.Moc[ca];
-            contractMocType = (settings.tokens.CA[ca] as CAToken).type;
+            contractMocType = (settings.tokens.CA[ca] as any).type;
 
             if (contractMocType === "coinbase") {
                 callRequest.push({
                     contract: Moc,
                     functionName: 'getBalance',
                     args: [Moc.address],
-                    resultType: 'uint256',
+                    resultType: 'uint256' as any,
                     keys: [ca, "getACBalance"]
                 });
             } else {
@@ -485,7 +485,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                     contract: CA,
                     functionName: 'balanceOf',
                     args: [Moc.address],
-                    resultType: 'uint256',
+                    resultType: 'uint256' as any,
                     keys: [ca, "getACBalance"]
                 });
                 countRC20++;
@@ -505,7 +505,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
                         "name": "",
                         "type": "bool"
                     }
-                ],
+                ] as any,
                 keys: [ca, "PP_CA"]
             });
         }

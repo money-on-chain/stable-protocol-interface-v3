@@ -25,7 +25,7 @@ export function useUserBalance(contracts?: any, userAddress?: string, refetchInt
                 contract: CollateralToken,
                 functionName: 'balanceOf',
                 args: [userAddress],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: [ca, "TC", "balance"]
             })
 
@@ -33,7 +33,7 @@ export function useUserBalance(contracts?: any, userAddress?: string, refetchInt
                 contract: CollateralToken,
                 functionName: 'allowance',
                 args: [userAddress, Moc.address],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: [ca, "TC", "allowance"]
             })
 
@@ -41,7 +41,7 @@ export function useUserBalance(contracts?: any, userAddress?: string, refetchInt
                 contract: FeeToken,
                 functionName: 'balanceOf',
                 args: [userAddress],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: [ca, "FeeToken", "balance"]
             });
 
@@ -50,7 +50,7 @@ export function useUserBalance(contracts?: any, userAddress?: string, refetchInt
                 contract: FeeToken,
                 functionName: 'allowance',
                 args: [userAddress, Moc.address],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: [ca, "FeeToken", "allowance"]
             });
         }
@@ -65,7 +65,7 @@ export function useUserBalance(contracts?: any, userAddress?: string, refetchInt
                     contract: TP,
                     functionName: 'balanceOf',
                     args: [userAddress],
-                    resultType: "uint256",
+                    resultType: "uint256" as any,
                     keys: ["TP", ca,  tp, "balance"]
                 });
 
@@ -73,7 +73,7 @@ export function useUserBalance(contracts?: any, userAddress?: string, refetchInt
                     contract: TP,
                     functionName: 'allowance',
                     args: [userAddress, Moc.address],
-                    resultType: "uint256",
+                    resultType: "uint256" as any,
                     keys: ["TP", ca,  tp, "allowance"]
                 });                
                 
@@ -86,7 +86,7 @@ export function useUserBalance(contracts?: any, userAddress?: string, refetchInt
 
         for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
             // RC-20 collateral Only
-            contractMocType = (settings.tokens.CA[ca] as CAToken).type
+            contractMocType = (settings.tokens.CA[ca] as any).type
             if (contractMocType !== 'coinbase')  {
                 Moc = contracts.Moc[ca];
                 CA = contracts.CA[countRC20];
@@ -96,7 +96,7 @@ export function useUserBalance(contracts?: any, userAddress?: string, refetchInt
                     contract: CA,
                     functionName: 'balanceOf',
                     args: [userAddress],
-                    resultType: "uint256",
+                    resultType: "uint256" as any,
                     keys: ["CA", ca, "balance"]
                 });
 
@@ -104,7 +104,7 @@ export function useUserBalance(contracts?: any, userAddress?: string, refetchInt
                     contract: CA,
                     functionName: 'allowance',
                     args: [userAddress, Moc.address],
-                    resultType: "uint256",
+                    resultType: "uint256" as any,
                     keys: ["CA", ca, "allowance"]
                 });
                 
@@ -122,7 +122,7 @@ export function useUserBalance(contracts?: any, userAddress?: string, refetchInt
                 contract: tpLegacy,
                 functionName: 'balanceOf',
                 args: [userAddress],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["tpLegacy", "balance"]
             });
 
@@ -130,7 +130,7 @@ export function useUserBalance(contracts?: any, userAddress?: string, refetchInt
                 contract: tpLegacy,
                 functionName: 'allowance',
                 args: [userAddress, tokenMigrator.address],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["tpLegacy", "allowance"]
             });
             
@@ -140,7 +140,7 @@ export function useUserBalance(contracts?: any, userAddress?: string, refetchInt
                 contract: contracts.CollateralToken[0],
                 functionName: 'balanceOf',
                 args: [userAddress],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: [0, "TC", "balance"]
             })
         }

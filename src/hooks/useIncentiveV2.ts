@@ -20,7 +20,7 @@ export function useIncentiveV2(contracts?: any, userAddress?: string, refetchInt
                 contract: contracts.TG,
                 functionName: 'balanceOf',
                 args: [contracts.IncentiveV2.address],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["incentiveV2", "contractBalance"]
             });
 
@@ -28,7 +28,7 @@ export function useIncentiveV2(contracts?: any, userAddress?: string, refetchInt
                 contract: contracts.IncentiveV2,
                 functionName: 'get_balance',
                 args: [userAddress],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["incentiveV2", "userBalance"]
             });
             

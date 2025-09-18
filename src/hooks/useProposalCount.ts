@@ -33,6 +33,7 @@ export function useProposalCount(
   } = useQuery({
     queryKey: ['proposalCountVoting', votingMachine?.address],
     queryFn: async () => {
+      if (!publicClient) throw new Error('Public client not available')
       return await readContract(publicClient, {
         address: votingMachine.address,
         abi: votingMachine.abi,

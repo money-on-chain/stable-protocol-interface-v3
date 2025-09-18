@@ -33,7 +33,7 @@ export function useUserVesting(contracts?: any, userAddress?: string, userVestin
                 contract: contracts.VestingFactory,
                 functionName: 'isTGEConfigured',
                 args: [],
-                resultType: "bool",
+                resultType: "bool" as any,
                 keys: ["vestingfactory", "isTGEConfigured"]
             });
 
@@ -41,7 +41,7 @@ export function useUserVesting(contracts?: any, userAddress?: string, userVestin
                 contract: contracts.VestingFactory,
                 functionName: 'getTGETimestamp',
                 args: [],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["vestingfactory", "getTGETimestamp"]
             });
             
@@ -52,7 +52,7 @@ export function useUserVesting(contracts?: any, userAddress?: string, userVestin
                 resultType: [
                     { type: "uint256[]", name: "percentages" },
                     { type: "uint256[]", name: "timeDeltas" },
-                ],
+                ] as any,
                 keys: ["vestingmachine", "getParameters"]
             });
                         
@@ -60,7 +60,7 @@ export function useUserVesting(contracts?: any, userAddress?: string, userVestin
                 contract: vestingMachine,
                 functionName: 'getHolder',
                 args: [],
-                resultType: "address",
+                resultType: "address" as any,
                 keys: ["vestingmachine", "getHolder"]
             });
             
@@ -68,7 +68,7 @@ export function useUserVesting(contracts?: any, userAddress?: string, userVestin
                 contract: vestingMachine,
                 functionName: 'getLocked',
                 args: [],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["vestingmachine", "getLocked"]
             });
 
@@ -76,7 +76,7 @@ export function useUserVesting(contracts?: any, userAddress?: string, userVestin
                 contract: vestingMachine,
                 functionName: 'getAvailable',
                 args: [],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["vestingmachine", "getAvailable"]
             });
             
@@ -84,7 +84,7 @@ export function useUserVesting(contracts?: any, userAddress?: string, userVestin
                 contract: vestingMachine,
                 functionName: 'isVerified',
                 args: [],
-                resultType: "bool",
+                resultType: "bool" as any,
                 keys: ["vestingmachine", "isVerified"]
             });
             
@@ -92,7 +92,7 @@ export function useUserVesting(contracts?: any, userAddress?: string, userVestin
                 contract: vestingMachine,
                 functionName: 'getTotal',
                 args: [],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["vestingmachine", "getTotal"]
             });
             
@@ -100,7 +100,7 @@ export function useUserVesting(contracts?: any, userAddress?: string, userVestin
                 contract: contracts.TG,
                 functionName: 'balanceOf',
                 args: [vestingMachine.address],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["vestingmachine", "tgBalance"]
             });
 
@@ -108,7 +108,7 @@ export function useUserVesting(contracts?: any, userAddress?: string, userVestin
                 contract: contracts.TG,
                 functionName: 'allowance',
                 args: [userAddress, vestingMachine.address],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["vestingmachine", "tgAllowance"]
             });
             
@@ -116,14 +116,14 @@ export function useUserVesting(contracts?: any, userAddress?: string, userVestin
                 contract: contracts.StakingMachine,
                 functionName: 'getBalance',
                 args: [vestingMachine.address],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["vestingmachine", "staking", "balance"]
             });
             callRequest.push({
                 contract: contracts.TG,
                 functionName: 'allowance',
                 args: [vestingMachine.address, contracts.StakingMachine.address],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["vestingmachine", "staking", "allowance"]
             });
 
@@ -131,7 +131,7 @@ export function useUserVesting(contracts?: any, userAddress?: string, userVestin
                 contract: contracts.DelayMachine, 
                 functionName: 'getBalance', 
                 args: [vestingMachine.address], 
-                resultType: "uint256", 
+                resultType: "uint256" as any, 
                 keys: ["vestingmachine", "delay", "balance"]
             })
 
@@ -139,7 +139,7 @@ export function useUserVesting(contracts?: any, userAddress?: string, userVestin
                 contract: contracts.TG,
                 functionName: 'allowance',
                 args: [vestingMachine.address, contracts.DelayMachine.address],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["vestingmachine", "delay", "allowance"]
             });
             
@@ -147,7 +147,7 @@ export function useUserVesting(contracts?: any, userAddress?: string, userVestin
                 contract: contracts.StakingMachine,
                 functionName: 'getBalance',
                 args: [vestingMachine.address],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["vestingmachine", "staking", "getBalance"]
             });
 
@@ -155,7 +155,7 @@ export function useUserVesting(contracts?: any, userAddress?: string, userVestin
                 contract: contracts.StakingMachine,
                 functionName: 'getLockedBalance',
                 args: [vestingMachine.address],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["vestingmachine", "staking", "getLockedBalance"]
             });
 
@@ -166,7 +166,7 @@ export function useUserVesting(contracts?: any, userAddress?: string, userVestin
                 resultType: [
                     { type: "uint256", name: "amount" },
                     { type: "uint256", name: "untilTimestamp" },
-                ],
+                ] as any,
                 keys: ["vestingmachine", "staking", "getLockingInfo"]
             });
 
@@ -178,7 +178,7 @@ export function useUserVesting(contracts?: any, userAddress?: string, userVestin
                     { type: "uint256[]", name: "ids" },
                     { type: "uint256[]", name: "amounts" },
                     { type: "uint256[]", name: "expirations" },
-                ],
+                ] as any,
                 keys: ["vestingmachine", "delay", "getTransactions"]
             });
 
@@ -186,7 +186,7 @@ export function useUserVesting(contracts?: any, userAddress?: string, userVestin
                 contract: contracts.DelayMachine,
                 functionName: 'getBalance',
                 args: [vestingMachine.address],
-                resultType: "uint256",
+                resultType: "uint256" as any,
                 keys: ["vestingmachine", "delay", "getBalance"]
             });
             

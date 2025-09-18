@@ -31,7 +31,7 @@ export function useUserVeto(
                     contract: contracts.VetoMachine,
                     functionName: "getVotingPower",
                     args: [CollateralToken.address, userTCBalance],
-                    resultType: "uint256",
+                    resultType: "uint256" as any,
                     keys: [
                         "vetoMachine",
                         "getVotingPower",
@@ -43,7 +43,7 @@ export function useUserVeto(
                     contract: CollateralToken,
                     functionName: "allowance",
                     args: [userAddress, contracts.VetoMachine.address],
-                    resultType: "uint256",
+                    resultType: "uint256" as any,
                     keys: [
                         "vetoMachine",
                         "allowance",
@@ -61,7 +61,7 @@ export function useUserVeto(
                         contract: contracts.VetoMachine,
                         functionName: "getUserLockedAmount",
                         args: [proposal, userAddress, CollateralToken.address],
-                        resultType: "uint256",
+                        resultType: "uint256" as any,
                         keys: [
                             "vetoMachine",
                             "getUserLockedAmount",
