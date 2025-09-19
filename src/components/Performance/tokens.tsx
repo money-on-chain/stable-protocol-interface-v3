@@ -1,11 +1,11 @@
 import React from "react";
 
-import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers";
-import settings from "../../settings/settings.json";
-import { ConvertPeggedTokenPrice } from "../../helpers/currencies";
 import { useWalletContext } from "../../context/Wallet";
+import { ConvertPeggedTokenPrice } from "../../helpers/currencies";
 import { mulPrecision, normalizeToBigInt } from "../../helpers/precision";
+import { useProjectTranslation } from "../../helpers/translations";
+import settings from "../../settings/settings.json";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 
 // Type definitions
 interface TokensProps {

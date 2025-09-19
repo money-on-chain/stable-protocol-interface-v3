@@ -1,6 +1,8 @@
-import React, { useRef, useEffect } from "react";
-import { useProjectTranslation } from "../../helpers/translations";
 import "./Styles.scss";
+
+import React, { useEffect,useRef } from "react";
+
+import { useProjectTranslation } from "../../helpers/translations";
 
 interface InputAmountProps {
     balanceText?: string;

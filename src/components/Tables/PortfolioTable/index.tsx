@@ -1,15 +1,14 @@
-import React, { useContext, useEffect, useState } from "react";
+import "./Styles.scss";
+
 import { Skeleton } from "antd";
+import React, { useEffect, useState } from "react";
 
-
+import { useWalletContext } from "../../../context/Wallet";
+import { ConvertPeggedTokenPrice } from "../../../helpers/currencies";
+import { absBigInt,divPrecision, mulPrecision, normalizeToBigInt } from "../../../helpers/precision";
 import { useProjectTranslation } from "../../../helpers/translations";
 import settings from "../../../settings/settings.json";
-import { ConvertPeggedTokenPrice } from "../../../helpers/currencies";
 import { generateTokenRow } from "./renderHelpers";
-import { useWalletContext } from "../../../context/Wallet";
-import { normalizeToBigInt, mulPrecision, divPrecision, absBigInt } from "../../../helpers/precision";
-
-import "./Styles.scss";
 
 // Type definitions
 interface Token {
@@ -121,7 +120,7 @@ export default function PortfolioTable() {
     const [ready, setReady] = useState<boolean>(false);
 
     // Default values for all tokens
-    let label: Label = {
+    const label: Label = {
         name: t("portfolio.tokensTable.name"),
         price: t("portfolio.tokensTable.priceInUSD"),
         variation: t("portfolio.tokensTable.variation"),
@@ -138,8 +137,8 @@ export default function PortfolioTable() {
 
     const createAllTheTokens = (settings: Settings): Token[] => {
         let uniqueKeyCounter = 0;
-        let allTheTokens: Token[] = [];
-        let tfTokenNames = new Set<string>(); // Track TF token names
+        const allTheTokens: Token[] = [];
+        const tfTokenNames = new Set<string>(); // Track TF token names
 
         // Step 1: Collect all tokens
         Object.entries(settings.tokens).forEach(([type, tokens]) => {
@@ -182,8 +181,8 @@ export default function PortfolioTable() {
             );
             return;
         }
-        let newNonUSDpeggedTokenRows: TokenRow[] = []; // ✅ Store all updated rows
-        let newUSDpeggedTokenRows: TokenRow[] = []; // ✅ Store all updated rows
+        const newNonUSDpeggedTokenRows: TokenRow[] = []; // ✅ Store all updated rows
+        const newUSDpeggedTokenRows: TokenRow[] = []; // ✅ Store all updated rows
 
         allTheTokens.forEach((token: Token) => {
             let balance = 0n;
@@ -269,7 +268,7 @@ export default function PortfolioTable() {
                         balance = userBalance.data?.TP?.[0]?.[token.key]?.balance || 0n;
                         price = normalizeToBigInt(contractProtocolStatus.data[0]?.PP_TP?.[token.key]?.[0]) || 0n;
                         price = ConvertPeggedTokenPrice(
-                            contractProtocolStatus as any,
+                            contractProtocolStatus,
                             0,
                             token.key,
                             price
@@ -279,7 +278,7 @@ export default function PortfolioTable() {
                         //variation No more historic data
                         priceHistory = normalizeToBigInt(contractProtocolStatus.data[0]?.PP_TP?.[token.key]?.[0]) || 0n;
                         priceHistory = ConvertPeggedTokenPrice(
-                            contractProtocolStatus as any,
+                            contractProtocolStatus,
                             0,
                             token.key,
                             priceHistory

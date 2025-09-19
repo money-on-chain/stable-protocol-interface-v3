@@ -3,14 +3,14 @@
 // Goal: single source of truth, type-aware rules, import hygiene, Prettier-friendly.
 
 import js from '@eslint/js'
-import globals from 'globals'
-import tseslint from 'typescript-eslint'
+import eslintConfigPrettier from 'eslint-config-prettier'
+import importPlugin from 'eslint-plugin-import'
 import react from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
-import importPlugin from 'eslint-plugin-import'
-import unusedImports from 'eslint-plugin-unused-imports'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
-import eslintConfigPrettier from 'eslint-config-prettier'
+import unusedImports from 'eslint-plugin-unused-imports'
+import globals from 'globals'
+import tseslint from 'typescript-eslint'
 
 export default [
   // 1) Ignore heavy or generated paths to speed up linting and avoid noise

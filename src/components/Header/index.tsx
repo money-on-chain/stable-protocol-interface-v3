@@ -1,16 +1,16 @@
-import { Layout } from "antd";
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import "./Styles.scss";
 
+import { Layout } from "antd";
+import React, { useEffect, useRef,useState } from "react";
+import { useLocation,useNavigate } from "react-router-dom";
+
+import { useWalletContext } from "../../context/Wallet";
 import { useProjectTranslation } from "../../helpers/translations";
+import settings from "../../settings/settings.json";
 import DappVersion from "../DappVersion";
 import ThemeMode from "../ThemeMode";
-import settings from "../../settings/settings.json";
-import menuOptionsData from "./menuOptions.json";
 import Brand from "./Brand";
-import { useWalletContext } from "../../context/Wallet";
-
-import "./Styles.scss";
+import menuOptionsData from "./menuOptions.json";
 
 const { Header } = Layout;
 

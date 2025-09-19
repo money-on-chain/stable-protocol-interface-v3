@@ -1,10 +1,11 @@
-import React, { Fragment, useState, useEffect } from "react";
-import { Skeleton } from "antd";
-
-import UseVestingAlert from "../../components/Notification/UsingVestingAlert";
-import LiquidityMiningClaim from "../../components/LiquidityMiningClaim";
-import { useWalletContext } from "../../context/Wallet";
 import "./Styles.scss";
+
+import { Skeleton } from "antd";
+import React, { Fragment, useEffect,useState } from "react";
+
+import LiquidityMiningClaim from "../../components/LiquidityMiningClaim";
+import UseVestingAlert from "../../components/Notification/UsingVestingAlert";
+import { useWalletContext } from "../../context/Wallet";
 
 export default function SectionLiquidityMining(): React.ReactElement {
     const { contractProtocolStatus, userBalance, isVestingLoaded, vestingAddress } = useWalletContext()

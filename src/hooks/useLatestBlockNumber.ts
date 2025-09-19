@@ -1,6 +1,6 @@
-import { usePublicClient } from 'wagmi'
-import { getBlockNumber } from 'viem/actions'
 import { useQuery } from '@tanstack/react-query'
+import { getBlockNumber } from 'viem/actions'
+import { usePublicClient } from 'wagmi'
 
 /**
  * Custom hook to keep track of the latest block number from the chain.

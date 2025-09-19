@@ -1,10 +1,11 @@
-import React, { Fragment, useEffect, useState } from "react";
-import { Skeleton } from "antd";
-
-import { useWalletContext } from "../../context/Wallet";
-import Voting from "../../components/Voting";
-import UseVestingAlert from "../../components/Notification/UsingVestingAlert";
 import "./Styles.scss";
+
+import { Skeleton } from "antd";
+import React, { Fragment, useEffect, useState } from "react";
+
+import UseVestingAlert from "../../components/Notification/UsingVestingAlert";
+import Voting from "../../components/Voting";
+import { useWalletContext } from "../../context/Wallet";
 
 export default function SectionVoting(): React.ReactElement {
     const { contractStatusOmoc, userOmocBalance, isVestingLoaded, vestingAddress } = useWalletContext()

@@ -1,14 +1,15 @@
-import React, { useContext, useState } from "react";
+import "./style.scss";
+
 import { Button } from "antd";
 import PropTypes from "prop-types";
+import React, { useState } from "react";
 
+import { useWalletContext } from "../../../context/Wallet";
+import { TokenSettings } from "../../../helpers/currencies";
 import { useProjectTranslation } from "../../../helpers/translations";
-import TokenMigratePNG from "./../../../assets/icons/tokenmigrate.png";
 import Copy from "../../Copy";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
-import { TokenSettings } from "../../../helpers/currencies";
-import { useWalletContext } from "../../../context/Wallet";
-import "./style.scss";
+import TokenMigratePNG from "./../../../assets/icons/tokenmigrate.png";
 
 interface SwapTokenProps {
     onCloseModal: () => void;

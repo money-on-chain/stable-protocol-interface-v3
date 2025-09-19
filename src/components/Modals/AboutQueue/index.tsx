@@ -1,4 +1,5 @@
 import React from "react";
+
 import { useProjectTranslation } from "../../../helpers/translations";
 
 interface AboutQueueProps {

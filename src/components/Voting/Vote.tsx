@@ -1,12 +1,12 @@
 import React, { Fragment, useEffect, useState } from "react";
 
+import { useWalletContext } from "../../context/Wallet";
+import { TokenSettings } from "../../helpers/currencies";
 import { useProjectTranslation } from "../../helpers/translations";
-import CompletedBar from "./CompletedBar";
-import BalanceBar from "./BalanceBar";
 import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
 import { PrecisionNumbers } from "../PrecisionNumbers";
-import { TokenSettings } from "../../helpers/currencies";
-import { useWalletContext } from "../../context/Wallet";
+import BalanceBar from "./BalanceBar";
+import CompletedBar from "./CompletedBar";
 import { VetoGraph } from "./Veto";
 
 const PRECISION_DECIMALS = 18n;

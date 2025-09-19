@@ -1,12 +1,13 @@
-import React, { useContext, useEffect, useState } from "react";
-import Proposals from "./Proposals";
-import Vote from "./Vote";
+import "./Styles.scss";
+
+import React, { useEffect, useState } from "react";
+
+import { useWalletContext } from "../../context/Wallet";
+import { divPrecision,mulPrecision } from "../../helpers/precision";
 import { formatTimestamp } from "../../helpers/staking";
 import { useProjectTranslation } from "../../helpers/translations";
-import { useWalletContext } from "../../context/Wallet";
-import { mulPrecision, divPrecision } from "../../helpers/precision";
-
-import "./Styles.scss";
+import Proposals from "./Proposals";
+import Vote from "./Vote";
 
 interface VotingData {
     winnerProposal: string;

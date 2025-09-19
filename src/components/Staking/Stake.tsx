@@ -1,19 +1,19 @@
-import React, { useState, Fragment, useEffect } from "react";
 import { Button } from "antd";
 import PropTypes from "prop-types";
+import React, { Fragment, useEffect,useState } from "react";
 
-import { TokenSettings } from "../../helpers/currencies";
-import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers";
-import { tokenStake } from "../../helpers/staking";
-import CurrencyPopUp from "../CurrencyPopUp";
-import StakingOptionsModal from "../Modals/StakingOptionsModal/index";
-import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
-import InputAmount from "../InputAmount";
-import settings from "../../settings/settings.json";
 import { useWalletContext } from "../../context/Wallet";
-import { toBigIntPrecision } from "../../helpers/precision";
+import { TokenSettings } from "../../helpers/currencies";
 import { bigIntToInputValue } from "../../helpers/currencies";
+import { toBigIntPrecision } from "../../helpers/precision";
+import { tokenStake } from "../../helpers/staking";
+import { useProjectTranslation } from "../../helpers/translations";
+import settings from "../../settings/settings.json";
+import CurrencyPopUp from "../CurrencyPopUp";
+import InputAmount from "../InputAmount";
+import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
+import StakingOptionsModal from "../Modals/StakingOptionsModal/index";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 
 interface StakeProps {
     activeTab: string;

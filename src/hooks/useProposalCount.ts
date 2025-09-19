@@ -1,6 +1,6 @@
-import { usePublicClient } from 'wagmi'
-import { readContract } from 'viem/actions'
 import { useQuery } from '@tanstack/react-query'
+import { readContract } from 'viem/actions'
+import { usePublicClient } from 'wagmi'
 
 /**
  * Custom hook to fetch and keep updated the proposal count from the VotingMachine contract.

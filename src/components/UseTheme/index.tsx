@@ -13,7 +13,7 @@ const useTheme = (): UseThemeResult => {
         const root = document.querySelector(":root");
         let defaulTheme = "light";
         if (root) {
-            defaulTheme = getComputedStyle(root as Element)
+            defaulTheme = getComputedStyle(root)
                 .getPropertyValue("--default-theme")
                 .split('"')
                 .join("");

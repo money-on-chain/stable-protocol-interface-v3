@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import { Button } from "antd";
 import Modal from "antd/lib/modal/Modal";
+import React, { useState } from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
 import ConfirmSend from "../../ConfirmSend";
-import { Button } from "antd";
 
 interface ModalConfirmSendProps {
     inputValidationError?: boolean;

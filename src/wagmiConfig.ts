@@ -1,7 +1,8 @@
 // wagmiConfig.ts
 import { createConfig, http } from 'wagmi'
-import { rootstock, rootstockTestnet, localhost } from 'wagmi/chains'
-import { injected, walletConnect, metaMask, coinbaseWallet } from 'wagmi/connectors'
+import { localhost,rootstock, rootstockTestnet } from 'wagmi/chains'
+import { coinbaseWallet,injected, metaMask, walletConnect } from 'wagmi/connectors'
+
 import settings from "./settings/settings.json";
 
 

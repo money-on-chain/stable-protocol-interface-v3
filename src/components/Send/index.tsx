@@ -1,19 +1,18 @@
 import { Input } from "antd";
-import React, { useState, useEffect } from "react";
+import React, { useEffect,useState } from "react";
 
+import { useWalletContext } from "../../context/Wallet";
+import {
+    ConvertAmount,
+    TokenBalance,
+    TokenSettings} from '../../helpers/currencies';
+import { tokenExchange } from "../../helpers/exchange";
+import { fromWei,mulPrecision, normalizeToBigInt, toBigIntPrecision } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import CurrencyPopUp from "../CurrencyPopUp";
-import {
-    TokenSettings,
-    TokenBalance,
-    ConvertAmount
-} from '../../helpers/currencies';
-import { tokenExchange } from "../../helpers/exchange";
-import { PrecisionNumbers } from "../PrecisionNumbers";
 import InputAmount from "../InputAmount";
 import ModalConfirmSend from "../Modals/ConfirmSend";
-import { useWalletContext } from "../../context/Wallet";
-import { normalizeToBigInt, mulPrecision, toBigIntPrecision, fromWei } from "../../helpers/precision";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 
 
 export default function Send(): JSX.Element {

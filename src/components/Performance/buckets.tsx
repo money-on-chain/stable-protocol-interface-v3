@@ -1,12 +1,12 @@
 import React from "react";
 
-import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers";
-import { TokenSettings } from "../../helpers/currencies";
-import settings from "../../settings/settings.json";
-import Tokens from "./tokens";
 import { useWalletContext } from "../../context/Wallet";
+import { TokenSettings } from "../../helpers/currencies";
 import { divPrecision } from "../../helpers/precision";
+import { useProjectTranslation } from "../../helpers/translations";
+import settings from "../../settings/settings.json";
+import { PrecisionNumbers } from "../PrecisionNumbers";
+import Tokens from "./tokens";
 
 // Type definitions
 interface BucketsProps {

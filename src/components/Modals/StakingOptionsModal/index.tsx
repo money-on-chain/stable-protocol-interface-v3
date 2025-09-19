@@ -1,11 +1,11 @@
-import { Modal, Button, Spin, notification, Checkbox } from "antd";
-import React, { useEffect, useState, Fragment } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
+import { Button, Checkbox,Modal, notification, Spin } from "antd";
+import React, { Fragment,useEffect, useState } from "react";
 
-import { useProjectTranslation } from "../../../helpers/translations";
-import { PrecisionNumbers } from "../../PrecisionNumbers";
-import settings from "../../../settings/settings.json";
 import { useWalletContext } from "../../../context/Wallet";
+import { useProjectTranslation } from "../../../helpers/translations";
+import settings from "../../../settings/settings.json";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
 
 interface StakingOptionsModalProps {
     mode?: string;

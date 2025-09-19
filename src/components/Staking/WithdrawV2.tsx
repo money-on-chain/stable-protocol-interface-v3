@@ -1,18 +1,18 @@
-import React, { useContext, useState, useEffect } from "react";
+import "./WithdrawV2.scss";
+
 import { Skeleton, Table } from "antd";
-import Moment from "react-moment";
 import moment from "moment-timezone";
 import PropTypes from "prop-types";
+import React, { useEffect,useState } from "react";
+import Moment from "react-moment";
 
+import { useWalletContext } from "../../context/Wallet";
 import date from "../../helpers/date";
 import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers";
 import settings from "../../settings/settings.json";
-import StakingOptionsModal from "../Modals/StakingOptionsModal/index";
 import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
-import { useWalletContext } from "../../context/Wallet";
-
-import "./WithdrawV2.scss";
+import StakingOptionsModal from "../Modals/StakingOptionsModal/index";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 
 interface PendingWithdrawalItem {
     id: bigint;

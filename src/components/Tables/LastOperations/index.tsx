@@ -1,21 +1,21 @@
-import React, { Fragment, useContext, useEffect, useState } from "react";
-import { DownCircleOutlined, UpCircleOutlined } from "@ant-design/icons";
-import { Table, Skeleton, Modal } from "antd";
-import Moment from "react-moment";
-import PropTypes from "prop-types";
+import "./Styles.scss";
 
-import RowDetailMobile from "../RowDetailMobile";
-import api from "../../../services/api";
-import Copy from "../../Copy";
+import { DownCircleOutlined, UpCircleOutlined } from "@ant-design/icons";
+import { Modal,Skeleton, Table } from "antd";
+import PropTypes from "prop-types";
+import React, { Fragment, useEffect, useState } from "react";
+import Moment from "react-moment";
+
+import { useWalletContext } from "../../../context/Wallet";
+import { TokenSettings } from "../../../helpers/currencies";
 import date from "../../../helpers/date";
 import { useProjectTranslation } from "../../../helpers/translations";
+import api from "../../../services/api";
 import settings from "../../../settings/settings.json";
-import { PrecisionNumbers } from "../../PrecisionNumbers";
-
-import { TokenSettings } from "../../../helpers/currencies";
+import Copy from "../../Copy";
 import AboutQueue from "../../Modals/AboutQueue";
-import { useWalletContext } from "../../../context/Wallet";
-import "./Styles.scss";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
+import RowDetailMobile from "../RowDetailMobile";
 
 // Type definitions
 interface LastOperationsProps {
@@ -139,9 +139,9 @@ export default function LastOperations(props: LastOperationsProps) {
         .split('"')
         .join("");
     /*const timeSke = 1500;*/
-    var data: TableRowData[] = [];
+    let data: TableRowData[] = [];
     const received_row: TableRowData[] = [];
-    var txList: OperationData[] = [];
+    let txList: OperationData[] = [];
     const transactionsList = (/*skip*/) => {
         if (isConnected && blockNumber && address) {
             console.log("Loading table…");
@@ -471,7 +471,7 @@ export default function LastOperations(props: LastOperationsProps) {
             });
         }
         /*******************************filter by type (token)***********************************/
-        var pre_datas: OperationData[] = [];
+        let pre_datas: OperationData[] = [];
         if (dataJson.operations !== undefined) {
             pre_datas = dataJson.operations.filter((data_j) => {
                 return token !== "all" ? data_j.tokenInvolved === token : true;

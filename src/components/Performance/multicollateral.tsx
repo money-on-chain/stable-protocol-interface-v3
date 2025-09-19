@@ -1,11 +1,11 @@
-import React, { useContext } from "react";
+import React from "react";
 
-import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers";
-import { TokenSettings } from "../../helpers/currencies";
-import settings from "../../settings/settings.json";
 import { useWalletContext } from "../../context/Wallet";
+import { TokenSettings } from "../../helpers/currencies";
 import { divPrecision, mulPrecision } from "../../helpers/precision";
+import { useProjectTranslation } from "../../helpers/translations";
+import settings from "../../settings/settings.json";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 
 
 

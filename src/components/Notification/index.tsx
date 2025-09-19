@@ -1,7 +1,8 @@
+import "./Styles.scss";
+
 import React /*, { useEffect }*/ from "react";
 
 import { useProjectTranslation } from "../../helpers/translations";
-import "./Styles.scss";
 
 interface NotifStatus {
     notifClass: string;

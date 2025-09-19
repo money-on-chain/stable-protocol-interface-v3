@@ -1,11 +1,12 @@
-import React, { Fragment, useState, useEffect } from "react";
-import { Skeleton } from "antd";
-
-import LastOperations from "../../components/Tables/LastOperations";
-import { useProjectTranslation } from "../../helpers/translations";
-import Send from "../../components/Send";
-import { useWalletContext } from "../../context/Wallet";
 import "./Styles.scss";
+
+import { Skeleton } from "antd";
+import React, { Fragment, useEffect,useState } from "react";
+
+import Send from "../../components/Send";
+import LastOperations from "../../components/Tables/LastOperations";
+import { useWalletContext } from "../../context/Wallet";
+import { useProjectTranslation } from "../../helpers/translations";
 
 export default function SectionSend(): React.ReactElement {
     const { t } = useProjectTranslation();

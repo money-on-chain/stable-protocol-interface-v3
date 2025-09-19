@@ -1,10 +1,10 @@
+import "./Styles.scss";
+
 import React, { useState } from "react";
 
-
-import { useProjectTranslation } from "../../helpers/translations";
 import Portfolio from "../../components/Dashboards/Portfolio";
+import { useProjectTranslation } from "../../helpers/translations";
 import ListOperationsMobile from "../Tables/LastOperations";
-import "./Styles.scss";
 
 interface Tab {
     id: number;

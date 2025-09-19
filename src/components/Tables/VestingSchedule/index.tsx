@@ -1,11 +1,11 @@
-import React, { useContext } from "react";
 import { Table } from "antd";
+import React from "react";
 
-import { useProjectTranslation } from "../../../helpers/translations";
-import { formatTimestamp } from "../../../helpers/staking";
 import { useWalletContext } from "../../../context/Wallet";
-import { PrecisionNumbers } from "../../PrecisionNumbers";
+import { formatTimestamp } from "../../../helpers/staking";
+import { useProjectTranslation } from "../../../helpers/translations";
 import settings from "../../../settings/settings.json";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
 
 
 

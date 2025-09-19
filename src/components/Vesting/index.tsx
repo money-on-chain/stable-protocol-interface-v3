@@ -1,24 +1,25 @@
-import React, { useContext, useEffect, useState } from "react";
+import "./Styles.scss";
+
 import { Input } from "antd";
+import React, { useEffect, useState } from "react";
 import { recoverMessageAddress } from 'viem'
 
+import { decodeEvents } from "../../backend/transaction";
 import VestingSchedule from "../../components/Tables/VestingSchedule";
-import settings from "../../settings/settings.json";
-import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers";
+import { useWalletContext } from "../../context/Wallet";
 import { formatTimestamp } from "../../helpers/staking";
-import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
-import UseVestingAlert from "../Notification/UsingVestingAlert";
+import { useProjectTranslation } from "../../helpers/translations";
 import {
     loadVesting,
     loadVestingAddressesFromLocalStorage,
+    onValidateVestingAddress,
     saveDefaultVestingToLocalStorage,
     saveVestingAddressesToLocalStorage,
-    onValidateVestingAddress,
 } from "../../helpers/vesting";
-import { decodeEvents } from "../../backend/transaction";
-import { useWalletContext } from "../../context/Wallet";
-import "./Styles.scss";
+import settings from "../../settings/settings.json";
+import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
+import UseVestingAlert from "../Notification/UsingVestingAlert";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 
 const { TextArea } = Input;
 const space: string = "\u00A0";

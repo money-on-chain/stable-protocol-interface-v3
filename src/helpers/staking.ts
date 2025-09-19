@@ -46,4 +46,4 @@ const formatTimestamp = (timestamp: number): string => {
     }).format(timestamp);
 };
 
-export { tokenStake, pendingWithdrawalsFormat, formatTimestamp };
+export { formatTimestamp,pendingWithdrawalsFormat, tokenStake };

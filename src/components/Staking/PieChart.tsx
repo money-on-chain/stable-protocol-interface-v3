@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import { Cell, Pie, PieChart, ResponsiveContainer,Tooltip } from "recharts";
 
-import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers";
-import settings from "../../settings/settings.json";
-import { toBigIntPrecision } from "../../helpers/precision";
 import { bigIntToInputValue } from "../../helpers/currencies";
+import { toBigIntPrecision } from "../../helpers/precision";
+import { useProjectTranslation } from "../../helpers/translations";
+import settings from "../../settings/settings.json";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 
 interface UserInfoStaking {
     tgBalance: bigint;

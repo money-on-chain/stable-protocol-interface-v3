@@ -1,5 +1,6 @@
-import React, { Fragment } from "react";
 import Modal from "antd/lib/modal/Modal";
+import React, { Fragment } from "react";
+
 import Account from "../../Account";
 
 interface ModalAccountProps {

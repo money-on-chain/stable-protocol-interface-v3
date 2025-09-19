@@ -1,13 +1,13 @@
-import React, { useState } from "react";
 import { Button } from "antd";
 import PropTypes from "prop-types";
+import React, { useState } from "react";
 
-import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers";
-import { TokenSettings } from "../../helpers/currencies";
-import CopyAddress from "../CopyAddress";
-import { toBigIntPrecision } from "../../helpers/precision";
 import { useWalletContext } from "../../context/Wallet";
+import { TokenSettings } from "../../helpers/currencies";
+import { toBigIntPrecision } from "../../helpers/precision";
+import { useProjectTranslation } from "../../helpers/translations";
+import CopyAddress from "../CopyAddress";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 
 interface ConfirmSendProps {
     currencyYouExchange: string;

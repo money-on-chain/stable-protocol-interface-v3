@@ -1,9 +1,10 @@
-import React, { useContext } from "react";
-import { Alert, Button } from "antd";
-
-import { useProjectTranslation } from "../../../helpers/translations";
-import { useWalletContext } from "../../../context/Wallet";
 import "./Styles.scss";
+
+import { Alert, Button } from "antd";
+import React from "react";
+
+import { useWalletContext } from "../../../context/Wallet";
+import { useProjectTranslation } from "../../../helpers/translations";
 
 interface UseVestingAlertProps {
     address?: string;

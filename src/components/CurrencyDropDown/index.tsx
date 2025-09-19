@@ -1,6 +1,6 @@
-import React from "react";
 import { Select } from "antd";
 import PropTypes from "prop-types";
+import React from "react";
 
 import { getCurrenciesDetail } from "../../helpers/currencies";
 import { useProjectTranslation } from "../../helpers/translations";

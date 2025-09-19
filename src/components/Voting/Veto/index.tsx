@@ -1,19 +1,19 @@
-import React, { Fragment, useContext, useEffect, useState } from "react";
-import Proposals from "../Proposals";
-import Vote from "../Vote";
+import "../Styles.scss";
+
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { useWalletContext } from "../../../context/Wallet";
+import type { TokenConfig} from "../../../helpers/currencies";
+import { TokenSettings } from "../../../helpers/currencies";
+import { divPrecision,mulPrecision } from "../../../helpers/precision";
 import { formatTimestamp } from "../../../helpers/staking";
 import { useProjectTranslation } from "../../../helpers/translations";
-import { useWalletContext } from "../../../context/Wallet";
-import { mulPrecision, divPrecision } from "../../../helpers/precision";
+import ModalAllowanceOperation from "../../Modals/Allowance";
 import VetoStatusModal from "../../Modals/VetoStatusModal/VetoStatusModal";
-
-import "../Styles.scss";
-import { useNavigate } from "react-router-dom";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
 import BalanceBar from "../BalanceBar";
 import CompletedBar from "../CompletedBar";
-import { TokenConfig, TokenSettings } from "../../../helpers/currencies";
-import { PrecisionNumbers } from "../../PrecisionNumbers";
-import ModalAllowanceOperation from "../../Modals/Allowance";
 
 const PRECISION_DECIMALS = 18n;
 const DECIMALS_18 = 10n ** PRECISION_DECIMALS;

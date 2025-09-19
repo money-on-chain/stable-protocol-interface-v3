@@ -1,6 +1,7 @@
-import { parseEventLogs, decodeEventLog, type Log, type TransactionReceipt } from "viem";
-import { abi as abi_MocQueue } from "../contracts/MocQueue.json";
+import { decodeEventLog, type Log, parseEventLogs, type TransactionReceipt } from "viem";
+
 import { abi as abi_Moc } from "../contracts/MocCACoinbase.json";
+import { abi as abi_MocQueue } from "../contracts/MocQueue.json";
 import { abi as abi_MocVendors } from "../contracts/MocVendors.json";
 import { abi as abi_VestingFactory } from "../contracts/omoc/VestingFactory.json";
 

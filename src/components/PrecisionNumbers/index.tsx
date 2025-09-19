@@ -1,7 +1,8 @@
-import React, { Fragment } from "react"
 import { Tooltip } from "antd"
+import React, { Fragment } from "react"
 import { formatUnits } from "viem"
-import { TokenConfig } from "../../helpers/currencies"
+
+import type { TokenConfig } from "../../helpers/currencies"
 
 
 interface I18n {

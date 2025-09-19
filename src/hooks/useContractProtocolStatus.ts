@@ -1,9 +1,8 @@
 import { useMemo } from 'react'
 import { checksumAddress } from 'viem';
 
-
-import { useMultiCall } from "./useMulticall";
 import settings from "../settings/settings.json";
+import { useMultiCall } from "./useMulticall";
 
 
 const onErrorGetPTCac = () => {

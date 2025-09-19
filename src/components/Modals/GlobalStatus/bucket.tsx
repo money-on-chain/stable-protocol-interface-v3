@@ -1,6 +1,7 @@
 import React from "react";
-import settings from "../../../settings/settings.json";
+
 import { useProjectTranslation } from "../../../helpers/translations";
+import settings from "../../../settings/settings.json";
 
 // Type definitions
 interface StatusBucketProps {

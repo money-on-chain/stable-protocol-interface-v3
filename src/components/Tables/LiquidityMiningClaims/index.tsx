@@ -1,8 +1,9 @@
-import React from "react";
+import "./Styles.scss";
+
 import { Table } from "antd";
+import React from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
-import "./Styles.scss";
 
 interface TempDataItem {
     key: number;

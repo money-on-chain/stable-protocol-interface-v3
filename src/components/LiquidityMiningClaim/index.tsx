@@ -1,10 +1,11 @@
-import React, { Fragment } from "react";
-import { useProjectTranslation } from "../../helpers/translations";
-import { Button } from "antd";
-import PerformanceChart from "../Staking/performanceChart";
-
-import LiquidityMiningClaims from "../Tables/LiquidityMiningClaims";
 import "./Styles.scss";
+
+import { Button } from "antd";
+import React, { Fragment } from "react";
+
+import { useProjectTranslation } from "../../helpers/translations";
+import PerformanceChart from "../Staking/performanceChart";
+import LiquidityMiningClaims from "../Tables/LiquidityMiningClaims";
 
 export default function LiquidityMiningClaim(): React.ReactElement {
     

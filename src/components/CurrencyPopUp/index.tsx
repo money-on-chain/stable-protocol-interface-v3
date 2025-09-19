@@ -1,9 +1,10 @@
+import "./Styles.scss";
+
+import { Button,Modal } from "antd";
 import React, { /*useContext,*/ useState } from "react";
-import { Modal, Button } from "antd";
 
 import { getCurrenciesDetail } from "../../helpers/currencies";
 import { useProjectTranslation } from "../../helpers/translations";
-import "./Styles.scss";
 
 interface CurrencyOption {
     value: string;

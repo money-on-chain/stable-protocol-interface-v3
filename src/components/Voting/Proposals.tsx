@@ -1,17 +1,15 @@
-import React, { Fragment, useEffect, useState } from "react";
 import { Input } from "antd";
-import { PrecisionNumbers } from "../PrecisionNumbers";
-import { TokenSettings } from "../../helpers/currencies";
-
-
-import { useProjectTranslation } from "../../helpers/translations";
-import Proposal from "./Proposal";
-import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
-import { formatTimestamp } from "../../helpers/staking";
-import PreVote from "./PreVote";
+import React, { Fragment, useEffect, useState } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
+import { TokenSettings } from "../../helpers/currencies";
 import { divPrecision } from "../../helpers/precision";
+import { formatTimestamp } from "../../helpers/staking";
+import { useProjectTranslation } from "../../helpers/translations";
+import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
+import { PrecisionNumbers } from "../PrecisionNumbers";
+import PreVote from "./PreVote";
+import Proposal from "./Proposal";
 
 
 interface ProposalData {

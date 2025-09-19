@@ -1,6 +1,6 @@
 // src/UpdateToast.tsx
-import { useRegisterSW } from 'virtual:pwa-register/react'
 import { useState } from 'react'
+import { useRegisterSW } from 'virtual:pwa-register/react'
 
 export default function UpdateToast() {
   const [show, setShow] = useState(false)

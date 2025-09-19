@@ -1,19 +1,19 @@
-import React, { useContext, useState, useEffect } from "react";
-import QRCode from "react-qr-code";
-import { notification, Switch, Select, Input } from "antd";
+import { Input,notification, Select, Switch } from "antd";
 import PropTypes from "prop-types";
+import React, { useEffect,useState } from "react";
+import QRCode from "react-qr-code";
 import { readContract } from 'viem/actions'
+
+import { useWalletContext } from "../../context/Wallet";
+import VestingMachine from "../../contracts/omoc/VestingMachine.json";
 import { useProjectTranslation } from "../../helpers/translations";
 import {
-    loadVestingAddressesFromLocalStorage,
-    saveVestingAddressesToLocalStorage,
-    saveDefaultVestingToLocalStorage,
-    loadVesting,
     loadDefaultVestingFromLocalStorage,
+    loadVesting,
+    loadVestingAddressesFromLocalStorage,
+    saveDefaultVestingToLocalStorage,
+    saveVestingAddressesToLocalStorage,
 } from "../../helpers/vesting";
-
-import VestingMachine from "../../contracts/omoc/VestingMachine.json";
-import { useWalletContext } from "../../context/Wallet";
 
 const { Option } = Select;
 

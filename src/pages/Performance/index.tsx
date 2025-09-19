@@ -1,9 +1,10 @@
-import React, { Fragment, useEffect, useState } from "react";
+import "./Styles.scss";
+
 import { Skeleton } from "antd";
+import React, { Fragment, useEffect, useState } from "react";
 
 import Performance from "../../components/Performance";
 import { useWalletContext } from "../../context/Wallet";
-import "./Styles.scss";
 
 
 export default function SectionPerformance(): React.ReactElement {

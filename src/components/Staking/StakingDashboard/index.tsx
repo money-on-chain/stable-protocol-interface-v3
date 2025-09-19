@@ -1,9 +1,10 @@
+import "./Styles.scss";
+
 import React from "react";
 
-import { PrecisionNumbers } from "../../PrecisionNumbers";
-import settings from "../../../settings/settings.json";
 import { useProjectTranslation } from "../../../helpers/translations";
-import "./Styles.scss";
+import settings from "../../../settings/settings.json";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
 
 interface UserInfoStaking {
     tgBalance: bigint;

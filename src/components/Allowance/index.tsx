@@ -1,9 +1,10 @@
-import React, { useContext, useState } from "react";
 import { Checkbox } from "antd";
 import PropTypes from "prop-types";
+import React, { useState } from "react";
+
+import { useWalletContext } from "@/context/Wallet";
 
 import { useProjectTranslation } from "../../helpers/translations";
-import { useWalletContext } from "@/context/Wallet";
 
 
 const PRECISION_DECIMALS = 18n

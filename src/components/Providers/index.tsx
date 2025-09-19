@@ -1,8 +1,11 @@
-import React from "react";
-import { Typography, notification, Tooltip } from "antd";
-import { Connector, useConnect, useAccount } from "wagmi";
-import { useProjectTranslation } from "../../helpers/translations";
 import "./Styles.scss";
+
+import { notification, Tooltip,Typography } from "antd";
+import React from "react";
+import type { Connector} from "wagmi";
+import { useAccount,useConnect } from "wagmi";
+
+import { useProjectTranslation } from "../../helpers/translations";
 
 interface ProvidersProps {
     onCloseModal: () => void;

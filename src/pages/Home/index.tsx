@@ -1,9 +1,10 @@
-import React, { Fragment } from "react";
-import LastOperations from "../../components/Tables/LastOperations";
+import "./Styles.scss";
+
+import React from "react";
+
 import Portfolio from "../../components/Dashboards/Portfolio";
 import HomeTabs from "../../components/PortfolioOperationsTabs";
-
-import "./Styles.scss";
+import LastOperations from "../../components/Tables/LastOperations";
 
 
 export default function Home(): React.ReactElement {

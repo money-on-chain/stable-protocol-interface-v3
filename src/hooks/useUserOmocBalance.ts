@@ -1,138 +1,139 @@
 import { useMemo } from 'react'
-import { useMultiCall } from "./useMulticall";
 
+import type { Address, CallRequest,DContracts } from './types'
+import { useMultiCall } from './useMulticall'
 
 /**
- * React hook that wraps useMultiCall3 to fetch contract status data.
+ * React hook that wraps useMultiCall to fetch user OMoC balances/status.
  * Builds the call array with useMemo so it remains stable between renders.
  */
-export function useUserOmocBalance(contracts?: any, userAddress?: string, refetchInterval = 30_000) {
-    const callsRequests = useMemo(() => {
-        if (!contracts) return []
-        if (!userAddress) return []
-                
-        const callRequest = []        
-                
+export function useUserOmocBalance(
+  contracts?: DContracts | null,
+  userAddress?: Address,
+  refetchInterval = 30_000
+) {
+  const callsRequests: CallRequest[] = useMemo(() => {
+    if (!contracts) return []
+    if (!userAddress) return []
 
-        if (typeof contracts.DelayMachine !== "undefined") {
+    const c = contracts
+    const calls: CallRequest[] = []
 
-            callRequest.push({
-                contract: contracts.DelayMachine,
-                functionName: 'getTransactions',
-                args: [userAddress],
-                resultType: [
-                    { type: "uint256[]", name: "ids" },
-                    { type: "uint256[]", name: "amounts" },
-                    { type: "uint256[]", name: "expirations" },
-                ] as any,
-                keys: ["delaymachine", "getTransactions"]
-            });
+    // ---- DelayMachine (optional) ----
+    if (c.DelayMachine) {
+      calls.push({
+        contract: c.DelayMachine,
+        functionName: 'getTransactions',
+        args: [userAddress],
+        resultType: [
+          { type: 'uint256[]', name: 'ids' },
+          { type: 'uint256[]', name: 'amounts' },
+          { type: 'uint256[]', name: 'expirations' },
+        ],
+        keys: ['delaymachine', 'getTransactions'],
+      })
 
-            callRequest.push({
-                contract: contracts.DelayMachine,
-                functionName: 'getBalance',
-                args: [userAddress],
-                resultType: "uint256" as any,
-                keys: ["delaymachine", "getBalance"]
-            });
+      calls.push({
+        contract: c.DelayMachine,
+        functionName: 'getBalance',
+        args: [userAddress],
+        resultType: 'uint256',
+        keys: ['delaymachine', 'getBalance'],
+      })
+    }
 
-        }
+    // ---- TG (ERC20) + StakingMachine (for allowance) ----
+    if (c.TG) {
+      calls.push({
+        contract: c.TG,
+        functionName: 'balanceOf',
+        args: [userAddress],
+        resultType: 'uint256',
+        keys: ['TG', 'balance'],
+      })
 
-        if (typeof contracts.TG !== "undefined") {
-            callRequest.push({
-                contract: contracts.TG,
-                functionName: 'balanceOf',
-                args: [userAddress],
-                resultType: "uint256" as any,
-                keys: ["TG", "balance"]
-            });
+      if (c.StakingMachine) {
+        calls.push({
+          contract: c.TG,
+          functionName: 'allowance',
+          args: [userAddress, c.StakingMachine.address],
+          resultType: 'uint256',
+          keys: ['stakingmachine', 'tgAllowance'],
+        })
+      }
+    }
 
-            callRequest.push({
-                contract: contracts.TG,
-                functionName: 'allowance',
-                args: [userAddress, contracts.StakingMachine.address],
-                resultType: "uint256" as any,
-                keys: ["stakingmachine", "tgAllowance"]
-            });
+    // ---- VotingMachine ----
+    if (c.VotingMachine) {
+      calls.push({
+        contract: c.VotingMachine,
+        functionName: 'getUserVote',
+        args: [userAddress],
+        resultType: [
+          { type: 'address', name: 'voteAddress' },
+          { type: 'uint256', name: 'voteRound' },
+        ],
+        keys: ['votingmachine', 'getUserVote'],
+      })
+    }
 
-        }
+    // ---- StakingMachine ----
+    if (c.StakingMachine) {
+      calls.push({
+        contract: c.StakingMachine,
+        functionName: 'getBalance',
+        args: [userAddress],
+        resultType: 'uint256',
+        keys: ['stakingmachine', 'getBalance'],
+      })
 
-        if (typeof contracts.VotingMachine !== "undefined") {
+      calls.push({
+        contract: c.StakingMachine,
+        functionName: 'getLockedBalance',
+        args: [userAddress],
+        resultType: 'uint256',
+        keys: ['stakingmachine', 'getLockedBalance'],
+      })
 
-            callRequest.push({
-                contract: contracts.VotingMachine,
-                functionName: 'getUserVote',
-                args: [userAddress],
-                resultType: [
-                    { type: "address", name: "voteAddress" },
-                    { type: "uint256", name: "voteRound" },
-                ] as any,
-                keys: ["votingmachine", "getUserVote"]
-            });
+      calls.push({
+        contract: c.StakingMachine,
+        functionName: 'getLockingInfo',
+        args: [userAddress],
+        resultType: [
+          { type: 'uint256', name: 'amount' },
+          { type: 'uint256', name: 'untilTimestamp' },
+        ],
+        keys: ['stakingmachine', 'getLockingInfo'],
+      })
+    }
 
-        }
+    // ---- IncentiveV2 (requires TG for contractBalance) ----
+    if (c.IncentiveV2 && c.TG) {
+      calls.push({
+        contract: c.TG,
+        functionName: 'balanceOf',
+        args: [c.IncentiveV2.address],
+        resultType: 'uint256',
+        keys: ['incentiveV2', 'contractBalance'],
+      })
 
-        if (typeof contracts.StakingMachine !== "undefined") {
-                        
-            callRequest.push({
-                contract: contracts.StakingMachine,
-                functionName: 'getBalance',
-                args: [userAddress],
-                resultType: "uint256" as any,
-                keys: ["stakingmachine", "getBalance"]                
-            });
+      calls.push({
+        contract: c.IncentiveV2,
+        functionName: 'get_balance',
+        args: [userAddress],
+        resultType: 'uint256',
+        keys: ['incentiveV2', 'userBalance'],
+      })
+    }
 
-            callRequest.push({
-                contract: contracts.StakingMachine,
-                functionName: 'getLockedBalance',
-                args: [userAddress],
-                resultType: "uint256" as any,
-                keys: ["stakingmachine", "getLockedBalance"]
-            });            
+    return calls
+  }, [contracts, userAddress])
 
-            callRequest.push({
-                contract: contracts.StakingMachine,
-                functionName: 'getLockingInfo',
-                args: [userAddress],
-                resultType: [
-                    { type: "uint256", name: "amount" },
-                    { type: "uint256", name: "untilTimestamp" },
-                ] as any,
-                keys: ["stakingmachine", "getLockingInfo"]
-            });        
-            
-        }
-        // Incentive V2
-        if (contracts.IncentiveV2.address) {
+  const multicallState = useMultiCall(callsRequests, {
+    refetchInterval,
+    enabled: callsRequests.length > 0,
+    scopeKey: ['userOmocBalance', userAddress].join(':'),
+  })
 
-            callRequest.push({
-                contract: contracts.TG,
-                functionName: 'balanceOf',
-                args: [contracts.IncentiveV2.address],
-                resultType: "uint256" as any,
-                keys: ["incentiveV2", "contractBalance"]
-            });
-
-            callRequest.push({
-                contract: contracts.IncentiveV2,
-                functionName: 'get_balance',
-                args: [userAddress],
-                resultType: "uint256" as any,
-                keys: ["incentiveV2", "userBalance"]
-            });            
-        }             
-
-        return callRequest
-
-    }, [contracts, userAddress])
-
-      
-    // Pass callsRequests into your multicall hook (safe: it's a hook calling a hook)
-    const multicallState = useMultiCall(callsRequests, {
-      refetchInterval: refetchInterval,
-      enabled: callsRequests.length > 0,
-      scopeKey: ['userOmocBalance', userAddress].join(':')  
-    })
-  
-    return multicallState
-  }
+  return multicallState
+}

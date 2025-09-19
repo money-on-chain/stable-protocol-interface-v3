@@ -1,18 +1,17 @@
-import React, { useContext, useState, useEffect } from "react";
 import { Button, Collapse, Slider } from "antd";
 import axios from "axios";
 import PropTypes from "prop-types";
+import React, { useEffect,useState } from "react";
 
-import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers";
-import { TokenSettings, TokenBalance } from "../../helpers/currencies";
-
-import { isMintOperation, UserTokenAllowance } from "../../helpers/exchange";
-import ModalAllowanceOperation from "../Modals/Allowance";
-import CopyAddress from "../CopyAddress";
-import TXStatus from "./TXStatus";
 import { decodeEvents } from "../../backend/transaction";
 import { useWalletContext } from "../../context/Wallet";
+import { TokenBalance,TokenSettings } from "../../helpers/currencies";
+import { isMintOperation, UserTokenAllowance } from "../../helpers/exchange";
+import { useProjectTranslation } from "../../helpers/translations";
+import CopyAddress from "../CopyAddress";
+import ModalAllowanceOperation from "../Modals/Allowance";
+import { PrecisionNumbers } from "../PrecisionNumbers";
+import TXStatus from "./TXStatus";
 
 const { Panel } = Collapse;
 

@@ -1,5 +1,6 @@
 
-import { writeContract, simulateContract, waitForTransactionReceipt } from '@wagmi/core'
+import { simulateContract, waitForTransactionReceipt,writeContract } from '@wagmi/core'
+
 import { config } from '../wagmiConfig' 
 
 
@@ -176,8 +177,8 @@ const MigrateToken = async (
 
 export {
     AllowanceAmount,
-    transferTokenTo,
     AllowUseTokenMigrator,
     MigrateToken,
     transferCoinbaseTo,
+    transferTokenTo,
 };

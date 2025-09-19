@@ -1,5 +1,6 @@
-import React, { Fragment, useEffect } from "react";
 import Modal from "antd/lib/modal/Modal";
+import React, { Fragment, useEffect } from "react";
+
 import Providers from "../../Providers";
 
 interface ModalProvidersProps {

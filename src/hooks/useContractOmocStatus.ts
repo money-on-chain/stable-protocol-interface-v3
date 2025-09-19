@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
-import { useMultiCall } from "./useMulticall";
+
 import omoc from "../settings/omoc/omoc.json";
+import { useMultiCall } from "./useMulticall";
 
 const onErrorProposal = () => {
     console.warn("Proposal not exist");

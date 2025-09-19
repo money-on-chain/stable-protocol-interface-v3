@@ -1,4 +1,5 @@
 import { readContract } from 'viem/actions'
+
 import VestingMachine from "../contracts/omoc/VestingMachine.json";
 
 
@@ -93,10 +94,10 @@ const onValidateVestingAddress = async (publicClient: any, addVestingAddress: `0
 };
 
 export {
-    loadVestingAddressesFromLocalStorage,
-    saveVestingAddressesToLocalStorage,
-    saveDefaultVestingToLocalStorage,
-    loadVesting,
-    onValidateVestingAddress,
     loadDefaultVestingFromLocalStorage,
+    loadVesting,
+    loadVestingAddressesFromLocalStorage,
+    onValidateVestingAddress,
+    saveDefaultVestingToLocalStorage,
+    saveVestingAddressesToLocalStorage,
 };

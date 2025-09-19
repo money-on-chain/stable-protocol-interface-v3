@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { PrecisionNumbers } from "../../PrecisionNumbers";
-import settings from "../../../settings/settings.json";
+import React, { useEffect,useState } from "react";
 
+import { useWalletContext } from "../../../context/Wallet";
 import { pendingWithdrawalsFormat } from "../../../helpers/staking";
 import { useProjectTranslation } from "../../../helpers/translations";
-import { useWalletContext } from "../../../context/Wallet";
+import settings from "../../../settings/settings.json";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
 
 interface WithdrawalStatus {
     pending: string;

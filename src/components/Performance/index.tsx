@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from "react";
 import { Modal } from "antd";
+import React, { useEffect,useState } from "react";
 
-import { useProjectTranslation } from "../../helpers/translations";
-import { CheckStatusGlobal } from "../../helpers/checkStatus";
-import GlobalStatusModal from "../Modals/GlobalStatus";
-import settings from "../../settings/settings.json";
-import Buckets from "./buckets";
-import TVL from "./tvl";
-import MultiCollateral from "./multicollateral";
 import { useWalletContext } from "../../context/Wallet";
+import { CheckStatusGlobal } from "../../helpers/checkStatus";
+import { useProjectTranslation } from "../../helpers/translations";
+import settings from "../../settings/settings.json";
+import GlobalStatusModal from "../Modals/GlobalStatus";
+import Buckets from "./buckets";
+import MultiCollateral from "./multicollateral";
+import TVL from "./tvl";
 
 
 

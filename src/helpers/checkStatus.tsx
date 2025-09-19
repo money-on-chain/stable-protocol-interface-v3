@@ -1,7 +1,6 @@
-import React from "react";
-import { useProjectTranslation } from "./translations";
-import settings from "../settings/settings.json";
 import { useWalletContext } from "../context/Wallet";
+import settings from "../settings/settings.json";
+import { useProjectTranslation } from "./translations";
 
 
 interface StatusResult {
@@ -66,7 +65,7 @@ function CheckStatusGlobal() {
         let statusLabelClass: string = "";
         let statusText: string = "--";
 
-        let statusCode: number[] = [];
+        const statusCode: number[] = [];
         let statusCodeCA: number = -1;
         let countValid: number = 0;
         let countProtected: number = 0;

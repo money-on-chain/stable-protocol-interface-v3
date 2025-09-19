@@ -5,11 +5,11 @@ import LogoIconCA_1 from "../assets/tokens/ca_1.svg?react";
 import LogoIconCOINBASE from "../assets/tokens/coinbase.svg?react";
 import LogoIconTC_0 from "../assets/tokens/tc_0.svg?react";
 import LogoIconTC_1 from "../assets/tokens/tc_1.svg?react";
+import LogoIconTG_0 from "../assets/tokens/tg_0.svg?react";
 import LogoIconTP_0 from "../assets/tokens/tp_0.svg?react";
 import LogoIconTP_1 from "../assets/tokens/tp_1.svg?react";
-import LogoIconTG_0 from "../assets/tokens/tg_0.svg?react";
 import settings from "../settings/settings.json";
-import { normalizeToBigInt, divPrecision, mulPrecision, fromWei } from "./precision";
+import { divPrecision, fromWei,mulPrecision, normalizeToBigInt } from "./precision";
 
 export interface TokenConfig {
     name: string;
@@ -347,16 +347,15 @@ function CalcCommission(
 }
 
 export {
+    bigIntToInputValue,
+    CalcCommission,
+    ConvertAmount,
+    ConvertBalance,
+    ConvertPeggedTokenPrice,
+    getCAIndex,
     getCurrenciesDetail,
     getCurrencyByValue,
-    TokenSettings,
-    TokenBalance,
-    ConvertBalance,
-    ConvertAmount,
-    CalcCommission,
-    ConvertPeggedTokenPrice,
+    getTCTokenIndex,
     hasNonUSDPeggedTokens,
-    getCAIndex,
-    bigIntToInputValue,
-    getTCTokenIndex
-};
+    TokenBalance,
+    TokenSettings};

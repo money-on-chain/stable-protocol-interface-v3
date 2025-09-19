@@ -1,17 +1,20 @@
-import React, { Fragment, useContext, useEffect, useState } from "react";
-import { useProjectTranslation } from "../../../../helpers/translations";
-import { useWalletContext } from "../../../../context/Wallet";
-
 import "../../Styles.scss";
+
+import React, { useEffect, useState } from "react";
+
+import { PrecisionNumbers } from "@/components/PrecisionNumbers";
+
+import { useWalletContext } from "../../../../context/Wallet";
+import type {
+    TokenConfig} from "../../../../helpers/currencies";
 import {
     getCurrencyByValue,
     getTCTokenIndex,
-    TokenConfig,
     TokenSettings,
 } from "../../../../helpers/currencies";
+import { useProjectTranslation } from "../../../../helpers/translations";
 import { tcLockedByVeto } from "../../../../helpers/veto";
 import VetoStatusModal from "../../../Modals/VetoStatusModal/VetoStatusModal";
-import { PrecisionNumbers } from "@/components/PrecisionNumbers";
 
 interface InfoUser {
     Voting_Power: bigint;

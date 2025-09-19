@@ -1,12 +1,13 @@
-import React, { Fragment, useState, useEffect } from "react";
-import { useProjectTranslation } from "../../helpers/translations";
-import { pendingWithdrawalsFormat } from "../../helpers/staking";
-import Stake from "./Stake";
-import PieChartComponent from "./PieChart";
-import PerformanceChart from "./performanceChart";
-import Withdraw from "./WithdrawV2";
-import DashBoard from "./StakingDashboard";
+import React, { Fragment, useEffect,useState } from "react";
+
 import { useWalletContext } from "../../context/Wallet";
+import { pendingWithdrawalsFormat } from "../../helpers/staking";
+import { useProjectTranslation } from "../../helpers/translations";
+import PerformanceChart from "./performanceChart";
+import PieChartComponent from "./PieChart";
+import Stake from "./Stake";
+import DashBoard from "./StakingDashboard";
+import Withdraw from "./WithdrawV2";
 
 interface WithdrawalStatus {
     pending: string;

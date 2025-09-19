@@ -1,12 +1,12 @@
-import settings from "../settings/settings.json";
-import { TokenSettings } from "./currencies";
-import { mintTC, redeemTC, mintTP, redeemTP } from "../backend/moc-rc20";
 import {
     mintTC as mintTC_coinbase,
-    redeemTC as redeemTC_coinbase,
     mintTP as mintTP_coinbase,
+    redeemTC as redeemTC_coinbase,
     redeemTP as redeemTP_coinbase,
 } from "../backend/moc-coinbase";
+import { mintTC, mintTP, redeemTC, redeemTP } from "../backend/moc-rc20";
+import settings from "../settings/settings.json";
+import { TokenSettings } from "./currencies";
 
 // Type definitions
 interface InterfaceContext {
@@ -398,26 +398,26 @@ function executionFeeMap(tokenExchange: string, tokenReceive: string, contractPr
 }
 
 export {
-    tokenExchange,
-    tokenReceive,
-    isMintOperation,
-    UserTokenAllowance,
     ApproveTokenContract,
     exchangeMethod,
-    TokenContract,
     executionFeeMap,
+    isMintOperation,
+    TokenContract,
+    tokenExchange,
+    tokenReceive,
+    UserTokenAllowance,
 };
 
 // Export types for use in other files
 export type {
-    InterfaceContext,    
-    DContracts,
-    TokenContractResult,
     ApproveTokenContractResult,
+    DContracts,
+    InterfaceContext,    
+    LimitAmount,
+    OnReceipt,
+    OnTransaction,
+    TokenAmount,
+    TokenContractResult,
     TokenMap,
     TokenName,
-    TokenAmount,
-    LimitAmount,
-    OnTransaction,
-    OnReceipt,
 }; 

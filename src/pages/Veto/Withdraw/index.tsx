@@ -1,8 +1,10 @@
-import React, { Fragment, useEffect, useState } from "react";
+import "../Styles.scss";
+
 import { Skeleton } from "antd";
+import React, { Fragment, useEffect, useState } from "react";
+
 import VetoWithdraw from "../../../components/Voting/Veto/Withdraw";
 import { useWalletContext } from "../../../context/Wallet";
-import "../Styles.scss";
 
 export default function SectionVetoWithdraw(): React.ReactElement {
     const { contractStatusOmoc, userBalance, isVestingLoaded, vestingAddress } =

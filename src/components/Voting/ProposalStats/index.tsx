@@ -1,9 +1,10 @@
+import "./Styles.scss";
+
 import React from "react";
 
+import { TokenSettings } from "../../../helpers/currencies";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
-import { TokenSettings } from "../../../helpers/currencies";
-import "./Styles.scss";
 
 interface ProposalStatsProps {
     amount: bigint;

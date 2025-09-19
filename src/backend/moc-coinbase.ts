@@ -1,11 +1,12 @@
+import { simulateContract, waitForTransactionReceipt,writeContract } from '@wagmi/core'
+
 import settings from "../settings/settings.json";
-import { writeContract, simulateContract, waitForTransactionReceipt } from '@wagmi/core'
 import { config } from '../wagmiConfig' 
+import { redeemTC as redeemTC_, redeemTP as redeemTP_ } from "./moc-core";
 import {
     getExecutionFee, 
     getNetworkFromProject
 } from "./utils";
-import { redeemTC as redeemTC_, redeemTP as redeemTP_ } from "./moc-core";
 
 
 type OnTransaction = (hash: string) => void;
@@ -221,4 +222,4 @@ const redeemTP = async (
     );
 };
 
-export { mintTC, redeemTC, mintTP, redeemTP };
+export { mintTC, mintTP, redeemTC, redeemTP };

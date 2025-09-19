@@ -1,7 +1,8 @@
 
-import { writeContract, simulateContract, waitForTransactionReceipt } from '@wagmi/core'
-import { config } from '../../wagmiConfig' 
+import { simulateContract, waitForTransactionReceipt,writeContract } from '@wagmi/core'
 import { checksumAddress } from 'viem';
+
+import { config } from '../../wagmiConfig' 
 
 
 type TransactionCallback = (hash: string) => void;
@@ -182,4 +183,4 @@ const acceptedStep = async (
 
 };
 
-export { preVote, vote, preVoteStep, voteStep, acceptedStep, unRegister };
+export { acceptedStep, preVote, preVoteStep, unRegister,vote, voteStep };

@@ -1,33 +1,30 @@
 import { Radio, Space } from "antd";
-import React, { useState, useEffect } from "react";
+import React, { useEffect,useState } from "react";
 
-import { useProjectTranslation } from "../../helpers/translations";
-import CurrencyPopUp from "../CurrencyPopUp";
-import ModalConfirmOperation from "../Modals/ConfirmOperation";
-import {
-    TokenSettings,
-    TokenBalance,
-    ConvertBalance,
-    ConvertAmount,
-    bigIntToInputValue,
-    CalcCommission,
-    getCAIndex,
-} from "../../helpers/currencies";
-import {
-    tokenExchange,
-    tokenReceive,
-    isMintOperation,
-    executionFeeMap,
-} from "../../helpers/exchange";
-
-
-import { PrecisionNumbers } from "../PrecisionNumbers";
-import InputAmount from "../InputAmount/";
-
-import { CheckStatusGlobal } from "../../helpers/checkStatus";
 import { getExecutionFee } from "../../backend/utils";
 import { useWalletContext } from "../../context/Wallet";
-import { normalizeToBigInt, mulPrecision, divPrecision, toBigIntPrecision } from "../../helpers/precision";
+import { CheckStatusGlobal } from "../../helpers/checkStatus";
+import {
+    bigIntToInputValue,
+    CalcCommission,
+    ConvertAmount,
+    ConvertBalance,
+    getCAIndex,
+    TokenBalance,
+    TokenSettings,
+} from "../../helpers/currencies";
+import {
+    executionFeeMap,
+    isMintOperation,
+    tokenExchange,
+    tokenReceive,
+} from "../../helpers/exchange";
+import { divPrecision, mulPrecision, normalizeToBigInt, toBigIntPrecision } from "../../helpers/precision";
+import { useProjectTranslation } from "../../helpers/translations";
+import CurrencyPopUp from "../CurrencyPopUp";
+import InputAmount from "../InputAmount/";
+import ModalConfirmOperation from "../Modals/ConfirmOperation";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 
 // Type definitions
 interface CommissionInfo {
@@ -477,7 +474,7 @@ export default function Exchange(): JSX.Element {
     
     const calculateFinalAmountExchange = (): bigint => {
 
-        let arrCurrencyYouExchange = currencyYouExchange.split("_");
+        const arrCurrencyYouExchange = currencyYouExchange.split("_");
         if (arrCurrencyYouExchange[0] === "CA") {
             const totalbalance = TokenBalance(userBalance, currencyYouExchange);
             const tolerance = 7n / 10n;

@@ -1,6 +1,7 @@
-import { writeContract, simulateContract, waitForTransactionReceipt } from '@wagmi/core'
-import { config } from '../wagmiConfig' 
+import { simulateContract, waitForTransactionReceipt,writeContract } from '@wagmi/core'
+
 import settings from "../settings/settings.json";
+import { config } from '../wagmiConfig' 
 import {    
     getExecutionFee,
     getNetworkFromProject
@@ -330,4 +331,4 @@ const redeemTP = async (
     
 };
 
-export { mintTC, redeemTC, mintTP, redeemTP };
+export { mintTC, mintTP, redeemTC, redeemTP };

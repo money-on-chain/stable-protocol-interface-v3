@@ -1,7 +1,9 @@
-import React from "react";
-import ThemeMode from "../ThemeMode";
-import DappVersion from "../DappVersion";
 import "./Styles.scss";
+
+import React from "react";
+
+import DappVersion from "../DappVersion";
+import ThemeMode from "../ThemeMode";
 
 export default function DappFooter(): React.ReactElement {
     return (

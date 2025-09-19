@@ -1,7 +1,8 @@
 // NetworkGuard.tsx
-import React from 'react'
 import { Alert, Button, Space } from 'antd'
+import React from 'react'
 import { useAccount, useChainId, useSwitchChain } from 'wagmi'
+
 import { ALLOWED_CHAIN } from '../../wagmiConfig'
 
 export function NetworkGuard() {
