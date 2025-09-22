@@ -11,29 +11,30 @@ import { TokenSettings } from "./currencies";
 // Type definitions
 interface InterfaceContext {
     // Add specific interface context properties as needed
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 interface DContracts {
     contracts: {
-        CA: Array<any>;
-        Moc: Array<any>;
-        CollateralToken: Array<any>;
-        TP: Array<any>;
-        FeeToken: Array<any>;
-        TG: any;
-        StakingMachine: any;
+        CA: Array<{ address: string; abi: unknown[] }>;
+        Moc: Array<{ address: string; abi: unknown[] }>;
+        CollateralToken: Array<{ address: string; abi: unknown[] }>;
+        TP: Array<{ address: string; abi: unknown[] }>;
+        FeeToken: Array<{ address: string; abi: unknown[] }>;
+        TG: { address: string; abi: unknown[] };
+        StakingMachine: { address: string; abi: unknown[] };
+        VetoMachine?: { address: string; abi: unknown[] };
     };
 }
 
 interface TokenContractResult {
-    token: any;
+    token: { address: string; abi: unknown[] };
     decimals: number;
 }
 
 interface ApproveTokenContractResult {
-    token: any;
-    contractAllow: any;
+    token: { address: string; abi: unknown[] };
+    contractAllow: { address: string; abi: unknown[] };
     decimals: number;
 }
 
@@ -45,7 +46,7 @@ type TokenName = string;
 type TokenAmount = string | number;
 type LimitAmount = string | number;
 type OnTransaction = (hash: string) => void;
-type OnReceipt = (receipt: any) => void;
+type OnReceipt = (receipt: unknown) => void;
 
 /*
 const tokenMap = {
@@ -143,7 +144,7 @@ function isMintOperation(tokenExchange: string, tokenReceive: string): boolean {
 }
 
 function TokenAllowance(
-    userBalance: any,
+    userBalance: { data: Record<string | number, unknown> },
     tokenExchange: string,
     caIndex: number
 ): bigint {
@@ -154,20 +155,20 @@ function TokenAllowance(
     switch (aTokenExchange[0]) {
         case "CA":
             allowance =
-                userBalance.data.CA[parseInt(aTokenExchange[1])].allowance;
+                (userBalance.data.CA as { allowance: bigint }[])[parseInt(aTokenExchange[1])].allowance;
             break;
         case "TP":
             allowance =
-                userBalance.data.TP[caIndex][parseInt(aTokenExchange[1])]
+                ((userBalance.data.TP as { allowance: bigint }[][])[caIndex])[parseInt(aTokenExchange[1])]
                     .allowance;
             break;
         case "TC":
             allowance =
-                userBalance.data[parseInt(aTokenExchange[1])].TC.allowance;
+                (userBalance.data[parseInt(aTokenExchange[1])] as { TC: { allowance: bigint } }).TC.allowance;
             break;
         case "TF":
             allowance =
-                userBalance.data[parseInt(aTokenExchange[1])].FeeToken
+                (userBalance.data[parseInt(aTokenExchange[1])] as { FeeToken: { allowance: bigint } }).FeeToken
                     .allowance;
             break;
         default:
@@ -178,7 +179,7 @@ function TokenAllowance(
 }
 
 function UserTokenAllowance(
-    userBalance: any,
+    userBalance: { data: Record<string | number, unknown> },
     tokenExchange: string,
     caIndex: number
 ): bigint {
@@ -186,7 +187,7 @@ function UserTokenAllowance(
 }
 
 function ApproveTokenContract(
-    contracts: any,
+    contracts: DContracts["contracts"],
     tokenExchange: string,
     tokenReceive: string
 ): ApproveTokenContractResult {
@@ -229,6 +230,9 @@ function ApproveTokenContract(
                 decimals: tokenExchangeSettings.decimals,
             };
         case "TC,VM":
+            if (!contracts.VetoMachine) {
+                throw new Error("VetoMachine contract not available");
+            }
             return {
                 token: contracts.CollateralToken[parseInt(aTokenExchange[1])],
                 contractAllow: contracts.VetoMachine,
@@ -240,7 +244,7 @@ function ApproveTokenContract(
 }
 
 function TokenContract(
-    contracts: any,
+    contracts: DContracts["contracts"],
     tokenExchange: string
 ): TokenContractResult {
     // Ex. aTokenMap = CA_0, CA_1, TP_0, TP_1, TC_0, TC_1, COINBASE, TF_0, TF_1
@@ -287,7 +291,7 @@ function exchangeMethod(
     limitAmount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> {
+): Promise<unknown> {
     let caIndex: number = 0;
     let tpIndex: number = 0;
 
@@ -401,23 +405,23 @@ function exchangeMethod(
 function executionFeeMap(
     tokenExchange: string,
     tokenReceive: string,
-    contractProtocolStatus: any
+    contractProtocolStatus: { data: Record<string | number, unknown> }
 ): bigint {
     const aTokenExchange: string[] = tokenExchange.split("_");
     const aTokenReceive: string[] = tokenReceive.split("_");
     const aTokenMap: string = `${aTokenExchange[0]},${aTokenReceive[0]}`;
     switch (aTokenMap) {
         case "CA,TC":
-            return contractProtocolStatus.data[parseInt(aTokenExchange[1])]
+            return (contractProtocolStatus.data[parseInt(aTokenExchange[1])] as { tcMintExecCost: bigint })
                 .tcMintExecCost;
         case "CA,TP":
-            return contractProtocolStatus.data[parseInt(aTokenExchange[1])]
+            return (contractProtocolStatus.data[parseInt(aTokenExchange[1])] as { tpMintExecCost: bigint })
                 .tpMintExecCost;
         case "TP,CA":
-            return contractProtocolStatus.data[parseInt(aTokenReceive[1])]
+            return (contractProtocolStatus.data[parseInt(aTokenReceive[1])] as { tpRedeemExecCost: bigint })
                 .tpRedeemExecCost;
         case "TC,CA":
-            return contractProtocolStatus.data[parseInt(aTokenReceive[1])]
+            return (contractProtocolStatus.data[parseInt(aTokenReceive[1])] as { tcRedeemExecCost: bigint })
                 .tcRedeemExecCost;
         default:
             throw new Error("Invalid token name map");

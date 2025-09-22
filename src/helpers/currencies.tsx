@@ -31,7 +31,7 @@ export interface TokenConfig {
 
 interface Currency {
     value: string;
-    image: any;
+    image: React.ReactElement;
 }
 
 interface FeeInfo {
@@ -73,7 +73,7 @@ const getCurrencyByValue = (value: string): Currency => {
 };
 
 function getTCTokenIndex(
-    collateralTokens: any[],
+    collateralTokens: { address: string }[],
     tokenAddress: string
 ): number {
     const tcIndex = collateralTokens.findIndex(
@@ -118,9 +118,9 @@ function TokenSettings(tokenName: string): TokenConfig {
 }
 
 function TokenBalance(
-    userBalance: any,
+    userBalance: { data: Record<string | number, unknown> } | undefined,
     tokenName: string,
-    userBaseCoinBalance: any = undefined
+    userBaseCoinBalance: { balance: bigint } | undefined = undefined
 ): bigint {
     // Ex. tokenName = CA_0, CA_1, TP_0, TP_1, TC_0, TC_1, COINBASE, TF_0, TF_1
     let balance = 0n;
@@ -130,23 +130,23 @@ function TokenBalance(
     const aTokenName = tokenName.split("_");
     switch (aTokenName[0]) {
         case "CA":
-            balance = userBalance.data.CA[parseInt(aTokenName[1])].balance;
+            balance = (userBalance.data.CA as { balance: bigint }[])[parseInt(aTokenName[1])].balance;
             break;
         case "TP":
-            balance = userBalance.data.TP[0][parseInt(aTokenName[1])].balance;
+            balance = ((userBalance.data.TP as { balance: bigint }[][])[0])[parseInt(aTokenName[1])].balance;
             break;
         case "TC":
-            balance = userBalance.data[parseInt(aTokenName[1])].TC.balance;
+            balance = (userBalance.data[parseInt(aTokenName[1])] as { TC: { balance: bigint } }).TC.balance;
             break;
         case "COINBASE":
             balance = userBaseCoinBalance?.balance || 0n;
             break;
         case "TF":
             balance =
-                userBalance.data[parseInt(aTokenName[1])].FeeToken.balance;
+                (userBalance.data[parseInt(aTokenName[1])] as { FeeToken: { balance: bigint } }).FeeToken.balance;
             break;
         case "TG":
-            balance = userBalance.data.TG.balance;
+            balance = (userBalance.data.TG as { balance: bigint }).balance;
             break;
         default:
             throw new Error("Invalid token name");
@@ -156,7 +156,7 @@ function TokenBalance(
 }
 
 function ConvertPeggedTokenPrice(
-    contractProtocolStatus: any,
+    contractProtocolStatus: { data?: Record<string | number, unknown> },
     caIndex: number,
     tpIndex: number,
     price: bigint,
@@ -167,7 +167,7 @@ function ConvertPeggedTokenPrice(
     } else {
         const priceCA =
             normalizeToBigInt(
-                contractProtocolStatus.data?.[caIndex].PP_CA[0]
+                (contractProtocolStatus.data?.[caIndex] as { PP_CA: [bigint, boolean] })?.PP_CA[0]
             ) || 0n;
         return inverted
             ? divPrecision(1000000000000000000n, price)
@@ -185,8 +185,8 @@ function hasNonUSDPeggedTokens(): boolean {
 }
 
 function ConvertBalance(
-    contractProtocolStatus: any,
-    userBalance: any,
+    contractProtocolStatus: { data?: Record<string | number, unknown> },
+    userBalance: { data: Record<string | number, unknown> } | undefined,
     tokenExchange: string,
     tokenReceive: string
 ): bigint {
@@ -200,7 +200,7 @@ function ConvertBalance(
 }
 
 function ConvertAmount(
-    contractProtocolStatus: any,
+    contractProtocolStatus: { data?: Record<string | number, unknown> },
     tokenExchange: string,
     tokenReceive: string,
     amount: bigint
@@ -218,7 +218,7 @@ function ConvertAmount(
         case "CA,TC":
             price =
                 normalizeToBigInt(
-                    contractProtocolStatus.data[caIndex].getPTCac
+                    (contractProtocolStatus.data?.[caIndex] as { getPTCac: bigint })?.getPTCac
                 ) || 0n;
             cAmount = divPrecision(amount, price);
             break;
@@ -226,9 +226,9 @@ function ConvertAmount(
             // Redeem Operation
             price =
                 normalizeToBigInt(
-                    contractProtocolStatus.data[caIndex].PP_TP[
+                    ((contractProtocolStatus.data?.[caIndex] as { PP_TP: [bigint, boolean][] })?.PP_TP || [])[
                         parseInt(aTokenExchange[1])
-                    ][0]
+                    ]?.[0]
                 ) || 0n;
             cAmount = divPrecision(amount, price);
             break;
@@ -236,9 +236,9 @@ function ConvertAmount(
             // Mint Operation
             price =
                 normalizeToBigInt(
-                    contractProtocolStatus.data[caIndex].PP_TP[
+                    ((contractProtocolStatus.data?.[caIndex] as { PP_TP: [bigint, boolean][] })?.PP_TP || [])[
                         parseInt(aTokenReceive[1])
-                    ][0]
+                    ]?.[0]
                 ) || 0n;
             cAmount = mulPrecision(amount, price);
             break;
@@ -246,7 +246,7 @@ function ConvertAmount(
             // Redeem Operation
             price =
                 normalizeToBigInt(
-                    contractProtocolStatus.data[caIndex].getPTCac
+                    (contractProtocolStatus.data?.[caIndex] as { getPTCac: bigint })?.getPTCac
                 ) || 0n;
             cAmount = mulPrecision(amount, price);
             break;
@@ -254,14 +254,14 @@ function ConvertAmount(
             // TG
             price =
                 normalizeToBigInt(
-                    contractProtocolStatus.data[caIndex].PP_FeeToken[0]
+                    ((contractProtocolStatus.data?.[caIndex] as { PP_FeeToken: [bigint, boolean] })?.PP_FeeToken || [0n, false])[0]
                 ) || 0n;
             cAmount = mulPrecision(amount, price);
             break;
         case "COINBASE,CA":
             // COINBASE
             price =
-                normalizeToBigInt(contractProtocolStatus.data.PP_COINBASE[0]) ||
+                normalizeToBigInt((contractProtocolStatus.data?.PP_COINBASE as [bigint, boolean])?.[0]) ||
                 0n;
             cAmount = mulPrecision(amount, price);
             break;
@@ -328,7 +328,7 @@ const getCAIndex = (tokenExchange: string, tokenReceive: string): number => {
 };
 
 function CalcCommission(
-    contractProtocolStatus: any,
+    contractProtocolStatus: { data?: Record<string | number, unknown> },
     tokenExchange: string,
     tokenReceive: string,
     rawAmount: bigint
@@ -345,25 +345,25 @@ function CalcCommission(
     switch (aTokenMap) {
         case "CA,TC":
             // Mint TC
-            feeParam = contractProtocolStatus.data?.[caIndex].tcMintFee || 0n;
+            feeParam = (contractProtocolStatus.data?.[caIndex] as { tcMintFee: bigint })?.tcMintFee || 0n;
             break;
         case "TP,CA":
             // Redeem TP
             feeParam =
-                contractProtocolStatus.data?.[caIndex].tpRedeemFees[
+                ((contractProtocolStatus.data?.[caIndex] as { tpRedeemFees: bigint[] })?.tpRedeemFees || [])[
                     parseInt(aTokenExchange[1])
                 ] || 0n;
             break;
         case "CA,TP":
             // Mint TP
             feeParam =
-                contractProtocolStatus.data?.[caIndex].tpMintFees[
+                ((contractProtocolStatus.data?.[caIndex] as { tpMintFees: bigint[] })?.tpMintFees || [])[
                     parseInt(aTokenReceive[1])
                 ] || 0n;
             break;
         case "TC,CA":
             // Redeem TC
-            feeParam = contractProtocolStatus.data?.[caIndex].tcRedeemFee || 0n;
+            feeParam = (contractProtocolStatus.data?.[caIndex] as { tcRedeemFee: bigint })?.tcRedeemFee || 0n;
             break;
         default:
             throw new Error("Invalid token name");
@@ -372,18 +372,18 @@ function CalcCommission(
     // Fee Paying with Token
     const feeTokenPrice =
         normalizeToBigInt(
-            contractProtocolStatus.data?.[caIndex].PP_FeeToken[0]
+            ((contractProtocolStatus.data?.[caIndex] as { PP_FeeToken: [bigint, boolean] })?.PP_FeeToken || [0n, false])[0]
         ) || 0n;
     const feeTokenPct =
-        contractProtocolStatus.data?.[caIndex].feeTokenPct || 0n;
+        (contractProtocolStatus.data?.[caIndex] as { feeTokenPct: bigint })?.feeTokenPct || 0n;
     const priceCA =
-        normalizeToBigInt(contractProtocolStatus.data?.[caIndex].PP_CA[0]) ||
+        normalizeToBigInt(((contractProtocolStatus.data?.[caIndex] as { PP_CA: [bigint, boolean] })?.PP_CA || [0n, false])[0]) ||
         0n;
     const qFeeToken = mulPrecision(amount, mulPrecision(feeParam, feeTokenPct));
 
     // Markup Vendors
     const vendorMarkup =
-        contractProtocolStatus.data?.[caIndex].vendorMarkup || 0n;
+        (contractProtocolStatus.data?.[caIndex] as { vendorMarkup: bigint })?.vendorMarkup || 0n;
     const markOperation = mulPrecision(amount, vendorMarkup);
 
     // Total fee token

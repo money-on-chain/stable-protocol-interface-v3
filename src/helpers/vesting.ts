@@ -1,4 +1,5 @@
 import { readContract } from "viem/actions";
+import type { PublicClient } from "viem";
 
 import VestingMachine from "../contracts/omoc/VestingMachine.json";
 
@@ -17,7 +18,7 @@ const loadVestingAddressesFromLocalStorage = (
     );
     let vestingAddresses: string[] = [];
     if (storageVestingAddresses !== null) {
-        vestingAddresses = JSON.parse(storageVestingAddresses);
+        vestingAddresses = JSON.parse(storageVestingAddresses) as string[];
     }
     return vestingAddresses;
 };
@@ -57,7 +58,7 @@ const loadDefaultVestingFromLocalStorage = (
 };
 
 const loadVesting = async (
-    publicClient: any,
+    publicClient: PublicClient,
     vAddress: `0x${string}`
 ): Promise<boolean> => {
     let loaded = false;
@@ -69,17 +70,17 @@ const loadVesting = async (
             args: [],
         })) as string;
 
-        console.log(`Loaded Vesting Machine: ${vAddress} Holder: ${holder} `);
+        console.warn(`Loaded Vesting Machine: ${vAddress} Holder: ${holder} `);
         loaded = true;
     } catch (error) {
-        console.log(`Invalid Vesting address: ${error}`);
+        console.error(`Invalid Vesting address: ${String(error)}`);
     }
 
     return loaded;
 };
 
 const onValidateVestingAddress = async (
-    publicClient: any,
+    publicClient: PublicClient,
     addVestingAddress: `0x${string}`
 ): Promise<boolean> => {
     // 1. Input address valid
@@ -97,11 +98,11 @@ const onValidateVestingAddress = async (
             args: [],
         })) as string;
 
-        console.log("Holder: ", holder);
+        console.warn("Holder: ", holder);
 
         return true;
     } catch (error) {
-        console.log(`Invalid Vesting address: ${error}`);
+        console.error(`Invalid Vesting address: ${String(error)}`);
     }
 
     return false;

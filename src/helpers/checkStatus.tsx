@@ -10,7 +10,7 @@ interface StatusResult {
     statusCode: number[];
 }
 
-function CheckStatusCA(contractProtocolStatus: any, caIndex: number): number {
+function CheckStatusCA(contractProtocolStatus: { data?: Record<string | number, unknown> }, caIndex: number): number {
     /* Status Code:
     -1: Error - 
      0: Optimal - globalCoverage > getCtargemaCA
@@ -25,30 +25,42 @@ function CheckStatusCA(contractProtocolStatus: any, caIndex: number): number {
 
     if (!contractProtocolStatus.data) return statusCode;
 
-    const globalCoverage = contractProtocolStatus.data[caIndex].getCglb;
-    const getCtargemaCA = contractProtocolStatus.data[caIndex].getCtargemaCA;
-    const liqThrld = contractProtocolStatus.data[caIndex].liqThrld;
-    const protThrld = contractProtocolStatus.data[caIndex].protThrld;
+    const caData = contractProtocolStatus.data[caIndex] as {
+        getCglb: bigint;
+        getCtargemaCA: bigint;
+        liqThrld: bigint;
+        protThrld: bigint;
+        liquidated: boolean;
+        paused: boolean;
+    } | undefined;
+    
+    if (!caData) return statusCode;
+    
+    const globalCoverage = caData.getCglb;
+    const getCtargemaCA = caData.getCtargemaCA;
+    const liqThrld = caData.liqThrld;
+    const protThrld = caData.protThrld;
 
     if (globalCoverage > getCtargemaCA) {
         statusCode = 0;
     } else if (globalCoverage > protThrld && globalCoverage <= getCtargemaCA) {
         statusCode = 1;
-    } else if (globalCoverage.gt(liqThrld) && globalCoverage.lte(protThrld)) {
+    } else if (globalCoverage > liqThrld && globalCoverage <= protThrld) {
         statusCode = 2;
     } else {
         statusCode = 3;
     }
 
-    if (contractProtocolStatus.data[caIndex].liquidated) {
+    if (caData.liquidated) {
         statusCode = 3;
     }
 
-    if (contractProtocolStatus.data[caIndex].paused) {
+    if (caData.paused) {
         statusCode = 4;
     }
 
-    if (!contractProtocolStatus.data.canOperate) {
+    const canOperate = contractProtocolStatus.data.canOperate as boolean | undefined;
+    if (canOperate === false) {
         statusCode = 5;
     }
 
