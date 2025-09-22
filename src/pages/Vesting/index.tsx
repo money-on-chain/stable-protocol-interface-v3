@@ -7,9 +7,9 @@ import Vesting from "../../components/Vesting";
 import { useWalletContext } from "../../context/Wallet";
 
 export default function SectionVesting(): React.ReactElement {
-    const { contractStatusOmoc } = useWalletContext()
+    const { contractStatusOmoc } = useWalletContext();
     const [ready, setReady] = useState<boolean>(false);
-    
+
     useEffect(() => {
         if (contractStatusOmoc.data) {
             setReady(true);

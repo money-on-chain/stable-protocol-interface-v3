@@ -5,8 +5,7 @@ import React, { useEffect, useState } from "react";
 import { PrecisionNumbers } from "@/components/PrecisionNumbers";
 
 import { useWalletContext } from "../../../../context/Wallet";
-import type {
-    TokenConfig} from "../../../../helpers/currencies";
+import type { TokenConfig } from "../../../../helpers/currencies";
 import {
     getCurrencyByValue,
     getTCTokenIndex,
@@ -74,7 +73,11 @@ const VetoWithdraw: React.FC = () => {
         const cDataUser: InfoUser = { ...infoUser };
         cDataUser["InfoUserTC"] = [];
 
-        const lockedByVeto = tcLockedByVeto(userVeto.data, contractStatusOmoc.data, address);
+        const lockedByVeto = tcLockedByVeto(
+            userVeto.data,
+            contractStatusOmoc.data,
+            address
+        );
         lockedByVeto.forEach((locked) => {
             const tcIndex = getTCTokenIndex(
                 contractsAddress.CollateralToken,

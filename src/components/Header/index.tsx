@@ -1,8 +1,8 @@
 import "./Styles.scss";
 
 import { Layout } from "antd";
-import React, { useEffect, useRef,useState } from "react";
-import { useLocation,useNavigate } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { useWalletContext } from "../../context/Wallet";
 import { useProjectTranslation } from "../../helpers/translations";
@@ -38,12 +38,8 @@ const truncateAddress = (address: string): string => {
 export default function SectionHeader(): JSX.Element {
     const navigate = useNavigate();
     const location = useLocation();
-    const {
-        isConnected,
-        address,
-        onShowModalAccount,
-        onShowModalProviders,
-    } = useWalletContext();
+    const { isConnected, address, onShowModalAccount, onShowModalProviders } =
+        useWalletContext();
     //const [css_disable, setCssDisable] = useState("disable-nav-item");
     const [showMoreDropdown, setShowMoreDropdown] = useState<boolean>(false);
     const [showLanguageMenu, setShowLanguageMenu] = useState<boolean>(false);
@@ -210,11 +206,11 @@ export default function SectionHeader(): JSX.Element {
                         className={`wallet-address ${isConnected ? "walletConnected" : "walletDisconnected"}`}
                     >
                         {isConnected ? (
-                        <>                            
-                            <a onClick={onShowModalAccount}>
-                                {truncateAddress(address || "")}
-                            </a>                            
-                        </>
+                            <>
+                                <a onClick={onShowModalAccount}>
+                                    {truncateAddress(address || "")}
+                                </a>
+                            </>
                         ) : (
                             <a onClick={() => onShowModalProviders()}>
                                 {t("walletProviders.connectWalletButton")}

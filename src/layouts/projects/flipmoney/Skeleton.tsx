@@ -8,7 +8,7 @@ import SectionHeader from "../../../components/Header";
 import { NetworkGuard } from "../../../components/NetworkGuard";
 import NotConnected from "../../../components/NotConnected";
 import NotificationBody from "../../../components/Notification";
-import UpdateToast from '../../../components/UpdateToast'
+import UpdateToast from "../../../components/UpdateToast";
 import { useWalletContext } from "../../../context/Wallet";
 import { CheckStatusGlobal } from "../../../helpers/checkStatus";
 import { useProjectTranslation } from "../../../helpers/translations";
@@ -90,7 +90,13 @@ export default function Skeleton(): JSX.Element {
     };
 
     const readWithdrawStatus = (): void => {
-        if (isSomeTCLockedByVeto(userVeto.data, contractStatusOmoc.data, address)) {
+        if (
+            isSomeTCLockedByVeto(
+                userVeto.data,
+                contractStatusOmoc.data,
+                address
+            )
+        ) {
             setVetoWithdraw({
                 id: -1,
                 title: t(`voting.veto.alert.title`),

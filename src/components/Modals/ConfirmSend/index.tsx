@@ -14,7 +14,9 @@ interface ModalConfirmSendProps {
     onClear: () => void;
 }
 
-export default function ModalConfirmSend(props: ModalConfirmSendProps): React.ReactElement {
+export default function ModalConfirmSend(
+    props: ModalConfirmSendProps
+): React.ReactElement {
     const { /*onClear,*/ inputValidationError } = props;
 
     const { t } = useProjectTranslation();

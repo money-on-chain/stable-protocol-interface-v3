@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
+import type { MultiCallInput } from "../types/hooks";
 import { useMultiCall } from "./useMulticall";
-import type { MultiCallInput } from '../types/hooks'
 
 const onErrorProposal = () => {
     console.warn("Proposal not exist");
@@ -46,11 +46,7 @@ export function useUserVeto(
                     functionName: "allowance",
                     args: [userAddress, contracts.VetoMachine.address],
                     resultType: "uint256" as any,
-                    keys: [
-                        "vetoMachine",
-                        "allowance",
-                        CollateralToken.address,
-                    ],
+                    keys: ["vetoMachine", "allowance", CollateralToken.address],
                 });
 
                 for (const key in contractStatusOmoc.votingmachine

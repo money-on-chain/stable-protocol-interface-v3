@@ -9,12 +9,14 @@ interface ModalAllowanceOperationProps {
     title?: string;
     currencyYouExchange: string;
     currencyYouReceive: string;
-    amountYouExchangeLimit: any; 
+    amountYouExchangeLimit: any;
     onRealSendTransaction: () => void;
     disAllowance?: boolean;
 }
 
-export default function ModalAllowanceOperation(props: ModalAllowanceOperationProps): React.ReactElement {
+export default function ModalAllowanceOperation(
+    props: ModalAllowanceOperationProps
+): React.ReactElement {
     const { visible, onHideModalAllowance, title } = props;
 
     return (

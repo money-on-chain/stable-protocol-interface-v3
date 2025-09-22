@@ -3,7 +3,7 @@ import "./WithdrawV2.scss";
 import { Skeleton, Table } from "antd";
 import moment from "moment-timezone";
 import PropTypes from "prop-types";
-import React, { useEffect,useState } from "react";
+import React, { useEffect, useState } from "react";
 import Moment from "react-moment";
 
 import { useWalletContext } from "../../context/Wallet";

@@ -1,11 +1,11 @@
 import { Button, Collapse, Slider } from "antd";
 import axios from "axios";
 import PropTypes from "prop-types";
-import React, { useEffect,useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { decodeEvents } from "../../backend/transaction";
 import { useWalletContext } from "../../context/Wallet";
-import { TokenBalance,TokenSettings } from "../../helpers/currencies";
+import { TokenBalance, TokenSettings } from "../../helpers/currencies";
 import { isMintOperation, UserTokenAllowance } from "../../helpers/exchange";
 import { useProjectTranslation } from "../../helpers/translations";
 import CopyAddress from "../CopyAddress";
@@ -34,7 +34,14 @@ interface ConfirmOperationProps {
     caIndex: number;
 }
 
-type StatusType = "SUBMIT" | "SIGN" | "QUEUING" | "QUEUED" | "CONFIRMING" | "SUCCESS" | "ERROR";
+type StatusType =
+    | "SUBMIT"
+    | "SIGN"
+    | "QUEUING"
+    | "QUEUED"
+    | "CONFIRMING"
+    | "SUCCESS"
+    | "ERROR";
 
 interface ToleranceLimits {
     exchange: bigint;
@@ -65,7 +72,6 @@ interface StatusLabels {
     [key: string]: string;
 }
 
-
 /**
  * Calculates the limit as: amount + amount * percentage
  * using only BigInt arithmetic by scaling the percentage.
@@ -75,18 +81,23 @@ interface StatusLabels {
  * @param {bigint} scale - Precision scale (default: 1_000_000n = 6 decimals).
  * @returns {bigint} The resulting amount with the percentage added.
  */
-function calculateLimit(amount: bigint, percentage: number, scale = 1_000_000n): bigint {    
+function calculateLimit(
+    amount: bigint,
+    percentage: number,
+    scale = 1_000_000n
+): bigint {
     // Convert the decimal percentage to a scaled integer
     const scaledPercentage = BigInt(Math.floor(percentage * Number(scale)));
-  
+
     // Compute: amount * (1 + percentage) = amount * (scale + scaledPercentage) / scale
     const limit = (amount * (scale + scaledPercentage)) / scale;
-  
+
     return limit;
 }
 
-
-export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Element {
+export default function ConfirmOperation(
+    props: ConfirmOperationProps
+): JSX.Element {
     const {
         currencyYouExchange,
         currencyYouReceive,
@@ -103,12 +114,13 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
         commissionFeeTokenUSD,
         commissionPercentFeeToken,
         radioSelectFee,
-        caIndex
+        caIndex,
     } = props;
 
     const { t, i18n, ns } = useProjectTranslation();
-    
-    const { contractProtocolStatus, userBalance, interfaceExchangeMethod } = useWalletContext()
+
+    const { contractProtocolStatus, userBalance, interfaceExchangeMethod } =
+        useWalletContext();
 
     const [status, setStatus] = useState<StatusType>("SUBMIT");
     const [amountYouExchange, setAmountYouExchange] = useState<bigint>(
@@ -120,8 +132,11 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
     const [toleranceError, setToleranceError] = useState<string>("");
     const [amountChanged, setAmountChanged] = useState<boolean>(false);
 
-    const IS_MINT: boolean = isMintOperation(currencyYouExchange, currencyYouReceive);
-    
+    const IS_MINT: boolean = isMintOperation(
+        currencyYouExchange,
+        currencyYouReceive
+    );
+
     useEffect(() => {
         setAmountYouExchange(inputAmountYouExchange);
     }, []);
@@ -160,7 +175,10 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
         let limitExchange: bigint;
         let limitReceive: bigint;
         if (IS_MINT) {
-            limitExchange = calculateLimit(amountYouExchange, newTolerance / 100);
+            limitExchange = calculateLimit(
+                amountYouExchange,
+                newTolerance / 100
+            );
             limitReceive = amountYouReceive;
         } else {
             limitExchange = amountYouExchange;
@@ -177,15 +195,17 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
 
     const limits: ToleranceLimits = toleranceLimits(tolerance);
 
-    const [amountYouExchangeLimit, setAmountYouExchangeLimit] = useState<bigint>(
-        limits.exchange
-    );
+    const [amountYouExchangeLimit, setAmountYouExchangeLimit] =
+        useState<bigint>(limits.exchange);
     const [amountYouReceiveLimit, setAmountYouReceiveLimit] = useState<bigint>(
         limits.receive
     );
-    const [showModalAllowance, setShowModalAllowance] = useState<boolean>(false);
-    const [showModalAllowanceFeeToken, setShowModalAllowanceFeeToken] = useState<boolean>(false);
-    const [disAllowanceFeeToken, setDisAllowanceFeeToken] = useState<boolean>(false);
+    const [showModalAllowance, setShowModalAllowance] =
+        useState<boolean>(false);
+    const [showModalAllowanceFeeToken, setShowModalAllowanceFeeToken] =
+        useState<boolean>(false);
+    const [disAllowanceFeeToken, setDisAllowanceFeeToken] =
+        useState<boolean>(false);
 
     useEffect(() => {
         if (amountYouExchange) {
@@ -217,7 +237,11 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
     };
 
     const showAllowance = (): boolean => {
-        const tokenAllowance: bigint = UserTokenAllowance(userBalance, currencyYouExchange, caIndex);
+        const tokenAllowance: bigint = UserTokenAllowance(
+            userBalance,
+            currencyYouExchange,
+            caIndex
+        );
         return amountYouExchangeLimit > tokenAllowance;
     };
 
@@ -231,7 +255,11 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
 
     const showAllowanceFeeToken = (): boolean => {
         //const caIndex = getCAIndex(currencyYouExchange, currencyYouReceive);
-        const tokenAllowance: bigint = UserTokenAllowance(userBalance, `TF_${caIndex}`, caIndex);
+        const tokenAllowance: bigint = UserTokenAllowance(
+            userBalance,
+            `TF_${caIndex}`,
+            caIndex
+        );
 
         if (radioSelectFee === 0 && tokenAllowance >= commissionFeeToken) {
             // if we select not to pay with fee token, please disallow to use Fee token
@@ -297,19 +325,25 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                     // The request was made and the server responded with a status code
                     // that falls out of the range of 2xx
                     if (error.response.status === 404) {
-                        console.warn('Resource not found - Operation may not be indexed yet');
+                        console.warn(
+                            "Resource not found - Operation may not be indexed yet"
+                        );
                     } else {
-                        console.error('Server error:', error.response.status, error.response.data);
-                        setStatus('ERROR');
+                        console.error(
+                            "Server error:",
+                            error.response.status,
+                            error.response.data
+                        );
+                        setStatus("ERROR");
                     }
                 } else if (error.request) {
                     // The request was made but no response was received
-                    console.error('No response received:', error.request);
-                    setStatus('ERROR');
+                    console.error("No response received:", error.request);
+                    setStatus("ERROR");
                 } else {
                     // Something happened in setting up the request that triggered an Error
-                    console.error('Error setting up request:', error.message);
-                    setStatus('ERROR');
+                    console.error("Error setting up request:", error.message);
+                    setStatus("ERROR");
                 }
             });
     };
@@ -334,7 +368,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
             .get(apiUrl, {
                 params: {
                     oper_id: opID,
-                    bucket_index: caIndex
+                    bucket_index: caIndex,
                 },
                 timeout: 10000,
             })
@@ -378,19 +412,25 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                     // The request was made and the server responded with a status code
                     // that falls out of the range of 2xx
                     if (error.response.status === 404) {
-                        console.warn('Resource not found - Operation may not be indexed yet');
+                        console.warn(
+                            "Resource not found - Operation may not be indexed yet"
+                        );
                     } else {
-                        console.error('Server error:', error.response.status, error.response.data);
-                        setStatus('ERROR');
+                        console.error(
+                            "Server error:",
+                            error.response.status,
+                            error.response.data
+                        );
+                        setStatus("ERROR");
                     }
                 } else if (error.request) {
                     // The request was made but no response was received
-                    console.error('No response received:', error.request);
+                    console.error("No response received:", error.request);
                     //setStatus('ERROR');
                 } else {
                     // Something happened in setting up the request that triggered an Error
-                    console.error('Error setting up request:', error.message);
-                    setStatus('ERROR');
+                    console.error("Error setting up request:", error.message);
+                    setStatus("ERROR");
                 }
             });
     };
@@ -428,20 +468,19 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
             "OperationExecuted",
         ];
 
-        
         const contractName: string = "MocQueue";
 
         //const txRcp = await auth.web3.eth.getTransactionReceipt(
         //    receipt.transactionHash
         //);
         const txRcp = receipt;
-        const filteredEvents: any[] = decodeEvents(txRcp, contractName as any, filter) || [];
+        const filteredEvents: any[] =
+            decodeEvents(txRcp, contractName as any, filter) || [];
 
         // on Queue
         onQueued(filteredEvents);
-        
     };
-    
+
     const statusLabels: StatusLabels = {
         SUBMIT: t("exchange.confirm.submit"),
         SIGN: t("exchange.confirm.sign"),
@@ -507,7 +546,10 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
         setAmountChanged(true);
         setTolerance(newTolerance);
         const limits: ToleranceLimits = toleranceLimits(newTolerance);
-        const totalBalance: bigint = TokenBalance(userBalance, currencyYouExchange);
+        const totalBalance: bigint = TokenBalance(
+            userBalance,
+            currencyYouExchange
+        );
         if (limits.exchange > totalBalance) {
             console.log("Insufficient balance");
             setToleranceError("Tolerance exceeds user balance");
@@ -563,11 +605,8 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                             {PrecisionNumbers({
                                 amount: amountYouExchangeLimit,
                                 token: TokenSettings(currencyYouExchange),
-                                decimals: amountYouExchangeLimit < 1n
-                                    ? 12
-                                    : 8,
-                                i18n: i18n
-                                
+                                decimals: amountYouExchangeLimit < 1n ? 12 : 8,
+                                i18n: i18n,
                             })}
                         </div>
                         <div className="tx-token">
@@ -595,10 +634,8 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                             {PrecisionNumbers({
                                 amount: amountYouReceive,
                                 token: TokenSettings(currencyYouReceive),
-                                decimals: amountYouReceive < 1n
-                                    ? 12
-                                    : 8,
-                                i18n: i18n                                
+                                decimals: amountYouReceive < 1n ? 12 : 8,
+                                i18n: i18n,
                             })}
                         </div>
                         <div className="tx-token">
@@ -618,7 +655,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                                             currencyYouReceive
                                         ),
                                         decimals: 4,
-                                        i18n: i18n                                        
+                                        i18n: i18n,
                                     })}
                                 </div>
                                 {t("exchange.confirm.minimumExplanation")}
@@ -637,7 +674,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                                 amount: commissionPercentPAY,
                                 token: commissionSettings,
                                 decimals: 2,
-                                i18n: i18n                                
+                                i18n: i18n,
                             })}
                             %)
                         </span>
@@ -647,7 +684,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                                 amount: commissionPAY,
                                 decimals: 10,
                                 token: commissionSettings,
-                                i18n: i18n                                
+                                i18n: i18n,
                             })}
                         </span>
                         <span className={"token_receive_name"}>
@@ -663,7 +700,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                                       decimals: 2,
                                       token: TokenSettings(`CA_${caIndex}`),
                                       i18n: i18n,
-                                      isUSD: true
+                                      isUSD: true,
                                   })}
                         </span>
                         <span className={""}>
@@ -682,7 +719,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                                 amount: executionFee,
                                 decimals: 10,
                                 token: TokenSettings("COINBASE"),
-                                i18n: i18n                                
+                                i18n: i18n,
                             })}
                         </span>
                         <span className={"token_receive_name"}>
@@ -701,13 +738,10 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                                       decimals: 2,
                                       token: TokenSettings(`CA_${caIndex}`),
                                       i18n: i18n,
-                                      isUSD: true                                      
+                                      isUSD: true,
                                   })}
                         </span>
-                        <span className={""}>
-                            {" "}
-                            USD
-                        </span>
+                        <span className={""}> USD</span>
                         <span className={""}>) </span>
                     </div>
                 </div>
@@ -752,7 +786,9 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                                         max={10}
                                         step={0.1}
                                         dots={false}
-                                        onChange={(val: number) => changeTolerance(val)}
+                                        onChange={(val: number) =>
+                                            changeTolerance(val)
+                                        }
                                     />
                                 </div>
                             </Panel>
@@ -773,7 +809,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                                         amount: exchangingUSD,
                                         token: TokenSettings(`CA_${caIndex}`),
                                         decimals: 4,
-                                        i18n: i18n,                                        
+                                        i18n: i18n,
                                         isUSD: true,
                                     })}
                                 </div>

@@ -31,7 +31,7 @@ export default function ModalAccount(props: ModalAccountProps): JSX.Element {
                 >
                     <Account
                         {...props}
-                        onCloseModal={onHide}                        
+                        onCloseModal={onHide}
                         vestingOn={vestingOn}
                         setVestingOn={setVestingOn}
                     />
@@ -40,4 +40,4 @@ export default function ModalAccount(props: ModalAccountProps): JSX.Element {
             <i className="logo-wallet" onClick={onShow}></i>
         </Fragment>
     );
-} 
+}

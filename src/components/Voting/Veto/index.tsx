@@ -4,9 +4,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useWalletContext } from "../../../context/Wallet";
-import type { TokenConfig} from "../../../helpers/currencies";
+import type { TokenConfig } from "../../../helpers/currencies";
 import { TokenSettings } from "../../../helpers/currencies";
-import { divPrecision,mulPrecision } from "../../../helpers/precision";
+import { divPrecision, mulPrecision } from "../../../helpers/precision";
 import { formatTimestamp } from "../../../helpers/staking";
 import { useProjectTranslation } from "../../../helpers/translations";
 import ModalAllowanceOperation from "../../Modals/Allowance";

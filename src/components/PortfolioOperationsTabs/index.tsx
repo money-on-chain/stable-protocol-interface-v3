@@ -13,7 +13,7 @@ interface Tab {
 
 export default function HomeTabs(): React.ReactElement {
     const { t } = useProjectTranslation();
-    
+
     //const [ready, setReady] = useState(false);
 
     /*

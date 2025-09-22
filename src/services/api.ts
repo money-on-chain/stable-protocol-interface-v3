@@ -21,7 +21,7 @@ const api = <T = any>(
         const data: AxiosRequestConfig = ["delete", "get"].includes(method)
             ? { params }
             : { data: params };
-        
+
         axios({ method, url: `${url}`, ...data })
             .then((response: AxiosResponse<T>) => {
                 resolve(allData ? response : response.data);

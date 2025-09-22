@@ -12,4 +12,4 @@ export default function DappVersion(): React.ReactElement {
             </div>
         </>
     );
-} 
+}

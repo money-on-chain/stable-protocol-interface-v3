@@ -1,6 +1,6 @@
 import "./Styles.scss";
 
-import React, { useEffect,useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
 

@@ -2,7 +2,6 @@ import { useWalletContext } from "../context/Wallet";
 import settings from "../settings/settings.json";
 import { useProjectTranslation } from "./translations";
 
-
 interface StatusResult {
     globalStatus: number;
     statusLabel: string;
@@ -58,7 +57,7 @@ function CheckStatusCA(contractProtocolStatus: any, caIndex: number): number {
 
 function CheckStatusGlobal() {
     const { t } = useProjectTranslation();
-    const { contractProtocolStatus } = useWalletContext()
+    const { contractProtocolStatus } = useWalletContext();
 
     const checkerStatus = (): StatusResult => {
         let statusLabel: string = "--";

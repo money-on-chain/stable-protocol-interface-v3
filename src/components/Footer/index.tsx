@@ -14,4 +14,4 @@ export default function DappFooter(): React.ReactElement {
             </div>
         </>
     );
-} 
+}

@@ -23,7 +23,9 @@ interface CompletedBarProps {
     percentage3?: bigint; // BigInt with 18 decimals
 }
 
-export default function CompletedBar(props: CompletedBarProps): React.ReactElement {
+export default function CompletedBar(
+    props: CompletedBarProps
+): React.ReactElement {
     const { i18n } = useProjectTranslation();
     const space = "\u00A0";
 

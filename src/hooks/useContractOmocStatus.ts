@@ -1,8 +1,8 @@
-import { useMemo } from 'react'
+import { useMemo } from "react";
 
 import omoc from "../settings/omoc/omoc.json";
+import type { MultiCallInput } from "../types/hooks";
 import { useMultiCall } from "./useMulticall";
-import type { MultiCallInput } from '../types/hooks'
 
 const onErrorProposal = () => {
     console.warn("Proposal not exist");
@@ -13,160 +13,163 @@ const onErrorProposal = () => {
  * React hook that wraps useMultiCall3 to fetch contract status data.
  * Builds the call array with useMemo so it remains stable between renders.
  */
-export function useContractOmocStatus(contracts?: any, proposalCountVoting?: bigint, refetchInterval = 30_000) {
+export function useContractOmocStatus(
+    contracts?: any,
+    proposalCountVoting?: bigint,
+    refetchInterval = 30_000
+) {
     const callsRequests = useMemo(() => {
-        
-        if (!contracts) return []
+        if (!contracts) return [];
 
-        if (!proposalCountVoting) proposalCountVoting = 0n
-                
-        const callRequest = []        
+        if (!proposalCountVoting) proposalCountVoting = 0n;
+
+        const callRequest = [];
 
         // OMOC
         if (typeof contracts.IRegistry !== "undefined") {
             callRequest.push({
                 contract: contracts.StakingMachine,
-                functionName: 'getWithdrawLockTime',
+                functionName: "getWithdrawLockTime",
                 args: [],
                 resultType: "uint256" as any,
-                keys: ["stakingmachine", "getWithdrawLockTime"]
+                keys: ["stakingmachine", "getWithdrawLockTime"],
             });
 
             callRequest.push({
                 contract: contracts.StakingMachine,
-                functionName: 'getSupporters',
+                functionName: "getSupporters",
                 args: [],
-                resultType: 'address' as any,
-                keys: ["stakingmachine", "getSupporters"]
+                resultType: "address" as any,
+                keys: ["stakingmachine", "getSupporters"],
             });
 
             callRequest.push({
                 contract: contracts.StakingMachine,
-                functionName: 'getOracleManager',
+                functionName: "getOracleManager",
                 args: [],
-                resultType: 'address' as any,
-                keys: ["stakingmachine", "getOracleManager"]
+                resultType: "address" as any,
+                keys: ["stakingmachine", "getOracleManager"],
             });
 
             callRequest.push({
                 contract: contracts.StakingMachine,
-                functionName: 'getDelayMachine',
+                functionName: "getDelayMachine",
                 args: [],
-                resultType: 'address' as any,
-                keys: ["stakingmachine", "getDelayMachine"]
+                resultType: "address" as any,
+                keys: ["stakingmachine", "getDelayMachine"],
             });
 
             callRequest.push({
                 contract: contracts.DelayMachine,
-                functionName: 'getLastId',
+                functionName: "getLastId",
                 args: [],
-                resultType: 'uint256' as any,
-                keys: ["delaymachine", "getLastId"]
+                resultType: "uint256" as any,
+                keys: ["delaymachine", "getLastId"],
             });
 
             callRequest.push({
                 contract: contracts.DelayMachine,
-                functionName: 'getSource',
+                functionName: "getSource",
                 args: [],
-                resultType: 'address' as any,
-                keys: ["delaymachine", "getSource"]
+                resultType: "address" as any,
+                keys: ["delaymachine", "getSource"],
             });
 
             callRequest.push({
                 contract: contracts.Supporters,
-                functionName: 'isReadyToDistribute',
+                functionName: "isReadyToDistribute",
                 args: [],
-                resultType: 'bool' as any,
-                keys: ["supporters", "isReadyToDistribute"]
+                resultType: "bool" as any,
+                keys: ["supporters", "isReadyToDistribute"],
             });
 
             callRequest.push({
                 contract: contracts.Supporters,
-                functionName: 'mocToken',
+                functionName: "mocToken",
                 args: [],
-                resultType: 'address' as any,
-                keys: ["supporters", "mocToken"]
+                resultType: "address" as any,
+                keys: ["supporters", "mocToken"],
             });
 
             callRequest.push({
                 contract: contracts.Supporters,
-                functionName: 'period',
+                functionName: "period",
                 args: [],
-                resultType: 'uint256' as any,
-                keys: ["supporters", "period"]
+                resultType: "uint256" as any,
+                keys: ["supporters", "period"],
             });
 
             callRequest.push({
                 contract: contracts.Supporters,
-                functionName: 'totalMoc',
+                functionName: "totalMoc",
                 args: [],
-                resultType: 'uint256' as any,
-                keys: ["supporters", "totalMoc"]
+                resultType: "uint256" as any,
+                keys: ["supporters", "totalMoc"],
             });
 
             callRequest.push({
                 contract: contracts.Supporters,
-                functionName: 'totalToken',
+                functionName: "totalToken",
                 args: [],
-                resultType: 'uint256' as any,
-                keys: ["supporters", "totalToken"]
+                resultType: "uint256" as any,
+                keys: ["supporters", "totalToken"],
             });
 
             callRequest.push({
                 contract: contracts.VotingMachine,
-                functionName: 'getState',
+                functionName: "getState",
                 args: [],
-                resultType: 'uint256' as any,
-                keys: ["votingmachine", "getState"]
+                resultType: "uint256" as any,
+                keys: ["votingmachine", "getState"],
             });
 
             callRequest.push({
                 contract: contracts.VotingMachine,
-                functionName: 'getVotingRound',
+                functionName: "getVotingRound",
                 args: [],
-                resultType: 'uint256' as any,
-                keys: ["votingmachine", "getVotingRound"]
+                resultType: "uint256" as any,
+                keys: ["votingmachine", "getVotingRound"],
             });
 
             callRequest.push({
                 contract: contracts.VotingMachine,
-                functionName: 'getVoteInfo',
+                functionName: "getVoteInfo",
                 args: [],
                 resultType: [
                     { type: "address", name: "winnerProposal" },
                     { type: "uint256", name: "inFavorVotes" },
-                    { type: "uint256", name: "againstVotes" }
+                    { type: "uint256", name: "againstVotes" },
                 ] as any,
-                keys: ["votingmachine", "getVoteInfo"]
+                keys: ["votingmachine", "getVoteInfo"],
             });
 
             callRequest.push({
                 contract: contracts.VotingMachine,
-                functionName: 'readyToPreVoteStep',
+                functionName: "readyToPreVoteStep",
                 args: [],
-                resultType: 'bool' as any,
-                keys: ["votingmachine", "readyToPreVoteStep"]
+                resultType: "bool" as any,
+                keys: ["votingmachine", "readyToPreVoteStep"],
             });
 
             callRequest.push({
                 contract: contracts.VotingMachine,
-                functionName: 'readyToVoteStep',
+                functionName: "readyToVoteStep",
                 args: [],
-                resultType: 'bool' as any,
-                keys: ["votingmachine", "readyToVoteStep"]
+                resultType: "bool" as any,
+                keys: ["votingmachine", "readyToVoteStep"],
             });
 
             callRequest.push({
                 contract: contracts.VotingMachine,
-                functionName: 'getProposalCount',
+                functionName: "getProposalCount",
                 args: [],
-                resultType: 'uint256' as any,
-                keys: ["votingmachine", "getProposalCount"]
+                resultType: "uint256" as any,
+                keys: ["votingmachine", "getProposalCount"],
             });
 
             callRequest.push({
                 contract: contracts.VotingMachine,
-                functionName: 'getVotingData',
+                functionName: "getVotingData",
                 args: [],
                 resultType: [
                     { type: "address", name: "winnerProposal" },
@@ -174,15 +177,15 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                     { type: "uint256", name: "againstVotes" },
                     { type: "uint256", name: "votingExpirationTime" },
                 ] as any,
-                keys: ["votingmachine", "getVotingData"]
+                keys: ["votingmachine", "getVotingData"],
             });
 
             callRequest.push({
                 contract: contracts.TG,
-                functionName: 'totalSupply',
+                functionName: "totalSupply",
                 args: [],
-                resultType: 'uint256' as any,
-                keys: ["votingmachine", "totalSupply"]
+                resultType: "uint256" as any,
+                keys: ["votingmachine", "totalSupply"],
             });
 
             // Proposals
@@ -193,16 +196,23 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
                         indexProp = proposalCountVoting - BigInt(i);
                         callRequest.push({
                             contract: contracts.VotingMachine,
-                            functionName: 'getProposalByIndex',
+                            functionName: "getProposalByIndex",
                             args: [indexProp],
                             resultType: [
                                 { type: "address", name: "proposalAddress" },
                                 { type: "uint256", name: "votingRound" },
                                 { type: "uint256", name: "votes" },
-                                { type: "uint256", name: "expirationTimeStamp" },
+                                {
+                                    type: "uint256",
+                                    name: "expirationTimeStamp",
+                                },
                             ] as any,
-                            keys: ["votingmachine", "getProposalByIndex", Number(indexProp)],
-                            onError: onErrorProposal
+                            keys: [
+                                "votingmachine",
+                                "getProposalByIndex",
+                                Number(indexProp),
+                            ],
+                            onError: onErrorProposal,
                         });
                     }
                 }
@@ -211,74 +221,93 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
             // OMOC REGISTRY CONSTANT
             callRequest.push({
                 contract: contracts.IRegistry,
-                functionName: 'getUint',
+                functionName: "getUint",
                 args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_MIN_STAKE],
-                resultType: 'uint256' as any,
-                keys: ["votingmachine", "MIN_STAKE"]
+                resultType: "uint256" as any,
+                keys: ["votingmachine", "MIN_STAKE"],
             });
 
             callRequest.push({
                 contract: contracts.IRegistry,
-                functionName: 'getUint',
-                args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_PRE_VOTE_EXPIRATION_TIME_DELTA],
-                resultType: 'uint256' as any,
-                keys: ["votingmachine", "PRE_VOTE_EXPIRATION_TIME_DELTA"]
+                functionName: "getUint",
+                args: [
+                    omoc.RegistryConstants
+                        .MOC_VOTING_MACHINE_PRE_VOTE_EXPIRATION_TIME_DELTA,
+                ],
+                resultType: "uint256" as any,
+                keys: ["votingmachine", "PRE_VOTE_EXPIRATION_TIME_DELTA"],
             });
 
             callRequest.push({
                 contract: contracts.IRegistry,
-                functionName: 'getUint',
-                args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_MAX_PRE_PROPOSALS],
-                resultType: 'uint256' as any,
-                keys: ["votingmachine", "MAX_PRE_PROPOSALS"]
+                functionName: "getUint",
+                args: [
+                    omoc.RegistryConstants.MOC_VOTING_MACHINE_MAX_PRE_PROPOSALS,
+                ],
+                resultType: "uint256" as any,
+                keys: ["votingmachine", "MAX_PRE_PROPOSALS"],
             });
 
             callRequest.push({
                 contract: contracts.IRegistry,
-                functionName: 'getUint',
-                args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_PRE_VOTE_MIN_PCT_TO_WIN],
-                resultType: 'uint256' as any,
-                keys: ["votingmachine", "PRE_VOTE_MIN_PCT_TO_WIN"]
+                functionName: "getUint",
+                args: [
+                    omoc.RegistryConstants
+                        .MOC_VOTING_MACHINE_PRE_VOTE_MIN_PCT_TO_WIN,
+                ],
+                resultType: "uint256" as any,
+                keys: ["votingmachine", "PRE_VOTE_MIN_PCT_TO_WIN"],
             });
 
             callRequest.push({
                 contract: contracts.IRegistry,
-                functionName: 'getUint',
-                args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_VOTE_MIN_PCT_TO_VETO],
-                resultType: 'uint256' as any,
-                keys: ["votingmachine", "VOTE_MIN_PCT_TO_VETO"]
+                functionName: "getUint",
+                args: [
+                    omoc.RegistryConstants
+                        .MOC_VOTING_MACHINE_VOTE_MIN_PCT_TO_VETO,
+                ],
+                resultType: "uint256" as any,
+                keys: ["votingmachine", "VOTE_MIN_PCT_TO_VETO"],
             });
 
             callRequest.push({
                 contract: contracts.IRegistry,
-                functionName: 'getUint',
-                args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_VOTE_MIN_PCT_FOR_QUORUM],
-                resultType: 'uint256' as any,
-                keys: ["votingmachine", "MIN_PCT_FOR_QUORUM"]
+                functionName: "getUint",
+                args: [
+                    omoc.RegistryConstants
+                        .MOC_VOTING_MACHINE_VOTE_MIN_PCT_FOR_QUORUM,
+                ],
+                resultType: "uint256" as any,
+                keys: ["votingmachine", "MIN_PCT_FOR_QUORUM"],
             });
 
             callRequest.push({
                 contract: contracts.IRegistry,
-                functionName: 'getUint',
-                args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_VOTE_MIN_PCT_TO_ACCEPT],
-                resultType: 'uint256' as any,
-                keys: ["votingmachine", "VOTE_MIN_PCT_TO_ACCEPT"]
+                functionName: "getUint",
+                args: [
+                    omoc.RegistryConstants
+                        .MOC_VOTING_MACHINE_VOTE_MIN_PCT_TO_ACCEPT,
+                ],
+                resultType: "uint256" as any,
+                keys: ["votingmachine", "VOTE_MIN_PCT_TO_ACCEPT"],
             });
 
             callRequest.push({
                 contract: contracts.IRegistry,
-                functionName: 'getUint',
+                functionName: "getUint",
                 args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_PCT_PRECISION],
-                resultType: 'uint256' as any,
-                keys: ["votingmachine", "PCT_PRECISION"]
+                resultType: "uint256" as any,
+                keys: ["votingmachine", "PCT_PRECISION"],
             });
 
             callRequest.push({
                 contract: contracts.IRegistry,
-                functionName: 'getUint',
-                args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_VOTING_TIME_DELTA],
-                resultType: 'uint256' as any,
-                keys: ["votingmachine", "VOTING_TIME_DELTA"]
+                functionName: "getUint",
+                args: [
+                    omoc.RegistryConstants.MOC_VOTING_MACHINE_VOTING_TIME_DELTA,
+                ],
+                resultType: "uint256" as any,
+                keys: ["votingmachine", "VOTING_TIME_DELTA"],
             });
 
             if (contracts.VetoMachine.address != "0x") {
@@ -292,15 +321,14 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
             }
         }
 
-      return callRequest
-    }, [contracts, proposalCountVoting])
+        return callRequest;
+    }, [contracts, proposalCountVoting]);
 
-      
     // Pass callsRequests into your multicall hook (safe: it's a hook calling a hook)
     const multicallState = useMultiCall(callsRequests as MultiCallInput[], {
-      refetchInterval: refetchInterval,
-      enabled: callsRequests.length > 0,
-    })
-  
-    return multicallState
-  }
+        refetchInterval: refetchInterval,
+        enabled: callsRequests.length > 0,
+    });
+
+    return multicallState;
+}

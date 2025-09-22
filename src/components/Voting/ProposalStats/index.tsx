@@ -12,10 +12,12 @@ interface ProposalStatsProps {
     label: string;
 }
 
-export default function ProposalStats(props: ProposalStatsProps): React.ReactElement {
+export default function ProposalStats(
+    props: ProposalStatsProps
+): React.ReactElement {
     const { i18n } = useProjectTranslation();
-    
-    const amountBig =props.amount;
+
+    const amountBig = props.amount;
     const percentageBig = props.percentage;
 
     // Convert data for display compatibility

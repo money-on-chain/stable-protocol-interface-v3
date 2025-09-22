@@ -8,7 +8,6 @@ import PerformanceChart from "../Staking/performanceChart";
 import LiquidityMiningClaims from "../Tables/LiquidityMiningClaims";
 
 export default function LiquidityMiningClaim(): React.ReactElement {
-    
     const { t } = useProjectTranslation();
 
     const space = "\u00A0";

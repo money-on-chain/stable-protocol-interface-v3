@@ -5,7 +5,6 @@ import {
     redeemTP as redeemTP_,
 } from "./moc-core";
 
-
 type OnTransaction = (hash: string) => void;
 type OnReceipt = (receipt: any) => void;
 

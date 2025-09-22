@@ -1,12 +1,12 @@
-import { simulateContract, waitForTransactionReceipt,writeContract } from '@wagmi/core'
+import {
+    simulateContract,
+    waitForTransactionReceipt,
+    writeContract,
+} from "@wagmi/core";
 
 import settings from "../settings/settings.json";
-import { config } from '../wagmiConfig' 
-import {    
-    getExecutionFee,
-    getNetworkFromProject
-} from "./utils";
-
+import { config } from "../wagmiConfig";
+import { getExecutionFee, getNetworkFromProject } from "./utils";
 
 type OnTransaction = (hash: string) => void;
 type OnReceipt = (receipt: any) => void;
@@ -20,9 +20,15 @@ const mintTC = async (
     onReceipt: OnReceipt
 ): Promise<any> => {
     // Mint Collateral token with CA
-    
-    const { address, contracts, contractProtocolStatus, userBalance, publicClient } = interfaceContext;
-    
+
+    const {
+        address,
+        contracts,
+        contractProtocolStatus,
+        userBalance,
+        publicClient,
+    } = interfaceContext;
+
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
     const MoCContract = contracts.Moc[caIndex];
 
@@ -36,8 +42,8 @@ const mintTC = async (
             (settings.tokens.CA[caIndex] as any).name
         } in your balance`
     );
-    
-    const userReserveBalance = userBalance.data.CA[caIndex].balance;    
+
+    const userReserveBalance = userBalance.data.CA[caIndex].balance;
     if (limitAmount > userReserveBalance)
         throw new Error(
             `Insufficient ${(settings.tokens.CA[caIndex] as any).name} balance`
@@ -67,32 +73,35 @@ const mintTC = async (
     // TODO: view functions returns baseFee == 0, if we use another value the estimateGas function will revert
     let valueToSend;
     if (getNetworkFromProject() === "rsk") {
-        valueToSend = await getExecutionFee(publicClient, contractProtocolStatus.data[caIndex].tcMintExecCost, 2);
+        valueToSend = await getExecutionFee(
+            publicClient,
+            contractProtocolStatus.data[caIndex].tcMintExecCost,
+            2
+        );
     } else {
         valueToSend = 0n;
     }
-    
+
     const { request } = await simulateContract(config, {
         address: MoCContract.address,
         abi: MoCContract.abi,
-        functionName: 'mintTC',
+        functionName: "mintTC",
         args: [qTC, limitAmount, address, vendorAddress],
         account: address,
-        value: valueToSend
-      })
-    
+        value: valueToSend,
+    });
+
     console.log("request", request);
     // Send transaction
-    const txHash = await writeContract(config, request)
+    const txHash = await writeContract(config, request);
     console.log("txHash", txHash);
-    if (onTransaction) onTransaction(txHash)
+    if (onTransaction) onTransaction(txHash);
 
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
 
-    if (onReceipt) onReceipt(receipt)
+    if (onReceipt) onReceipt(receipt);
 
-    return receipt
-    
+    return receipt;
 };
 
 const redeemTC = async (
@@ -105,8 +114,14 @@ const redeemTC = async (
 ): Promise<any> => {
     // Redeem Collateral token receiving CA
 
-    const { address, contracts, contractProtocolStatus, userBalance, publicClient } = interfaceContext;
-    
+    const {
+        address,
+        contracts,
+        contractProtocolStatus,
+        userBalance,
+        publicClient,
+    } = interfaceContext;
+
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
     const MoCContract = contracts.Moc[caIndex];
 
@@ -123,7 +138,8 @@ const redeemTC = async (
         );
 
     // There are sufficient TC in the contracts to redeem?
-    const tcAvailableToRedeem = contractProtocolStatus.data[caIndex].getTCAvailableToRedeem;
+    const tcAvailableToRedeem =
+        contractProtocolStatus.data[caIndex].getTCAvailableToRedeem;
     if (qTC > tcAvailableToRedeem)
         throw new Error(
             `Insufficient ${(settings.tokens.TC[caIndex] as any).name}available to redeem in contract`
@@ -138,7 +154,11 @@ const redeemTC = async (
 
     let valueToSend;
     if (getNetworkFromProject() === "rsk") {
-        valueToSend = await getExecutionFee(publicClient, contractProtocolStatus.data[caIndex].tcRedeemExecCost, 2);
+        valueToSend = await getExecutionFee(
+            publicClient,
+            contractProtocolStatus.data[caIndex].tcRedeemExecCost,
+            2
+        );
     } else {
         valueToSend = 0n;
     }
@@ -146,23 +166,23 @@ const redeemTC = async (
     const { request } = await simulateContract(config, {
         address: MoCContract.address,
         abi: MoCContract.abi,
-        functionName: 'redeemTC',
+        functionName: "redeemTC",
         args: [qTC, limitAmount, address, vendorAddress],
         account: address,
-        value: valueToSend
-      })
-    
+        value: valueToSend,
+    });
+
     console.log("request", request);
     // Send transaction
-    const txHash = await writeContract(config, request)
+    const txHash = await writeContract(config, request);
     console.log("txHash", txHash);
-    if (onTransaction) onTransaction(txHash)
+    if (onTransaction) onTransaction(txHash);
 
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
 
-    if (onReceipt) onReceipt(receipt)
+    if (onReceipt) onReceipt(receipt);
 
-    return receipt
+    return receipt;
 };
 
 const mintTP = async (
@@ -176,8 +196,14 @@ const mintTP = async (
 ): Promise<any> => {
     // Mint pegged token with collateral CA
 
-    const { address, contracts, contractProtocolStatus, userBalance, publicClient } = interfaceContext;
-    
+    const {
+        address,
+        contracts,
+        contractProtocolStatus,
+        userBalance,
+        publicClient,
+    } = interfaceContext;
+
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
     const MoCContract = contracts.Moc[caIndex];
     const tpAddress = contracts.TP[tpIndex].address;
@@ -220,7 +246,8 @@ const mintTP = async (
      */
 
     // There are sufficient PEGGED in the contracts to mint?
-    const tpAvailableToMint = contractProtocolStatus.data[caIndex].getTPAvailableToMint[tpIndex];
+    const tpAvailableToMint =
+        contractProtocolStatus.data[caIndex].getTPAvailableToMint[tpIndex];
 
     if (qTP > tpAvailableToMint)
         throw new Error(
@@ -229,7 +256,11 @@ const mintTP = async (
 
     let valueToSend;
     if (getNetworkFromProject() === "rsk") {
-        valueToSend = await getExecutionFee(publicClient, contractProtocolStatus.data[caIndex].tpMintExecCost, 2);
+        valueToSend = await getExecutionFee(
+            publicClient,
+            contractProtocolStatus.data[caIndex].tpMintExecCost,
+            2
+        );
     } else {
         valueToSend = 0n;
     }
@@ -237,23 +268,23 @@ const mintTP = async (
     const { request } = await simulateContract(config, {
         address: MoCContract.address,
         abi: MoCContract.abi,
-        functionName: 'mintTP',
-        args: [tpAddress, qTP,limitAmount, address, vendorAddress],
+        functionName: "mintTP",
+        args: [tpAddress, qTP, limitAmount, address, vendorAddress],
         account: address,
-        value: valueToSend
-      })
-    
+        value: valueToSend,
+    });
+
     console.log("request", request);
     // Send transaction
-    const txHash = await writeContract(config, request)
+    const txHash = await writeContract(config, request);
     console.log("txHash", txHash);
-    if (onTransaction) onTransaction(txHash)
+    if (onTransaction) onTransaction(txHash);
 
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
 
-    if (onReceipt) onReceipt(receipt)
+    if (onReceipt) onReceipt(receipt);
 
-    return receipt
+    return receipt;
 };
 
 const redeemTP = async (
@@ -267,8 +298,14 @@ const redeemTP = async (
 ): Promise<any> => {
     // Redeem pegged token receiving CA
 
-    const { address, contracts, contractProtocolStatus, userBalance, publicClient } = interfaceContext;
-    
+    const {
+        address,
+        contracts,
+        contractProtocolStatus,
+        userBalance,
+        publicClient,
+    } = interfaceContext;
+
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
     const MoCContract = contracts.Moc[caIndex];
     const tpAddress = contracts.TP[tpIndex].address;
@@ -279,7 +316,7 @@ const redeemTP = async (
     console.log(
         `Redeeming ${qTP} ${(settings.tokens.TP[tpIndex] as any).name} ... getting approx: ${limitAmount} ${(settings.tokens.CA[caIndex] as any).name}... `
     );
-    const userTPBalance = userBalance.data.TP[tpIndex]//.balance;
+    const userTPBalance = userBalance.data.TP[tpIndex]; //.balance;
     if (qTP > userTPBalance)
         throw new Error(
             `Insufficient ${(settings.tokens.TP[tpIndex] as any).name}  user balance`
@@ -303,7 +340,11 @@ const redeemTP = async (
 
     let valueToSend;
     if (getNetworkFromProject() === "rsk") {
-        valueToSend = await getExecutionFee(publicClient, contractProtocolStatus.data[caIndex].tpRedeemExecCost, 4);
+        valueToSend = await getExecutionFee(
+            publicClient,
+            contractProtocolStatus.data[caIndex].tpRedeemExecCost,
+            4
+        );
     } else {
         valueToSend = 0n;
     }
@@ -311,24 +352,23 @@ const redeemTP = async (
     const { request } = await simulateContract(config, {
         address: MoCContract.address,
         abi: MoCContract.abi,
-        functionName: 'redeemTP',
+        functionName: "redeemTP",
         args: [tpAddress, qTP, limitAmount, address, vendorAddress],
         account: address,
-        value: valueToSend
-      })
-    
+        value: valueToSend,
+    });
+
     console.log("request", request);
     // Send transaction
-    const txHash = await writeContract(config, request)
+    const txHash = await writeContract(config, request);
     console.log("txHash", txHash);
-    if (onTransaction) onTransaction(txHash)
+    if (onTransaction) onTransaction(txHash);
 
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
 
-    if (onReceipt) onReceipt(receipt)
+    if (onReceipt) onReceipt(receipt);
 
-    return receipt
-    
+    return receipt;
 };
 
 export { mintTC, mintTP, redeemTC, redeemTP };

@@ -29,8 +29,8 @@ interface TokenData {
 }
 
 export default function Tokens({ caIndex }: TokensProps): JSX.Element {
-    const { t, i18n, ns } = useProjectTranslation();    
-    const { contractProtocolStatus } = useWalletContext()
+    const { t, i18n, ns } = useProjectTranslation();
+    const { contractProtocolStatus } = useWalletContext();
     const tokensData: TokenData[] = [];
 
     const columns: Column[] = [
@@ -75,7 +75,9 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
     if (contractProtocolStatus.data) {
         // TC row
         const priceTEC = contractProtocolStatus.data[caIndex].getPTCac || 0n;
-        const priceCA = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_CA[0]) || 0n;
+        const priceCA =
+            normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_CA[0]) ||
+            0n;
         const price = mulPrecision(priceTEC, priceCA);
 
         tokensData.push({
@@ -96,7 +98,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                       amount: price,
                       token: settings.tokens.TC[caIndex],
                       decimals: 3,
-                      i18n,                      
+                      i18n,
                   }),
             ema: "--",
             minted: !contractProtocolStatus.data.canOperate
@@ -105,7 +107,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                       amount: contractProtocolStatus.data[caIndex].nTCcb,
                       token: settings.tokens.TC[caIndex],
                       decimals: settings.tokens.CA[caIndex].visibleDecimals,
-                      i18n                      
+                      i18n,
                   }),
             mintable: "No limit",
             redeemable: !contractProtocolStatus.data.canOperate
@@ -115,14 +117,17 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                           .getRealTCAvailableToRedeem,
                       token: settings.tokens.TC[caIndex],
                       decimals: settings.tokens.CA[caIndex].visibleDecimals,
-                      i18n                      
+                      i18n,
                   }),
             coverage: <div className="item-usd">--</div>,
         });
 
         // TP rows
         settings.tokens.TP.forEach((dataItem) => {
-            let price = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_TP[dataItem.key][0]) || 0n;
+            let price =
+                normalizeToBigInt(
+                    contractProtocolStatus.data[caIndex].PP_TP[dataItem.key][0]
+                ) || 0n;
             price = ConvertPeggedTokenPrice(
                 contractProtocolStatus,
                 caIndex,
@@ -133,11 +138,15 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
 
             if (dataItem.peggedUSD) price = 1n;
 
-            let tpAvailableToMint = contractProtocolStatus.data[caIndex].getRealTPAvailableToMint[dataItem.key];
+            let tpAvailableToMint =
+                contractProtocolStatus.data[caIndex].getRealTPAvailableToMint[
+                    dataItem.key
+                ];
             if (tpAvailableToMint < 0) tpAvailableToMint = 0n;
 
-            let tpEMA = contractProtocolStatus.data[caIndex].tpEma[dataItem.key];
-                        
+            let tpEMA =
+                contractProtocolStatus.data[caIndex].tpEma[dataItem.key];
+
             tpEMA = ConvertPeggedTokenPrice(
                 contractProtocolStatus,
                 caIndex,
@@ -185,9 +194,8 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                 minted: !contractProtocolStatus.data.canOperate
                     ? "--"
                     : PrecisionNumbers({
-                          amount: contractProtocolStatus.data[caIndex].pegContainer[
-                              dataItem.key
-                          ][0],
+                          amount: contractProtocolStatus.data[caIndex]
+                              .pegContainer[dataItem.key][0],
                           token: settings.tokens.TP[dataItem.key],
                           decimals:
                               settings.tokens.TP[caIndex]
@@ -213,7 +221,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                           ],
                           token: settings.tokens.TP[dataItem.key],
                           decimals: 2,
-                          i18n
+                          i18n,
                       }),
             });
         });

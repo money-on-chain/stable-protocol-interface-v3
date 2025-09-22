@@ -11,7 +11,6 @@ import { CheckStatusGlobal } from "../../../helpers/checkStatus";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { isSomeTCLockedByVeto } from "../../../helpers/veto";
 
-
 const { Content, Footer } = Layout;
 
 // Type definitions

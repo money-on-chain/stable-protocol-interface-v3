@@ -4,20 +4,22 @@
         "name": "Flipmoney UI",
         "description": "Flipmoney UI"
     },
-    "showPriceVariation":false,
+    "showPriceVariation": false,
     "tokens": {
-        "COINBASE": [{
-            "key": 0,
-            "name": "RBTC",
-            "fullName": "Smart Bitcoin",
-            "decimals": 18,
-            "visibleDecimals": 6,
-            "visiblePriceDecimals": 2,
-            "visiblePriceUSD": 8,
-            "visibleBalanceDecimals": 8,
-            "visibleBalanceUSDDecimals": 2,
-            "peggedUSD": false
-        }],
+        "COINBASE": [
+            {
+                "key": 0,
+                "name": "RBTC",
+                "fullName": "Smart Bitcoin",
+                "decimals": 18,
+                "visibleDecimals": 6,
+                "visiblePriceDecimals": 2,
+                "visiblePriceUSD": 8,
+                "visibleBalanceDecimals": 8,
+                "visibleBalanceUSDDecimals": 2,
+                "peggedUSD": false
+            }
+        ],
         "CA": [
             {
                 "key": 0,
@@ -116,17 +118,20 @@
                 "visibleBalanceDecimals": 4,
                 "visibleBalanceUSDDecimals": 2,
                 "peggedUSD": false
-            }],
-        "TG": [{
-            "key": 0,
-            "name": "FLIP",
-            "decimals": 18,
-            "visibleDecimals": 8,
-            "visiblePriceDecimals": 2,
-            "visiblePriceUSD": 8,
-            "visibleBalanceDecimals": 4,
-            "visibleBalanceUSDDecimals": 2,
-            "peggedUSD": false
-        }]
+            }
+        ],
+        "TG": [
+            {
+                "key": 0,
+                "name": "FLIP",
+                "decimals": 18,
+                "visibleDecimals": 8,
+                "visiblePriceDecimals": 2,
+                "visiblePriceUSD": 8,
+                "visibleBalanceDecimals": 4,
+                "visibleBalanceUSDDecimals": 2,
+                "peggedUSD": false
+            }
+        ]
     }
 }

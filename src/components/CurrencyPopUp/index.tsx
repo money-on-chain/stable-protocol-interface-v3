@@ -1,6 +1,6 @@
 import "./Styles.scss";
 
-import { Button,Modal } from "antd";
+import { Button, Modal } from "antd";
 import React, { /*useContext,*/ useState } from "react";
 
 import { getCurrenciesDetail } from "../../helpers/currencies";
@@ -37,7 +37,9 @@ export default function CurrencyPopUp(props: CurrencyPopUpProps): JSX.Element {
 
     // Remove duplicated items, except on action exchange & coinbase
     const arrayAdded: string[] = [];
-    const optionsFiltered: CurrencyOption[] = options.filter(function (item: CurrencyOption /*index, array*/) {
+    const optionsFiltered: CurrencyOption[] = options.filter(function (
+        item: CurrencyOption /*index, array*/
+    ) {
         if (!arrayAdded.includes(item.abbreviation)) {
             if (!(action === "exchange" && item.value === "COINBASE"))
                 arrayAdded.push(item.abbreviation);
@@ -51,11 +53,10 @@ export default function CurrencyPopUp(props: CurrencyPopUpProps): JSX.Element {
     );
 
     // Filter options to only include allowed currencies
-    const filteredOptions: CurrencyOption[] = optionsFiltered.filter((currency) =>
-        currencyOptions.includes(currency.value)
+    const filteredOptions: CurrencyOption[] = optionsFiltered.filter(
+        (currency) => currencyOptions.includes(currency.value)
     );
 
-    
     // Function to open the modal
     const openModal = (): void => {
         if (!disabled) {
@@ -125,4 +126,4 @@ export default function CurrencyPopUp(props: CurrencyPopUpProps): JSX.Element {
             </Modal>
         </div>
     );
-} 
+}

@@ -22,8 +22,7 @@ const tokenMap = loadTokenMap();
 const tokenStake = (): string[] => Object.keys(tokenMap);
 
 const pendingWithdrawalsFormat = (delaymachine: DelayMachine): Withdrawal[] => {
-    
-    const [ ids, amounts, expirations ] = delaymachine.getTransactions;
+    const [ids, amounts, expirations] = delaymachine.getTransactions;
     const withdraws: Withdrawal[] = [];
     for (let i = 0; i < ids.length; i++) {
         withdraws.push({
@@ -46,4 +45,4 @@ const formatTimestamp = (timestamp: number): string => {
     }).format(timestamp);
 };
 
-export { formatTimestamp,pendingWithdrawalsFormat, tokenStake };
+export { formatTimestamp, pendingWithdrawalsFormat, tokenStake };

@@ -1,52 +1,51 @@
-import { useMemo } from 'react'
+import { useMemo } from "react";
 
+import type { MultiCallInput } from "../types/hooks";
 import { useMultiCall } from "./useMulticall";
-import type { MultiCallInput } from '../types/hooks'
-
 
 /**
  * React hook that wraps useMultiCall3 to fetch contract status data.
  * Builds the call array with useMemo so it remains stable between renders.
  */
-export function useIncentiveV2(contracts?: any, userAddress?: string, refetchInterval = 30_000) {
+export function useIncentiveV2(
+    contracts?: any,
+    userAddress?: string,
+    refetchInterval = 30_000
+) {
     const callsRequests = useMemo(() => {
-        if (!contracts) return []
-        if (!userAddress) return []
+        if (!contracts) return [];
+        if (!userAddress) return [];
 
-        const callRequest = []        
-                
+        const callRequest = [];
+
         // Incentive V2
         if (contracts.IncentiveV2.address) {
-
             callRequest.push({
                 contract: contracts.TG,
-                functionName: 'balanceOf',
+                functionName: "balanceOf",
                 args: [contracts.IncentiveV2.address],
                 resultType: "uint256" as any,
-                keys: ["incentiveV2", "contractBalance"]
+                keys: ["incentiveV2", "contractBalance"],
             });
 
             callRequest.push({
                 contract: contracts.IncentiveV2,
-                functionName: 'get_balance',
+                functionName: "get_balance",
                 args: [userAddress],
                 resultType: "uint256" as any,
-                keys: ["incentiveV2", "userBalance"]
+                keys: ["incentiveV2", "userBalance"],
             });
-            
-        }                
+        }
 
-        return callRequest
+        return callRequest;
+    }, [contracts, userAddress]);
 
-    }, [contracts, userAddress])
-
-      
     // Pass callsRequests into your multicall hook (safe: it's a hook calling a hook)
     const multicallState = useMultiCall(callsRequests as MultiCallInput[], {
-      refetchInterval: refetchInterval,
-      enabled: callsRequests.length > 0,
-      scopeKey: ['userIncentiveV2', userAddress].join(':')
-    })
-  
-    return multicallState
-  }
+        refetchInterval: refetchInterval,
+        enabled: callsRequests.length > 0,
+        scopeKey: ["userIncentiveV2", userAddress].join(":"),
+    });
+
+    return multicallState;
+}

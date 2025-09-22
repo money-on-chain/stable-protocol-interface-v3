@@ -51,8 +51,13 @@ export default function StatusBucket(props: StatusBucketProps): JSX.Element {
         3: { mint: false, redeem: false },
     };
 
-    const caPermissions: Permissions = collateralPermissionsByStatus[status] || { mint: false, redeem: false };
-    const tpPermissions: Permissions = peggedPermissionsByStatus[status] || { mint: false, redeem: false };
+    const caPermissions: Permissions = collateralPermissionsByStatus[
+        status
+    ] || { mint: false, redeem: false };
+    const tpPermissions: Permissions = peggedPermissionsByStatus[status] || {
+        mint: false,
+        redeem: false,
+    };
 
     const summaryMap: { [key: number]: Summary } = {
         0: {
@@ -79,7 +84,10 @@ export default function StatusBucket(props: StatusBucketProps): JSX.Element {
         },
     };
 
-    const summary: Summary = summaryMap[status] || { label: "--", severity: "neutral" };
+    const summary: Summary = summaryMap[status] || {
+        label: "--",
+        severity: "neutral",
+    };
 
     const operations: Operation[] = [
         ...tpTokens.map((tp, index) => ({

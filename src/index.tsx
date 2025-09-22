@@ -6,27 +6,27 @@ import "./assets/css/customize3Dark.scss";
 import "./assets/css/customize4Overwrites.scss";
 import "./assets/css/global.scss";
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import i18next from "i18next";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { I18nextProvider } from "react-i18next";
 import { HashRouter } from "react-router-dom";
-import { registerSW } from 'virtual:pwa-register'
-import { WagmiProvider } from 'wagmi'
+import { registerSW } from "virtual:pwa-register";
+import { WagmiProvider } from "wagmi";
 
 import IconLoading from "./assets/icons/LoaderAnim.svg";
 import { WalletProvider } from "./context/Wallet";
 import Router from "./router";
 import en_US from "./settings/locale/en_US.json";
 import es_ES from "./settings/locale/es_ES.json";
-import { config } from './wagmiConfig'
+import { config } from "./wagmiConfig";
 
 console.log(`Starting app version: ${import.meta.env.REACT_APP_VERSION}`);
 
-registerSW({ immediate: true })
+registerSW({ immediate: true });
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient();
 
 window.addEventListener("vite:preloadError", (event) => {
     /*
@@ -84,7 +84,7 @@ root.render(
     <React.StrictMode>
         <I18nextProvider i18n={i18next}>
             <WagmiProvider config={config}>
-                <QueryClientProvider client={queryClient}>        
+                <QueryClientProvider client={queryClient}>
                     <WalletProvider>
                         <HashRouter>
                             {/*<React.Suspense fallback={ <span>Loading...</span> }>*/}

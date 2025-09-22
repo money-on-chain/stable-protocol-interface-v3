@@ -10,24 +10,26 @@ interface ModalProvidersProps {
     [key: string]: any; // For any additional props that might be passed
 }
 
-export default function ModalProviders(props: ModalProvidersProps): JSX.Element {
+export default function ModalProviders(
+    props: ModalProvidersProps
+): JSX.Element {
     const { show, onShow, onHide } = props;
 
     useEffect(() => {
         if (show) {
-          // prevent scroll on body
-          document.body.style.overflow = "hidden";
+            // prevent scroll on body
+            document.body.style.overflow = "hidden";
         } else {
-          document.body.style.overflow = "";
+            document.body.style.overflow = "";
         }
         return () => {
-          document.body.style.overflow = "";
+            document.body.style.overflow = "";
         };
-      }, [show]);
+    }, [show]);
 
     return (
         <Fragment>
-            <div className="ShowModalProviders">                
+            <div className="ShowModalProviders">
                 <Modal
                     width={505}
                     open={show}
@@ -38,17 +40,13 @@ export default function ModalProviders(props: ModalProvidersProps): JSX.Element 
                     centered={true}
                     maskStyle={{}}
                     maskClosable={false}
-                    keyboard={false}                    
+                    keyboard={false}
                     //zIndex={1300}
                 >
-                    <Providers
-                        {...props}
-                        onCloseModal={onHide}
-                        
-                    />
+                    <Providers {...props} onCloseModal={onHide} />
                 </Modal>
             </div>
             <i className="logo-wallet" onClick={onShow}></i>
         </Fragment>
     );
-} 
+}

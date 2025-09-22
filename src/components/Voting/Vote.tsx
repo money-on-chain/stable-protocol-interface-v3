@@ -125,12 +125,12 @@ function Vote(props: VoteProps): JSX.Element {
         /* 4 - Proposal vetoed by Collateral Token holders */
 
         if (
-                infoVoting["votingData"]["totalVetoPCT"] * 100n >=
-                    infoVoting["VOTE_MIN_PCT_TO_VETO"] * DECIMALS_18
-            ) {
-                setVotingFinishReason(4);
-                setVotingFinish(true);
-                setVotingInFavorOrAgainstError(true);
+            infoVoting["votingData"]["totalVetoPCT"] * 100n >=
+            infoVoting["VOTE_MIN_PCT_TO_VETO"] * DECIMALS_18
+        ) {
+            setVotingFinishReason(4);
+            setVotingFinish(true);
+            setVotingInFavorOrAgainstError(true);
         } else if (infoVoting["votingData"]["expired"]) {
             setVotingFinish(true);
             setVotingInFavorOrAgainstError(true);
@@ -506,9 +506,10 @@ function Vote(props: VoteProps): JSX.Element {
                         </div>
                     </div>
                 </div>
-                {infoVoting["isVetoMachine"] && !infoVoting["readyToVoteStep"] && (
-                    <VetoGraph infoVoting={infoVoting} />
-                )}
+                {infoVoting["isVetoMachine"] &&
+                    !infoVoting["readyToVoteStep"] && (
+                        <VetoGraph infoVoting={infoVoting} />
+                    )}
                 {isOperationModalVisible && (
                     <VotingStatusModal
                         title={modalTitle}

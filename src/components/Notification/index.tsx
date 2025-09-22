@@ -17,7 +17,9 @@ interface NotificationBodyProps {
     notifStatus: NotifStatus;
 }
 
-export default function NotificationBody(props: NotificationBodyProps): React.ReactElement {
+export default function NotificationBody(
+    props: NotificationBodyProps
+): React.ReactElement {
     const { t } = useProjectTranslation();
     //const [visible, setVisible] = useState(false);
     const { notifStatus } = props;
@@ -63,4 +65,4 @@ export default function NotificationBody(props: NotificationBodyProps): React.Re
             )}
         </div>
     );
-} 
+}

@@ -1,8 +1,10 @@
+import {
+    simulateContract,
+    waitForTransactionReceipt,
+    writeContract,
+} from "@wagmi/core";
 
-import { simulateContract, waitForTransactionReceipt,writeContract } from '@wagmi/core'
-
-import { config } from '../wagmiConfig' 
-
+import { config } from "../wagmiConfig";
 
 type OnTransaction = (hash: string) => void;
 type OnReceipt = (receipt: any) => void;
@@ -12,7 +14,7 @@ const AllowanceAmount = async (
     interfaceContext: any,
     token: any,
     contractAllow: any,
-    amountAllowance: bigint,    
+    amountAllowance: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
 ): Promise<any> => {
@@ -22,23 +24,21 @@ const AllowanceAmount = async (
     const { request } = await simulateContract(config, {
         address: token.address,
         abi: token.abi,
-        functionName: 'approve',
+        functionName: "approve",
         args: [contractAllowAddress, amountAllowance],
         account: address,
-      })
-    
+    });
+
     // Send transaction
-    const txHash = await writeContract(config, request)
+    const txHash = await writeContract(config, request);
 
-    if (onTransaction) onTransaction(txHash)
+    if (onTransaction) onTransaction(txHash);
 
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
 
-    if (onReceipt) onReceipt(receipt)
+    if (onReceipt) onReceipt(receipt);
 
-    return receipt
-    
-    
+    return receipt;
 };
 
 const transferTokenTo = async (
@@ -51,25 +51,24 @@ const transferTokenTo = async (
 ): Promise<any> => {
     const { address } = interfaceContext;
 
-    
     const { request } = await simulateContract(config, {
         address: token.address,
         abi: token.abi,
-        functionName: 'transfer',
+        functionName: "transfer",
         args: [to, amount],
         account: address,
-      })
-    
+    });
+
     // Send transaction
-    const txHash = await writeContract(config, request)
+    const txHash = await writeContract(config, request);
 
-    if (onTransaction) onTransaction(txHash)
+    if (onTransaction) onTransaction(txHash);
 
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
 
-    if (onReceipt) onReceipt(receipt)
+    if (onReceipt) onReceipt(receipt);
 
-    return receipt
+    return receipt;
 };
 
 const transferCoinbaseTo = async (
@@ -79,26 +78,25 @@ const transferCoinbaseTo = async (
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
 ): Promise<any> => {
-    
     const { address, walletClient } = interfaceContext;
-    
+
     const hash = await walletClient.sendTransaction({
         to,
         account: address,
         value: amount,
         //gas: 21_000n,        // fijo para transferencia simple
         //gasPrice,            // opcional: si querés forzar gasPrice
-    })
+    });
 
-    onTransaction?.(hash)
+    onTransaction?.(hash);
 
-    const publicClient = walletClient.extendPublicClient() // si ya lo tenés, podés pasarlo directamente
+    const publicClient = walletClient.extendPublicClient(); // si ya lo tenés, podés pasarlo directamente
 
-    const receipt = await publicClient.waitForTransactionReceipt({ hash })
+    const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
-    onReceipt?.(receipt)
+    onReceipt?.(receipt);
 
-    return receipt
+    return receipt;
 };
 
 const AllowUseTokenMigrator = async (
@@ -108,7 +106,6 @@ const AllowUseTokenMigrator = async (
     onReceipt: OnReceipt,
     onError: OnError
 ): Promise<any> => {
-    
     const { address, contracts } = interfaceContext;
     const tp_legacy = contracts.tp_legacy;
     const tokenMigrator = contracts.token_migrator;
@@ -121,21 +118,21 @@ const AllowUseTokenMigrator = async (
     const { request } = await simulateContract(config, {
         address: tp_legacy.address,
         abi: tp_legacy.abi,
-        functionName: 'approve',
+        functionName: "approve",
         args: [tokenMigrator.address, newAllowance],
         account: address,
-      })
+    });
 
     // Send transaction
-    const txHash = await writeContract(config, request)
+    const txHash = await writeContract(config, request);
 
-    if (onTransaction) onTransaction(txHash)
+    if (onTransaction) onTransaction(txHash);
 
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
 
-    if (onReceipt) onReceipt(receipt)
+    if (onReceipt) onReceipt(receipt);
 
-    return receipt
+    return receipt;
 };
 
 const MigrateToken = async (
@@ -145,7 +142,6 @@ const MigrateToken = async (
     onError: OnError
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
-    
 
     if (!contracts.token_migrator)
         console.log(
@@ -157,22 +153,21 @@ const MigrateToken = async (
     const { request } = await simulateContract(config, {
         address: tokenMigrator.address,
         abi: tokenMigrator.abi,
-        functionName: 'migrateToken',
+        functionName: "migrateToken",
         args: [],
         account: address,
-      })
+    });
 
     // Send transaction
-    const txHash = await writeContract(config, request)
+    const txHash = await writeContract(config, request);
 
-    if (onTransaction) onTransaction(txHash)
+    if (onTransaction) onTransaction(txHash);
 
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
 
-    if (onReceipt) onReceipt(receipt)
+    if (onReceipt) onReceipt(receipt);
 
-    return receipt
-    
+    return receipt;
 };
 
 export {

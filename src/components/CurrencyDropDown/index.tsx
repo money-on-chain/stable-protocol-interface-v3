@@ -22,7 +22,9 @@ interface CurrencyDropDownProps {
     action: string;
 }
 
-export default function CurrencyDropDown(props: CurrencyDropDownProps): JSX.Element {
+export default function CurrencyDropDown(
+    props: CurrencyDropDownProps
+): JSX.Element {
     const { value, onChange, currencyOptions, disabled, action } = props;
     const { t, ns } = useProjectTranslation();
 
@@ -32,11 +34,13 @@ export default function CurrencyDropDown(props: CurrencyDropDownProps): JSX.Elem
         label: t(`${action}.tokens.${it.value}.label`, { ns: ns }),
         abbr: t(`${action}.tokens.${it.value}.abbr`, { ns: ns }),
     }));
-    const option: CurrencyOption | undefined = options.find((it: CurrencyOption) => it.value === value);
-    const optionsFiltered: CurrencyOption[] = options.filter((it: CurrencyOption) =>
-        currencyOptions.includes(it.value)
+    const option: CurrencyOption | undefined = options.find(
+        (it: CurrencyOption) => it.value === value
     );
-    
+    const optionsFiltered: CurrencyOption[] = options.filter(
+        (it: CurrencyOption) => currencyOptions.includes(it.value)
+    );
+
     return (
         <div className={`SelectCurrency ${disabled ? "disabled" : ""}`}>
             <Select

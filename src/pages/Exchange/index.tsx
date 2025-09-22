@@ -1,7 +1,7 @@
 import "./Styles.scss";
 
 import { Skeleton } from "antd";
-import React, { Fragment, useEffect,useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 
 import Exchange from "../../components/Exchange";
 import LastOperations from "../../components/Tables/LastOperations";
@@ -10,10 +10,10 @@ import { useProjectTranslation } from "../../helpers/translations";
 
 export default function SectionExchange(): React.ReactElement {
     const { t } = useProjectTranslation();
-    
-    const { contractProtocolStatus, userBalance } = useWalletContext()
+
+    const { contractProtocolStatus, userBalance } = useWalletContext();
     const [ready, setReady] = useState<boolean>(false);
-    
+
     useEffect(() => {
         // Set component ready when contract status data is available
         if (contractProtocolStatus.data && userBalance.data) {

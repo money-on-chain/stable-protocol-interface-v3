@@ -12,7 +12,9 @@ export interface ModalTokenMigrationProps {
     [key: string]: any;
 }
 
-export default function ModalTokenMigration(props: ModalTokenMigrationProps): React.ReactElement {
+export default function ModalTokenMigration(
+    props: ModalTokenMigrationProps
+): React.ReactElement {
     const [visible, setVisible] = useState(false);
 
     const showModal = () => {

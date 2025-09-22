@@ -8,7 +8,12 @@ import Voting from "../../components/Voting";
 import { useWalletContext } from "../../context/Wallet";
 
 export default function SectionVoting(): React.ReactElement {
-    const { contractStatusOmoc, userOmocBalance, isVestingLoaded, vestingAddress } = useWalletContext()
+    const {
+        contractStatusOmoc,
+        userOmocBalance,
+        isVestingLoaded,
+        vestingAddress,
+    } = useWalletContext();
     const [ready, setReady] = useState<boolean>(false);
     const [usingVestingAddress, setUsingVestingAddress] = useState<string>("");
 
@@ -22,7 +27,12 @@ export default function SectionVoting(): React.ReactElement {
         } else {
             setUsingVestingAddress("");
         }
-    }, [contractStatusOmoc.data, userOmocBalance.data, isVestingLoaded, vestingAddress]);
+    }, [
+        contractStatusOmoc.data,
+        userOmocBalance.data,
+        isVestingLoaded,
+        vestingAddress,
+    ]);
 
     return (
         <Fragment>

@@ -2,7 +2,7 @@ import "./Styles.scss";
 
 import { Input } from "antd";
 import React, { useEffect, useState } from "react";
-import { recoverMessageAddress } from 'viem'
+import { recoverMessageAddress } from "viem";
 
 import { decodeEvents } from "../../backend/transaction";
 import VestingSchedule from "../../components/Tables/VestingSchedule";
@@ -31,9 +31,6 @@ interface VestedAmounts {
     daysToRelease: number;
 }
 
-
-
-
 interface FilteredEvent {
     eventName: string;
     args: Record<string, any>;
@@ -41,8 +38,19 @@ interface FilteredEvent {
 
 const Vesting: React.FC = () => {
     const { t, i18n, ns } = useProjectTranslation();
-    
-    const { address, userOmocBalance, userVesting, isVestingLoaded, vestingAddress, interfaceVestingVerify, interfaceVestingWithdraw, interfaceIncentiveV2Claim, publicClient, onShowModalAccountVesting } = useWalletContext()
+
+    const {
+        address,
+        userOmocBalance,
+        userVesting,
+        isVestingLoaded,
+        vestingAddress,
+        interfaceVestingVerify,
+        interfaceVestingWithdraw,
+        interfaceIncentiveV2Claim,
+        publicClient,
+        onShowModalAccountVesting,
+    } = useWalletContext();
 
     const [status, setStatus] = useState<string>("STEP_1");
     const [isOperationModalVisible, setIsOperationModalVisible] =
@@ -92,7 +100,8 @@ const Vesting: React.FC = () => {
             setValidWithdraw(false);
             return;
         }
-        const availableForWithdraw = userVesting.data.vestingmachine.getAvailable;
+        const availableForWithdraw =
+            userVesting.data.vestingmachine.getAvailable;
         if (availableForWithdraw > 0) {
             if (userVesting.data.vestingmachine.isVerified) {
                 setValidWithdraw(true);
@@ -130,8 +139,7 @@ const Vesting: React.FC = () => {
         }
 
         const getParameters = userVesting.data.vestingmachine.getParameters;
-        const tgeTimestamp =
-        userVesting.data.vestingfactory.getTGETimestamp;
+        const tgeTimestamp = userVesting.data.vestingfactory.getTGETimestamp;
         const total = userVesting.data.vestingmachine.getTotal;
         const lockedAmount = userVesting.data.vestingmachine.getLocked;
         const percentMultiplier = 10000n;
@@ -151,30 +159,27 @@ const Vesting: React.FC = () => {
             percentages[percentages.length - 1] = 0n;
 
         const percents = percentages.map((x: bigint) => {
-            return percentMultiplier - x
+            return percentMultiplier - x;
         });
 
         let dates: (string | number)[] = [];
         if (deltas) {
-            
-            if (tgeTimestamp) {                
+            if (tgeTimestamp) {
                 // Convert timestamp to date.
                 dates = deltas.map((x) =>
-                    formatTimestamp(
-                        (Number(tgeTimestamp) + Number(x)) * 1000
-                    )
+                    formatTimestamp((Number(tgeTimestamp) + Number(x)) * 1000)
                 );
             } else {
                 dates = deltas.map((x) => Number(x) / 60 / 60 / 24);
             }
         }
-                
+
         let daysToRelease = 0;
         let countVested = 0;
-        
+
         getParameters &&
             percents.forEach(function (percent: bigint, itemIndex: number) {
-                const date_release = new Date(dates[itemIndex] as string);                
+                const date_release = new Date(dates[itemIndex] as string);
                 const date_now = new Date();
                 const timeDifference =
                     date_release.getTime() - date_now.getTime();
@@ -209,7 +214,7 @@ const Vesting: React.FC = () => {
     };
 
     const vestingTotals: VestedAmounts = vestedAmounts();
-    
+
     const onWithdraw = async (e: React.MouseEvent): Promise<void> => {
         setModalTitle("Withdraw transaction");
 
@@ -286,9 +291,7 @@ const Vesting: React.FC = () => {
             userOmocBalance.data &&
             typeof userOmocBalance.data.incentiveV2 !== "undefined"
         ) {
-            if (
-                userOmocBalance.data.incentiveV2.userBalance > 0
-            ) {
+            if (userOmocBalance.data.incentiveV2.userBalance > 0) {
                 valid = true;
             }
         }
@@ -299,11 +302,15 @@ const Vesting: React.FC = () => {
         setStatus("STEP_2");
     };
 
-    const onChangeClaimCode = (event: React.ChangeEvent<HTMLTextAreaElement>): void => {
+    const onChangeClaimCode = (
+        event: React.ChangeEvent<HTMLTextAreaElement>
+    ): void => {
         setClaimCode(event.target.value.substring(0, 132));
     };
 
-    const recoverMessageClaimCode = async (message: string): Promise<string> => {
+    const recoverMessageClaimCode = async (
+        message: string
+    ): Promise<string> => {
         if (!address) return "";
         const chainId = import.meta.env.REACT_APP_ENVIRONMENT_CHAIN_ID;
         const userAddress = address;
@@ -316,7 +323,7 @@ const Vesting: React.FC = () => {
             recoveredAddress = await recoverMessageAddress({
                 message: code,
                 signature: message,
-              })
+            });
         } catch (err) {
             console.error(err);
         }
@@ -329,8 +336,7 @@ const Vesting: React.FC = () => {
 
         if (claimCode.length === 132) {
             const claimAddress = await recoverMessageClaimCode(claimCode);
-            if (claimAddress === address?.toLowerCase())
-                valid = true;
+            if (claimAddress === address?.toLowerCase()) valid = true;
         }
 
         if (!valid && claimCode === "") {
@@ -398,13 +404,13 @@ const Vesting: React.FC = () => {
 
             const contractName = "VestingFactory";
 
-            
             //const txRcp = await auth.web3.eth.getTransactionReceipt(
             //    receipt.transactionHash
             //);
             const txRcp = receipt;
-            const filteredEvents: any[] = decodeEvents(txRcp, contractName, filter) || [];
-            
+            const filteredEvents: any[] =
+                decodeEvents(txRcp, contractName, filter) || [];
+
             onVestingCreated(filteredEvents);
         };
         const onError = (error: any): void => {
@@ -413,11 +419,11 @@ const Vesting: React.FC = () => {
         };
 
         await interfaceIncentiveV2Claim(
-                claimCode,
-                onTransaction,
-                onReceipt,
-                onError
-            )
+            claimCode,
+            onTransaction,
+            onReceipt,
+            onError
+        )
             .then((/*res*/) => {
                 // Refresh status
                 userOmocBalance.refetch();
@@ -428,7 +434,9 @@ const Vesting: React.FC = () => {
             });
     };
 
-    const loadClaimCodeFromFile = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+    const loadClaimCodeFromFile = async (
+        e: React.ChangeEvent<HTMLInputElement>
+    ): Promise<void> => {
         e.preventDefault();
         const reader = new FileReader();
         reader.onload = async (e) => {
@@ -467,21 +475,23 @@ const Vesting: React.FC = () => {
 
     const addVesting = async (addVestingAddress: string): Promise<boolean> => {
         if (!address) return false;
-        
+
         const isValidVesting = await onValidateVestingAddress(
             publicClient,
             addVestingAddress as `0x${string}`
         );
         if (isValidVesting) {
-            const isLoaded = loadVesting(publicClient, addVestingAddress as `0x${string}`);
+            const isLoaded = loadVesting(
+                publicClient,
+                addVestingAddress as `0x${string}`
+            );
             if (!isLoaded) {
                 return false;
             }
             //add on storage
             // get vesting addresses
-            const vestingFromStorage = loadVestingAddressesFromLocalStorage(
-                address
-            );
+            const vestingFromStorage =
+                loadVestingAddressesFromLocalStorage(address);
 
             //Add the new one to the list
             vestingFromStorage.push(addVestingAddress);
@@ -726,9 +736,9 @@ const Vesting: React.FC = () => {
                                                 : userOmocBalance.data
                                                       .incentiveV2.userBalance,
                                             token: settings.tokens.TG[0],
-                                            decimals: Number(t(
-                                                "staking.display_decimals"
-                                            )),
+                                            decimals: Number(
+                                                t("staking.display_decimals")
+                                            ),
                                             //numericLabelParams: {},
                                             i18n: i18n,
                                         })}
@@ -904,218 +914,212 @@ const Vesting: React.FC = () => {
              VESTING SCHEDULE
 
              */}
-            {vestingAddress !== undefined &&
-                status === "LOADED" && (
-                    <div className="vesting">
-                        <div
-                            id="vesting-info"
-                            className={"layout-card section__innerCard--small"}
-                        >
-                            {/* <div className="layout-card-title"> */}
-                            {/* <div id="vesting-info" className="layout-card"> */}
-                            <div className="layout-card-title">
-                                <h1>{t("vesting.cardTitle")}</h1>
-                                <div id="vesting-verification">
-                                    {userVesting.data &&
-                                        userVesting.data.vestingmachine
-                                            .isVerified &&
-                                        isHolderVesting && (
-                                            <div
-                                                className={
-                                                    "vesting__verification__status--OwnedWallet"
-                                                }
-                                            >
-                                                <div className="verification-icon--ownedWallet"></div>
-                                                {t("vesting.status.verified")}
-                                            </div>
-                                        )}
-                                    {!isHolderVesting && (
+            {vestingAddress !== undefined && status === "LOADED" && (
+                <div className="vesting">
+                    <div
+                        id="vesting-info"
+                        className={"layout-card section__innerCard--small"}
+                    >
+                        {/* <div className="layout-card-title"> */}
+                        {/* <div id="vesting-info" className="layout-card"> */}
+                        <div className="layout-card-title">
+                            <h1>{t("vesting.cardTitle")}</h1>
+                            <div id="vesting-verification">
+                                {userVesting.data &&
+                                    userVesting.data.vestingmachine
+                                        .isVerified &&
+                                    isHolderVesting && (
                                         <div
                                             className={
-                                                "vesting__verification__status--notOwnedWallet"
+                                                "vesting__verification__status--OwnedWallet"
                                             }
                                         >
-                                            <div className="verification-icon--notOwnedWallet"></div>
-                                            {t(
-                                                "vesting.status.notFromThisUser"
-                                            )}
+                                            <div className="verification-icon--ownedWallet"></div>
+                                            {t("vesting.status.verified")}
                                         </div>
                                     )}
-                                    {userVesting.data &&
-                                        !userVesting.data.vestingmachine
-                                            .isVerified &&
-                                        isHolderVesting && (
-                                            <div
-                                                className={
-                                                    "vesting__verification__status"
-                                                }
-                                            >
-                                                <div className="verification-icon"></div>
-                                                {t(
-                                                    "vesting.status.notVerified"
-                                                )}
-                                                <a
-                                                    className={"verify__button"}
-                                                    onClick={onVerify}
-                                                >
-                                                    {t(
-                                                        "vesting.status.verifyCTA"
-                                                    )}
-                                                </a>
-                                                <div className="icon__button__arrow"></div>
-                                            </div>
-                                        )}
-                                </div>
-                            </div>
-                            <div id="vesting-info-content">
-                                <div>
+                                {!isHolderVesting && (
                                     <div
-                                        id="vesting-moc-available"
-                                        className="vesting__data"
+                                        className={
+                                            "vesting__verification__status--notOwnedWallet"
+                                        }
                                     >
-                                        {PrecisionNumbers({
-                                            amount: !userVesting.data
-                                                ? 0n
-                                                : userVesting.data
-                                                      .vestingmachine
-                                                      .getAvailable,
-                                            token: settings.tokens.TG[0],
-                                            decimals: Number(t(
-                                                "staking.display_decimals"
-                                            )),
-                                            //numericLabelParams: {},
-                                            i18n: i18n,
-                                        })}
+                                        <div className="verification-icon--notOwnedWallet"></div>
+                                        {t("vesting.status.notFromThisUser")}
                                     </div>
-                                    <div className="vesting__label">
-                                        {t("vesting.tokensAvailableToWithdraw")}
-                                    </div>
-                                </div>
-                                <button
-                                    id="withdraw-cta"
-                                    onClick={onWithdraw}
-                                    disabled={!validWithdraw}
-                                >
-                                    {t("vesting.withdrawToWallet")}
-                                    <div className="icon__button__arrow"></div>
-                                </button>
-                            </div>
-                        </div>
-                        {/* </div>{' '} */}
-                        <div
-                            id="vesting-distribution"
-                            className="layout-card section__innerCard--small"
-                        >
-                            <div id="moc-ready">
-                                <div
-                                    id="vestingDash-readyToWithdraw"
-                                    className="vesting__data"
-                                >
-                                    {PrecisionNumbers({
-                                        amount: !userVesting.data
-                                            ? 0n
-                                            : vestingTotals["vested"],
-                                        token: settings.tokens.TG[0],
-                                        decimals: Number(t("staking.display_decimals")),
-                                        //numericLabelParams: {},
-                                        i18n: i18n,
-                                    })}
-                                </div>
-                                <div className="vesting__label">
-                                    {t("vesting.dashDistribution.vested")}
-                                </div>
-                            </div>
-                            <div id="dashboard">
-                                <div
-                                    id="vestingDash-vested"
-                                    className="vesting__data"
-                                >
-                                    {vestingTotals["daysToRelease"]}{" "}
-                                </div>
-                                <div className="vesting__label">
-                                    {t(
-                                        "vesting.dashDistribution.daysToRelease"
+                                )}
+                                {userVesting.data &&
+                                    !userVesting.data.vestingmachine
+                                        .isVerified &&
+                                    isHolderVesting && (
+                                        <div
+                                            className={
+                                                "vesting__verification__status"
+                                            }
+                                        >
+                                            <div className="verification-icon"></div>
+                                            {t("vesting.status.notVerified")}
+                                            <a
+                                                className={"verify__button"}
+                                                onClick={onVerify}
+                                            >
+                                                {t("vesting.status.verifyCTA")}
+                                            </a>
+                                            <div className="icon__button__arrow"></div>
+                                        </div>
                                     )}
-                                </div>
-                            </div>
-                            <div id="moc3">
-                                <div
-                                    id="vestingDash-staked"
-                                    className="vesting__data"
-                                >
-                                    {PrecisionNumbers({
-                                        amount: !userVesting.data
-                                            ? 0n
-                                            : userVesting.data
-                                                  .vestingmachine.staking
-                                                  .balance,
-                                        token: settings.tokens.TG[0],
-                                        decimals: Number(t("staking.display_decimals")),
-                                        //numericLabelParams: {},
-                                        i18n: i18n,
-                                    })}{" "}
-                                </div>
-                                <div className="vesting__label">
-                                    {t("vesting.dashDistribution.staked")}
-                                </div>
-                            </div>
-                            <div id="moc4">
-                                <div
-                                    id="estingDash-unstaking"
-                                    className="vesting__data"
-                                >
-                                    {PrecisionNumbers({
-                                        amount: !userVesting.data
-                                            ? 0n
-                                            : userVesting.data
-                                                  .vestingmachine.delay.balance,
-                                        token: settings.tokens.TG[0],
-                                        decimals: Number(t("staking.display_decimals")),
-                                        //numericLabelParams: {},
-                                        i18n: i18n,
-                                    })}
-                                </div>
-                                <div className="vesting__label">
-                                    {t("vesting.dashDistribution.unstaking")}
-                                </div>
                             </div>
                         </div>
-                        {/* </div>{' '} */}
-                        <div
-                            id="vesting-schedudle"
-                            className="layout-card section__innerCard--big"
-                        >
-                            <div className="layout-card-title">
-                                <h1>
-                                    {" "}
-                                    {t("vesting.releaseSchedule.cardTitle")}
-                                </h1>
-                            </div>
-                            <div id="moc-total">
-                                <div className="total-data">
+                        <div id="vesting-info-content">
+                            <div>
+                                <div
+                                    id="vesting-moc-available"
+                                    className="vesting__data"
+                                >
                                     {PrecisionNumbers({
                                         amount: !userVesting.data
                                             ? 0n
-                                            : userVesting.data
-                                                  .vestingmachine.getTotal,
+                                            : userVesting.data.vestingmachine
+                                                  .getAvailable,
                                         token: settings.tokens.TG[0],
-                                        decimals: Number(t("staking.display_decimals")),
+                                        decimals: Number(
+                                            t("staking.display_decimals")
+                                        ),
                                         //numericLabelParams: {},
                                         i18n: i18n,
                                     })}
-                                    {space}
-                                    {t("staking.tokens.TG.abbr", { ns: ns })}
                                 </div>
                                 <div className="vesting__label">
-                                    {t("vesting.releaseSchedule.scheduled")}
+                                    {t("vesting.tokensAvailableToWithdraw")}
                                 </div>
                             </div>
-                            <div id="vesting-schedule-table">
-                                <VestingSchedule />
+                            <button
+                                id="withdraw-cta"
+                                onClick={onWithdraw}
+                                disabled={!validWithdraw}
+                            >
+                                {t("vesting.withdrawToWallet")}
+                                <div className="icon__button__arrow"></div>
+                            </button>
+                        </div>
+                    </div>
+                    {/* </div>{' '} */}
+                    <div
+                        id="vesting-distribution"
+                        className="layout-card section__innerCard--small"
+                    >
+                        <div id="moc-ready">
+                            <div
+                                id="vestingDash-readyToWithdraw"
+                                className="vesting__data"
+                            >
+                                {PrecisionNumbers({
+                                    amount: !userVesting.data
+                                        ? 0n
+                                        : vestingTotals["vested"],
+                                    token: settings.tokens.TG[0],
+                                    decimals: Number(
+                                        t("staking.display_decimals")
+                                    ),
+                                    //numericLabelParams: {},
+                                    i18n: i18n,
+                                })}
+                            </div>
+                            <div className="vesting__label">
+                                {t("vesting.dashDistribution.vested")}
+                            </div>
+                        </div>
+                        <div id="dashboard">
+                            <div
+                                id="vestingDash-vested"
+                                className="vesting__data"
+                            >
+                                {vestingTotals["daysToRelease"]}{" "}
+                            </div>
+                            <div className="vesting__label">
+                                {t("vesting.dashDistribution.daysToRelease")}
+                            </div>
+                        </div>
+                        <div id="moc3">
+                            <div
+                                id="vestingDash-staked"
+                                className="vesting__data"
+                            >
+                                {PrecisionNumbers({
+                                    amount: !userVesting.data
+                                        ? 0n
+                                        : userVesting.data.vestingmachine
+                                              .staking.balance,
+                                    token: settings.tokens.TG[0],
+                                    decimals: Number(
+                                        t("staking.display_decimals")
+                                    ),
+                                    //numericLabelParams: {},
+                                    i18n: i18n,
+                                })}{" "}
+                            </div>
+                            <div className="vesting__label">
+                                {t("vesting.dashDistribution.staked")}
+                            </div>
+                        </div>
+                        <div id="moc4">
+                            <div
+                                id="estingDash-unstaking"
+                                className="vesting__data"
+                            >
+                                {PrecisionNumbers({
+                                    amount: !userVesting.data
+                                        ? 0n
+                                        : userVesting.data.vestingmachine.delay
+                                              .balance,
+                                    token: settings.tokens.TG[0],
+                                    decimals: Number(
+                                        t("staking.display_decimals")
+                                    ),
+                                    //numericLabelParams: {},
+                                    i18n: i18n,
+                                })}
+                            </div>
+                            <div className="vesting__label">
+                                {t("vesting.dashDistribution.unstaking")}
                             </div>
                         </div>
                     </div>
-                )}
+                    {/* </div>{' '} */}
+                    <div
+                        id="vesting-schedudle"
+                        className="layout-card section__innerCard--big"
+                    >
+                        <div className="layout-card-title">
+                            <h1> {t("vesting.releaseSchedule.cardTitle")}</h1>
+                        </div>
+                        <div id="moc-total">
+                            <div className="total-data">
+                                {PrecisionNumbers({
+                                    amount: !userVesting.data
+                                        ? 0n
+                                        : userVesting.data.vestingmachine
+                                              .getTotal,
+                                    token: settings.tokens.TG[0],
+                                    decimals: Number(
+                                        t("staking.display_decimals")
+                                    ),
+                                    //numericLabelParams: {},
+                                    i18n: i18n,
+                                })}
+                                {space}
+                                {t("staking.tokens.TG.abbr", { ns: ns })}
+                            </div>
+                            <div className="vesting__label">
+                                {t("vesting.releaseSchedule.scheduled")}
+                            </div>
+                        </div>
+                        <div id="vesting-schedule-table">
+                            <VestingSchedule />
+                        </div>
+                    </div>
+                </div>
+            )}
             {isOperationModalVisible && (
                 <OperationStatusModal
                     title={modalTitle}
@@ -1127,6 +1131,6 @@ const Vesting: React.FC = () => {
             )}
         </div>
     );
-}
+};
 
-export default Vesting; 
+export default Vesting;

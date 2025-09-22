@@ -31,7 +31,7 @@ export default function CopyAddress(props: CopyAddressProps): JSX.Element {
             message: t("feedback.clipboardCopy"),
             description: `${address} ` + t("feedback.clipboardTo"),
             placement: "bottomRight",
-            onClose: () => {                
+            onClose: () => {
                 notification.destroy();
             },
         });

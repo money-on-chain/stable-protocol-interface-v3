@@ -1,11 +1,15 @@
-import { readContract } from 'viem/actions'
+import { readContract } from "viem/actions";
 
 import VestingMachine from "../contracts/omoc/VestingMachine.json";
 
-
-
-const loadVestingAddressesFromLocalStorage = (accountAddress: string): string[] => {    
-    if (!accountAddress || accountAddress === "" || accountAddress === undefined) {
+const loadVestingAddressesFromLocalStorage = (
+    accountAddress: string
+): string[] => {
+    if (
+        !accountAddress ||
+        accountAddress === "" ||
+        accountAddress === undefined
+    ) {
         return [];
     }
     const storageVestingAddresses = localStorage.getItem(
@@ -18,7 +22,10 @@ const loadVestingAddressesFromLocalStorage = (accountAddress: string): string[] 
     return vestingAddresses;
 };
 
-const saveVestingAddressesToLocalStorage = (accountAddress: string, vAddresses: string[]): void => {
+const saveVestingAddressesToLocalStorage = (
+    accountAddress: string,
+    vAddresses: string[]
+): void => {
     // Store vesting addresses
     const sVestingAddresses = JSON.stringify(vAddresses);
     // save to storage addresses
@@ -28,7 +35,10 @@ const saveVestingAddressesToLocalStorage = (accountAddress: string, vAddresses: 
     );
 };
 
-const saveDefaultVestingToLocalStorage = (accountAddress: string, vAddress: string): void => {
+const saveDefaultVestingToLocalStorage = (
+    accountAddress: string,
+    vAddress: string
+): void => {
     // Save as the default vesting also
     localStorage.setItem(
         `default-vesting-address-${accountAddress.toLowerCase()}`,
@@ -36,7 +46,9 @@ const saveDefaultVestingToLocalStorage = (accountAddress: string, vAddress: stri
     );
 };
 
-const loadDefaultVestingFromLocalStorage = (accountAddress: string): string | null => {
+const loadDefaultVestingFromLocalStorage = (
+    accountAddress: string
+): string | null => {
     // Save as the default vesting also
     if (accountAddress === undefined) return null;
     return localStorage.getItem(
@@ -44,21 +56,21 @@ const loadDefaultVestingFromLocalStorage = (accountAddress: string): string | nu
     );
 };
 
-const loadVesting = async (publicClient: any, vAddress: `0x${string}`): Promise<boolean> => {
+const loadVesting = async (
+    publicClient: any,
+    vAddress: `0x${string}`
+): Promise<boolean> => {
     let loaded = false;
     try {
-        
-        const holder = await readContract(publicClient, {
+        const holder = (await readContract(publicClient, {
             address: vAddress,
             abi: VestingMachine.abi,
-            functionName: 'getHolder',
+            functionName: "getHolder",
             args: [],
-        }) as string;
+        })) as string;
 
-        
-        console.log(`Loaded Vesting Machine: ${vAddress} Holder: ${holder} `);        
+        console.log(`Loaded Vesting Machine: ${vAddress} Holder: ${holder} `);
         loaded = true;
-        
     } catch (error) {
         console.log(`Invalid Vesting address: ${error}`);
     }
@@ -66,23 +78,25 @@ const loadVesting = async (publicClient: any, vAddress: `0x${string}`): Promise<
     return loaded;
 };
 
-const onValidateVestingAddress = async (publicClient: any, addVestingAddress: `0x${string}`): Promise<boolean> => {
+const onValidateVestingAddress = async (
+    publicClient: any,
+    addVestingAddress: `0x${string}`
+): Promise<boolean> => {
     // 1. Input address valid
-    if (addVestingAddress === undefined || addVestingAddress === null ) {
+    if (addVestingAddress === undefined || addVestingAddress === null) {
         return false;
     } else if (addVestingAddress.length < 42 || addVestingAddress.length > 42) {
         return false;
     }
 
     try {
-
-        const holder = await readContract(publicClient, {
+        const holder = (await readContract(publicClient, {
             address: addVestingAddress,
             abi: VestingMachine.abi,
-            functionName: 'getHolder',
+            functionName: "getHolder",
             args: [],
-        }) as string;
-        
+        })) as string;
+
         console.log("Holder: ", holder);
 
         return true;

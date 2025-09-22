@@ -1,5 +1,5 @@
 import { Modal } from "antd";
-import React, { useEffect,useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
 import { CheckStatusGlobal } from "../../helpers/checkStatus";
@@ -10,19 +10,19 @@ import Buckets from "./buckets";
 import MultiCollateral from "./multicollateral";
 import TVL from "./tvl";
 
-
-
 export default function Performance(): JSX.Element {
     const space = "\u00A0";
     const [statusLabel, setStatusLabel] = useState<string>("--");
     const [statusText, setStatusText] = useState<string>("--");
     const [statusLabelClass, setStatusLabelClass] = useState<string>("");
     const [statusCode, setStatusCode] = useState<number[]>([]);
-    const [showGlobalStatusModal, setShowGlobalStatusModal] = useState<boolean>(false);
+    const [showGlobalStatusModal, setShowGlobalStatusModal] =
+        useState<boolean>(false);
     const { t } = useProjectTranslation();
-    const { contractProtocolStatus, userBalance, blockNumber } = useWalletContext()
+    const { contractProtocolStatus, userBalance, blockNumber } =
+        useWalletContext();
     const { checkerStatus } = CheckStatusGlobal();
-    
+
     useEffect(() => {
         if (contractProtocolStatus.data && userBalance.data) {
             const { statusLabel, statusLabelClass, statusText, statusCode } =
@@ -37,7 +37,7 @@ export default function Performance(): JSX.Element {
     const showModal = (): void => {
         setShowGlobalStatusModal(true);
     };
-    
+
     const hideModal = (): void => {
         setShowGlobalStatusModal(false);
     };
@@ -117,12 +117,7 @@ export default function Performance(): JSX.Element {
 
             {/* Buckets */}
             {settings.tokens.CA.map(function (tokenSetting, caIndex) {
-                return (
-                    <Buckets
-                        caIndex={caIndex}
-                        key={caIndex}
-                    />
-                );
+                return <Buckets caIndex={caIndex} key={caIndex} />;
             })}
         </div>
     );

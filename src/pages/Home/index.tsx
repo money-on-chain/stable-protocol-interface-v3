@@ -6,10 +6,9 @@ import Portfolio from "../../components/Dashboards/Portfolio";
 import HomeTabs from "../../components/PortfolioOperationsTabs";
 import LastOperations from "../../components/Tables/LastOperations";
 
-
 export default function Home(): React.ReactElement {
     const isMobile = window.matchMedia("(max-width: 767px)").matches;
-    
+
     return (
         <>
             {isMobile ? (

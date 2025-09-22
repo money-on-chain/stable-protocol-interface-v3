@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
-import { readContract } from 'viem/actions'
-import { usePublicClient } from 'wagmi'
+import { useQuery } from "@tanstack/react-query";
+import { readContract } from "viem/actions";
+import { usePublicClient } from "wagmi";
 
 /**
  * Custom hook to fetch and keep updated the proposal count from the VotingMachine contract.
@@ -8,42 +8,42 @@ import { usePublicClient } from 'wagmi'
  */
 
 export function useProposalCount(
-  votingMachine: { address: `0x${string}`; abi: any },
-  refetchInterval = 60_000
+    votingMachine: { address: `0x${string}`; abi: any },
+    refetchInterval = 60_000
 ) {
-  const publicClient = usePublicClient()
+    const publicClient = usePublicClient();
 
-  // Check for environment variable condition
-  if (typeof import.meta.env.REACT_APP_CONTRACT_IREGISTRY === 'undefined') {
-    return {
-      proposalCount: undefined,
-      isLoading: false,
-      isFetching: false,
-      refetch: () => {},
-      error: undefined,
+    // Check for environment variable condition
+    if (typeof import.meta.env.REACT_APP_CONTRACT_IREGISTRY === "undefined") {
+        return {
+            proposalCount: undefined,
+            isLoading: false,
+            isFetching: false,
+            refetch: () => {},
+            error: undefined,
+        };
     }
-  }
 
-  const {
-    data: proposalCount,
-    isLoading,
-    isFetching,
-    refetch,
-    error,
-  } = useQuery({
-    queryKey: ['proposalCountVoting', votingMachine?.address],
-    queryFn: async () => {
-      if (!publicClient) throw new Error('Public client not available')
-      return await readContract(publicClient, {
-        address: votingMachine.address,
-        abi: votingMachine.abi,
-        functionName: 'getProposalCount',
-        args: [],
-      })
-    },
-    enabled: !!publicClient && !!votingMachine?.address,
-    refetchInterval,
-  })
+    const {
+        data: proposalCount,
+        isLoading,
+        isFetching,
+        refetch,
+        error,
+    } = useQuery({
+        queryKey: ["proposalCountVoting", votingMachine?.address],
+        queryFn: async () => {
+            if (!publicClient) throw new Error("Public client not available");
+            return await readContract(publicClient, {
+                address: votingMachine.address,
+                abi: votingMachine.abi,
+                functionName: "getProposalCount",
+                args: [],
+            });
+        },
+        enabled: !!publicClient && !!votingMachine?.address,
+        refetchInterval,
+    });
 
-  return { proposalCount, isLoading, isFetching, refetch, error }
+    return { proposalCount, isLoading, isFetching, refetch, error };
 }

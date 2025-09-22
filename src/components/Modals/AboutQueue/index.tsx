@@ -25,7 +25,7 @@ export default function AboutQueue(props: AboutQueueProps): React.ReactElement {
                 return "QUEUING";
         }
     }
-    
+
     return (
         <div className="queue-modal-container">
             <div className="status-list">

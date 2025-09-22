@@ -24,7 +24,10 @@ interface TXStatusProps {
 
 type StepType = "SIGN" | "QUEUING" | "QUEUED" | "SUCCESS";
 
-export default function TXStatus({ statusData, statusLabels }: TXStatusProps): JSX.Element {
+export default function TXStatus({
+    statusData,
+    statusLabels,
+}: TXStatusProps): JSX.Element {
     const { status } = statusData;
 
     // List of steps in order

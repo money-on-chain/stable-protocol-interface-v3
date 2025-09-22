@@ -1,7 +1,7 @@
 import "./Styles.scss";
 
 import { DownCircleOutlined, UpCircleOutlined } from "@ant-design/icons";
-import { Modal,Skeleton, Table } from "antd";
+import { Modal, Skeleton, Table } from "antd";
 import PropTypes from "prop-types";
 import React, { Fragment, useEffect, useState } from "react";
 import Moment from "react-moment";
@@ -118,7 +118,7 @@ export default function LastOperations(props: LastOperationsProps) {
     const { token } = props;
     const [current, setCurrent] = useState(1);
     const { t, i18n, ns } = useProjectTranslation();
-    const { isConnected, address, blockNumber } = useWalletContext()
+    const { isConnected, address, blockNumber } = useWalletContext();
     const [ready, setReady] = useState(false);
     /*useEffect(() => {
         if (auth.contractStatusData) {
@@ -127,7 +127,10 @@ export default function LastOperations(props: LastOperationsProps) {
     }, [auth]);*/
 
     //const { accountData = {} as any } = auth;
-    const [dataJson, setDataJson] = useState<ApiResponse>({ operations: [], total: 0 });
+    const [dataJson, setDataJson] = useState<ApiResponse>({
+        operations: [],
+        total: 0,
+    });
     const [totalTable, setTotalTable] = useState(0);
     const [pageSize, setPageSize] = useState(10);
     //const [loadingSke, setLoadingSke] = useState(true);
@@ -215,7 +218,9 @@ export default function LastOperations(props: LastOperationsProps) {
         }
     };
 
-    function tokenExchange(row_operation: OperationData): TokenExchangeResult | undefined {
+    function tokenExchange(
+        row_operation: OperationData
+    ): TokenExchangeResult | undefined {
         let status = "";
         if (row_operation.executed) {
             status = "executed";
@@ -307,7 +312,9 @@ export default function LastOperations(props: LastOperationsProps) {
                 },
             };
         } else if (row_operation["operation"] === "TPMint") {
-            let tp_index = row_operation[status]["tpIndex"] || row_operation[status]["tpIndex_"];
+            let tp_index =
+                row_operation[status]["tpIndex"] ||
+                row_operation[status]["tpIndex_"];
             if (tp_index === undefined) tp_index = 0;
 
             return {
@@ -341,7 +348,9 @@ export default function LastOperations(props: LastOperationsProps) {
                 },
             };
         } else if (row_operation["operation"] === "TPRedeem") {
-            let tp_index = row_operation[status]["tpIndex"] || row_operation[status]["tpIndex_"];
+            let tp_index =
+                row_operation[status]["tpIndex"] ||
+                row_operation[status]["tpIndex_"];
             if (tp_index === undefined) tp_index = 0;
 
             return {
@@ -560,9 +569,14 @@ export default function LastOperations(props: LastOperationsProps) {
                                         </div>
                                         <div className="table-amount">
                                             <PrecisionNumbers
-                                                amount={BigInt(token.exchange.amount)}
+                                                amount={BigInt(
+                                                    token.exchange.amount
+                                                )}
                                                 token={token.exchange.token}
-                                                decimals={token.exchange.token.visibleDecimals ?? 2}
+                                                decimals={
+                                                    token.exchange.token
+                                                        .visibleDecimals ?? 2
+                                                }
                                                 i18n={i18n}
                                             />
                                         </div>
@@ -601,13 +615,15 @@ export default function LastOperations(props: LastOperationsProps) {
                                             </div>
                                             <div className="lastOp__detail__amount">
                                                 {PrecisionNumbers({
-                                                    amount: BigInt(token.receive.amount),
+                                                    amount: BigInt(
+                                                        token.receive.amount
+                                                    ),
                                                     token: token.receive.token,
                                                     decimals:
                                                         token.receive.token
                                                             .visibleDecimals ??
-                                                        2,                                                    
-                                                    i18n: i18n                                                    
+                                                        2,
+                                                    i18n: i18n,
                                                 })}
                                             </div>
                                         </div>
@@ -743,15 +759,18 @@ export default function LastOperations(props: LastOperationsProps) {
         );
     }
     function getFee(row_operation: OperationData) {
-        const fee: { amount: bigint; token: string | null; decimals: number } = { amount: 0n, token: null, decimals: 18 };
-        const caIndex = row_operation["bucket_index"]
+        const fee: { amount: bigint; token: string | null; decimals: number } =
+            { amount: 0n, token: null, decimals: 18 };
+        const caIndex = row_operation["bucket_index"];
 
         if (
             row_operation["executed"] &&
             row_operation["executed"]["qFeeToken_"]
         ) {
             const qFeeToken = BigInt(row_operation["executed"]["qFeeToken_"]);
-            const qFeeTokenVendorMarkup = BigInt(row_operation["executed"]["qFeeTokenVendorMarkup_"] || "0");
+            const qFeeTokenVendorMarkup = BigInt(
+                row_operation["executed"]["qFeeTokenVendorMarkup_"] || "0"
+            );
 
             fee["amount"] = qFeeToken + qFeeTokenVendorMarkup;
             fee["token"] = "TF";
@@ -765,7 +784,9 @@ export default function LastOperations(props: LastOperationsProps) {
         ) {
             const qACfee = BigInt(row_operation["executed"]["qACfee_"]);
 
-            const qACVendorMarkup = BigInt(row_operation["executed"]["qACVendorMarkup_"] || "0");
+            const qACVendorMarkup = BigInt(
+                row_operation["executed"]["qACVendorMarkup_"] || "0"
+            );
 
             fee["amount"] = qACfee + qACVendorMarkup;
             fee["token"] = `CA_${caIndex}`;
@@ -840,7 +861,7 @@ export default function LastOperations(props: LastOperationsProps) {
                 return t("operations.actions.statusFailed");
             case 0:
                 if (
-                    row_operation["params"] &&                    
+                    row_operation["params"] &&
                     BigInt(blockNumber || 0) <
                         BigInt(row_operation["params"]["blockNumber"] || 0) +
                             confirmedBlocks
@@ -849,16 +870,17 @@ export default function LastOperations(props: LastOperationsProps) {
                 else return t("operations.actions.statusQueued");
             case 1:
                 if (
-                    row_operation["executed"] &&                    
+                    row_operation["executed"] &&
                     BigInt(blockNumber || 0) <
                         BigInt(row_operation["executed"]["blockNumber"] || 0) +
                             confirmedBlocks
                 )
                     return t("operations.actions.statusConfirming");
                 else if (
-                    row_operation["operation"] === "Transfer" &&                    
+                    row_operation["operation"] === "Transfer" &&
                     BigInt(blockNumber || 0) <
-                        BigInt(row_operation["blockNumber"] || 0) + confirmedBlocks
+                        BigInt(row_operation["blockNumber"] || 0) +
+                            confirmedBlocks
                 )
                     return t("operations.actions.statusConfirming");
                 else return t("operations.actions.statusConfirmed");
