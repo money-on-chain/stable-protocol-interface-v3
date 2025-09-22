@@ -664,7 +664,7 @@ const mocAddresses = async (
         // Depending on runMulticallSync shape, adapt. Assuming res.data[key] holds Address.
         // If your implementation uses nested objects, adjust this extraction accordingly.
         const addr: Address | undefined =
-            res.data?.tpTokens?.[i] ?? res.data?.[key];
+            (res.data?.tpTokens as Address[] | undefined)?.[i] ?? (res.data?.[key] as Address | undefined);
         if (addr) tpTokens.push(addr);
     }
     return { data: { ...res.data, tpTokens } as MocAddressesData };

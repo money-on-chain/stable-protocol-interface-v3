@@ -1,3 +1,4 @@
+import type { Abi } from "viem";
 import { useReadContracts } from "wagmi";
 
 import type { MultiCallInput, MultiCallOptions } from "../types/hooks";
@@ -10,13 +11,13 @@ function assignNestedValue(
     path: (string | number)[],
     value: unknown
 ) {
-    let current: any = obj;
+    let current: Record<string | number, unknown> = obj;
     for (let i = 0; i < path.length - 1; i++) {
         const key = path[i];
         if (current[key] == null) {
             current[key] = typeof path[i + 1] === "number" ? [] : {};
         }
-        current = current[key];
+        current = current[key] as Record<string | number, unknown>;
     }
     current[path[path.length - 1]] = value;
 }
@@ -34,10 +35,10 @@ function deepMerge(
         return source;
     }
 
-    const merged: any = Array.isArray(target) ? [...target] : { ...target };
+    const merged: Record<string | number, unknown> = Array.isArray(target) ? { ...target } : { ...target };
 
     for (const key in source) {
-        if (source.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
             if (
                 typeof source[key] === "object" &&
                 source[key] !== null &&
@@ -72,8 +73,8 @@ export function useMultiCall(
 
         if (isGetBalance && isAddressOnly) {
             return {
-                address: contract,
-                abi: [],
+                address: contract as `0x${string}`,
+                abi: [] as Abi,
                 functionName: "getBalance",
                 type: "getBalance" as const,
             };
@@ -86,7 +87,7 @@ export function useMultiCall(
         ) {
             return {
                 address: contract.address,
-                abi: contract.abi,
+                abi: contract.abi as Abi,
                 functionName,
                 args,
             };
@@ -107,7 +108,7 @@ export function useMultiCall(
         queryKey,
     } = useReadContracts({
         batchSize: options.batchSize ?? 50,
-        contracts: contracts as any,
+        contracts: contracts,
         scopeKey: options.scopeKey ?? undefined,
         query: {
             refetchInterval: options.refetchInterval ?? 30_000,

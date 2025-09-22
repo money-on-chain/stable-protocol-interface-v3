@@ -4,6 +4,7 @@ import { parseUnits } from "viem";
 
 import mapPricesOffchain from "../settings/prices-offchain.json";
 import settings from "../settings/settings.json";
+import type { ParsedPrices } from "../types/hooks";
 
 /**
  * Hook to fetch and parse prices from an off-chain API, based on provided settings and contract data.
@@ -11,7 +12,7 @@ import settings from "../settings/settings.json";
 export function useOffchainPrices(
     refetchInterval = 20_000 // 20 seconds
 ) {
-    const priceApi = import.meta.env.REACT_APP_PRICE_OFFCHAIN_API;
+    const priceApi = import.meta.env.REACT_APP_PRICE_OFFCHAIN_API as string | undefined;
 
     const enabled = typeof priceApi !== "undefined";
 
@@ -49,27 +50,33 @@ export function useOffchainPrices(
                 );
 
                 if (response.status === 200) {
-                    const parsedPrices: Record<string, any>[] = [];
+                    const parsedPrices: ParsedPrices[] = [];
+                    const responseData = response.data as { values: Record<string, number> };
 
                     for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
-                        const caParse: Record<string, any> = {};
+                        const caParse: ParsedPrices = {
+                            CA: 0n,
+                            TP: [],
+                            TF: 0n,
+                            COINBASE: 0n,
+                        };
                         const map = mapPrices[ca];
 
                         caParse.CA = parseUnits(
-                            response.data.values[map.CA].toFixed(18),
+                            responseData.values[map.CA].toFixed(18),
                             18
                         );
 
                         caParse.TP = map.TP.map((tp: string) =>
-                            parseUnits(response.data.values[tp].toFixed(18), 18)
+                            parseUnits(responseData.values[tp].toFixed(18), 18)
                         );
 
                         caParse.TF = parseUnits(
-                            response.data.values[map.TF].toFixed(18),
+                            responseData.values[map.TF].toFixed(18),
                             18
                         );
                         caParse.COINBASE = parseUnits(
-                            response.data.values[map.COINBASE].toFixed(18),
+                            responseData.values[map.COINBASE].toFixed(18),
                             18
                         );
 

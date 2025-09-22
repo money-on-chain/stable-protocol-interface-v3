@@ -3,6 +3,7 @@ import { checksumAddress } from "viem";
 
 import settings from "../settings/settings.json";
 import type {
+    ContractInfo,
     DContracts,
     ExternalData,
     MultiCallErrorResult,
@@ -69,16 +70,16 @@ export function useContractProtocolStatus(
         }
 
         const vendorAddress = checksumAddress(
-            import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS
+            import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS as `0x${string}`
         );
         let contractMocType: string | undefined;
-        let Moc: any;
-        let MocVendors: any;
-        let MocQueue: any;
-        let PP_FeeToken: any;
-        let FC_MAX_ABSOLUTE_OP_PROVIDER: any;
-        let FC_MAX_OP_DIFFERENCE_PROVIDER: any;
-        let PP_TP: any;
+        let Moc: ContractInfo | undefined;
+        let MocVendors: ContractInfo | undefined;
+        let MocQueue: ContractInfo | undefined;
+        let PP_FeeToken: ContractInfo | undefined;
+        let FC_MAX_ABSOLUTE_OP_PROVIDER: ContractInfo | undefined;
+        let FC_MAX_OP_DIFFERENCE_PROVIDER: ContractInfo | undefined;
+        let PP_TP: ContractInfo | undefined;
 
         let priceOfflineTPs: bigint[] | undefined;
         const bucketsPACtps: bigint[][] = [];
@@ -98,8 +99,8 @@ export function useContractProtocolStatus(
         }
 
         for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
-            const caToken = settings.tokens.CA[ca] as any;
-            contractMocType = caToken.type;
+            const caToken = settings.tokens.CA[ca] as { collateralType: string };
+            contractMocType = caToken.collateralType;
             Moc = contracts.Moc?.[ca];
             MocVendors = contracts.MocVendors?.[ca];
             MocQueue = contracts.MocQueue?.[ca];
@@ -526,13 +527,13 @@ export function useContractProtocolStatus(
             });
         }
 
-        let PP_CA: any;
-        let CA: any;
+        let PP_CA: ContractInfo | undefined;
+        let CA: ContractInfo | undefined;
         let countRC20 = 0;
         for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
             PP_CA = contracts.PP_CA?.[ca];
             Moc = contracts.Moc?.[ca];
-            contractMocType = (settings.tokens.CA[ca] as any).type;
+            contractMocType = (settings.tokens.CA[ca] as { collateralType: string }).collateralType;
 
             if (!PP_CA || !Moc) continue;
 

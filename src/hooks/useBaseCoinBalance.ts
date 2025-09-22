@@ -29,6 +29,8 @@ export function useBaseCoinBalance(
         isLoading,
         isFetching,
         error,
-        refetch,
+        refetch: () => {
+            refetch().catch(console.error);
+        },
     };
 }

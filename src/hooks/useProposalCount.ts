@@ -15,17 +15,6 @@ export function useProposalCount(
 ): UseProposalCountResult {
     const publicClient = usePublicClient();
 
-    // Check for environment variable condition
-    if (typeof import.meta.env.REACT_APP_CONTRACT_IREGISTRY === "undefined") {
-        return {
-            proposalCount: undefined,
-            isLoading: false,
-            isFetching: false,
-            refetch: () => {},
-            error: null,
-        };
-    }
-
     const {
         data: proposalCount,
         isLoading,
@@ -44,7 +33,7 @@ export function useProposalCount(
                 args: [],
             });
         },
-        enabled: !!publicClient && !!votingMachine?.address,
+        enabled: typeof import.meta.env.REACT_APP_CONTRACT_IREGISTRY !== "undefined" && !!publicClient && !!votingMachine?.address,
         refetchInterval,
     });
 
@@ -52,7 +41,9 @@ export function useProposalCount(
         proposalCount: proposalCount as bigint | undefined, 
         isLoading, 
         isFetching, 
-        refetch, 
+        refetch: () => {
+            refetch().catch(console.error);
+        }, 
         error 
     };
 }

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
 import omoc from "../settings/omoc/omoc.json";
-import type { DContracts, MultiCallErrorResult,MultiCallInput } from "../types/hooks";
+import type { ContractInfo, DContracts, MultiCallErrorResult, MultiCallInput } from "../types/hooks";
 import { useMultiCall } from "./useMulticall";
 
 const onErrorProposal = (): MultiCallErrorResult => {
@@ -81,7 +81,7 @@ export function useContractOmocStatus(
 
             if (contracts.Supporters && !Array.isArray(contracts.Supporters)) {
                 callRequest.push({
-                    contract: contracts.Supporters as any,
+                    contract: contracts.Supporters as ContractInfo,
                     functionName: "isReadyToDistribute",
                     args: [],
                     resultType: "bool",
@@ -89,7 +89,7 @@ export function useContractOmocStatus(
                 });
 
                 callRequest.push({
-                    contract: contracts.Supporters as any,
+                    contract: contracts.Supporters as ContractInfo,
                     functionName: "mocToken",
                     args: [],
                     resultType: "address",
@@ -97,7 +97,7 @@ export function useContractOmocStatus(
                 });
 
                 callRequest.push({
-                    contract: contracts.Supporters as any,
+                    contract: contracts.Supporters as ContractInfo,
                     functionName: "period",
                     args: [],
                     resultType: "uint256",
@@ -105,7 +105,7 @@ export function useContractOmocStatus(
                 });
 
                 callRequest.push({
-                    contract: contracts.Supporters as any,
+                    contract: contracts.Supporters as ContractInfo,
                     functionName: "totalMoc",
                     args: [],
                     resultType: "uint256",
@@ -113,7 +113,7 @@ export function useContractOmocStatus(
                 });
 
                 callRequest.push({
-                    contract: contracts.Supporters as any,
+                    contract: contracts.Supporters as ContractInfo,
                     functionName: "totalToken",
                     args: [],
                     resultType: "uint256",
