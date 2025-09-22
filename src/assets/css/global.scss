@@ -1154,6 +1154,19 @@ h2 {
             text-decoration: underline;
         }
     }
+    .button--small {
+        box-shadow: none;
+        border: 1px solid var(--color-btn-primary-txt-default);
+        border-radius: var(--btn-radius-tiny);
+        // background-color: var(--color-btn-primary-txt-default);
+        color: var(--color-btn-primary-txt-default);
+        padding-right: 16px;
+        padding-left: 16px;
+        width: auto;
+        height: 22px;
+        font-size: 12px;
+        line-height: 1;
+    }
     button:hover,
     button:focus,
     button:active {

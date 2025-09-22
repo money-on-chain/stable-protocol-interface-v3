@@ -72,7 +72,8 @@ export default function VestingStatusAlert({
                         />
                     </div>{" "} */}
                     <div className="alert__switch__button">
-                        <Button
+                        <button
+                            className="button button--small"
                             type="default" // or "primary" if you want it highlighted
                             onClick={(e) => {
                                 stopEvent(e);
@@ -82,7 +83,7 @@ export default function VestingStatusAlert({
                             aria-label="Open wallet settings"
                         >
                             Disable Vesting Address
-                        </Button>
+                        </button>
                     </div>
                 </div>
             }
@@ -125,7 +126,7 @@ export default function VestingStatusAlert({
                     </div> */}
                     <div className="alert__switch__button">
                         <button
-                            className="button secondary button--small"
+                            className="button button--small"
                             type="default" // or "primary" if you want it highlighted
                             onClick={(e) => {
                                 stopEvent(e);
