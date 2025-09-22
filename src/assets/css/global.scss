@@ -1111,16 +1111,39 @@ h2 {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100%;
-    border-radius: var(--card-border-radius);
-    color: var(--notification-permanent-text);
     border: 0px;
+    border-radius: var(--card-border-radius);
+    background-color: var(--notification-info-background);
+    width: 100%;
+    color: var(--notification-permanent-text);
 
     .ant-alert-message {
-        font-weight: 600;
-        font-size: 20px;
-        font-family: var(--brand-font);
         color: var(--notification-permanent-text);
+        font-weight: 600;
+        font-size: 16px;
+        font-family: var(--brand-font);
+    }
+    .alert__message {
+        .alert__title {
+            font-weight: 600;
+        }
+        .alert__text {
+            font-weight: 400;
+        }
+    }
+    .alert__switch {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        .alert__switch__label {
+            font-weight: 600;
+        }
+        .alert__switch__button {
+            // outline: 1px dashed red;
+        }
+        .button--small {
+            // color: black;
+        }
     }
     button {
         border: none;
@@ -1134,13 +1157,13 @@ h2 {
     button:hover,
     button:focus,
     button:active {
-        background-color: transparent;
         border: none;
+        background-color: transparent;
         color: var(--color-btn-primary-txt-hover);
     }
     .address {
-        font-weight: 600;
         margin-bottom: 16px;
+        font-weight: 600;
     }
 }
 

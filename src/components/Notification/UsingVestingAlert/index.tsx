@@ -9,10 +9,12 @@ interface UseVestingAlertProps {
     address?: string;
 }
 
-export default function UseVestingAlert(props: UseVestingAlertProps): React.ReactElement {
+export default function UseVestingAlert(
+    props: UseVestingAlertProps
+): React.ReactElement {
     const { t } = useProjectTranslation();
-    const { onShowModalAccount } = useWalletContext()
-    
+    const { onShowModalAccount } = useWalletContext();
+
     const truncateAddress = (address: string): string => {
         return (
             address.substring(0, 6) +
@@ -54,4 +56,4 @@ export default function UseVestingAlert(props: UseVestingAlertProps): React.Reac
             }
         />
     );
-} 
+}
