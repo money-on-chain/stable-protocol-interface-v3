@@ -16,9 +16,10 @@ export function useBaseCoinBalance(
 ): UseBaseCoinBalanceReturn {
     const { data, isLoading, isFetching, error, refetch } = useBalance({
         address,
-        watch: true,
-        refetchInterval,
-        enabled: !!address,
+        query: {
+            refetchInterval,
+            enabled: !!address,
+        },
     });
 
     return {

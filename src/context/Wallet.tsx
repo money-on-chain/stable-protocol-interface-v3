@@ -343,7 +343,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     );
 
     const contractProtocolStatus = useContractProtocolStatus(
-        contractsAddressLoaded ? contractsAddress : undefined,
+        contractsAddressLoaded ? (contractsAddress as any) : undefined,
         Number(blockNumber),
         offChainPrices ?? undefined,
         REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS
@@ -356,7 +356,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
     const contractStatusOmoc = useContractOmocStatus(
         contractsAddressLoaded ? contractsAddress : undefined,
-        proposalCount as bigint | undefined,
+        proposalCount,
         REFRESH_INTERVAL_CONTRACT_STATUS_OMOC
     );
 
@@ -966,7 +966,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 userBalance,
                 blockNumber,
                 offChainPrices,
-                proposalCount: proposalCount as bigint | undefined,
+                proposalCount: proposalCount,
                 userBaseCoinBalance,
                 vestingAddress,
                 publicClient,

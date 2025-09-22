@@ -203,3 +203,12 @@ export interface MultiCallErrorResult {
     value: unknown;
     canOperate: boolean;
 }
+
+// Interface for proposal count hook return type
+export interface UseProposalCountResult {
+    proposalCount: bigint | undefined;
+    isLoading: boolean;
+    isFetching: boolean;
+    refetch: () => void;
+    error: Error | null;
+}

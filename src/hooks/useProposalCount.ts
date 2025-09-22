@@ -2,15 +2,17 @@ import { useQuery } from "@tanstack/react-query";
 import { readContract } from "viem/actions";
 import { usePublicClient } from "wagmi";
 
+import type { ContractInfo, UseProposalCountResult } from "../types/hooks";
+
 /**
  * Custom hook to fetch and keep updated the proposal count from the VotingMachine contract.
  * If the contract env var is not defined, it skips execution and returns undefined.
  */
 
 export function useProposalCount(
-    votingMachine: { address: `0x${string}`; abi: any },
+    votingMachine: ContractInfo | undefined,
     refetchInterval = 60_000
-) {
+): UseProposalCountResult {
     const publicClient = usePublicClient();
 
     // Check for environment variable condition
@@ -20,7 +22,7 @@ export function useProposalCount(
             isLoading: false,
             isFetching: false,
             refetch: () => {},
-            error: undefined,
+            error: null,
         };
     }
 
@@ -34,6 +36,7 @@ export function useProposalCount(
         queryKey: ["proposalCountVoting", votingMachine?.address],
         queryFn: async () => {
             if (!publicClient) throw new Error("Public client not available");
+            if (!votingMachine) throw new Error("Voting machine contract not available");
             return await readContract(publicClient, {
                 address: votingMachine.address,
                 abi: votingMachine.abi,
@@ -45,5 +48,11 @@ export function useProposalCount(
         refetchInterval,
     });
 
-    return { proposalCount, isLoading, isFetching, refetch, error };
+    return { 
+        proposalCount: proposalCount as bigint | undefined, 
+        isLoading, 
+        isFetching, 
+        refetch, 
+        error 
+    };
 }
