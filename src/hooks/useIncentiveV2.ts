@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 
 import { useMultiCall } from "./useMulticall";
+import type { MultiCallInput } from '../types/hooks'
 
 
 /**
@@ -41,7 +42,7 @@ export function useIncentiveV2(contracts?: any, userAddress?: string, refetchInt
 
       
     // Pass callsRequests into your multicall hook (safe: it's a hook calling a hook)
-    const multicallState = useMultiCall(callsRequests, {
+    const multicallState = useMultiCall(callsRequests as MultiCallInput[], {
       refetchInterval: refetchInterval,
       enabled: callsRequests.length > 0,
       scopeKey: ['userIncentiveV2', userAddress].join(':')

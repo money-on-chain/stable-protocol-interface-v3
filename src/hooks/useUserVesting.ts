@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 
 import VestingMachine from '../contracts/omoc/VestingMachine.json'
-import { type Address, type CallRequest, type ContractInfo,type DContracts } from './types'
+import type { Address, CallRequest, ContractInfo,DContracts, MultiCallInput } from '../types/hooks'
 import { useMultiCall } from './useMulticall'
 
 
@@ -209,7 +209,7 @@ export function useUserVesting(
 
   // Pass callsRequests into your multicall hook
   // Returning whatever your useMultiCall returns; it's already typed on its side.
-  const multicallState = useMultiCall(callsRequests, {
+  const multicallState = useMultiCall(callsRequests as MultiCallInput[], {
     refetchInterval,
     enabled: callsRequests.length > 0,
     scopeKey: ['userVesting', userAddress, userVestingAddress].join(':'),

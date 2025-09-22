@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 
 import settings from '../settings/settings.json'
-import type { Address, CallRequest, DContracts, TokensSettings } from './types'
+import type { Address, CallRequest, DContracts, SettingsTokens, MultiCallInput } from '../types/hooks'
 import { useMultiCall } from './useMulticall'
 
 /**
@@ -18,7 +18,7 @@ export function useUserBalance(
     if (!userAddress) return []
 
     // Safely project tokens from settings.json (no `any` involved)
-    const tokens = (settings as { tokens?: unknown }).tokens as TokensSettings | undefined
+    const tokens = (settings as { tokens?: unknown }).tokens as SettingsTokens | undefined
     if (!tokens) return []
 
     const calls: CallRequest[] = []
@@ -174,7 +174,7 @@ export function useUserBalance(
   }, [contracts, userAddress])
 
   // Pass callsRequests into your multicall hook
-  const multicallState = useMultiCall(callsRequests, {
+  const multicallState = useMultiCall(callsRequests as MultiCallInput[], {
     refetchInterval,
     enabled: callsRequests.length > 0,
     scopeKey: ['userBalance', userAddress].join(':'),

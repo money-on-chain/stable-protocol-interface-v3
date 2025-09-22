@@ -3,6 +3,7 @@ import { checksumAddress } from 'viem';
 
 import settings from "../settings/settings.json";
 import { useMultiCall } from "./useMulticall";
+import type { MultiCallInput } from '../types/hooks'
 
 
 const onErrorGetPTCac = () => {
@@ -514,7 +515,7 @@ export function useContractProtocolStatus(contracts?: any, currentBlockNumber?: 
 
       
     // Pass calls into your multicall hook (safe: it's a hook calling a hook)
-    const multicallState = useMultiCall(callsRequests, {
+    const multicallState = useMultiCall(callsRequests as MultiCallInput[], {
       refetchInterval: refetchInterval,
       enabled: callsRequests.length > 0,
       externalData: externalData

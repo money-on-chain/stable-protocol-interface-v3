@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
 import { useMultiCall } from "./useMulticall";
+import type { MultiCallInput } from '../types/hooks'
 
 const onErrorProposal = () => {
     console.warn("Proposal not exist");
@@ -79,7 +80,7 @@ export function useUserVeto(
         return callRequest;
     }, [contracts, userBalance, contractStatusOmoc, userAddress]);
 
-    const multicallState = useMultiCall(callsRequests, {
+    const multicallState = useMultiCall(callsRequests as MultiCallInput[], {
         refetchInterval: refetchInterval,
         enabled: callsRequests.length > 0,
         scopeKey: [

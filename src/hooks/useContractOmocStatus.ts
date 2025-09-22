@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 
 import omoc from "../settings/omoc/omoc.json";
 import { useMultiCall } from "./useMulticall";
+import type { MultiCallInput } from '../types/hooks'
 
 const onErrorProposal = () => {
     console.warn("Proposal not exist");
@@ -296,7 +297,7 @@ export function useContractOmocStatus(contracts?: any, proposalCountVoting?: big
 
       
     // Pass callsRequests into your multicall hook (safe: it's a hook calling a hook)
-    const multicallState = useMultiCall(callsRequests, {
+    const multicallState = useMultiCall(callsRequests as MultiCallInput[], {
       refetchInterval: refetchInterval,
       enabled: callsRequests.length > 0,
     })

@@ -31,8 +31,14 @@ import type {
   CallRequest,
   ContractInfo,
   DContracts,
-  TokensSettings,
-} from './types'
+  Settings,
+  SyncMulticallInput,
+  RegistryAddressesData,
+  CallRequestWithOnError,
+  MocAddressesData,
+} from '../types/hooks'
+
+
 
 // Reuse ABI as readonly unknown[] (no `any`)
 const ABI_IPriceProvider = IPriceProvider.abi as readonly unknown[]
@@ -59,44 +65,14 @@ const ABI_TokenPegged = TokenPegged.abi as readonly unknown[]
 /** onError handler used by some multicall entries */
 const onErrorTP = () => ({ value: null, canOperate: true })
 
-/** Local call shape (allows optional onError) */
-type CallRequestWithOnError = CallRequest & {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onError?: (..._args: any[]) => unknown
-}
-
-/** Multicall response shapes we consume */
-type RegistryAddressesData = {
-  MOC_STAKING_MACHINE: Address
-  SUPPORTERS_ADDR: Address
-  MOC_DELAY_MACHINE: Address
-  MOC_VESTING_MACHINE: Address
-  MOC_VOTING_MACHINE: Address
-  MOC_VETO_MACHINE: Address
-  MOC_PRICE_PROVIDER_REGISTRY: Address
-  ORACLE_MANAGER_ADDR: Address
-  MOC_TOKEN: Address
-}
-
-type MocAddressesData = {
-  feeToken: Address
-  feeTokenPriceProvider: Address
-  acToken?: Address
-  tcToken: Address
-  maxAbsoluteOpProvider: Address
-  maxOpDiffProvider: Address
-  mocQueue: Address
-  mocVendors: Address
-  tpTokens: Address[] // we aggregate from keys ['tpTokens', i]
-}
 
 /**
  * Read all protocol contracts/addresses based on settings + registry.
  * Returns a typed bag (DContracts) consumable by your hooks/UI.
  */
 const readContracts = async (publicClient: PublicClient): Promise<DContracts> => {
-  // Settings slice used here (avoid `any`)
-  const s = (settings as { tokens?: unknown }).tokens as TokensSettings | undefined
+  // Settings slice used here with proper typing
+  const s = (settings as Settings).tokens
   if (!s) return {}
 
   const contracts: DContracts = {
@@ -111,29 +87,30 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
     FC_MAX_OP_DIFFERENCE_PROVIDER: [],
     TP: [],
     PP_CA: [],
-    PP_TP: {},
+    PP_TP: {} as Record<number, ContractInfo[]>,
   }
 
   // ---- Price Providers (CA/USD) from env (comma-separated) ----
-  const ppcaRaw = import.meta.env.REACT_APP_CONTRACT_PRICE_PROVIDER_CA
-  if (ppcaRaw) {
-    const ppca = ppcaRaw.split(',')
-    for (let ca = 0; ca < s.CA.length; ca++) {
-      console.log(`Price Provider Pair ${s.CA[ca].name}/USD Contract... address: `, ppca[ca])
-      const pp: ContractInfo = {
-        address: ppca[ca] as Address,
-        abi: ABI_IPriceProvider,
-        name: 'PP',
-        type: '',
-      }
-      contracts.PP_CA!.push(pp)
+  const ppcaRaw = import.meta.env.REACT_APP_CONTRACT_PRICE_PROVIDER_CA as string | undefined
+  const ppca: Address[] = ppcaRaw ? (ppcaRaw.split(',') as Address[]) : []
+
+  for (let ca = 0; ca < s.CA.length; ca++) {
+    const ppAddr = ppca[ca]
+    if (!ppAddr) continue
+    console.warn(`Price Provider Pair ${s.CA[ca].name}/USD Contract... address: `, ppAddr)
+    const pp: ContractInfo = {
+      address: ppAddr,
+      abi: ABI_IPriceProvider,
+      name: 'PP',
+      type: '',
     }
+    contracts.PP_CA!.push(pp)
   }
 
   // ---- Price Provider for COINBASE (single) ----
   if (import.meta.env.REACT_APP_CONTRACT_PRICE_PROVIDER_COINBASE) {
-    console.log(
-      `Price Provider ${s.COINBASE.name} Contract... address: `,
+    console.warn(
+      `Price Provider ${s.COINBASE[0].name} Contract... address: `,
       import.meta.env.REACT_APP_CONTRACT_PRICE_PROVIDER_COINBASE,
     )
     contracts.PP_COINBASE = {
@@ -146,7 +123,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
 
   // ---- MultiCollateral Guard (discover buckets) ----
   if (import.meta.env.REACT_APP_CONTRACT_MULTICOLLATERAL_GUARD) {
-    console.log(
+    console.warn(
       'MocMultiCollateralGuard Contract... address: ',
       import.meta.env.REACT_APP_CONTRACT_MULTICOLLATERAL_GUARD,
     )
@@ -170,7 +147,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
       const isCoinbase = caType === 'coinbase'
       const mocAbi = isCoinbase ? ABI_MocCACoinbase : ABI_MocCARC20
 
-      console.log('Moc Contract... address: ', bucketAddr)
+      console.warn('Moc Contract... address: ', bucketAddr)
 
       // `contractMocType` is used later by mocAddresses
       const moc: ContractInfo & { contractMocType?: string } = {
@@ -187,7 +164,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
 
       if (!isCoinbase && mocAddr.data.acToken) {
         if (!contracts.CA!.some(caItem => caItem.address.toLowerCase() === mocAddr.data.acToken!.toLowerCase())) {
-          console.log(`${s.CA[ca].name} Token Contract... address: `, mocAddr.data.acToken)
+          console.warn(`${s.CA[ca].name} Token Contract... address: `, mocAddr.data.acToken)
           contracts.CA!.push({
             address: mocAddr.data.acToken,
             abi: ABI_CollateralAsset,
@@ -228,7 +205,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
         if (!tpItem) continue
         if (!tpAddresses.includes(tpAddress)) tpAddresses.push(tpAddress)
 
-        console.log(
+        console.warn(
           `Reading Price Provider Pair ${s.TP[tp].name}/${s.CA[ca].name} Contract... address: `,
           tpItem[1],
         )
@@ -242,7 +219,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
         })
       }
 
-      console.log('Collateral Token Contract... address: ', mocAddr.data.tcToken)
+      console.warn('Collateral Token Contract... address: ', mocAddr.data.tcToken)
       contracts.CollateralToken!.push({
         address: mocAddr.data.tcToken,
         abi: ABI_CollateralToken,
@@ -250,7 +227,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
         type: '',
       })
 
-      console.log('Moc Vendors Contract... address: ', mocAddr.data.mocVendors)
+      console.warn('Moc Vendors Contract... address: ', mocAddr.data.mocVendors)
       contracts.MocVendors!.push({
         address: mocAddr.data.mocVendors,
         abi: ABI_MocVendors,
@@ -258,7 +235,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
         type: '',
       })
 
-      console.log('MocQueue Contract... address: ', mocAddr.data.mocQueue)
+      console.warn('MocQueue Contract... address: ', mocAddr.data.mocQueue)
       contracts.MocQueue!.push({
         address: mocAddr.data.mocQueue,
         abi: ABI_MocQueue,
@@ -266,7 +243,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
         type: '',
       })
 
-      console.log('FeeToken Contract... address: ', mocAddr.data.feeToken)
+      console.warn('FeeToken Contract... address: ', mocAddr.data.feeToken)
       contracts.FeeToken!.push({
         address: mocAddr.data.feeToken,
         abi: ABI_FeeToken,
@@ -274,7 +251,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
         type: '',
       })
 
-      console.log('Fee Token PP Contract... address: ', mocAddr.data.feeTokenPriceProvider)
+      console.warn('Fee Token PP Contract... address: ', mocAddr.data.feeTokenPriceProvider)
       contracts.PP_FeeToken!.push({
         address: mocAddr.data.feeTokenPriceProvider,
         abi: ABI_IPriceProvider,
@@ -282,7 +259,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
         type: '',
       })
 
-      console.log('FC_MAX_ABSOLUTE_OP_PROVIDER Contract... address: ', mocAddr.data.maxAbsoluteOpProvider)
+      console.warn('FC_MAX_ABSOLUTE_OP_PROVIDER Contract... address: ', mocAddr.data.maxAbsoluteOpProvider)
       contracts.FC_MAX_ABSOLUTE_OP_PROVIDER!.push({
         address: mocAddr.data.maxAbsoluteOpProvider,
         abi: ABI_IPriceProvider,
@@ -290,7 +267,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
         type: '',
       })
 
-      console.log('FC_MAX_OP_DIFFERENCE_PROVIDER Contract... address: ', mocAddr.data.maxOpDiffProvider)
+      console.warn('FC_MAX_OP_DIFFERENCE_PROVIDER Contract... address: ', mocAddr.data.maxOpDiffProvider)
       contracts.FC_MAX_OP_DIFFERENCE_PROVIDER!.push({
         address: mocAddr.data.maxOpDiffProvider,
         abi: ABI_IPriceProvider,
@@ -303,7 +280,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
       for (let tp = 0; tp < s.TP.length; tp++) {
         const tpAddr = tpAddresses[tp]
         if (!tpAddr) continue
-        console.log(`${s.TP[tp].name} Token Contract... address: `, tpAddr)
+        console.warn(`${s.TP[tp].name} Token Contract... address: `, tpAddr)
         contracts.TP!.push({
           address: tpAddr,
           abi: ABI_TokenPegged,
@@ -318,7 +295,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
   if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === 'voting') {
     const tcAddress = import.meta.env.REACT_APP_CONTRACT_TC as Address | undefined
     if (tcAddress) {
-      console.log('Collateral Token Contract... address: ', tcAddress)
+      console.warn('Collateral Token Contract... address: ', tcAddress)
       contracts.CollateralToken!.push({
         address: tcAddress,
         abi: ABI_CollateralToken,
@@ -330,7 +307,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
 
   // ---- Registry-based contracts ----
   if (import.meta.env.REACT_APP_CONTRACT_IREGISTRY) {
-    console.log('IRegistry Contract... address: ', import.meta.env.REACT_APP_CONTRACT_IREGISTRY)
+    console.warn('IRegistry Contract... address: ', import.meta.env.REACT_APP_CONTRACT_IREGISTRY)
     contracts.IRegistry = {
       address: import.meta.env.REACT_APP_CONTRACT_IREGISTRY as Address,
       abi: IRegistry.abi as readonly unknown[],
@@ -340,7 +317,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
 
     const registryAddr = await registryAddresses(publicClient, contracts.IRegistry)
 
-    console.log('StakingMachine Contract... address: ', registryAddr.data.MOC_STAKING_MACHINE)
+    console.warn('StakingMachine Contract... address: ', registryAddr.data.MOC_STAKING_MACHINE)
     contracts.StakingMachine = {
       address: registryAddr.data.MOC_STAKING_MACHINE,
       abi: ABI_StakingMachine,
@@ -348,7 +325,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
       type: '',
     }
 
-    console.log('Delay Machine Contract... address: ', registryAddr.data.MOC_DELAY_MACHINE)
+    console.warn('Delay Machine Contract... address: ', registryAddr.data.MOC_DELAY_MACHINE)
     contracts.DelayMachine = {
       address: registryAddr.data.MOC_DELAY_MACHINE,
       abi: ABI_DelayMachine,
@@ -356,7 +333,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
       type: '',
     }
 
-    console.log('Supporters Contract... address: ', registryAddr.data.SUPPORTERS_ADDR)
+    console.warn('Supporters Contract... address: ', registryAddr.data.SUPPORTERS_ADDR)
     contracts.Supporters = {
       address: registryAddr.data.SUPPORTERS_ADDR,
       abi: ABI_Supporters,
@@ -364,7 +341,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
       type: '',
     }
 
-    console.log('Vesting Factory Contract... address: ', registryAddr.data.MOC_VESTING_MACHINE)
+    console.warn('Vesting Factory Contract... address: ', registryAddr.data.MOC_VESTING_MACHINE)
     contracts.VestingFactory = {
       address: registryAddr.data.MOC_VESTING_MACHINE,
       abi: ABI_VestingFactory,
@@ -372,7 +349,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
       type: '',
     }
 
-    console.log('Voting Machine Contract... address: ', registryAddr.data.MOC_VOTING_MACHINE)
+    console.warn('Voting Machine Contract... address: ', registryAddr.data.MOC_VOTING_MACHINE)
     contracts.VotingMachine = {
       address: registryAddr.data.MOC_VOTING_MACHINE,
       abi: ABI_VotingMachine,
@@ -380,7 +357,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
       type: '',
     }
 
-    console.log('Veto Machine Contract... address: ', registryAddr.data.MOC_VETO_MACHINE)
+    console.warn('Veto Machine Contract... address: ', registryAddr.data.MOC_VETO_MACHINE)
     contracts.VetoMachine = {
       address: registryAddr.data.MOC_VETO_MACHINE,
       abi: ABI_VetoMachine,
@@ -388,7 +365,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
       type: '',
     }
 
-    console.log('Token Govern Contract... address: ', registryAddr.data.MOC_TOKEN)
+    console.warn('Token Govern Contract... address: ', registryAddr.data.MOC_TOKEN)
     contracts.TG = {
       address: registryAddr.data.MOC_TOKEN,
       abi: ABI_IERC20,
@@ -407,7 +384,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
 
   // ---- Incentive V2 ----
   if (import.meta.env.REACT_APP_CONTRACT_INCENTIVE_V2) {
-    console.log('Incentive V2 Contract... address: ', import.meta.env.REACT_APP_CONTRACT_INCENTIVE_V2)
+    console.warn('Incentive V2 Contract... address: ', import.meta.env.REACT_APP_CONTRACT_INCENTIVE_V2)
     contracts.IncentiveV2 = {
       address: import.meta.env.REACT_APP_CONTRACT_INCENTIVE_V2 as Address,
       abi: ABI_IncentiveV2,
@@ -426,7 +403,7 @@ const readContracts = async (publicClient: PublicClient): Promise<DContracts> =>
     }
 
     if (!import.meta.env.REACT_APP_CONTRACT_TOKEN_MIGRATOR) {
-      console.log('Error: Please set token migrator address!')
+      console.warn('Error: Please set token migrator address!')
     } else {
       contracts.token_migrator = {
         address: import.meta.env.REACT_APP_CONTRACT_TOKEN_MIGRATOR as Address,
@@ -456,7 +433,8 @@ const registryAddresses = async (
     { contract: contractRegistry, functionName: 'getAddress', args: [omoc.RegistryConstants.MOC_TOKEN], resultType: 'address', keys: ['MOC_TOKEN'] },
   ]
 
-  return await runMulticallSync(publicClient, callRequest)
+  const result = await runMulticallSync(publicClient, callRequest as SyncMulticallInput[])
+  return { data: result.data as RegistryAddressesData }
 }
 
 const mocAddresses = async (
@@ -481,7 +459,7 @@ const mocAddresses = async (
   )
 
   // tpTokens[i]
-  for (let i = 0; i < (settings as { tokens?: unknown }).tokens!['TP'].length; i++) {
+  for (let i = 0; i < (settings as Settings).tokens.TP.length; i++) {
     calls.push({
       contract: contractMoc,
       functionName: 'tpTokens',
@@ -492,14 +470,13 @@ const mocAddresses = async (
     })
   }
 
-  const res = await runMulticallSync(publicClient, calls)
+  const res = await runMulticallSync(publicClient, calls as SyncMulticallInput[])
   // Normalize tpTokens array if your multicall flattens keys
   const tpTokens: Address[] = []
-  for (let i = 0; i < (settings as { tokens?: unknown }).tokens!['TP'].length; i++) {
+  for (let i = 0; i < (settings as Settings).tokens.TP.length; i++) {
     const key = ['tpTokens', i].join(',')
     // Depending on runMulticallSync shape, adapt. Assuming res.data[key] holds Address.
-    // If your implementation uses nested objects, adjust this extraction accordingly.
-    // @ts-expect-error – adapt to your aggregator's shape
+    // If your implementation uses nested objects, adjust this extraction accordingly.    
     const addr: Address | undefined = res.data?.tpTokens?.[i] ?? res.data?.[key]
     if (addr) tpTokens.push(addr)
   }

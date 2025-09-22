@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import type { Address, CallRequest,DContracts } from './types'
+import type { Address, CallRequest, DContracts, MultiCallInput } from '../types/hooks'
 import { useMultiCall } from './useMulticall'
 
 /**
@@ -129,7 +129,7 @@ export function useUserOmocBalance(
     return calls
   }, [contracts, userAddress])
 
-  const multicallState = useMultiCall(callsRequests, {
+  const multicallState = useMultiCall(callsRequests as MultiCallInput[], {
     refetchInterval,
     enabled: callsRequests.length > 0,
     scopeKey: ['userOmocBalance', userAddress].join(':'),

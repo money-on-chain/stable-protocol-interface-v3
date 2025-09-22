@@ -1,28 +1,7 @@
 import { useReadContracts } from 'wagmi'
 
-type ContractInput =
-  | { address: `0x${string}`; abi: any }
-  | string // for getBalance
+import type { MultiCallInput } from '../types/hooks'
 
-type ResultType = 'uint256' | 'int256' | 'address' | 'bool'
-
-type MultiCallInput = {
-  contract: ContractInput
-  functionName: string
-  args?: any[]
-  resultType?: ResultType
-  keys: (string | number)[]
-  transform?: (result: any) => any
-  onError?: () => { value: any; canOperate: boolean }
-}
-
-export interface UseStorageResult<T> {
-  data: T | undefined
-  isLoading: boolean
-  isFetching: boolean
-  refetch: () => Promise<{ data: T }>
-  error: Error | null
-}
 
 /**
  * Assigns a value into a nested object structure given a path of keys.

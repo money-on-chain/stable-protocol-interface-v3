@@ -1,18 +1,8 @@
 //import { readContracts, type PublicClient } from 'viem'
 //import { readContracts } from 'viem/actions'
 import type { PublicClient } from 'viem'
+import type { SyncMulticallInput } from '../types/hooks'
 
-type ResultType = 'uint256' | 'int256' | 'address' | 'bool'
-
-type SyncMulticallInput = {
-  contract: { address: `0x${string}`; abi: any }
-  functionName: string
-  args?: any[]
-  resultType?: ResultType
-  keys: (string | number)[]
-  transform?: (result: any) => any
-  onError?: () => { value: any; canOperate: boolean }
-}
 
 /**
  * Assigns a value into a nested object structure given a path of keys.
