@@ -1,7 +1,12 @@
 import { useMemo } from "react";
 
 import omoc from "../settings/omoc/omoc.json";
-import type { ContractInfo, DContracts, MultiCallErrorResult, MultiCallInput } from "../types/hooks";
+import type {
+    ContractInfo,
+    DContracts,
+    MultiCallErrorResult,
+    MultiCallInput,
+} from "../types/hooks";
 import { useMultiCall } from "./useMulticall";
 
 const onErrorProposal = (): MultiCallErrorResult => {
@@ -253,7 +258,8 @@ export function useContractOmocStatus(
                     contract: contracts.IRegistry,
                     functionName: "getUint",
                     args: [
-                        omoc.RegistryConstants.MOC_VOTING_MACHINE_MAX_PRE_PROPOSALS,
+                        omoc.RegistryConstants
+                            .MOC_VOTING_MACHINE_MAX_PRE_PROPOSALS,
                     ],
                     resultType: "uint256",
                     keys: ["votingmachine", "MAX_PRE_PROPOSALS"],
@@ -306,7 +312,9 @@ export function useContractOmocStatus(
                 callRequest.push({
                     contract: contracts.IRegistry,
                     functionName: "getUint",
-                    args: [omoc.RegistryConstants.MOC_VOTING_MACHINE_PCT_PRECISION],
+                    args: [
+                        omoc.RegistryConstants.MOC_VOTING_MACHINE_PCT_PRECISION,
+                    ],
                     resultType: "uint256",
                     keys: ["votingmachine", "PCT_PRECISION"],
                 });
@@ -315,14 +323,18 @@ export function useContractOmocStatus(
                     contract: contracts.IRegistry,
                     functionName: "getUint",
                     args: [
-                        omoc.RegistryConstants.MOC_VOTING_MACHINE_VOTING_TIME_DELTA,
+                        omoc.RegistryConstants
+                            .MOC_VOTING_MACHINE_VOTING_TIME_DELTA,
                     ],
                     resultType: "uint256",
                     keys: ["votingmachine", "VOTING_TIME_DELTA"],
                 });
             }
 
-            if (contracts.VetoMachine && contracts.VetoMachine.address != "0x") {
+            if (
+                contracts.VetoMachine &&
+                contracts.VetoMachine.address != "0x"
+            ) {
                 callRequest.push({
                     contract: contracts.VetoMachine,
                     functionName: "getVetoPctForWinnerProposal",

@@ -1,6 +1,10 @@
 import { useMemo } from "react";
 
-import type { DContracts, MultiCallErrorResult, MultiCallInput } from "../types/hooks";
+import type {
+    DContracts,
+    MultiCallErrorResult,
+    MultiCallInput,
+} from "../types/hooks";
 import { useMultiCall } from "./useMulticall";
 
 const onErrorProposal = (): MultiCallErrorResult => {
@@ -28,12 +32,14 @@ export function useUserVeto(
         if (contracts.VetoMachine && contracts.VetoMachine.address !== "0x") {
             const collateralTokens = contracts.CollateralToken;
             if (!Array.isArray(collateralTokens)) return callRequest;
-            
+
             for (let ca = 0; ca < collateralTokens.length; ca++) {
                 const CollateralToken = collateralTokens[ca];
                 if (!CollateralToken) continue;
-                
-                const userTCBalance = (userBalance[ca] as { TC: { balance: bigint } })?.TC?.balance || 0n;
+
+                const userTCBalance =
+                    (userBalance[ca] as { TC: { balance: bigint } })?.TC
+                        ?.balance || 0n;
                 callRequest.push({
                     contract: contracts.VetoMachine,
                     functionName: "getVotingPower",
@@ -54,25 +60,36 @@ export function useUserVeto(
                     keys: ["vetoMachine", "allowance", CollateralToken.address],
                 });
 
-                const votingMachineData = contractStatusOmoc.votingmachine as { getProposalByIndex: Record<string, unknown[]> };
+                const votingMachineData = contractStatusOmoc.votingmachine as {
+                    getProposalByIndex: Record<string, unknown[]>;
+                };
                 if (votingMachineData?.getProposalByIndex) {
                     for (const key in votingMachineData.getProposalByIndex) {
-                        const proposalData = votingMachineData.getProposalByIndex[key];
-                        if (!Array.isArray(proposalData) || proposalData.length < 1) continue;
+                        const proposalData =
+                            votingMachineData.getProposalByIndex[key];
+                        if (
+                            !Array.isArray(proposalData) ||
+                            proposalData.length < 1
+                        )
+                            continue;
                         const [proposal] = proposalData;
-                    callRequest.push({
-                        contract: contracts.VetoMachine,
-                        functionName: "getUserLockedAmount",
-                        args: [proposal, userAddress, CollateralToken.address],
-                        resultType: "uint256",
-                        keys: [
-                            "vetoMachine",
-                            "getUserLockedAmount",
-                            userAddress || "",
-                            CollateralToken.address,
-                            proposal as string,
-                        ],
-                        onError: onErrorProposal,
+                        callRequest.push({
+                            contract: contracts.VetoMachine,
+                            functionName: "getUserLockedAmount",
+                            args: [
+                                proposal,
+                                userAddress,
+                                CollateralToken.address,
+                            ],
+                            resultType: "uint256",
+                            keys: [
+                                "vetoMachine",
+                                "getUserLockedAmount",
+                                userAddress || "",
+                                CollateralToken.address,
+                                proposal as string,
+                            ],
+                            onError: onErrorProposal,
                         });
                     }
                 }

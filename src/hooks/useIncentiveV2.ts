@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import type { DContracts,MultiCallInput } from "../types/hooks";
+import type { DContracts, MultiCallInput } from "../types/hooks";
 import { useMultiCall } from "./useMulticall";
 
 /**

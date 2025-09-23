@@ -70,7 +70,8 @@ export function useContractProtocolStatus(
         }
 
         const vendorAddress = checksumAddress(
-            import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS as `0x${string}`
+            import.meta.env
+                .REACT_APP_ENVIRONMENT_VENDOR_ADDRESS as `0x${string}`
         );
         let contractMocType: string | undefined;
         let Moc: ContractInfo | undefined;
@@ -99,7 +100,9 @@ export function useContractProtocolStatus(
         }
 
         for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
-            const caToken = settings.tokens.CA[ca] as { collateralType: string };
+            const caToken = settings.tokens.CA[ca] as {
+                collateralType: string;
+            };
             contractMocType = caToken.collateralType;
             Moc = contracts.Moc?.[ca];
             MocVendors = contracts.MocVendors?.[ca];
@@ -533,7 +536,9 @@ export function useContractProtocolStatus(
         for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
             PP_CA = contracts.PP_CA?.[ca];
             Moc = contracts.Moc?.[ca];
-            contractMocType = (settings.tokens.CA[ca] as { collateralType: string }).collateralType;
+            contractMocType = (
+                settings.tokens.CA[ca] as { collateralType: string }
+            ).collateralType;
 
             if (!PP_CA || !Moc) continue;
 

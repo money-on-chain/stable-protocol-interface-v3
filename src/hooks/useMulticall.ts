@@ -35,7 +35,9 @@ function deepMerge(
         return source;
     }
 
-    const merged: Record<string | number, unknown> = Array.isArray(target) ? { ...target } : { ...target };
+    const merged: Record<string | number, unknown> = Array.isArray(target)
+        ? { ...target }
+        : { ...target };
 
     for (const key in source) {
         if (Object.prototype.hasOwnProperty.call(source, key)) {

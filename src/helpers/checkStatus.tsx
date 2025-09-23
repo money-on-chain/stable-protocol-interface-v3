@@ -10,7 +10,10 @@ interface StatusResult {
     statusCode: number[];
 }
 
-function CheckStatusCA(contractProtocolStatus: { data?: Record<string | number, unknown> }, caIndex: number): number {
+function CheckStatusCA(
+    contractProtocolStatus: { data?: Record<string | number, unknown> },
+    caIndex: number
+): number {
     /* Status Code:
     -1: Error - 
      0: Optimal - globalCoverage > getCtargemaCA
@@ -25,17 +28,19 @@ function CheckStatusCA(contractProtocolStatus: { data?: Record<string | number, 
 
     if (!contractProtocolStatus.data) return statusCode;
 
-    const caData = contractProtocolStatus.data[caIndex] as {
-        getCglb: bigint;
-        getCtargemaCA: bigint;
-        liqThrld: bigint;
-        protThrld: bigint;
-        liquidated: boolean;
-        paused: boolean;
-    } | undefined;
-    
+    const caData = contractProtocolStatus.data[caIndex] as
+        | {
+              getCglb: bigint;
+              getCtargemaCA: bigint;
+              liqThrld: bigint;
+              protThrld: bigint;
+              liquidated: boolean;
+              paused: boolean;
+          }
+        | undefined;
+
     if (!caData) return statusCode;
-    
+
     const globalCoverage = caData.getCglb;
     const getCtargemaCA = caData.getCtargemaCA;
     const liqThrld = caData.liqThrld;
@@ -59,7 +64,9 @@ function CheckStatusCA(contractProtocolStatus: { data?: Record<string | number, 
         statusCode = 4;
     }
 
-    const canOperate = contractProtocolStatus.data.canOperate as boolean | undefined;
+    const canOperate = contractProtocolStatus.data.canOperate as
+        | boolean
+        | undefined;
     if (canOperate === false) {
         statusCode = 5;
     }

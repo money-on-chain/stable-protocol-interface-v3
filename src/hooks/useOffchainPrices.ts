@@ -12,7 +12,9 @@ import type { ParsedPrices } from "../types/hooks";
 export function useOffchainPrices(
     refetchInterval = 20_000 // 20 seconds
 ) {
-    const priceApi = import.meta.env.REACT_APP_PRICE_OFFCHAIN_API as string | undefined;
+    const priceApi = import.meta.env.REACT_APP_PRICE_OFFCHAIN_API as
+        | string
+        | undefined;
 
     const enabled = typeof priceApi !== "undefined";
 
@@ -51,7 +53,9 @@ export function useOffchainPrices(
 
                 if (response.status === 200) {
                     const parsedPrices: ParsedPrices[] = [];
-                    const responseData = response.data as { values: Record<string, number> };
+                    const responseData = response.data as {
+                        values: Record<string, number>;
+                    };
 
                     for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
                         const caParse: ParsedPrices = {

@@ -25,7 +25,8 @@ export function useProposalCount(
         queryKey: ["proposalCountVoting", votingMachine?.address],
         queryFn: async () => {
             if (!publicClient) throw new Error("Public client not available");
-            if (!votingMachine) throw new Error("Voting machine contract not available");
+            if (!votingMachine)
+                throw new Error("Voting machine contract not available");
             return await readContract(publicClient, {
                 address: votingMachine.address,
                 abi: votingMachine.abi,
@@ -33,17 +34,21 @@ export function useProposalCount(
                 args: [],
             });
         },
-        enabled: typeof import.meta.env.REACT_APP_CONTRACT_IREGISTRY !== "undefined" && !!publicClient && !!votingMachine?.address,
+        enabled:
+            typeof import.meta.env.REACT_APP_CONTRACT_IREGISTRY !==
+                "undefined" &&
+            !!publicClient &&
+            !!votingMachine?.address,
         refetchInterval,
     });
 
-    return { 
-        proposalCount: proposalCount as bigint | undefined, 
-        isLoading, 
-        isFetching, 
+    return {
+        proposalCount: proposalCount as bigint | undefined,
+        isLoading,
+        isFetching,
         refetch: () => {
             refetch().catch(console.error);
-        }, 
-        error 
+        },
+        error,
     };
 }

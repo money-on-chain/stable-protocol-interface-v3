@@ -154,22 +154,28 @@ function TokenAllowance(
     let allowance: bigint = 0n;
     switch (aTokenExchange[0]) {
         case "CA":
-            allowance =
-                (userBalance.data.CA as { allowance: bigint }[])[parseInt(aTokenExchange[1])].allowance;
+            allowance = (userBalance.data.CA as { allowance: bigint }[])[
+                parseInt(aTokenExchange[1])
+            ].allowance;
             break;
         case "TP":
-            allowance =
-                ((userBalance.data.TP as { allowance: bigint }[][])[caIndex])[parseInt(aTokenExchange[1])]
-                    .allowance;
+            allowance = (userBalance.data.TP as { allowance: bigint }[][])[
+                caIndex
+            ][parseInt(aTokenExchange[1])].allowance;
             break;
         case "TC":
-            allowance =
-                (userBalance.data[parseInt(aTokenExchange[1])] as { TC: { allowance: bigint } }).TC.allowance;
+            allowance = (
+                userBalance.data[parseInt(aTokenExchange[1])] as {
+                    TC: { allowance: bigint };
+                }
+            ).TC.allowance;
             break;
         case "TF":
-            allowance =
-                (userBalance.data[parseInt(aTokenExchange[1])] as { FeeToken: { allowance: bigint } }).FeeToken
-                    .allowance;
+            allowance = (
+                userBalance.data[parseInt(aTokenExchange[1])] as {
+                    FeeToken: { allowance: bigint };
+                }
+            ).FeeToken.allowance;
             break;
         default:
             throw new Error("Invalid token name");
@@ -412,17 +418,29 @@ function executionFeeMap(
     const aTokenMap: string = `${aTokenExchange[0]},${aTokenReceive[0]}`;
     switch (aTokenMap) {
         case "CA,TC":
-            return (contractProtocolStatus.data[parseInt(aTokenExchange[1])] as { tcMintExecCost: bigint })
-                .tcMintExecCost;
+            return (
+                contractProtocolStatus.data[parseInt(aTokenExchange[1])] as {
+                    tcMintExecCost: bigint;
+                }
+            ).tcMintExecCost;
         case "CA,TP":
-            return (contractProtocolStatus.data[parseInt(aTokenExchange[1])] as { tpMintExecCost: bigint })
-                .tpMintExecCost;
+            return (
+                contractProtocolStatus.data[parseInt(aTokenExchange[1])] as {
+                    tpMintExecCost: bigint;
+                }
+            ).tpMintExecCost;
         case "TP,CA":
-            return (contractProtocolStatus.data[parseInt(aTokenReceive[1])] as { tpRedeemExecCost: bigint })
-                .tpRedeemExecCost;
+            return (
+                contractProtocolStatus.data[parseInt(aTokenReceive[1])] as {
+                    tpRedeemExecCost: bigint;
+                }
+            ).tpRedeemExecCost;
         case "TC,CA":
-            return (contractProtocolStatus.data[parseInt(aTokenReceive[1])] as { tcRedeemExecCost: bigint })
-                .tcRedeemExecCost;
+            return (
+                contractProtocolStatus.data[parseInt(aTokenReceive[1])] as {
+                    tcRedeemExecCost: bigint;
+                }
+            ).tcRedeemExecCost;
         default:
             throw new Error("Invalid token name map");
     }
