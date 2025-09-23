@@ -5,16 +5,14 @@ import {
 } from "@wagmi/core";
 import { checksumAddress } from "viem";
 
+import type { InterfaceContext, OnReceipt,OnTransaction } from "../../types/wallets";
 import { config } from "../../wagmiConfig";
 
-type TransactionCallback = (hash: string) => void;
-type ReceiptCallback = (receipt: any) => void;
-
 const preVote = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     changeContractAddress: `0x${string}`,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
@@ -42,10 +40,10 @@ const preVote = async (
 };
 
 const unRegister = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     changeContractAddress: `0x${string}`,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
@@ -73,10 +71,10 @@ const unRegister = async (
 };
 
 const vote = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     inFavorAgainst: boolean,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
@@ -104,9 +102,9 @@ const vote = async (
 };
 
 const preVoteStep = async (
-    interfaceContext: any,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    interfaceContext: InterfaceContext,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
@@ -134,9 +132,9 @@ const preVoteStep = async (
 };
 
 const voteStep = async (
-    interfaceContext: any,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    interfaceContext: InterfaceContext,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
@@ -164,9 +162,9 @@ const voteStep = async (
 };
 
 const acceptedStep = async (
-    interfaceContext: any,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    interfaceContext: InterfaceContext,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;

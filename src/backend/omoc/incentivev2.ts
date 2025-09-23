@@ -4,14 +4,11 @@ import {
     writeContract,
 } from "@wagmi/core";
 
-import type { InterfaceContext } from "../../types/wallets";
+import type { InterfaceContext, OnReceipt,OnTransaction } from "../../types/wallets";
 import { config } from "../../wagmiConfig";
 
 // SignDataResponse can be a string (signature) or an object with signature property
 type SignDataResponse = string | { signature: string };
-
-type OnTransaction = (hash: string) => void;
-type OnReceipt = (receipt: any) => void;
 
 const claimV2 = async (
     interfaceContext: InterfaceContext,

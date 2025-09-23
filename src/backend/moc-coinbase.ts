@@ -5,13 +5,10 @@ import {
 } from "@wagmi/core";
 
 import settings from "../settings/settings.json";
-import type { InterfaceContext } from "../types/wallets";
+import type { InterfaceContext, OnReceipt,OnTransaction } from "../types/wallets";
 import { config } from "../wagmiConfig";
 import { redeemTC as redeemTC_, redeemTP as redeemTP_ } from "./moc-core";
 import { getExecutionFee, getNetworkFromProject } from "./utils";
-
-type OnTransaction = (hash: string) => void;
-type OnReceipt = (receipt: any) => void;
 
 const mintTC = async (
     interfaceContext: InterfaceContext,

@@ -5,18 +5,15 @@ import {
 } from "@wagmi/core";
 import { checksumAddress } from "viem";
 
-import type { InterfaceContext } from "../../types/wallets";
+import type { InterfaceContext, OnReceipt,OnTransaction } from "../../types/wallets";
 import { config } from "../../wagmiConfig";
-
-type TransactionCallback = (hash: string) => void;
-type ReceiptCallback = (receipt: any) => void;
 
 const addStake = async (
     interfaceContext: InterfaceContext,
     amount: bigint,
     userAddress: `0x${string}`,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
@@ -46,8 +43,8 @@ const addStake = async (
 const unStake = async (
     interfaceContext: InterfaceContext,
     amount: bigint,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
@@ -77,8 +74,8 @@ const unStake = async (
 const delayMachineWithdraw = async (
     interfaceContext: InterfaceContext,
     idWithdraw: string | number,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
@@ -108,8 +105,8 @@ const delayMachineWithdraw = async (
 const delayMachineCancelWithdraw = async (
     interfaceContext: InterfaceContext,
     idWithdraw: string | number,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
@@ -139,8 +136,8 @@ const delayMachineCancelWithdraw = async (
 const approveStakingMachine = async (
     interfaceContext: InterfaceContext,
     amount: bigint,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;

@@ -5,17 +5,15 @@ import {
 } from "@wagmi/core";
 import { checksumAddress } from "viem";
 
+import type { InterfaceContext, OnReceipt,OnTransaction } from "../../types/wallets";
 import { config } from "../../wagmiConfig";
 
-type TransactionCallback = (hash: string) => void;
-type ReceiptCallback = (receipt: any) => void;
-
 const vetoVote = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     proposalAddress: `0x${string}`,
     caIndex: number,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts, userBalance } = interfaceContext;
     if (!contracts) return;
@@ -50,11 +48,11 @@ const vetoVote = async (
 };
 
 const vetoWithdraw = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     proposalAddress: `0x${string}`,
     tcAddress: `0x${string}`,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;

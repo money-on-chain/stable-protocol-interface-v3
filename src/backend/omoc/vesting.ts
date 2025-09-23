@@ -5,17 +5,14 @@ import {
 } from "@wagmi/core";
 import { checksumAddress, encodeFunctionData } from "viem";
 
-import type { InterfaceContext } from "../../types/wallets";
+import type { InterfaceContext, OnReceipt,OnTransaction } from "../../types/wallets";
 import { config } from "../../wagmiConfig";
-
-type TransactionCallback = (hash: string) => void;
-type ReceiptCallback = (receipt: any) => void;
 
 const vestingVerify = async (
     interfaceContext: InterfaceContext,
     vestingAddress: `0x${string}`,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
@@ -46,8 +43,8 @@ const approve = async (
     interfaceContext: InterfaceContext,
     amount: bigint,
     vestingAddress: `0x${string}`,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
@@ -78,8 +75,8 @@ const deposit = async (
     interfaceContext: InterfaceContext,
     amount: bigint,
     vestingAddress: `0x${string}`,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
@@ -110,8 +107,8 @@ const withdraw = async (
     interfaceContext: InterfaceContext,
     amount: bigint,
     vestingAddress: `0x${string}`,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
@@ -141,8 +138,8 @@ const withdraw = async (
 const withdrawAll = async (
     interfaceContext: InterfaceContext,
     vestingAddress: `0x${string}`,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
@@ -174,8 +171,8 @@ const addStake = async (
     amount: bigint,
     userAddress: `0x${string}`,
     vestingAddress: `0x${string}`,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
@@ -215,8 +212,8 @@ const unStake = async (
     interfaceContext: InterfaceContext,
     amount: bigint,
     vestingAddress: `0x${string}`,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
@@ -256,8 +253,8 @@ const delayMachineCancelWithdraw = async (
     interfaceContext: InterfaceContext,
     idWithdraw: string | number,
     vestingAddress: `0x${string}`,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
@@ -297,8 +294,8 @@ const delayMachineWithdraw = async (
     interfaceContext: InterfaceContext,
     idWithdraw: string | number,
     vestingAddress: `0x${string}`,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
@@ -338,8 +335,8 @@ const approveStakingMachine = async (
     interfaceContext: InterfaceContext,
     amount: bigint,
     vestingAddress: `0x${string}`,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
@@ -382,8 +379,8 @@ const preVote = async (
     interfaceContext: InterfaceContext,
     changeContractAddress: `0x${string}`,
     vestingAddress: `0x${string}`,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
@@ -424,8 +421,8 @@ const vote = async (
     interfaceContext: InterfaceContext,
     inFavorAgainst: boolean,
     vestingAddress: `0x${string}`,
-    onTransaction: TransactionCallback,
-    onReceipt: ReceiptCallback
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;

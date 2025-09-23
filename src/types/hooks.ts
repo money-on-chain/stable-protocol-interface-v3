@@ -11,7 +11,7 @@ export type ContractInfo = {
 
 /** Bag of contracts discovered at runtime */
 export type DContracts = {
-    // Core used across hooks
+    // Governance contracts
     VestingFactory?: ContractInfo;
     TG?: ContractInfo;
     StakingMachine?: ContractInfo;
@@ -20,9 +20,13 @@ export type DContracts = {
     VetoMachine?: ContractInfo;
     IncentiveV2?: ContractInfo;
     IRegistry?: ContractInfo;
+    VestingMachine?: ContractInfo;
+    
+    // Protocol contracts
     MocMultiCollateralGuard?: ContractInfo;
+    PP_COINBASE?: ContractInfo;
 
-    // Arrays
+    // Protocol buckets Arrays
     Moc?: ContractInfo[];
     CA?: ContractInfo[];
     CollateralToken?: ContractInfo[];
@@ -37,11 +41,10 @@ export type DContracts = {
     // Pair matrix (CA x TP) of price providers
     PP_TP?: Record<number, ContractInfo[]>;
 
-    // Extras
-    PP_COINBASE?: ContractInfo;
+    // Extras contracts
     tp_legacy?: ContractInfo;
     token_migrator?: ContractInfo;
-    VestingMachine?: ContractInfo;
+    
 
     [k: string]:
         | ContractInfo

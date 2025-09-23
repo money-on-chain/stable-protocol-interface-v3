@@ -1,13 +1,10 @@
-import type { InterfaceContext } from "../types/wallets";
+import type { InterfaceContext, OnReceipt,OnTransaction } from "../types/wallets";
 import {
     mintTC as mintTC_,
     mintTP as mintTP_,
     redeemTC as redeemTC_,
     redeemTP as redeemTP_,
 } from "./moc-core";
-
-type OnTransaction = (hash: string) => void;
-type OnReceipt = (receipt: any) => void;
 
 const mintTC = async (
     interfaceContext: InterfaceContext,

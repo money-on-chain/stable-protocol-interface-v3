@@ -4,12 +4,8 @@ import {
     writeContract,
 } from "@wagmi/core";
 
-import type { InterfaceContext } from "../types/wallets";
+import type { InterfaceContext, OnError,OnReceipt, OnTransaction } from "../types/wallets";
 import { config } from "../wagmiConfig";
-
-type OnTransaction = (hash: string) => void;
-type OnReceipt = (receipt: any) => void;
-type OnError = (error: any) => void;
 
 const AllowanceAmount = async (
     interfaceContext: InterfaceContext,
