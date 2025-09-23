@@ -170,7 +170,7 @@ const Veto: React.FC = () => {
 
         const cDataUser: InfoUser = { ...infoUser };
         cDataUser["InfoUserTC"] = [];
-
+        
         contractsAddress.CollateralToken.forEach((tc, index) => {
             const tokenInfo: InfoUserTC = {
                 index,
@@ -181,7 +181,7 @@ const Veto: React.FC = () => {
                 balance: userBalance.data[index].TC.balance,
                 proposal: infoVoting.votingData["winnerProposal"],
                 votingPower:
-                    userVeto.data.vetoMachine.getVotingPower[tc.address] || 0n,
+                    BigInt(userVeto.data.vetoMachine.getVotingPower[tc.address]) || 0n,
             };
             cDataUser["InfoUserTC"].push(tokenInfo);
         });
