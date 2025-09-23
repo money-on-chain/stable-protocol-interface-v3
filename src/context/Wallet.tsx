@@ -63,8 +63,8 @@ import { useUserBalance } from "../hooks/useUserBalance";
 import { useUserOmocBalance } from "../hooks/useUserOmocBalance";
 import { useUserVesting } from "../hooks/useUserVesting";
 import { useUserVeto } from "../hooks/useUserVeto";
-import type { DContracts, ParsedPrices, ContractInfo } from "../types/hooks";
 import api from "../services/api";
+import type {DContracts, ParsedPrices } from "../types/hooks";
 
 // Prefer narrow types over `any`.
 
@@ -346,7 +346,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const contractProtocolStatus = useContractProtocolStatus(
         contractsAddressLoaded ? contractsAddress ?? undefined : undefined,
         Number(blockNumber),
-        (offChainPrices as unknown as ParsedPrices[]) ?? undefined,
+        (offChainPrices as ParsedPrices[]) ?? undefined,
         REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS
     );
 
