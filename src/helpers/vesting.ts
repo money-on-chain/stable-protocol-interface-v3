@@ -1,5 +1,5 @@
-import { readContract } from "viem/actions";
 import type { PublicClient } from "viem";
+import { readContract } from "viem/actions";
 
 import VestingMachine from "../contracts/omoc/VestingMachine.json";
 

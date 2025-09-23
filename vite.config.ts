@@ -7,7 +7,7 @@ import svgr from "vite-plugin-svgr";
 
 const manifestFromPublic = JSON.parse(
     fs.readFileSync(path.resolve(__dirname, "public/manifest.json"), "utf-8")
-);
+) as Record<string, unknown>;
 
 export default defineConfig({
     base: "",

@@ -3,20 +3,12 @@ import axios from "axios";
 
 type HttpMethod = "get" | "post" | "put" | "delete" | "patch";
 
-interface ApiResponse<T = any> {
-    data: T;
-    status: number;
-    statusText: string;
-    headers: any;
-    config: any;
-}
-
-const api = <T = any>(
+const api = <T = unknown>(
     method: HttpMethod,
     url: string,
-    params?: any,
+    params?: unknown,
     allData: boolean = false
-): Promise<T | ApiResponse<T>> => {
+): Promise<T | AxiosResponse<T>> => {
     return new Promise((resolve, reject) => {
         const data: AxiosRequestConfig = ["delete", "get"].includes(method)
             ? { params }

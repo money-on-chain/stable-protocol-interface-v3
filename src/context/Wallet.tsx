@@ -64,6 +64,7 @@ import { useUserOmocBalance } from "../hooks/useUserOmocBalance";
 import { useUserVesting } from "../hooks/useUserVesting";
 import { useUserVeto } from "../hooks/useUserVeto";
 import api from "../services/api";
+import type {DContracts, ParsedPrices } from "../types/hooks";
 
 // Prefer narrow types over `any`.
 
@@ -83,7 +84,7 @@ export interface InterfaceContext {
     contractProtocolStatus: ReturnType<typeof useContractProtocolStatus>;
     userBalance: ReturnType<typeof useUserBalance>;
     address?: Address;
-    contracts: ContractsAddress | null;
+    contracts: DContracts | null;
 }
 
 // Callback types — avoid `any`
@@ -93,10 +94,10 @@ type OnError = (error: unknown) => void;
 export type WalletContextType = {
     isConnected: boolean;
     address?: Address;
-    connect: () => void;
+    connect: ReturnType<typeof useConnect>['connect'];
     disconnect: () => void;
 
-    contractsAddress: ContractsAddress | null;
+    contractsAddress: DContracts | null;
     contractsAddressLoaded: boolean;
 
     contractStatusOmoc: ReturnType<typeof useContractOmocStatus>;
@@ -289,12 +290,12 @@ export type WalletContextType = {
 
 interface VestingTransaction {
     vesting: string;
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 interface VestingResponse {
     transactions?: VestingTransaction[];
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 export const WalletContext = createContext<WalletContextType | null>(null);
@@ -321,7 +322,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const walletClient = useWalletClient();
 
     const [contractsAddress, setContractsAddress] =
-        useState<ContractsAddress | null>(null);
+        useState<DContracts | null>(null);
     const [contractsAddressLoaded, setContractsAddressLoaded] = useState(false);
     const [vestingAddress, setVestingAddress] = useState<string | undefined>(
         undefined
@@ -343,9 +344,9 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     );
 
     const contractProtocolStatus = useContractProtocolStatus(
-        contractsAddressLoaded ? (contractsAddress as any) : undefined,
+        contractsAddressLoaded ? contractsAddress ?? undefined : undefined,
         Number(blockNumber),
-        offChainPrices ?? undefined,
+        (offChainPrices as ParsedPrices[]) ?? undefined,
         REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS
     );
 
@@ -355,7 +356,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     );
 
     const contractStatusOmoc = useContractOmocStatus(
-        contractsAddressLoaded ? contractsAddress : undefined,
+        contractsAddressLoaded && contractsAddress ? contractsAddress : undefined,
         proposalCount,
         REFRESH_INTERVAL_CONTRACT_STATUS_OMOC
     );
@@ -368,32 +369,32 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     );
 
     const userBalance = useUserBalance(
-        contractsAddressLoaded ? contractsAddress : undefined,
+        contractsAddressLoaded ? contractsAddress ?? undefined : undefined,
         address,
         REFRESH_INTERVAL_USER_BALANCE
     );
 
     const userOmocBalance = useUserOmocBalance(
-        contractsAddressLoaded ? contractsAddress : undefined,
+        contractsAddressLoaded ? contractsAddress ?? undefined : undefined,
         address,
         REFRESH_INTERVAL_USER_BALANCE
     );
 
     const userVesting = useUserVesting(
-        contractsAddressLoaded ? contractsAddress : undefined,
+        contractsAddressLoaded ? contractsAddress ?? undefined : undefined,
         address,
-        vestingAddress,
+        vestingAddress as `0x${string}` | undefined,
         REFRESH_INTERVAL_USER_BALANCE
     );
 
     const userIncentiveV2 = useIncentiveV2(
-        contractsAddressLoaded ? contractsAddress : undefined,
+        contractsAddressLoaded && contractsAddress ? contractsAddress : undefined,
         address,
         REFRESH_INTERVAL_USER_BALANCE
     );
 
     const userVeto = useUserVeto(
-        contractsAddressLoaded ? contractsAddress : undefined,
+        contractsAddressLoaded && contractsAddress ? contractsAddress : undefined,
         userBalance.data,
         contractStatusOmoc.data,
         address,
@@ -408,7 +409,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         if (!contractsAddressLoaded) {
-            readContractsAddresses();
+            void readContractsAddresses();
         }
     }, [contractsAddressLoaded]);
 
@@ -421,11 +422,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         // Refetch user data when address changes
         if (!address) return;
-        userBaseCoinBalance?.refetch?.();
-        userBalance?.refetch?.();
-        userOmocBalance?.refetch?.();
-        userVesting?.refetch?.();
-        userIncentiveV2?.refetch?.();
+        void userBaseCoinBalance?.refetch?.();
+        void userBalance?.refetch?.();
+        void userOmocBalance?.refetch?.();
+        void userVesting?.refetch?.();
+        void userIncentiveV2?.refetch?.();
     }, [address]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const readContractsAddresses = async (): Promise<void> => {
@@ -521,9 +522,9 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         }).toString();
         const url = `${baseUrl}?${queryParams}`;
 
-        api("get", url)
-            .then((response: VestingResponse) => {
-                saveUserVesting(response);
+        api<VestingResponse>("get", url)
+            .then((response) => {
+                saveUserVesting(response as VestingResponse);
             })
             .catch((error: Error) => {
                 console.error(error);

@@ -49,11 +49,11 @@ async function loadTranslations(): Promise<void> {
             },
         });
     } catch (error) {
-        console.log(`Something wrong: ${error}`);
+        console.log(`Something wrong: ${String(error)}`);
     }
 }
 
-loadTranslations();
+void loadTranslations();
 
 function setColorMode(): void {
     const root = document.querySelector(":root");

@@ -18,9 +18,11 @@ localhost.contracts = {
 };
 
 // Safe env getter (Vite/CRA/Node)
-const env = (k: string) =>
-    (typeof import.meta !== "undefined" && (import.meta as any).env?.[k]) ||
-    (typeof process !== "undefined" && (process as any).env?.[k]);
+const env = (k: string): string | undefined => {
+    const importMetaEnv = typeof import.meta !== "undefined" ? (import.meta as { env?: Record<string, string> }).env?.[k] : undefined;
+    const processEnv = typeof process !== "undefined" ? (process as { env?: Record<string, string> }).env?.[k] : undefined;
+    return importMetaEnv || processEnv;
+};
 
 // Chain selection
 const ENV_CHAIN_ID = Number(
