@@ -17,6 +17,8 @@ const preVote = async (
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.VotingMachine) return;
     const VotingMachine = contracts.VotingMachine;
 
     const { request } = await simulateContract(config, {
@@ -46,6 +48,8 @@ const unRegister = async (
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.VotingMachine) return;
     const VotingMachine = contracts.VotingMachine;
 
     const { request } = await simulateContract(config, {
@@ -75,6 +79,8 @@ const vote = async (
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.VotingMachine) return;
     const VotingMachine = contracts.VotingMachine;
 
     const { request } = await simulateContract(config, {
@@ -103,6 +109,8 @@ const preVoteStep = async (
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.VotingMachine) return;
     const VotingMachine = contracts.VotingMachine;
 
     const { request } = await simulateContract(config, {
@@ -131,6 +139,8 @@ const voteStep = async (
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.VotingMachine) return;
     const VotingMachine = contracts.VotingMachine;
 
     const { request } = await simulateContract(config, {
@@ -159,6 +169,8 @@ const acceptedStep = async (
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.VotingMachine) return;
     const VotingMachine = contracts.VotingMachine;
 
     const { request } = await simulateContract(config, {

@@ -5,6 +5,7 @@ import {
 } from "@wagmi/core";
 
 import settings from "../settings/settings.json";
+import type { InterfaceContext } from "../types/wallets";
 import { config } from "../wagmiConfig";
 import { redeemTC as redeemTC_, redeemTP as redeemTP_ } from "./moc-core";
 import { getExecutionFee, getNetworkFromProject } from "./utils";
@@ -13,7 +14,7 @@ type OnTransaction = (hash: string) => void;
 type OnReceipt = (receipt: any) => void;
 
 const mintTC = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     caIndex: number,
     qTC: bigint,
     limitAmount: bigint,
@@ -29,6 +30,12 @@ const mintTC = async (
         publicClient,
     } = interfaceContext;
 
+    if (!contracts) return;
+    if (!contracts.Moc) return;
+    if (!userBalance.data) return;
+    if (!userBalance.data.CA) return;
+    if (!contractProtocolStatus.data) return;
+    if (!contractProtocolStatus.data[caIndex]) return;
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
     const MoCContract = contracts.Moc[caIndex];
 
@@ -101,7 +108,7 @@ const mintTC = async (
 };
 
 const redeemTC = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     caIndex: number,
     qTC: bigint,
     limitAmount: bigint,
@@ -120,7 +127,7 @@ const redeemTC = async (
 };
 
 const mintTP = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     caIndex: number,
     tpIndex: number,
     qTP: bigint,
@@ -137,6 +144,13 @@ const mintTP = async (
         publicClient,
     } = interfaceContext;
 
+    if (!contracts) return;
+    if (!contracts.Moc) return;
+    if (!contracts.TP) return;
+    if (!userBalance.data) return;
+    if (!userBalance.data.CA) return;
+    if (!contractProtocolStatus.data) return;
+    if (!contractProtocolStatus.data[caIndex]) return;
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
     const MoCContract = contracts.Moc[caIndex];
     const tpAddress = contracts.TP[tpIndex].address;
@@ -222,7 +236,7 @@ const mintTP = async (
 };
 
 const redeemTP = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     caIndex: number,
     tpIndex: number,
     qTP: bigint,

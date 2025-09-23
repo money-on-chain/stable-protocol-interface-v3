@@ -1,3 +1,4 @@
+import type { InterfaceContext } from "../types/wallets";
 import {
     mintTC as mintTC_,
     mintTP as mintTP_,
@@ -9,7 +10,7 @@ type OnTransaction = (hash: string) => void;
 type OnReceipt = (receipt: any) => void;
 
 const mintTC = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     caIndex: number,
     qTC: bigint,
     limitAmount: bigint,
@@ -28,7 +29,7 @@ const mintTC = async (
 };
 
 const redeemTC = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     caIndex: number,
     qTC: bigint,
     limitAmount: bigint,
@@ -47,7 +48,7 @@ const redeemTC = async (
 };
 
 const mintTP = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     caIndex: number,
     tpIndex: number,
     qTP: bigint,
@@ -68,7 +69,7 @@ const mintTP = async (
 };
 
 const redeemTP = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     caIndex: number,
     tpIndex: number,
     qTP: bigint,

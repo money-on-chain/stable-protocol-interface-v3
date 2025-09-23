@@ -4,6 +4,7 @@ import {
     writeContract,
 } from "@wagmi/core";
 
+import type { InterfaceContext } from "../types/wallets";
 import { config } from "../wagmiConfig";
 
 type OnTransaction = (hash: string) => void;
@@ -11,7 +12,7 @@ type OnReceipt = (receipt: any) => void;
 type OnError = (error: any) => void;
 
 const AllowanceAmount = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     token: any,
     contractAllow: any,
     amountAllowance: bigint,
@@ -42,7 +43,7 @@ const AllowanceAmount = async (
 };
 
 const transferTokenTo = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     token: any,
     to: string,
     amount: bigint,
@@ -72,7 +73,7 @@ const transferTokenTo = async (
 };
 
 const transferCoinbaseTo = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     to: string,
     amount: bigint,
     onTransaction: OnTransaction,
@@ -84,13 +85,13 @@ const transferCoinbaseTo = async (
         to,
         account: address,
         value: amount,
-        //gas: 21_000n,        // fijo para transferencia simple
-        //gasPrice,            // opcional: si querés forzar gasPrice
+        //gas: 21_000n,        // fixed for simple transfer
+        //gasPrice,            // optional: if you want to force gasPrice
     });
 
     onTransaction?.(hash);
 
-    const publicClient = walletClient.extendPublicClient(); // si ya lo tenés, podés pasarlo directamente
+    const publicClient = walletClient.extendPublicClient();
 
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
@@ -100,13 +101,18 @@ const transferCoinbaseTo = async (
 };
 
 const AllowUseTokenMigrator = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     newAllowance: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt,
     onError: OnError
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
+    
+    if (!contracts) return;
+    if (!contracts.tp_legacy) return;
+    if (!contracts.token_migrator) return;
+
     const tp_legacy = contracts.tp_legacy;
     const tokenMigrator = contracts.token_migrator;
 
@@ -136,12 +142,15 @@ const AllowUseTokenMigrator = async (
 };
 
 const MigrateToken = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt,
     onError: OnError
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
+
+    if (!contracts) return;
+    if (!contracts.token_migrator) return;
 
     if (!contracts.token_migrator)
         console.log(

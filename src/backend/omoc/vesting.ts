@@ -5,18 +5,21 @@ import {
 } from "@wagmi/core";
 import { checksumAddress, encodeFunctionData } from "viem";
 
+import type { InterfaceContext } from "../../types/wallets";
 import { config } from "../../wagmiConfig";
 
 type TransactionCallback = (hash: string) => void;
 type ReceiptCallback = (receipt: any) => void;
 
 const vestingVerify = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     vestingAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.VestingMachine) return;
     const VestingMachine = contracts.VestingMachine;
 
     const { request } = await simulateContract(config, {
@@ -40,14 +43,15 @@ const vestingVerify = async (
 };
 
 const approve = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     amount: bigint,
     vestingAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
-
+    if (!contracts) return;
+    if (!contracts.VestingMachine) return;
     const VestingMachine = contracts.VestingMachine;
 
     const { request } = await simulateContract(config, {
@@ -71,13 +75,15 @@ const approve = async (
 };
 
 const deposit = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     amount: bigint,
     vestingAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.VestingMachine) return;
     const VestingMachine = contracts.VestingMachine;
 
     const { request } = await simulateContract(config, {
@@ -101,13 +107,15 @@ const deposit = async (
 };
 
 const withdraw = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     amount: bigint,
     vestingAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.VestingMachine) return;
     const VestingMachine = contracts.VestingMachine;
 
     const { request } = await simulateContract(config, {
@@ -131,13 +139,14 @@ const withdraw = async (
 };
 
 const withdrawAll = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     vestingAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
-
+    if (!contracts) return;
+    if (!contracts.VestingMachine) return;
     const VestingMachine = contracts.VestingMachine;
 
     const { request } = await simulateContract(config, {
@@ -161,7 +170,7 @@ const withdrawAll = async (
 };
 
 const addStake = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     amount: bigint,
     userAddress: `0x${string}`,
     vestingAddress: `0x${string}`,
@@ -169,6 +178,9 @@ const addStake = async (
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.StakingMachine) return;
+    if (!contracts.VestingMachine) return;
     const StakingMachine = contracts.StakingMachine;
     const VestingMachine = contracts.VestingMachine;
 
@@ -200,13 +212,16 @@ const addStake = async (
 };
 
 const unStake = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     amount: bigint,
     vestingAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.StakingMachine) return;
+    if (!contracts.VestingMachine) return;
     const StakingMachine = contracts.StakingMachine;
     const VestingMachine = contracts.VestingMachine;
 
@@ -238,13 +253,16 @@ const unStake = async (
 };
 
 const delayMachineCancelWithdraw = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     idWithdraw: string | number,
     vestingAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.DelayMachine) return;
+    if (!contracts.VestingMachine) return;
     const DelayMachine = contracts.DelayMachine;
     const VestingMachine = contracts.VestingMachine;
 
@@ -276,13 +294,16 @@ const delayMachineCancelWithdraw = async (
 };
 
 const delayMachineWithdraw = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     idWithdraw: string | number,
     vestingAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.DelayMachine) return;
+    if (!contracts.VestingMachine) return;
     const DelayMachine = contracts.DelayMachine;
     const VestingMachine = contracts.VestingMachine;
 
@@ -314,13 +335,17 @@ const delayMachineWithdraw = async (
 };
 
 const approveStakingMachine = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     amount: bigint,
     vestingAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.StakingMachine) return;
+    if (!contracts.TG) return;
+    if (!contracts.VestingMachine) return;
     const StakingMachine = contracts.StakingMachine;
     const TG = contracts.TG;
     const VestingMachine = contracts.VestingMachine;
@@ -354,13 +379,16 @@ const approveStakingMachine = async (
 };
 
 const preVote = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     changeContractAddress: `0x${string}`,
     vestingAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.VotingMachine) return;
+    if (!contracts.VestingMachine) return;
     const VotingMachine = contracts.VotingMachine;
     const VestingMachine = contracts.VestingMachine;
 
@@ -393,13 +421,16 @@ const preVote = async (
 };
 
 const vote = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     inFavorAgainst: boolean,
     vestingAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.VotingMachine) return;
+    if (!contracts.VestingMachine) return;
     const VotingMachine = contracts.VotingMachine;
     const VestingMachine = contracts.VestingMachine;
 

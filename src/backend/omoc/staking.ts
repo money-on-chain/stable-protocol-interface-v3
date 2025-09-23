@@ -5,19 +5,22 @@ import {
 } from "@wagmi/core";
 import { checksumAddress } from "viem";
 
+import type { InterfaceContext } from "../../types/wallets";
 import { config } from "../../wagmiConfig";
 
 type TransactionCallback = (hash: string) => void;
 type ReceiptCallback = (receipt: any) => void;
 
 const addStake = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     amount: bigint,
     userAddress: `0x${string}`,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.StakingMachine) return;
     const StakingMachine = contracts.StakingMachine;
 
     const { request } = await simulateContract(config, {
@@ -41,13 +44,14 @@ const addStake = async (
 };
 
 const unStake = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     amount: bigint,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
-
+    if (!contracts) return;
+    if (!contracts.StakingMachine) return;
     const StakingMachine = contracts.StakingMachine;
 
     const { request } = await simulateContract(config, {
@@ -71,12 +75,14 @@ const unStake = async (
 };
 
 const delayMachineWithdraw = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     idWithdraw: string | number,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.DelayMachine) return;
     const DelayMachine = contracts.DelayMachine;
 
     const { request } = await simulateContract(config, {
@@ -100,12 +106,14 @@ const delayMachineWithdraw = async (
 };
 
 const delayMachineCancelWithdraw = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     idWithdraw: string | number,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.DelayMachine) return;
     const DelayMachine = contracts.DelayMachine;
 
     const { request } = await simulateContract(config, {
@@ -129,13 +137,15 @@ const delayMachineCancelWithdraw = async (
 };
 
 const approveStakingMachine = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     amount: bigint,
     onTransaction: TransactionCallback,
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
-
+    if (!contracts) return;
+    if (!contracts.StakingMachine) return;
+    if (!contracts.TG) return;
     const StakingMachine = contracts.StakingMachine;
     const TG = contracts.TG;
 

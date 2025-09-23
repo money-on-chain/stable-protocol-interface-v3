@@ -18,6 +18,8 @@ const vetoVote = async (
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts, userBalance } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.VetoMachine) return;
     const VetoMachine = contracts.VetoMachine;
 
     const tcAddress = contracts.CollateralToken[caIndex].address;
@@ -55,6 +57,8 @@ const vetoWithdraw = async (
     onReceipt: ReceiptCallback
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.VetoMachine) return;
     const VetoMachine = contracts.VetoMachine;
 
     const { request } = await simulateContract(config, {
