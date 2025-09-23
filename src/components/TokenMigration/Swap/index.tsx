@@ -1,20 +1,21 @@
-import React, { useContext, useState } from "react";
+import "./style.scss";
+
 import { Button } from "antd";
 import PropTypes from "prop-types";
+import React, { useState } from "react";
 
+import { useWalletContext } from "../../../context/Wallet";
+import { TokenSettings } from "../../../helpers/currencies";
 import { useProjectTranslation } from "../../../helpers/translations";
-import TokenMigratePNG from "./../../../assets/icons/tokenmigrate.png";
 import Copy from "../../Copy";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
-import { TokenSettings } from "../../../helpers/currencies";
-import { useWalletContext } from "../../../context/Wallet";
-import "./style.scss";
+import TokenMigratePNG from "./../../../assets/icons/tokenmigrate.png";
 
 interface SwapTokenProps {
     onCloseModal: () => void;
 }
 
-type StatusType = 
+type StatusType =
     | "SUBMIT"
     | "CONFIRM"
     | "ALLOWANCE-SIGN"
@@ -34,7 +35,11 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
     );
 
     const { t, i18n } = useProjectTranslation();
-    const { interfaceMigrateToken, interfaceAllowUseTokenMigrator, userBalance } = useWalletContext()
+    const {
+        interfaceMigrateToken,
+        interfaceAllowUseTokenMigrator,
+        userBalance,
+    } = useWalletContext();
 
     const onClose = (): void => {
         setStatus("SUBMIT");
@@ -117,8 +122,8 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
             return;
         }
 
-        const allowanceAmount = userBalance.data.tpLegacy.balance
-        const oldAllowanceAmount = userBalance.data.tpLegacy.allowance
+        const allowanceAmount = userBalance.data.tpLegacy.balance;
+        const oldAllowanceAmount = userBalance.data.tpLegacy.allowance;
 
         if (oldAllowanceAmount >= allowanceAmount) {
             onTokenMigration();
@@ -191,14 +196,14 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
     let title: string;
     let btnLabel: string = t("swapModal.buttonConfirm");
     let btnDisable: boolean = false;
-    
+
     if (!userBalance.data || !userBalance.data.tpLegacy) {
         console.error("tpLegacy data not available");
         return <div>Error: Token data not available</div>;
     }
-    
-    const tpLegacyBalance = userBalance.data.tpLegacy.balance
-    
+
+    const tpLegacyBalance = userBalance.data.tpLegacy.balance;
+
     switch (status) {
         case "SUBMIT":
             title = t("swapModal.modalTitle1");
@@ -259,10 +264,11 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
                                 <div className="Amount">
                                     <div className="Value">
                                         {PrecisionNumbers({
-                                            amount: userBalance.data.tpLegacy.balance,
+                                            amount: userBalance.data.tpLegacy
+                                                .balance,
                                             token: TokenSettings("TP_0"),
                                             decimals: 4,
-                                            i18n: i18n                                            
+                                            i18n: i18n,
                                         })}
                                     </div>
                                     <div className="Token">RDOC</div>
@@ -275,10 +281,11 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
                                 <div className="Amount">
                                     <div className="Value">
                                         {PrecisionNumbers({
-                                            amount: userBalance.data.tpLegacy.balance,
+                                            amount: userBalance.data.tpLegacy
+                                                .balance,
                                             token: TokenSettings("TP_0"),
                                             decimals: 4,
-                                            i18n: i18n                                            
+                                            i18n: i18n,
                                         })}
                                     </div>
                                     <div className="Token">USDRIF</div>

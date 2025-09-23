@@ -1,10 +1,11 @@
+import "./Styles.scss";
+
 import React from "react";
 
-import "./Styles.scss";
-import { PrecisionNumbers } from "../../PrecisionNumbers";
 import { TokenSettings } from "../../../helpers/currencies";
-import { useProjectTranslation } from "../../../helpers/translations";
 import { fromWei } from "../../../helpers/precision";
+import { useProjectTranslation } from "../../../helpers/translations";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
 
 interface CompletedBarProps {
     description: string;
@@ -22,7 +23,9 @@ interface CompletedBarProps {
     percentage3?: bigint; // BigInt with 18 decimals
 }
 
-export default function CompletedBar(props: CompletedBarProps): React.ReactElement {
+export default function CompletedBar(
+    props: CompletedBarProps
+): React.ReactElement {
     const { i18n } = useProjectTranslation();
     const space = "\u00A0";
 

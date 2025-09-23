@@ -1,21 +1,19 @@
+import { Layout } from "antd";
 import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { Layout } from "antd";
 import { useChainId } from "wagmi";
-import { useProjectTranslation } from "../../../helpers/translations";
 
-import SectionHeader from "../../../components/Header";
-import NotificationBody from "../../../components/Notification";
-import { CheckStatusGlobal } from "../../../helpers/checkStatus";
 import DappFooter from "../../../components/Footer/index";
-import NotConnected from "../../../components/NotConnected";
-
-import { useWalletContext } from "../../../context/Wallet";
-import { AutoReconnect } from "../../../components/AutoReconnect";
+import SectionHeader from "../../../components/Header";
 import { NetworkGuard } from "../../../components/NetworkGuard";
-import { ALLOWED_CHAIN } from "../../../wagmiConfig";
+import NotConnected from "../../../components/NotConnected";
+import NotificationBody from "../../../components/Notification";
+import UpdateToast from "../../../components/UpdateToast";
+import { useWalletContext } from "../../../context/Wallet";
+import { CheckStatusGlobal } from "../../../helpers/checkStatus";
+import { useProjectTranslation } from "../../../helpers/translations";
 import { isSomeTCLockedByVeto } from "../../../helpers/veto";
-import UpdateToast from '../../../components/UpdateToast'
+import { ALLOWED_CHAIN } from "../../../wagmiConfig";
 
 const { Content, Footer } = Layout;
 
@@ -92,7 +90,13 @@ export default function Skeleton(): JSX.Element {
     };
 
     const readWithdrawStatus = (): void => {
-        if (isSomeTCLockedByVeto(userVeto.data, contractStatusOmoc.data, address)) {
+        if (
+            isSomeTCLockedByVeto(
+                userVeto.data,
+                contractStatusOmoc.data,
+                address
+            )
+        ) {
             setVetoWithdraw({
                 id: -1,
                 title: t(`voting.veto.alert.title`),

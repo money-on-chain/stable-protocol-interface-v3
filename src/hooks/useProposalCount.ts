@@ -1,6 +1,8 @@
-import { usePublicClient } from 'wagmi'
-import { readContract } from 'viem/actions'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery } from "@tanstack/react-query";
+import { readContract } from "viem/actions";
+import { usePublicClient } from "wagmi";
+
+import type { ContractInfo, UseProposalCountResult } from "../types/hooks";
 
 /**
  * Custom hook to fetch and keep updated the proposal count from the VotingMachine contract.
@@ -8,41 +10,45 @@ import { useQuery } from '@tanstack/react-query'
  */
 
 export function useProposalCount(
-  votingMachine: { address: `0x${string}`; abi: any },
-  refetchInterval = 60_000
-) {
-  const publicClient = usePublicClient()
+    votingMachine: ContractInfo | undefined,
+    refetchInterval = 60_000
+): UseProposalCountResult {
+    const publicClient = usePublicClient();
 
-  // Check for environment variable condition
-  if (typeof import.meta.env.REACT_APP_CONTRACT_IREGISTRY === 'undefined') {
+    const {
+        data: proposalCount,
+        isLoading,
+        isFetching,
+        refetch,
+        error,
+    } = useQuery({
+        queryKey: ["proposalCountVoting", votingMachine?.address],
+        queryFn: async () => {
+            if (!publicClient) throw new Error("Public client not available");
+            if (!votingMachine)
+                throw new Error("Voting machine contract not available");
+            return await readContract(publicClient, {
+                address: votingMachine.address,
+                abi: votingMachine.abi,
+                functionName: "getProposalCount",
+                args: [],
+            });
+        },
+        enabled:
+            typeof import.meta.env.REACT_APP_CONTRACT_IREGISTRY !==
+                "undefined" &&
+            !!publicClient &&
+            !!votingMachine?.address,
+        refetchInterval,
+    });
+
     return {
-      proposalCount: undefined,
-      isLoading: false,
-      isFetching: false,
-      refetch: () => {},
-      error: undefined,
-    }
-  }
-
-  const {
-    data: proposalCount,
-    isLoading,
-    isFetching,
-    refetch,
-    error,
-  } = useQuery({
-    queryKey: ['proposalCountVoting', votingMachine?.address],
-    queryFn: async () => {
-      return await readContract(publicClient, {
-        address: votingMachine.address,
-        abi: votingMachine.abi,
-        functionName: 'getProposalCount',
-        args: [],
-      })
-    },
-    enabled: !!publicClient && !!votingMachine?.address,
-    refetchInterval,
-  })
-
-  return { proposalCount, isLoading, isFetching, refetch, error }
+        proposalCount: proposalCount as bigint | undefined,
+        isLoading,
+        isFetching,
+        refetch: () => {
+            refetch().catch(console.error);
+        },
+        error,
+    };
 }

@@ -1,208 +1,224 @@
-import { useMemo } from 'react'
-import { useMultiCall } from "./useMulticall";
-import VestingMachine from "../contracts/omoc/VestingMachine.json";
+import { useMemo } from "react";
 
+import VestingMachine from "../contracts/omoc/VestingMachine.json";
+import type {
+    Address,
+    CallRequest,
+    ContractInfo,
+    DContracts,
+    MultiCallInput,
+} from "../types/hooks";
+import { useMultiCall } from "./useMulticall";
+
+/** Extract ABI from JSON without `any` */
+const VestingMachineABI = VestingMachine.abi as readonly unknown[];
 
 /**
- * React hook that wraps useMultiCall3 to fetch contract status data.
+ * React hook that wraps useMultiCall to fetch contract status data.
  * Builds the call array with useMemo so it remains stable between renders.
  */
-export function useUserVesting(contracts?: any, userAddress?: string, userVestingAddress?: string, refetchInterval = 30_000) {
-    const callsRequests = useMemo(() => {
-        if (!contracts) return []
-        if (!userAddress) return []
-        if (!userVestingAddress) return []
+export function useUserVesting(
+    contracts?: DContracts | null,
+    userAddress?: Address,
+    userVestingAddress?: Address,
+    refetchInterval = 30_000
+) {
+    // Build the call list in a type-safe way
+    const callsRequests: CallRequest[] = useMemo(() => {
+        // Early exits: no calls until we have everything needed
+        if (!contracts) return [];
+        if (!userAddress) return [];
+        if (!userVestingAddress) return [];
 
-        const vestingMachine = {
+        // Narrow contracts we need once (TypeScript understands they're defined below)
+        const hasAll =
+            !!contracts.VestingFactory &&
+            !!contracts.TG &&
+            !!contracts.StakingMachine &&
+            !!contracts.DelayMachine;
+        if (!hasAll) return [];
+
+        const vestingMachine: ContractInfo = {
             address: userVestingAddress,
-            abi: VestingMachine.abi,
-            name: 'VestingMachine',
-            type: ''
-        }
-                
-        const callRequest = []        
-        
-        if ( 
-            typeof contracts.VestingFactory !== "undefined" &&
-            typeof contracts.TG !== "undefined" &&
-            typeof contracts.StakingMachine !== "undefined" &&
-            typeof contracts.DelayMachine !== "undefined"            
-            ) {
+            abi: VestingMachineABI,
+            name: "VestingMachine",
+            type: "",
+        };
 
-            callRequest.push({
-                contract: contracts.VestingFactory,
-                functionName: 'isTGEConfigured',
-                args: [],
-                resultType: "bool",
-                keys: ["vestingfactory", "isTGEConfigured"]
-            });
+        const c = contracts; // shorthand after narrowing
 
-            callRequest.push({
-                contract: contracts.VestingFactory,
-                functionName: 'getTGETimestamp',
-                args: [],
-                resultType: "uint256",
-                keys: ["vestingfactory", "getTGETimestamp"]
-            });
-            
-            callRequest.push({
-                contract: vestingMachine,
-                functionName: 'getParameters',
-                args: [],
-                resultType: [
-                    { type: "uint256[]", name: "percentages" },
-                    { type: "uint256[]", name: "timeDeltas" },
-                ],
-                keys: ["vestingmachine", "getParameters"]
-            });
-                        
-            callRequest.push({
-                contract: vestingMachine,
-                functionName: 'getHolder',
-                args: [],
-                resultType: "address",
-                keys: ["vestingmachine", "getHolder"]
-            });
-            
-            callRequest.push({
-                contract: vestingMachine,
-                functionName: 'getLocked',
-                args: [],
-                resultType: "uint256",
-                keys: ["vestingmachine", "getLocked"]
-            });
+        /** Strongly-typed array instead of `any[]` */
+        const callRequest: CallRequest[] = [];
 
-            callRequest.push({
-                contract: vestingMachine,
-                functionName: 'getAvailable',
-                args: [],
-                resultType: "uint256",
-                keys: ["vestingmachine", "getAvailable"]
-            });
-            
-            callRequest.push({
-                contract: vestingMachine,
-                functionName: 'isVerified',
-                args: [],
-                resultType: "bool",
-                keys: ["vestingmachine", "isVerified"]
-            });
-            
-            callRequest.push({
-                contract: vestingMachine,
-                functionName: 'getTotal',
-                args: [],
-                resultType: "uint256",
-                keys: ["vestingmachine", "getTotal"]
-            });
-            
-            callRequest.push({
-                contract: contracts.TG,
-                functionName: 'balanceOf',
-                args: [vestingMachine.address],
-                resultType: "uint256",
-                keys: ["vestingmachine", "tgBalance"]
-            });
+        // ---- VestingFactory ----
+        callRequest.push({
+            contract: c.VestingFactory!,
+            functionName: "isTGEConfigured",
+            args: [],
+            resultType: "bool",
+            keys: ["vestingfactory", "isTGEConfigured"],
+        });
 
-            callRequest.push({
-                contract: contracts.TG,
-                functionName: 'allowance',
-                args: [userAddress, vestingMachine.address],
-                resultType: "uint256",
-                keys: ["vestingmachine", "tgAllowance"]
-            });
-            
-            callRequest.push({
-                contract: contracts.StakingMachine,
-                functionName: 'getBalance',
-                args: [vestingMachine.address],
-                resultType: "uint256",
-                keys: ["vestingmachine", "staking", "balance"]
-            });
-            callRequest.push({
-                contract: contracts.TG,
-                functionName: 'allowance',
-                args: [vestingMachine.address, contracts.StakingMachine.address],
-                resultType: "uint256",
-                keys: ["vestingmachine", "staking", "allowance"]
-            });
+        callRequest.push({
+            contract: c.VestingFactory!,
+            functionName: "getTGETimestamp",
+            args: [],
+            resultType: "uint256",
+            keys: ["vestingfactory", "getTGETimestamp"],
+        });
 
-            callRequest.push({
-                contract: contracts.DelayMachine, 
-                functionName: 'getBalance', 
-                args: [vestingMachine.address], 
-                resultType: "uint256", 
-                keys: ["vestingmachine", "delay", "balance"]
-            })
+        // ---- VestingMachine ----
+        callRequest.push({
+            contract: vestingMachine,
+            functionName: "getParameters",
+            args: [],
+            resultType: [
+                { type: "uint256[]", name: "percentages" },
+                { type: "uint256[]", name: "timeDeltas" },
+            ],
+            keys: ["vestingmachine", "getParameters"],
+        });
 
-            callRequest.push({
-                contract: contracts.TG,
-                functionName: 'allowance',
-                args: [vestingMachine.address, contracts.DelayMachine.address],
-                resultType: "uint256",
-                keys: ["vestingmachine", "delay", "allowance"]
-            });
-            
-            callRequest.push({
-                contract: contracts.StakingMachine,
-                functionName: 'getBalance',
-                args: [vestingMachine.address],
-                resultType: "uint256",
-                keys: ["vestingmachine", "staking", "getBalance"]
-            });
+        callRequest.push({
+            contract: vestingMachine,
+            functionName: "getHolder",
+            args: [],
+            resultType: "address",
+            keys: ["vestingmachine", "getHolder"],
+        });
 
-            callRequest.push({
-                contract: contracts.StakingMachine,
-                functionName: 'getLockedBalance',
-                args: [vestingMachine.address],
-                resultType: "uint256",
-                keys: ["vestingmachine", "staking", "getLockedBalance"]
-            });
+        callRequest.push({
+            contract: vestingMachine,
+            functionName: "getLocked",
+            args: [],
+            resultType: "uint256",
+            keys: ["vestingmachine", "getLocked"],
+        });
 
-            callRequest.push({
-                contract: contracts.StakingMachine,
-                functionName: 'getLockingInfo',
-                args: [vestingMachine.address],
-                resultType: [
-                    { type: "uint256", name: "amount" },
-                    { type: "uint256", name: "untilTimestamp" },
-                ],
-                keys: ["vestingmachine", "staking", "getLockingInfo"]
-            });
+        callRequest.push({
+            contract: vestingMachine,
+            functionName: "getAvailable",
+            args: [],
+            resultType: "uint256",
+            keys: ["vestingmachine", "getAvailable"],
+        });
 
-            callRequest.push({
-                contract: contracts.DelayMachine,
-                functionName: 'getTransactions',
-                args: [vestingMachine.address],
-                resultType: [
-                    { type: "uint256[]", name: "ids" },
-                    { type: "uint256[]", name: "amounts" },
-                    { type: "uint256[]", name: "expirations" },
-                ],
-                keys: ["vestingmachine", "delay", "getTransactions"]
-            });
+        callRequest.push({
+            contract: vestingMachine,
+            functionName: "isVerified",
+            args: [],
+            resultType: "bool",
+            keys: ["vestingmachine", "isVerified"],
+        });
 
-            callRequest.push({
-                contract: contracts.DelayMachine,
-                functionName: 'getBalance',
-                args: [vestingMachine.address],
-                resultType: "uint256",
-                keys: ["vestingmachine", "delay", "getBalance"]
-            });
-            
-        }
+        callRequest.push({
+            contract: vestingMachine,
+            functionName: "getTotal",
+            args: [],
+            resultType: "uint256",
+            keys: ["vestingmachine", "getTotal"],
+        });
 
-        return callRequest
+        // ---- TG (ERC20) ----
+        callRequest.push({
+            contract: c.TG!,
+            functionName: "balanceOf",
+            args: [vestingMachine.address],
+            resultType: "uint256",
+            keys: ["vestingmachine", "tgBalance"],
+        });
 
-    }, [contracts, userAddress, userVestingAddress])
+        callRequest.push({
+            contract: c.TG!,
+            functionName: "allowance",
+            args: [userAddress, vestingMachine.address],
+            resultType: "uint256",
+            keys: ["vestingmachine", "tgAllowance"],
+        });
 
-      
-    // Pass callsRequests into your multicall hook (safe: it's a hook calling a hook)
-    const multicallState = useMultiCall(callsRequests, {
-      refetchInterval: refetchInterval,
-      enabled: callsRequests.length > 0,
-      scopeKey: ['userVesting', userAddress, userVestingAddress].join(':')
-    })
-  
-    return multicallState
-  }
+        // ---- StakingMachine ----
+        callRequest.push({
+            contract: c.StakingMachine!,
+            functionName: "getBalance",
+            args: [vestingMachine.address],
+            resultType: "uint256",
+            keys: ["vestingmachine", "staking", "balance"],
+        });
+
+        callRequest.push({
+            contract: c.TG!,
+            functionName: "allowance",
+            args: [vestingMachine.address, c.StakingMachine!.address],
+            resultType: "uint256",
+            keys: ["vestingmachine", "staking", "allowance"],
+        });
+
+        callRequest.push({
+            contract: c.StakingMachine!,
+            functionName: "getBalance",
+            args: [vestingMachine.address],
+            resultType: "uint256",
+            keys: ["vestingmachine", "staking", "getBalance"],
+        });
+
+        callRequest.push({
+            contract: c.StakingMachine!,
+            functionName: "getLockedBalance",
+            args: [vestingMachine.address],
+            resultType: "uint256",
+            keys: ["vestingmachine", "staking", "getLockedBalance"],
+        });
+
+        callRequest.push({
+            contract: c.StakingMachine!,
+            functionName: "getLockingInfo",
+            args: [vestingMachine.address],
+            resultType: [
+                { type: "uint256", name: "amount" },
+                { type: "uint256", name: "untilTimestamp" },
+            ],
+            keys: ["vestingmachine", "staking", "getLockingInfo"],
+        });
+
+        // ---- DelayMachine ----
+        callRequest.push({
+            contract: c.DelayMachine!,
+            functionName: "getTransactions",
+            args: [vestingMachine.address],
+            resultType: [
+                { type: "uint256[]", name: "ids" },
+                { type: "uint256[]", name: "amounts" },
+                { type: "uint256[]", name: "expirations" },
+            ],
+            keys: ["vestingmachine", "delay", "getTransactions"],
+        });
+
+        callRequest.push({
+            contract: c.DelayMachine!,
+            functionName: "getBalance",
+            args: [vestingMachine.address],
+            resultType: "uint256",
+            keys: ["vestingmachine", "delay", "getBalance"],
+        });
+
+        callRequest.push({
+            contract: c.TG!,
+            functionName: "allowance",
+            args: [vestingMachine.address, c.DelayMachine!.address],
+            resultType: "uint256",
+            keys: ["vestingmachine", "delay", "allowance"],
+        });
+
+        return callRequest;
+    }, [contracts, userAddress, userVestingAddress]);
+
+    // Pass callsRequests into your multicall hook
+    // Returning whatever your useMultiCall returns; it's already typed on its side.
+    const multicallState = useMultiCall(callsRequests as MultiCallInput[], {
+        refetchInterval,
+        enabled: callsRequests.length > 0,
+        scopeKey: ["userVesting", userAddress, userVestingAddress].join(":"),
+    });
+
+    return multicallState;
+}

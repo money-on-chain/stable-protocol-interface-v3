@@ -1,8 +1,11 @@
+import {
+    simulateContract,
+    waitForTransactionReceipt,
+    writeContract,
+} from "@wagmi/core";
+import { checksumAddress } from "viem";
 
-import { writeContract, simulateContract, waitForTransactionReceipt } from '@wagmi/core'
-import { config } from '../../wagmiConfig' 
-import { checksumAddress } from 'viem';
-
+import { config } from "../../wagmiConfig";
 
 type TransactionCallback = (hash: string) => void;
 type ReceiptCallback = (receipt: any) => void;
@@ -19,22 +22,21 @@ const preVote = async (
     const { request } = await simulateContract(config, {
         address: VotingMachine.address,
         abi: VotingMachine.abi,
-        functionName: 'preVote',
+        functionName: "preVote",
         args: [checksumAddress(changeContractAddress)],
         account: address,
-      })
+    });
 
     // Send transaction
-    const txHash = await writeContract(config, request)
+    const txHash = await writeContract(config, request);
 
-    if (onTransaction) onTransaction(txHash)
+    if (onTransaction) onTransaction(txHash);
 
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
 
-    if (onReceipt) onReceipt(receipt)
+    if (onReceipt) onReceipt(receipt);
 
-    return receipt
-
+    return receipt;
 };
 
 const unRegister = async (
@@ -49,22 +51,21 @@ const unRegister = async (
     const { request } = await simulateContract(config, {
         address: VotingMachine.address,
         abi: VotingMachine.abi,
-        functionName: 'unregister',
+        functionName: "unregister",
         args: [checksumAddress(changeContractAddress)],
         account: address,
-      })
+    });
 
     // Send transaction
-    const txHash = await writeContract(config, request)
+    const txHash = await writeContract(config, request);
 
-    if (onTransaction) onTransaction(txHash)
+    if (onTransaction) onTransaction(txHash);
 
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
 
-    if (onReceipt) onReceipt(receipt)
+    if (onReceipt) onReceipt(receipt);
 
-    return receipt
-    
+    return receipt;
 };
 
 const vote = async (
@@ -79,22 +80,21 @@ const vote = async (
     const { request } = await simulateContract(config, {
         address: VotingMachine.address,
         abi: VotingMachine.abi,
-        functionName: 'vote',
+        functionName: "vote",
         args: [inFavorAgainst],
         account: address,
-      })
+    });
 
     // Send transaction
-    const txHash = await writeContract(config, request)
+    const txHash = await writeContract(config, request);
 
-    if (onTransaction) onTransaction(txHash)
+    if (onTransaction) onTransaction(txHash);
 
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
 
-    if (onReceipt) onReceipt(receipt)
+    if (onReceipt) onReceipt(receipt);
 
-    return receipt
-
+    return receipt;
 };
 
 const preVoteStep = async (
@@ -108,19 +108,19 @@ const preVoteStep = async (
     const { request } = await simulateContract(config, {
         address: VotingMachine.address,
         abi: VotingMachine.abi,
-        functionName: 'preVoteStep',
+        functionName: "preVoteStep",
         args: [],
         account: address,
-      })
+    });
 
     // Send transaction
-    const txHash = await writeContract(config, request)
+    const txHash = await writeContract(config, request);
 
-    if (onTransaction) onTransaction(txHash)
+    if (onTransaction) onTransaction(txHash);
 
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
 
-    if (onReceipt) onReceipt(receipt)
+    if (onReceipt) onReceipt(receipt);
 
     return receipt;
 };
@@ -136,20 +136,20 @@ const voteStep = async (
     const { request } = await simulateContract(config, {
         address: VotingMachine.address,
         abi: VotingMachine.abi,
-        functionName: 'voteStep',
+        functionName: "voteStep",
         args: [],
         account: address,
-      })
+    });
 
     // Send transaction
-    const txHash = await writeContract(config, request)
+    const txHash = await writeContract(config, request);
 
-    if (onTransaction) onTransaction(txHash)
+    if (onTransaction) onTransaction(txHash);
 
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
 
-    if (onReceipt) onReceipt(receipt)
-    
+    if (onReceipt) onReceipt(receipt);
+
     return receipt;
 };
 
@@ -164,22 +164,21 @@ const acceptedStep = async (
     const { request } = await simulateContract(config, {
         address: VotingMachine.address,
         abi: VotingMachine.abi,
-        functionName: 'acceptedStep',
+        functionName: "acceptedStep",
         args: [],
         account: address,
-      })
+    });
 
     // Send transaction
-    const txHash = await writeContract(config, request)
+    const txHash = await writeContract(config, request);
 
-    if (onTransaction) onTransaction(txHash)
+    if (onTransaction) onTransaction(txHash);
 
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash })
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
 
-    if (onReceipt) onReceipt(receipt)
-    
+    if (onReceipt) onReceipt(receipt);
+
     return receipt;
-
 };
 
-export { preVote, vote, preVoteStep, voteStep, acceptedStep, unRegister };
+export { acceptedStep, preVote, preVoteStep, unRegister, vote, voteStep };

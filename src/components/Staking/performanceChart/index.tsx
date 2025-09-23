@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import "./Styles.scss";
+
+import React, { useEffect, useState } from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
-import "./Styles.scss";
 
 interface PerformanceData {
     annualized_value: number;

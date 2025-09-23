@@ -1,18 +1,21 @@
-import React, { useContext } from "react";
-import { Alert, Button } from "antd";
-
-import { useProjectTranslation } from "../../../helpers/translations";
-import { useWalletContext } from "../../../context/Wallet";
 import "./Styles.scss";
+
+import { Alert, Button } from "antd";
+import React from "react";
+
+import { useWalletContext } from "../../../context/Wallet";
+import { useProjectTranslation } from "../../../helpers/translations";
 
 interface UseVestingAlertProps {
     address?: string;
 }
 
-export default function UseVestingAlert(props: UseVestingAlertProps): React.ReactElement {
+export default function UseVestingAlert(
+    props: UseVestingAlertProps
+): React.ReactElement {
     const { t } = useProjectTranslation();
-    const { onShowModalAccount } = useWalletContext()
-    
+    const { onShowModalAccount } = useWalletContext();
+
     const truncateAddress = (address: string): string => {
         return (
             address.substring(0, 6) +
@@ -54,4 +57,4 @@ export default function UseVestingAlert(props: UseVestingAlertProps): React.Reac
             }
         />
     );
-} 
+}

@@ -1,6 +1,6 @@
 import { notification } from "antd";
-import React from "react";
 import PropTypes from "prop-types";
+import React from "react";
 
 import { useProjectTranslation } from "../../helpers/translations";
 
@@ -31,7 +31,7 @@ export default function CopyAddress(props: CopyAddressProps): JSX.Element {
             message: t("feedback.clipboardCopy"),
             description: `${address} ` + t("feedback.clipboardTo"),
             placement: "bottomRight",
-            onClose: () => {                
+            onClose: () => {
                 notification.destroy();
             },
         });

@@ -1,12 +1,12 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
 
+import { useWalletContext } from "../../context/Wallet";
+import { TokenSettings } from "../../helpers/currencies";
 import { useProjectTranslation } from "../../helpers/translations";
-import CompletedBar from "./CompletedBar";
-import BalanceBar from "./BalanceBar";
 import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
 import { PrecisionNumbers } from "../PrecisionNumbers";
-import { TokenSettings } from "../../helpers/currencies";
-import { useWalletContext } from "../../context/Wallet";
+import BalanceBar from "./BalanceBar";
+import CompletedBar from "./CompletedBar";
 import { VetoGraph } from "./Veto";
 
 const PRECISION_DECIMALS = 18n;
@@ -43,6 +43,7 @@ interface VoteProps {
             againstVotesPCT: bigint;
             votingExpirationTimeFormat: string;
             winnerProposal: string;
+            totalVetoPCT: bigint;
         };
         MIN_FOR_QUORUM: bigint;
         MIN_PCT_FOR_QUORUM: bigint;
@@ -51,6 +52,7 @@ interface VoteProps {
         totalSupply: bigint;
         readyToVoteStep: boolean;
         state: number;
+        isVetoMachine: boolean;
     };
     infoUser: {
         Voting_Power: bigint;
@@ -104,19 +106,15 @@ function Vote(props: VoteProps): JSX.Element {
     } = useWalletContext();
     const space = "\u00A0";
 
-    useEffect(() => {
-        onValidateVotingInFavorOrAgainst();
+    const onValidateVotingInFavorOrAgainst = useCallback((): boolean => {
+        if (infoUser["Voting_Power"] <= 0n) {
+            // You need at least voting power > 0
+            setVotingInFavorOrAgainstError(true);
+            return false;
+        } else return true;
     }, [infoUser["Voting_Power"]]);
 
-    useEffect(() => {
-        refreshVotingFinish();
-    }, [
-        infoVoting["votingData"]["expired"],
-        infoVoting["votingData"]["totalVoted"],
-        infoVoting["votingData"]["againstVotesPCT"],
-    ]);
-
-    const refreshVotingFinish = (): void => {
+    const refreshVotingFinish = useCallback((): void => {
         /* Voting Finish Reason */
         /* 0 - No reason */
         /* 1 - Success */
@@ -125,12 +123,12 @@ function Vote(props: VoteProps): JSX.Element {
         /* 4 - Proposal vetoed by Collateral Token holders */
 
         if (
-                infoVoting["votingData"]["totalVetoPCT"] * 100n >=
-                    infoVoting["VOTE_MIN_PCT_TO_VETO"] * DECIMALS_18
-            ) {
-                setVotingFinishReason(4);
-                setVotingFinish(true);
-                setVotingInFavorOrAgainstError(true);
+            infoVoting["votingData"]["totalVetoPCT"] * 100n >=
+            infoVoting["VOTE_MIN_PCT_TO_VETO"] * DECIMALS_18
+        ) {
+            setVotingFinishReason(4);
+            setVotingFinish(true);
+            setVotingInFavorOrAgainstError(true);
         } else if (infoVoting["votingData"]["expired"]) {
             setVotingFinish(true);
             setVotingInFavorOrAgainstError(true);
@@ -148,7 +146,24 @@ function Vote(props: VoteProps): JSX.Element {
                 setVotingFinishReason(1);
             }
         }
-    };
+    }, [
+        infoVoting["votingData"]["totalVetoPCT"],
+        infoVoting["VOTE_MIN_PCT_TO_VETO"],
+        infoVoting["votingData"]["expired"],
+        infoVoting["votingData"]["totalVoted"],
+        infoVoting["MIN_FOR_QUORUM"],
+        infoVoting["votingData"]["againstVotesPCT"],
+        infoVoting["VOTE_MIN_TO_VETO"],
+    ]);
+
+    useEffect(() => {
+        onValidateVotingInFavorOrAgainst();
+    }, [onValidateVotingInFavorOrAgainst]);
+
+    useEffect(() => {
+        refreshVotingFinish();
+    }, [refreshVotingFinish]);
+
 
     const votingGraphs: CreateBarGraphProps[] = [
         {
@@ -210,8 +225,8 @@ function Vote(props: VoteProps): JSX.Element {
             console.log("Transaction in Favor proposal mined!...");
             setOperationStatus("success");
         };
-        const onError = (error: any): void => {
-            console.log("Transaction in Favor proposal error!...:", error);
+        const onError = (error: unknown): void => {
+            console.error("Transaction in Favor proposal error!...:", error);
             setOperationStatus("error");
         };
 
@@ -243,8 +258,8 @@ function Vote(props: VoteProps): JSX.Element {
             console.log("Transaction vote step mined!...");
             setOperationStatus("success");
         };
-        const onError = (error: any): void => {
-            console.log("Transaction vote step error!...:", error);
+        const onError = (error: unknown): void => {
+            console.error("Transaction vote step error!...:", error);
             setOperationStatus("error");
         };
 
@@ -276,8 +291,8 @@ function Vote(props: VoteProps): JSX.Element {
             console.log("Transaction accepted step mined!...");
             setOperationStatus("success");
         };
-        const onError = (error: any): void => {
-            console.log("Transaction accepted step error!...:", error);
+        const onError = (error: unknown): void => {
+            console.error("Transaction accepted step error!...:", error);
             setOperationStatus("error");
         };
 
@@ -293,13 +308,6 @@ function Vote(props: VoteProps): JSX.Element {
             });
     };
 
-    const onValidateVotingInFavorOrAgainst = (): boolean => {
-        if (infoUser["Voting_Power"] <= 0n) {
-            // You need at least voting power > 0
-            setVotingInFavorOrAgainstError(true);
-            return false;
-        } else return true;
-    };
 
     return (
         <Fragment>
@@ -506,9 +514,10 @@ function Vote(props: VoteProps): JSX.Element {
                         </div>
                     </div>
                 </div>
-                {infoVoting["isVetoMachine"] && !infoVoting["readyToVoteStep"] && (
-                    <VetoGraph infoVoting={infoVoting} />
-                )}
+                {infoVoting["isVetoMachine"] &&
+                    !infoVoting["readyToVoteStep"] && (
+                        <VetoGraph infoVoting={infoVoting} />
+                    )}
                 {isOperationModalVisible && (
                     <VotingStatusModal
                         title={modalTitle}

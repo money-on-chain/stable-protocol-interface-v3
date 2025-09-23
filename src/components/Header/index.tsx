@@ -1,16 +1,16 @@
-import { Layout } from "antd";
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import "./Styles.scss";
 
+import { Layout } from "antd";
+import React, { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import { useWalletContext } from "../../context/Wallet";
 import { useProjectTranslation } from "../../helpers/translations";
+import settings from "../../settings/settings.json";
 import DappVersion from "../DappVersion";
 import ThemeMode from "../ThemeMode";
-import settings from "../../settings/settings.json";
-import menuOptionsData from "./menuOptions.json";
 import Brand from "./Brand";
-import { useWalletContext } from "../../context/Wallet";
-
-import "./Styles.scss";
+import menuOptionsData from "./menuOptions.json";
 
 const { Header } = Layout;
 
@@ -38,12 +38,8 @@ const truncateAddress = (address: string): string => {
 export default function SectionHeader(): JSX.Element {
     const navigate = useNavigate();
     const location = useLocation();
-    const {
-        isConnected,
-        address,
-        onShowModalAccount,
-        onShowModalProviders,
-    } = useWalletContext();
+    const { isConnected, address, onShowModalAccount, onShowModalProviders } =
+        useWalletContext();
     //const [css_disable, setCssDisable] = useState("disable-nav-item");
     const [showMoreDropdown, setShowMoreDropdown] = useState<boolean>(false);
     const [showLanguageMenu, setShowLanguageMenu] = useState<boolean>(false);
@@ -210,11 +206,11 @@ export default function SectionHeader(): JSX.Element {
                         className={`wallet-address ${isConnected ? "walletConnected" : "walletDisconnected"}`}
                     >
                         {isConnected ? (
-                        <>                            
-                            <a onClick={onShowModalAccount}>
-                                {truncateAddress(address || "")}
-                            </a>                            
-                        </>
+                            <>
+                                <a onClick={onShowModalAccount}>
+                                    {truncateAddress(address || "")}
+                                </a>
+                            </>
                         ) : (
                             <a onClick={() => onShowModalProviders()}>
                                 {t("walletProviders.connectWalletButton")}

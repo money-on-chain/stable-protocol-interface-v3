@@ -1,35 +1,32 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { HashRouter } from "react-router-dom";
-import { I18nextProvider } from "react-i18next";
-import i18next from "i18next";
-import { WagmiProvider } from 'wagmi'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { registerSW } from 'virtual:pwa-register'
-import { config } from './wagmiConfig'
-
 import "antd/dist/antd.css";
 import "./assets/css/icons.scss";
-
 import "./assets/css/customize1Defaults.scss";
 import "./assets/css/customize2Light.scss";
 import "./assets/css/customize3Dark.scss";
 import "./assets/css/customize4Overwrites.scss";
-
 import "./assets/css/global.scss";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import i18next from "i18next";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { I18nextProvider } from "react-i18next";
+import { HashRouter } from "react-router-dom";
+import { registerSW } from "virtual:pwa-register";
+import { WagmiProvider } from "wagmi";
 
-import { WalletProvider } from "./context/Wallet";
 import IconLoading from "./assets/icons/LoaderAnim.svg";
+import { WalletProvider } from "./context/Wallet";
 import Router from "./router";
-import es_ES from "./settings/locale/es_ES.json";
 import en_US from "./settings/locale/en_US.json";
+import es_ES from "./settings/locale/es_ES.json";
+import { config } from "./wagmiConfig";
 
 console.log(`Starting app version: ${import.meta.env.REACT_APP_VERSION}`);
 
-registerSW({ immediate: true })
+registerSW({ immediate: true });
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient();
 
 window.addEventListener("vite:preloadError", (event) => {
     /*
@@ -52,11 +49,11 @@ async function loadTranslations(): Promise<void> {
             },
         });
     } catch (error) {
-        console.log(`Something wrong: ${error}`);
+        console.log(`Something wrong: ${String(error)}`);
     }
 }
 
-loadTranslations();
+void loadTranslations();
 
 function setColorMode(): void {
     const root = document.querySelector(":root");
@@ -87,7 +84,7 @@ root.render(
     <React.StrictMode>
         <I18nextProvider i18n={i18next}>
             <WagmiProvider config={config}>
-                <QueryClientProvider client={queryClient}>        
+                <QueryClientProvider client={queryClient}>
                     <WalletProvider>
                         <HashRouter>
                             {/*<React.Suspense fallback={ <span>Loading...</span> }>*/}

@@ -1,4 +1,5 @@
-import React, { Fragment } from "react";
+import React from "react";
+
 import { useProjectTranslation } from "../../helpers/translations";
 
 export default function DappVersion(): React.ReactElement {
@@ -11,4 +12,4 @@ export default function DappVersion(): React.ReactElement {
             </div>
         </>
     );
-} 
+}

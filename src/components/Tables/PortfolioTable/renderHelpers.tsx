@@ -1,9 +1,9 @@
 import PropTypes from "prop-types";
 import React from "react";
 
-import { PrecisionNumbers } from "../../PrecisionNumbers";
-import settings from "../../../settings/settings.json";
 import { absBigInt } from "../../../helpers/precision";
+import settings from "../../../settings/settings.json";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
 
 interface TokenRowProps {
     key: number;
@@ -55,7 +55,7 @@ export const generateTokenRow = ({
         if (priceDelta === 0n) return "";
         return priceDelta > 0n ? "+" : "-";
     };
-    
+
     return {
         key,
         renderRow: (
@@ -79,7 +79,7 @@ export const generateTokenRow = ({
                                 visibleDecimals: visiblePriceDecimals,
                             }}
                             decimals={visiblePriceDecimals}
-                            i18n={i18n}                            
+                            i18n={i18n}
                         />
                     ) : (
                         <>--</>
@@ -101,7 +101,7 @@ export const generateTokenRow = ({
                                         visibleDecimals: 2,
                                     }}
                                     decimals={2}
-                                    i18n={i18n}                                    
+                                    i18n={i18n}
                                 />
                                 {" %"}
                                 <span
@@ -134,7 +134,7 @@ export const generateTokenRow = ({
                             visibleDecimals: visibleBalanceDecimals,
                         }}
                         decimals={visibleBalanceDecimals}
-                        i18n={i18n}                        
+                        i18n={i18n}
                     />{" "}
                     <div className="token__ticker">
                         {/* {tokenTicker}  */}
@@ -155,7 +155,7 @@ export const generateTokenRow = ({
                                 visibleDecimals: visibleBalanceUSDDecimals,
                             }}
                             decimals={visibleBalanceUSDDecimals}
-                            i18n={i18n}                            
+                            i18n={i18n}
                         />
                     ) : (
                         <>--</>

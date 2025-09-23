@@ -1,9 +1,10 @@
+import "./Styles.scss";
+
 import React from "react";
 
-import { PrecisionNumbers } from "../../PrecisionNumbers";
-import settings from "../../../settings/settings.json";
 import { useProjectTranslation } from "../../../helpers/translations";
-import "./Styles.scss";
+import settings from "../../../settings/settings.json";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
 
 interface UserInfoStaking {
     tgBalance: bigint;
@@ -20,7 +21,7 @@ interface DashboardProps {
 const Dashboard: React.FC<DashboardProps> = (props) => {
     const { t, i18n } = useProjectTranslation();
     const { userInfoStaking } = props;
-    
+
     return (
         <div className="layout-card section__innerCard--big dashboard-staking-info">
             {/* Performance */}
@@ -36,7 +37,6 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                             token: settings.tokens.TG[0],
                             decimals: Number(t("staking.display_decimals")),
                             i18n: i18n,
-                            
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -55,7 +55,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                             amount: userInfoStaking["unstakeBalance"] || 0n,
                             token: settings.tokens.TG[0],
                             decimals: Number(t("staking.display_decimals")),
-                            i18n: i18n                            
+                            i18n: i18n,
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -72,11 +72,11 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                     <div className="stakingDash__data__amount">
                         {" "}
                         {PrecisionNumbers({
-                            amount: userInfoStaking["totalPendingExpiration"] || 0n,
+                            amount:
+                                userInfoStaking["totalPendingExpiration"] || 0n,
                             token: settings.tokens.TG[0],
                             decimals: Number(t("staking.display_decimals")),
                             i18n: i18n,
-                            
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -93,11 +93,12 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                 <div className="stakingDash__data">
                     <div className="stakingDash__data__amount">
                         {PrecisionNumbers({
-                            amount: userInfoStaking["totalAvailableToWithdraw"] || 0n,
+                            amount:
+                                userInfoStaking["totalAvailableToWithdraw"] ||
+                                0n,
                             token: settings.tokens.TG[0],
                             decimals: Number(t("staking.display_decimals")),
                             i18n: i18n,
-                            
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -119,7 +120,6 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                                 token: settings.tokens.TG[0],
                                 decimals: Number(t("staking.display_decimals")),
                                 i18n: i18n,
-                                
                             })}
                         </div>
                         <div className="stakingDash__data__label">

@@ -1,14 +1,13 @@
-import React, { useContext, useState } from "react";
 import { Checkbox } from "antd";
 import PropTypes from "prop-types";
+import React, { useState } from "react";
 
-import { useProjectTranslation } from "../../helpers/translations";
 import { useWalletContext } from "@/context/Wallet";
 
+import { useProjectTranslation } from "../../helpers/translations";
 
-const PRECISION_DECIMALS = 18n
+const PRECISION_DECIMALS = 18n;
 const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
-
 
 interface AllowanceDialogProps {
     onCloseModal: () => void;
@@ -22,7 +21,9 @@ interface AllowanceDialogProps {
 
 type StatusType = "SUBMIT" | "SIGN" | "WAITING" | "ERROR";
 
-export default function AllowanceDialog(props: AllowanceDialogProps): JSX.Element {
+export default function AllowanceDialog(
+    props: AllowanceDialogProps
+): JSX.Element {
     const {
         onCloseModal,
         currencyYouExchange,
@@ -34,7 +35,7 @@ export default function AllowanceDialog(props: AllowanceDialogProps): JSX.Elemen
     } = props;
 
     const { t } = useProjectTranslation();
-    const { interfaceAllowanceAmount } = useWalletContext()
+    const { interfaceAllowanceAmount } = useWalletContext();
 
     const [status, setStatus] = useState<StatusType>("SUBMIT");
     let infinityAllowance: boolean = false;

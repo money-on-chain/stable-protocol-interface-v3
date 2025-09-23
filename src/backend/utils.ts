@@ -1,6 +1,5 @@
 type NetworkType = "rsk" | "arbitrum";
 
-
 const getNetworkFromProject = (): NetworkType => {
     let network: NetworkType;
     switch (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT.toLowerCase()) {
@@ -23,7 +22,7 @@ const getExecutionFee = async (
 ): Promise<bigint> => {
     //const lastBlock = await web3.eth.getBlock("latest")
 
-    const lastBlock = await publicClient.getBlock({ blockTag: 'latest' });
+    const lastBlock = await publicClient.getBlock({ blockTag: "latest" });
 
     let latestBaseFee;
     if (getNetworkFromProject() === "rsk") {
@@ -31,10 +30,11 @@ const getExecutionFee = async (
     } else {
         latestBaseFee = BigInt(lastBlock.baseFeePerGas ?? 0);
     }
-    
+
     // calculate slippageMultiplier as bigint escalated to 6 decimals
     // Ej: 1.005 → 1005000 / 1000000
-    const slippagePercent = typeof slippage === 'number' ? slippage : parseFloat(slippage);
+    const slippagePercent =
+        typeof slippage === "number" ? slippage : parseFloat(slippage);
     const multiplier = Math.floor((1 + slippagePercent / 100) * 1_000_000); // escalated 1e6
     const multiplierBigInt = BigInt(multiplier);
 
@@ -42,12 +42,10 @@ const getExecutionFee = async (
     const baseExecFee = execCost * latestBaseFee;
     const execFee = (baseExecFee * multiplierBigInt) / 1_000_000n;
 
-    console.log(`Using Base Fee: ${latestBaseFee.toString()} * slippage ${slippage}% = ${execFee.toString()}`);
+    console.log(
+        `Using Base Fee: ${latestBaseFee.toString()} * slippage ${slippage}% = ${execFee.toString()}`
+    );
     return execFee;
 };
 
-
-export {
-    getExecutionFee,
-    getNetworkFromProject
-};
+export { getExecutionFee, getNetworkFromProject };

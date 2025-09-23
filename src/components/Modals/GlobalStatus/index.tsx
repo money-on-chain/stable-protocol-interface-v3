@@ -10,7 +10,9 @@ interface GlobalStatusModalProps {
     hideModal: () => void;
 }
 
-export default function GlobalStatusModal(props: GlobalStatusModalProps): JSX.Element {
+export default function GlobalStatusModal(
+    props: GlobalStatusModalProps
+): JSX.Element {
     const { t } = useProjectTranslation();
     const { statusCode, hideModal } = props;
 

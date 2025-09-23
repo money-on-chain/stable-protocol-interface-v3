@@ -1,11 +1,11 @@
-import { Modal, Button, Spin, notification, Checkbox } from "antd";
-import React, { useEffect, useState, Fragment } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
+import { Button, Checkbox, Modal, notification, Spin } from "antd";
+import React, { Fragment, useEffect, useState } from "react";
 
-import { useProjectTranslation } from "../../../helpers/translations";
-import { PrecisionNumbers } from "../../PrecisionNumbers";
-import settings from "../../../settings/settings.json";
 import { useWalletContext } from "../../../context/Wallet";
+import { useProjectTranslation } from "../../../helpers/translations";
+import settings from "../../../settings/settings.json";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
 
 interface StakingOptionsModalProps {
     mode?: string;
@@ -16,35 +16,41 @@ interface StakingOptionsModalProps {
     withdrawalId?: string;
 }
 
-const PRECISION_DECIMALS = 18n
+const PRECISION_DECIMALS = 18n;
 const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
 
 type StepType = 0 | 1 | 2 | 3 | 99;
-type ModeType = 'staking' | 'unstaking' | 'withdraw' | 'restake';
+type ModeType = "staking" | "unstaking" | "withdraw" | "restake";
 
-export default function StakingOptionsModal(props: StakingOptionsModalProps): React.ReactElement {
-    const { 
-        address, 
+export default function StakingOptionsModal(
+    props: StakingOptionsModalProps
+): React.ReactElement {
+    const {
+        address,
         userOmocBalance,
         userVesting,
-        isVestingLoaded, 
-        interfaceStakingApprove, 
-        interfaceStakingAddStake, 
-        interfaceStakingDelayMachineCancelWithdraw, 
-        interfaceStakingUnStake, 
-        interfaceStakingDelayMachineWithdraw        
-    } = useWalletContext()
+        isVestingLoaded,
+        interfaceStakingApprove,
+        interfaceStakingAddStake,
+        interfaceStakingDelayMachineCancelWithdraw,
+        interfaceStakingUnStake,
+        interfaceStakingDelayMachineWithdraw,
+    } = useWalletContext();
     const { t, i18n, ns } = useProjectTranslation();
     const { mode, onClose, visible, amount, onConfirm, withdrawalId } = props;
 
     const [step, setStep] = useState<StepType>(0);
-    
+
     const amountInEth = amount;
 
     let infinityAllowance = false;
 
     useEffect(() => {
-        if (userOmocBalance.data && amountInEth || userVesting.data && amountInEth) checkAllowance();        
+        if (
+            (userOmocBalance.data && amountInEth) ||
+            (userVesting.data && amountInEth)
+        )
+            checkAllowance();
     }, [userOmocBalance.data, amountInEth, userVesting.data]);
 
     const onChangeInfinity = (e: any): void => {
@@ -52,16 +58,14 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
         infinityAllowance = e.target.checked;
     };
 
-    const checkAllowance = (): void => {    
-        
+    const checkAllowance = (): void => {
         if (!amountInEth) return;
-        
+
         const allowanceAmount = isVestingLoaded()
             ? userVesting.data.vestingmachine?.staking?.allowance
             : userOmocBalance.data.stakingmachine?.tgAllowance;
-                
+
         if (allowanceAmount >= amountInEth) setStep(3);
-        
     };
 
     if (!mode) return <></>;
@@ -89,13 +93,13 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
         };
 
         if (!amountAllowance) return;
-        
+
         await interfaceStakingApprove(
-                amountAllowance,
-                onTransaction,
-                onReceipt,
-                onError
-            )
+            amountAllowance,
+            onTransaction,
+            onReceipt,
+            onError
+        )
             .then((/*res*/) => {
                 setStep(3);
                 return null;
@@ -124,32 +128,33 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
             console.log("Transaction add stake error!...:", error);
         };
         if (!amount || !address) return;
-        
+
         setStep(99);
         await interfaceStakingAddStake(
-                amount,
-                address,
-                onTransaction,
-                onReceipt,
-                onError
-            )
-            .then((res) => {
-                const status = res.status ? "success" : "error";
-                onConfirm(status, res.transactionHash);
+            amount,
+            address,
+            onTransaction,
+            onReceipt,
+            onError
+        ).then((res) => {
+            const status = res.status ? "success" : "error";
+            onConfirm(status, res.transactionHash);
 
-                // Refresh user balance
-                isVestingLoaded() ? userVesting.refetch() : userOmocBalance.refetch();
+            // Refresh user balance
+            isVestingLoaded()
+                ? userVesting.refetch()
+                : userOmocBalance.refetch();
 
-                return null;
-            })
-            // .catch((/*e*/) => {
-            //     notification["error"]({
-            //         message: t("global.RewardsError_Title"),
-            //         description: t("global.RewardsError_Message"),
-            //         duration: 10,
-            //     });
-            //     onConfirm("error", "");
-            // });
+            return null;
+        });
+        // .catch((/*e*/) => {
+        //     notification["error"]({
+        //         message: t("global.RewardsError_Title"),
+        //         description: t("global.RewardsError_Message"),
+        //         duration: 10,
+        //     });
+        //     onConfirm("error", "");
+        // });
     };
 
     const CancelWithdraw = async (): Promise<void> => {
@@ -166,17 +171,19 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
             console.log("Transaction cancel withdraw error!...:", error);
         };
         await interfaceStakingDelayMachineCancelWithdraw(
-                withdrawalId || "",
-                onTransaction,
-                onReceipt,
-                onError
-            )
+            withdrawalId || "",
+            onTransaction,
+            onReceipt,
+            onError
+        )
             .then((res) => {
                 const status = res.status ? "success" : "error";
                 onConfirm(status, res.transactionHash);
 
                 // Refresh user balance
-                isVestingLoaded() ? userVesting.refetch() : userOmocBalance.refetch();
+                isVestingLoaded()
+                    ? userVesting.refetch()
+                    : userOmocBalance.refetch();
 
                 return null;
             })
@@ -205,14 +212,16 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
             console.log("Transaction unStake error!...:", error);
         };
         if (!amount) return;
-        
+
         await interfaceStakingUnStake(amount, onTransaction, onReceipt, onError)
             .then((res) => {
                 const status = res.status ? "success" : "error";
                 onConfirm(status, res.transactionHash);
 
                 // Refresh user balance
-                isVestingLoaded() ? userVesting.refetch() : userOmocBalance.refetch();
+                isVestingLoaded()
+                    ? userVesting.refetch()
+                    : userOmocBalance.refetch();
 
                 return null;
             })
@@ -252,7 +261,9 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                 onConfirm(status, res.transactionHash);
 
                 // Refresh user balance
-                isVestingLoaded() ? userVesting.refetch() : userOmocBalance.refetch();
+                isVestingLoaded()
+                    ? userVesting.refetch()
+                    : userOmocBalance.refetch();
 
                 return null;
             })
@@ -398,9 +409,11 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                                             {PrecisionNumbers({
                                                 amount: amount || 0n,
                                                 token: settings.tokens.TG[0],
-                                                decimals: Number(t(
-                                                    "staking.display_decimals"
-                                                )),
+                                                decimals: Number(
+                                                    t(
+                                                        "staking.display_decimals"
+                                                    )
+                                                ),
                                                 //numericLabelParams: {},
                                                 i18n: i18n,
                                                 //skipContractConvert: true,
@@ -486,7 +499,9 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                                 {PrecisionNumbers({
                                     amount: amount || 0n,
                                     token: settings.tokens.TG[0],
-                                    decimals: Number(t("staking.display_decimals")),
+                                    decimals: Number(
+                                        t("staking.display_decimals")
+                                    ),
                                     //numericLabelParams: {},
                                     i18n: i18n,
                                     //skipContractConvert: true,
@@ -544,7 +559,9 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                                     {PrecisionNumbers({
                                         amount: amount || 0n,
                                         token: settings.tokens.TG[0],
-                                        decimals: Number(t("staking.display_decimals")),
+                                        decimals: Number(
+                                            t("staking.display_decimals")
+                                        ),
                                         //numericLabelParams: {},
                                         i18n: i18n,
                                         //skipContractConvert: false,
@@ -608,7 +625,9 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                                     {PrecisionNumbers({
                                         amount: amount || 0n,
                                         token: settings.tokens.TG[0],
-                                        decimals: Number(t("staking.display_decimals")),
+                                        decimals: Number(
+                                            t("staking.display_decimals")
+                                        ),
                                         i18n: i18n,
                                     })}
                                     <div className="tx-token">

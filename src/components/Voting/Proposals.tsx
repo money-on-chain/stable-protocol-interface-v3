@@ -1,18 +1,15 @@
-import React, { Fragment, useEffect, useState } from "react";
 import { Input } from "antd";
-import { PrecisionNumbers } from "../PrecisionNumbers";
-import { TokenSettings } from "../../helpers/currencies";
-
-
-import { useProjectTranslation } from "../../helpers/translations";
-import Proposal from "./Proposal";
-import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
-import { formatTimestamp } from "../../helpers/staking";
-import PreVote from "./PreVote";
+import React, { Fragment, useEffect, useState } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
+import { TokenSettings } from "../../helpers/currencies";
 import { divPrecision } from "../../helpers/precision";
-
+import { formatTimestamp } from "../../helpers/staking";
+import { useProjectTranslation } from "../../helpers/translations";
+import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
+import { PrecisionNumbers } from "../PrecisionNumbers";
+import PreVote from "./PreVote";
+import Proposal from "./Proposal";
 
 interface ProposalData {
     id: number;
@@ -51,7 +48,6 @@ interface ProposalsProps {
     infoUser: InfoUser;
 }
 
-
 const Proposals: React.FC<ProposalsProps> = (props) => {
     const { infoVoting, infoUser } = props;
 
@@ -59,7 +55,9 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         changeContract: "",
     };
     const [actionProposal, setActionProposal] = useState<string>("LIST");
-    const [viewProposal, setViewProposal] = useState<ProposalData | EmptyProposal>(emptyProposal);
+    const [viewProposal, setViewProposal] = useState<
+        ProposalData | EmptyProposal
+    >(emptyProposal);
     const [addProposalAddress, setAddProposalAddress] = useState<string>("");
     const [addProposalAddressError, setAddProposalAddressError] =
         useState<boolean>(false);
@@ -73,7 +71,14 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
     const [proposalsData, setProposalsData] = useState<ProposalData[]>([]);
 
     const { t, i18n, ns } = useProjectTranslation();
-    const { interfaceVotingPreVote, interfaceVotingUnRegister, interfaceVotingPreVoteStep, contractStatusOmoc, userOmocBalance, proposalCount } = useWalletContext()
+    const {
+        interfaceVotingPreVote,
+        interfaceVotingUnRegister,
+        interfaceVotingPreVoteStep,
+        contractStatusOmoc,
+        userOmocBalance,
+        proposalCount,
+    } = useWalletContext();
     const space: string = "\u00A0";
 
     useEffect(() => {
@@ -132,16 +137,18 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             lenProp = Object.keys(infoVoting["proposals"]).length;
         for (let i = 0; i < lenProp; i++) {
             if (infoVoting["proposals"][i] != null) {
-
-                const [proposalAddress, propVotingRound, propVotes, propExpirationTimeStamp] = infoVoting["proposals"][i];
+                const [
+                    proposalAddress,
+                    propVotingRound,
+                    propVotes,
+                    propExpirationTimeStamp,
+                ] = infoVoting["proposals"][i];
                 expirationTimestamp = propExpirationTimeStamp * 1000n;
                 let expired = true;
                 if (expirationTimestamp > nowTimestamp) expired = false;
 
                 let canUnregister = false;
-                if (
-                    propVotingRound < infoVoting["globalVotingRound"]
-                )
+                if (propVotingRound < infoVoting["globalVotingRound"])
                     canUnregister = true;
 
                 votingRound = propVotingRound;
@@ -151,8 +158,11 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                 )
                     continue;
 
-                votesPositive = propVotes;                
-                votesPositivePCT = divPrecision(votesPositive * 100n, infoVoting["totalSupply"]);
+                votesPositive = propVotes;
+                votesPositivePCT = divPrecision(
+                    votesPositive * 100n,
+                    infoVoting["totalSupply"]
+                );
 
                 let canRunStep = false;
                 if (
@@ -184,7 +194,9 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         refreshViewProposalData();
     };
 
-    const onChangeInputAddProposal = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const onChangeInputAddProposal = (
+        e: React.ChangeEvent<HTMLInputElement>
+    ): void => {
         setAddProposalAddress(e.target.value.toLowerCase());
         onValidateAddProposalClear();
     };
@@ -286,15 +298,15 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         };
 
         await interfaceVotingPreVote(
-                addProposalAddress,
-                onTransaction,
-                onReceipt,
-                onError
-            )
+            addProposalAddress,
+            onTransaction,
+            onReceipt,
+            onError
+        )
             .then((/*res*/) => {
                 // Refresh status
                 userOmocBalance.refetch();
-                contractStatusOmoc.refetch();                
+                contractStatusOmoc.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -350,15 +362,15 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         };
 
         await interfaceVotingUnRegister(
-                proposalAddress,
-                onTransaction,
-                onReceipt,
-                onError
-            )
+            proposalAddress,
+            onTransaction,
+            onReceipt,
+            onError
+        )
             .then((/*res*/) => {
                 // Refresh status
                 userOmocBalance.refetch();
-                contractStatusOmoc.refetch();                
+                contractStatusOmoc.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -454,7 +466,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             <div className="proposalsList__wrapper">
                 <div className={"title"}>
                     <h1>{t("voting.cardTitle.proposalsList")}</h1>
-                </div>                
+                </div>
                 {/* PROPOSALS LIST */}
                 {actionProposal === "LIST" &&
                     proposalsData.length > 0 &&
@@ -486,10 +498,10 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                             </div>
                         </>
                     )}
-                {/* actionProposal === 'LIST' && !infoVoting['readyToPreVoteStep'] && */}                
+                {/* actionProposal === 'LIST' && !infoVoting['readyToPreVoteStep'] && */}
                 {actionProposal === "LIST" &&
                     !infoVoting["readyToPreVoteStep"] && (
-                        <> 
+                        <>
                             {actionProposal === "LIST" &&
                                 proposalsData.length === 0 && (
                                     <div className="proposals__empty">
@@ -505,7 +517,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                             </div>
                         </>
                     )}
-                    {actionProposal === "ADD" && (
+                {actionProposal === "ADD" && (
                     <div className="proposalsContainer">
                         <div className="addProposal">
                             <h2>{t("voting.cardTitle.addNewProposal")}</h2>
@@ -574,7 +586,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                                                 ],
                                                 token: TokenSettings("TG"),
                                                 decimals: 2,
-                                                i18n: i18n
+                                                i18n: i18n,
                                             })}
                                             {space}
                                             {t("staking.tokens.TG.abbr", {
@@ -586,8 +598,8 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                                                     "Voting_Power_PCT"
                                                 ],
                                                 token: TokenSettings("TG"),
-                                                decimals: 4,                                                
-                                                i18n: i18n                                                
+                                                decimals: 4,
+                                                i18n: i18n,
                                             })}
                                             % )
                                         </div>
@@ -642,4 +654,4 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
     );
 };
 
-export default Proposals; 
+export default Proposals;

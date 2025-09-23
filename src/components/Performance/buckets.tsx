@@ -1,23 +1,22 @@
 import React from "react";
 
-import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers";
-import { TokenSettings } from "../../helpers/currencies";
-import settings from "../../settings/settings.json";
-import Tokens from "./tokens";
 import { useWalletContext } from "../../context/Wallet";
+import { TokenSettings } from "../../helpers/currencies";
 import { divPrecision } from "../../helpers/precision";
+import { useProjectTranslation } from "../../helpers/translations";
+import settings from "../../settings/settings.json";
+import { PrecisionNumbers } from "../PrecisionNumbers";
+import Tokens from "./tokens";
 
 // Type definitions
 interface BucketsProps {
     caIndex: number;
 }
 
-
 export default function Buckets(props: BucketsProps): JSX.Element {
     const { caIndex } = props;
-    const { t, i18n, ns } = useProjectTranslation();    
-    const { contractProtocolStatus } = useWalletContext()
+    const { t, i18n, ns } = useProjectTranslation();
+    const { contractProtocolStatus } = useWalletContext();
     const space = "\u00A0";
 
     let lckAC: bigint = 0n;
@@ -66,7 +65,6 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                           settings.tokens.CA[caIndex]
                                               .visibleDecimals,
                                       i18n: i18n,
-                                      
                                   })}
                         </div>
                         <div className="label">Amount in protocol</div>
@@ -88,7 +86,6 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                       token: settings.tokens.CA[caIndex],
                                       decimals: 4,
                                       i18n: i18n,
-                                      
                                   })}
                         </div>
                         <div className="label">Coverage</div>
@@ -110,7 +107,6 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                       token: TokenSettings(`CA_${caIndex}`),
                                       decimals: 4,
                                       i18n: i18n,
-                                      
                                   })}
                         </div>
                         <div className="label">Target Coverage Adjusted</div>
@@ -131,7 +127,6 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                       token: TokenSettings(`CA_${caIndex}`),
                                       decimals: 4,
                                       i18n: i18n,
-                                      
                                   })}
                         </div>
                         <div className="label">Leverage</div>
@@ -154,7 +149,6 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                           settings.tokens.CA[caIndex]
                                               .visibleDecimals,
                                       i18n: i18n,
-                                      
                                   })}
                         </div>
                         <div className="label">Locked Collateral</div>

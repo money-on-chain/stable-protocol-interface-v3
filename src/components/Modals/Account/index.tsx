@@ -1,5 +1,6 @@
-import React, { Fragment } from "react";
 import Modal from "antd/lib/modal/Modal";
+import React, { Fragment } from "react";
+
 import Account from "../../Account";
 
 interface ModalAccountProps {
@@ -30,7 +31,7 @@ export default function ModalAccount(props: ModalAccountProps): JSX.Element {
                 >
                     <Account
                         {...props}
-                        onCloseModal={onHide}                        
+                        onCloseModal={onHide}
                         vestingOn={vestingOn}
                         setVestingOn={setVestingOn}
                     />
@@ -39,4 +40,4 @@ export default function ModalAccount(props: ModalAccountProps): JSX.Element {
             <i className="logo-wallet" onClick={onShow}></i>
         </Fragment>
     );
-} 
+}

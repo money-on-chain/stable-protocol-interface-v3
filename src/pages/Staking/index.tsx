@@ -1,17 +1,22 @@
-import React, { Fragment, useState, useEffect } from "react";
-import { Skeleton } from "antd";
-
-import Staking from "../../components/Staking";
-import UseVestingAlert from "../../components/Notification/UsingVestingAlert";
-import { useWalletContext } from "../../context/Wallet";
-
 import "./Styles.scss";
 
+import { Skeleton } from "antd";
+import React, { Fragment, useEffect, useState } from "react";
+
+import UseVestingAlert from "../../components/Notification/UsingVestingAlert";
+import Staking from "../../components/Staking";
+import { useWalletContext } from "../../context/Wallet";
+
 export default function SectionStaking(): React.ReactElement {
-    const { contractStatusOmoc, userOmocBalance, isVestingLoaded, vestingAddress } = useWalletContext()
+    const {
+        contractStatusOmoc,
+        userOmocBalance,
+        isVestingLoaded,
+        vestingAddress,
+    } = useWalletContext();
     const [ready, setReady] = useState<boolean>(false);
     const [usingVestingAddress, setUsingVestingAddress] = useState<string>("");
-    
+
     useEffect(() => {
         if (contractStatusOmoc.data && userOmocBalance.data) {
             setReady(true);

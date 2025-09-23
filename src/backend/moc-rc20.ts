@@ -1,10 +1,9 @@
 import {
     mintTC as mintTC_,
-    redeemTC as redeemTC_,
     mintTP as mintTP_,
+    redeemTC as redeemTC_,
     redeemTP as redeemTP_,
 } from "./moc-core";
-
 
 type OnTransaction = (hash: string) => void;
 type OnReceipt = (receipt: any) => void;
@@ -89,4 +88,4 @@ const redeemTP = async (
     );
 };
 
-export { mintTC, redeemTC, mintTP, redeemTP };
+export { mintTC, mintTP, redeemTC, redeemTP };

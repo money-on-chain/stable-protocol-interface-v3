@@ -1,16 +1,14 @@
+import { Layout } from "antd";
 import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { Layout } from "antd";
 
+import DappFooter from "../../../components/Footer/index";
 import SectionHeader from "../../../components/Header";
 import NotificationBody from "../../../components/Notification";
-import { CheckStatusGlobal } from "../../../helpers/checkStatus";
-import DappFooter from "../../../components/Footer/index";
-
 import { useWalletContext } from "../../../context/Wallet";
-
-import { isSomeTCLockedByVeto } from "../../../helpers/veto";
+import { CheckStatusGlobal } from "../../../helpers/checkStatus";
 import { useProjectTranslation } from "../../../helpers/translations";
+import { isSomeTCLockedByVeto } from "../../../helpers/veto";
 
 const { Content, Footer } = Layout;
 

@@ -1,11 +1,11 @@
 import React, { Fragment, useEffect, useState } from "react";
 
-import { useProjectTranslation } from "../../helpers/translations";
-import CompletedBar from "./CompletedBar";
-import { PrecisionNumbers } from "../PrecisionNumbers";
-import { TokenSettings } from "../../helpers/currencies";
-import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
 import { useWalletContext } from "../../context/Wallet";
+import { TokenSettings } from "../../helpers/currencies";
+import { useProjectTranslation } from "../../helpers/translations";
+import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
+import { PrecisionNumbers } from "../PrecisionNumbers";
+import CompletedBar from "./CompletedBar";
 
 const PRECISION_DECIMALS = 18n;
 const DECIMALS_18 = 10n ** PRECISION_DECIMALS;

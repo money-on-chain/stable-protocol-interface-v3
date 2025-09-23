@@ -1,19 +1,19 @@
-import React, { Fragment, useContext, useEffect, useState } from "react";
-import Proposals from "../Proposals";
-import Vote from "../Vote";
+import "../Styles.scss";
+
+import React, { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { useWalletContext } from "../../../context/Wallet";
+import type { TokenConfig } from "../../../helpers/currencies";
+import { TokenSettings } from "../../../helpers/currencies";
+import { divPrecision, mulPrecision } from "../../../helpers/precision";
 import { formatTimestamp } from "../../../helpers/staking";
 import { useProjectTranslation } from "../../../helpers/translations";
-import { useWalletContext } from "../../../context/Wallet";
-import { mulPrecision, divPrecision } from "../../../helpers/precision";
+import ModalAllowanceOperation from "../../Modals/Allowance";
 import VetoStatusModal from "../../Modals/VetoStatusModal/VetoStatusModal";
-
-import "../Styles.scss";
-import { useNavigate } from "react-router-dom";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
 import BalanceBar from "../BalanceBar";
 import CompletedBar from "../CompletedBar";
-import { TokenConfig, TokenSettings } from "../../../helpers/currencies";
-import { PrecisionNumbers } from "../../PrecisionNumbers";
-import ModalAllowanceOperation from "../../Modals/Allowance";
 
 const PRECISION_DECIMALS = 18n;
 const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
@@ -47,6 +47,23 @@ interface InfoUserTC {
     allowance: bigint;
     balance: bigint;
     votingPower: bigint;
+}
+
+interface VotingMachineData {
+    getState: bigint;
+    VOTE_MIN_PCT_TO_VETO: bigint;
+    getVotingData: [string, bigint, bigint, bigint];
+}
+
+interface VetoMachineData {
+    getVetoPctForWinnerProposal: bigint;
+}
+
+interface UserVetoData {
+    vetoMachine: {
+        allowance: Record<string, bigint>;
+        getVotingPower: Record<string, bigint>;
+    };
 }
 
 const Veto: React.FC = () => {
@@ -104,32 +121,16 @@ const Veto: React.FC = () => {
     };
     const [infoUserTC, setInfoUserTC] = useState<InfoUserTC>(defaultInfoUserTC);
 
-    useEffect(() => {
-        if (
-            contractStatusOmoc.data &&
-            userOmocBalance.data &&
-            userVeto.data &&
-            userBalance.data
-        ) {
-            refreshData();
-        }
-    }, [
-        contractStatusOmoc.data,
-        userOmocBalance.data,
-        userVeto.data,
-        userBalance.data,
-    ]);
-
-    const refreshData = (): void => {
+    const refreshData = useCallback((): void => {
         if (!contractStatusOmoc.data) return;
         if (!userOmocBalance.data) return;
         if (!userVeto.data) return;
         if (!userBalance.data) return;
 
         const cData: InfoVoting = { ...infoVoting };
-        cData["state"] = Number(contractStatusOmoc.data.votingmachine.getState);
-        cData["VOTE_MIN_PCT_TO_VETO"] =
-            contractStatusOmoc.data.votingmachine.VOTE_MIN_PCT_TO_VETO;
+        const votingMachine = contractStatusOmoc.data.votingmachine as VotingMachineData;
+        cData["state"] = Number(votingMachine.getState);
+        cData["VOTE_MIN_PCT_TO_VETO"] = votingMachine.VOTE_MIN_PCT_TO_VETO;
 
         // Voting Data
         const [
@@ -137,7 +138,7 @@ const Veto: React.FC = () => {
             inFavorVotes,
             againstVotes,
             votingExpirationTime,
-        ] = contractStatusOmoc.data.votingmachine.getVotingData;
+        ] = votingMachine.getVotingData;
         cData["votingData"]["winnerProposal"] = winnerProposal;
         cData["votingData"]["inFavorVotes"] = inFavorVotes;
         cData["votingData"]["againstVotes"] = againstVotes;
@@ -164,29 +165,51 @@ const Veto: React.FC = () => {
             cData["votingData"]["totalVoted"]
         );
 
-        cData["votingData"]["totalVetoPCT"] =
-            contractStatusOmoc.data.vetomachine.getVetoPctForWinnerProposal;
+        const vetoMachine = contractStatusOmoc.data.vetomachine as VetoMachineData;
+        cData["votingData"]["totalVetoPCT"] = vetoMachine.getVetoPctForWinnerProposal;
         setInfoVoting(cData);
 
         const cDataUser: InfoUser = { ...infoUser };
         cDataUser["InfoUserTC"] = [];
-
-        contractsAddress.CollateralToken.forEach((tc, index) => {
-            const tokenInfo: InfoUserTC = {
-                index,
-                address: tc.address,
-                settings: TokenSettings("TC_" + index),
-                allowance:
-                    userVeto.data.vetoMachine.allowance[tc.address] || 0n,
-                balance: userBalance.data[index].TC.balance,
-                proposal: infoVoting.votingData["winnerProposal"],
-                votingPower:
-                    userVeto.data.vetoMachine.getVotingPower[tc.address] || 0n,
-            };
-            cDataUser["InfoUserTC"].push(tokenInfo);
-        });
+        
+        if (contractsAddress?.CollateralToken) {
+            const vetoData = userVeto.data as unknown as UserVetoData;
+            contractsAddress.CollateralToken.forEach((tc, index) => {
+                const tokenInfo: InfoUserTC = {
+                    index,
+                    address: tc.address,
+                    settings: TokenSettings("TC_" + index),
+                    allowance:
+                        vetoData.vetoMachine.allowance[tc.address] || 0n,
+                    balance: (userBalance.data![index] as { TC: { balance: bigint } }).TC.balance,
+                    proposal: infoVoting.votingData["winnerProposal"],
+                    votingPower:
+                        BigInt(vetoData.vetoMachine.getVotingPower[tc.address]) || 0n,
+                };
+                cDataUser["InfoUserTC"].push(tokenInfo);
+            });
+        }
         setInfoUser(cDataUser);
-    };
+    }, [
+        contractStatusOmoc.data,
+        userOmocBalance.data,
+        userVeto.data,
+        userBalance.data,
+        contractsAddress?.CollateralToken,
+        infoVoting,
+        infoUser,
+    ]);
+
+    useEffect(() => {
+        if (
+            contractStatusOmoc.data &&
+            userOmocBalance.data &&
+            userVeto.data &&
+            userBalance.data
+        ) {
+            refreshData();
+        }
+    }, [refreshData]);
 
     const onHideModalAllowance = (): void => {
         setShowModalAllowance(false);
@@ -232,13 +255,13 @@ const Veto: React.FC = () => {
             console.log("Transaction in Favor proposal mined!...");
             setOperationStatus("success");
         };
-        const onError = (error: any): void => {
-            console.log("Transaction in Favor proposal error!...:", error);
+        const onError = (error: unknown): void => {
+            console.error("Transaction in Favor proposal error!...:", error);
             setOperationStatus("error");
         };
 
         await interfaceVetoVote(
-            proposal,
+            proposal as `0x${string}`,
             index,
             onTransaction,
             onReceipt,
@@ -257,7 +280,7 @@ const Veto: React.FC = () => {
             });
     };
 
-    const VetoTokenCard: React.FC<{ token: any }> = ({ token }) => {
+    const VetoTokenCard: React.FC<{ token: InfoUserTC }> = ({ token }) => {
         const { t } = useProjectTranslation();
         const space = "\u00A0";
 
@@ -393,7 +416,7 @@ const Veto: React.FC = () => {
                                 </div>
                             </div>
                         </div>
-                        {infoUser["InfoUserTC"].map((tc: any) => (
+                        {infoUser["InfoUserTC"].map((tc: InfoUserTC) => (
                             <VetoTokenCard key={tc.address} token={tc} />
                         ))}
                         {isOperationModalVisible && (
@@ -431,7 +454,7 @@ const Veto: React.FC = () => {
 };
 export default Veto;
 
-const VetoBar: React.FC<{ infoVoting: any }> = ({ infoVoting }) => {
+const VetoBar: React.FC<{ infoVoting: InfoVoting }> = ({ infoVoting }) => {
     const { t } = useProjectTranslation();
     return (
         <div className="voting__status__graphs">
@@ -449,7 +472,7 @@ const VetoBar: React.FC<{ infoVoting: any }> = ({ infoVoting }) => {
     );
 };
 
-export const VetoGraph: React.FC<{ infoVoting: any }> = ({ infoVoting }) => {
+export const VetoGraph: React.FC<{ infoVoting: InfoVoting }> = ({ infoVoting }) => {
     const navigate = useNavigate();
     const { t } = useProjectTranslation();
     return (
