@@ -209,7 +209,7 @@ const Veto: React.FC = () => {
         ) {
             refreshData();
         }
-    }, [refreshData]);
+    }, [contractStatusOmoc.data, userOmocBalance.data, userVeto.data, userBalance.data]);
 
     const onHideModalAllowance = (): void => {
         setShowModalAllowance(false);
