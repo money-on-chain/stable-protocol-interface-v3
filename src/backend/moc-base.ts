@@ -1,4 +1,5 @@
 import {
+    sendTransaction,
     simulateContract,
     waitForTransactionReceipt,
     writeContract,
@@ -77,8 +78,8 @@ const transferCoinbaseTo = async (
 ): Promise<any> => {
     const { address, walletClient } = interfaceContext;
 
-    const hash = await walletClient.sendTransaction({
-        to,
+    const hash = await sendTransaction(config, {
+        to: to as `0x${string}`,
         account: address,
         value: amount,
         //gas: 21_000n,        // fixed for simple transfer
@@ -87,7 +88,11 @@ const transferCoinbaseTo = async (
 
     onTransaction?.(hash);
 
-    const publicClient = walletClient.extendPublicClient();
+    const { publicClient } = interfaceContext;
+    
+    if (!publicClient) {
+        throw new Error("Public client not available");
+    }
 
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
