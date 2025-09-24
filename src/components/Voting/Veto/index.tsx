@@ -219,14 +219,14 @@ const Veto: React.FC = () => {
         setShowModalAllowance(true);
     };
 
-    const showAllowance = (): boolean => {
-        return infoUserTC.balance > infoUserTC.allowance;
+    const showAllowance = (tc: InfoUserTC): boolean => {
+        return tc.balance > tc.allowance;
     };
 
-    const onAllowance = async (infoUserTC: InfoUserTC): Promise<void> => {
+    const onAllowance = async (infoUserTC: InfoUserTC): Promise<void> => {        
         setInfoUserTC(infoUserTC);
         // Show modal allowance
-        if (showAllowance()) {
+        if (showAllowance(infoUserTC)) {
             onShowModalAllowance();
             return;
         }
