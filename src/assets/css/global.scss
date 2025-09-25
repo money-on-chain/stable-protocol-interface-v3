@@ -1117,17 +1117,38 @@ h2 {
     width: 100%;
     color: var(--notification-permanent-text);
 
+    .anticon {
+        width: 24px;
+        height: 24px;
+        margin: 16px;
+    }
     .ant-alert-message {
         color: var(--notification-permanent-text);
         font-weight: 600;
         font-size: 16px;
         font-family: var(--brand-font);
+        padding-left: 8px;
+    }
+    .ant-alert-content {
+        max-width: 100%;
     }
     .alert__message {
+        line-height: 1.2;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
         .alert__title {
             font-weight: 600;
+            margin-bottom: 8px;
         }
         .alert__text {
+            font-weight: 400;
+        }
+        .alert__label {
+            font-weight: 600;
+        }
+        .alert__address {
             font-weight: 400;
         }
     }
@@ -1138,16 +1159,12 @@ h2 {
         .alert__switch__label {
             font-weight: 600;
         }
-        .alert__switch__button {
-            // outline: 1px dashed red;
-        }
-        .button--small {
-            // color: black;
-        }
     }
     button {
         border: none;
         background-color: transparent;
+        margin-top: 16px;
+        margin-bottom: 16px;
         span {
             font-weight: 600;
             font-size: 14px;
@@ -1170,9 +1187,9 @@ h2 {
     button:hover,
     button:focus,
     button:active {
-        border: none;
-        background-color: transparent;
-        color: var(--color-btn-primary-txt-hover);
+        color: var(--color-btn-primary-txt-default);
+        background-color: var(--color-btn-primary-background-default);
+        outline: 2px solid;
     }
     .address {
         margin-bottom: 16px;

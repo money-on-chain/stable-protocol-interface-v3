@@ -2,16 +2,23 @@ import React, { Fragment, useState, useEffect } from "react";
 import { Skeleton } from "antd";
 
 import Staking from "../../components/Staking";
-import UseVestingAlert from "../../components/Notification/UsingVestingAlert";
+// import UseVestingAlert from "../../components/Notification/UsingVestingAlert";
+import VestingStatusAlert from "../../components/Notification/VestingStatusAlert";
+
 import { useWalletContext } from "../../context/Wallet";
 
 import "./Styles.scss";
 
 export default function SectionStaking(): React.ReactElement {
-    const { contractStatusOmoc, userOmocBalance, isVestingLoaded, vestingAddress } = useWalletContext()
+    const {
+        contractStatusOmoc,
+        userOmocBalance,
+        isVestingLoaded,
+        vestingAddress,
+    } = useWalletContext();
     const [ready, setReady] = useState<boolean>(false);
     const [usingVestingAddress, setUsingVestingAddress] = useState<string>("");
-    
+
     useEffect(() => {
         if (contractStatusOmoc.data && userOmocBalance.data) {
             setReady(true);
@@ -28,9 +35,13 @@ export default function SectionStaking(): React.ReactElement {
         <Fragment>
             <div className="section-container">
                 <div className="sectionStaking">
-                    {usingVestingAddress !== "" && (
+                    {/* {usingVestingAddress !== "" && (
+
                         <UseVestingAlert address={usingVestingAddress} />
-                    )}
+                    )} */}
+
+                    <VestingStatusAlert />
+
                     {ready ? <Staking /> : <Skeleton active />}
                 </div>
             </div>

@@ -609,10 +609,17 @@
             }
         },
         "alert": {
-            "title": "Using Vesting Adress",
-            "explanation": "To use your regular wallet turn of 'Use Vesting Address' in the wallet settings",
-            "cta": "Go to wallet settings",
-            "address": "Using VM:"
+            "vmEnabled": {
+                "title": "Using Vesting Address",
+                "text": "Your wallet is currently set to use a Vesting Address. To use your regular wallet instead, click on Switch to Wallet Address.",
+                "addressLabel": "VM Address:",
+                "cta": "Switch to Wallet Address"
+            },
+            "vmDisabled": {
+                "title": "Using Regular Wallet Address",
+                "text": "Your wallet is currently set to use the regular address. You can enable a Vesting Address if needed.",
+                "cta": "Enable Vesting Address"
+            }
         },
         "cardTitle": "Vesting Machine",
         "status": {
