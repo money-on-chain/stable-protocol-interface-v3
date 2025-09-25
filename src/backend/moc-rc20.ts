@@ -1,4 +1,8 @@
-import type { InterfaceContext, OnReceipt,OnTransaction } from "../types/wallets";
+import type {
+    InterfaceContext,
+    OnReceipt,
+    OnTransaction,
+} from "../types/wallets";
 import {
     mintTC as mintTC_,
     mintTP as mintTP_,

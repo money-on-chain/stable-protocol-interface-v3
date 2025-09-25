@@ -2,7 +2,7 @@ import { Tooltip } from "antd";
 import React, { Fragment } from "react";
 import { formatUnits } from "viem";
 
-import type { TokenConfig } from "../../helpers/currencies";
+import type { TokenConfig } from "../../types/hooks";
 
 interface I18n {
     languages: readonly string[];

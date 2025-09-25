@@ -164,7 +164,6 @@ function Vote(props: VoteProps): JSX.Element {
         refreshVotingFinish();
     }, [refreshVotingFinish]);
 
-
     const votingGraphs: CreateBarGraphProps[] = [
         {
             id: 1,
@@ -307,7 +306,6 @@ function Vote(props: VoteProps): JSX.Element {
                 setOperationStatus("error");
             });
     };
-
 
     return (
         <Fragment>

@@ -4,7 +4,11 @@ import {
     writeContract,
 } from "@wagmi/core";
 
-import type { InterfaceContext, OnReceipt,OnTransaction } from "../../types/wallets";
+import type {
+    InterfaceContext,
+    OnReceipt,
+    OnTransaction,
+} from "../../types/wallets";
 import { config } from "../../wagmiConfig";
 
 // SignDataResponse can be a string (signature) or an object with signature property

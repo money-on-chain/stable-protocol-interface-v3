@@ -5,7 +5,11 @@ import {
 } from "@wagmi/core";
 import { checksumAddress } from "viem";
 
-import type { InterfaceContext, OnTransaction, OnReceipt } from "../../types/wallets";
+import type {
+    InterfaceContext,
+    OnReceipt,
+    OnTransaction,
+} from "../../types/wallets";
 import { config } from "../../wagmiConfig";
 
 interface UserBalanceData {
@@ -31,7 +35,8 @@ const vetoVote = async (
 
     const VetoMachine = contracts.VetoMachine;
     const tcAddress = contracts.CollateralToken[caIndex].address;
-    const userTCBalance = (userBalance.data as UserBalanceData)[caIndex]?.TC?.balance || 0n;
+    const userTCBalance =
+        (userBalance.data as UserBalanceData)[caIndex]?.TC?.balance || 0n;
 
     const { request } = await simulateContract(config, {
         address: VetoMachine.address,

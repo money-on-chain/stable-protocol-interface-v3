@@ -6,35 +6,20 @@ import {
 } from "../backend/moc-coinbase";
 import { mintTC, mintTP, redeemTC, redeemTP } from "../backend/moc-rc20";
 import settings from "../settings/settings.json";
+import type { ContractInfo, DContracts } from "../types/hooks";
+import type { InterfaceContext } from "../types/wallets";
 import { TokenSettings } from "./currencies";
 
 // Type definitions
-interface InterfaceContext {
-    // Add specific interface context properties as needed
-    [key: string]: unknown;
-}
-
-interface DContracts {
-    contracts: {
-        CA: Array<{ address: string; abi: unknown[] }>;
-        Moc: Array<{ address: string; abi: unknown[] }>;
-        CollateralToken: Array<{ address: string; abi: unknown[] }>;
-        TP: Array<{ address: string; abi: unknown[] }>;
-        FeeToken: Array<{ address: string; abi: unknown[] }>;
-        TG: { address: string; abi: unknown[] };
-        StakingMachine: { address: string; abi: unknown[] };
-        VetoMachine?: { address: string; abi: unknown[] };
-    };
-}
 
 interface TokenContractResult {
-    token: { address: string; abi: unknown[] };
+    token: ContractInfo;
     decimals: number;
 }
 
 interface ApproveTokenContractResult {
-    token: { address: string; abi: unknown[] };
-    contractAllow: { address: string; abi: unknown[] };
+    token: ContractInfo;
+    contractAllow: ContractInfo;
     decimals: number;
 }
 
@@ -193,7 +178,7 @@ function UserTokenAllowance(
 }
 
 function ApproveTokenContract(
-    contracts: DContracts["contracts"],
+    contracts: DContracts,
     tokenExchange: string,
     tokenReceive: string
 ): ApproveTokenContractResult {
@@ -206,36 +191,69 @@ function ApproveTokenContract(
     switch (aTokenMap) {
         case "CA,TC":
         case "CA,TP":
+            if (!contracts.CA) {
+                throw new Error("CA contract not available");
+            }
+            if (!contracts.Moc) {
+                throw new Error("Moc contract not available");
+            }
             return {
                 token: contracts.CA[parseInt(aTokenExchange[1])],
                 contractAllow: contracts.Moc[parseInt(aTokenExchange[1])],
                 decimals: tokenExchangeSettings.decimals,
             };
         case "TC,CA":
+            if (!contracts.CollateralToken) {
+                throw new Error("CollateralToken contract not available");
+            }
+            if (!contracts.Moc) {
+                throw new Error("Moc contract not available");
+            }
             return {
                 token: contracts.CollateralToken[parseInt(aTokenExchange[1])],
                 contractAllow: contracts.Moc[parseInt(aTokenReceive[1])],
                 decimals: tokenExchangeSettings.decimals,
             };
         case "TP,CA":
+            if (!contracts.TP) {
+                throw new Error("TP contract not available");
+            }
+            if (!contracts.Moc) {
+                throw new Error("Moc contract not available");
+            }
             return {
                 token: contracts.TP[parseInt(aTokenExchange[1])],
                 contractAllow: contracts.Moc[parseInt(aTokenReceive[1])],
                 decimals: tokenExchangeSettings.decimals,
             };
         case "TF,TF":
+            if (!contracts.FeeToken) {
+                throw new Error("FeeToken contract not available");
+            }
+            if (!contracts.Moc) {
+                throw new Error("Moc contract not available");
+            }
             return {
                 token: contracts.FeeToken[parseInt(aTokenExchange[1])],
                 contractAllow: contracts.Moc[parseInt(aTokenExchange[1])],
                 decimals: tokenExchangeSettings.decimals,
             };
         case "TG,ST": // Token Govern, Allow on Staking Machine
+            if (!contracts.TG) {
+                throw new Error("TG contract not available");
+            }
+            if (!contracts.StakingMachine) {
+                throw new Error("StakingMachine contract not available");
+            }
             return {
                 token: contracts.TG,
                 contractAllow: contracts.StakingMachine,
                 decimals: tokenExchangeSettings.decimals,
             };
         case "TC,VM":
+            if (!contracts.CollateralToken) {
+                throw new Error("CollateralToken contract not available");
+            }
             if (!contracts.VetoMachine) {
                 throw new Error("VetoMachine contract not available");
             }
@@ -250,7 +268,7 @@ function ApproveTokenContract(
 }
 
 function TokenContract(
-    contracts: DContracts["contracts"],
+    contracts: DContracts,
     tokenExchange: string
 ): TokenContractResult {
     // Ex. aTokenMap = CA_0, CA_1, TP_0, TP_1, TC_0, TC_1, COINBASE, TF_0, TF_1

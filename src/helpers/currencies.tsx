@@ -9,25 +9,13 @@ import LogoIconTG_0 from "../assets/tokens/tg_0.svg?react";
 import LogoIconTP_0 from "../assets/tokens/tp_0.svg?react";
 import LogoIconTP_1 from "../assets/tokens/tp_1.svg?react";
 import settings from "../settings/settings.json";
+import type { TokenConfig } from "../types/hooks";
 import {
     divPrecision,
     fromWei,
     mulPrecision,
     normalizeToBigInt,
 } from "./precision";
-
-export interface TokenConfig {
-    name: string;
-    fullName?: string;
-    decimals: number;
-    visibleDecimals?: number;
-    visiblePriceDecimals?: number;
-    visibleBalanceDecimals?: number;
-    visibleBalanceUSDDecimals?: number;
-    peggedUSD?: boolean;
-    collateralType?: string;
-    key?: number;
-}
 
 interface Currency {
     value: string;

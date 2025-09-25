@@ -5,7 +5,6 @@ import React, { useEffect, useState } from "react";
 import { PrecisionNumbers } from "@/components/PrecisionNumbers";
 
 import { useWalletContext } from "../../../../context/Wallet";
-import type { TokenConfig } from "../../../../helpers/currencies";
 import {
     getCurrencyByValue,
     getTCTokenIndex,
@@ -13,6 +12,7 @@ import {
 } from "../../../../helpers/currencies";
 import { useProjectTranslation } from "../../../../helpers/translations";
 import { tcLockedByVeto } from "../../../../helpers/veto";
+import type { TokenConfig } from "../../../../types/hooks";
 import VetoStatusModal from "../../../Modals/VetoStatusModal/VetoStatusModal";
 
 interface InfoUser {

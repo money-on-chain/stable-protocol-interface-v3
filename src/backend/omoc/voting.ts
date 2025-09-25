@@ -5,7 +5,11 @@ import {
 } from "@wagmi/core";
 import { checksumAddress } from "viem";
 
-import type { InterfaceContext, OnReceipt,OnTransaction } from "../../types/wallets";
+import type {
+    InterfaceContext,
+    OnReceipt,
+    OnTransaction,
+} from "../../types/wallets";
 import { config } from "../../wagmiConfig";
 
 const preVote = async (

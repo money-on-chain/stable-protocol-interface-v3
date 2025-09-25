@@ -5,13 +5,19 @@ import {
     writeContract,
 } from "@wagmi/core";
 
-import type { InterfaceContext, OnError,OnReceipt, OnTransaction } from "../types/wallets";
+import type { ContractInfo } from "../types/hooks";
+import type {
+    InterfaceContext,
+    OnError,
+    OnReceipt,
+    OnTransaction,
+} from "../types/wallets";
 import { config } from "../wagmiConfig";
 
 const AllowanceAmount = async (
     interfaceContext: InterfaceContext,
-    token: any,
-    contractAllow: any,
+    token: ContractInfo,
+    contractAllow: ContractInfo,
     amountAllowance: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
@@ -41,7 +47,7 @@ const AllowanceAmount = async (
 
 const transferTokenTo = async (
     interfaceContext: InterfaceContext,
-    token: any,
+    token: ContractInfo,
     to: string,
     amount: bigint,
     onTransaction: OnTransaction,
@@ -89,7 +95,7 @@ const transferCoinbaseTo = async (
     onTransaction?.(hash);
 
     const { publicClient } = interfaceContext;
-    
+
     if (!publicClient) {
         throw new Error("Public client not available");
     }
@@ -109,7 +115,7 @@ const AllowUseTokenMigrator = async (
     onError: OnError
 ): Promise<any> => {
     const { address, contracts } = interfaceContext;
-    
+
     if (!contracts) return;
     if (!contracts.tp_legacy) return;
     if (!contracts.token_migrator) return;

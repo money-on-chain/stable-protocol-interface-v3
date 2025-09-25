@@ -179,6 +179,14 @@ export function useUserBalance(
                     resultType: "uint256",
                     keys: [0, "TC", "balance"],
                 });
+
+                calls.push({
+                    contract: firstCT,
+                    functionName: "allowance",
+                    args: [userAddress, contracts.Moc![0].address],
+                    resultType: "uint256",
+                    keys: [0, "TC", "allowance"],
+                });
             }
         }
 

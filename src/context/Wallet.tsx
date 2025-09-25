@@ -63,8 +63,13 @@ import { useUserOmocBalance } from "../hooks/useUserOmocBalance";
 import { useUserVesting } from "../hooks/useUserVesting";
 import { useUserVeto } from "../hooks/useUserVeto";
 import api from "../services/api";
-import type {DContracts, ParsedPrices } from "../types/hooks";
-import type { InterfaceContext, OnReceipt, OnTransaction, WalletContextType } from "../types/wallets";
+import type { DContracts, ParsedPrices } from "../types/hooks";
+import type {
+    InterfaceContext,
+    OnReceipt,
+    OnTransaction,
+    WalletContextType,
+} from "../types/wallets";
 
 // Callback types — avoid `any`
 
@@ -101,8 +106,9 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const publicClient = usePublicClient();
     const walletClient = useWalletClient();
 
-    const [contractsAddress, setContractsAddress] =
-        useState<DContracts | null>(null);
+    const [contractsAddress, setContractsAddress] = useState<DContracts | null>(
+        null
+    );
     const [contractsAddressLoaded, setContractsAddressLoaded] = useState(false);
     const [vestingAddress, setVestingAddress] = useState<string | undefined>(
         undefined
@@ -124,7 +130,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     );
 
     const contractProtocolStatus = useContractProtocolStatus(
-        contractsAddressLoaded ? contractsAddress ?? undefined : undefined,
+        contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
         Number(blockNumber),
         (offChainPrices as ParsedPrices[]) ?? undefined,
         REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS
@@ -136,7 +142,9 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     );
 
     const contractStatusOmoc = useContractOmocStatus(
-        contractsAddressLoaded && contractsAddress ? contractsAddress : undefined,
+        contractsAddressLoaded && contractsAddress
+            ? contractsAddress
+            : undefined,
         proposalCount,
         REFRESH_INTERVAL_CONTRACT_STATUS_OMOC
     );
@@ -149,32 +157,36 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     );
 
     const userBalance = useUserBalance(
-        contractsAddressLoaded ? contractsAddress ?? undefined : undefined,
+        contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
         address,
         REFRESH_INTERVAL_USER_BALANCE
     );
 
     const userOmocBalance = useUserOmocBalance(
-        contractsAddressLoaded ? contractsAddress ?? undefined : undefined,
+        contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
         address,
         REFRESH_INTERVAL_USER_BALANCE
     );
 
     const userVesting = useUserVesting(
-        contractsAddressLoaded ? contractsAddress ?? undefined : undefined,
+        contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
         address,
         vestingAddress as `0x${string}` | undefined,
         REFRESH_INTERVAL_USER_BALANCE
     );
 
     const userIncentiveV2 = useIncentiveV2(
-        contractsAddressLoaded && contractsAddress ? contractsAddress : undefined,
+        contractsAddressLoaded && contractsAddress
+            ? contractsAddress
+            : undefined,
         address,
         REFRESH_INTERVAL_USER_BALANCE
     );
 
     const userVeto = useUserVeto(
-        contractsAddressLoaded && contractsAddress ? contractsAddress : undefined,
+        contractsAddressLoaded && contractsAddress
+            ? contractsAddress
+            : undefined,
         userBalance.data,
         contractStatusOmoc.data,
         address,

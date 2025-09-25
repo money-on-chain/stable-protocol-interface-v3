@@ -1,3 +1,5 @@
+import type { PublicClient } from "viem";
+
 type NetworkType = "rsk" | "arbitrum";
 
 const getNetworkFromProject = (): NetworkType => {
@@ -16,7 +18,7 @@ const getNetworkFromProject = (): NetworkType => {
 };
 
 const getExecutionFee = async (
-    publicClient: any,
+    publicClient: PublicClient,
     execCost: bigint,
     slippage: number
 ): Promise<bigint> => {

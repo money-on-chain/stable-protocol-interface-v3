@@ -5,7 +5,13 @@ import {
 } from "@wagmi/core";
 
 import settings from "../settings/settings.json";
-import type { InterfaceContext, OnReceipt,OnTransaction } from "../types/wallets";
+import type { TokenConfig } from "../types/hooks";
+import type { ContractProtocolStatus, UserBalance } from "../types/status";
+import type {
+    InterfaceContext,
+    OnReceipt,
+    OnTransaction,
+} from "../types/wallets";
 import { config } from "../wagmiConfig";
 import { getExecutionFee, getNetworkFromProject } from "./utils";
 
@@ -28,6 +34,19 @@ const mintTC = async (
     } = interfaceContext;
 
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
+
+    // Basic verifications
+    if (!contracts) throw new Error("Contracts not found");
+    if (!contracts.Moc) throw new Error("Moc not found");
+    if (!contracts.Moc[caIndex])
+        throw new Error(`Moc not found for ${caIndex}`);
+    if (!userBalance.data) throw new Error("User balance not found");
+    if (!userBalance.data.CA) throw new Error("CA not found");
+    if (!contractProtocolStatus.data)
+        throw new Error("Contract protocol status not found");
+    if (!contractProtocolStatus.data[caIndex])
+        throw new Error("Contract protocol status not found");
+
     const MoCContract = contracts.Moc[caIndex];
 
     // Verifications
@@ -35,24 +54,25 @@ const mintTC = async (
     // User have sufficient reserve to pay?
     console.log(
         `To mint ${qTC} ${
-            (settings.tokens.TC[caIndex] as any).name
+            (settings.tokens.TC[caIndex] as TokenConfig).name
         } you need > ${limitAmount.toString()} ${
-            (settings.tokens.CA[caIndex] as any).name
+            (settings.tokens.CA[caIndex] as TokenConfig).name
         } in your balance`
     );
 
-    const userReserveBalance = userBalance.data.CA[caIndex].balance;
+    const userReserveBalance = (userBalance.data as UserBalance).CA[caIndex]
+        .balance;
     if (limitAmount > userReserveBalance)
         throw new Error(
-            `Insufficient ${(settings.tokens.CA[caIndex] as any).name} balance`
+            `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} balance`
         );
 
     // Allowance    reserveAllowance
     console.log(
         `Allowance: To mint ${qTC} ${
-            (settings.tokens.TC[caIndex] as any).name
+            (settings.tokens.TC[caIndex] as TokenConfig).name
         } you need > ${limitAmount.toString()} ${
-            (settings.tokens.CA[caIndex] as any).name
+            (settings.tokens.CA[caIndex] as TokenConfig).name
         } in your spendable balance`
     );
     /*
@@ -73,7 +93,8 @@ const mintTC = async (
     if (getNetworkFromProject() === "rsk") {
         valueToSend = await getExecutionFee(
             publicClient,
-            contractProtocolStatus.data[caIndex].tcMintExecCost,
+            (contractProtocolStatus.data as ContractProtocolStatus)[caIndex]
+                .tcMintExecCost,
             2
         );
     } else {
@@ -120,41 +141,60 @@ const redeemTC = async (
         publicClient,
     } = interfaceContext;
 
+    console.log("DEBUG>>>");
+    console.log(contractProtocolStatus.data);
+
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
+    if (!contracts) throw new Error("Contracts not found");
+    if (!contracts.Moc) throw new Error("Moc not found");
+    if (!contracts.Moc[caIndex])
+        throw new Error(`Moc not found for ${caIndex}`);
+    if (!userBalance.data) throw new Error("User balance not found");
+    if (!userBalance.data[caIndex])
+        throw new Error(`Bucket index not found for ${caIndex}`);
+    if (!contractProtocolStatus.data)
+        throw new Error("Contract protocol status not found");
+    if (!contractProtocolStatus.data[caIndex])
+        throw new Error("Contract protocol status not found");
     const MoCContract = contracts.Moc[caIndex];
 
     // Verifications
 
     // User have sufficient TC in balance?
     console.log(
-        `Redeeming ${qTC} ${(settings.tokens.TC[0] as any).name} ... getting approx limit down to: ${limitAmount} ${(settings.tokens.CA[caIndex] as any).name}... `
+        `Redeeming ${qTC} ${(settings.tokens.TC[0] as TokenConfig).name} ... getting approx limit down to: ${limitAmount} ${(settings.tokens.CA[caIndex] as TokenConfig).name}... `
     );
-    const userTCBalance = userBalance.data.TC[caIndex].balance;
+
+    const userTCBalance = (userBalance.data as UserBalance)[caIndex].TC.balance;
     if (qTC > userTCBalance)
         throw new Error(
-            `Insufficient ${(settings.tokens.TC[caIndex] as any).name} user balance`
+            `Insufficient ${(settings.tokens.TC[caIndex] as TokenConfig).name} user balance`
         );
 
     // There are sufficient TC in the contracts to redeem?
-    const tcAvailableToRedeem =
-        contractProtocolStatus.data[caIndex].getTCAvailableToRedeem;
+    const tcAvailableToRedeem = (
+        contractProtocolStatus.data as ContractProtocolStatus
+    )[caIndex].getTCAvailableToRedeem;
     if (qTC > tcAvailableToRedeem)
         throw new Error(
-            `Insufficient ${(settings.tokens.TC[caIndex] as any).name}available to redeem in contract`
+            `Insufficient ${(settings.tokens.TC[caIndex] as TokenConfig).name}available to redeem in contract`
         );
 
     // There are sufficient CA in the contract
-    const caBalance = contractProtocolStatus.data[caIndex].getACBalance;
+    const caBalance = (contractProtocolStatus.data as ContractProtocolStatus)[
+        caIndex
+    ].getACBalance;
     if (limitAmount > caBalance)
         throw new Error(
-            `Insufficient ${(settings.tokens.CA[caIndex] as any).name} in the contract. Balance: ${caBalance} ${(settings.tokens.CA[caIndex] as any).name}`
+            `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} in the contract. Balance: ${caBalance} ${(settings.tokens.CA[caIndex] as TokenConfig).name}`
         );
 
     let valueToSend;
     if (getNetworkFromProject() === "rsk") {
         valueToSend = await getExecutionFee(
             publicClient,
-            contractProtocolStatus.data[caIndex].tcRedeemExecCost,
+            (contractProtocolStatus.data as ContractProtocolStatus)[caIndex]
+                .tcRedeemExecCost,
             2
         );
     } else {
@@ -203,6 +243,21 @@ const mintTP = async (
     } = interfaceContext;
 
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
+
+    // Verifications
+    if (!contracts) throw new Error("Contracts not found");
+    if (!contracts.Moc) throw new Error("Moc not found");
+    if (!contracts.Moc[caIndex])
+        throw new Error(`Moc not found for ${caIndex}`);
+    if (!contracts.TP) throw new Error("TP not found");
+    if (!contracts.TP[tpIndex]) throw new Error(`TP not found for ${tpIndex}`);
+    if (!userBalance.data) throw new Error("User balance not found");
+    if (!userBalance.data.CA) throw new Error("CA not found");
+    if (!contractProtocolStatus.data)
+        throw new Error("Contract protocol status not found");
+    if (!contractProtocolStatus.data[caIndex])
+        throw new Error("Contract protocol status not found");
+
     const MoCContract = contracts.Moc[caIndex];
     const tpAddress = contracts.TP[tpIndex].address;
 
@@ -210,23 +265,24 @@ const mintTP = async (
     // User have sufficient reserve to pay?
     console.log(
         `To mint ${qTP} ${
-            (settings.tokens.TP[tpIndex] as any).name
+            (settings.tokens.TP[tpIndex] as TokenConfig).name
         } you need > ${limitAmount.toString()} ${
-            (settings.tokens.CA[caIndex] as any).name
+            (settings.tokens.CA[caIndex] as TokenConfig).name
         } in your balance`
     );
-    const userReserveBalance = userBalance.data.CA[caIndex].balance;
+    const userReserveBalance = (userBalance.data as UserBalance).CA[caIndex]
+        .balance;
     if (limitAmount > userReserveBalance)
         throw new Error(
-            `Insufficient ${(settings.tokens.CA[caIndex] as any).name} balance`
+            `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} balance`
         );
 
     // Allowance
     console.log(
         `Allowance: To mint ${qTP} ${
-            (settings.tokens.TP[tpIndex] as any).name
+            (settings.tokens.TP[tpIndex] as TokenConfig).name
         } you need > ${limitAmount.toString()} ${
-            (settings.tokens.CA[caIndex] as any).name
+            (settings.tokens.CA[caIndex] as TokenConfig).name
         } in your spendable balance`
     );
     /*
@@ -244,19 +300,21 @@ const mintTP = async (
      */
 
     // There are sufficient PEGGED in the contracts to mint?
-    const tpAvailableToMint =
-        contractProtocolStatus.data[caIndex].getTPAvailableToMint[tpIndex];
+    const tpAvailableToMint = (
+        contractProtocolStatus.data as ContractProtocolStatus
+    )[caIndex].getTPAvailableToMint[tpIndex];
 
     if (qTP > tpAvailableToMint)
         throw new Error(
-            `Insufficient ${(settings.tokens.TP[tpIndex] as any).name} available to mint`
+            `Insufficient ${(settings.tokens.TP[tpIndex] as TokenConfig).name} available to mint`
         );
 
     let valueToSend;
     if (getNetworkFromProject() === "rsk") {
         valueToSend = await getExecutionFee(
             publicClient,
-            contractProtocolStatus.data[caIndex].tpMintExecCost,
+            (contractProtocolStatus.data as ContractProtocolStatus)[caIndex]
+                .tpMintExecCost,
             2
         );
     } else {
@@ -305,6 +363,21 @@ const redeemTP = async (
     } = interfaceContext;
 
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
+
+    // Verifications
+    if (!contracts) throw new Error("Contracts not found");
+    if (!contracts.Moc) throw new Error("Moc not found");
+    if (!contracts.Moc[caIndex])
+        throw new Error(`Moc not found for ${caIndex}`);
+    if (!contracts.TP) throw new Error("TP not found");
+    if (!contracts.TP[tpIndex]) throw new Error(`TP not found for ${tpIndex}`);
+    if (!userBalance.data) throw new Error("User balance not found");
+    if (!userBalance.data.TP) throw new Error("TP not found");
+    if (!contractProtocolStatus.data)
+        throw new Error("Contract protocol status not found");
+    if (!contractProtocolStatus.data[caIndex])
+        throw new Error("Contract protocol status not found");
+
     const MoCContract = contracts.Moc[caIndex];
     const tpAddress = contracts.TP[tpIndex].address;
 
@@ -312,12 +385,13 @@ const redeemTP = async (
 
     // User have sufficient PEGGED Token in balance?
     console.log(
-        `Redeeming ${qTP} ${(settings.tokens.TP[tpIndex] as any).name} ... getting approx: ${limitAmount} ${(settings.tokens.CA[caIndex] as any).name}... `
+        `Redeeming ${qTP} ${(settings.tokens.TP[tpIndex] as TokenConfig).name} ... getting approx: ${limitAmount} ${(settings.tokens.CA[caIndex] as TokenConfig).name}... `
     );
-    const userTPBalance = userBalance.data.TP[tpIndex]; //.balance;
+    const userTPBalance = (userBalance.data as UserBalance).TP[caIndex][tpIndex]
+        .balance;
     if (qTP > userTPBalance)
         throw new Error(
-            `Insufficient ${(settings.tokens.TP[tpIndex] as any).name}  user balance`
+            `Insufficient ${(settings.tokens.TP[tpIndex] as TokenConfig).name}  user balance`
         );
 
     // // There are sufficient Free Pegged Token in the contracts to redeem?
@@ -330,17 +404,20 @@ const redeemTP = async (
     //     );
 
     // There are sufficient CA in the contract
-    const caBalance = contractProtocolStatus.data[caIndex].getACBalance;
+    const caBalance = (contractProtocolStatus.data as ContractProtocolStatus)[
+        caIndex
+    ].getACBalance;
     if (limitAmount > caBalance)
         throw new Error(
-            `Insufficient ${(settings.tokens.CA[caIndex] as any).name} in the contract. Balance: ${caBalance} ${(settings.tokens.CA[caIndex] as any).name}`
+            `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} in the contract. Balance: ${caBalance} ${(settings.tokens.CA[caIndex] as TokenConfig).name}`
         );
 
     let valueToSend;
     if (getNetworkFromProject() === "rsk") {
         valueToSend = await getExecutionFee(
             publicClient,
-            contractProtocolStatus.data[caIndex].tpRedeemExecCost,
+            (contractProtocolStatus.data as ContractProtocolStatus)[caIndex]
+                .tpRedeemExecCost,
             4
         );
     } else {

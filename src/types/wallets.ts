@@ -11,7 +11,7 @@ import type { useUserBalance } from "../hooks/useUserBalance";
 import type { useUserOmocBalance } from "../hooks/useUserOmocBalance";
 import type { useUserVesting } from "../hooks/useUserVesting";
 import type { useUserVeto } from "../hooks/useUserVeto";
-import type { DContracts} from "./hooks";
+import type { DContracts } from "./hooks";
 
 // Reusable EVM address
 export type Address = `0x${string}`;
@@ -37,7 +37,7 @@ export type OnError = (error: unknown) => void;
 export type WalletContextType = {
     isConnected: boolean;
     address?: Address;
-    connect: ReturnType<typeof useConnect>['connect'];
+    connect: ReturnType<typeof useConnect>["connect"];
     disconnect: () => void;
 
     contractsAddress: DContracts | null;

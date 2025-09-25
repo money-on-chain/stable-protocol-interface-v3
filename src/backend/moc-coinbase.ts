@@ -5,7 +5,13 @@ import {
 } from "@wagmi/core";
 
 import settings from "../settings/settings.json";
-import type { InterfaceContext, OnReceipt,OnTransaction } from "../types/wallets";
+import type { TokenConfig } from "../types/hooks";
+import type { ContractProtocolStatus, UserBalance } from "../types/status";
+import type {
+    InterfaceContext,
+    OnReceipt,
+    OnTransaction,
+} from "../types/wallets";
 import { config } from "../wagmiConfig";
 import { redeemTC as redeemTC_, redeemTP as redeemTP_ } from "./moc-core";
 import { getExecutionFee, getNetworkFromProject } from "./utils";
@@ -27,36 +33,44 @@ const mintTC = async (
         publicClient,
     } = interfaceContext;
 
-    if (!contracts) return;
-    if (!contracts.Moc) return;
-    if (!userBalance.data) return;
-    if (!userBalance.data.CA) return;
-    if (!contractProtocolStatus.data) return;
-    if (!contractProtocolStatus.data[caIndex]) return;
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
+
+    // Verifications
+    if (!contracts) throw new Error("Contracts not found");
+    if (!contracts.Moc) throw new Error("Moc not found");
+    if (!contracts.Moc[caIndex])
+        throw new Error(`Moc not found for ${caIndex}`);
+    if (!userBalance.data) throw new Error("User balance not found");
+    if (!userBalance.data.CA) throw new Error("CA not found");
+    if (!contractProtocolStatus.data)
+        throw new Error("Contract protocol status not found");
+    if (!contractProtocolStatus.data[caIndex])
+        throw new Error(`Contract protocol status not found for ${caIndex}`);
+
     const MoCContract = contracts.Moc[caIndex];
 
     // Verifications
     // User have sufficient reserve to pay?
     console.log(
         `To mint ${qTC} ${
-            (settings.tokens.TC[caIndex] as any).name
+            (settings.tokens.TC[caIndex] as TokenConfig).name
         } you need > ${limitAmount.toString()} ${
-            (settings.tokens.CA[caIndex] as any).name
+            (settings.tokens.CA[caIndex] as TokenConfig).name
         } in your balance`
     );
-    const userReserveBalance = userBalance.data.CA[caIndex].balance;
+    const userReserveBalance = (userBalance.data as UserBalance).CA[caIndex]
+        .balance;
     if (limitAmount > userReserveBalance)
         throw new Error(
-            `Insufficient ${(settings.tokens.CA[caIndex] as any).name} balance`
+            `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} balance`
         );
 
     // Allowance    reserveAllowance
     console.log(
         `Allowance: To mint ${qTC} ${
-            (settings.tokens.TC[caIndex] as any).name
+            (settings.tokens.TC[caIndex] as TokenConfig).name
         } you need > ${limitAmount.toString()} ${
-            (settings.tokens.CA[caIndex] as any).name
+            (settings.tokens.CA[caIndex] as TokenConfig).name
         } in your spendable balance`
     );
     /*
@@ -76,7 +90,8 @@ const mintTC = async (
     if (getNetworkFromProject() === "rsk") {
         valueToSend = await getExecutionFee(
             publicClient,
-            contractProtocolStatus.data[caIndex].tcMintExecCost,
+            (contractProtocolStatus.data as ContractProtocolStatus)[caIndex]
+                .tcMintExecCost,
             0
         );
     } else {
@@ -141,14 +156,22 @@ const mintTP = async (
         publicClient,
     } = interfaceContext;
 
-    if (!contracts) return;
-    if (!contracts.Moc) return;
-    if (!contracts.TP) return;
-    if (!userBalance.data) return;
-    if (!userBalance.data.CA) return;
-    if (!contractProtocolStatus.data) return;
-    if (!contractProtocolStatus.data[caIndex]) return;
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
+
+    // Verifications
+    if (!contracts) throw new Error("Contracts not found");
+    if (!contracts.Moc) throw new Error("Moc not found");
+    if (!contracts.Moc[caIndex])
+        throw new Error(`Moc not found for ${caIndex}`);
+    if (!contracts.TP) throw new Error("TP not found");
+    if (!contracts.TP[tpIndex]) throw new Error(`TP not found for ${tpIndex}`);
+    if (!userBalance.data) throw new Error("User balance not found");
+    if (!userBalance.data.CA) throw new Error("CA not found");
+    if (!contractProtocolStatus.data)
+        throw new Error("Contract protocol status not found");
+    if (!contractProtocolStatus.data[caIndex])
+        throw new Error(`Contract protocol status not found for ${caIndex}`);
+
     const MoCContract = contracts.Moc[caIndex];
     const tpAddress = contracts.TP[tpIndex].address;
 
@@ -157,23 +180,24 @@ const mintTP = async (
     // User have sufficient reserve to pay?
     console.log(
         `To mint ${qTP} ${
-            (settings.tokens.TP[tpIndex] as any).name
+            (settings.tokens.TP[tpIndex] as TokenConfig).name
         } you need > ${limitAmount.toString()} ${
-            (settings.tokens.CA[caIndex] as any).name
+            (settings.tokens.CA[caIndex] as TokenConfig).name
         } in your balance`
     );
-    const userReserveBalance = userBalance.data.CA[caIndex].balance;
+    const userReserveBalance = (userBalance.data as UserBalance).CA[caIndex]
+        .balance;
     if (limitAmount > userReserveBalance)
         throw new Error(
-            `Insufficient ${(settings.tokens.CA[caIndex] as any).name} balance`
+            `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} balance`
         );
 
     // Allowance
     console.log(
         `Allowance: To mint ${qTP} ${
-            (settings.tokens.TP[tpIndex] as any).name
+            (settings.tokens.TP[tpIndex] as TokenConfig).name
         } you need > ${limitAmount.toString()} ${
-            (settings.tokens.CA[caIndex] as any).name
+            (settings.tokens.CA[caIndex] as TokenConfig).name
         } in your spendable balance`
     );
     /*
@@ -191,12 +215,13 @@ const mintTP = async (
      */
 
     // There are sufficient PEGGED in the contracts to mint?
-    const tpAvailableToMint =
-        contractProtocolStatus.data[caIndex].getTPAvailableToMint[tpIndex];
+    const tpAvailableToMint = (
+        contractProtocolStatus.data as ContractProtocolStatus
+    )[caIndex].getTPAvailableToMint[tpIndex];
 
     if (qTP > tpAvailableToMint)
         throw new Error(
-            `Insufficient ${(settings.tokens.TP[tpIndex] as any).name} available to mint`
+            `Insufficient ${(settings.tokens.TP[tpIndex] as TokenConfig).name} available to mint`
         );
 
     let valueToSend;
@@ -204,7 +229,8 @@ const mintTP = async (
         valueToSend =
             (await getExecutionFee(
                 publicClient,
-                contractProtocolStatus.data[caIndex].tpMintExecCost,
+                (contractProtocolStatus.data as ContractProtocolStatus)[caIndex]
+                    .tpMintExecCost,
                 0
             )) + limitAmount;
     } else {
