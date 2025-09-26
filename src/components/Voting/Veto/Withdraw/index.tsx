@@ -119,8 +119,8 @@ const VetoWithdraw: React.FC = () => {
         };
 
         await interfaceVetoWithdraw(
-            proposal,
-            tcAddress,
+            proposal as `0x${string}`,
+            tcAddress as `0x${string}`,
             onTransaction,
             onReceipt,
             onError

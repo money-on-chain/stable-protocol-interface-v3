@@ -78,16 +78,17 @@ export type CallRequest = {
 
 // Define proper types for settings structure
 export interface TokenConfig {
-    key: number;
+    uniqueKey?: number;
+    key?: number;
     name: string;
     fullName?: string;
     decimals: number;
-    visibleDecimals: number;
-    visiblePriceDecimals: number;
-    visiblePriceUSD: number;
-    visibleBalanceDecimals: number;
-    visibleBalanceUSDDecimals: number;
-    peggedUSD: boolean;
+    visibleDecimals?: number;
+    visiblePriceDecimals?: number;
+    visiblePriceUSD?: number;
+    visibleBalanceDecimals?: number;
+    visibleBalanceUSDDecimals?: number;
+    peggedUSD?: boolean;
     collateralType?: string;
     type?: string;
 }

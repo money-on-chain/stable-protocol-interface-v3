@@ -209,6 +209,8 @@ export function useContractOmocStatus(
                 for (let i = 1; i < 30; i++) {
                     if (proposalCountVoting - BigInt(i) >= 0) {
                         indexProp = proposalCountVoting - BigInt(i);
+                        console.log("DEBUG2>>>");
+                        console.log(indexProp);
                         callRequest.push({
                             contract: contracts.VotingMachine,
                             functionName: "getProposalByIndex",

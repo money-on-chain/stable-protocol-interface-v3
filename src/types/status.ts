@@ -19,16 +19,16 @@ export type OracleValue = {
     1: boolean; // válido o no
 };
 
-export type OracleArray = [string, boolean]; // Ej: PP_FeeToken, PP_COINBASE
+export type OracleArray = [string, boolean]; // Example: PP_FeeToken, PP_COINBASE
 
-export type PegContainer = [bigint, string]; // valor + dirección
+export type PegContainer = [bigint, string]; // value + address
 
-export type TpEma = [bigint, bigint]; // valor + ema
+export type TpEma = [bigint, bigint]; // value + ema
 
 export type ProtocolStatusEntry = {
     PP_CA: OracleValue;
     PP_FeeToken: OracleArray;
-    PP_TP: Record<number, OracleValue>; // índice → valor/oracle
+    PP_TP: Record<number, OracleValue>; // index → value/oracle
     feeToken: string;
     feeTokenPct: bigint;
     getACBalance: bigint;

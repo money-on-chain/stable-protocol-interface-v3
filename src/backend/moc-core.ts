@@ -140,10 +140,7 @@ const redeemTC = async (
         userBalance,
         publicClient,
     } = interfaceContext;
-
-    console.log("DEBUG>>>");
-    console.log(contractProtocolStatus.data);
-
+    
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
     if (!contracts) throw new Error("Contracts not found");
     if (!contracts.Moc) throw new Error("Moc not found");
