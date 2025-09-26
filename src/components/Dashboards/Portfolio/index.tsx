@@ -6,6 +6,7 @@ import {
 } from "../../../helpers/precision";
 import { useProjectTranslation } from "../../../helpers/translations";
 import settings from "../../../settings/settings.json";
+import type { ContractProtocolStatus, UserBalance } from "../../../types/status";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 import PortfolioTable from "../../Tables/PortfolioTable";
 
@@ -31,10 +32,10 @@ export default function Portfolio(): JSX.Element {
             // Tokens CA
             ///////////////
 
-            balance = userBalance.data.CA[dataItem.key].balance;
+            balance = (userBalance.data as UserBalance).CA[dataItem.key].balance;
             price =
                 normalizeToBigInt(
-                    contractProtocolStatus.data[dataItem.key].PP_CA[0]
+                    (contractProtocolStatus.data as ContractProtocolStatus)[dataItem.key].PP_CA[0]
                 ) || 0n;
 
             balanceUSD = mulPrecision(balance, price);
@@ -43,15 +44,15 @@ export default function Portfolio(): JSX.Element {
             /////////////
             // Token TC
             ////////////
-            balance = userBalance.data[dataItem.key].TC.balance;
+            balance = (userBalance.data as UserBalance)[dataItem.key].TC.balance;
             const priceTEC: bigint =
-                contractProtocolStatus.data[dataItem.key].getPTCac;
+                (contractProtocolStatus.data as ContractProtocolStatus)[dataItem.key].getPTCac;
             const priceCA: bigint =
                 normalizeToBigInt(
-                    contractProtocolStatus.data[dataItem.key].PP_CA[0]
+                    (contractProtocolStatus.data as ContractProtocolStatus)[dataItem.key].PP_CA[0]
                 ) || 0n;
 
-            if (contractProtocolStatus.data.canOperate) {
+            if ((contractProtocolStatus.data as ContractProtocolStatus).canOperate) {
                 price = mulPrecision(priceTEC, priceCA);
                 balanceUSD = mulPrecision(balance, price);
                 totalUSD = totalUSD + balanceUSD;
@@ -61,11 +62,11 @@ export default function Portfolio(): JSX.Element {
         // Tokens TP
         //////////////
         settings.tokens.TP.forEach(function (dataItem: any) {
-            balance = userBalance.data.TP[0][dataItem.key].balance;
+            balance = (userBalance.data as UserBalance).TP[0][dataItem.key].balance;
             price = dataItem.peggedUSD
                 ? 1n
                 : normalizeToBigInt(
-                      contractProtocolStatus.data[0].PP_TP[dataItem.key][0]
+                      (contractProtocolStatus.data as ContractProtocolStatus)[0].PP_TP[dataItem.key][0]
                   ) || 0n;
             balanceUSD = divPrecision(balance, price);
             totalUSD = totalUSD + balanceUSD;
@@ -76,18 +77,18 @@ export default function Portfolio(): JSX.Element {
         //////////////
         balance = userBaseCoinBalance.balance || 0n;
         price =
-            normalizeToBigInt(contractProtocolStatus.data.PP_COINBASE[0]) || 0n;
+            normalizeToBigInt((contractProtocolStatus.data as ContractProtocolStatus).PP_COINBASE[0]) || 0n;
         balanceUSD = mulPrecision(balance, price);
         totalUSD = totalUSD + balanceUSD;
 
         /////////////////
         // Fee Token (TF) the price provider is expressed in collateral
         ////////////////
-        balance = userBalance.data[0].FeeToken.balance;
+        balance = (userBalance.data as UserBalance)[0].FeeToken.balance;
         const priceCA_0: bigint =
-            normalizeToBigInt(contractProtocolStatus.data[0].PP_CA[0]) || 0n;
+            normalizeToBigInt((contractProtocolStatus.data as ContractProtocolStatus)[0].PP_CA[0]) || 0n;
         const priceInCA: bigint =
-            normalizeToBigInt(contractProtocolStatus.data[0].PP_FeeToken[0]) ||
+            normalizeToBigInt((contractProtocolStatus.data as ContractProtocolStatus)[0].PP_FeeToken[0]) ||
             0n;
         balanceUSD = mulPrecision(mulPrecision(balance, priceInCA), priceCA_0);
         totalUSD = totalUSD + balanceUSD;

@@ -4,6 +4,7 @@ import { useWalletContext } from "../../../context/Wallet";
 import { pendingWithdrawalsFormat } from "../../../helpers/staking";
 import { useProjectTranslation } from "../../../helpers/translations";
 import settings from "../../../settings/settings.json";
+import type { UserOmocBalance, UserVesting } from "../../../types/status";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 
 interface WithdrawalStatus {
@@ -30,7 +31,7 @@ const withdrawalStatus: WithdrawalStatus = {
 };
 
 const Dashboard = (): JSX.Element => {
-    const { contractProtocolStatus, userBalance, isVestingLoaded } =
+    const { contractProtocolStatus, userOmocBalance, userVesting, isVestingLoaded } =
         useWalletContext();
     const { t, i18n } = useProjectTranslation();
     //const [activeTab, setActiveTab] = useState("tab1");
@@ -43,39 +44,35 @@ const Dashboard = (): JSX.Element => {
     const [totalAvailableToWithdraw, setTotalAvailableToWithdraw] =
         useState<bigint>(0n);
     //const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        if (contractProtocolStatus.data && userBalance.data) {
-            //setLoading(false);
-            setStakingBalances();
-        }
-    }, [contractProtocolStatus, userBalance]);
-
+    
     const setStakingBalances = (): void => {
+
         //try {
         let [_stakedBalance, _pendingWithdrawals]: [
             bigint,
             PendingWithdrawal[],
         ] = [0n, []];
-        if (userBalance.data) {
-            if (isVestingLoaded() && userBalance.data.vestingmachine) {
-                setTgBalance(userBalance.data.vestingmachine.tgBalance || 0n);
-                _stakedBalance =
-                    userBalance.data.vestingmachine.staking?.balance || 0n;
-                //_lockedBalance = auth.userBalanceData.vestingmachine.staking.getLockedBalance;
-                _pendingWithdrawals = pendingWithdrawalsFormat(
-                    userBalance.data.vestingmachine.delay
-                );
-            } else {
-                setTgBalance(userBalance.data.TG.balance || 0n);
-                _stakedBalance =
-                    userBalance.data.stakingmachine?.getBalance || 0n;
-                //_lockedBalance = (auth.userBalanceData as any).stakingmachine.getLockedBalance;
-                _pendingWithdrawals = pendingWithdrawalsFormat(
-                    userBalance.data.delaymachine
-                );
-            }
+
+        if (!userOmocBalance.data) return;
+
+        if (isVestingLoaded() && userVesting.data) {
+            setTgBalance((userVesting.data as UserVesting).vestingmachine.tgBalance || 0n);
+            _stakedBalance =
+                (userVesting.data as UserVesting).vestingmachine.staking?.balance || 0n;
+            //_lockedBalance = auth.userBalanceData.vestingmachine.staking.getLockedBalance;
+            _pendingWithdrawals = pendingWithdrawalsFormat(
+                (userVesting.data as UserVesting).vestingmachine.delay
+            );
+        } else {
+            setTgBalance((userOmocBalance.data as UserOmocBalance).TG.balance || 0n);
+            _stakedBalance =
+                (userOmocBalance.data as UserOmocBalance).stakingmachine.getBalance || 0n;
+            //_lockedBalance = (auth.userBalanceData as any).stakingmachine.getLockedBalance;
+            _pendingWithdrawals = pendingWithdrawalsFormat(
+                (userOmocBalance.data as UserOmocBalance).delaymachine
+            );
         }
+
         const pendingWithdrawalsFormatted: PendingWithdrawalStatus[] =
             _pendingWithdrawals
                 .filter(
@@ -120,6 +117,13 @@ const Dashboard = (): JSX.Element => {
         //console.log('Error getting staking balances', error);
         //}
     };
+
+    useEffect(() => {
+        if (contractProtocolStatus.data && userOmocBalance.data) {
+            //setLoading(false);
+            setStakingBalances();
+        }
+    }, [contractProtocolStatus.data, userOmocBalance.data, userVesting.data]);
 
     return (
         <div className="layout-card section__innerCard--big dashboard-staking-info">

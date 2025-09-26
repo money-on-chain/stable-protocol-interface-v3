@@ -5,6 +5,7 @@ import { useWalletContext } from "../../../context/Wallet";
 import { formatTimestamp } from "../../../helpers/staking";
 import { useProjectTranslation } from "../../../helpers/translations";
 import settings from "../../../settings/settings.json";
+import type { UserVesting } from "../../../types/status";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 
 interface VestingDataItem {
@@ -30,9 +31,9 @@ export default function VestingSchedule(): React.ReactElement {
         return <div>No vesting data available</div>;
     }
 
-    const getParameters = userVesting.data.vestingmachine.getParameters;
-    const tgeTimestamp = userVesting.data.vestingfactory.getTGETimestamp;
-    const total = userVesting.data.vestingmachine.getTotal;
+    const getParameters = (userVesting.data as UserVesting).vestingmachine.getParameters;
+    const tgeTimestamp = (userVesting.data as UserVesting).vestingfactory.getTGETimestamp;
+    const total = (userVesting.data as UserVesting).vestingmachine.getTotal;
     const percentMultiplier = 10000n;
     const [percentages, timeDeltas] = getParameters;
 

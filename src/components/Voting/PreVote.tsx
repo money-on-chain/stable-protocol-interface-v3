@@ -206,7 +206,7 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
         };
 
         await interfaceVotingPreVote(
-            proposal.changeContract,
+            proposal.changeContract as `0x${string}`,
             onTransaction,
             onReceipt,
             onError

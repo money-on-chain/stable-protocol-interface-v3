@@ -298,7 +298,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         };
 
         await interfaceVotingPreVote(
-            addProposalAddress,
+            addProposalAddress as `0x${string}`,
             onTransaction,
             onReceipt,
             onError
@@ -362,7 +362,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         };
 
         await interfaceVotingUnRegister(
-            proposalAddress,
+            proposalAddress as `0x${string}`,
             onTransaction,
             onReceipt,
             onError
