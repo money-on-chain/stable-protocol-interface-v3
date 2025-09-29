@@ -1,7 +1,7 @@
 import "./Styles.scss";
 
 import { Input } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { recoverMessageAddress } from "viem";
 
 import { decodeEvents } from "../../backend/transaction";
@@ -17,6 +17,7 @@ import {
     saveVestingAddressesToLocalStorage,
 } from "../../helpers/vesting";
 import settings from "../../settings/settings.json";
+import type { UserOmocBalance,UserVesting } from "../../types/status";
 import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
 import UseVestingAlert from "../Notification/UsingVestingAlert";
 import { PrecisionNumbers } from "../PrecisionNumbers";
@@ -33,7 +34,7 @@ interface VestedAmounts {
 
 interface FilteredEvent {
     eventName: string;
-    args: Record<string, any>;
+    args: Record<string, unknown>;
 }
 
 const Vesting: React.FC = () => {
@@ -43,12 +44,12 @@ const Vesting: React.FC = () => {
         address,
         userOmocBalance,
         userVesting,
-        isVestingLoaded,
         vestingAddress,
+        publicClient,
+        isVestingLoaded,        
         interfaceVestingVerify,
         interfaceVestingWithdraw,
-        interfaceIncentiveV2Claim,
-        publicClient,
+        interfaceIncentiveV2Claim,        
         onShowModalAccountVesting,
     } = useWalletContext();
 
@@ -67,24 +68,122 @@ const Vesting: React.FC = () => {
     const [newVestingAddress, setNewVestingAddress] = useState<string>("");
     const [isHolderVesting, setIsHolderVesting] = useState<boolean>(false);
 
+    const getIsHolderVesting = (): boolean => {
+        if (!address || !userVesting.data) return false;
+        return (
+            (userVesting.data as UserVesting).vestingmachine.getHolder.toLowerCase() ===
+            address.toLowerCase()
+        );
+    };
+
+    const onValidateWithdrawCallback = useCallback((): void => {
+        if (!userVesting.data || !getIsHolderVesting()) {
+            setValidWithdraw(false);
+            return;
+        }
+        const availableForWithdraw =
+            (userVesting.data as UserVesting).vestingmachine.getAvailable;
+        if (availableForWithdraw > 0) {
+            if ((userVesting.data as UserVesting).vestingmachine.isVerified) {
+                setValidWithdraw(true);
+            } else {
+                setValidWithdraw(false);
+            }
+        } else {
+            setValidWithdraw(false);
+        }
+    }, [userVesting.data, getIsHolderVesting]);
+
+    const getIsHolderVestingCallback = useCallback((): boolean => {
+        if (!address || !userVesting.data) return false;
+        return (
+            (userVesting.data as UserVesting).vestingmachine.getHolder.toLowerCase() ===
+            address.toLowerCase()
+        );
+    }, [address, userVesting.data]);
+
+    const onCheckIsHolderVestingCallback = useCallback((): void => {
+        const isHolder = getIsHolderVestingCallback();
+        setIsHolderVesting(isHolder);
+    }, [getIsHolderVestingCallback]);
+
+    const onValidateIncentiveV2UserBalanceCallback = useCallback((): void => {
+        let valid = false;
+        if (
+            userOmocBalance.data &&
+            typeof userOmocBalance.data.incentiveV2 !== "undefined" &&
+            userOmocBalance.data.incentiveV2 !== null
+        ) {
+            if ((userOmocBalance.data as UserOmocBalance).incentiveV2.userBalance > 0) {
+                valid = true;
+            }
+        }
+        setValidCreateVM(valid);
+    }, [userOmocBalance.data]);
+
     useEffect(() => {
         if (userVesting.data && isVestingLoaded()) {
             setStatus("LOADED");
             setUsingVestingAddress(vestingAddress || "");
-            onValidateWithdraw();
-            onCheckIsHolderVesting();
+            onValidateWithdrawCallback();
+            onCheckIsHolderVestingCallback();
         } else {
             // Reset in case the previous status is Loaded, this occurs when switch off vesting in account
             if (status === "LOADED") setStatus("STEP_1");
         }
 
         // Validate incentive user balance
-        onValidateIncentiveV2UserBalance();
-    }, [userVesting.data, isVestingLoaded, vestingAddress]);
+        onValidateIncentiveV2UserBalanceCallback();
+    }, [userVesting.data, isVestingLoaded, vestingAddress, status, onValidateWithdrawCallback, onCheckIsHolderVestingCallback, onValidateIncentiveV2UserBalanceCallback]);
+
+    const recoverMessageClaimCode = useCallback(async (
+        message: string
+    ): Promise<string> => {
+        if (!address) return "";
+        const chainId = import.meta.env.REACT_APP_ENVIRONMENT_CHAIN_ID as string;
+        const userAddress = address;
+        const fromAddress = userAddress.slice(2);
+        const code = `:OMoC:${chainId}:address:${fromAddress}`;
+
+        let recoveredAddress = "";
+
+        try {
+            recoveredAddress = await recoverMessageAddress({
+                message: code,
+                signature: message as `0x${string}`,
+            });
+        } catch (err) {
+            console.error(err);
+        }
+
+        return recoveredAddress.toLowerCase();
+    }, [address]);
+
+    const onValidateClaimCodeCallback = useCallback(async (): Promise<void> => {
+        let valid = false;
+
+        if (claimCode.length === 132) {
+            const claimAddress = await recoverMessageClaimCode(claimCode);
+            if (claimAddress === address?.toLowerCase()) valid = true;
+        }
+
+        if (!valid && claimCode === "") {
+            setValidClaimCode(false);
+            setValidClaimCodeError("");
+        } else if (!valid) {
+            setValidClaimCode(false);
+            setValidClaimCodeError(
+                t("vesting.vestingOnboarding.page2.feedback.notValid")
+            );
+        } else {
+            setValidClaimCode(true);
+            setValidClaimCodeError("");
+        }
+    }, [claimCode, address, t, recoverMessageClaimCode]);
 
     useEffect(() => {
-        onValidateClaimCode();
-    }, [claimCode]);
+        void onValidateClaimCodeCallback();
+    }, [onValidateClaimCodeCallback]);
 
     /*
     const truncateAddress = (address: string): string => {
@@ -94,37 +193,6 @@ const Vesting: React.FC = () => {
             address.substring(address.length - 4, address.length)
         );
     };*/
-
-    const onValidateWithdraw = (): void => {
-        if (!getIsHolderVesting()) {
-            setValidWithdraw(false);
-            return;
-        }
-        const availableForWithdraw =
-            userVesting.data.vestingmachine.getAvailable;
-        if (availableForWithdraw > 0) {
-            if (userVesting.data.vestingmachine.isVerified) {
-                setValidWithdraw(true);
-            } else {
-                setValidWithdraw(false);
-            }
-        } else {
-            setValidWithdraw(false);
-        }
-    };
-
-    const getIsHolderVesting = (): boolean => {
-        if (!address) return false;
-        return (
-            userVesting.data.vestingmachine.getHolder.toLowerCase() ===
-            address.toLowerCase()
-        );
-    };
-
-    const onCheckIsHolderVesting = (): void => {
-        const isHolder = getIsHolderVesting();
-        setIsHolderVesting(isHolder);
-    };
 
     const vestedAmounts = (): VestedAmounts => {
         const amounts: VestedAmounts = {
@@ -138,10 +206,10 @@ const Vesting: React.FC = () => {
             return amounts;
         }
 
-        const getParameters = userVesting.data.vestingmachine.getParameters;
-        const tgeTimestamp = userVesting.data.vestingfactory.getTGETimestamp;
-        const total = userVesting.data.vestingmachine.getTotal;
-        const lockedAmount = userVesting.data.vestingmachine.getLocked;
+        const getParameters = (userVesting.data as UserVesting).vestingmachine.getParameters;
+        const tgeTimestamp = (userVesting.data as UserVesting).vestingfactory.getTGETimestamp;
+        const total = (userVesting.data as UserVesting).vestingmachine.getTotal;
+        const lockedAmount = (userVesting.data as UserVesting).vestingmachine.getLocked;
         const percentMultiplier = 10000n;
         const [percentages, timeDeltas] = getParameters;
 
@@ -177,7 +245,7 @@ const Vesting: React.FC = () => {
         let daysToRelease = 0;
         let countVested = 0;
 
-        getParameters &&
+        if (getParameters) {
             percents.forEach(function (percent: bigint, itemIndex: number) {
                 const date_release = new Date(dates[itemIndex] as string);
                 const date_now = new Date();
@@ -204,6 +272,7 @@ const Vesting: React.FC = () => {
                     //releasedAmount = amount;
                 }
             });
+        }
 
         amounts.released = BigInt(total - lockedAmount);
         amounts.vested = lockedAmount;
@@ -224,23 +293,23 @@ const Vesting: React.FC = () => {
         setIsOperationModalVisible(true);
 
         const onTransaction = (txHash: string): void => {
-            console.log("Sent transaction withdraw...: ", txHash);
+            console.warn("Sent transaction withdraw...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
         const onReceipt = (): void => {
-            console.log("Transaction withdraw mined!...");
+            console.warn("Transaction withdraw mined!...");
             setOperationStatus("success");
         };
-        const onError = (error: any): void => {
-            console.log("Transaction withdraw error!...:", error);
+        const onError = (error: unknown): void => {
+            console.error("Transaction withdraw error!...:", error);
             setOperationStatus("error");
         };
 
         await interfaceVestingWithdraw(onTransaction, onReceipt, onError)
             .then((/*res*/) => {
                 // Refresh status
-                userOmocBalance.refetch();
+                void userOmocBalance.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -257,23 +326,23 @@ const Vesting: React.FC = () => {
         setIsOperationModalVisible(true);
 
         const onTransaction = (txHash: string): void => {
-            console.log("Sent transaction verify...: ", txHash);
+            console.warn("Sent transaction verify...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
         const onReceipt = (): void => {
-            console.log("Transaction verify mined!...");
+            console.warn("Transaction verify mined!...");
             setOperationStatus("success");
         };
-        const onError = (error: any): void => {
-            console.log("Transaction verify error!...:", error);
+        const onError = (error: unknown): void => {
+            console.error("Transaction verify error!...:", error);
             setOperationStatus("error");
         };
 
         await interfaceVestingVerify(onTransaction, onReceipt, onError)
             .then((/*res*/) => {
                 // Refresh status
-                userVesting.refetch();
+                void userVesting.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -285,18 +354,6 @@ const Vesting: React.FC = () => {
         onShowModalAccountVesting();
     };
 
-    const onValidateIncentiveV2UserBalance = (): void => {
-        let valid = false;
-        if (
-            userOmocBalance.data &&
-            typeof userOmocBalance.data.incentiveV2 !== "undefined"
-        ) {
-            if (userOmocBalance.data.incentiveV2.userBalance > 0) {
-                valid = true;
-            }
-        }
-        setValidCreateVM(valid);
-    };
 
     const onClickUseClaimCode = (): void => {
         setStatus("STEP_2");
@@ -308,50 +365,7 @@ const Vesting: React.FC = () => {
         setClaimCode(event.target.value.substring(0, 132));
     };
 
-    const recoverMessageClaimCode = async (
-        message: string
-    ): Promise<string> => {
-        if (!address) return "";
-        const chainId = import.meta.env.REACT_APP_ENVIRONMENT_CHAIN_ID;
-        const userAddress = address;
-        const fromAddress = userAddress.slice(2);
-        const code = `:OMoC:${chainId}:address:${fromAddress}`;
 
-        let recoveredAddress = "";
-
-        try {
-            recoveredAddress = await recoverMessageAddress({
-                message: code,
-                signature: message,
-            });
-        } catch (err) {
-            console.error(err);
-        }
-
-        return recoveredAddress.toLowerCase();
-    };
-
-    const onValidateClaimCode = async (): Promise<void> => {
-        let valid = false;
-
-        if (claimCode.length === 132) {
-            const claimAddress = await recoverMessageClaimCode(claimCode);
-            if (claimAddress === address?.toLowerCase()) valid = true;
-        }
-
-        if (!valid && claimCode === "") {
-            setValidClaimCode(false);
-            setValidClaimCodeError("");
-        } else if (!valid) {
-            setValidClaimCode(false);
-            setValidClaimCodeError(
-                t("vesting.vestingOnboarding.page2.feedback.notValid")
-            );
-        } else {
-            setValidClaimCode(true);
-            setValidClaimCodeError("");
-        }
-    };
 
     const onClickCreateVM = (): void => {
         setStatus("STEP_3");
@@ -362,7 +376,7 @@ const Vesting: React.FC = () => {
             if (events.eventName === "VestingCreated") {
                 for (const [eveName, eveValue] of Object.entries(events.args)) {
                     if (eveName === "vesting") {
-                        const vNewAddress = eveValue.toLowerCase();
+                        const vNewAddress = (eveValue as string).toLowerCase();
                         setNewVestingAddress(vNewAddress);
 
                         // set go to step Nº 4
@@ -372,10 +386,10 @@ const Vesting: React.FC = () => {
                         setIsOperationModalVisible(false);
 
                         // Add vesting address to storage
-                        addVesting(vNewAddress)
+                        void addVesting(vNewAddress)
                             .then((/*results*/) => {})
                             .catch((error) => {
-                                console.log(error);
+                                console.error(error);
                             });
                     }
                 }
@@ -392,12 +406,12 @@ const Vesting: React.FC = () => {
         setIsOperationModalVisible(true);
 
         const onTransaction = (txHash: string): void => {
-            console.log("Sent transaction create VM...: ", txHash);
+            console.warn("Sent transaction create VM...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
-        const onReceipt = async (receipt: any): Promise<void> => {
-            console.log("Transaction create VM mined!...");
+        const onReceipt = (receipt: unknown): void => {
+            console.warn("Transaction create VM mined!...");
             setOperationStatus("success");
             // Events name list
             const filter = ["VestingCreated"];
@@ -408,13 +422,13 @@ const Vesting: React.FC = () => {
             //    receipt.transactionHash
             //);
             const txRcp = receipt;
-            const filteredEvents: any[] =
-                decodeEvents(txRcp, contractName, filter) || [];
+            const filteredEvents: FilteredEvent[] =
+                decodeEvents(txRcp as any, contractName, filter) || [];
 
             onVestingCreated(filteredEvents);
         };
-        const onError = (error: any): void => {
-            console.log("Transaction create VM error!...:", error);
+        const onError = (error: unknown): void => {
+            console.error("Transaction create VM error!...:", error);
             setOperationStatus("error");
         };
 
@@ -426,7 +440,7 @@ const Vesting: React.FC = () => {
         )
             .then((/*res*/) => {
                 // Refresh status
-                userOmocBalance.refetch();
+                void userOmocBalance.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -434,12 +448,12 @@ const Vesting: React.FC = () => {
             });
     };
 
-    const loadClaimCodeFromFile = async (
+    const loadClaimCodeFromFile = (
         e: React.ChangeEvent<HTMLInputElement>
-    ): Promise<void> => {
+    ): void => {
         e.preventDefault();
         const reader = new FileReader();
-        reader.onload = async (e) => {
+        reader.onload = (e) => {
             const text = (e.target?.result as string).substring(0, 132);
             setClaimCode(text);
         };
@@ -477,12 +491,12 @@ const Vesting: React.FC = () => {
         if (!address) return false;
 
         const isValidVesting = await onValidateVestingAddress(
-            publicClient,
+            publicClient!,
             addVestingAddress as `0x${string}`
         );
         if (isValidVesting) {
-            const isLoaded = loadVesting(
-                publicClient,
+            const isLoaded = await loadVesting(
+                publicClient!,
                 addVestingAddress as `0x${string}`
             );
             if (!isLoaded) {
@@ -732,9 +746,8 @@ const Vesting: React.FC = () => {
                                     <div className="vesting-wallet-claim-amount tx-amount-data">
                                         {PrecisionNumbers({
                                             amount: !userOmocBalance.data
-                                                ? "0"
-                                                : userOmocBalance.data
-                                                      .incentiveV2.userBalance,
+                                                ? 0n
+                                                : (userOmocBalance.data as UserOmocBalance).incentiveV2.userBalance,
                                             token: settings.tokens.TG[0],
                                             decimals: Number(
                                                 t("staking.display_decimals")
@@ -785,7 +798,7 @@ const Vesting: React.FC = () => {
                                     <button
                                         className="button"
                                         disabled={!validCreateVM}
-                                        onClick={onSendCreateVM}
+                                        onClick={() => void onSendCreateVM}
                                     >
                                         {t(
                                             "vesting.vestingOnboarding.page3.ctaPrimary"
@@ -926,8 +939,7 @@ const Vesting: React.FC = () => {
                             <h1>{t("vesting.cardTitle")}</h1>
                             <div id="vesting-verification">
                                 {userVesting.data &&
-                                    userVesting.data.vestingmachine
-                                        .isVerified &&
+                                    (userVesting.data as UserVesting).vestingmachine.isVerified &&
                                     isHolderVesting && (
                                         <div
                                             className={
@@ -949,8 +961,7 @@ const Vesting: React.FC = () => {
                                     </div>
                                 )}
                                 {userVesting.data &&
-                                    !userVesting.data.vestingmachine
-                                        .isVerified &&
+                                    !(userVesting.data as UserVesting).vestingmachine.isVerified &&
                                     isHolderVesting && (
                                         <div
                                             className={
@@ -961,7 +972,7 @@ const Vesting: React.FC = () => {
                                             {t("vesting.status.notVerified")}
                                             <a
                                                 className={"verify__button"}
-                                                onClick={onVerify}
+                                                onClick={() => void onVerify}
                                             >
                                                 {t("vesting.status.verifyCTA")}
                                             </a>
@@ -979,8 +990,7 @@ const Vesting: React.FC = () => {
                                     {PrecisionNumbers({
                                         amount: !userVesting.data
                                             ? 0n
-                                            : userVesting.data.vestingmachine
-                                                  .getAvailable,
+                                            : (userVesting.data as UserVesting).vestingmachine.getAvailable,
                                         token: settings.tokens.TG[0],
                                         decimals: Number(
                                             t("staking.display_decimals")
@@ -995,7 +1005,7 @@ const Vesting: React.FC = () => {
                             </div>
                             <button
                                 id="withdraw-cta"
-                                onClick={onWithdraw}
+                                onClick={() => void onWithdraw}
                                 disabled={!validWithdraw}
                             >
                                 {t("vesting.withdrawToWallet")}
@@ -1048,8 +1058,7 @@ const Vesting: React.FC = () => {
                                 {PrecisionNumbers({
                                     amount: !userVesting.data
                                         ? 0n
-                                        : userVesting.data.vestingmachine
-                                              .staking.balance,
+                                        : (userVesting.data as UserVesting).vestingmachine.staking.balance,
                                     token: settings.tokens.TG[0],
                                     decimals: Number(
                                         t("staking.display_decimals")
@@ -1070,8 +1079,7 @@ const Vesting: React.FC = () => {
                                 {PrecisionNumbers({
                                     amount: !userVesting.data
                                         ? 0n
-                                        : userVesting.data.vestingmachine.delay
-                                              .balance,
+                                        : (userVesting.data as UserVesting).vestingmachine.delay.getBalance,
                                     token: settings.tokens.TG[0],
                                     decimals: Number(
                                         t("staking.display_decimals")
@@ -1098,8 +1106,7 @@ const Vesting: React.FC = () => {
                                 {PrecisionNumbers({
                                     amount: !userVesting.data
                                         ? 0n
-                                        : userVesting.data.vestingmachine
-                                              .getTotal,
+                                        : (userVesting.data as UserVesting).vestingmachine.getTotal,
                                     token: settings.tokens.TG[0],
                                     decimals: Number(
                                         t("staking.display_decimals")

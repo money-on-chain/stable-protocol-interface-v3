@@ -1,6 +1,6 @@
 import "../../Styles.scss";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { PrecisionNumbers } from "@/components/PrecisionNumbers";
 
@@ -26,7 +26,7 @@ interface InfoUser {
 interface InfoUserTC {
     address: string;
     settings: TokenConfig;
-    image: any;
+    image: React.ReactNode;
     lockedAmount: bigint;
     proposal: string;
 }
@@ -58,13 +58,7 @@ const VetoWithdraw: React.FC = () => {
     };
     const [infoUser, setInfoUser] = useState<InfoUser>(defaultInfoUser);
 
-    useEffect(() => {
-        if (contractStatusOmoc.data && userOmocBalance.data && userVeto.data) {
-            refreshData();
-        }
-    }, [contractStatusOmoc.data, userOmocBalance.data, userVeto.data]);
-
-    const refreshData = (): void => {
+    const refreshData = useCallback((): void => {
         if (!contractStatusOmoc.data) return;
         if (!userOmocBalance.data) return;
         if (!userVeto.data) return;
@@ -74,13 +68,13 @@ const VetoWithdraw: React.FC = () => {
         cDataUser["InfoUserTC"] = [];
 
         const lockedByVeto = tcLockedByVeto(
-            userVeto.data,
-            contractStatusOmoc.data,
+            userVeto.data as { vetoMachine: { getUserLockedAmount: Record<string, Record<string, bigint>>; }; },
+            contractStatusOmoc.data as { votingmachine: { getVotingData: [string, bigint, bigint, bigint]; getState: number; }; },
             address
         );
         lockedByVeto.forEach((locked) => {
             const tcIndex = getTCTokenIndex(
-                contractsAddress.CollateralToken,
+                contractsAddress?.CollateralToken || [],
                 locked.tcAddress
             );
             const tokenInfo: InfoUserTC = {
@@ -93,7 +87,20 @@ const VetoWithdraw: React.FC = () => {
             cDataUser["InfoUserTC"].push(tokenInfo);
         });
         setInfoUser(cDataUser);
-    };
+    }, [
+        contractStatusOmoc.data,
+        userOmocBalance.data,
+        userVeto.data,
+        address,
+        contractsAddress?.CollateralToken || [],
+        infoUser,
+    ]);
+
+    useEffect(() => {
+        if (contractStatusOmoc.data && userOmocBalance.data && userVeto.data) {
+            refreshData();
+        }
+    }, [contractStatusOmoc.data, userOmocBalance.data, userVeto.data, /*refreshData*/]);
 
     const onVetoWithdraw = async (
         proposal: string,
@@ -113,7 +120,7 @@ const VetoWithdraw: React.FC = () => {
             console.log("Transaction in Favor proposal mined!...");
             setOperationStatus("success");
         };
-        const onError = (error: any): void => {
+        const onError = (error: unknown): void => {
             console.log("Transaction in Favor proposal error!...:", error);
             setOperationStatus("error");
         };
@@ -127,9 +134,9 @@ const VetoWithdraw: React.FC = () => {
         )
             .then((/*res*/) => {
                 // Refresh status
-                userOmocBalance.refetch();
-                contractStatusOmoc.refetch();
-                userVeto.refetch();
+                void userOmocBalance.refetch();
+                void contractStatusOmoc.refetch();
+                void userVeto.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -137,7 +144,7 @@ const VetoWithdraw: React.FC = () => {
             });
     };
 
-    const VetoWithdrawTokenCard: React.FC<{ token: any }> = ({ token }) => {
+    const VetoWithdrawTokenCard: React.FC<{ token: InfoUserTC }> = ({ token }) => {
         const { t } = useProjectTranslation();
 
         return (
@@ -145,7 +152,7 @@ const VetoWithdraw: React.FC = () => {
                 <div className="withdrawItem">
                     <div className="vetoWithdrawToken">
                         <div className="token__icon">{token.image}</div>
-                        <div className="token__name">{token.name}</div>
+                        <div className="token__name">{token.settings.name}</div>
                     </div>
                     <div className="vetoWithdrawAmount">
                         <div className="token__amount">
@@ -163,12 +170,10 @@ const VetoWithdraw: React.FC = () => {
                         <div className="cta-container">
                             <button
                                 className="button--small"
-                                onClick={() =>
-                                    onVetoWithdraw(
-                                        token.proposal,
-                                        token.address
-                                    )
-                                }
+                                onClick={() => void onVetoWithdraw(
+                                    token.proposal,
+                                    token.address
+                                )}
                             >
                                 {t(`voting.veto.vetoWithdraw.button`)}
                             </button>

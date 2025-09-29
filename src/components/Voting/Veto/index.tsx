@@ -204,6 +204,7 @@ const Veto: React.FC = () => {
         contractsAddress?.CollateralToken,
         infoVoting,
         infoUser,
+        nowTimestamp,
     ]);
 
     useEffect(() => {
@@ -220,6 +221,7 @@ const Veto: React.FC = () => {
         userOmocBalance.data,
         userVeto.data,
         userBalance.data,
+        //refreshData,
     ]);
 
     const onHideModalAllowance = (): void => {
@@ -234,7 +236,7 @@ const Veto: React.FC = () => {
         return tc.balance > tc.allowance;
     };
 
-    const onAllowance = async (infoUserTC: InfoUserTC): Promise<void> => {
+    const onAllowance = (infoUserTC: InfoUserTC): void => {
         setInfoUserTC(infoUserTC);
         // Show modal allowance
         if (showAllowance(infoUserTC)) {
@@ -243,11 +245,11 @@ const Veto: React.FC = () => {
         }
 
         // If allowance is ok please send real operation transaction
-        onVote(infoUserTC.proposal, infoUserTC.index);
+        void onVote(infoUserTC.proposal, infoUserTC.index);
     };
 
-    const onRealSendTransaction = async (): Promise<void> => {
-        onVote(infoUserTC.proposal, infoUserTC.index);
+    const onRealSendTransaction = (): void => {
+        void onVote(infoUserTC.proposal, infoUserTC.index);
     };
 
     const onVote = async (proposal: string, index: number): Promise<void> => {
@@ -280,10 +282,10 @@ const Veto: React.FC = () => {
         )
             .then((/*res*/) => {
                 // Refresh status
-                userOmocBalance.refetch();
-                contractStatusOmoc.refetch();
-                userVeto.refetch();
-                userBalance.refetch();
+                void userOmocBalance.refetch();
+                void contractStatusOmoc.refetch();
+                void userVeto.refetch();
+                void userBalance.refetch();
             })
             .catch((e) => {
                 console.error(e);

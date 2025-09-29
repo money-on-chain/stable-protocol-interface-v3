@@ -5,6 +5,7 @@ import { TokenSettings } from "../../helpers/currencies";
 import { divPrecision } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings/settings.json";
+import type { ContractProtocolStatus } from "../../types/status";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import Tokens from "./tokens";
 
@@ -24,8 +25,8 @@ export default function Buckets(props: BucketsProps): JSX.Element {
     let leverage: bigint = 0n;
 
     if (contractProtocolStatus.data) {
-        lckAC = contractProtocolStatus.data[caIndex].getLckAC;
-        nACcb = contractProtocolStatus.data[caIndex].nACcb;
+        lckAC = (contractProtocolStatus.data as ContractProtocolStatus)[caIndex].getLckAC;
+        nACcb = (contractProtocolStatus.data as ContractProtocolStatus)[caIndex].nACcb;
         leverage = divPrecision(nACcb, nACcb - lckAC);
     }
 
@@ -57,7 +58,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                 ? "--"
                                 : PrecisionNumbers({
                                       amount: contractProtocolStatus.data
-                                          ? contractProtocolStatus.data[caIndex]
+                                          ? (contractProtocolStatus.data as ContractProtocolStatus)[caIndex]
                                                 .getACBalance
                                           : 0n,
                                       token: TokenSettings(`CA_${caIndex}`),
@@ -80,7 +81,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                 ? "--"
                                 : PrecisionNumbers({
                                       amount: contractProtocolStatus.data
-                                          ? contractProtocolStatus.data[caIndex]
+                                          ? (contractProtocolStatus.data as ContractProtocolStatus)[caIndex]
                                                 .getCglb
                                           : 0n,
                                       token: settings.tokens.CA[caIndex],
@@ -101,7 +102,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                 ? "--"
                                 : PrecisionNumbers({
                                       amount: contractProtocolStatus.data
-                                          ? contractProtocolStatus.data[caIndex]
+                                          ? (contractProtocolStatus.data as ContractProtocolStatus)[caIndex]
                                                 .getCtargemaCA
                                           : 0n,
                                       token: TokenSettings(`CA_${caIndex}`),
@@ -118,7 +119,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                     </div>
                     <div className="info">
                         <div className="amount">
-                            {!contractProtocolStatus.data?.canOperate
+                            {!(contractProtocolStatus.data as ContractProtocolStatus)?.canOperate
                                 ? "--"
                                 : PrecisionNumbers({
                                       amount: contractProtocolStatus.data
@@ -138,7 +139,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                     </div>
                     <div className="info">
                         <div className="amount">
-                            {!contractProtocolStatus.data?.canOperate
+                            {!(contractProtocolStatus.data as ContractProtocolStatus)?.canOperate
                                 ? "--"
                                 : PrecisionNumbers({
                                       amount: contractProtocolStatus.data

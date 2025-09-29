@@ -1,5 +1,5 @@
 import { Input } from "antd";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
 import { TokenSettings } from "../../helpers/currencies";
@@ -28,8 +28,12 @@ interface EmptyProposal {
     changeContract: string;
 }
 
+interface ProposalItem {
+    [key: number]: [string, bigint, bigint, bigint];
+}
+
 interface InfoVoting {
-    proposals: any[];
+    proposals: ProposalItem;
     globalVotingRound: bigint;
     totalSupply: bigint;
     PRE_VOTE_MIN_PCT_TO_WIN: bigint;
@@ -81,15 +85,20 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
     } = useWalletContext();
     const space: string = "\u00A0";
 
-    useEffect(() => {
-        onValidateSubmitProposal();
-    }, [contractStatusOmoc.data]);
+    const onValidateSubmitProposalCallback = useCallback((): boolean => {
+        if (infoUser["Voting_Power"] < infoVoting["MIN_STAKE"]) {
+            setAddProposalAddressErrorText(
+                // `You need at least ${infoVoting['MIN_STAKE'].toString()} amount of tokens to submit the proposal`
+                "Not enough balance. See below."
+            );
+            setAddProposalAddressError(true);
+            return false;
+        } else return true;
+    }, [infoUser["Voting_Power"], infoVoting["MIN_STAKE"]]);
 
     useEffect(() => {
-        if (infoVoting["proposals"] != null) {
-            refreshProposals();
-        }
-    }, [infoVoting["proposals"]]);
+        onValidateSubmitProposalCallback();
+    }, [contractStatusOmoc.data, onValidateSubmitProposalCallback]);
 
     const searchProposal = (proposalAddress: string): ProposalData => {
         let proposal: ProposalData = {
@@ -122,7 +131,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         }
     };
 
-    const refreshProposals = (): void => {
+    const refreshProposals = useCallback((): void => {
         const propData: ProposalData[] = [];
         let count = 0;
         const nowTimestamp = BigInt(Date.now());
@@ -192,7 +201,15 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
 
         // Also refresh proposal view data
         refreshViewProposalData();
-    };
+    }, [infoVoting, proposalsData, viewProposal]);
+
+    const proposals = infoVoting["proposals"];
+    
+    useEffect(() => {
+        if (proposals != null) {
+            refreshProposals();
+        }
+    }, [proposals, refreshProposals]);
 
     const onChangeInputAddProposal = (
         e: React.ChangeEvent<HTMLInputElement>
@@ -224,19 +241,9 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         return true;
     };
 
-    const onValidateSubmitProposal = (): boolean => {
-        if (infoUser["Voting_Power"] < infoVoting["MIN_STAKE"]) {
-            setAddProposalAddressErrorText(
-                // `You need at least ${infoVoting['MIN_STAKE'].toString()} amount of tokens to submit the proposal`
-                "Not enough balance. See below."
-            );
-            setAddProposalAddressError(true);
-            return false;
-        } else return true;
-    };
 
     const addProposal = (): void => {
-        const valid = onValidateAddressProposal() && onValidateSubmitProposal();
+        const valid = onValidateAddressProposal() && onValidateSubmitProposalCallback();
         if (valid) {
             onSendAddProposal()
                 .then((/*res*/) => {})
@@ -292,7 +299,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
              */
             onCloseAddProposal();
         };
-        const onError = (error: any): void => {
+        const onError = (error: unknown): void => {
             console.log("Transaction add proposal error!...:", error);
             setOperationStatus("error");
         };
@@ -305,8 +312,8 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         )
             .then((/*res*/) => {
                 // Refresh status
-                userOmocBalance.refetch();
-                contractStatusOmoc.refetch();
+                void userOmocBalance.refetch();
+                void contractStatusOmoc.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -356,7 +363,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             const filteredEvents = decodeEvents(txRcp, contractName, filter);
              */
         };
-        const onError = (error: any): void => {
+        const onError = (error: unknown): void => {
             console.log("Transaction unregister proposal error!...:", error);
             setOperationStatus("error");
         };
@@ -369,8 +376,8 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         )
             .then((/*res*/) => {
                 // Refresh status
-                userOmocBalance.refetch();
-                contractStatusOmoc.refetch();
+                void userOmocBalance.refetch();
+                void contractStatusOmoc.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -417,7 +424,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             const filteredEvents = decodeEvents(txRcp, contractName, filter);
              */
         };
-        const onError = (error: any): void => {
+        const onError = (error: unknown): void => {
             console.log("Transaction pre vote step error!...:", error);
             setOperationStatus("error");
         };
@@ -425,8 +432,8 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         await interfaceVotingPreVoteStep(onTransaction, onReceipt, onError)
             .then((/*res*/) => {
                 // Refresh status
-                userOmocBalance.refetch();
-                contractStatusOmoc.refetch();
+                void userOmocBalance.refetch();
+                void contractStatusOmoc.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -476,12 +483,13 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                                 proposal={proposal}
                                 infoVoting={infoVoting}
                                 onViewProposal={onViewProposal}
-                                onRunPreVoteStep={onRunPreVoteStep}
+                                onRunPreVoteStep={() => void onRunPreVoteStep()}
                             />
                         </React.Fragment>
                     ))}
                 {actionProposal === "VIEW_PROPOSAL" &&
-                    viewProposal.changeContract !== "" && (
+                    viewProposal.changeContract !== "" && 
+                    "canVote" in viewProposal && (
                         <>
                             {/* <div className={'title'}>
                                 <h1>{t('voting.cardTitle.proposalDetails')}</h1>
@@ -493,7 +501,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                                     infoUser={infoUser}
                                     onBack={onBackToProposalList}
                                     onUnRegisterProposal={onUnRegisterProposal}
-                                    onRunPreVoteStep={onRunPreVoteStep}
+                                    onRunPreVoteStep={() => void onRunPreVoteStep()}
                                 />
                             </div>
                         </>

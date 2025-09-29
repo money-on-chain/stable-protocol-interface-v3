@@ -5,6 +5,7 @@ import { TokenSettings } from "../../helpers/currencies";
 import { mulPrecision, normalizeToBigInt } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings/settings.json";
+import type { ContractProtocolStatus } from "../../types/status";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 
 export default function TVL(): JSX.Element {
@@ -18,10 +19,10 @@ export default function TVL(): JSX.Element {
         settings.tokens.CA.forEach(function (dataItem) {
             const priceCA =
                 normalizeToBigInt(
-                    contractProtocolStatus.data[dataItem.key].PP_CA[0]
+                    (contractProtocolStatus.data as ContractProtocolStatus)[dataItem.key].PP_CA[0]
                 ) || 0n;
 
-            const nACcb = contractProtocolStatus.data[dataItem.key].nACcb;
+            const nACcb = (contractProtocolStatus.data as ContractProtocolStatus)[dataItem.key].nACcb;
             collateralInUSD = mulPrecision(nACcb, priceCA);
             collateralTotalInUSD = collateralTotalInUSD + collateralInUSD;
         });
@@ -35,7 +36,7 @@ export default function TVL(): JSX.Element {
 
             <div className="card-content">
                 <div className="big-number">
-                    {!contractProtocolStatus.data?.canOperate
+                    {!(contractProtocolStatus.data as ContractProtocolStatus)?.canOperate
                         ? "--"
                         : PrecisionNumbers({
                               amount: collateralTotalInUSD

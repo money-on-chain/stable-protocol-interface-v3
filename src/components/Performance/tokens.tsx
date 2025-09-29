@@ -5,6 +5,7 @@ import { ConvertPeggedTokenPrice } from "../../helpers/currencies";
 import { mulPrecision, normalizeToBigInt } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings/settings.json";
+import type { ContractProtocolStatus } from "../../types/status";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 
 // Type definitions
@@ -74,9 +75,9 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
 
     if (contractProtocolStatus.data) {
         // TC row
-        const priceTEC = contractProtocolStatus.data[caIndex].getPTCac || 0n;
+        const priceTEC = (contractProtocolStatus.data as ContractProtocolStatus)[caIndex].getPTCac || 0n;
         const priceCA =
-            normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_CA[0]) ||
+            normalizeToBigInt((contractProtocolStatus.data as ContractProtocolStatus)[caIndex].PP_CA[0]) ||
             0n;
         const price = mulPrecision(priceTEC, priceCA);
 
@@ -92,7 +93,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                     </span>
                 </div>
             ),
-            price: !contractProtocolStatus.data.canOperate
+            price: !(contractProtocolStatus.data as ContractProtocolStatus).canOperate
                 ? "--"
                 : PrecisionNumbers({
                       amount: price,
@@ -101,19 +102,19 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                       i18n,
                   }),
             ema: "--",
-            minted: !contractProtocolStatus.data.canOperate
+            minted: !(contractProtocolStatus.data as ContractProtocolStatus).canOperate
                 ? "--"
                 : PrecisionNumbers({
-                      amount: contractProtocolStatus.data[caIndex].nTCcb,
+                      amount: (contractProtocolStatus.data as ContractProtocolStatus)[caIndex].nTCcb,
                       token: settings.tokens.TC[caIndex],
                       decimals: settings.tokens.CA[caIndex].visibleDecimals,
                       i18n,
                   }),
             mintable: "No limit",
-            redeemable: !contractProtocolStatus.data.canOperate
+            redeemable: !(contractProtocolStatus.data as ContractProtocolStatus).canOperate
                 ? "--"
                 : PrecisionNumbers({
-                      amount: contractProtocolStatus.data[caIndex]
+                      amount: (contractProtocolStatus.data as ContractProtocolStatus)[caIndex]
                           .getRealTCAvailableToRedeem,
                       token: settings.tokens.TC[caIndex],
                       decimals: settings.tokens.CA[caIndex].visibleDecimals,
@@ -124,9 +125,11 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
 
         // TP rows
         settings.tokens.TP.forEach((dataItem) => {
+            if (!contractProtocolStatus.data) return;
+            
             let price =
                 normalizeToBigInt(
-                    contractProtocolStatus.data[caIndex].PP_TP[dataItem.key][0]
+                    (contractProtocolStatus.data as ContractProtocolStatus)[caIndex].PP_TP[dataItem.key][0]
                 ) || 0n;
             price = ConvertPeggedTokenPrice(
                 contractProtocolStatus,
@@ -139,19 +142,19 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
             if (dataItem.peggedUSD) price = 1n;
 
             let tpAvailableToMint =
-                contractProtocolStatus.data[caIndex].getRealTPAvailableToMint[
+                (contractProtocolStatus.data as ContractProtocolStatus)[caIndex].getRealTPAvailableToMint[
                     dataItem.key
                 ];
             if (tpAvailableToMint < 0) tpAvailableToMint = 0n;
 
-            let tpEMA =
-                contractProtocolStatus.data[caIndex].tpEma[dataItem.key];
+            const tpEMARaw =
+                (contractProtocolStatus.data as ContractProtocolStatus)[caIndex].tpEma[dataItem.key];
 
-            tpEMA = ConvertPeggedTokenPrice(
+            const tpEMA = ConvertPeggedTokenPrice(
                 contractProtocolStatus,
                 caIndex,
                 dataItem.key,
-                tpEMA[0], // 0: EMA 1: SF
+                tpEMARaw[0], // 0: EMA 1: SF
                 true
             );
 
@@ -173,7 +176,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                         </span>
                     </div>
                 ),
-                price: !contractProtocolStatus.data.canOperate
+                price: !(contractProtocolStatus.data as ContractProtocolStatus).canOperate
                     ? "--"
                     : PrecisionNumbers({
                           amount: price,
@@ -182,7 +185,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                               settings.tokens.TP[dataItem.key].visiblePriceUSD,
                           i18n,
                       }),
-                ema: !contractProtocolStatus.data.canOperate
+                ema: !(contractProtocolStatus.data as ContractProtocolStatus).canOperate
                     ? "--"
                     : PrecisionNumbers({
                           amount: tpEMA,
@@ -191,10 +194,10 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                               settings.tokens.TP[dataItem.key].visiblePriceUSD,
                           i18n,
                       }),
-                minted: !contractProtocolStatus.data.canOperate
+                minted: !(contractProtocolStatus.data as ContractProtocolStatus).canOperate
                     ? "--"
                     : PrecisionNumbers({
-                          amount: contractProtocolStatus.data[caIndex]
+                          amount: (contractProtocolStatus.data as ContractProtocolStatus)[caIndex]
                               .pegContainer[dataItem.key][0],
                           token: settings.tokens.TP[dataItem.key],
                           decimals:
@@ -202,7 +205,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                                   .visibleBalanceDecimals,
                           i18n,
                       }),
-                mintable: !contractProtocolStatus.data.canOperate
+                mintable: !(contractProtocolStatus.data as ContractProtocolStatus).canOperate
                     ? "--"
                     : PrecisionNumbers({
                           amount: tpAvailableToMint,
@@ -213,10 +216,10 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                           i18n,
                       }),
                 redeemable: "No limit",
-                coverage: !contractProtocolStatus.data.canOperate
+                coverage: !(contractProtocolStatus.data as ContractProtocolStatus).canOperate
                     ? "--"
                     : PrecisionNumbers({
-                          amount: contractProtocolStatus.data[caIndex].tpCtarg[
+                          amount: (contractProtocolStatus.data as ContractProtocolStatus)[caIndex].tpCtarg[
                               dataItem.key
                           ],
                           token: settings.tokens.TP[dataItem.key],
