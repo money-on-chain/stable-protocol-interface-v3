@@ -20,13 +20,17 @@ const onErrorProposal = (): MultiCallErrorResult => {
  */
 export function useContractOmocStatus(
     contracts?: DContracts,
-    proposalCountVoting?: bigint,
+    proposalCount?: any,
     refetchInterval = 30_000
 ) {
     const callsRequests = useMemo(() => {
         if (!contracts) return [];
-
-        if (!proposalCountVoting) proposalCountVoting = 0n;
+        let preProposalsLength = 0n;  
+        let proposalsLength = 0n;
+        if (proposalCount) {
+            preProposalsLength = BigInt(proposalCount.votingMachine.getProposalCount);
+            proposalsLength = BigInt(proposalCount.votingMachine.getProposalsLength);
+        }
 
         const callRequest: MultiCallInput[] = [];
 
@@ -202,35 +206,41 @@ export function useContractOmocStatus(
                     keys: ["votingmachine", "totalSupply"],
                 });
             }
-
+            if (contracts.VotingMachine) {
             // Proposals
-            let indexProp: bigint;
-            if (proposalCountVoting !== undefined && contracts.VotingMachine) {
-                for (let i = 1; i < 30; i++) {
-                    if (proposalCountVoting - BigInt(i) >= 0) {
-                        indexProp = proposalCountVoting - BigInt(i);
-                        callRequest.push({
-                            contract: contracts.VotingMachine,
-                            functionName: "getProposalByIndex",
-                            args: [indexProp],
-                            resultType: [
-                                { type: "address", name: "proposalAddress" },
-                                { type: "uint256", name: "votingRound" },
-                                { type: "uint256", name: "votes" },
-                                {
-                                    type: "uint256",
-                                    name: "expirationTimeStamp",
-                                },
-                            ],
-                            keys: [
-                                "votingmachine",
-                                "getProposalByIndex",
-                                Number(indexProp),
-                            ],
-                            onError: onErrorProposal,
-                        });
-                    }
+            let indexProp;
+            for (let i = 1; i < 30; i++) {
+                if (preProposalsLength - BigInt(i) >= 0) {
+                    indexProp = preProposalsLength - BigInt(i);
+                    callRequest.push({
+                        contract: contracts.VotingMachine,
+                        functionName: 'getProposalByIndex',
+                        args: [indexProp],
+                        resultType: [
+                            { type: "address", name: "proposalAddress" },
+                            { type: "uint256", name: "votingRound" },
+                            { type: "uint256", name: "votes" },
+                            { type: "uint256", name: "expirationTimeStamp" },
+                        ],
+                        keys: ["votingmachine", "getProposalByIndex", Number(indexProp)],
+                        onError: onErrorProposal
+                    });
                 }
+            }
+
+            for (let i = 1; i < 30; i++) {
+                if (proposalsLength - BigInt(i) >= 0) {
+                    indexProp = proposalsLength - BigInt(i);
+                    callRequest.push({
+                        contract: contracts.VotingMachine,
+                        functionName: 'proposalsList',
+                        args: [indexProp],
+                        resultType: "address",
+                        keys: ["votingmachine", "proposalsList", Number(indexProp)],
+                        onError: onErrorProposal
+                    });
+                }
+            }
             }
 
             // OMOC REGISTRY CONSTANT
@@ -345,8 +355,8 @@ export function useContractOmocStatus(
             }
         }
 
-        return callRequest;
-    }, [contracts, proposalCountVoting]);
+      return callRequest
+    }, [contracts, proposalCount])
 
     // Pass callsRequests into your multicall hook (safe: it's a hook calling a hook)
     const multicallState = useMultiCall(callsRequests, {

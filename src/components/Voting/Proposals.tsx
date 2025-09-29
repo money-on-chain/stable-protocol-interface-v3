@@ -81,7 +81,6 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         interfaceVotingPreVoteStep,
         contractStatusOmoc,
         userOmocBalance,
-        proposalCount,
     } = useWalletContext();
     const space: string = "\u00A0";
 
@@ -201,7 +200,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
 
         // Also refresh proposal view data
         refreshViewProposalData();
-    }, [infoVoting, proposalsData, viewProposal]);
+    }, [infoVoting]);
 
     const proposals = infoVoting["proposals"];
     

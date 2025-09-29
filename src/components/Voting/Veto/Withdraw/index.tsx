@@ -154,6 +154,9 @@ const VetoWithdraw: React.FC = () => {
                         <div className="token__icon">{token.image}</div>
                         <div className="token__name">{token.settings.name}</div>
                     </div>
+                    <div className="vetoWithdrawProposal">
+                        <div className="token_name">{token.proposal}</div>
+                    </div>
                     <div className="vetoWithdrawAmount">
                         <div className="token__amount">
                             {PrecisionNumbers({
@@ -196,6 +199,9 @@ const VetoWithdraw: React.FC = () => {
                             <div className="vetoWithdrawHeader">
                                 <div className="vetoWithdrawToken">
                                     {t(`voting.veto.vetoWithdraw.headerToken`)}
+                                </div>
+                                <div className="vetoWithdrawProposal">
+                                    {t(`voting.veto.vetoWithdraw.headerProposal`)}
                                 </div>
                                 <div className="vetoWithdrawAmount">
                                     {t(`voting.veto.vetoWithdraw.headerAmount`)}

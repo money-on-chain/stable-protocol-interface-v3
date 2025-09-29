@@ -61,18 +61,11 @@ export function useUserVeto(
                 });
 
                 const votingMachineData = contractStatusOmoc.votingmachine as {
-                    getProposalByIndex: Record<string, unknown[]>;
+                    proposalsList: Record<string, unknown[]>;
                 };
-                if (votingMachineData?.getProposalByIndex) {
-                    for (const key in votingMachineData.getProposalByIndex) {
-                        const proposalData =
-                            votingMachineData.getProposalByIndex[key];
-                        if (
-                            !Array.isArray(proposalData) ||
-                            proposalData.length < 1
-                        )
-                            continue;
-                        const [proposal] = proposalData;
+                if (votingMachineData?.proposalsList) {
+                    for (const key in votingMachineData.proposalsList) {
+                        const proposal = votingMachineData.proposalsList[key];
                         callRequest.push({
                             contract: contracts.VetoMachine,
                             functionName: "getUserLockedAmount",

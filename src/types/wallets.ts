@@ -11,6 +11,7 @@ import type { useUserBalance } from "../hooks/useUserBalance";
 import type { useUserOmocBalance } from "../hooks/useUserOmocBalance";
 import type { useUserVesting } from "../hooks/useUserVesting";
 import type { useUserVeto } from "../hooks/useUserVeto";
+import type { useProposalCount } from "../hooks/useProposalCount";
 import type { DContracts } from "./hooks";
 
 // Reusable EVM address
@@ -55,7 +56,7 @@ export type WalletContextType = {
 
     blockNumber?: bigint;
     offChainPrices: unknown;
-    proposalCount?: bigint;
+    proposalCount?: ReturnType<typeof useProposalCount>;
 
     publicClient: ReturnType<typeof usePublicClient> | undefined;
     walletClient: ReturnType<typeof useWalletClient>;
