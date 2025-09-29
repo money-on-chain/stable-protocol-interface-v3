@@ -97,6 +97,7 @@ export type StakingMachineInfo = {
   getBalance: bigint;
   getLockedBalance: bigint;
   getLockingInfo: [bigint, bigint]; // [lockedAmount, timestampEnd]
+  tgAllowance: bigint;
 };
 
 export type VotingMachineInfo = {

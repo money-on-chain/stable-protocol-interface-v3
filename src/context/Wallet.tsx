@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import type { TransactionReceipt } from "viem";
 import {
     useAccount,
     useConnect,
@@ -473,9 +474,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         amount: bigint,
         address: `0x${string}`,
         onTransaction: OnTransaction,
-        onReceipt: OnReceipt,
-        onError: OnError
-    ): Promise<unknown> => {
+        onReceipt: OnReceipt
+    ): Promise<TransactionReceipt | undefined> => {
         const from = address;
         const interfaceContext = buildInterfaceContext();
         if (isVestingLoaded() && vestingAddress) {

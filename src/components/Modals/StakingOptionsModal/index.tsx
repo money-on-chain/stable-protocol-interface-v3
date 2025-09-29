@@ -5,6 +5,7 @@ import React, { Fragment, useEffect, useState } from "react";
 import { useWalletContext } from "../../../context/Wallet";
 import { useProjectTranslation } from "../../../helpers/translations";
 import settings from "../../../settings/settings.json";
+import type { UserOmocBalance,UserVesting } from "../../../types/status";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 
 interface StakingOptionsModalProps {
@@ -62,8 +63,8 @@ export default function StakingOptionsModal(
         if (!amountInEth) return;
 
         const allowanceAmount = isVestingLoaded()
-            ? userVesting.data.vestingmachine?.staking?.allowance
-            : userOmocBalance.data.stakingmachine?.tgAllowance;
+            ? (userVesting.data as UserVesting).vestingmachine?.staking?.allowance
+            : (userOmocBalance.data as UserOmocBalance).stakingmachine?.tgAllowance;
 
         if (allowanceAmount >= amountInEth) setStep(3);
     };
@@ -130,23 +131,27 @@ export default function StakingOptionsModal(
         if (!amount || !address) return;
 
         setStep(99);
-        await interfaceStakingAddStake(
+        const receipt = await interfaceStakingAddStake(
             amount,
             address,
             onTransaction,
             onReceipt,
             onError
-        ).then((res) => {
-            const status = res.status ? "success" : "error";
-            onConfirm(status, res.transactionHash);
+        )
+        if (!receipt) return;
+        
+        const status = receipt.status ? "success" : "error";
+        onConfirm(status, receipt.transactionHash);
+        
+        // const status = res.status ? "success" : "error";
+        // onConfirm(status, res.transactionHash);
 
-            // Refresh user balance
-            isVestingLoaded()
-                ? userVesting.refetch()
-                : userOmocBalance.refetch();
-
-            return null;
-        });
+        if (isVestingLoaded()) {
+            void userVesting.refetch();
+        } else {
+            void userOmocBalance.refetch();
+        }
+        
         // .catch((/*e*/) => {
         //     notification["error"]({
         //         message: t("global.RewardsError_Title"),
@@ -182,8 +187,8 @@ export default function StakingOptionsModal(
 
                 // Refresh user balance
                 isVestingLoaded()
-                    ? userVesting.refetch()
-                    : userOmocBalance.refetch();
+                    ? void userVesting.refetch()
+                    : void userOmocBalance.refetch();
 
                 return null;
             })
@@ -220,8 +225,8 @@ export default function StakingOptionsModal(
 
                 // Refresh user balance
                 isVestingLoaded()
-                    ? userVesting.refetch()
-                    : userOmocBalance.refetch();
+                    ? void userVesting.refetch()
+                    : void userOmocBalance.refetch();
 
                 return null;
             })
@@ -262,8 +267,8 @@ export default function StakingOptionsModal(
 
                 // Refresh user balance
                 isVestingLoaded()
-                    ? userVesting.refetch()
-                    : userOmocBalance.refetch();
+                    ? void userVesting.refetch()
+                    : void userOmocBalance.refetch();
 
                 return null;
             })

@@ -3,6 +3,7 @@ import {
     waitForTransactionReceipt,
     writeContract,
 } from "@wagmi/core";
+import type { TransactionReceipt } from "viem";
 import { checksumAddress, encodeFunctionData } from "viem";
 
 import type {
@@ -177,7 +178,7 @@ const addStake = async (
     vestingAddress: `0x${string}`,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.StakingMachine) return;
