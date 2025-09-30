@@ -5,7 +5,6 @@ import { useWalletContext } from "../../../context/Wallet";
 import { formatTimestamp } from "../../../helpers/staking";
 import { useProjectTranslation } from "../../../helpers/translations";
 import settings from "../../../settings/settings.json";
-import type { UserVesting } from "../../../types/status";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 
 interface VestingDataItem {
@@ -31,9 +30,9 @@ export default function VestingSchedule(): React.ReactElement {
         return <div>No vesting data available</div>;
     }
 
-    const getParameters = (userVesting.data as UserVesting).vestingmachine.getParameters;
-    const tgeTimestamp = (userVesting.data as UserVesting).vestingfactory.getTGETimestamp;
-    const total = (userVesting.data as UserVesting).vestingmachine.getTotal;
+    const getParameters = userVesting.data.vestingmachine.getParameters;
+    const tgeTimestamp = userVesting.data.vestingfactory.getTGETimestamp;
+    const total = userVesting.data.vestingmachine.getTotal;
     const percentMultiplier = 10000n;
     const [percentages, timeDeltas] = getParameters;
 
@@ -61,16 +60,14 @@ export default function VestingSchedule(): React.ReactElement {
             );
         } else {
             dates = deltas.map(
-                (x: string | number) => Number(x) / 60 / 60 / 24
+                (x: bigint) => Number(x) / 60 / 60 / 24
             );
         }
     }
 
     const tgeFormat = formatTimestamp(Number(tgeTimestamp) * 1000);
 
-    userVesting.data &&
-        getParameters &&
-        percents.forEach(function (percent: bigint, itemIndex: number) {
+    percents.forEach(function (percent: bigint, itemIndex: number) {
             let strTotal: bigint | undefined = undefined;
             if (total && total !== 0n) {
                 strTotal = (percent * total) / percentMultiplier;

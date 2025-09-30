@@ -6,10 +6,10 @@ import React, { useState } from "react";
 import { useProjectTranslation } from "../../../helpers/translations";
 import Swap from "../Swap";
 
-// If you know the props type, replace 'any' with the correct interface
+// If you know the props type, replace 'unknown' with the correct interface
 export interface ModalTokenMigrationProps {
     // Add specific prop types here if known
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 export default function ModalTokenMigration(

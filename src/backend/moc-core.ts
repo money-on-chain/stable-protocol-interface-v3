@@ -6,7 +6,6 @@ import {
 
 import settings from "../settings/settings.json";
 import type { TokenConfig } from "../types/hooks";
-import type { ContractProtocolStatus, UserBalance } from "../types/status";
 import type {
     InterfaceContext,
     OnReceipt,
@@ -60,7 +59,7 @@ const mintTC = async (
         } in your balance`
     );
 
-    const userReserveBalance = (userBalance.data as UserBalance).CA[caIndex]
+    const userReserveBalance = (userBalance.data).CA[caIndex]
         .balance;
     if (limitAmount > userReserveBalance)
         throw new Error(
@@ -93,7 +92,7 @@ const mintTC = async (
     if (getNetworkFromProject() === "rsk") {
         valueToSend = await getExecutionFee(
             publicClient,
-            (contractProtocolStatus.data as ContractProtocolStatus)[caIndex]
+            (contractProtocolStatus.data)[caIndex]
                 .tcMintExecCost,
             2
         );
@@ -162,7 +161,7 @@ const redeemTC = async (
         `Redeeming ${qTC} ${(settings.tokens.TC[0] as TokenConfig).name} ... getting approx limit down to: ${limitAmount} ${(settings.tokens.CA[caIndex] as TokenConfig).name}... `
     );
 
-    const userTCBalance = (userBalance.data as UserBalance)[caIndex].TC.balance;
+    const userTCBalance = (userBalance.data)[caIndex].TC.balance;
     if (qTC > userTCBalance)
         throw new Error(
             `Insufficient ${(settings.tokens.TC[caIndex] as TokenConfig).name} user balance`
@@ -170,7 +169,7 @@ const redeemTC = async (
 
     // There are sufficient TC in the contracts to redeem?
     const tcAvailableToRedeem = (
-        contractProtocolStatus.data as ContractProtocolStatus
+        contractProtocolStatus.data
     )[caIndex].getTCAvailableToRedeem;
     if (qTC > tcAvailableToRedeem)
         throw new Error(
@@ -178,7 +177,7 @@ const redeemTC = async (
         );
 
     // There are sufficient CA in the contract
-    const caBalance = (contractProtocolStatus.data as ContractProtocolStatus)[
+    const caBalance = (contractProtocolStatus.data)[
         caIndex
     ].getACBalance;
     if (limitAmount > caBalance)
@@ -190,7 +189,7 @@ const redeemTC = async (
     if (getNetworkFromProject() === "rsk") {
         valueToSend = await getExecutionFee(
             publicClient,
-            (contractProtocolStatus.data as ContractProtocolStatus)[caIndex]
+            (contractProtocolStatus.data)[caIndex]
                 .tcRedeemExecCost,
             2
         );
@@ -267,7 +266,7 @@ const mintTP = async (
             (settings.tokens.CA[caIndex] as TokenConfig).name
         } in your balance`
     );
-    const userReserveBalance = (userBalance.data as UserBalance).CA[caIndex]
+    const userReserveBalance = (userBalance.data).CA[caIndex]
         .balance;
     if (limitAmount > userReserveBalance)
         throw new Error(
@@ -298,7 +297,7 @@ const mintTP = async (
 
     // There are sufficient PEGGED in the contracts to mint?
     const tpAvailableToMint = (
-        contractProtocolStatus.data as ContractProtocolStatus
+        contractProtocolStatus.data
     )[caIndex].getTPAvailableToMint[tpIndex];
 
     if (qTP > tpAvailableToMint)
@@ -310,7 +309,7 @@ const mintTP = async (
     if (getNetworkFromProject() === "rsk") {
         valueToSend = await getExecutionFee(
             publicClient,
-            (contractProtocolStatus.data as ContractProtocolStatus)[caIndex]
+            (contractProtocolStatus.data)[caIndex]
                 .tpMintExecCost,
             2
         );
@@ -384,7 +383,7 @@ const redeemTP = async (
     console.log(
         `Redeeming ${qTP} ${(settings.tokens.TP[tpIndex] as TokenConfig).name} ... getting approx: ${limitAmount} ${(settings.tokens.CA[caIndex] as TokenConfig).name}... `
     );
-    const userTPBalance = (userBalance.data as UserBalance).TP[caIndex][tpIndex]
+    const userTPBalance = (userBalance.data).TP[caIndex][tpIndex]
         .balance;
     if (qTP > userTPBalance)
         throw new Error(
@@ -401,7 +400,7 @@ const redeemTP = async (
     //     );
 
     // There are sufficient CA in the contract
-    const caBalance = (contractProtocolStatus.data as ContractProtocolStatus)[
+    const caBalance = (contractProtocolStatus.data)[
         caIndex
     ].getACBalance;
     if (limitAmount > caBalance)
@@ -413,7 +412,7 @@ const redeemTP = async (
     if (getNetworkFromProject() === "rsk") {
         valueToSend = await getExecutionFee(
             publicClient,
-            (contractProtocolStatus.data as ContractProtocolStatus)[caIndex]
+            (contractProtocolStatus.data)[caIndex]
                 .tpRedeemExecCost,
             4
         );

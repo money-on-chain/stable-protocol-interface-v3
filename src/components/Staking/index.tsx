@@ -3,7 +3,6 @@ import React, { Fragment, useEffect, useState } from "react";
 import { useWalletContext } from "../../context/Wallet";
 import { pendingWithdrawalsFormat } from "../../helpers/staking";
 import { useProjectTranslation } from "../../helpers/translations";
-import type { UserOmocBalance, UserVesting } from "../../types/status";
 import PerformanceChart from "./performanceChart";
 import PieChartComponent from "./PieChart";
 import Stake from "./Stake";
@@ -81,25 +80,25 @@ export default function Staking(): JSX.Element {
         let vUsing: vUsing;
 
         if (isVestingLoaded() && userVesting.data) {
-            cData["tgBalance"] = (userVesting.data as UserVesting).vestingmachine.tgBalance;
+            cData["tgBalance"] = userVesting.data.vestingmachine.tgBalance;
             cData["stakedBalance"] =
-                (userVesting.data as UserVesting).vestingmachine.staking.balance;
+                userVesting.data.vestingmachine.staking.balance;
             cData["lockedBalance"] =
-                (userVesting.data as UserVesting).vestingmachine.staking.getLockedBalance;
+                userVesting.data.vestingmachine.staking.getLockedBalance;
             pendingWithdrawals = pendingWithdrawalsFormat(
-                (userVesting.data as UserVesting).vestingmachine.delay
+                userVesting.data.vestingmachine.delay
             );
-            vUsing = (userVesting.data as UserVesting).vestingmachine.staking;
+            vUsing = userVesting.data.vestingmachine.staking;
         } else {
-            cData["tgBalance"] = (userOmocBalance.data as UserOmocBalance).TG.balance;
+            cData["tgBalance"] = userOmocBalance.data.TG.balance;
             cData["stakedBalance"] =
-                (userOmocBalance.data as UserOmocBalance).stakingmachine.getBalance;
+                userOmocBalance.data.stakingmachine.getBalance;
             cData["lockedBalance"] =
-                (userOmocBalance.data as UserOmocBalance).stakingmachine.getLockedBalance;
+                userOmocBalance.data.stakingmachine.getLockedBalance;
             pendingWithdrawals = pendingWithdrawalsFormat(
-                (userOmocBalance.data as UserOmocBalance).delaymachine
+                userOmocBalance.data.delaymachine
             );
-            vUsing = (userOmocBalance.data as UserOmocBalance).stakingmachine!;
+            vUsing = userOmocBalance.data.stakingmachine!;
         }
 
         const [lockedAmount, lockedUntilTimestamp] = vUsing.getLockingInfo;

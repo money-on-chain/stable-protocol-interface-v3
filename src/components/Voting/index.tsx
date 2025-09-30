@@ -6,7 +6,6 @@ import { useWalletContext } from "../../context/Wallet";
 import { divPrecision, mulPrecision } from "../../helpers/precision";
 import { formatTimestamp } from "../../helpers/staking";
 import { useProjectTranslation } from "../../helpers/translations";
-import type { ContractStatusOmoc, UserOmocBalance, UserVesting } from "../../types/status";
 import Proposals from "./Proposals";
 import Vote from "./Vote";
 
@@ -120,34 +119,34 @@ const Voting: React.FC = () => {
         if (!userOmocBalance.data) return;
         
         const cData: InfoVoting = { ...infoVoting };
-        cData["proposals"] = (contractStatusOmoc.data as ContractStatusOmoc).votingmachine
+        cData["proposals"] = contractStatusOmoc.data.votingmachine
             .getProposalByIndex as unknown as Proposal[];
         cData["state"] = Number(
-            (contractStatusOmoc.data as ContractStatusOmoc).votingmachine.getState
+            contractStatusOmoc.data.votingmachine.getState
         );
-        cData["readyToPreVoteStep"] = (contractStatusOmoc.data as ContractStatusOmoc).votingmachine
+        cData["readyToPreVoteStep"] = contractStatusOmoc.data.votingmachine
             .readyToPreVoteStep;
-        cData["readyToVoteStep"] = (contractStatusOmoc.data as ContractStatusOmoc).votingmachine
+        cData["readyToVoteStep"] = contractStatusOmoc.data.votingmachine
             .readyToVoteStep;
-        cData["globalVotingRound"] = (contractStatusOmoc.data as ContractStatusOmoc).votingmachine
+        cData["globalVotingRound"] = contractStatusOmoc.data.votingmachine
             .getVotingRound;
-        cData["totalSupply"] = (contractStatusOmoc.data as ContractStatusOmoc).votingmachine
+        cData["totalSupply"] = contractStatusOmoc.data.votingmachine
             .totalSupply;
-        cData["PRE_VOTE_MIN_PCT_TO_WIN"] = (contractStatusOmoc.data as ContractStatusOmoc).votingmachine
+        cData["PRE_VOTE_MIN_PCT_TO_WIN"] = contractStatusOmoc.data.votingmachine
             .PRE_VOTE_MIN_PCT_TO_WIN;
         cData["PRE_VOTE_MIN_TO_WIN"] =
             mulPrecision(
                 cData["totalSupply"],
                 cData["PRE_VOTE_MIN_PCT_TO_WIN"]
             ) / 100n;
-        cData["MIN_STAKE"] = (contractStatusOmoc.data as ContractStatusOmoc).votingmachine
+        cData["MIN_STAKE"] = contractStatusOmoc.data.votingmachine
             .MIN_STAKE;
-        cData["MIN_PCT_FOR_QUORUM"] = (contractStatusOmoc.data as ContractStatusOmoc).votingmachine
+        cData["MIN_PCT_FOR_QUORUM"] = contractStatusOmoc.data.votingmachine
             .MIN_PCT_FOR_QUORUM;
         cData["MIN_FOR_QUORUM"] =
             mulPrecision(cData["totalSupply"], cData["MIN_PCT_FOR_QUORUM"]) /
             100n;
-        cData["VOTE_MIN_PCT_TO_VETO"] = (contractStatusOmoc.data as ContractStatusOmoc).votingmachine
+        cData["VOTE_MIN_PCT_TO_VETO"] = contractStatusOmoc.data.votingmachine
             .VOTE_MIN_PCT_TO_VETO;
         cData["VOTE_MIN_TO_VETO"] =
             mulPrecision(cData["totalSupply"], cData["VOTE_MIN_PCT_TO_VETO"]) /
@@ -159,7 +158,7 @@ const Voting: React.FC = () => {
             inFavorVotes,
             againstVotes,
             votingExpirationTime,
-        ] = (contractStatusOmoc.data as ContractStatusOmoc).votingmachine.getVotingData as [
+        ] = contractStatusOmoc.data.votingmachine.getVotingData as [
             string,
             bigint,
             bigint,
@@ -205,19 +204,15 @@ const Voting: React.FC = () => {
 
         // Voting Info
         const [infoWinnerProposal, infoInFavorVotes, infoAgainstVotes] =
-            (contractStatusOmoc.data as ContractStatusOmoc).votingmachine.getVoteInfo as [
-                string,
-                bigint,
-                bigint,
-            ];
+            contractStatusOmoc.data.votingmachine.getVoteInfo;
 
         cData["votingInfo"]["winnerProposal"] = infoWinnerProposal;
         cData["votingInfo"]["inFavorVotes"] = infoInFavorVotes;
         cData["votingInfo"]["againstVotes"] = infoAgainstVotes;
         cData["votingData"]["totalVetoPCT"] =
-            (contractStatusOmoc.data as ContractStatusOmoc).vetomachine
+            contractStatusOmoc.data.vetomachine
                 ?.getVetoPctForWinnerProposal || 0n;
-        cData["isVetoMachine"] = (contractStatusOmoc.data as ContractStatusOmoc).vetomachine
+        cData["isVetoMachine"] = contractStatusOmoc.data.vetomachine
             ? true
             : false;
         setInfoVoting(cData);
@@ -225,15 +220,9 @@ const Voting: React.FC = () => {
         const cDataUser: InfoUser = { ...infoUser };
         let vUsing: { getBalance: bigint; getLockingInfo: [bigint, bigint] };
         if (isVestingLoaded() && userVesting.data) {
-            vUsing = (userVesting.data as UserVesting).vestingmachine.staking as {
-                getBalance: bigint;
-                getLockingInfo: [bigint, bigint];
-            };
+            vUsing = userVesting.data.vestingmachine.staking;
         } else {
-            vUsing = (userOmocBalance.data as UserOmocBalance).stakingmachine as {
-                getBalance: bigint;
-                getLockingInfo: [bigint, bigint];
-            };
+            vUsing = userOmocBalance.data.stakingmachine;
         }
 
         const uBalance: bigint = vUsing.getBalance;

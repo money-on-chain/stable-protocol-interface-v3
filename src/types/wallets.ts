@@ -3,15 +3,13 @@ import type { usePublicClient } from "wagmi";
 import type { useWalletClient } from "wagmi";
 import type { useConnect } from "wagmi";
 
-import type { UseBaseCoinBalanceReturn } from "../hooks/useBaseCoinBalance";
 import type { useContractOmocStatus } from "../hooks/useContractOmocStatus";
 import type { useContractProtocolStatus } from "../hooks/useContractProtocolStatus";
 import type { useIncentiveV2 } from "../hooks/useIncentiveV2";
-import type { useUserBalance } from "../hooks/useUserBalance";
-import type { useUserOmocBalance } from "../hooks/useUserOmocBalance";
-import type { useUserVesting } from "../hooks/useUserVesting";
 import type { useUserVeto } from "../hooks/useUserVeto";
+import type { UseBaseCoinBalanceResult } from "../types/status";
 import type { DContracts } from "./hooks";
+import type { ContractProtocolStatusResult, UserBalanceResult, UserOmocBalanceResult, UserVestingResult } from "./status";
 
 // Reusable EVM address
 export type Address = `0x${string}`;
@@ -25,8 +23,8 @@ export type ContractsAddress = {
 export interface InterfaceContext {
     publicClient: ReturnType<typeof usePublicClient> | undefined;
     walletClient: ReturnType<typeof useWalletClient>;
-    contractProtocolStatus: ReturnType<typeof useContractProtocolStatus>;
-    userBalance: ReturnType<typeof useUserBalance>;
+    contractProtocolStatus: ContractProtocolStatusResult;
+    userBalance: UserBalanceResult;
     address?: Address;
     contracts: DContracts | null;
 }
@@ -46,10 +44,10 @@ export type WalletContextType = {
     contractStatusOmoc: ReturnType<typeof useContractOmocStatus>;
     contractProtocolStatus: ReturnType<typeof useContractProtocolStatus>;
 
-    userBalance: ReturnType<typeof useUserBalance>;
-    userOmocBalance: ReturnType<typeof useUserOmocBalance>;
-    userBaseCoinBalance: UseBaseCoinBalanceReturn;
-    userVesting: ReturnType<typeof useUserVesting>;
+    userBalance: UserBalanceResult;
+    userOmocBalance: UserOmocBalanceResult;
+    userBaseCoinBalance: UseBaseCoinBalanceResult;
+    userVesting: UserVestingResult;
     userIncentiveV2: ReturnType<typeof useIncentiveV2>;
     userVeto: ReturnType<typeof useUserVeto>;
 
@@ -144,7 +142,7 @@ export type WalletContextType = {
     setVestingMachine: (vAddress: string) => void;
 
     interfaceIncentiveV2Claim: (
-        signDataResponse: unknown,
+        signDataResponse: string | { signature: string },
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
         onError: OnError

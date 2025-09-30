@@ -2,8 +2,7 @@ import { Checkbox } from "antd";
 import PropTypes from "prop-types";
 import React, { useState } from "react";
 
-import { useWalletContext } from "@/context/Wallet";
-
+import { useWalletContext } from "../../context/Wallet";
 import { useProjectTranslation } from "../../helpers/translations";
 
 const PRECISION_DECIMALS = 18n;

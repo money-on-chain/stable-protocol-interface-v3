@@ -1,3 +1,6 @@
+import type { UseStorageResult } from "./hooks";
+
+
 export type TokenBalance = {
     allowance?: bigint;
     balance: bigint;
@@ -13,6 +16,10 @@ export type UserBalance = {
     tpLegacy?: TokenBalance;
     canOperate: boolean;
 };
+export type UserBalanceResult = Omit<UseStorageResult<unknown>, "data"> & {
+  data: UserBalance;
+};
+
 
 export type OracleValue = {
     0: bigint; // valor
@@ -77,6 +84,11 @@ export type ContractProtocolStatus = {
     getNormalizationFactors: bigint[];
 };
 
+export type ContractProtocolStatusResult = Omit<UseStorageResult<unknown>, "data"> & {
+  data: ContractProtocolStatus;
+};
+
+
 
 
 type Address = `0x${string}`;
@@ -114,6 +126,11 @@ export type UserOmocBalance = {
   stakingmachine: StakingMachineInfo;
   votingmachine: VotingMachineInfo;
 };
+
+export type UserOmocBalanceResult = Omit<UseStorageResult<unknown>, "data"> & {
+  data: UserOmocBalance;
+};
+
 
 export type VestingTransaction = [bigint, bigint] // [amount, timestamp] o [id, valor]
 export type VestingParameters = [bigint[], bigint[]] // [percentages[], timesdeltas[]]
@@ -159,6 +176,9 @@ export type UserVesting = {
   tgBalance: bigint
 }
 
+export type UserVestingResult = Omit<UseStorageResult<unknown>, "data"> & {
+  data: UserVesting;
+};
 
 
 export type DelayMachineStatus = {
@@ -223,3 +243,21 @@ export type ContractStatusOmoc = {
   vetomachine: VetoMachineStatus
   votingmachine: VotingMachineStatus
 }
+
+export type ContractStatusOmocResult = Omit<UseStorageResult<unknown>, "data"> & {
+  data: ContractStatusOmoc;
+};
+
+export interface UseBaseCoinBalanceResult {
+  balance: bigint | undefined;
+  formatted: string | undefined;
+  symbol: string | undefined;
+  isLoading: boolean;
+  isFetching: boolean;
+  error: Error | null;
+  refetch: () => void;
+}
+
+export type UseIncentiveV2Result = Omit<UseStorageResult<unknown>, "data"> & {
+  data: IncentiveV2Info;
+};

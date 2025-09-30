@@ -10,6 +10,7 @@ import type {
     MultiCallInput,
     ParsedPrices,
 } from "../types/hooks";
+import type { ContractProtocolStatusResult } from "../types/status";
 import { useMultiCall } from "./useMulticall";
 
 const onErrorGetPTCac = (): MultiCallErrorResult => {
@@ -25,7 +26,7 @@ export function useContractProtocolStatus(
     currentBlockNumber?: number,
     parsedPrices?: ParsedPrices[],
     refetchInterval = 30_000
-) {
+): ContractProtocolStatusResult {
     const externalData: ExternalData = {};
 
     if (parsedPrices) {
@@ -593,5 +594,5 @@ export function useContractProtocolStatus(
         externalData: externalData,
     });
 
-    return multicallState;
+    return multicallState as unknown as ContractProtocolStatusResult;
 }

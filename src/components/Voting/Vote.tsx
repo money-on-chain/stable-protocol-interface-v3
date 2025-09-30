@@ -162,11 +162,11 @@ function Vote(props: VoteProps): JSX.Element {
 
     useEffect(() => {
         onValidateVotingInFavorOrAgainst();
-    }, [onValidateVotingInFavorOrAgainst]);
+    }, []);
 
     useEffect(() => {
         refreshVotingFinish();
-    }, [refreshVotingFinish]);
+    }, []);
 
     const votingGraphs: CreateBarGraphProps[] = [
         {

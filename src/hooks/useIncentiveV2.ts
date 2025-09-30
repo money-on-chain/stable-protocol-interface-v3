@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
 import type { DContracts, MultiCallInput } from "../types/hooks";
+import type { UseIncentiveV2Result } from "../types/status";
 import { useMultiCall } from "./useMulticall";
 
 /**
@@ -11,7 +12,7 @@ export function useIncentiveV2(
     contracts?: DContracts,
     userAddress?: string,
     refetchInterval = 30_000
-) {
+): UseIncentiveV2Result {
     const callsRequests = useMemo(() => {
         if (!contracts) return [];
         if (!userAddress) return [];
@@ -47,5 +48,5 @@ export function useIncentiveV2(
         scopeKey: ["userIncentiveV2", userAddress].join(":"),
     });
 
-    return multicallState;
+    return multicallState as unknown as UseIncentiveV2Result;
 }

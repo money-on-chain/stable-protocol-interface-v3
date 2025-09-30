@@ -98,7 +98,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
 
     useEffect(() => {
         onValidateSubmitProposalCallback();
-    }, [contractStatusOmoc.data, onValidateSubmitProposalCallback]);
+    }, [contractStatusOmoc.data]);
 
     const searchProposal = (proposalAddress: string): ProposalData => {
         let proposal: ProposalData = {
@@ -201,15 +201,13 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
 
         // Also refresh proposal view data
         refreshViewProposalData();
-    }, [infoVoting, proposalsData, viewProposal]);
+    }, [infoVoting]);
 
-    const proposals = infoVoting["proposals"];
-    
     useEffect(() => {
-        if (proposals != null) {
+        if (infoVoting["proposals"] != null) {
             refreshProposals();
         }
-    }, [proposals, refreshProposals]);
+    }, [infoVoting["proposals"], refreshProposals]);
 
     const onChangeInputAddProposal = (
         e: React.ChangeEvent<HTMLInputElement>

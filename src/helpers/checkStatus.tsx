@@ -1,5 +1,6 @@
 import { useWalletContext } from "../context/Wallet";
 import settings from "../settings/settings.json";
+import type { ContractProtocolStatusResult } from "../types/status";
 import { useProjectTranslation } from "./translations";
 
 interface StatusResult {
@@ -11,7 +12,7 @@ interface StatusResult {
 }
 
 function CheckStatusCA(
-    contractProtocolStatus: { data?: Record<string | number, unknown> },
+    contractProtocolStatus: ContractProtocolStatusResult,
     caIndex: number
 ): number {
     /* Status Code:
@@ -28,16 +29,7 @@ function CheckStatusCA(
 
     if (!contractProtocolStatus.data) return statusCode;
 
-    const caData = contractProtocolStatus.data[caIndex] as
-        | {
-              getCglb: bigint;
-              getCtargemaCA: bigint;
-              liqThrld: bigint;
-              protThrld: bigint;
-              liquidated: boolean;
-              paused: boolean;
-          }
-        | undefined;
+    const caData = contractProtocolStatus.data[caIndex];
 
     if (!caData) return statusCode;
 
@@ -64,9 +56,7 @@ function CheckStatusCA(
         statusCode = 4;
     }
 
-    const canOperate = contractProtocolStatus.data.canOperate as
-        | boolean
-        | undefined;
+    const canOperate = contractProtocolStatus.data.canOperate;
     if (canOperate === false) {
         statusCode = 5;
     }

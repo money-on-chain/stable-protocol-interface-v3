@@ -165,7 +165,7 @@ export default function Exchange(): JSX.Element {
         }
 
         // 0. Cannot operate
-        if (!contractProtocolStatus.data?.canOperate) {
+        if (!(contractProtocolStatus.data).canOperate) {
             setInputValidationErrorText(t("exchange.errors.cantOperate"));
             setInputValidationError(true);
             return;
@@ -215,7 +215,7 @@ export default function Exchange(): JSX.Element {
             tIndex = TokenSettings(currencyYouReceive).key;
             if (tIndex !== undefined) {
                 const tpAvailableToMint =
-                    contractProtocolStatus.data[caIndex]
+                    (contractProtocolStatus.data)[caIndex]
                         .getRealTPAvailableToMint[tIndex];
                 if (amountYouReceive > tpAvailableToMint) {
                     setInputValidationErrorText(
@@ -231,7 +231,7 @@ export default function Exchange(): JSX.Element {
         if (arrCurrencyYouExchange[0] === "TC") {
             // There are sufficient TC in the contracts to redeem?
             const tcAvailableToRedeem =
-                contractProtocolStatus.data[caIndex].getRealTCAvailableToRedeem;
+                (contractProtocolStatus.data)[caIndex].getRealTCAvailableToRedeem;
             if (amountYouExchange > tcAvailableToRedeem) {
                 setInputValidationErrorText(t("exchange.errors.noLiquidity"));
                 setInputValidationError(true);
@@ -245,7 +245,7 @@ export default function Exchange(): JSX.Element {
             if (tIndex !== undefined) {
                 // There are sufficient CA in the contract
                 const caBalance =
-                    contractProtocolStatus.data[tIndex].getACBalance;
+                    (contractProtocolStatus.data)[tIndex].getACBalance;
                 if (amountYouReceive > caBalance) {
                     setInputValidationErrorText(
                         t("exchange.errors.noLiquidity")
@@ -257,7 +257,7 @@ export default function Exchange(): JSX.Element {
         }
 
         // 5. HAVE TO PAY COMMISSIONS WITH FEE TOKEN?
-        const feeTokenBalance = userBalance.data[caIndex].FeeToken.balance;
+        const feeTokenBalance = (userBalance.data)[caIndex].FeeToken.balance;
 
         if (feeTokenBalance && feeTokenBalance > commissionFeeToken) {
             // Set as default to pay fee with token
@@ -271,7 +271,7 @@ export default function Exchange(): JSX.Element {
             tIndex = TokenSettings(currencyYouReceive).key;
             if (tIndex !== undefined) {
                 const maxQACToMintTP =
-                    contractProtocolStatus.data[caIndex].maxQACToMintTP[tIndex];
+                    (contractProtocolStatus.data)[caIndex].maxQACToMintTP[tIndex];
                 if (amountYouExchange > maxQACToMintTP) {
                     setInputValidationErrorText(
                         t("exchange.errors.maxLimitedByProtocol")
@@ -289,7 +289,7 @@ export default function Exchange(): JSX.Element {
             tIndex = TokenSettings(currencyYouReceive).key;
             if (tIndex !== undefined) {
                 const maxQACToRedeemTP =
-                    contractProtocolStatus.data[caIndex].maxQACToRedeemTP[
+                    (contractProtocolStatus.data)[caIndex].maxQACToRedeemTP[
                         tIndex
                     ];
                 console.log("maxQACToRedeemTP: ", maxQACToRedeemTP.toString());
@@ -307,7 +307,7 @@ export default function Exchange(): JSX.Element {
             tIndex = TokenSettings(currencyYouExchange).key;
             if (tIndex !== undefined) {
                 const maxAvailableTP =
-                    contractProtocolStatus.data[caIndex].pegContainer[tIndex];
+                    (contractProtocolStatus.data)[caIndex].pegContainer[tIndex];
                 if (amountYouExchange > maxAvailableTP) {
                     setInputValidationErrorText(
                         t("exchange.errors.insufficientTPinCA")
@@ -328,6 +328,7 @@ export default function Exchange(): JSX.Element {
         amountReceive: bigint,
         source: string
     ): Promise<void> => {
+        if (!publicClient) return;
         let infoFee: CommissionInfo;
         let amountExchangeFee: bigint;
         let amountReceiveFee: bigint;
@@ -409,7 +410,7 @@ export default function Exchange(): JSX.Element {
         setCommissionPercentFeeToken(infoFee.feeTokenPercent);
 
         const priceCA = normalizeToBigInt(
-            contractProtocolStatus.data[caIndex].PP_CA[0]
+            (contractProtocolStatus.data)[caIndex].PP_CA[0]
         );
         if (priceCA) {
             convertAmountUSD = mulPrecision(convertAmountUSD, priceCA);
@@ -425,7 +426,7 @@ export default function Exchange(): JSX.Element {
         const execFee = await getExecutionFee(publicClient, execCost, 2);
 
         const priceCoinbase = normalizeToBigInt(
-            contractProtocolStatus.data.PP_COINBASE[0]
+            (contractProtocolStatus.data).PP_COINBASE[0]
         );
         if (priceCoinbase) {
             const execFeeUSD = mulPrecision(execFee, priceCoinbase);
@@ -610,7 +611,7 @@ export default function Exchange(): JSX.Element {
                                     <span className={"symbol"}> ≈ </span>
                                     <span className={"token_receive"}>
                                         {" "}
-                                        {!contractProtocolStatus.data
+                                        {!(contractProtocolStatus.data)
                                             ?.canOperate
                                             ? "--"
                                             : PrecisionNumbers({
@@ -652,7 +653,7 @@ export default function Exchange(): JSX.Element {
                                     </span>
                                     <span className={"symbol"}> ≈ </span>
                                     <span className={"token_receive"}>
-                                        {!contractProtocolStatus.data
+                                        {!(contractProtocolStatus.data)
                                             ?.canOperate
                                             ? "--"
                                             : PrecisionNumbers({
@@ -695,8 +696,7 @@ export default function Exchange(): JSX.Element {
                                                     className={"token_exchange"}
                                                 >
                                                     {t("fees.labelFee")} (
-                                                    {!contractProtocolStatus
-                                                        .data?.canOperate
+                                                    {!(contractProtocolStatus.data).canOperate
                                                         ? "--"
                                                         : PrecisionNumbers({
                                                               amount: commissionPercent,
@@ -710,8 +710,7 @@ export default function Exchange(): JSX.Element {
                                                 </span>
                                                 <span className={""}> ≈ </span>
                                                 <span className={""}>
-                                                    {!contractProtocolStatus
-                                                        .data?.canOperate
+                                                    {!(contractProtocolStatus.data).canOperate
                                                         ? "--"
                                                         : PrecisionNumbers({
                                                               amount: commission,
@@ -735,8 +734,7 @@ export default function Exchange(): JSX.Element {
                                                 </span>
                                                 <span className={""}> (</span>
                                                 <span>
-                                                    {!contractProtocolStatus
-                                                        .data?.canOperate
+                                                    {!(contractProtocolStatus.data).canOperate
                                                         ? "--"
                                                         : PrecisionNumbers({
                                                               amount: commissionUSD,
@@ -764,8 +762,7 @@ export default function Exchange(): JSX.Element {
                                             >
                                                 <span className={""}>
                                                     {t("fees.labelFee")} (
-                                                    {!contractProtocolStatus
-                                                        .data?.canOperate
+                                                    {!(contractProtocolStatus.data).canOperate
                                                         ? "--"
                                                         : PrecisionNumbers({
                                                               amount: commissionPercentFeeToken,
@@ -779,8 +776,7 @@ export default function Exchange(): JSX.Element {
                                                 </span>
                                                 <span className={""}> ≈ </span>
                                                 <span className={""}>
-                                                    {!contractProtocolStatus
-                                                        .data?.canOperate
+                                                    {!(contractProtocolStatus.data).canOperate
                                                         ? "--"
                                                         : PrecisionNumbers({
                                                               amount: commissionFeeToken,
@@ -799,8 +795,7 @@ export default function Exchange(): JSX.Element {
                                                 </span>
                                                 <span className={""}> (</span>
                                                 <span>
-                                                    {!contractProtocolStatus
-                                                        .data?.canOperate
+                                                    {!(contractProtocolStatus.data).canOperate
                                                         ? "--"
                                                         : PrecisionNumbers({
                                                               amount: commissionFeeTokenUSD,
@@ -840,7 +835,7 @@ export default function Exchange(): JSX.Element {
                         <div className={""}> ≈ </div>
                         {exchangingUSD.toString() !== "NaN" ? (
                             <div className={""}>
-                                {!contractProtocolStatus.data?.canOperate
+                                {!(contractProtocolStatus.data).canOperate
                                     ? "--"
                                     : PrecisionNumbers({
                                           amount: exchangingUSD,

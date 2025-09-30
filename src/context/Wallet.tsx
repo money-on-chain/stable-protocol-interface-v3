@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback,useContext, useEffect, useState } from "react";
 import type { TransactionReceipt } from "viem";
 import {
     useAccount,
@@ -194,6 +194,18 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         REFRESH_INTERVAL_USER_BALANCE
     );
 
+    const readContractsAddresses = useCallback(async (): Promise<void> => {
+        if (!isConnected || contractsAddressLoaded || !publicClient) return;
+
+        try {
+            const contractsAddresses = await readContracts(publicClient);
+            setContractsAddress(contractsAddresses);
+            setContractsAddressLoaded(true);
+        } catch (e) {
+            console.error("Error loading contracts:", e);
+        }
+    }, [isConnected, contractsAddressLoaded, publicClient]);
+
     useEffect(() => {
         if (offChainPricesAPI.parsedPrices) {
             setOffChainPrices(offChainPricesAPI.parsedPrices);
@@ -204,13 +216,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         if (!contractsAddressLoaded) {
             void readContractsAddresses();
         }
-    }, [contractsAddressLoaded]);
+    }, [contractsAddressLoaded/*, readContractsAddresses*/]);
 
     useEffect(() => {
         if (!isConnected && !showModalProviders) {
             setShowModalProviders(true);
         }
-    }, [isConnected]);
+    }, [isConnected, showModalProviders]);
 
     useEffect(() => {
         // Refetch user data when address changes
@@ -221,18 +233,6 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         void userVesting?.refetch?.();
         void userIncentiveV2?.refetch?.();
     }, [address]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    const readContractsAddresses = async (): Promise<void> => {
-        if (!isConnected || contractsAddressLoaded || !publicClient) return;
-
-        try {
-            const contractsAddresses = await readContracts(publicClient);
-            setContractsAddress(contractsAddresses);
-            setContractsAddressLoaded(true);
-        } catch (e) {
-            console.error("Error loading contracts:", e);
-        }
-    };
 
     const onDisconnect = (): void => {
         disconnect();
@@ -274,7 +274,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
     const setVestingMachine = (vAddress: string): void => {
         setVestingAddress(vAddress);
-        userVesting.refetch();
+        void userVesting.refetch();
     };
 
     const saveUserVesting = (response: VestingResponse): void => {
@@ -418,7 +418,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         amount: bigint,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
+        onError: (error: unknown) => void
     ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         return AllowUseTokenMigrator(
@@ -433,7 +433,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const interfaceMigrateToken = async (
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
+        onError: (error: unknown) => void
     ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         return MigrateToken(
@@ -449,7 +449,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         amount: bigint,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
+        onError: (error: unknown) => void
     ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         if (isVestingLoaded() && vestingAddress) {
@@ -502,7 +502,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         idWithdraw: string | number,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
+        onError: (error: unknown) => void
     ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         if (isVestingLoaded() && vestingAddress) {
@@ -527,7 +527,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         idWithdraw: string | number,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
+        onError: (error: unknown) => void
     ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         if (isVestingLoaded() && vestingAddress) {
@@ -549,10 +549,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     };
 
     const interfaceIncentiveV2Claim = async (
-        signDataResponse: any,
+        signDataResponse: string | { signature: string },
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
+        onError: (error: unknown) => void
     ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         return claimV2(
@@ -567,7 +567,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         amount: bigint,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
+        onError: (error: unknown) => void
     ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         if (isVestingLoaded() && vestingAddress) {
@@ -586,7 +586,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const interfaceVestingWithdraw = async (
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
+        onError: (error: unknown) => void
     ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         return withdrawAllVesting(
@@ -609,7 +609,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const interfaceVestingVerify = async (
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
+        onError: (error: unknown) => void
     ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         return vestingVerify(
@@ -625,7 +625,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         changeContractAddress: `0x${string}`,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
+        onError: (error: unknown) => void
     ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         if (isVestingLoaded() && vestingAddress) {
@@ -650,7 +650,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         inFavorAgainst: boolean,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
+        onError: (error: unknown) => void
     ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         if (isVestingLoaded() && vestingAddress) {
@@ -674,7 +674,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const interfaceVotingPreVoteStep = async (
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
+        onError: (error: unknown) => void
     ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         return preVoteStep(interfaceContext, onTransaction, onReceipt);
@@ -683,7 +683,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const interfaceVotingVoteStep = async (
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
+        onError: (error: unknown) => void
     ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         return voteStep(interfaceContext, onTransaction, onReceipt);
@@ -692,7 +692,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const interfaceVotingAcceptedStep = async (
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
+        onError: (error: unknown) => void
     ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         return acceptedStep(interfaceContext, onTransaction, onReceipt);
@@ -702,7 +702,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         changeContractAddress: `0x${string}`,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
+        onError: (error: unknown) => void
     ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         return unRegister(
@@ -718,7 +718,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         caIndex: number,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
+        onError: (error: unknown) => void
     ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         return vetoVote(
@@ -735,7 +735,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         tcAddress: `0x${string}`,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
+        onError: (error: unknown) => void
     ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         return vetoWithdraw(

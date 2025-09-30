@@ -6,7 +6,6 @@ import {
 
 import settings from "../settings/settings.json";
 import type { TokenConfig } from "../types/hooks";
-import type { ContractProtocolStatus, UserBalance } from "../types/status";
 import type {
     InterfaceContext,
     OnReceipt,
@@ -58,7 +57,7 @@ const mintTC = async (
             (settings.tokens.CA[caIndex] as TokenConfig).name
         } in your balance`
     );
-    const userReserveBalance = (userBalance.data as UserBalance).CA[caIndex]
+    const userReserveBalance = (userBalance.data).CA[caIndex]
         .balance;
     if (limitAmount > userReserveBalance)
         throw new Error(
@@ -90,7 +89,7 @@ const mintTC = async (
     if (getNetworkFromProject() === "rsk") {
         valueToSend = await getExecutionFee(
             publicClient,
-            (contractProtocolStatus.data as ContractProtocolStatus)[caIndex]
+            (contractProtocolStatus.data)[caIndex]
                 .tcMintExecCost,
             0
         );
@@ -185,7 +184,7 @@ const mintTP = async (
             (settings.tokens.CA[caIndex] as TokenConfig).name
         } in your balance`
     );
-    const userReserveBalance = (userBalance.data as UserBalance).CA[caIndex]
+    const userReserveBalance = (userBalance.data).CA[caIndex]
         .balance;
     if (limitAmount > userReserveBalance)
         throw new Error(
@@ -216,7 +215,7 @@ const mintTP = async (
 
     // There are sufficient PEGGED in the contracts to mint?
     const tpAvailableToMint = (
-        contractProtocolStatus.data as ContractProtocolStatus
+        contractProtocolStatus.data
     )[caIndex].getTPAvailableToMint[tpIndex];
 
     if (qTP > tpAvailableToMint)
@@ -229,7 +228,7 @@ const mintTP = async (
         valueToSend =
             (await getExecutionFee(
                 publicClient,
-                (contractProtocolStatus.data as ContractProtocolStatus)[caIndex]
+                (contractProtocolStatus.data)[caIndex]
                     .tpMintExecCost,
                 0
             )) + limitAmount;

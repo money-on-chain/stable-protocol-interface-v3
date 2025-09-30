@@ -7,6 +7,7 @@ import {
 import { mintTC, mintTP, redeemTC, redeemTP } from "../backend/moc-rc20";
 import settings from "../settings/settings.json";
 import type { ContractInfo, DContracts } from "../types/hooks";
+import type { ContractProtocolStatusResult,UserBalanceResult } from "../types/status";
 import type { InterfaceContext } from "../types/wallets";
 import { TokenSettings } from "./currencies";
 
@@ -129,48 +130,42 @@ function isMintOperation(tokenExchange: string, tokenReceive: string): boolean {
 }
 
 function TokenAllowance(
-    userBalance: { data: Record<string | number, unknown> },
+    userBalance: UserBalanceResult,
     tokenExchange: string,
     caIndex: number
 ): bigint {
     // Ex. tokenExchange = CA_0, CA_1, TP_0, TP_1, TC_0, TC_1, COINBASE, TF_0, TF_1
     //const tokenExchangeSettings = TokenSettings(tokenExchange);
     const aTokenExchange: string[] = tokenExchange.split("_");
-    let allowance: bigint = 0n;
+    let allowance: bigint | undefined = 0n;
     switch (aTokenExchange[0]) {
         case "CA":
-            allowance = (userBalance.data.CA as { allowance: bigint }[])[
+            allowance = userBalance.data.CA[
                 parseInt(aTokenExchange[1])
             ].allowance;
             break;
         case "TP":
-            allowance = (userBalance.data.TP as { allowance: bigint }[][])[
+            allowance = userBalance.data.TP[
                 caIndex
             ][parseInt(aTokenExchange[1])].allowance;
             break;
         case "TC":
-            allowance = (
-                userBalance.data[parseInt(aTokenExchange[1])] as {
-                    TC: { allowance: bigint };
-                }
-            ).TC.allowance;
+            allowance = 
+                userBalance.data[parseInt(aTokenExchange[1])].TC.allowance;
             break;
         case "TF":
-            allowance = (
-                userBalance.data[parseInt(aTokenExchange[1])] as {
-                    FeeToken: { allowance: bigint };
-                }
-            ).FeeToken.allowance;
+            allowance = 
+                userBalance.data[parseInt(aTokenExchange[1])].FeeToken.allowance;                    
             break;
         default:
             throw new Error("Invalid token name");
     }
 
-    return allowance;
+    return allowance || 0n;
 }
 
 function UserTokenAllowance(
-    userBalance: { data: Record<string | number, unknown> },
+    userBalance: UserBalanceResult,
     tokenExchange: string,
     caIndex: number
 ): bigint {
@@ -273,31 +268,47 @@ function TokenContract(
 ): TokenContractResult {
     // Ex. aTokenMap = CA_0, CA_1, TP_0, TP_1, TC_0, TC_1, COINBASE, TF_0, TF_1
     const tokenExchangeSettings = TokenSettings(tokenExchange);
+    if (!contracts) { throw new Error("Contracts not available"); }
 
     const tokenMap: string = `${tokenExchange}`;
     const aTokenMap: string[] = tokenMap.split("_");
     switch (aTokenMap[0]) {
         case "CA":
+            if (!contracts.CA) {
+                throw new Error("CA contract not available");
+            }
             return {
                 token: contracts.CA[parseInt(aTokenMap[1])],
                 decimals: tokenExchangeSettings.decimals,
             };
         case "TP":
+            if (!contracts.TP) {
+                throw new Error("TP contract not available");
+            }
             return {
                 token: contracts.TP[parseInt(aTokenMap[1])],
                 decimals: tokenExchangeSettings.decimals,
             };
         case "TC":
+            if (!contracts.CollateralToken) {
+                throw new Error("CollateralToken contract not available");
+            }
             return {
                 token: contracts.CollateralToken[parseInt(aTokenMap[1])],
                 decimals: tokenExchangeSettings.decimals,
             };
         case "TF":
+            if (!contracts.FeeToken) {
+                throw new Error("FeeToken contract not available");
+            }
             return {
                 token: contracts.FeeToken[parseInt(aTokenMap[1])],
                 decimals: tokenExchangeSettings.decimals,
             };
         case "TG":
+            if (!contracts.TG) {
+                throw new Error("TG contract not available");
+            }
             return {
                 token: contracts.TG,
                 decimals: tokenExchangeSettings.decimals,
@@ -429,36 +440,24 @@ function exchangeMethod(
 function executionFeeMap(
     tokenExchange: string,
     tokenReceive: string,
-    contractProtocolStatus: { data: Record<string | number, unknown> }
+    contractProtocolStatus: ContractProtocolStatusResult
 ): bigint {
     const aTokenExchange: string[] = tokenExchange.split("_");
     const aTokenReceive: string[] = tokenReceive.split("_");
     const aTokenMap: string = `${aTokenExchange[0]},${aTokenReceive[0]}`;
     switch (aTokenMap) {
         case "CA,TC":
-            return (
-                contractProtocolStatus.data[parseInt(aTokenExchange[1])] as {
-                    tcMintExecCost: bigint;
-                }
-            ).tcMintExecCost;
+            return contractProtocolStatus.data[parseInt(aTokenExchange[1])]
+                .tcMintExecCost;
         case "CA,TP":
-            return (
-                contractProtocolStatus.data[parseInt(aTokenExchange[1])] as {
-                    tpMintExecCost: bigint;
-                }
-            ).tpMintExecCost;
+            return contractProtocolStatus.data[parseInt(aTokenExchange[1])]
+                .tpMintExecCost;
         case "TP,CA":
-            return (
-                contractProtocolStatus.data[parseInt(aTokenReceive[1])] as {
-                    tpRedeemExecCost: bigint;
-                }
-            ).tpRedeemExecCost;
+            return contractProtocolStatus.data[parseInt(aTokenReceive[1])]
+                .tpRedeemExecCost;
         case "TC,CA":
-            return (
-                contractProtocolStatus.data[parseInt(aTokenReceive[1])] as {
-                    tcRedeemExecCost: bigint;
-                }
-            ).tcRedeemExecCost;
+            return contractProtocolStatus.data[parseInt(aTokenReceive[1])]
+                .tcRedeemExecCost;
         default:
             throw new Error("Invalid token name map");
     }

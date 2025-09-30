@@ -7,6 +7,7 @@ import type {
     MultiCallErrorResult,
     MultiCallInput,
 } from "../types/hooks";
+import type { ContractStatusOmocResult } from "../types/status";
 import { useMultiCall } from "./useMulticall";
 
 const onErrorProposal = (): MultiCallErrorResult => {
@@ -22,7 +23,7 @@ export function useContractOmocStatus(
     contracts?: DContracts,
     proposalCountVoting?: bigint,
     refetchInterval = 30_000
-) {
+): ContractStatusOmocResult {
     const callsRequests = useMemo(() => {
         if (!contracts) return [];
 
@@ -354,5 +355,5 @@ export function useContractOmocStatus(
         enabled: callsRequests.length > 0,
     });
 
-    return multicallState;
+    return multicallState as unknown as ContractStatusOmocResult;
 }

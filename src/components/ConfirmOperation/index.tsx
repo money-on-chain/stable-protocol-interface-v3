@@ -13,6 +13,7 @@ import ModalAllowanceOperation from "../Modals/Allowance";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import TXStatus from "./TXStatus";
 
+
 const { Panel } = Collapse;
 
 interface ConfirmOperationProps {
@@ -693,7 +694,7 @@ export default function ConfirmOperation(
                         </span>
                         <span className={""}> (</span>
                         <span>
-                            {!contractProtocolStatus?.data.canOperate
+                            {!(contractProtocolStatus?.data).canOperate
                                 ? "--"
                                 : PrecisionNumbers({
                                       amount: commissionPAYUSD,
@@ -731,7 +732,7 @@ export default function ConfirmOperation(
 
                         <span className={""}> (</span>
                         <span>
-                            {!contractProtocolStatus?.data.canOperate
+                            {!(contractProtocolStatus?.data).canOperate
                                 ? "--"
                                 : PrecisionNumbers({
                                       amount: executionFeeUSD,

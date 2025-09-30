@@ -25,7 +25,7 @@ export default function UpdateToast() {
             New version available.
             <button
                 style={{ marginLeft: 8 }}
-                onClick={() => updateServiceWorker(true)}
+                onClick={() => void updateServiceWorker(true)}
             >
                 Update
             </button>

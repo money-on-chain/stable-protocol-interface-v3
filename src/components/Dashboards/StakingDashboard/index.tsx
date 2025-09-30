@@ -4,7 +4,6 @@ import { useWalletContext } from "../../../context/Wallet";
 import { pendingWithdrawalsFormat } from "../../../helpers/staking";
 import { useProjectTranslation } from "../../../helpers/translations";
 import settings from "../../../settings/settings.json";
-import type { UserOmocBalance, UserVesting } from "../../../types/status";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 
 interface WithdrawalStatus {
@@ -56,20 +55,20 @@ const Dashboard = (): JSX.Element => {
         if (!userOmocBalance.data) return;
 
         if (isVestingLoaded() && userVesting.data) {
-            setTgBalance((userVesting.data as UserVesting).vestingmachine.tgBalance || 0n);
+            setTgBalance(userVesting.data.vestingmachine.tgBalance || 0n);
             _stakedBalance =
-                (userVesting.data as UserVesting).vestingmachine.staking?.balance || 0n;
+                userVesting.data.vestingmachine.staking?.balance || 0n;
             //_lockedBalance = auth.userBalanceData.vestingmachine.staking.getLockedBalance;
             _pendingWithdrawals = pendingWithdrawalsFormat(
-                (userVesting.data as UserVesting).vestingmachine.delay
+                userVesting.data.vestingmachine.delay
             );
         } else {
-            setTgBalance((userOmocBalance.data as UserOmocBalance).TG.balance || 0n);
+            setTgBalance(userOmocBalance.data.TG.balance || 0n);
             _stakedBalance =
-                (userOmocBalance.data as UserOmocBalance).stakingmachine.getBalance || 0n;
+                userOmocBalance.data.stakingmachine.getBalance || 0n;
             //_lockedBalance = (auth.userBalanceData as any).stakingmachine.getLockedBalance;
             _pendingWithdrawals = pendingWithdrawalsFormat(
-                (userOmocBalance.data as UserOmocBalance).delaymachine
+                userOmocBalance.data.delaymachine
             );
         }
 

@@ -86,7 +86,10 @@ export default function Skeleton(): JSX.Element {
     };
 
     const readTpLegacyBalance = (): void => {
-        const tpLegacyBalance = userBalance.data.tpLegacy.balance;
+        if (!userBalance.data) return;
+        if (!userBalance.data.tpLegacy) return;        
+        const tpLegacyBalance = (userBalance.data).tpLegacy?.balance;
+        if (!tpLegacyBalance) return;
         if (tpLegacyBalance > 0n) {
             setCanSwap(true);
         } else {
@@ -95,6 +98,9 @@ export default function Skeleton(): JSX.Element {
     };
 
     const readWithdrawStatus = (): void => {
+        if (!userVeto.data) return;
+        if (!contractStatusOmoc.data) return;
+        if (!address) return;
         if (
             isSomeTCLockedByVeto(
                 userVeto.data,

@@ -4,8 +4,9 @@ import type {
     Address,
     CallRequest,
     DContracts,
-    MultiCallInput,
+    MultiCallInput    
 } from "../types/hooks";
+import type { UserOmocBalanceResult } from "../types/status";
 import { useMultiCall } from "./useMulticall";
 
 /**
@@ -16,7 +17,7 @@ export function useUserOmocBalance(
     contracts?: DContracts | null,
     userAddress?: Address,
     refetchInterval = 30_000
-) {
+): UserOmocBalanceResult {
     const callsRequests: CallRequest[] = useMemo(() => {
         if (!contracts) return [];
         if (!userAddress) return [];
@@ -140,5 +141,5 @@ export function useUserOmocBalance(
         scopeKey: ["userOmocBalance", userAddress].join(":"),
     });
 
-    return multicallState;
+    return multicallState as unknown as UserOmocBalanceResult;
 }

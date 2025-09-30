@@ -8,6 +8,7 @@ import type {
     DContracts,
     MultiCallInput,
 } from "../types/hooks";
+import type { UserVestingResult } from "../types/status";
 import { useMultiCall } from "./useMulticall";
 
 /** Extract ABI from JSON without `any` */
@@ -22,7 +23,7 @@ export function useUserVesting(
     userAddress?: Address,
     userVestingAddress?: Address,
     refetchInterval = 30_000
-) {
+): UserVestingResult {
     // Build the call list in a type-safe way
     const callsRequests: CallRequest[] = useMemo(() => {
         // Early exits: no calls until we have everything needed
@@ -220,5 +221,5 @@ export function useUserVesting(
         scopeKey: ["userVesting", userAddress, userVestingAddress].join(":"),
     });
 
-    return multicallState;
+    return multicallState as unknown as UserVestingResult;
 }

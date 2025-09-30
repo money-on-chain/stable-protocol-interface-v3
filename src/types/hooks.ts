@@ -171,6 +171,8 @@ export interface UseStorageResult<T> {
     isFetching: boolean;
     refetch: () => Promise<{ data: T }>;
     error: Error | null;
+    queryKey?: string[];
+    scopeKey?: string;
 }
 
 // Interface for parsed prices structure from offchain API

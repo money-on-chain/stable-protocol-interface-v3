@@ -8,6 +8,7 @@ import type {
     MultiCallInput,
     SettingsTokens,
 } from "../types/hooks";
+import type { UserBalanceResult } from "../types/status";
 import { useMultiCall } from "./useMulticall";
 
 /**
@@ -18,7 +19,7 @@ export function useUserBalance(
     contracts?: DContracts | null,
     userAddress?: Address,
     refetchInterval = 30_000
-) {
+): UserBalanceResult {
     const callsRequests: CallRequest[] = useMemo(() => {
         if (!contracts) return [];
         if (!userAddress) return [];
@@ -200,5 +201,5 @@ export function useUserBalance(
         scopeKey: ["userBalance", userAddress].join(":"),
     });
 
-    return multicallState;
+    return multicallState as unknown as UserBalanceResult;
 }

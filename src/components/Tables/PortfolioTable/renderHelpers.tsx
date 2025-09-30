@@ -3,6 +3,7 @@ import React from "react";
 
 import { absBigInt } from "../../../helpers/precision";
 import settings from "../../../settings/settings.json";
+import type { ContractProtocolStatusResult } from "../../../types/status";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 
 interface TokenRowProps {
@@ -25,8 +26,8 @@ interface TokenRowProps {
     visiblePriceDecimals: number;
     visibleBalanceDecimals: number;
     visibleBalanceUSDDecimals: number;
-    contractProtocolStatus: any;
-    i18n: any;
+    contractProtocolStatus: ContractProtocolStatusResult;
+    i18n: { languages: readonly string[] };
 }
 
 interface TokenRow {
@@ -70,7 +71,7 @@ export const generateTokenRow = ({
                 </div>
                 {/* Token price */}
                 <div className="table__cell table__cell__price">
-                    {contractProtocolStatus.data.canOperate ? (
+                    {contractProtocolStatus.data?.canOperate ? (
                         <PrecisionNumbers
                             amount={price}
                             token={{
@@ -90,7 +91,7 @@ export const generateTokenRow = ({
                 {/* Token 24h variation */}
                 {settings.showPriceVariation && (
                     <div className="table__cell">
-                        {contractProtocolStatus.data.canOperate ? (
+                        {contractProtocolStatus.data?.canOperate ? (
                             <div className="table__cell__variation">
                                 {`${getSign()} `}
                                 <PrecisionNumbers
@@ -146,7 +147,7 @@ export const generateTokenRow = ({
                 </div>
                 {/* Token balance in USD */}
                 <div className="table__cell table__cell__usdBalance">
-                    {contractProtocolStatus.data.canOperate ? (
+                    {contractProtocolStatus.data?.canOperate ? (
                         <PrecisionNumbers
                             amount={balanceUSD}
                             token={{
