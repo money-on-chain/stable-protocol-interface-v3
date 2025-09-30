@@ -8,6 +8,7 @@ import type { useContractProtocolStatus } from "../hooks/useContractProtocolStat
 import type { useIncentiveV2 } from "../hooks/useIncentiveV2";
 import type { useUserVeto } from "../hooks/useUserVeto";
 import type { UseBaseCoinBalanceResult } from "../types/status";
+import type { useProposalCount } from "../hooks/useProposalCount";
 import type { DContracts } from "./hooks";
 import type { ContractProtocolStatusResult, UserBalanceResult, UserOmocBalanceResult, UserVestingResult } from "./status";
 
@@ -53,7 +54,7 @@ export type WalletContextType = {
 
     blockNumber?: bigint;
     offChainPrices: unknown;
-    proposalCount?: bigint;
+    proposalCount?: ReturnType<typeof useProposalCount>;
 
     publicClient: ReturnType<typeof usePublicClient> | undefined;
     walletClient: ReturnType<typeof useWalletClient>;

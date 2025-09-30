@@ -137,16 +137,18 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS
     );
 
-    const { proposalCount } = useProposalCount(
-        contractsAddressLoaded ? contractsAddress?.VotingMachine : undefined,
+    const proposalCount = useProposalCount(
+        contractsAddressLoaded && contractsAddress
+            ? contractsAddress
+            : undefined,
         120_000
-    );
+    )
 
     const contractStatusOmoc = useContractOmocStatus(
         contractsAddressLoaded && contractsAddress
             ? contractsAddress
             : undefined,
-        proposalCount,
+        proposalCount.data,
         REFRESH_INTERVAL_CONTRACT_STATUS_OMOC
     );
 
@@ -759,7 +761,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 userBalance,
                 blockNumber,
                 offChainPrices,
-                proposalCount: proposalCount,
+                proposalCount,
                 userBaseCoinBalance,
                 vestingAddress,
                 publicClient,

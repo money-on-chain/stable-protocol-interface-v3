@@ -81,7 +81,6 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         interfaceVotingPreVoteStep,
         contractStatusOmoc,
         userOmocBalance,
-        proposalCount,
     } = useWalletContext();
     const space: string = "\u00A0";
 
