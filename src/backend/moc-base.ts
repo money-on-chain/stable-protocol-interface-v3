@@ -4,6 +4,7 @@ import {
     waitForTransactionReceipt,
     writeContract,
 } from "@wagmi/core";
+import { type TransactionReceipt } from "viem";
 
 import type { ContractInfo } from "../types/hooks";
 import type {
@@ -21,7 +22,7 @@ const AllowanceAmount = async (
     amountAllowance: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address } = interfaceContext;
     const contractAllowAddress = contractAllow.address;
 
@@ -52,7 +53,7 @@ const transferTokenTo = async (
     amount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address } = interfaceContext;
 
     const { request } = await simulateContract(config, {
@@ -81,7 +82,7 @@ const transferCoinbaseTo = async (
     amount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, walletClient } = interfaceContext;
 
     const hash = await sendTransaction(config, {
@@ -113,7 +114,7 @@ const AllowUseTokenMigrator = async (
     onTransaction: OnTransaction,
     onReceipt: OnReceipt,
     onError: OnError
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
 
     if (!contracts) return;
@@ -153,7 +154,7 @@ const MigrateToken = async (
     onTransaction: OnTransaction,
     onReceipt: OnReceipt,
     onError: OnError
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
 
     if (!contracts) return;

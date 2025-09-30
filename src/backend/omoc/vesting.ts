@@ -18,7 +18,7 @@ const vestingVerify = async (
     vestingAddress: `0x${string}`,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.VestingMachine) return;
@@ -50,7 +50,7 @@ const approve = async (
     vestingAddress: `0x${string}`,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.VestingMachine) return;
@@ -82,7 +82,7 @@ const deposit = async (
     vestingAddress: `0x${string}`,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.VestingMachine) return;
@@ -114,7 +114,7 @@ const withdraw = async (
     vestingAddress: `0x${string}`,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.VestingMachine) return;
@@ -145,7 +145,7 @@ const withdrawAll = async (
     vestingAddress: `0x${string}`,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.VestingMachine) return;
@@ -219,7 +219,7 @@ const unStake = async (
     vestingAddress: `0x${string}`,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.StakingMachine) return;
@@ -260,7 +260,7 @@ const delayMachineCancelWithdraw = async (
     vestingAddress: `0x${string}`,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.DelayMachine) return;
@@ -301,7 +301,7 @@ const delayMachineWithdraw = async (
     vestingAddress: `0x${string}`,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.DelayMachine) return;
@@ -342,7 +342,7 @@ const approveStakingMachine = async (
     vestingAddress: `0x${string}`,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.StakingMachine) return;
@@ -386,7 +386,7 @@ const preVote = async (
     vestingAddress: `0x${string}`,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.VotingMachine) return;
@@ -428,7 +428,7 @@ const vote = async (
     vestingAddress: `0x${string}`,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.VotingMachine) return;

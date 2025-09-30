@@ -3,6 +3,7 @@ import {
     waitForTransactionReceipt,
     writeContract,
 } from "@wagmi/core";
+import type { TransactionReceipt } from "viem";
 
 import type {
     InterfaceContext,
@@ -19,7 +20,7 @@ const claimV2 = async (
     signDataResponse: SignDataResponse,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.IncentiveV2) return;

@@ -1,3 +1,5 @@
+import { type TransactionReceipt } from "viem";
+
 import type {
     InterfaceContext,
     OnReceipt,
@@ -17,7 +19,7 @@ const mintTC = async (
     limitAmount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     // Mint Collateral token with CA support vendors
     return mintTC_(
         interfaceContext,
@@ -36,7 +38,7 @@ const redeemTC = async (
     limitAmount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     // Redeem Collateral token receiving CA support vendors
     return redeemTC_(
         interfaceContext,
@@ -56,7 +58,7 @@ const mintTP = async (
     limitAmount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     // Mint pegged token with collateral CA BAG support vendor
     return mintTP_(
         interfaceContext,
@@ -77,7 +79,7 @@ const redeemTP = async (
     limitAmount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     // Redeem pegged token receiving CA support vendor
     return redeemTP_(
         interfaceContext,

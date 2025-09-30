@@ -3,6 +3,7 @@ import {
     waitForTransactionReceipt,
     writeContract,
 } from "@wagmi/core";
+import { type TransactionReceipt } from "viem";
 
 import settings from "../settings/settings.json";
 import type { TokenConfig } from "../types/hooks";
@@ -21,7 +22,7 @@ const mintTC = async (
     limitAmount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     // Mint Collateral token with CA
 
     const {
@@ -35,6 +36,7 @@ const mintTC = async (
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
 
     // Basic verifications
+    if (!publicClient) throw new Error("Public client not found");
     if (!contracts) throw new Error("Contracts not found");
     if (!contracts.Moc) throw new Error("Moc not found");
     if (!contracts.Moc[caIndex])
@@ -88,26 +90,23 @@ const mintTC = async (
     */
 
     // TODO: view functions returns baseFee == 0, if we use another value the estimateGas function will revert
-    let valueToSend;
-    if (getNetworkFromProject() === "rsk") {
-        valueToSend = await getExecutionFee(
-            publicClient,
-            (contractProtocolStatus.data)[caIndex]
-                .tcMintExecCost,
-            2
-        );
-    } else {
-        valueToSend = 0n;
-    }
-
-    const { request } = await simulateContract(config, {
+    const isRsk = getNetworkFromProject() === "rsk";
+    const configParams: any = {
         address: MoCContract.address,
         abi: MoCContract.abi,
         functionName: "mintTC",
         args: [qTC, limitAmount, address, vendorAddress],
         account: address,
-        value: valueToSend,
-    });
+    };
+    if (isRsk) {
+        configParams.value = await getExecutionFee(
+            publicClient,
+            (contractProtocolStatus.data)[caIndex]
+                .tcMintExecCost,
+            2
+        );
+    }
+    const { request } = await simulateContract(config, configParams);
 
     console.log("request", request);
     // Send transaction
@@ -129,7 +128,7 @@ const redeemTC = async (
     limitAmount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     // Redeem Collateral token receiving CA
 
     const {
@@ -141,6 +140,9 @@ const redeemTC = async (
     } = interfaceContext;
     
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
+    
+    // Verifications
+    if (!publicClient) throw new Error("Public client not found");
     if (!contracts) throw new Error("Contracts not found");
     if (!contracts.Moc) throw new Error("Moc not found");
     if (!contracts.Moc[caIndex])
@@ -185,26 +187,23 @@ const redeemTC = async (
             `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} in the contract. Balance: ${caBalance} ${(settings.tokens.CA[caIndex] as TokenConfig).name}`
         );
 
-    let valueToSend;
-    if (getNetworkFromProject() === "rsk") {
-        valueToSend = await getExecutionFee(
-            publicClient,
-            (contractProtocolStatus.data)[caIndex]
-                .tcRedeemExecCost,
-            2
-        );
-    } else {
-        valueToSend = 0n;
-    }
-
-    const { request } = await simulateContract(config, {
+    const isRsk = getNetworkFromProject() === "rsk";
+    const configParams: any = {
         address: MoCContract.address,
         abi: MoCContract.abi,
         functionName: "redeemTC",
         args: [qTC, limitAmount, address, vendorAddress],
         account: address,
-        value: valueToSend,
-    });
+    };
+    if (isRsk) {
+        configParams.value = await getExecutionFee(
+            publicClient,
+            (contractProtocolStatus.data)[caIndex]
+                .tcRedeemExecCost,
+            2
+        );
+    }
+    const { request } = await simulateContract(config, configParams);
 
     console.log("request", request);
     // Send transaction
@@ -227,7 +226,7 @@ const mintTP = async (
     limitAmount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     // Mint pegged token with collateral CA
 
     const {
@@ -241,6 +240,7 @@ const mintTP = async (
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
 
     // Verifications
+    if (!publicClient) throw new Error("Public client not found");
     if (!contracts) throw new Error("Contracts not found");
     if (!contracts.Moc) throw new Error("Moc not found");
     if (!contracts.Moc[caIndex])
@@ -305,26 +305,23 @@ const mintTP = async (
             `Insufficient ${(settings.tokens.TP[tpIndex] as TokenConfig).name} available to mint`
         );
 
-    let valueToSend;
-    if (getNetworkFromProject() === "rsk") {
-        valueToSend = await getExecutionFee(
-            publicClient,
-            (contractProtocolStatus.data)[caIndex]
-                .tpMintExecCost,
-            2
-        );
-    } else {
-        valueToSend = 0n;
-    }
-
-    const { request } = await simulateContract(config, {
+    const isRsk = getNetworkFromProject() === "rsk";
+    const configParams: any = {
         address: MoCContract.address,
         abi: MoCContract.abi,
         functionName: "mintTP",
         args: [tpAddress, qTP, limitAmount, address, vendorAddress],
         account: address,
-        value: valueToSend,
-    });
+    };
+    if (isRsk) {
+        configParams.value = await getExecutionFee(
+            publicClient,
+            (contractProtocolStatus.data)[caIndex]
+                .tpMintExecCost,
+            2
+        );
+    }
+    const { request } = await simulateContract(config, configParams);
 
     console.log("request", request);
     // Send transaction
@@ -347,7 +344,7 @@ const redeemTP = async (
     limitAmount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     // Redeem pegged token receiving CA
 
     const {
@@ -361,6 +358,7 @@ const redeemTP = async (
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
 
     // Verifications
+    if (!publicClient) throw new Error("Public client not found");
     if (!contracts) throw new Error("Contracts not found");
     if (!contracts.Moc) throw new Error("Moc not found");
     if (!contracts.Moc[caIndex])
@@ -408,26 +406,23 @@ const redeemTP = async (
             `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} in the contract. Balance: ${caBalance} ${(settings.tokens.CA[caIndex] as TokenConfig).name}`
         );
 
-    let valueToSend;
-    if (getNetworkFromProject() === "rsk") {
-        valueToSend = await getExecutionFee(
-            publicClient,
-            (contractProtocolStatus.data)[caIndex]
-                .tpRedeemExecCost,
-            4
-        );
-    } else {
-        valueToSend = 0n;
-    }
-
-    const { request } = await simulateContract(config, {
+    const isRsk = getNetworkFromProject() === "rsk";
+    const configParams: any = {
         address: MoCContract.address,
         abi: MoCContract.abi,
         functionName: "redeemTP",
         args: [tpAddress, qTP, limitAmount, address, vendorAddress],
         account: address,
-        value: valueToSend,
-    });
+    };
+    if (isRsk) {
+        configParams.value = await getExecutionFee(
+            publicClient,
+            (contractProtocolStatus.data)[caIndex]
+                .tpRedeemExecCost,
+            4
+        );
+    }
+    const { request } = await simulateContract(config, configParams);
 
     console.log("request", request);
     // Send transaction

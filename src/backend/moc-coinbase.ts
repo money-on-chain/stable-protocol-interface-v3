@@ -3,6 +3,7 @@ import {
     waitForTransactionReceipt,
     writeContract,
 } from "@wagmi/core";
+import { type TransactionReceipt } from "viem";
 
 import settings from "../settings/settings.json";
 import type { TokenConfig } from "../types/hooks";
@@ -22,7 +23,7 @@ const mintTC = async (
     limitAmount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     // Mint Collateral token with CA coinbase
     const {
         address,
@@ -35,6 +36,7 @@ const mintTC = async (
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
 
     // Verifications
+    if (!publicClient) throw new Error("Public client not found");
     if (!contracts) throw new Error("Contracts not found");
     if (!contracts.Moc) throw new Error("Moc not found");
     if (!contracts.Moc[caIndex])
@@ -85,26 +87,23 @@ const mintTC = async (
         );
     */
 
-    let valueToSend;
-    if (getNetworkFromProject() === "rsk") {
-        valueToSend = await getExecutionFee(
-            publicClient,
-            (contractProtocolStatus.data)[caIndex]
-                .tcMintExecCost,
-            0
-        );
-    } else {
-        valueToSend = 0n;
-    }
-
-    const { request } = await simulateContract(config, {
+    const isRsk = getNetworkFromProject() === "rsk";
+    const configParams: any = {
         address: MoCContract.address,
         abi: MoCContract.abi,
         functionName: "mintTC",
         args: [qTC, address, vendorAddress],
         account: address,
-        value: valueToSend,
-    });
+    };
+    if (isRsk) {
+        configParams.value = await getExecutionFee(
+            publicClient,
+            (contractProtocolStatus.data)[caIndex]
+                .tcMintExecCost,
+            0
+        );
+    }
+    const { request } = await simulateContract(config, configParams);
 
     // Send transaction
     const txHash = await writeContract(config, request);
@@ -125,7 +124,7 @@ const redeemTC = async (
     limitAmount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     // Redeem Collateral token receiving CA support vendors
     return redeemTC_(
         interfaceContext,
@@ -145,7 +144,7 @@ const mintTP = async (
     limitAmount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     // Mint pegged token with collateral coinbase
     const {
         address,
@@ -158,6 +157,7 @@ const mintTP = async (
     const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
 
     // Verifications
+    if (!publicClient) throw new Error("Public client not found");
     if (!contracts) throw new Error("Contracts not found");
     if (!contracts.Moc) throw new Error("Moc not found");
     if (!contracts.Moc[caIndex])
@@ -223,27 +223,24 @@ const mintTP = async (
             `Insufficient ${(settings.tokens.TP[tpIndex] as TokenConfig).name} available to mint`
         );
 
-    let valueToSend;
-    if (getNetworkFromProject() === "rsk") {
-        valueToSend =
+    const isRsk = getNetworkFromProject() === "rsk";
+    const configParams: any = {
+        address: MoCContract.address,
+        abi: MoCContract.abi,
+        functionName: "mintTP",
+        args: [tpAddress, qTP, address, vendorAddress],
+        account: address,
+    };
+    if (isRsk) {
+        configParams.value =
             (await getExecutionFee(
                 publicClient,
                 (contractProtocolStatus.data)[caIndex]
                     .tpMintExecCost,
                 0
             )) + limitAmount;
-    } else {
-        valueToSend = 0n;
     }
-
-    const { request } = await simulateContract(config, {
-        address: MoCContract.address,
-        abi: MoCContract.abi,
-        functionName: "mintTP",
-        args: [tpAddress, qTP, address, vendorAddress],
-        account: address,
-        value: valueToSend,
-    });
+    const { request } = await simulateContract(config, configParams);
 
     // Send transaction
     const txHash = await writeContract(config, request);
@@ -265,7 +262,7 @@ const redeemTP = async (
     limitAmount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     // Redeem pegged token receiving CA support vendor
     return redeemTP_(
         interfaceContext,

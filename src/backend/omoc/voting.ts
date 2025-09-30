@@ -3,7 +3,7 @@ import {
     waitForTransactionReceipt,
     writeContract,
 } from "@wagmi/core";
-import { checksumAddress } from "viem";
+import { checksumAddress, type TransactionReceipt } from "viem";
 
 import type {
     InterfaceContext,
@@ -17,7 +17,7 @@ const preVote = async (
     changeContractAddress: `0x${string}`,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.VotingMachine) return;
@@ -48,7 +48,7 @@ const unRegister = async (
     changeContractAddress: `0x${string}`,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.VotingMachine) return;
@@ -79,7 +79,7 @@ const vote = async (
     inFavorAgainst: boolean,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.VotingMachine) return;
@@ -109,7 +109,7 @@ const preVoteStep = async (
     interfaceContext: InterfaceContext,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.VotingMachine) return;
@@ -139,7 +139,7 @@ const voteStep = async (
     interfaceContext: InterfaceContext,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.VotingMachine) return;
@@ -169,7 +169,7 @@ const acceptedStep = async (
     interfaceContext: InterfaceContext,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.VotingMachine) return;

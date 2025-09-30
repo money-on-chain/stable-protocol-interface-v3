@@ -50,7 +50,7 @@ const unStake = async (
     amount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.StakingMachine) return;
@@ -81,7 +81,7 @@ const delayMachineWithdraw = async (
     idWithdraw: string | number,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.DelayMachine) return;
@@ -112,7 +112,7 @@ const delayMachineCancelWithdraw = async (
     idWithdraw: string | number,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.DelayMachine) return;
@@ -143,7 +143,7 @@ const approveStakingMachine = async (
     amount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.StakingMachine) return;
