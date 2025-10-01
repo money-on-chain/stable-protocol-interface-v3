@@ -3,7 +3,9 @@ import "./Styles.scss";
 import { Skeleton } from "antd";
 import React, { Fragment, useEffect, useState } from "react";
 
-import UseVestingAlert from "../../components/Notification/UsingVestingAlert";
+// import UseVestingAlert from "../../components/Notification/UsingVestingAlert";
+import VestingStatusAlert from "../../components/Notification/VestingStatusAlert";
+
 import Staking from "../../components/Staking";
 import { useWalletContext } from "../../context/Wallet";
 
