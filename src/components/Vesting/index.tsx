@@ -18,7 +18,6 @@ import {
 } from "../../helpers/vesting";
 import settings from "../../settings/settings.json";
 import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
-// import UseVestingAlert from "../../components/Notification/UsingVestingAlert";
 import VestingStatusAlert from "../../components/Notification/VestingStatusAlert";
 
 import { PrecisionNumbers } from "../PrecisionNumbers";
@@ -564,9 +563,7 @@ const Vesting: React.FC = () => {
                 />
             )} */}
 
-            {status === "LOADED" && (
-                <UseVestingAlert address={usingVestingAddress} />
-            )}
+            <VestingStatusAlert />
             {/*
 
              VESTING ONBOARDING PAGE 1

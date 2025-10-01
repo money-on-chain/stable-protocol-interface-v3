@@ -3,7 +3,6 @@ import "./Styles.scss";
 import { Skeleton } from "antd";
 import React, { Fragment, useEffect, useState } from "react";
 
-// import UseVestingAlert from "../../components/Notification/UsingVestingAlert";
 import VestingStatusAlert from "../../components/Notification/VestingStatusAlert";
 
 import Staking from "../../components/Staking";
@@ -35,9 +34,7 @@ export default function SectionStaking(): React.ReactElement {
         <Fragment>
             <div className="section-container">
                 <div className="sectionStaking">
-                    {usingVestingAddress !== "" && (
-                        <UseVestingAlert address={usingVestingAddress} />
-                    )}
+                    <VestingStatusAlert />
                     {ready ? <Staking /> : <Skeleton active />}
                 </div>
             </div>
