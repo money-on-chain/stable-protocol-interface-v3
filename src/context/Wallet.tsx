@@ -1,4 +1,10 @@
-import React, { createContext, useCallback,useContext, useEffect, useState } from "react";
+import React, {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
+} from "react";
 import type { TransactionReceipt } from "viem";
 import {
     useAccount,
@@ -120,6 +126,9 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const [showModalProviders, setShowModalProviders] =
         useState<boolean>(false);
     const [vestingOn, setVestingOn] = useState<boolean>(false);
+    const toggleVesting = useCallback(() => {
+        setVestingOn((prev) => !prev);
+    }, []);
 
     // Hooks for contract data
     const { blockNumber } = useLatestBlockNumber(
@@ -142,7 +151,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             ? contractsAddress
             : undefined,
         120_000
-    )
+    );
 
     const contractStatusOmoc = useContractOmocStatus(
         contractsAddressLoaded && contractsAddress
@@ -218,7 +227,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         if (!contractsAddressLoaded) {
             void readContractsAddresses();
         }
-    }, [contractsAddressLoaded/*, readContractsAddresses*/]);
+    }, [contractsAddressLoaded /*, readContractsAddresses*/]);
 
     useEffect(() => {
         if (!isConnected && !showModalProviders) {
@@ -752,6 +761,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     return (
         <WalletContext.Provider
             value={{
+                vestingOn,
+                toggleVesting,
                 isConnected,
                 address,
                 contractsAddress,

@@ -18,7 +18,8 @@ import {
 } from "../../helpers/vesting";
 import settings from "../../settings/settings.json";
 import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
-import UseVestingAlert from "../Notification/UsingVestingAlert";
+import VestingStatusAlert from "../../components/Notification/VestingStatusAlert";
+
 import { PrecisionNumbers } from "../PrecisionNumbers";
 
 const { TextArea } = Input;
@@ -45,10 +46,10 @@ const Vesting: React.FC = () => {
         userVesting,
         vestingAddress,
         publicClient,
-        isVestingLoaded,        
+        isVestingLoaded,
         interfaceVestingVerify,
         interfaceVestingWithdraw,
-        interfaceIncentiveV2Claim,        
+        interfaceIncentiveV2Claim,
         onShowModalAccountVesting,
     } = useWalletContext();
 
@@ -81,7 +82,7 @@ const Vesting: React.FC = () => {
             return;
         }
         const availableForWithdraw =
-        userVesting.data.vestingmachine.getAvailable;
+            userVesting.data.vestingmachine.getAvailable;
         if (availableForWithdraw > 0) {
             if (userVesting.data.vestingmachine.isVerified) {
                 setValidWithdraw(true);
@@ -125,30 +126,40 @@ const Vesting: React.FC = () => {
 
         // Validate incentive user balance
         onValidateIncentiveV2UserBalanceCallback();
-    }, [userVesting.data, isVestingLoaded, vestingAddress, status, onValidateWithdrawCallback, onCheckIsHolderVestingCallback, onValidateIncentiveV2UserBalanceCallback]);
+    }, [
+        userVesting.data,
+        isVestingLoaded,
+        vestingAddress,
+        status,
+        onValidateWithdrawCallback,
+        onCheckIsHolderVestingCallback,
+        onValidateIncentiveV2UserBalanceCallback,
+    ]);
 
-    const recoverMessageClaimCode = useCallback(async (
-        message: string
-    ): Promise<string> => {
-        if (!address) return "";
-        const chainId = import.meta.env.REACT_APP_ENVIRONMENT_CHAIN_ID as string;
-        const userAddress = address;
-        const fromAddress = userAddress.slice(2);
-        const code = `:OMoC:${chainId}:address:${fromAddress}`;
+    const recoverMessageClaimCode = useCallback(
+        async (message: string): Promise<string> => {
+            if (!address) return "";
+            const chainId = import.meta.env
+                .REACT_APP_ENVIRONMENT_CHAIN_ID as string;
+            const userAddress = address;
+            const fromAddress = userAddress.slice(2);
+            const code = `:OMoC:${chainId}:address:${fromAddress}`;
 
-        let recoveredAddress = "";
+            let recoveredAddress = "";
 
-        try {
-            recoveredAddress = await recoverMessageAddress({
-                message: code,
-                signature: message as `0x${string}`,
-            });
-        } catch (err) {
-            console.error(err);
-        }
+            try {
+                recoveredAddress = await recoverMessageAddress({
+                    message: code,
+                    signature: message as `0x${string}`,
+                });
+            } catch (err) {
+                console.error(err);
+            }
 
-        return recoveredAddress.toLowerCase();
-    }, [address]);
+            return recoveredAddress.toLowerCase();
+        },
+        [address]
+    );
 
     const onValidateClaimCodeCallback = useCallback(async (): Promise<void> => {
         let valid = false;
@@ -345,7 +356,6 @@ const Vesting: React.FC = () => {
         onShowModalAccountVesting();
     };
 
-
     const onClickUseClaimCode = (): void => {
         setStatus("STEP_2");
     };
@@ -355,8 +365,6 @@ const Vesting: React.FC = () => {
     ): void => {
         setClaimCode(event.target.value.substring(0, 132));
     };
-
-
 
     const onClickCreateVM = (): void => {
         setStatus("STEP_3");
@@ -414,7 +422,11 @@ const Vesting: React.FC = () => {
             //);
             const txRcp = receipt;
             const filteredEvents: FilteredEvent[] =
-                decodeEvents(txRcp as TransactionReceipt, contractName, filter) || [];
+                decodeEvents(
+                    txRcp as TransactionReceipt,
+                    contractName,
+                    filter
+                ) || [];
 
             onVestingCreated(filteredEvents);
         };
@@ -551,9 +563,7 @@ const Vesting: React.FC = () => {
                 />
             )} */}
 
-            {status === "LOADED" && (
-                <UseVestingAlert address={usingVestingAddress} />
-            )}
+            <VestingStatusAlert />
             {/*
 
              VESTING ONBOARDING PAGE 1
@@ -738,7 +748,8 @@ const Vesting: React.FC = () => {
                                         {PrecisionNumbers({
                                             amount: !userOmocBalance.data
                                                 ? 0n
-                                                : userOmocBalance.data.incentiveV2.userBalance,
+                                                : userOmocBalance.data
+                                                      .incentiveV2.userBalance,
                                             token: settings.tokens.TG[0],
                                             decimals: Number(
                                                 t("staking.display_decimals")
@@ -930,7 +941,8 @@ const Vesting: React.FC = () => {
                             <h1>{t("vesting.cardTitle")}</h1>
                             <div id="vesting-verification">
                                 {userVesting.data &&
-                                    userVesting.data.vestingmachine.isVerified &&
+                                    userVesting.data.vestingmachine
+                                        .isVerified &&
                                     isHolderVesting && (
                                         <div
                                             className={
@@ -952,7 +964,8 @@ const Vesting: React.FC = () => {
                                     </div>
                                 )}
                                 {userVesting.data &&
-                                    !userVesting.data.vestingmachine.isVerified &&
+                                    !userVesting.data.vestingmachine
+                                        .isVerified &&
                                     isHolderVesting && (
                                         <div
                                             className={
@@ -981,7 +994,8 @@ const Vesting: React.FC = () => {
                                     {PrecisionNumbers({
                                         amount: !userVesting.data
                                             ? 0n
-                                            : userVesting.data.vestingmachine.getAvailable,
+                                            : userVesting.data.vestingmachine
+                                                  .getAvailable,
                                         token: settings.tokens.TG[0],
                                         decimals: Number(
                                             t("staking.display_decimals")
@@ -1049,7 +1063,8 @@ const Vesting: React.FC = () => {
                                 {PrecisionNumbers({
                                     amount: !userVesting.data
                                         ? 0n
-                                        : userVesting.data.vestingmachine.staking.balance,
+                                        : userVesting.data.vestingmachine
+                                              .staking.balance,
                                     token: settings.tokens.TG[0],
                                     decimals: Number(
                                         t("staking.display_decimals")
@@ -1070,7 +1085,8 @@ const Vesting: React.FC = () => {
                                 {PrecisionNumbers({
                                     amount: !userVesting.data
                                         ? 0n
-                                        : userVesting.data.vestingmachine.delay.getBalance,
+                                        : userVesting.data.vestingmachine.delay
+                                              .getBalance,
                                     token: settings.tokens.TG[0],
                                     decimals: Number(
                                         t("staking.display_decimals")
@@ -1097,7 +1113,8 @@ const Vesting: React.FC = () => {
                                 {PrecisionNumbers({
                                     amount: !userVesting.data
                                         ? 0n
-                                        : userVesting.data.vestingmachine.getTotal,
+                                        : userVesting.data.vestingmachine
+                                              .getTotal,
                                     token: settings.tokens.TG[0],
                                     decimals: Number(
                                         t("staking.display_decimals")

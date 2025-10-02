@@ -1,11 +1,11 @@
-import "./Styles.scss";
-
-import { Skeleton } from "antd";
 import React, { Fragment, useEffect, useState } from "react";
+import { Skeleton } from "antd";
 
-import UseVestingAlert from "../../components/Notification/UsingVestingAlert";
-import Voting from "../../components/Voting";
 import { useWalletContext } from "../../context/Wallet";
+import Voting from "../../components/Voting";
+import VestingStatusAlert from "../../components/Notification/VestingStatusAlert";
+
+import "./Styles.scss";
 
 export default function SectionVoting(): React.ReactElement {
     const {
@@ -37,11 +37,9 @@ export default function SectionVoting(): React.ReactElement {
     return (
         <Fragment>
             <div className="section-container">
-                {usingVestingAddress !== "" && (
-                    <div className={"content-page"}>
-                        {<UseVestingAlert address={usingVestingAddress} />}
-                    </div>
-                )}
+                <div className="content-page">
+                    <VestingStatusAlert />
+                </div>
                 {ready ? <Voting /> : <Skeleton active />}
             </div>
         </Fragment>

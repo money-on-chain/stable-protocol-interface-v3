@@ -609,10 +609,17 @@
             }
         },
         "alert": {
-            "title": "Using Vesting Adress",
-            "explanation": "To use your regular wallet turn of 'Use Vesting Address' in the wallet settings",
-            "cta": "Go to wallet settings",
-            "address": "Using VM:"
+            "vmEnabled": {
+                "title": "Using Vesting Address",
+                "text": "Your wallet is currently set to use a Vesting Address. To use your regular wallet instead, click on Switch to Wallet Address.",
+                "addressLabel": "VM Address:",
+                "cta": "Switch to Wallet Address"
+            },
+            "vmDisabled": {
+                "title": "Using Regular Wallet Address",
+                "text": "Your wallet is currently set to use the regular address. You can enable a Vesting Address if needed.",
+                "cta": "Enable Vesting Address"
+            }
         },
         "cardTitle": "Vesting Machine",
         "status": {
@@ -677,8 +684,7 @@
             "ongoing": "• The voting is in progress!",
             "approved": "• Proposal was approved",
             "noQuorum": "• No reach quorum for this proposal!",
-            "rejected": "• Proposal was rejected by votes against!",
-            "vetoed": "• Proposal was vetoed by Collateral Token holders!"
+            "rejected": "• Proposal was rejected by votess against!"
         },
         "balanceGraph": { "against": "Against", "inFavor": "In Favor" },
         "statusGraph": {
@@ -712,32 +718,6 @@
             "changerAddress": "Proposal Changer Address",
             "votingInFavor": "You are voting in favor!",
             "votingAgainst": "You are voting against!"
-        },
-        "veto": {
-            "alert": {
-                "title": "Collateral Tokens ready to Withdraw",
-                "text": "Collateral Tokens used for vetoing were released. You must withdraw them to your wallet.",
-                "cta": "Withdraw Collateral"
-            },
-            "outsideVetoing": {
-                "statsTitle": "Collateral-Backed Votes Supporting Veto",
-                "statsLabel": "veto casted",
-                "cta": "Collateral Veto"
-            },
-            "backToGovernanceButton": "Back to Governance Voting",
-            "row": {
-                "votingPower": "Voting Power",
-                "totalSupply": "Total Supply",
-                "ctaVeto": "Veto with"
-            },
-            "vetoWithdraw": {
-                "title": "Withdraw released tokens used for veto",
-                "headerToken": "Token",
-                "headerProposal": "Proposal",
-                "headerAmount": "Amount",
-                "button": "Withdraw",
-                "note": "Note: Each veto action locks the tokens used independently. As a result, you may have multiple available balances to withdraw for the same token if they were originally used in different veto operations."
-            }
         }
     },
     "alert": {
