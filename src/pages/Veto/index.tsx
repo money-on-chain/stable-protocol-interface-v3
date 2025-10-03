@@ -17,8 +17,8 @@ export default function SectionVeto(): React.ReactElement {
             setReady(true);
         }
         if (userBalance.data && isVestingLoaded()) {
-            const vAddress = vestingAddress();
-            setUsingVestingAddress(vAddress || "");
+            const vAddress = vestingAddress || "";
+            setUsingVestingAddress(vAddress);
         } else {
             setUsingVestingAddress("");
         }

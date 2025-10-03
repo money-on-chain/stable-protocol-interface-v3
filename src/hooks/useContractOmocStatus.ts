@@ -15,20 +15,28 @@ const onErrorProposal = (): MultiCallErrorResult => {
     return { value: null, canOperate: true };
 };
 
+interface ProposalCountResult {
+    votingMachine?: {
+        getProposalCount?: string | number | bigint;
+        getProposalsLength?: string | number | bigint;
+    };
+}
+
 /**
  * React hook that wraps useMultiCall3 to fetch contract status data.
  * Builds the call array with useMemo so it remains stable between renders.
  */
 export function useContractOmocStatus(
     contracts?: DContracts,
-    proposalCount?: any,
+    proposalCount?: ProposalCountResult,
     refetchInterval = 30_000
 ): ContractStatusOmocResult {
     const callsRequests = useMemo(() => {
         if (!contracts) return [];
         let preProposalsLength = 0n;  
         let proposalsLength = 0n;
-        if (proposalCount) {
+        if (proposalCount?.votingMachine?.getProposalCount !== undefined && 
+            proposalCount?.votingMachine?.getProposalsLength !== undefined) {
             preProposalsLength = BigInt(proposalCount.votingMachine.getProposalCount);
             proposalsLength = BigInt(proposalCount.votingMachine.getProposalsLength);
         }

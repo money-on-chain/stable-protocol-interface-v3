@@ -6,9 +6,9 @@ import type { useConnect } from "wagmi";
 import type { useContractOmocStatus } from "../hooks/useContractOmocStatus";
 import type { useContractProtocolStatus } from "../hooks/useContractProtocolStatus";
 import type { useIncentiveV2 } from "../hooks/useIncentiveV2";
+import type { useProposalCount } from "../hooks/useProposalCount";
 import type { useUserVeto } from "../hooks/useUserVeto";
 import type { UseBaseCoinBalanceResult } from "../types/status";
-import type { useProposalCount } from "../hooks/useProposalCount";
 import type { DContracts } from "./hooks";
 import type { ContractProtocolStatusResult, UserBalanceResult, UserOmocBalanceResult, UserVestingResult } from "./status";
 
