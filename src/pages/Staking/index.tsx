@@ -4,7 +4,6 @@ import { Skeleton } from "antd";
 import React, { Fragment, useEffect, useState } from "react";
 
 import VestingStatusAlert from "../../components/Notification/VestingStatusAlert";
-
 import Staking from "../../components/Staking";
 import { useWalletContext } from "../../context/Wallet";
 

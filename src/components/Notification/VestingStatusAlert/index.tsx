@@ -1,10 +1,10 @@
+import "./Styles.scss";
+
+import { Alert, message, Typography } from "antd";
 import React from "react";
-import { Alert, Button, Switch, Typography, message } from "antd";
-import { Link } from "react-router-dom";
+
 import { useWalletContext } from "../../../context/Wallet";
 import { useProjectTranslation } from "../../../helpers/translations";
-
-import "./Styles.scss";
 
 const { Text } = Typography;
 

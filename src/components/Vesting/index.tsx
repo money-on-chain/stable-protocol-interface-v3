@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { recoverMessageAddress, type TransactionReceipt } from "viem";
 
 import { decodeEvents } from "../../backend/transaction";
+import VestingStatusAlert from "../../components/Notification/VestingStatusAlert";
 import VestingSchedule from "../../components/Tables/VestingSchedule";
 import { useWalletContext } from "../../context/Wallet";
 import { formatTimestamp } from "../../helpers/staking";
@@ -18,8 +19,6 @@ import {
 } from "../../helpers/vesting";
 import settings from "../../settings/settings.json";
 import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
-import VestingStatusAlert from "../../components/Notification/VestingStatusAlert";
-
 import { PrecisionNumbers } from "../PrecisionNumbers";
 
 const { TextArea } = Input;
