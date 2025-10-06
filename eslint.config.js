@@ -26,10 +26,20 @@ export default [
         ],
     },
 
-    // 2) Base JS recommendations
+    // 2) Config files need Node.js globals
+    {
+        files: ["*.config.{js,mjs,cjs}", "*.config.*.{js,mjs,cjs}"],
+        languageOptions: {
+            globals: {
+                ...globals.node,
+            },
+        },
+    },
+
+    // 3) Base JS recommendations
     js.configs.recommended,
 
-    // 3) Type-aware linting for .ts/.tsx files
+    // 4) Type-aware linting for .ts/.tsx files
     ...tseslint.config({
         files: ["**/*.{ts,tsx}"],
 
@@ -46,6 +56,7 @@ export default [
             globals: {
                 ...globals.browser,
                 ...globals.es2021,
+                ...globals.node,
             },
         },
 
@@ -100,13 +111,14 @@ export default [
         },
     }),
 
-    // 4) JS/JSX files (if any) get a lean version of the above
+    // 5) JS/JSX files (if any) get a lean version of the above
     {
         files: ["**/*.{js,jsx,mjs,cjs}"],
         languageOptions: {
             globals: {
                 ...globals.browser,
                 ...globals.es2021,
+                ...globals.node,
             },
         },
         plugins: {
@@ -134,7 +146,7 @@ export default [
         },
     },
 
-    // 5) Disable style rules that conflict with Prettier
+    // 6) Disable style rules that conflict with Prettier
     // (This config turns off all conflicting rules — keep it last)
     eslintConfigPrettier,
 ];

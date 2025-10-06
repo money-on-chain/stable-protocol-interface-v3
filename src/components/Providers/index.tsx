@@ -38,7 +38,9 @@ export default function WalletProviders({ onCloseModal }: ProvidersProps) {
 
     // Detect in-app wallet browser (MetaMask/Rainbow/Trust/Coinbase)
     const isInAppWallet = React.useMemo(
-        () => typeof window !== "undefined" && !!(window as any).ethereum,
+        () =>
+            typeof window !== "undefined" &&
+            !!(window as Window & { ethereum?: unknown }).ethereum,
         []
     );
 
@@ -112,12 +114,13 @@ export default function WalletProviders({ onCloseModal }: ProvidersProps) {
             await connectAsync({ connector });
             if (!isWC) onCloseModal();
             localStorage.setItem("last-connector", connector.id);
-        } catch (e: any) {
+        } catch (e: unknown) {
+            const error = e as Error & { shortMessage?: string };
             notification.error({
                 message: "Failed to connect",
                 description:
-                    e?.shortMessage ||
-                    e?.message ||
+                    error?.shortMessage ||
+                    error?.message ||
                     "Check your wallet and try again.",
             });
         } finally {
@@ -142,13 +145,14 @@ export default function WalletProviders({ onCloseModal }: ProvidersProps) {
                         <WalletOption
                             key={c.uid}
                             connector={c}
-                            onClick={() => handleConnect(c)}
+                            onClick={() => void handleConnect(c)}
                             loading={loadingId === c.uid}
                             tooltip={getTooltip(
                                 c,
                                 isInjected,
                                 isMetaMask,
-                                isWalletConnect
+                                isWalletConnect,
+                                t
                             )}
                             isInAppWallet={isInAppWallet}
                             t={t}
@@ -159,13 +163,14 @@ export default function WalletProviders({ onCloseModal }: ProvidersProps) {
                         <WalletOption
                             key={c.uid}
                             connector={c}
-                            onClick={() => handleConnect(c)}
+                            onClick={() => void handleConnect(c)}
                             loading={loadingId === c.uid}
                             tooltip={getTooltip(
                                 c,
                                 isInjected,
                                 isMetaMask,
-                                isWalletConnect
+                                isWalletConnect,
+                                t
                             )}
                             isInAppWallet={isInAppWallet}
                             t={t}
@@ -234,10 +239,9 @@ function getTooltip(
     c: Connector,
     isInjected: (c: Connector) => boolean,
     isMetaMask: (c: Connector) => boolean,
-    isWalletConnect: (c: Connector) => boolean
+    isWalletConnect: (c: Connector) => boolean,
+    t: ReturnType<typeof useProjectTranslation>["t"]
 ): string | undefined {
-    const { t } = useProjectTranslation();
-
     if (isWalletConnect(c)) {
         return t("walletProviders.toolTip.walletConnected");
     }

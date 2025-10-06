@@ -13,36 +13,36 @@ import { abi as abi_VestingFactory } from "../contracts/omoc/VestingFactory.json
 // Type definitions
 interface DecodedEvent {
     eventName: string;
-    args: Record<string, any>;
-    [key: string]: any;
+    args: Record<string, unknown>;
+    [key: string]: unknown;
 }
 
 type ContractName = "MocQueue" | "Moc" | "MocVendors" | "VestingFactory";
 
 const renderEvent = (evente: DecodedEvent): void => {
-    console.log("");
-    console.log("\x1b[35m%s\x1b[0m", `Event: ${evente.eventName}`);
-    console.log("");
+    console.error("");
+    console.error("\x1b[35m%s\x1b[0m", `Event: ${evente.eventName}`);
+    console.error("");
 
     for (const [eveName, eveValue] of Object.entries(evente.args)) {
-        console.log("\x1b[32m%s\x1b[0m", `${eveName}: ${eveValue}`);
+        console.error("\x1b[32m%s\x1b[0m", `${eveName}: ${String(eveValue)}`);
     }
 };
 
-const getContractAbi = (contractName: ContractName): any => {
-    let abi: any = abi_MocQueue;
+const getContractAbi = (contractName: ContractName): readonly unknown[] => {
+    let abi: readonly unknown[] = abi_MocQueue;
     switch (contractName) {
         case "MocQueue":
-            abi = abi_MocQueue as any;
+            abi = abi_MocQueue;
             break;
         case "Moc":
-            abi = abi_Moc as any;
+            abi = abi_Moc;
             break;
         case "MocVendors":
-            abi = abi_MocVendors as any;
+            abi = abi_MocVendors;
             break;
         case "VestingFactory":
-            abi = abi_VestingFactory as any;
+            abi = abi_VestingFactory;
             break;
         default:
             throw new Error("Invalid contract name");

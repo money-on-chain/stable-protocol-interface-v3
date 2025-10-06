@@ -26,7 +26,7 @@ export default function CopyAddress(props: CopyAddressProps): JSX.Element {
     };
 
     const onClick = (): void => {
-        navigator.clipboard.writeText(address);
+        void navigator.clipboard.writeText(address);
         notification.open({
             message: t("feedback.clipboardCopy"),
             description: `${address} ` + t("feedback.clipboardTo"),

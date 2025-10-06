@@ -3,7 +3,7 @@ import {
     waitForTransactionReceipt,
     writeContract,
 } from "@wagmi/core";
-import { type TransactionReceipt } from "viem";
+import { type Abi, type TransactionReceipt } from "viem";
 
 import settings from "../settings/settings.json";
 import type { TokenConfig } from "../types/hooks";
@@ -33,9 +33,11 @@ const mintTC = async (
         publicClient,
     } = interfaceContext;
 
-    const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
+    const vendorAddress = (import.meta.env
+        .REACT_APP_ENVIRONMENT_VENDOR_ADDRESS || "0x0000000000000000000000000000000000000000") as `0x${string}`;
 
     // Basic verifications
+    if (!address) throw new Error("Address not found");
     if (!publicClient) throw new Error("Public client not found");
     if (!contracts) throw new Error("Contracts not found");
     if (!contracts.Moc) throw new Error("Moc not found");
@@ -91,11 +93,18 @@ const mintTC = async (
 
     // TODO: view functions returns baseFee == 0, if we use another value the estimateGas function will revert
     const isRsk = getNetworkFromProject() === "rsk";
-    const configParams: any = {
+    const configParams: {
+        address: `0x${string}`;
+        abi: Abi;
+        functionName: string;
+        args: readonly unknown[];
+        account: `0x${string}`;
+        value?: bigint;
+    } = {
         address: MoCContract.address,
-        abi: MoCContract.abi,
+        abi: MoCContract.abi as Abi,
         functionName: "mintTC",
-        args: [qTC, limitAmount, address, vendorAddress],
+        args: [qTC, limitAmount, address, vendorAddress] as const,
         account: address,
     };
     if (isRsk) {
@@ -139,9 +148,11 @@ const redeemTC = async (
         publicClient,
     } = interfaceContext;
     
-    const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
+    const vendorAddress = (import.meta.env
+        .REACT_APP_ENVIRONMENT_VENDOR_ADDRESS || "0x0000000000000000000000000000000000000000") as `0x${string}`;
     
     // Verifications
+    if (!address) throw new Error("Address not found");
     if (!publicClient) throw new Error("Public client not found");
     if (!contracts) throw new Error("Contracts not found");
     if (!contracts.Moc) throw new Error("Moc not found");
@@ -188,11 +199,18 @@ const redeemTC = async (
         );
 
     const isRsk = getNetworkFromProject() === "rsk";
-    const configParams: any = {
+    const configParams: {
+        address: `0x${string}`;
+        abi: Abi;
+        functionName: string;
+        args: readonly unknown[];
+        account: `0x${string}`;
+        value?: bigint;
+    } = {
         address: MoCContract.address,
-        abi: MoCContract.abi,
+        abi: MoCContract.abi as Abi,
         functionName: "redeemTC",
-        args: [qTC, limitAmount, address, vendorAddress],
+        args: [qTC, limitAmount, address, vendorAddress] as const,
         account: address,
     };
     if (isRsk) {
@@ -237,9 +255,11 @@ const mintTP = async (
         publicClient,
     } = interfaceContext;
 
-    const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
+    const vendorAddress = (import.meta.env
+        .REACT_APP_ENVIRONMENT_VENDOR_ADDRESS || "0x0000000000000000000000000000000000000000") as `0x${string}`;
 
     // Verifications
+    if (!address) throw new Error("Address not found");
     if (!publicClient) throw new Error("Public client not found");
     if (!contracts) throw new Error("Contracts not found");
     if (!contracts.Moc) throw new Error("Moc not found");
@@ -306,11 +326,18 @@ const mintTP = async (
         );
 
     const isRsk = getNetworkFromProject() === "rsk";
-    const configParams: any = {
+    const configParams: {
+        address: `0x${string}`;
+        abi: Abi;
+        functionName: string;
+        args: readonly unknown[];
+        account: `0x${string}`;
+        value?: bigint;
+    } = {
         address: MoCContract.address,
-        abi: MoCContract.abi,
+        abi: MoCContract.abi as Abi,
         functionName: "mintTP",
-        args: [tpAddress, qTP, limitAmount, address, vendorAddress],
+        args: [tpAddress, qTP, limitAmount, address, vendorAddress] as const,
         account: address,
     };
     if (isRsk) {
@@ -355,9 +382,11 @@ const redeemTP = async (
         publicClient,
     } = interfaceContext;
 
-    const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
+    const vendorAddress = (import.meta.env
+        .REACT_APP_ENVIRONMENT_VENDOR_ADDRESS || "0x0000000000000000000000000000000000000000") as `0x${string}`;
 
     // Verifications
+    if (!address) throw new Error("Address not found");
     if (!publicClient) throw new Error("Public client not found");
     if (!contracts) throw new Error("Contracts not found");
     if (!contracts.Moc) throw new Error("Moc not found");
@@ -407,11 +436,18 @@ const redeemTP = async (
         );
 
     const isRsk = getNetworkFromProject() === "rsk";
-    const configParams: any = {
+    const configParams: {
+        address: `0x${string}`;
+        abi: Abi;
+        functionName: string;
+        args: readonly unknown[];
+        account: `0x${string}`;
+        value?: bigint;
+    } = {
         address: MoCContract.address,
-        abi: MoCContract.abi,
+        abi: MoCContract.abi as Abi,
         functionName: "redeemTP",
-        args: [tpAddress, qTP, limitAmount, address, vendorAddress],
+        args: [tpAddress, qTP, limitAmount, address, vendorAddress] as const,
         account: address,
     };
     if (isRsk) {

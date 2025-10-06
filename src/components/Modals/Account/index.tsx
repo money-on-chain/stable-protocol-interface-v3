@@ -9,7 +9,7 @@ interface ModalAccountProps {
     onHide: () => void;
     vestingOn: boolean;
     setVestingOn: (value: boolean) => void;
-    [key: string]: any; // For any additional props that might be passed
+    [key: string]: unknown; // For any additional props that might be passed
 }
 
 export default function ModalAccount(props: ModalAccountProps): JSX.Element {

@@ -1,7 +1,9 @@
 import { Button, Collapse, Slider } from "antd";
+import type { AxiosError } from "axios";
 import axios from "axios";
 import PropTypes from "prop-types";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import type { TransactionReceipt } from "viem";
 
 import { decodeEvents } from "../../backend/transaction";
 import { useWalletContext } from "../../context/Wallet";
@@ -15,6 +17,15 @@ import TXStatus from "./TXStatus";
 
 
 const { Panel } = Collapse;
+
+interface OperationStatusResponse {
+    status: number;
+}
+
+interface ContractEvent {
+    eventName: string;
+    args: Record<string, string | number>;
+}
 
 interface ConfirmOperationProps {
     currencyYouExchange: string;
@@ -140,29 +151,29 @@ export default function ConfirmOperation(
 
     useEffect(() => {
         setAmountYouExchange(inputAmountYouExchange);
-    }, []);
+    }, [inputAmountYouExchange]);
 
     useEffect(() => {
         let timerId: NodeJS.Timeout;
         if (status === "QUEUING") {
-            console.log(
+            console.warn(
                 "Operation queuing... waiting for operation execution."
             );
             timerId = setTimeout(() => {
                 if (status === "QUEUING") {
                     setStatus("ERROR");
-                    console.log(
+                    console.error(
                         "Operation failed after waiting 20 minutes for execution after queuing."
                     );
                 }
             }, 600000);
         }
         if (status === "QUEUED") {
-            console.log("Operation queued... waiting for operation execution.");
+            console.warn("Operation queued... waiting for operation execution.");
             timerId = setTimeout(() => {
                 if (status === "QUEUED") {
                     setStatus("ERROR");
-                    console.log(
+                    console.error(
                         "Operation failed after waiting 10 minutes for execution."
                     );
                 }
@@ -172,7 +183,7 @@ export default function ConfirmOperation(
         return () => clearTimeout(timerId);
     }, [status]);
 
-    const toleranceLimits = (newTolerance: number): ToleranceLimits => {
+    const toleranceLimits = useCallback((newTolerance: number): ToleranceLimits => {
         let limitExchange: bigint;
         let limitReceive: bigint;
         if (IS_MINT) {
@@ -192,7 +203,7 @@ export default function ConfirmOperation(
         };
 
         return limits;
-    };
+    }, [IS_MINT, amountYouExchange, amountYouReceive]);
 
     const limits: ToleranceLimits = toleranceLimits(tolerance);
 
@@ -213,21 +224,96 @@ export default function ConfirmOperation(
             const limits: ToleranceLimits = toleranceLimits(tolerance);
             setAmountYouExchangeLimit(limits.exchange);
         }
-    }, [amountYouExchange]);
+    }, [amountYouExchange, tolerance, toleranceLimits]);
 
     useEffect(() => {
         if (amountYouReceive) {
             const limits: ToleranceLimits = toleranceLimits(tolerance);
             setAmountYouReceiveLimit(limits.receive);
         }
-    }, [amountYouReceive]);
+    }, [amountYouReceive, tolerance, toleranceLimits]);
+
+    const opStatus = useCallback((): void => {
+        if (!opID) {
+            console.warn("Operation Status: Checking... NO.");
+            return;
+        }
+
+        const apiUrl: string =
+            `${import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS}` +
+            "operations/oper_id/";
+        axios
+            .get<OperationStatusResponse>(apiUrl, {
+                params: {
+                    oper_id: opID,
+                    bucket_index: caIndex,
+                },
+                timeout: 10000,
+            })
+            .then((response) => {
+                if (response.status === 200) {
+                    if (response.data.status === 0) {
+                        // Pending executed
+                        console.warn("Operation Status: OK Pending execute.");
+                    } else if (response.data.status === 1) {
+                        // executed operation is finished
+
+                        setStatus("SUCCESS");
+
+                        // Remove Op ID
+                        setOpID(null);
+
+                        // Refresh user balance
+                        void userBalance.refetch();
+
+                        console.warn("Operation Status: OK Executed.");
+                    } else {
+                        setStatus("ERROR");
+
+                        // Remove Op ID
+                        setOpID(null);
+
+                        console.error(
+                            "Operation Status: Error! Status: ",
+                            response.data.status
+                        );
+                    }
+                }
+            })
+            .catch((error: AxiosError<OperationStatusResponse>) => {
+                if (error.response) {
+                    // The request was made and the server responded with a status code
+                    // that falls out of the range of 2xx
+                    if (error.response.status === 404) {
+                        console.warn(
+                            "Resource not found - Operation may not be indexed yet"
+                        );
+                    } else {
+                        console.error(
+                            "Server error:",
+                            error.response.status,
+                            error.response.data
+                        );
+                        setStatus("ERROR");
+                    }
+                } else if (error.request) {
+                    // The request was made but no response was received
+                    console.error("No response received:", error.request);
+                    //setStatus('ERROR');
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    console.error("Error setting up request:", error.message);
+                    setStatus("ERROR");
+                }
+            });
+    }, [opID, caIndex, userBalance]);
 
     useEffect(() => {
         const interval: NodeJS.Timeout = setInterval(() => {
             opStatus();
         }, 5000);
         return () => clearInterval(interval);
-    }, [opID]);
+    }, [opStatus]);
 
     const onHideModalAllowance = (): void => {
         setShowModalAllowance(false);
@@ -310,7 +396,7 @@ export default function ConfirmOperation(
             limitAmount = amountYouReceiveLimit;
         }
 
-        interfaceExchangeMethod(
+        void interfaceExchangeMethod(
             currencyYouExchange,
             currencyYouReceive,
             tokenAmount,
@@ -319,9 +405,9 @@ export default function ConfirmOperation(
             onReceipt
         )
             .then((/*value*/) => {
-                console.log("DONE!");
+                console.warn("DONE!");
             })
-            .catch((error: any) => {
+            .catch((error: AxiosError) => {
                 if (error.response) {
                     // The request was made and the server responded with a status code
                     // that falls out of the range of 2xx
@@ -352,93 +438,13 @@ export default function ConfirmOperation(
     const onTransaction = (transactionHash: string): void => {
         // Tx receipt detected change status to waiting
         setStatus("QUEUING");
-        console.log("On transaction: ", transactionHash);
+        console.warn("On transaction: ", transactionHash);
         setTxID(transactionHash);
     };
 
-    const opStatus = (): void => {
-        if (!opID) {
-            console.log("Operation Status: Checking... NO.");
-            return;
-        }
-
-        const apiUrl: string =
-            `${import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS}` +
-            "operations/oper_id/";
-        axios
-            .get(apiUrl, {
-                params: {
-                    oper_id: opID,
-                    bucket_index: caIndex,
-                },
-                timeout: 10000,
-            })
-            .then((response: any) => {
-                if (response.status === 200) {
-                    if (response.data.status === 0) {
-                        // Pending executed
-                        console.log("Operation Status: OK Pending execute.");
-                    } else if (response.data.status === 1) {
-                        // executed operation is finished
-
-                        setStatus("SUCCESS");
-
-                        // Remove Op ID
-                        setOpID(null);
-
-                        // Refresh user balance
-                        userBalance.refetch();
-                        // auth.loadContractsStatusAndUserBalance().then(
-                        //     (/*value*/) => {
-                        //         console.log("Refresh user balance OK!");
-                        //     }
-                        // );
-
-                        console.log("Operation Status: OK Executed.");
-                    } else {
-                        setStatus("ERROR");
-
-                        // Remove Op ID
-                        setOpID(null);
-
-                        console.log(
-                            "Operation Status: Error! Status: ",
-                            response.data.status
-                        );
-                    }
-                }
-            })
-            .catch((error: any) => {
-                if (error.response) {
-                    // The request was made and the server responded with a status code
-                    // that falls out of the range of 2xx
-                    if (error.response.status === 404) {
-                        console.warn(
-                            "Resource not found - Operation may not be indexed yet"
-                        );
-                    } else {
-                        console.error(
-                            "Server error:",
-                            error.response.status,
-                            error.response.data
-                        );
-                        setStatus("ERROR");
-                    }
-                } else if (error.request) {
-                    // The request was made but no response was received
-                    console.error("No response received:", error.request);
-                    //setStatus('ERROR');
-                } else {
-                    // Something happened in setting up the request that triggered an Error
-                    console.error("Error setting up request:", error.message);
-                    setStatus("ERROR");
-                }
-            });
-    };
-
-    const onQueued = (filteredEvents: any[]): void => {
+    const onQueued = (filteredEvents: ContractEvent[]): void => {
         let operId: number = 0;
-        filteredEvents.forEach(function (events: any) {
+        filteredEvents.forEach(function (events: ContractEvent) {
             if (events.eventName === "OperationQueued") {
                 // Is the event operation queue
                 for (const [eveName, eveValue] of Object.entries(events.args)) {
@@ -450,16 +456,16 @@ export default function ConfirmOperation(
         });
 
         if (operId > 0) {
-            console.log("Setting operation ID:", operId);
+            console.warn("Setting operation ID:", operId);
             setOpID(operId);
             //setOpID(33)
             setStatus("QUEUED");
         }
     };
 
-    const onReceipt = async (receipt: any): Promise<void> => {
+    const onReceipt = (receipt: unknown): void => {
         // Tx is mined ok
-        console.log("On receipt: ", receipt);
+        console.warn("On receipt: ", receipt);
 
         // Events name list
         const filter: string[] = [
@@ -469,14 +475,14 @@ export default function ConfirmOperation(
             "OperationExecuted",
         ];
 
-        const contractName: string = "MocQueue";
+        const contractName = "MocQueue" as const;
 
         //const txRcp = await auth.web3.eth.getTransactionReceipt(
         //    receipt.transactionHash
         //);
-        const txRcp = receipt;
-        const filteredEvents: any[] =
-            decodeEvents(txRcp, contractName as any, filter) || [];
+        const txRcp = receipt as TransactionReceipt;
+        const filteredEvents: ContractEvent[] =
+            (decodeEvents(txRcp, contractName, filter) as ContractEvent[]) || [];
 
         // on Queue
         onQueued(filteredEvents);
@@ -552,7 +558,7 @@ export default function ConfirmOperation(
             currencyYouExchange
         );
         if (limits.exchange > totalBalance) {
-            console.log("Insufficient balance");
+            console.warn("Insufficient balance");
             setToleranceError("Tolerance exceeds user balance");
             setAmountYouExchangeLimit(limits.exchange);
             setAmountYouReceiveLimit(limits.receive);
@@ -573,7 +579,7 @@ export default function ConfirmOperation(
     let commissionPAY: bigint = commission;
     let commissionPAYUSD: bigint = commissionUSD;
     let commissionPercentPAY: bigint = commissionPercent;
-    let commissionSettings: any = TokenSettings(`CA_${caIndex}`);
+    let commissionSettings: ReturnType<typeof TokenSettings> = TokenSettings(`CA_${caIndex}`);
     let commissionTokenName: string;
 
     if (IS_MINT) {
@@ -694,7 +700,7 @@ export default function ConfirmOperation(
                         </span>
                         <span className={""}> (</span>
                         <span>
-                            {!(contractProtocolStatus?.data).canOperate
+                            {!(contractProtocolStatus?.data?.canOperate ?? false)
                                 ? "--"
                                 : PrecisionNumbers({
                                       amount: commissionPAYUSD,
@@ -732,7 +738,7 @@ export default function ConfirmOperation(
 
                         <span className={""}> (</span>
                         <span>
-                            {!(contractProtocolStatus?.data).canOperate
+                            {!(contractProtocolStatus?.data?.canOperate ?? false)
                                 ? "--"
                                 : PrecisionNumbers({
                                       amount: executionFeeUSD,

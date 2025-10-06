@@ -22,7 +22,7 @@ export default function Copy(props: CopyProps): JSX.Element {
     } = props;
 
     const onClick = (): void => {
-        navigator.clipboard.writeText(textToCopy);
+        void navigator.clipboard.writeText(textToCopy);
         notification.open({
             message: "Copied",
             description: `${textToCopy} to clipboard`,

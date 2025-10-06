@@ -137,6 +137,8 @@ export type WalletContextType = {
 
     isVestingLoaded: () => boolean;
     vestingAddress: string | undefined;
+    vestingOn: boolean;
+    toggleVesting: () => void;
     onShowModalAccount: () => void;
     onShowModalAccountVesting: () => void;
     onHideModalAccount: () => void;

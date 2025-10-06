@@ -67,7 +67,7 @@ export default function StakingOptionsModal(
             (userVesting.data && amountInEth)
         )
             checkAllowance();
-    }, [userOmocBalance.data, amountInEth, userVesting.data]);
+    }, [userOmocBalance.data, amountInEth, userVesting.data, checkAllowance]);
 
     const onChangeInfinity = (e: { target: { checked: boolean } }): void => {
         console.warn(`checked = ${e.target.checked}`);

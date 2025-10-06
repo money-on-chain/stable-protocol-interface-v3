@@ -58,23 +58,38 @@ const VetoWithdraw: React.FC = () => {
     };
     const [infoUser, setInfoUser] = useState<InfoUser>(defaultInfoUser);
 
+    // Extract to avoid complex expression in dependency array
+    const collateralTokens = contractsAddress?.CollateralToken;
+
     const refreshData = useCallback((): void => {
         if (!contractStatusOmoc.data) return;
         if (!userOmocBalance.data) return;
         if (!userVeto.data) return;
         if (!address) return;
 
-        const cDataUser: InfoUser = { ...infoUser };
-        cDataUser["InfoUserTC"] = [];
+        const cDataUser: InfoUser = {
+            Voting_Power: 0n,
+            Voting_Power_PCT: 0n,
+            Total_Veto_Power: 0n,
+            Total_Veto_Power_PCT: 0n,
+            InfoUserTC: [],
+        };
 
+        // Convert getState from bigint to number for the helper function
+        const statusData = contractStatusOmoc.data;
         const lockedByVeto = tcLockedByVeto(
             userVeto.data as { vetoMachine: { getUserLockedAmount: Record<string, Record<string, bigint>>; }; },
-            contractStatusOmoc.data as { votingmachine: { getVotingData: [string, bigint, bigint, bigint]; getState: number; }; },
+            {
+                votingmachine: {
+                    getVotingData: statusData.votingmachine.getVotingData,
+                    getState: Number(statusData.votingmachine.getState),
+                }
+            },
             address
         );
         lockedByVeto.forEach((locked) => {
             const tcIndex = getTCTokenIndex(
-                contractsAddress?.CollateralToken || [],
+                collateralTokens || [],
                 locked.tcAddress
             );
             const tokenInfo: InfoUserTC = {
@@ -92,15 +107,14 @@ const VetoWithdraw: React.FC = () => {
         userOmocBalance.data,
         userVeto.data,
         address,
-        contractsAddress?.CollateralToken || [],
-        infoUser,
+        collateralTokens,
     ]);
 
     useEffect(() => {
         if (contractStatusOmoc.data && userOmocBalance.data && userVeto.data) {
             refreshData();
         }
-    }, [contractStatusOmoc.data, userOmocBalance.data, userVeto.data, /*refreshData*/]);
+    }, [contractStatusOmoc.data, userOmocBalance.data, userVeto.data, refreshData]);
 
     const onVetoWithdraw = async (
         proposal: string,
@@ -112,16 +126,14 @@ const VetoWithdraw: React.FC = () => {
         setIsOperationModalVisible(true);
 
         const onTransaction = (txHash: string): void => {
-            console.log("Sent transaction in Favor proposal...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
         const onReceipt = (/*receipt*/): void => {
-            console.log("Transaction in Favor proposal mined!...");
             setOperationStatus("success");
         };
         const onError = (error: unknown): void => {
-            console.log("Transaction in Favor proposal error!...:", error);
+            console.error("Transaction in Favor proposal error:", error);
             setOperationStatus("error");
         };
 

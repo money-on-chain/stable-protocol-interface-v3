@@ -585,7 +585,7 @@ export function useContractProtocolStatus(
         }
 
         return callRequest;
-    }, [contracts]);
+    }, [contracts, currentBlockNumber, parsedPrices]);
 
     // Pass calls into your multicall hook (safe: it's a hook calling a hook)
     const multicallState = useMultiCall(callsRequests, {

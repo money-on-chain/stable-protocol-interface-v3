@@ -33,7 +33,7 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
 
     useEffect(() => {
         const handleWheel = (event: WheelEvent) => {
-            console.log("Wheel event triggered");
+            console.warn("Wheel event triggered");
             event.preventDefault();
         };
 

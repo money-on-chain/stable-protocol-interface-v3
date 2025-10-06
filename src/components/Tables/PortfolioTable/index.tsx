@@ -61,6 +61,14 @@ export default function PortfolioTable() {
         userBaseCoinBalance.balance,
     ]);
 
+    // Initialize arrays for token and column data
+    const [usdPriceTokensData, setUsdPriceTokensData] = useState<TokenRow[]>(
+        []
+    );
+    const [nonUSDpriceTokensData, setNonUSDPriceTokensData] = useState<
+        TokenRow[]
+    >([]);
+
     const createAllTheTokens = (settings: Settings): TokenConfig[] => {
         let uniqueKeyCounter = 0;
         const allTheTokens: TokenConfig[] = [];
@@ -68,7 +76,7 @@ export default function PortfolioTable() {
 
         // Step 1: Collect all tokens
         Object.entries(settings.tokens).forEach(([type, tokens]) => {
-            tokens.forEach((token: TokenConfig, index: number) => {
+            (tokens as TokenConfig[]).forEach((token: TokenConfig, index: number) => {
                 // Remove duplicated token names
                 if (!tfTokenNames.has(token.name)) {
                     allTheTokens.push({
@@ -94,20 +102,11 @@ export default function PortfolioTable() {
         });
         return allTheTokens;
     };
-    const allTheTokens = createAllTheTokens(settings);
-
-    // Initialize arrays for token and column data
-    const [usdPriceTokensData, setUsdPriceTokensData] = useState<TokenRow[]>(
-        []
-    );
-    const [nonUSDpriceTokensData, setNonUSDPriceTokensData] = useState<
-        TokenRow[]
-    >([]);
 
     const processTokens = (
         allTheTokens: TokenConfig[],
         settings: Settings,
-        t: TokenConfig
+        tFunc: (key: string) => string
     ): void => {
         if (!contractProtocolStatus?.data) {
             console.warn(
@@ -335,14 +334,16 @@ export default function PortfolioTable() {
             const tokenName = token.fullName || token.name;
             const tokenTicker = token.name;
 
+            // Create a copy of label for this specific token
+            const tokenLabel = { ...label };
             if (token.type === "TP" && token.peggedUSD === false) {
                 // Change Price in USD for Tokens per USD for !peggedUSD pegged tokens.
-                label.price = t("portfolio.tokensTable.tokensPerUSD");
+                tokenLabel.price = tFunc("portfolio.tokensTable.tokensPerUSD");
             }
 
             const tokenRow = generateTokenRow({
                 key: token.uniqueKey || 0,
-                label,
+                label: tokenLabel,
                 tokenIcon,
                 tokenName,
                 tokenTicker,
@@ -370,11 +371,14 @@ export default function PortfolioTable() {
         setUsdPriceTokensData(newUSDpeggedTokenRows); // ✅ Overwrite the state instead of appending
         setNonUSDPriceTokensData(newNonUSDpeggedTokenRows); // ✅ Overwrite the state instead of appending
     };
+    
     useEffect(() => {
         if (ready && contractProtocolStatus.data && userBalance.data) {
+            const allTheTokens = createAllTheTokens(settings);
             processTokens(allTheTokens, settings, t);
         }
-    }, [ready, contractProtocolStatus.data, userBalance.data]); // Runs only when `ready`
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [ready, contractProtocolStatus.data, userBalance.data, i18n.language]); // i18n.language triggers re-translation
 
     return ready ? (
         <div className="portfolio-table">

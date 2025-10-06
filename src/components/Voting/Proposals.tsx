@@ -84,8 +84,12 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
     } = useWalletContext();
     const space: string = "\u00A0";
 
+    // Extract to avoid complex expressions in dependency arrays
+    const votingPower = infoUser.Voting_Power;
+    const minStake = infoVoting.MIN_STAKE;
+
     const onValidateSubmitProposalCallback = useCallback((): boolean => {
-        if (infoUser["Voting_Power"] < infoVoting["MIN_STAKE"]) {
+        if (votingPower < minStake) {
             setAddProposalAddressErrorText(
                 // `You need at least ${infoVoting['MIN_STAKE'].toString()} amount of tokens to submit the proposal`
                 "Not enough balance. See below."
@@ -93,13 +97,13 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             setAddProposalAddressError(true);
             return false;
         } else return true;
-    }, [infoUser["Voting_Power"], infoVoting["MIN_STAKE"]]);
+    }, [votingPower, minStake]);
 
     useEffect(() => {
         onValidateSubmitProposalCallback();
-    }, [contractStatusOmoc.data]);
+    }, [contractStatusOmoc.data, onValidateSubmitProposalCallback]);
 
-    const searchProposal = (proposalAddress: string): ProposalData => {
+    const searchProposal = useCallback((proposalAddress: string): ProposalData => {
         let proposal: ProposalData = {
             id: 0,
             changeContract: "",
@@ -121,14 +125,25 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             }
         }
         return proposal;
-    };
+    }, [proposalsData]);
 
-    const refreshViewProposalData = (): void => {
+    const refreshViewProposalData = useCallback((currentProposalsData: ProposalData[]): void => {
         if (viewProposal.changeContract != null) {
-            const proposal = searchProposal(viewProposal.changeContract);
-            setViewProposal(proposal);
+            let proposal: ProposalData | undefined;
+            for (let i = 0; i < currentProposalsData.length; i++) {
+                if (
+                    currentProposalsData[i].changeContract.toLowerCase() ===
+                    viewProposal.changeContract.toLowerCase()
+                ) {
+                    proposal = currentProposalsData[i];
+                    break;
+                }
+            }
+            if (proposal) {
+                setViewProposal(proposal);
+            }
         }
-    };
+    }, [viewProposal.changeContract]);
 
     const refreshProposals = useCallback((): void => {
         const propData: ProposalData[] = [];
@@ -198,15 +213,18 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         }
         setProposalsData(propData);
 
-        // Also refresh proposal view data
-        refreshViewProposalData();
-    }, [infoVoting]);
+        // Also refresh proposal view data with the new data
+        refreshViewProposalData(propData);
+    }, [infoVoting, refreshViewProposalData]);
+
+    // Extract to avoid complex expression in dependency array
+    const proposals = infoVoting.proposals;
 
     useEffect(() => {
-        if (infoVoting["proposals"] != null) {
+        if (proposals != null) {
             refreshProposals();
         }
-    }, [infoVoting["proposals"], refreshProposals]);
+    }, [proposals, refreshProposals]);
 
     const onChangeInputAddProposal = (
         e: React.ChangeEvent<HTMLInputElement>
@@ -271,12 +289,10 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         setIsOperationModalVisible(true);
 
         const onTransaction = (txHash: string): void => {
-            console.log("Sent transaction add proposal...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
         const onReceipt = (): void => {
-            console.log("Transaction add proposal mined!...");
             setOperationStatus("success");
             /*
             // Events name list
@@ -297,7 +313,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             onCloseAddProposal();
         };
         const onError = (error: unknown): void => {
-            console.log("Transaction add proposal error!...:", error);
+            console.error("Transaction add proposal error:", error);
             setOperationStatus("error");
         };
 
@@ -336,12 +352,10 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         setIsOperationModalVisible(true);
 
         const onTransaction = (txHash: string): void => {
-            console.log("Sent transaction unregister proposal...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
         const onReceipt = (): void => {
-            console.log("Transaction unregister proposal mined!...");
             setOperationStatus("success");
             /*
             // Events name list
@@ -361,7 +375,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
              */
         };
         const onError = (error: unknown): void => {
-            console.log("Transaction unregister proposal error!...:", error);
+            console.error("Transaction unregister proposal error:", error);
             setOperationStatus("error");
         };
 
@@ -397,12 +411,10 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         setIsOperationModalVisible(true);
 
         const onTransaction = (txHash: string): void => {
-            console.log("Sent transaction pre vote step ...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
         const onReceipt = (): void => {
-            console.log("Transaction pre vote step mined!...");
             setOperationStatus("success");
             /*
             // Events name list
@@ -422,7 +434,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
              */
         };
         const onError = (error: unknown): void => {
-            console.log("Transaction pre vote step error!...:", error);
+            console.error("Transaction pre vote step error:", error);
             setOperationStatus("error");
         };
 

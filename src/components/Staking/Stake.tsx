@@ -20,7 +20,7 @@ interface StakeProps {
     userInfoStaking: {
         tgBalance: bigint;
         unstakeBalance: bigint;
-        [key: string]: any;
+        [key: string]: unknown;
     };
 }
 
@@ -69,11 +69,7 @@ const Stake = (props: StakeProps): JSX.Element => {
             onClear();
             setCurrentTab(activeTab);
         }
-    }, [contractStatusOmoc.data, activeTab]);
-
-    useEffect(() => {
-        onValidate();
-    }, [amountToStake, amountToUnstake]);
+    }, [contractStatusOmoc.data, activeTab, currentTab]);
 
     const onValidate = (): void => {
         let amountInputError: boolean = false;
@@ -100,13 +96,6 @@ const Stake = (props: StakeProps): JSX.Element => {
                 amountInputError = true;
             }
         } else if (
-            isNaN(parseFloat(isUnstaking ? amountToUnstake : amountToStake))
-        ) {
-            if (amountToStake !== "" || amountToUnstake !== "") {
-                setInputValidationErrorText("Invalid amount");
-                amountInputError = true;
-            }
-        } else if (
             (isUnstaking ? amountToUnstake : amountToStake).toString().length <
             1
         ) {
@@ -118,6 +107,10 @@ const Stake = (props: StakeProps): JSX.Element => {
         }
         setInputValidationError(amountInputError);
     };
+
+    useEffect(() => {
+        onValidate();
+    }, [amountToStake, amountToUnstake, isUnstaking, userInfoStaking]);
 
     const onChangeCurrency = (/*newCurrency*/): void => {
         onClear();

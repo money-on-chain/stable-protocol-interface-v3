@@ -136,7 +136,7 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
 
     useEffect(() => {
         onValidateVotingInFavor();
-    }, [votingPower, canVote]);
+    }, [votingPower, canVote, onValidateVotingInFavor]);
 
     const preVotingGraphs: CreateBarGraphProps[] = [
         {
@@ -173,15 +173,10 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
         setIsOperationModalVisible(true);
 
         const onTransaction = (txHash: string): void => {
-            console.warn(
-                "Sent transaction voting in favor proposal...: ",
-                txHash
-            );
             setTxHash(txHash);
             setOperationStatus("pending");
         };
         const onReceipt = (): void => {
-            console.warn("Transaction voting in favor proposal mined!...");
             setOperationStatus("success");
             /*
             // Events name list

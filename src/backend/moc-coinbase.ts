@@ -3,7 +3,7 @@ import {
     waitForTransactionReceipt,
     writeContract,
 } from "@wagmi/core";
-import { type TransactionReceipt } from "viem";
+import { type Abi, type TransactionReceipt } from "viem";
 
 import settings from "../settings/settings.json";
 import type { TokenConfig } from "../types/hooks";
@@ -33,9 +33,11 @@ const mintTC = async (
         publicClient,
     } = interfaceContext;
 
-    const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
+    const vendorAddress = (import.meta.env
+        .REACT_APP_ENVIRONMENT_VENDOR_ADDRESS || "0x0000000000000000000000000000000000000000") as `0x${string}`;
 
     // Verifications
+    if (!address) throw new Error("Address not found");
     if (!publicClient) throw new Error("Public client not found");
     if (!contracts) throw new Error("Contracts not found");
     if (!contracts.Moc) throw new Error("Moc not found");
@@ -52,7 +54,7 @@ const mintTC = async (
 
     // Verifications
     // User have sufficient reserve to pay?
-    console.log(
+    console.warn(
         `To mint ${qTC} ${
             (settings.tokens.TC[caIndex] as TokenConfig).name
         } you need > ${limitAmount.toString()} ${
@@ -67,7 +69,7 @@ const mintTC = async (
         );
 
     // Allowance    reserveAllowance
-    console.log(
+    console.warn(
         `Allowance: To mint ${qTC} ${
             (settings.tokens.TC[caIndex] as TokenConfig).name
         } you need > ${limitAmount.toString()} ${
@@ -88,11 +90,18 @@ const mintTC = async (
     */
 
     const isRsk = getNetworkFromProject() === "rsk";
-    const configParams: any = {
+    const configParams: {
+        address: `0x${string}`;
+        abi: Abi;
+        functionName: string;
+        args: readonly unknown[];
+        account: `0x${string}`;
+        value?: bigint;
+    } = {
         address: MoCContract.address,
-        abi: MoCContract.abi,
+        abi: MoCContract.abi as Abi,
         functionName: "mintTC",
-        args: [qTC, address, vendorAddress],
+        args: [qTC, address, vendorAddress] as const,
         account: address,
     };
     if (isRsk) {
@@ -107,7 +116,7 @@ const mintTC = async (
 
     // Send transaction
     const txHash = await writeContract(config, request);
-    console.log("txHash", txHash);
+    console.warn("txHash", txHash);
     if (onTransaction) onTransaction(txHash);
 
     const receipt = await waitForTransactionReceipt(config, { hash: txHash });
@@ -154,9 +163,11 @@ const mintTP = async (
         publicClient,
     } = interfaceContext;
 
-    const vendorAddress = import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS;
+    const vendorAddress = (import.meta.env
+        .REACT_APP_ENVIRONMENT_VENDOR_ADDRESS || "0x0000000000000000000000000000000000000000") as `0x${string}`;
 
     // Verifications
+    if (!address) throw new Error("Address not found");
     if (!publicClient) throw new Error("Public client not found");
     if (!contracts) throw new Error("Contracts not found");
     if (!contracts.Moc) throw new Error("Moc not found");
@@ -177,7 +188,7 @@ const mintTP = async (
     // Verifications
 
     // User have sufficient reserve to pay?
-    console.log(
+    console.warn(
         `To mint ${qTP} ${
             (settings.tokens.TP[tpIndex] as TokenConfig).name
         } you need > ${limitAmount.toString()} ${
@@ -192,7 +203,7 @@ const mintTP = async (
         );
 
     // Allowance
-    console.log(
+    console.warn(
         `Allowance: To mint ${qTP} ${
             (settings.tokens.TP[tpIndex] as TokenConfig).name
         } you need > ${limitAmount.toString()} ${
@@ -224,11 +235,18 @@ const mintTP = async (
         );
 
     const isRsk = getNetworkFromProject() === "rsk";
-    const configParams: any = {
+    const configParams: {
+        address: `0x${string}`;
+        abi: Abi;
+        functionName: string;
+        args: readonly unknown[];
+        account: `0x${string}`;
+        value?: bigint;
+    } = {
         address: MoCContract.address,
-        abi: MoCContract.abi,
+        abi: MoCContract.abi as Abi,
         functionName: "mintTP",
-        args: [tpAddress, qTP, address, vendorAddress],
+        args: [tpAddress, qTP, address, vendorAddress] as const,
         account: address,
     };
     if (isRsk) {
@@ -244,7 +262,7 @@ const mintTP = async (
 
     // Send transaction
     const txHash = await writeContract(config, request);
-    console.log("txHash", txHash);
+    console.warn("txHash", txHash);
     if (onTransaction) onTransaction(txHash);
 
     const receipt = await waitForTransactionReceipt(config, { hash: txHash });

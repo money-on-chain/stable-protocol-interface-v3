@@ -12,6 +12,14 @@ const onErrorProposal = (): MultiCallErrorResult => {
     return { value: null, canOperate: true };
 };
 
+const onErrorVotingPower = (): MultiCallErrorResult => {
+    console.warn("Voting Power on 0n!!. Cannot get voting power!!. Probably problem with TC price provider");
+    return { value: 0n, canOperate: true };
+};
+
+
+
+
 /**
  * Hook to get the voting power from VetoMachine for each TC token and balance.
  */
@@ -39,7 +47,7 @@ export function useUserVeto(
 
                 const userTCBalance =
                     (userBalance[ca] as { TC: { balance: bigint } })?.TC
-                        ?.balance || 0n;
+                        ?.balance || 0n;                
                 callRequest.push({
                     contract: contracts.VetoMachine,
                     functionName: "getVotingPower",
@@ -50,6 +58,7 @@ export function useUserVeto(
                         "getVotingPower",
                         CollateralToken.address,
                     ],
+                    onError: onErrorVotingPower,
                 });
 
                 callRequest.push({
@@ -58,7 +67,7 @@ export function useUserVeto(
                     args: [userAddress, contracts.VetoMachine.address],
                     resultType: "uint256",
                     keys: ["vetoMachine", "allowance", CollateralToken.address],
-                });
+                }); 
 
                 const votingMachineData = contractStatusOmoc.votingmachine as {
                     proposalsList: Record<string, unknown[]>;

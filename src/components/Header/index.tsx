@@ -55,15 +55,22 @@ export default function SectionHeader(): JSX.Element {
     const MAX_MAIN_MENU_ITEMS: number = 5;
 
     // Process JSON for navigation menu
-    const menuOptions: MenuOption[] = menuOptionsData.map((option: any) => ({
-        ...option,
-        name: () => t(option.nameKey), // Traducimos el nombre dinámicamente
-    }));
+    interface RawMenuOption {
+        path: string;
+        nameKey: string;
+        className: string;
+        allowedProjects: string[];
+    }
 
     // Filter options based on project and language changes
     const [displayOptions, setDisplayOptions] = useState<MenuOption[]>([]);
     const currentProject: string = settings.project;
     useEffect(() => {
+        const menuOptions: MenuOption[] = (menuOptionsData as RawMenuOption[]).map((option: RawMenuOption) => ({
+            ...option,
+            name: () => t(option.nameKey), // Traducimos el nombre dinámicamente
+        }));
+        
         const filteredOptions: MenuOption[] = menuOptions
             .filter(
                 (option: MenuOption) =>
@@ -113,7 +120,7 @@ export default function SectionHeader(): JSX.Element {
     const toggleLanguageSubmenu = (): void =>
         setShowLanguageSubmenu(!showLanguageSubmenu);
     const pickLanguage = (code: string): void => {
-        i18n.changeLanguage(code);
+        void i18n.changeLanguage(code);
         setLang(code);
         setShowLanguageMenu(false);
         localStorage.setItem("PreferredLang", code);
@@ -127,7 +134,10 @@ export default function SectionHeader(): JSX.Element {
     useEffect(() => {
         const preferredLanguage: string =
             localStorage.getItem("PreferredLang") || "en";
-        pickLanguage(preferredLanguage);
+        void i18n.changeLanguage(preferredLanguage);
+        setLang(preferredLanguage);
+        // Only run once on mount to load saved language preference
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (

@@ -42,22 +42,22 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
             toBigIntPrecision(amountYouExchange);
 
         if (currencyYouExchange === "COINBASE") {
-            interfaceTransferCoinbase(
+            void interfaceTransferCoinbase(
                 amountYouExchangeWei,
                 destinationAddress.toLowerCase(),
                 onTransaction,
                 onReceipt
             )
                 .then((/*value*/) => {
-                    console.log("DONE!");
+                    console.warn("DONE!");
                 })
-                .catch((error: any) => {
-                    console.log("ERROR");
+                .catch((error: unknown) => {
+                    console.error("ERROR");
                     setStatus("ERROR");
-                    console.log(error);
+                    console.error(error);
                 });
         } else {
-            interfaceTransferToken(
+            void interfaceTransferToken(
                 currencyYouExchange,
                 amountYouExchangeWei,
                 destinationAddress.toLowerCase(),
@@ -65,12 +65,12 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
                 onReceipt
             )
                 .then((/*value*/) => {
-                    console.log("DONE!");
+                    console.warn("DONE!");
                 })
-                .catch((error: any) => {
-                    console.log("ERROR");
+                .catch((error: unknown) => {
+                    console.error("ERROR");
                     setStatus("ERROR");
-                    console.log(error);
+                    console.error(error);
                 });
         }
     };
@@ -78,13 +78,13 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
     const onTransaction = (transactionHash: string): void => {
         // Tx receipt detected change status to waiting
         setStatus("WAITING");
-        console.log("On transaction: ", transactionHash);
+        console.warn("On transaction: ", transactionHash);
         setTxID(transactionHash);
     };
 
-    const onReceipt = async (receipt: any): Promise<void> => {
+    const onReceipt = (receipt: unknown): void => {
         // Tx is mined ok
-        console.log("On receipt: ", receipt);
+        console.warn("On receipt: ", receipt);
 
         /*
         // Events name list
@@ -106,7 +106,7 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
         setStatus("SUCCESS");
 
         // Refresh user balance
-        userBalance.refetch();
+        void userBalance.refetch();
     };
 
     let sentIcon: string = "";

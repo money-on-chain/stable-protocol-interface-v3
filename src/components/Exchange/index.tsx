@@ -1,5 +1,6 @@
+import type { RadioChangeEvent } from "antd";
 import { Radio, Space } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { getExecutionFee } from "../../backend/utils";
 import { useWalletContext } from "../../context/Wallet";
@@ -93,16 +94,6 @@ export default function Exchange(): JSX.Element {
 
     const { checkerStatus } = CheckStatusGlobal();
 
-    useEffect(() => {
-        if (
-            amountYouExchange &&
-            contractProtocolStatus.data &&
-            userBalance.data
-        ) {
-            onValidate();
-        }
-    }, [amountYouExchange, contractProtocolStatus.data, userBalance.data]);
-
     const onChangeCurrencyYouExchange = (
         newCurrencyYouExchange: string
     ): void => {
@@ -144,7 +135,7 @@ export default function Exchange(): JSX.Element {
         setInputValidationErrorText("");
     };
 
-    const onValidate = (): void => {
+    const onValidate = useCallback((): void => {
         // Protocol in not-good status
         const { statusCode } = checkerStatus();
 
@@ -211,6 +202,7 @@ export default function Exchange(): JSX.Element {
         let tIndex: number | undefined;
         // 2. MINT TP. User receive available token in contract
         if (arrCurrencyYouReceive[0] === "TP") {
+            if (!contractProtocolStatus.data) return;
             // There are sufficient PEGGED in the contracts to mint?
             tIndex = TokenSettings(currencyYouReceive).key;
             if (tIndex !== undefined) {
@@ -229,6 +221,7 @@ export default function Exchange(): JSX.Element {
 
         // 3. REDEEM TC
         if (arrCurrencyYouExchange[0] === "TC") {
+            if (!contractProtocolStatus.data) return;
             // There are sufficient TC in the contracts to redeem?
             const tcAvailableToRedeem =
                 (contractProtocolStatus.data)[caIndex].getRealTCAvailableToRedeem;
@@ -243,6 +236,7 @@ export default function Exchange(): JSX.Element {
         if (arrCurrencyYouReceive[0] === "CA") {
             tIndex = TokenSettings(currencyYouReceive).key;
             if (tIndex !== undefined) {
+                if (!contractProtocolStatus.data) return;
                 // There are sufficient CA in the contract
                 const caBalance =
                     (contractProtocolStatus.data)[tIndex].getACBalance;
@@ -270,9 +264,13 @@ export default function Exchange(): JSX.Element {
         if (arrCurrencyYouReceive[0] === "TP") {
             tIndex = TokenSettings(currencyYouReceive).key;
             if (tIndex !== undefined) {
-                const maxQACToMintTP =
-                    (contractProtocolStatus.data)[caIndex].maxQACToMintTP[tIndex];
-                if (amountYouExchange > maxQACToMintTP) {
+                if (!contractProtocolStatus.data) return;
+                const maxQACToMintTPArray =
+                    (contractProtocolStatus.data)[caIndex].maxQACToMintTP;
+                const maxQACToMintTP = Array.isArray(maxQACToMintTPArray) 
+                    ? (maxQACToMintTPArray[tIndex] as bigint | undefined)
+                    : undefined;
+                if (maxQACToMintTP !== undefined && typeof maxQACToMintTP === 'bigint' && amountYouExchange > maxQACToMintTP) {
                     setInputValidationErrorText(
                         t("exchange.errors.maxLimitedByProtocol")
                     );
@@ -288,13 +286,15 @@ export default function Exchange(): JSX.Element {
             // 7. Flux Capacitor
             tIndex = TokenSettings(currencyYouReceive).key;
             if (tIndex !== undefined) {
-                const maxQACToRedeemTP =
-                    (contractProtocolStatus.data)[caIndex].maxQACToRedeemTP[
-                        tIndex
-                    ];
-                console.log("maxQACToRedeemTP: ", maxQACToRedeemTP.toString());
-                console.log("amountYouReceive: ", amountYouReceive.toString());
-                if (amountYouReceive > maxQACToRedeemTP) {
+                if (!contractProtocolStatus.data) return;
+                const maxQACToRedeemTPArray =
+                    (contractProtocolStatus.data)[caIndex].maxQACToRedeemTP;
+                const maxQACToRedeemTP = Array.isArray(maxQACToRedeemTPArray)
+                    ? (maxQACToRedeemTPArray[tIndex] as bigint | undefined)
+                    : undefined;
+                console.warn("maxQACToRedeemTP: ", typeof maxQACToRedeemTP === 'bigint' ? maxQACToRedeemTP.toString() : "undefined");
+                console.warn("amountYouReceive: ", amountYouReceive.toString());
+                if (maxQACToRedeemTP !== undefined && typeof maxQACToRedeemTP === 'bigint' && amountYouReceive > maxQACToRedeemTP) {
                     setInputValidationErrorText(
                         t("exchange.errors.maxLimitedByProtocol")
                     );
@@ -306,9 +306,13 @@ export default function Exchange(): JSX.Element {
             // 8 Available TP to redeem
             tIndex = TokenSettings(currencyYouExchange).key;
             if (tIndex !== undefined) {
-                const maxAvailableTP =
-                    (contractProtocolStatus.data)[caIndex].pegContainer[tIndex];
-                if (amountYouExchange > maxAvailableTP) {
+                if (!contractProtocolStatus.data) return;
+                const pegContainerArray =
+                    (contractProtocolStatus.data)[caIndex].pegContainer;
+                const maxAvailableTP = Array.isArray(pegContainerArray)
+                    ? pegContainerArray[tIndex]
+                    : undefined;
+                if (maxAvailableTP !== undefined && typeof maxAvailableTP === 'bigint' && amountYouExchange > maxAvailableTP) {
                     setInputValidationErrorText(
                         t("exchange.errors.insufficientTPinCA")
                     );
@@ -321,7 +325,17 @@ export default function Exchange(): JSX.Element {
         // No Validations Errors
         setInputValidationErrorText("");
         setInputValidationError(false);
-    };
+    }, [amountYouExchange, amountYouReceive, caIndex, checkerStatus, commissionFeeToken, contractProtocolStatus, currencyYouExchange, currencyYouReceive, t, userBalance, valueExchange, valueReceive]);
+
+    useEffect(() => {
+        if (
+            amountYouExchange &&
+            contractProtocolStatus.data &&
+            userBalance.data
+        ) {
+            onValidate();
+        }
+    }, [amountYouExchange, contractProtocolStatus.data, userBalance.data, onValidate]);
 
     const onChangeAmounts = async (
         amountExchange: bigint,
@@ -329,6 +343,7 @@ export default function Exchange(): JSX.Element {
         source: string
     ): Promise<void> => {
         if (!publicClient) return;
+        if (!contractProtocolStatus.data) return;
         let infoFee: CommissionInfo;
         let amountExchangeFee: bigint;
         let amountReceiveFee: bigint;
@@ -452,8 +467,8 @@ export default function Exchange(): JSX.Element {
                 currencyYouReceive,
                 newAmountBigInt
             );
-            console.log("convertAmountReceive", convertAmountReceive);
-            onChangeAmounts(newAmountBigInt, convertAmountReceive, "exchange");
+            console.warn("convertAmountReceive", convertAmountReceive);
+            void onChangeAmounts(newAmountBigInt, convertAmountReceive, "exchange");
         }
     };
 
@@ -472,7 +487,7 @@ export default function Exchange(): JSX.Element {
                 currencyYouExchange,
                 newAmountBigInt
             );
-            onChangeAmounts(convertAmountExchange, newAmountBigInt, "receive");
+            void onChangeAmounts(convertAmountExchange, newAmountBigInt, "receive");
         }
     };
 
@@ -486,12 +501,12 @@ export default function Exchange(): JSX.Element {
         );
         setValueExchange(totalbalance.toString());
         setAmountYouExchange(totalbalance);
-        onChangeAmounts(totalbalance, convertAmountReceive, "exchange");
+        void onChangeAmounts(totalbalance, convertAmountReceive, "exchange");
     };
 
-    const onChangeFee = (e: any): void => {
-        console.log("radio checked", e.target.value);
-        setRadioSelectFee(e.target.value);
+    const onChangeFee = (e: RadioChangeEvent): void => {
+        console.warn("radio checked", e.target.value);
+        setRadioSelectFee(Number(e.target.value));
     };
 
     const calculateFinalAmountExchange = (): bigint => {
@@ -696,7 +711,7 @@ export default function Exchange(): JSX.Element {
                                                     className={"token_exchange"}
                                                 >
                                                     {t("fees.labelFee")} (
-                                                    {!(contractProtocolStatus.data).canOperate
+                                                    {!contractProtocolStatus.data?.canOperate
                                                         ? "--"
                                                         : PrecisionNumbers({
                                                               amount: commissionPercent,

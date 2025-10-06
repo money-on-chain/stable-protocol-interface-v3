@@ -17,12 +17,12 @@ interface VotingData {
     expired: boolean;
     totalVotedPCT: bigint;
     totalVoted: bigint;
-    votingExpirationTimeFormat?: string;
-    inFavorVotesTotalSupplyPCT?: bigint;
-    againstVotesTotalSupplyPCT?: bigint;
-    inFavorVotesPCT?: bigint;
-    againstVotesPCT?: bigint;
-    totalVetoPCT?: bigint;
+    votingExpirationTimeFormat: string;
+    inFavorVotesTotalSupplyPCT: bigint;
+    againstVotesTotalSupplyPCT: bigint;
+    inFavorVotesPCT: bigint;
+    againstVotesPCT: bigint;
+    totalVetoPCT: bigint;
 }
 
 interface VotingInfo {
@@ -31,11 +31,8 @@ interface VotingInfo {
     againstVotes: bigint;
 }
 
-interface Proposal {
-    proposalAddress: string;
-    votingRound: bigint;
-    votes: bigint;
-    expirationTimeStamp: bigint;
+interface ProposalItem {
+    [key: number]: [string, bigint, bigint, bigint];
 }
 
 interface InfoVoting {
@@ -49,7 +46,7 @@ interface InfoVoting {
     VOTING_POWER: bigint;
     VOTE_MIN_PCT_TO_VETO: bigint;
     VOTE_MIN_TO_VETO: bigint;
-    proposals: Proposal[];
+    proposals: ProposalItem;
     state: number;
     readyToPreVoteStep: boolean;
     readyToVoteStep: boolean;
@@ -73,7 +70,6 @@ const Voting: React.FC = () => {
         userVesting,
     } = useWalletContext();
 
-    const nowTimestamp: bigint = BigInt(Date.now());
     const defaultInfoVoting: InfoVoting = {
         globalVotingRound: 0n,
         totalSupply: 0n,
@@ -85,7 +81,7 @@ const Voting: React.FC = () => {
         VOTING_POWER: 0n,
         VOTE_MIN_PCT_TO_VETO: 0n,
         VOTE_MIN_TO_VETO: 0n,
-        proposals: [],
+        proposals: {},
         state: 0,
         readyToPreVoteStep: false,
         readyToVoteStep: false,
@@ -97,6 +93,11 @@ const Voting: React.FC = () => {
             expired: true,
             totalVotedPCT: 0n,
             totalVoted: 0n,
+            votingExpirationTimeFormat: "",
+            inFavorVotesTotalSupplyPCT: 0n,
+            againstVotesTotalSupplyPCT: 0n,
+            inFavorVotesPCT: 0n,
+            againstVotesPCT: 0n,
             totalVetoPCT: 0n,
         },
         votingInfo: {
@@ -118,9 +119,49 @@ const Voting: React.FC = () => {
         if (!contractStatusOmoc.data) return;
         if (!userOmocBalance.data) return;
         
-        const cData: InfoVoting = { ...infoVoting };
+        // Calculate current timestamp inside the callback
+        const nowTimestamp: bigint = BigInt(Date.now());
+        
+        const cData: InfoVoting = {
+            globalVotingRound: 0n,
+            totalSupply: 0n,
+            PRE_VOTE_MIN_TO_WIN: 0n,
+            PRE_VOTE_MIN_PCT_TO_WIN: 0n,
+            MIN_PCT_FOR_QUORUM: 0n,
+            MIN_FOR_QUORUM: 0n,
+            MIN_STAKE: 0n,
+            VOTING_POWER: 0n,
+            VOTE_MIN_PCT_TO_VETO: 0n,
+            VOTE_MIN_TO_VETO: 0n,
+            proposals: {},
+            state: 0,
+            readyToPreVoteStep: false,
+            readyToVoteStep: false,
+            votingData: {
+                winnerProposal: "",
+                inFavorVotes: 0n,
+                againstVotes: 0n,
+                votingExpirationTime: 0n,
+                expired: true,
+                totalVotedPCT: 0n,
+                totalVoted: 0n,
+                votingExpirationTimeFormat: "",
+                inFavorVotesTotalSupplyPCT: 0n,
+                againstVotesTotalSupplyPCT: 0n,
+                inFavorVotesPCT: 0n,
+                againstVotesPCT: 0n,
+                totalVetoPCT: 0n,
+            },
+            votingInfo: {
+                winnerProposal: "",
+                inFavorVotes: 0n,
+                againstVotes: 0n,
+            },
+            isVetoMachine: false,
+        };
+        
         cData["proposals"] = contractStatusOmoc.data.votingmachine
-            .getProposalByIndex as unknown as Proposal[];
+            .getProposalByIndex as unknown as ProposalItem;
         cData["state"] = Number(
             contractStatusOmoc.data.votingmachine.getState
         );
@@ -217,7 +258,11 @@ const Voting: React.FC = () => {
             : false;
         setInfoVoting(cData);
 
-        const cDataUser: InfoUser = { ...infoUser };
+        const cDataUser: InfoUser = {
+            Voting_Power: 0n,
+            Voting_Power_PCT: 0n,
+        };
+        
         let vUsing: { getBalance: bigint; getLockingInfo: [bigint, bigint] };
         if (isVestingLoaded() && userVesting.data) {
             vUsing = userVesting.data.vestingmachine.staking;
@@ -246,15 +291,13 @@ const Voting: React.FC = () => {
         userOmocBalance.data,
         userVesting.data,
         isVestingLoaded,
-        infoVoting,
-        infoUser,
     ]);
 
     useEffect(() => {
         if (contractStatusOmoc.data && userOmocBalance.data) {
             refreshData();
         }
-    }, [contractStatusOmoc.data, userOmocBalance.data]);
+    }, [contractStatusOmoc.data, userOmocBalance.data, refreshData]);
 
     return (
         <div className="section-container">

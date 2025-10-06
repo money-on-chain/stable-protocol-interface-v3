@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
 import { pendingWithdrawalsFormat } from "../../helpers/staking";
@@ -21,6 +21,7 @@ interface PendingWithdrawal {
 }
 
 interface UserInfoStaking {
+    [key: string]: unknown;
     tgBalance: bigint;
     stakedBalance: bigint;
     lockedBalance: bigint;
@@ -67,14 +68,17 @@ export default function Staking(): JSX.Element {
         defaultUserInfoStaking
     );
 
-    useEffect(() => {
-        if (userOmocBalance.data || userVesting.data) {
-            refreshBalances();
-        }
-    }, [userOmocBalance.data, userVesting.data]);
-
-    const refreshBalances = (): void => {
-        const cData: UserInfoStaking = { ...userInfoStaking };
+    const refreshBalances = useCallback((): void => {
+        const cData: UserInfoStaking = {
+            tgBalance: 0n,
+            stakedBalance: 0n,
+            lockedBalance: 0n,
+            pendingWithdrawals: [],
+            totalPendingExpiration: 0n,
+            totalAvailableToWithdraw: 0n,
+            lockedInVoting: 0n,
+            unstakeBalance: 0n,
+        };
         const nowTimestamp: number = Date.now();
         let pendingWithdrawals: PendingWithdrawal[] = [];
         let vUsing: vUsing;
@@ -140,10 +144,10 @@ export default function Staking(): JSX.Element {
                 }
             }
         );
-        const pendingWithdrawalsSort: PendingWithdrawal[] =
+        const pendingWithdrawalsSort: PendingWithdrawalStatus[] =
             pendingWithdrawalsFormatted.sort(function (
-                a: PendingWithdrawal,
-                b: PendingWithdrawal
+                a: PendingWithdrawalStatus,
+                b: PendingWithdrawalStatus
             ) {
                 return Number(b.id) - Number(a.id);
             });
@@ -153,7 +157,13 @@ export default function Staking(): JSX.Element {
         cData["totalAvailableToWithdraw"] = readyToWithdrawAmount;
 
         setUserInfoStaking(cData);
-    };
+    }, [isVestingLoaded, userVesting.data, userOmocBalance.data]);
+
+    useEffect(() => {
+        if (userOmocBalance.data || userVesting.data) {
+            refreshBalances();
+        }
+    }, [userOmocBalance.data, userVesting.data, refreshBalances]);
 
     return (
         <div>

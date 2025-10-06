@@ -8,7 +8,7 @@ import ConfirmSend from "../../ConfirmSend";
 interface ModalConfirmSendProps {
     inputValidationError?: boolean;
     currencyYouExchange: string;
-    exchangingUSD: any; //
+    exchangingUSD: bigint;
     amountYouExchange: string;
     destinationAddress: string;
     onClear: () => void;

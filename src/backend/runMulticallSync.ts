@@ -1,20 +1,24 @@
 //import { readContracts, type PublicClient } from 'viem'
 //import { readContracts } from 'viem/actions'
-import type { PublicClient } from "viem";
+import type { Abi, PublicClient } from "viem";
 
 import type { SyncMulticallInput } from "../types/hooks";
 
 /**
  * Assigns a value into a nested object structure given a path of keys.
  */
-function assignNestedValue(obj: any, path: (string | number)[], value: any) {
-    let current = obj;
+function assignNestedValue(
+    obj: Record<string | number, unknown>,
+    path: (string | number)[],
+    value: unknown
+) {
+    let current: Record<string | number, unknown> = obj;
     for (let i = 0; i < path.length - 1; i++) {
         const key = path[i];
         if (current[key] == null) {
             current[key] = typeof path[i + 1] === "number" ? [] : {};
         }
-        current = current[key];
+        current = current[key] as Record<string | number, unknown>;
     }
     current[path[path.length - 1]] = value;
 }
@@ -26,12 +30,12 @@ export async function runMulticallSync(
     publicClient: PublicClient,
     calls: SyncMulticallInput[]
 ): Promise<{
-    data: Record<string | number, any> | undefined;
+    data: Record<string | number, unknown> | undefined;
     canOperate: boolean;
 }> {
     const contracts = calls.map(({ contract, functionName, args }) => ({
         address: contract.address,
-        abi: contract.abi,
+        abi: contract.abi as Abi,
         functionName,
         args,
     }));
@@ -41,7 +45,7 @@ export async function runMulticallSync(
         allowFailure: true,
     });
 
-    let storage: Record<string | number, any> | undefined = {};
+    const storage: Record<string | number, unknown> = {};
     let canOperate = true;
 
     results.forEach((item, i) => {
@@ -88,11 +92,14 @@ export async function runMulticallSync(
         assignNestedValue(storage, keys, value);
     });
 
+    let finalStorage: Record<string | number, unknown> | undefined;
+    
     if (results && results.length > 0) {
         storage["canOperate"] = canOperate;
+        finalStorage = storage;
     } else {
-        storage = undefined;
+        finalStorage = undefined;
     }
 
-    return { data: storage, canOperate };
+    return { data: finalStorage, canOperate };
 }

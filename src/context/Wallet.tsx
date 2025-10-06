@@ -227,7 +227,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         if (!contractsAddressLoaded) {
             void readContractsAddresses();
         }
-    }, [contractsAddressLoaded /*, readContractsAddresses*/]);
+    }, [contractsAddressLoaded, readContractsAddresses]);
 
     useEffect(() => {
         if (!isConnected && !showModalProviders) {

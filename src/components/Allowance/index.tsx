@@ -63,8 +63,7 @@ export default function AllowanceDialog(
             statusLabel = t("allowance.feedback.default");
     }
 
-    const onChange = (e: any): void => {
-        console.log(`checked = ${e.target.checked}`);
+    const onChange = (e: { target: { checked: boolean } }): void => {
         infinityAllowance = e.target.checked;
     };
 
@@ -94,7 +93,7 @@ export default function AllowanceDialog(
         }
 
         setStatus("SIGN");
-        interfaceAllowanceAmount(
+        void interfaceAllowanceAmount(
             currencyYouExchange,
             currencyYouReceive,
             amountAllowance,
@@ -104,8 +103,8 @@ export default function AllowanceDialog(
             .then((/*value*/) => {
                 onClose();
             })
-            .catch((error: any) => {
-                console.log(error);
+            .catch((error: unknown) => {
+                console.error("Allowance error:", error);
                 setStatus("ERROR");
             });
     };
@@ -113,12 +112,10 @@ export default function AllowanceDialog(
     const onTransaction = (transactionHash: string): void => {
         // Tx receipt detected change status to waiting
         setStatus("WAITING");
-        console.log("On transaction: ", transactionHash);
     };
 
-    const onReceipt = async (receipt: any): Promise<void> => {
+    const onReceipt = (receipt: unknown): void => {
         // Tx is mined ok proceed with operation transaction
-        console.log("On receipt: ", receipt);
         /*
         // Events name list
         const filter = [

@@ -3,7 +3,7 @@ import {
     waitForTransactionReceipt,
     writeContract,
 } from "@wagmi/core";
-import { checksumAddress } from "viem";
+import { checksumAddress, type TransactionReceipt } from "viem";
 
 import type {
     InterfaceContext,
@@ -26,7 +26,7 @@ const vetoVote = async (
     caIndex: number,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts, userBalance } = interfaceContext;
     if (!contracts) return;
     if (!contracts.VetoMachine) return;
@@ -68,7 +68,7 @@ const vetoWithdraw = async (
     tcAddress: `0x${string}`,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     const { address, contracts } = interfaceContext;
     if (!contracts) return;
     if (!contracts.VetoMachine) return;

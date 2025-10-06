@@ -28,7 +28,7 @@ export default function CurrencyDropDown(
     const { value, onChange, currencyOptions, disabled, action } = props;
     const { t, ns } = useProjectTranslation();
 
-    const options: CurrencyOption[] = getCurrenciesDetail().map((it: any) => ({
+    const options: CurrencyOption[] = getCurrenciesDetail().map((it) => ({
         value: it.value,
         image: it.image,
         label: t(`${action}.tokens.${it.value}.label`, { ns: ns }),

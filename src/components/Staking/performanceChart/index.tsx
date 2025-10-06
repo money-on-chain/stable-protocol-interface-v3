@@ -17,11 +17,11 @@ export default function PerformanceChart(): React.ReactElement {
             "https://api.moneyonchain.com/api/calculated/moc_last_block_performance"
         )
             .then(async (response) => {
-                const data: PerformanceData = await response.json();
+                const data = (await response.json()) as PerformanceData;
                 setPercent(Number(data.annualized_value.toFixed(2)));
             })
             .catch((error) => {
-                console.log(error);
+                console.error(error);
                 setPercent(0);
             });
     }, []);

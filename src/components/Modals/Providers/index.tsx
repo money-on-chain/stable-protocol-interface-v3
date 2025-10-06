@@ -7,7 +7,7 @@ interface ModalProvidersProps {
     show: boolean;
     onShow: () => void;
     onHide: () => void;
-    [key: string]: any; // For any additional props that might be passed
+    [key: string]: unknown; // For any additional props that might be passed
 }
 
 export default function ModalProviders(
