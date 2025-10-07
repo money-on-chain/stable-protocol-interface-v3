@@ -8,13 +8,26 @@ import type {
 import type { ContractStatusOmoc, UserBalance } from "../types/status";
 import { useMultiCall } from "./useMulticall";
 
+// Track when we last logged errors to prevent spam
+let lastProposalErrorLog = 0;
+let lastVotingPowerErrorLog = 0;
+const ERROR_LOG_THROTTLE = 30_000; // Log at most once every 30 seconds
+
 const onErrorProposal = (): MultiCallErrorResult => {
-    console.warn("Proposal not exist");
+    const now = Date.now();
+    if (now - lastProposalErrorLog > ERROR_LOG_THROTTLE) {
+        console.warn("Proposal not exist");
+        lastProposalErrorLog = now;
+    }
     return { value: null, canOperate: true };
 };
 
 const onErrorVotingPower = (): MultiCallErrorResult => {
-    console.warn("Voting Power on 0n!!. Cannot get voting power!!. Probably problem with TC price provider");
+    const now = Date.now();
+    if (now - lastVotingPowerErrorLog > ERROR_LOG_THROTTLE) {
+        console.warn("Voting Power on 0n!!. Cannot get voting power!!. Probably problem with TC price provider");
+        lastVotingPowerErrorLog = now;
+    }
     return { value: 0n, canOperate: true };
 };
 

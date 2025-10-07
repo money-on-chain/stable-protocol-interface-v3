@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useRef } from "react";
 import type { Abi } from "viem";
 import { useReadContracts } from "wagmi";
 
@@ -68,37 +69,56 @@ export function useMultiCall(
     calls: MultiCallInput[] = [],
     options: MultiCallOptions = {}
 ) {
+    // Extract options values for stable dependencies
+    const {
+        batchSize = 50,
+        scopeKey,
+        refetchInterval = 30_000,
+        enabled = true,
+        externalData,
+    } = options;
+
     // Step 1: Convert call definitions into wagmi-compatible format
-    const contracts = calls.map(({ contract, functionName, args }) => {
-        const isGetBalance = functionName === "getBalance";
-        const isAddressOnly = typeof contract === "string";
+    // Memoize to prevent unnecessary re-renders and refetches
+    // Note: We rely on parent hooks to provide stable 'calls' arrays via their own useMemo
+    const contracts = useMemo(() => {
+        if (calls.length === 0) return [];
+        
+        return calls.map(({ contract, functionName, args }) => {
+            const isGetBalance = functionName === "getBalance";
+            const isAddressOnly = typeof contract === "string";
 
-        if (isGetBalance && isAddressOnly) {
-            return {
-                address: contract as `0x${string}`,
-                abi: [] as Abi,
-                functionName: "getBalance",
-                type: "getBalance" as const,
-            };
-        }
+            if (isGetBalance && isAddressOnly) {
+                return {
+                    address: contract as `0x${string}`,
+                    abi: [] as Abi,
+                    functionName: "getBalance",
+                    type: "getBalance" as const,
+                };
+            }
 
-        if (
-            typeof contract === "object" &&
-            "address" in contract &&
-            "abi" in contract
-        ) {
-            return {
-                address: contract.address,
-                abi: contract.abi as Abi,
-                functionName,
-                args,
-            };
-        }
+            if (
+                typeof contract === "object" &&
+                "address" in contract &&
+                "abi" in contract
+            ) {
+                return {
+                    address: contract.address,
+                    abi: contract.abi as Abi,
+                    functionName,
+                    args,
+                };
+            }
 
-        throw new Error(
-            `Invalid contract input for function "${functionName}"`
-        );
-    });
+            throw new Error(
+                `Invalid contract input for function "${functionName}"`
+            );
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [calls.length]);
+
+    // Memoize external data - parent should provide stable reference
+    const memoizedExternalData = externalData;
 
     // Step 2: Perform the multicall using wagmi
     const {
@@ -109,15 +129,24 @@ export function useMultiCall(
         error,
         queryKey,
     } = useReadContracts({
-        batchSize: options.batchSize ?? 50,
-        contracts: contracts,
-        scopeKey: options.scopeKey ?? undefined,
+        batchSize,
+        contracts,
+        scopeKey,
         query: {
-            refetchInterval: options.refetchInterval ?? 30_000,
-            enabled: options.enabled ?? true,
+            refetchInterval,
+            enabled,
             placeholderData: (previousData) => previousData, // Keep previous data while refetching
         },
     });
+
+    // Log only when data actually changes (fetches), not on every render
+    const prevResultsRef = useRef<typeof results>();
+    useEffect(() => {
+        if (results !== prevResultsRef.current && results !== undefined) {
+            console.log(`[Multicall Fetch] ${scopeKey || 'unknown'} - ${new Date().toLocaleTimeString()}`);
+            prevResultsRef.current = results;
+        }
+    }, [results, scopeKey]);
 
     // Step 3: Structure result into a nested dictionary, with optional transforms
     let storage: Record<string | number, unknown> | undefined = {};
@@ -178,11 +207,11 @@ export function useMultiCall(
     }
 
     // merge with external data
-    if (storage && options.externalData) {
-        //storage = { ...storage, ...options.externalData }
+    if (storage && memoizedExternalData) {
+        //storage = { ...storage, ...memoizedExternalData }
         storage = deepMerge(
             storage,
-            options.externalData as Record<string | number, unknown>
+            memoizedExternalData as Record<string | number, unknown>
         );
     }
 

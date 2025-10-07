@@ -46,6 +46,7 @@ export function useProposalCount(
     const multicallState = useMultiCall(callsRequests, {
       refetchInterval: refetchInterval,
       enabled: callsRequests.length > 0,
+      scopeKey: ["proposalCount"].join(":"),
     })
   
     return multicallState

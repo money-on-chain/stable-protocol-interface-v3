@@ -592,6 +592,7 @@ export function useContractProtocolStatus(
         refetchInterval: refetchInterval,
         enabled: callsRequests.length > 0,
         externalData: externalData,
+        scopeKey: ["contractProtocolStatus"].join(":"),
     });
 
     return multicallState as unknown as ContractProtocolStatusResult;

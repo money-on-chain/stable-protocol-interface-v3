@@ -371,6 +371,7 @@ export function useContractOmocStatus(
     const multicallState = useMultiCall(callsRequests, {
         refetchInterval: refetchInterval,
         enabled: callsRequests.length > 0,
+        scopeKey: ["contractOmocStatus"].join(":"),
     });
 
     return multicallState as unknown as ContractStatusOmocResult;

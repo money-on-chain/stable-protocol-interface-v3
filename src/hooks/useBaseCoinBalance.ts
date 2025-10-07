@@ -4,7 +4,7 @@ import type { UseBaseCoinBalanceResult } from "../types/status";
 
 export function useBaseCoinBalance(
     address?: `0x${string}`,
-    refetchInterval = 15_000
+    refetchInterval = 30_000
 ): UseBaseCoinBalanceResult {
     const { data, isLoading, isFetching, error, refetch } = useBalance({
         address,
