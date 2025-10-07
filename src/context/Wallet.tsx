@@ -283,10 +283,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
     /* VESTING */
 
-    const setVestingMachine = (vAddress: string): void => {
+    const setVestingMachine = useCallback((vAddress: string): void => {
         setVestingAddress(vAddress);
-        void userVesting.refetch();
-    };
+        // Note: userVesting will automatically refetch when vestingAddress changes
+        // due to its dependency on userVestingAddress in the useMemo hook
+    }, []);
 
     const saveUserVesting = (response: VestingResponse): void => {
         if (

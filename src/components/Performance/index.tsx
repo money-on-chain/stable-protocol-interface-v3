@@ -32,7 +32,8 @@ export default function Performance(): JSX.Element {
             setStatusLabelClass(statusLabelClass);
             setStatusCode(statusCode);
         }
-    }, [contractProtocolStatus.data, userBalance.data, checkerStatus]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [contractProtocolStatus.data, userBalance.data]);
 
     const showModal = (): void => {
         setShowGlobalStatusModal(true);

@@ -59,6 +59,7 @@ export default function Skeleton(): JSX.Element {
         if (userVeto.data && contractStatusOmoc.data && address) {
             readWithdrawStatus();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         contractProtocolStatus.data,
         userBalance.data,
