@@ -229,6 +229,7 @@ export type VotingMachineStatus = {
   getVoteInfo: VoteInfo
   getVotingData: VotingData
   getVotingRound: bigint
+  proposalsList: Record<number, Address>
   readyToPreVoteStep: boolean
   readyToVoteStep: boolean
   totalSupply: bigint

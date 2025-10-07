@@ -5,6 +5,7 @@ import type {
     MultiCallErrorResult,
     MultiCallInput,
 } from "../types/hooks";
+import type { ContractStatusOmoc, UserBalance } from "../types/status";
 import { useMultiCall } from "./useMulticall";
 
 const onErrorProposal = (): MultiCallErrorResult => {
@@ -25,8 +26,8 @@ const onErrorVotingPower = (): MultiCallErrorResult => {
  */
 export function useUserVeto(
     contracts?: DContracts,
-    userBalance?: Record<string | number, unknown>,
-    contractStatusOmoc?: Record<string | number, unknown>,
+    userBalance?: UserBalance,
+    contractStatusOmoc?: ContractStatusOmoc,
     userAddress?: string,
     refetchInterval = 30_000
 ) {
@@ -45,9 +46,7 @@ export function useUserVeto(
                 const CollateralToken = collateralTokens[ca];
                 if (!CollateralToken) continue;
 
-                const userTCBalance =
-                    (userBalance[ca] as { TC: { balance: bigint } })?.TC
-                        ?.balance || 0n;                
+                const userTCBalance = userBalance[ca]?.TC?.balance || 0n;                
                 callRequest.push({
                     contract: contracts.VetoMachine,
                     functionName: "getVotingPower",
@@ -69,9 +68,7 @@ export function useUserVeto(
                     keys: ["vetoMachine", "allowance", CollateralToken.address],
                 }); 
 
-                const votingMachineData = contractStatusOmoc.votingmachine as {
-                    proposalsList: Record<string, unknown[]>;
-                };
+                const votingMachineData = contractStatusOmoc.votingmachine;
                 if (votingMachineData?.proposalsList) {
                     for (const key in votingMachineData.proposalsList) {
                         const proposal = votingMachineData.proposalsList[key];
@@ -89,7 +86,7 @@ export function useUserVeto(
                                 "getUserLockedAmount",
                                 userAddress || "",
                                 CollateralToken.address,
-                                proposal as string,
+                                proposal,
                             ],
                             onError: onErrorProposal,
                         });
