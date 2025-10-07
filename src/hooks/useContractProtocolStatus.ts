@@ -27,19 +27,22 @@ export function useContractProtocolStatus(
     parsedPrices?: ParsedPrices[],
     refetchInterval = 30_000
 ): ContractProtocolStatusResult {
-    const externalData: ExternalData = {};
-
-    if (parsedPrices) {
-        for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
-            externalData[ca] = {
-                PP_CA: [parsedPrices[ca].CA, true],
-                PP_TP: {},
-            };
-            for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
-                externalData[ca].PP_TP[tp] = [parsedPrices[ca].TP[tp], true];
+    // Memoize external data to prevent unnecessary refetches
+    const externalData: ExternalData = useMemo(() => {
+        const data: ExternalData = {};
+        if (parsedPrices) {
+            for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+                data[ca] = {
+                    PP_CA: [parsedPrices[ca].CA, true],
+                    PP_TP: {},
+                };
+                for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
+                    data[ca].PP_TP[tp] = [parsedPrices[ca].TP[tp], true];
+                }
             }
         }
-    }
+        return data;
+    }, [parsedPrices]);
 
     const callsRequests = useMemo(() => {
         if (!contracts) return [];

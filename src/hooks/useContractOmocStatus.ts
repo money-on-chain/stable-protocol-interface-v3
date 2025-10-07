@@ -10,8 +10,16 @@ import type {
 import type { ContractStatusOmocResult } from "../types/status";
 import { useMultiCall } from "./useMulticall";
 
+// Track when we last logged errors to prevent spam
+let lastProposalErrorLog = 0;
+const ERROR_LOG_THROTTLE = 30_000; // Log at most once every 30 seconds
+
 const onErrorProposal = (): MultiCallErrorResult => {
-    console.warn("Proposal not exist");
+    const now = Date.now();
+    if (now - lastProposalErrorLog > ERROR_LOG_THROTTLE) {
+        console.warn("Proposal not exist");
+        lastProposalErrorLog = now;
+    }
     return { value: null, canOperate: true };
 };
 
@@ -31,14 +39,17 @@ export function useContractOmocStatus(
     proposalCount?: ProposalCountResult,
     refetchInterval = 30_000
 ): ContractStatusOmocResult {
+    // Extract stable primitive values for memoization
+    const preProposalsCount = proposalCount?.votingMachine?.getProposalCount;
+    const proposalsListLength = proposalCount?.votingMachine?.getProposalsLength;
+
     const callsRequests = useMemo(() => {
         if (!contracts) return [];
         let preProposalsLength = 0n;  
         let proposalsLength = 0n;
-        if (proposalCount?.votingMachine?.getProposalCount !== undefined && 
-            proposalCount?.votingMachine?.getProposalsLength !== undefined) {
-            preProposalsLength = BigInt(proposalCount.votingMachine.getProposalCount);
-            proposalsLength = BigInt(proposalCount.votingMachine.getProposalsLength);
+        if (preProposalsCount !== undefined && proposalsListLength !== undefined) {
+            preProposalsLength = BigInt(preProposalsCount);
+            proposalsLength = BigInt(proposalsListLength);
         }
 
         const callRequest: MultiCallInput[] = [];
@@ -365,7 +376,7 @@ export function useContractOmocStatus(
         }
 
       return callRequest
-    }, [contracts, proposalCount])
+    }, [contracts, preProposalsCount, proposalsListLength])
 
     // Pass callsRequests into your multicall hook (safe: it's a hook calling a hook)
     const multicallState = useMultiCall(callsRequests, {
