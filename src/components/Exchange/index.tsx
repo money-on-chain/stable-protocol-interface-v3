@@ -526,7 +526,7 @@ export default function Exchange(): JSX.Element {
             return amountYouExchange;
         }
     };
-
+    
     return (
         <div>
             <div className="sectionExchange__Content">

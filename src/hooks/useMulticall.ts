@@ -115,6 +115,7 @@ export function useMultiCall(
         query: {
             refetchInterval: options.refetchInterval ?? 30_000,
             enabled: options.enabled ?? true,
+            placeholderData: (previousData) => previousData, // Keep previous data while refetching
         },
     });
 
