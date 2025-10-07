@@ -1,6 +1,5 @@
 import { Button } from "antd";
-import PropTypes from "prop-types";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
 import { TokenSettings } from "../../helpers/currencies";
@@ -71,7 +70,7 @@ const Stake = (props: StakeProps): JSX.Element => {
         }
     }, [contractStatusOmoc.data, activeTab, currentTab]);
 
-    const onValidate = (): void => {
+    const onValidate = useCallback((): void => {
         let amountInputError: boolean = false;
 
         const totalBalance: bigint = isUnstaking
@@ -106,11 +105,11 @@ const Stake = (props: StakeProps): JSX.Element => {
             setInputValidationErrorText("");
         }
         setInputValidationError(amountInputError);
-    };
+    }, [amountToStake, amountToUnstake, isUnstaking, userInfoStaking]);
 
     useEffect(() => {
         onValidate();
-    }, [amountToStake, amountToUnstake, isUnstaking, userInfoStaking]);
+    }, [amountToStake, amountToUnstake, isUnstaking, userInfoStaking, onValidate]);
 
     const onChangeCurrency = (/*newCurrency*/): void => {
         onClear();
@@ -305,8 +304,3 @@ const Stake = (props: StakeProps): JSX.Element => {
 };
 
 export default Stake;
-
-Stake.propTypes = {
-    activeTab: PropTypes.string,
-    userInfoStaking: PropTypes.object,
-};

@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 import React from "react";
 
 import { absBigInt } from "../../../helpers/precision";
@@ -166,22 +165,4 @@ export const generateTokenRow = ({
             </div>
         ),
     };
-};
-
-generateTokenRow.propTypes = {
-    key: PropTypes.string,
-    label: PropTypes.string,
-    tokenIcon: PropTypes.string,
-    tokenName: PropTypes.string,
-    tokenTicker: PropTypes.string,
-    price: PropTypes.object,
-    balance: PropTypes.object,
-    balanceUSD: PropTypes.object,
-    priceDelta: PropTypes.object,
-    variation: PropTypes.object,
-    visiblePriceDecimals: PropTypes.number,
-    visibleBalanceDecimals: PropTypes.number,
-    visibleBalanceUSDDecimals: PropTypes.number,
-    contractProtocolStatus: PropTypes.object,
-    i18n: PropTypes.object,
 };

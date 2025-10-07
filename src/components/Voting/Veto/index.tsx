@@ -221,7 +221,7 @@ const Veto: React.FC = () => {
         userOmocBalance.data,
         userVeto.data,
         userBalance.data,
-        //refreshData,
+        refreshData,
     ]);
 
     const onHideModalAllowance = (): void => {
@@ -260,12 +260,10 @@ const Veto: React.FC = () => {
         setIsOperationModalVisible(true);
 
         const onTransaction = (txHash: string): void => {
-            console.log("Sent transaction in Favor proposal...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
         const onReceipt = (/*receipt*/): void => {
-            console.log("Transaction in Favor proposal mined!...");
             setOperationStatus("success");
         };
         const onError = (error: unknown): void => {

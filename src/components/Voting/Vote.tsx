@@ -162,11 +162,11 @@ function Vote(props: VoteProps): JSX.Element {
 
     useEffect(() => {
         onValidateVotingInFavorOrAgainst();
-    }, []);
+    }, [onValidateVotingInFavorOrAgainst]);
 
     useEffect(() => {
         refreshVotingFinish();
-    }, []);
+    }, [refreshVotingFinish]);
 
     const votingGraphs: CreateBarGraphProps[] = [
         {
@@ -211,7 +211,6 @@ function Vote(props: VoteProps): JSX.Element {
     ];
 
     const onVote = async (inFavor: boolean): Promise<void> => {
-        console.log("onVote", inFavor);
         setModalTitle("Vote proposal");
         setVoteInFavor(inFavor);
         setShowProposalModal(true);
@@ -220,12 +219,10 @@ function Vote(props: VoteProps): JSX.Element {
         setIsOperationModalVisible(true);
 
         const onTransaction = (txHash: string): void => {
-            console.log("Sent transaction in Favor proposal...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
         const onReceipt = (/*receipt*/): void => {
-            console.log("Transaction in Favor proposal mined!...");
             setOperationStatus("success");
         };
         const onError = (error: unknown): void => {
@@ -253,12 +250,10 @@ function Vote(props: VoteProps): JSX.Element {
         setIsOperationModalVisible(true);
 
         const onTransaction = (txHash: string): void => {
-            console.log("Sent transaction vote step ...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
         const onReceipt = (/*receipt*/): void => {
-            console.log("Transaction vote step mined!...");
             setOperationStatus("success");
         };
         const onError = (error: unknown): void => {
@@ -286,12 +281,10 @@ function Vote(props: VoteProps): JSX.Element {
         setIsOperationModalVisible(true);
 
         const onTransaction = (txHash: string): void => {
-            console.log("Sent transaction accepted step ...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
         const onReceipt = (/*receipt*/): void => {
-            console.log("Transaction accepted step mined!...");
             setOperationStatus("success");
         };
         const onError = (error: unknown): void => {

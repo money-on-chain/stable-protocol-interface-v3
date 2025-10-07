@@ -2,7 +2,6 @@ import "./WithdrawV2.scss";
 
 import { Skeleton, Table } from "antd";
 import moment from "moment-timezone";
-import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useState } from "react";
 import Moment from "react-moment";
 
@@ -156,7 +155,7 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
         if (contractStatusOmoc.data && userInfoStaking["pendingWithdrawals"]) {
             getWithdrawals();
         }
-    }, [contractStatusOmoc.data, userInfoStaking]);
+    }, [contractStatusOmoc.data, userInfoStaking, getWithdrawals]);
 
     // Columns
     ProvideColumnsTG.forEach(function (dataItem: TableColumn) {
@@ -305,7 +304,3 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
         </div>
     );
 }
-
-WithdrawV2.propTypes = {
-    userInfoStaking: PropTypes.object,
-};

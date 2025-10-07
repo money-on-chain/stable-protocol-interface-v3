@@ -1,5 +1,4 @@
 import { Select } from "antd";
-import PropTypes from "prop-types";
 import React from "react";
 
 import { getCurrenciesDetail } from "../../helpers/currencies";
@@ -70,11 +69,3 @@ export default function CurrencyDropDown(
         </div>
     );
 }
-
-CurrencyDropDown.propTypes = {
-    value: PropTypes.string,
-    onChange: PropTypes.func,
-    currencyOptions: PropTypes.array,
-    disabled: PropTypes.bool,
-    action: PropTypes.string,
-};

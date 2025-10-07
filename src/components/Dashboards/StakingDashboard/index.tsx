@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { useWalletContext } from "../../../context/Wallet";
 import { pendingWithdrawalsFormat } from "../../../helpers/staking";
@@ -44,7 +44,7 @@ const Dashboard = (): JSX.Element => {
         useState<bigint>(0n);
     //const [loading, setLoading] = useState(true);
     
-    const setStakingBalances = (): void => {
+    const setStakingBalances = useCallback((): void => {
 
         //try {
         let [_stakedBalance, _pendingWithdrawals]: [
@@ -115,14 +115,14 @@ const Dashboard = (): JSX.Element => {
         //} catch (error) {
         //console.log('Error getting staking balances', error);
         //}
-    };
+    }, [userOmocBalance.data, isVestingLoaded, userVesting.data]);
 
     useEffect(() => {
         if (contractProtocolStatus.data && userOmocBalance.data) {
             //setLoading(false);
             setStakingBalances();
         }
-    }, [contractProtocolStatus.data, userOmocBalance.data, userVesting.data]);
+    }, [contractProtocolStatus.data, userOmocBalance.data, userVesting.data, setStakingBalances]);
 
     return (
         <div className="layout-card section__innerCard--big dashboard-staking-info">

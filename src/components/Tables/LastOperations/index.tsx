@@ -2,7 +2,6 @@ import "./Styles.scss";
 
 import { DownCircleOutlined, UpCircleOutlined } from "@ant-design/icons";
 import { Modal, Skeleton, Table } from "antd";
-import PropTypes from "prop-types";
 import React, { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import Moment from "react-moment";
 
@@ -1137,9 +1136,3 @@ export default function LastOperations(props: LastOperationsProps) {
         </>
     );
 }
-
-LastOperations.propTypes = {
-    token: PropTypes.string,
-    /*expanded: PropTypes.bool,
-    onClick: PropTypes.func,*/
-};

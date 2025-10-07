@@ -1,5 +1,4 @@
 import { Input, notification, Select, Switch } from "antd";
-import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useState } from "react";
 import QRCode from "react-qr-code";
 import { readContract } from "viem/actions";
@@ -497,9 +496,3 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
         </div>
     );
 }
-
-AccountDialog.propTypes = {
-    onCloseModal: PropTypes.func.isRequired,
-    vestingOn: PropTypes.bool.isRequired,
-    setVestingOn: PropTypes.func.isRequired,
-};

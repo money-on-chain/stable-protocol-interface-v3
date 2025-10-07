@@ -1,7 +1,6 @@
 import { Button, Collapse, Slider } from "antd";
 import type { AxiosError } from "axios";
 import axios from "axios";
-import PropTypes from "prop-types";
 import React, { useCallback, useEffect, useState } from "react";
 import type { TransactionReceipt } from "viem";
 
@@ -938,20 +937,3 @@ export default function ConfirmOperation(
         </div>
     );
 }
-
-ConfirmOperation.propTypes = {
-    currencyYouExchange: PropTypes.string,
-    currencyYouReceive: PropTypes.string,
-    exchangingUSD: PropTypes.object,
-    commission: PropTypes.object,
-    commissionUSD: PropTypes.object,
-    commissionPercent: PropTypes.object,
-    inputAmountYouExchange: PropTypes.object,
-    amountYouReceive: PropTypes.object,
-    onCloseModal: PropTypes.func,
-    executionFee: PropTypes.object,
-    commissionFeeToken: PropTypes.object,
-    commissionFeeTokenUSD: PropTypes.object,
-    commissionPercentFeeToken: PropTypes.object,
-    radioSelectFee: PropTypes.number,
-};

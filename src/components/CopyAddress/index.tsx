@@ -1,5 +1,4 @@
 import { notification } from "antd";
-import PropTypes from "prop-types";
 import React from "react";
 
 import { useProjectTranslation } from "../../helpers/translations";
@@ -67,8 +66,3 @@ export default function CopyAddress(props: CopyAddressProps): JSX.Element {
         </>
     );
 }
-
-CopyAddress.propTypes = {
-    address: PropTypes.string,
-    type: PropTypes.string,
-};

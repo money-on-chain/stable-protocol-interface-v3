@@ -1,5 +1,4 @@
 import { notification } from "antd";
-import PropTypes from "prop-types";
 import React from "react";
 
 import IconCopy from "./../../assets/icons/CopyOutline.svg";
@@ -84,10 +83,3 @@ export default function Copy(props: CopyProps): JSX.Element {
         </>
     );
 }
-
-Copy.propTypes = {
-    textToShow: PropTypes.string,
-    textToCopy: PropTypes.string,
-    fastBTC: PropTypes.bool,
-    typeUrl: PropTypes.string,
-};

@@ -1,5 +1,4 @@
 import { Button } from "antd";
-import PropTypes from "prop-types";
 import React, { useState } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
@@ -277,11 +276,3 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
         </div>
     );
 }
-
-ConfirmSend.propTypes = {
-    currencyYouExchange: PropTypes.string,
-    exchangingUSD: PropTypes.object,
-    amountYouExchange: PropTypes.string,
-    destinationAddress: PropTypes.string,
-    onCloseModal: PropTypes.func,
-};

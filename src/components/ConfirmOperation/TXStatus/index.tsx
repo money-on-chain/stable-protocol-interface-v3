@@ -1,6 +1,5 @@
 import "./Styles.scss";
 
-import PropTypes from "prop-types";
 import React from "react";
 
 interface StatusData {
@@ -98,8 +97,3 @@ export default function TXStatus({
         </div>
     );
 }
-
-TXStatus.propTypes = {
-    statusData: PropTypes.object,
-    statusLabels: PropTypes.object,
-};

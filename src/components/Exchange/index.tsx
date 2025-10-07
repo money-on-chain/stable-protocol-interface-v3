@@ -156,7 +156,7 @@ export default function Exchange(): JSX.Element {
         }
 
         // 0. Cannot operate
-        if (!(contractProtocolStatus.data).canOperate) {
+        if (!contractProtocolStatus.data?.canOperate) {
             setInputValidationErrorText(t("exchange.errors.cantOperate"));
             setInputValidationError(true);
             return;
@@ -725,7 +725,7 @@ export default function Exchange(): JSX.Element {
                                                 </span>
                                                 <span className={""}> ≈ </span>
                                                 <span className={""}>
-                                                    {!(contractProtocolStatus.data).canOperate
+                                                    {!contractProtocolStatus.data?.canOperate
                                                         ? "--"
                                                         : PrecisionNumbers({
                                                               amount: commission,
@@ -749,7 +749,7 @@ export default function Exchange(): JSX.Element {
                                                 </span>
                                                 <span className={""}> (</span>
                                                 <span>
-                                                    {!(contractProtocolStatus.data).canOperate
+                                                    {!contractProtocolStatus.data?.canOperate
                                                         ? "--"
                                                         : PrecisionNumbers({
                                                               amount: commissionUSD,
@@ -777,7 +777,7 @@ export default function Exchange(): JSX.Element {
                                             >
                                                 <span className={""}>
                                                     {t("fees.labelFee")} (
-                                                    {!(contractProtocolStatus.data).canOperate
+                                                    {!contractProtocolStatus.data?.canOperate
                                                         ? "--"
                                                         : PrecisionNumbers({
                                                               amount: commissionPercentFeeToken,
@@ -791,7 +791,7 @@ export default function Exchange(): JSX.Element {
                                                 </span>
                                                 <span className={""}> ≈ </span>
                                                 <span className={""}>
-                                                    {!(contractProtocolStatus.data).canOperate
+                                                    {!contractProtocolStatus.data?.canOperate
                                                         ? "--"
                                                         : PrecisionNumbers({
                                                               amount: commissionFeeToken,
@@ -810,7 +810,7 @@ export default function Exchange(): JSX.Element {
                                                 </span>
                                                 <span className={""}> (</span>
                                                 <span>
-                                                    {!(contractProtocolStatus.data).canOperate
+                                                    {!contractProtocolStatus.data?.canOperate
                                                         ? "--"
                                                         : PrecisionNumbers({
                                                               amount: commissionFeeTokenUSD,
@@ -850,7 +850,7 @@ export default function Exchange(): JSX.Element {
                         <div className={""}> ≈ </div>
                         {exchangingUSD.toString() !== "NaN" ? (
                             <div className={""}>
-                                {!(contractProtocolStatus.data).canOperate
+                                {!contractProtocolStatus.data?.canOperate
                                     ? "--"
                                     : PrecisionNumbers({
                                           amount: exchangingUSD,

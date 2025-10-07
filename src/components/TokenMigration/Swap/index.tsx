@@ -1,7 +1,6 @@
 import "./style.scss";
 
 import { Button } from "antd";
-import PropTypes from "prop-types";
 import React, { useState } from "react";
 
 import { useWalletContext } from "../../../context/Wallet";
@@ -457,7 +456,3 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
 };
 
 export default SwapToken;
-
-SwapToken.propTypes = {
-    onCloseModal: PropTypes.func,
-};

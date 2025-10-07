@@ -22,7 +22,7 @@ import en_US from "./settings/locale/en_US.json";
 import es_ES from "./settings/locale/es_ES.json";
 import { config } from "./wagmiConfig";
 
-console.log(`Starting app version: ${import.meta.env.REACT_APP_VERSION}`);
+console.warn(`Starting app version: ${import.meta.env.REACT_APP_VERSION}`);
 
 registerSW({ immediate: true });
 
@@ -34,8 +34,7 @@ window.addEventListener("vite:preloadError", (event) => {
     As a result, a user who visited your site before the new deployment might encounter an import error.
     This error happens because the assets running on that user's device are outdated and it tries to import the
     corresponding old chunk, which is deleted. This event is useful for addressing this situation.*/
-    console.log("preloadError");
-    console.log(event);
+    window.location.reload();
 });
 
 async function loadTranslations(): Promise<void> {
@@ -49,7 +48,7 @@ async function loadTranslations(): Promise<void> {
             },
         });
     } catch (error) {
-        console.log(`Something wrong: ${String(error)}`);
+        console.error(`Something wrong: ${String(error)}`);
     }
 }
 

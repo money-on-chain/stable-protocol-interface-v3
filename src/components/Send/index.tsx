@@ -1,5 +1,5 @@
 import { Input } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
 import {
@@ -52,22 +52,6 @@ export default function Send(): JSX.Element {
     const [inputValidationError, setInputValidationError] =
         useState<boolean>(false);
 
-    useEffect(() => {
-        setAmountYouSend(amountYouSend);
-    }, [amountYouSend]);
-
-    useEffect(() => {
-        if (amountYouSend) {
-            onValidate();
-        }
-    }, [amountYouSend]);
-
-    useEffect(() => {
-        if (destinationAddress) {
-            onValidate();
-        }
-    }, [destinationAddress]);
-
     const onChangeCurrencyYouSend = (newCurrencyYouExchange: string): void => {
         onClear();
         setCurrencyYouSend(newCurrencyYouExchange);
@@ -78,7 +62,7 @@ export default function Send(): JSX.Element {
         setAmountYouSend("");
     };
 
-    const onValidate = (): void => {
+    const onValidate = useCallback((): void => {
         let amountInputError: boolean = false;
         let addressInputError: boolean = false;
 
@@ -129,7 +113,23 @@ export default function Send(): JSX.Element {
         } else {
             setInputValidationError(false);
         }
-    };
+    }, [amountYouSend, currencyYouSend, destinationAddress, userBalance, userBaseCoinBalance, t]);
+
+    useEffect(() => {
+        setAmountYouSend(amountYouSend);
+    }, [amountYouSend]);
+
+    useEffect(() => {
+        if (amountYouSend) {
+            onValidate();
+        }
+    }, [amountYouSend, onValidate]);
+
+    useEffect(() => {
+        if (destinationAddress) {
+            onValidate();
+        }
+    }, [destinationAddress, onValidate]);
 
     const onChangeAmountYouSend = (
         newAmount: string | number,

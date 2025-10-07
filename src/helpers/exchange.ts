@@ -332,10 +332,7 @@ function exchangeMethod(
 
     const aTokenExchange: string[] = tokenExchange.split("_");
     const aTokenReceive: string[] = tokenReceive.split("_");
-    console.log("aTokenExchange", aTokenExchange);
-    console.log("aTokenReceive", aTokenReceive);
     const aTokenMap: string = `${aTokenExchange[0]},${aTokenReceive[0]}`;
-    console.log("aTokenMap", aTokenMap);
     const tokenExchangeSettings = TokenSettings(tokenExchange);
     const tokenReceiveSettings = TokenSettings(tokenReceive);
 

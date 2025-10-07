@@ -32,7 +32,7 @@ export default function Performance(): JSX.Element {
             setStatusLabelClass(statusLabelClass);
             setStatusCode(statusCode);
         }
-    }, [contractProtocolStatus.data, userBalance.data]);
+    }, [contractProtocolStatus.data, userBalance.data, checkerStatus]);
 
     const showModal = (): void => {
         setShowGlobalStatusModal(true);

@@ -1,5 +1,4 @@
 import { Checkbox } from "antd";
-import PropTypes from "prop-types";
 import React, { useState } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
@@ -211,12 +210,3 @@ export default function AllowanceDialog(
         </div>
     );
 }
-
-AllowanceDialog.propTypes = {
-    onCloseModal: PropTypes.func,
-    currencyYouExchange: PropTypes.string,
-    currencyYouReceive: PropTypes.string,
-    amountYouExchangeLimit: PropTypes.object,
-    onRealSendTransaction: PropTypes.func,
-    disAllowance: PropTypes.bool,
-};
