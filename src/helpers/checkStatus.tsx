@@ -33,6 +33,8 @@ function CheckStatusCA(
 
     if (!caData) return statusCode;
 
+    if (!caData.getCglb || !caData.getCtargemaCA || caData.liqThrld || caData.protThrld) return statusCode
+
     const globalCoverage = caData.getCglb;
     const getCtargemaCA = caData.getCtargemaCA;
     const liqThrld = caData.liqThrld;

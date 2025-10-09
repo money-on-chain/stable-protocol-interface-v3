@@ -57,7 +57,7 @@ export default function Skeleton(): JSX.Element {
 
     const readProtocolStatus = useCallback((): void => {
         const { globalStatus, statusLabel, statusText } = checkerStatus();
-
+        
         if (globalStatus > 1) {
             setNotifStatus({
                 id: -1,

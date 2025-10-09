@@ -11,7 +11,7 @@ import type { ContractStatusOmocResult } from "../types/status";
 import { useMultiCall } from "./useMulticall";
 
 // Track when we last logged errors to prevent spam
-let lastProposalErrorLog = 0;
+const lastProposalErrorLog = 0;
 const ERROR_LOG_THROTTLE = 30_000; // Log at most once every 30 seconds
 
 const onErrorProposal = (): MultiCallErrorResult => {
