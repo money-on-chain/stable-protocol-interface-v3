@@ -154,11 +154,11 @@ export function useMultiCall(
     useEffect(() => {
         if (results !== prevResultsRef.current) {
             if (results !== undefined) {
-                console.log(
+                console.warn(
                     `[Multicall Fetch] ${scopeKey || "unknown"} - ${results.length} results - ${new Date().toLocaleTimeString()}`
                 );
             } else {
-                console.log(
+                console.warn(
                     `[Multicall Loading] ${scopeKey || "unknown"} - ${calls.length} calls pending - ${new Date().toLocaleTimeString()}`
                 );
             }

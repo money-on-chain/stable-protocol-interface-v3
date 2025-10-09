@@ -56,13 +56,14 @@ const mintTC = async (
     // Verifications
 
     // User have sufficient reserve to pay?
-    console.log(
+    /*
+    console.warn(
         `To mint ${qTC} ${
             (settings.tokens.TC[caIndex] as TokenConfig).name
         } you need > ${limitAmount.toString()} ${
             (settings.tokens.CA[caIndex] as TokenConfig).name
         } in your balance`
-    );
+    );*/
 
     const userReserveBalance = userBalance.data.CA[caIndex].balance;
     if (limitAmount > userReserveBalance)
@@ -71,13 +72,13 @@ const mintTC = async (
         );
 
     // Allowance    reserveAllowance
-    console.log(
+    /* console.log(
         `Allowance: To mint ${qTC} ${
             (settings.tokens.TC[caIndex] as TokenConfig).name
         } you need > ${limitAmount.toString()} ${
             (settings.tokens.CA[caIndex] as TokenConfig).name
         } in your spendable balance`
-    );
+    );*/
     /*
     const userSpendableBalance = new BigNumber(
         fromContractPrecisionDecimals(
@@ -116,10 +117,10 @@ const mintTC = async (
     }
     const { request } = await simulateContract(config, configParams);
 
-    console.log("request", request);
+    //console.log("request", request);
     // Send transaction
     const txHash = await writeContract(config, request);
-    console.log("txHash", txHash);
+    //console.log("txHash", txHash);
     if (onTransaction) onTransaction(txHash);
 
     const receipt = await waitForTransactionReceipt(config, { hash: txHash });
@@ -170,9 +171,9 @@ const redeemTC = async (
     // Verifications
 
     // User have sufficient TC in balance?
-    console.log(
+    /*console.log(
         `Redeeming ${qTC} ${(settings.tokens.TC[0] as TokenConfig).name} ... getting approx limit down to: ${limitAmount} ${(settings.tokens.CA[caIndex] as TokenConfig).name}... `
-    );
+    );*/
 
     const userTCBalance = userBalance.data[caIndex].TC.balance;
     if (qTC > userTCBalance)
@@ -219,10 +220,10 @@ const redeemTC = async (
     }
     const { request } = await simulateContract(config, configParams);
 
-    console.log("request", request);
+    //console.log("request", request);
     // Send transaction
     const txHash = await writeContract(config, request);
-    console.log("txHash", txHash);
+    //console.log("txHash", txHash);
     if (onTransaction) onTransaction(txHash);
 
     const receipt = await waitForTransactionReceipt(config, { hash: txHash });
@@ -276,13 +277,13 @@ const mintTP = async (
 
     // Verifications
     // User have sufficient reserve to pay?
-    console.log(
+    /*console.log(
         `To mint ${qTP} ${
             (settings.tokens.TP[tpIndex] as TokenConfig).name
         } you need > ${limitAmount.toString()} ${
             (settings.tokens.CA[caIndex] as TokenConfig).name
         } in your balance`
-    );
+    );*/
     const userReserveBalance = userBalance.data.CA[caIndex].balance;
     if (limitAmount > userReserveBalance)
         throw new Error(
@@ -290,13 +291,13 @@ const mintTP = async (
         );
 
     // Allowance
-    console.log(
+    /*console.log(
         `Allowance: To mint ${qTP} ${
             (settings.tokens.TP[tpIndex] as TokenConfig).name
         } you need > ${limitAmount.toString()} ${
             (settings.tokens.CA[caIndex] as TokenConfig).name
         } in your spendable balance`
-    );
+    );*/
     /*
     const userSpendableBalance = new BigNumber(
         fromContractPrecisionDecimals(
@@ -344,10 +345,10 @@ const mintTP = async (
     }
     const { request } = await simulateContract(config, configParams);
 
-    console.log("request", request);
+    //console.log("request", request);
     // Send transaction
     const txHash = await writeContract(config, request);
-    console.log("txHash", txHash);
+    //console.log("txHash", txHash);
     if (onTransaction) onTransaction(txHash);
 
     const receipt = await waitForTransactionReceipt(config, { hash: txHash });
@@ -402,9 +403,9 @@ const redeemTP = async (
     // Verifications
 
     // User have sufficient PEGGED Token in balance?
-    console.log(
+    /*console.log(
         `Redeeming ${qTP} ${(settings.tokens.TP[tpIndex] as TokenConfig).name} ... getting approx: ${limitAmount} ${(settings.tokens.CA[caIndex] as TokenConfig).name}... `
-    );
+    );*/
     const userTPBalance = userBalance.data.TP[caIndex][tpIndex].balance;
     if (qTP > userTPBalance)
         throw new Error(
@@ -451,10 +452,10 @@ const redeemTP = async (
     }
     const { request } = await simulateContract(config, configParams);
 
-    console.log("request", request);
+    //console.log("request", request);
     // Send transaction
     const txHash = await writeContract(config, request);
-    console.log("txHash", txHash);
+    //console.log("txHash", txHash);
     if (onTransaction) onTransaction(txHash);
 
     const receipt = await waitForTransactionReceipt(config, { hash: txHash });

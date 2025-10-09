@@ -125,7 +125,7 @@ const AllowUseTokenMigrator = async (
     const tokenMigrator = contracts.token_migrator;
 
     if (!contracts.tp_legacy)
-        console.log(
+        console.error(
             "Error: Please set token migrator address in environment vars!"
         );
 
@@ -161,7 +161,7 @@ const MigrateToken = async (
     if (!contracts.token_migrator) return;
 
     if (!contracts.token_migrator)
-        console.log(
+        console.error(
             "Error: Please set token migrator address in environment vars!"
         );
 

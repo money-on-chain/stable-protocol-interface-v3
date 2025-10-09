@@ -70,7 +70,9 @@ export default function Send(): JSX.Element {
         const totalBalance: bigint = TokenBalance(
             userBalance,
             currencyYouSend,
-            userBaseCoinBalance?.balance ? { balance: userBaseCoinBalance.balance } : undefined
+            userBaseCoinBalance?.balance
+                ? { balance: userBaseCoinBalance.balance }
+                : undefined
         );
         const amountYouSendBig: bigint = toBigIntPrecision(amountYouSend);
 
@@ -200,7 +202,9 @@ export default function Send(): JSX.Element {
         const totalYouSendWei: bigint = TokenBalance(
             userBalance,
             currencyYouSend,
-            userBaseCoinBalance?.balance ? { balance: userBaseCoinBalance.balance } : undefined
+            userBaseCoinBalance?.balance
+                ? { balance: userBaseCoinBalance.balance }
+                : undefined
         );
         const totalYouSend = fromWei(
             totalYouSendWei,
@@ -232,7 +236,12 @@ export default function Send(): JSX.Element {
                                 amount: TokenBalance(
                                     userBalance,
                                     currencyYouSend,
-                                    userBaseCoinBalance?.balance ? { balance: userBaseCoinBalance.balance } : undefined
+                                    userBaseCoinBalance?.balance
+                                        ? {
+                                              balance:
+                                                  userBaseCoinBalance.balance,
+                                          }
+                                        : undefined
                                 ),
                                 token: TokenSettings(currencyYouSend),
                                 decimals:
