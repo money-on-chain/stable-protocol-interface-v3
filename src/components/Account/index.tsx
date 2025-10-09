@@ -109,7 +109,14 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
         }
 
         return isLoaded;
-    }, [vestingOn, vestingAddress, vestingAddressDefault, publicClient, setVestingMachine, userBalance]);
+    }, [
+        vestingOn,
+        vestingAddress,
+        vestingAddressDefault,
+        publicClient,
+        setVestingMachine,
+        userBalance,
+    ]);
 
     useEffect(() => {
         void onVestingOn();
@@ -212,7 +219,8 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
 
             return true;
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
+            const errorMessage =
+                error instanceof Error ? error.message : String(error);
             console.error("Invalid Vesting address:", errorMessage);
             setAddVestingAddressErrorText(
                 "Seems that address is not valid vesting"
@@ -397,7 +405,9 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
                     <div className="wallet__vesting__address__dropdown">
                         <Select
                             className="wallet__vesting__address__selector"
-                            onChange={(value) => void onChangeSelectVesting(value)}
+                            onChange={(value) =>
+                                void onChangeSelectVesting(value)
+                            }
                             value={vestingAddressDefault}
                         >
                             {vestingAddresses.map((possibleOption: string) => (

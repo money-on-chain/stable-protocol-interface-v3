@@ -55,8 +55,8 @@ export default function StakingOptionsModal(
         if (!amountInEth) return;
 
         const allowanceAmount = isVestingLoaded()
-            ? (userVesting.data).vestingmachine?.staking?.allowance
-            : (userOmocBalance.data).stakingmachine?.tgAllowance;
+            ? userVesting.data.vestingmachine?.staking?.allowance
+            : userOmocBalance.data.stakingmachine?.tgAllowance;
 
         if (allowanceAmount >= amountInEth) setStep(3);
     }, [amountInEth, isVestingLoaded, userOmocBalance.data, userVesting.data]);
@@ -136,18 +136,18 @@ export default function StakingOptionsModal(
         if (!amount || !address) return;
 
         setStep(99);
-        const receipt = await interfaceStakingAddStake(
+        const receipt = (await interfaceStakingAddStake(
             amount,
             address,
             onTransaction,
             onReceipt,
             onError
-        ) as TransactionReceipt | undefined;
+        )) as TransactionReceipt | undefined;
         if (!receipt) return;
-        
+
         const status = receipt.status === "success" ? "success" : "error";
         onConfirm(status, receipt.transactionHash);
-        
+
         // const status = res.status ? "success" : "error";
         // onConfirm(status, res.transactionHash);
 
@@ -156,7 +156,7 @@ export default function StakingOptionsModal(
         } else {
             void userOmocBalance.refetch();
         }
-        
+
         // .catch((/*e*/) => {
         //     notification["error"]({
         //         message: t("global.RewardsError_Title"),
@@ -188,7 +188,8 @@ export default function StakingOptionsModal(
         )
             .then((res: unknown) => {
                 const response = res as TransactionResponse;
-                const status = response.status === "success" ? "success" : "error";
+                const status =
+                    response.status === "success" ? "success" : "error";
                 onConfirm(status, response.transactionHash);
 
                 // Refresh user balance
@@ -229,7 +230,8 @@ export default function StakingOptionsModal(
         await interfaceStakingUnStake(amount, onTransaction, onReceipt, onError)
             .then((res: unknown) => {
                 const response = res as TransactionResponse;
-                const status = response.status === "success" ? "success" : "error";
+                const status =
+                    response.status === "success" ? "success" : "error";
                 onConfirm(status, response.transactionHash);
 
                 // Refresh user balance
@@ -274,7 +276,8 @@ export default function StakingOptionsModal(
         )
             .then((res: unknown) => {
                 const response = res as TransactionResponse;
-                const status = response.status === "success" ? "success" : "error";
+                const status =
+                    response.status === "success" ? "success" : "error";
                 onConfirm(status, response.transactionHash);
 
                 // Refresh user balance

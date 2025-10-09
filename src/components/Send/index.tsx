@@ -113,7 +113,14 @@ export default function Send(): JSX.Element {
         } else {
             setInputValidationError(false);
         }
-    }, [amountYouSend, currencyYouSend, destinationAddress, userBalance, userBaseCoinBalance, t]);
+    }, [
+        amountYouSend,
+        currencyYouSend,
+        destinationAddress,
+        userBalance,
+        userBaseCoinBalance,
+        t,
+    ]);
 
     useEffect(() => {
         setAmountYouSend(amountYouSend);

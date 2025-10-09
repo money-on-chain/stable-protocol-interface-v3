@@ -14,7 +14,6 @@ import ModalAllowanceOperation from "../Modals/Allowance";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import TXStatus from "./TXStatus";
 
-
 const { Panel } = Collapse;
 
 interface OperationStatusResponse {
@@ -168,7 +167,9 @@ export default function ConfirmOperation(
             }, 600000);
         }
         if (status === "QUEUED") {
-            console.warn("Operation queued... waiting for operation execution.");
+            console.warn(
+                "Operation queued... waiting for operation execution."
+            );
             timerId = setTimeout(() => {
                 if (status === "QUEUED") {
                     setStatus("ERROR");
@@ -182,27 +183,33 @@ export default function ConfirmOperation(
         return () => clearTimeout(timerId);
     }, [status]);
 
-    const toleranceLimits = useCallback((newTolerance: number): ToleranceLimits => {
-        let limitExchange: bigint;
-        let limitReceive: bigint;
-        if (IS_MINT) {
-            limitExchange = calculateLimit(
-                amountYouExchange,
-                newTolerance / 100
-            );
-            limitReceive = amountYouReceive;
-        } else {
-            limitExchange = amountYouExchange;
-            limitReceive = calculateLimit(amountYouReceive, newTolerance / 100);
-        }
+    const toleranceLimits = useCallback(
+        (newTolerance: number): ToleranceLimits => {
+            let limitExchange: bigint;
+            let limitReceive: bigint;
+            if (IS_MINT) {
+                limitExchange = calculateLimit(
+                    amountYouExchange,
+                    newTolerance / 100
+                );
+                limitReceive = amountYouReceive;
+            } else {
+                limitExchange = amountYouExchange;
+                limitReceive = calculateLimit(
+                    amountYouReceive,
+                    newTolerance / 100
+                );
+            }
 
-        const limits: ToleranceLimits = {
-            exchange: limitExchange,
-            receive: limitReceive,
-        };
+            const limits: ToleranceLimits = {
+                exchange: limitExchange,
+                receive: limitReceive,
+            };
 
-        return limits;
-    }, [IS_MINT, amountYouExchange, amountYouReceive]);
+            return limits;
+        },
+        [IS_MINT, amountYouExchange, amountYouReceive]
+    );
 
     const limits: ToleranceLimits = toleranceLimits(tolerance);
 
@@ -486,7 +493,8 @@ export default function ConfirmOperation(
         //);
         const txRcp = receipt as TransactionReceipt;
         const filteredEvents: ContractEvent[] =
-            (decodeEvents(txRcp, contractName, filter) as ContractEvent[]) || [];
+            (decodeEvents(txRcp, contractName, filter) as ContractEvent[]) ||
+            [];
 
         // on Queue
         onQueued(filteredEvents);
@@ -583,7 +591,9 @@ export default function ConfirmOperation(
     let commissionPAY: bigint = commission;
     let commissionPAYUSD: bigint = commissionUSD;
     let commissionPercentPAY: bigint = commissionPercent;
-    let commissionSettings: ReturnType<typeof TokenSettings> = TokenSettings(`CA_${caIndex}`);
+    let commissionSettings: ReturnType<typeof TokenSettings> = TokenSettings(
+        `CA_${caIndex}`
+    );
     let commissionTokenName: string;
 
     if (IS_MINT) {
@@ -704,7 +714,10 @@ export default function ConfirmOperation(
                         </span>
                         <span className={""}> (</span>
                         <span>
-                            {!(contractProtocolStatus?.data?.canOperate ?? false)
+                            {!(
+                                contractProtocolStatus?.data?.canOperate ??
+                                false
+                            )
                                 ? "--"
                                 : PrecisionNumbers({
                                       amount: commissionPAYUSD,
@@ -742,7 +755,10 @@ export default function ConfirmOperation(
 
                         <span className={""}> (</span>
                         <span>
-                            {!(contractProtocolStatus?.data?.canOperate ?? false)
+                            {!(
+                                contractProtocolStatus?.data?.canOperate ??
+                                false
+                            )
                                 ? "--"
                                 : PrecisionNumbers({
                                       amount: executionFeeUSD,

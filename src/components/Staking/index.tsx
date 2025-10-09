@@ -53,7 +53,7 @@ export default function Staking(): JSX.Element {
         useWalletContext();
     const { t } = useProjectTranslation();
     const [activeTab, setActiveTab] = useState<string>("tab1");
-    
+
     const defaultUserInfoStaking: UserInfoStaking = {
         tgBalance: 0n,
         stakedBalance: 0n,
@@ -85,10 +85,13 @@ export default function Staking(): JSX.Element {
 
         if (isVestingLoaded() && userVesting.data) {
             // Check if the required vesting data exists before accessing it
-            if (!userVesting.data?.vestingmachine?.staking || !userVesting.data?.vestingmachine?.delay) {
+            if (
+                !userVesting.data?.vestingmachine?.staking ||
+                !userVesting.data?.vestingmachine?.delay
+            ) {
                 return;
             }
-            
+
             cData["tgBalance"] = userVesting.data.vestingmachine.tgBalance;
             cData["stakedBalance"] =
                 userVesting.data.vestingmachine.staking.balance;
@@ -100,10 +103,14 @@ export default function Staking(): JSX.Element {
             vUsing = userVesting.data.vestingmachine.staking;
         } else {
             // Check if the required data exists before accessing it
-            if (!userOmocBalance.data?.TG || !userOmocBalance.data?.stakingmachine || !userOmocBalance.data?.delaymachine) {
+            if (
+                !userOmocBalance.data?.TG ||
+                !userOmocBalance.data?.stakingmachine ||
+                !userOmocBalance.data?.delaymachine
+            ) {
                 return;
             }
-            
+
             cData["tgBalance"] = userOmocBalance.data.TG.balance;
             cData["stakedBalance"] =
                 userOmocBalance.data.stakingmachine.getBalance;

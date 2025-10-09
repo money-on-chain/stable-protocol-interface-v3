@@ -1,7 +1,7 @@
 import {
     simulateContract,
     waitForTransactionReceipt,
-    writeContract    
+    writeContract,
 } from "@wagmi/core";
 import type { TransactionReceipt } from "viem";
 import { checksumAddress } from "viem";

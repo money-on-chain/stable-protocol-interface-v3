@@ -17,16 +17,19 @@ export default function TVL(): JSX.Element {
     if (contractProtocolStatus.data) {
         settings.tokens.CA.forEach(function (dataItem) {
             // Check if the required data exists before accessing it
-            if (!(contractProtocolStatus.data)?.[dataItem.key] || !(contractProtocolStatus.data)?.[dataItem.key]?.PP_CA) {
+            if (
+                !contractProtocolStatus.data?.[dataItem.key] ||
+                !contractProtocolStatus.data?.[dataItem.key]?.PP_CA
+            ) {
                 return;
             }
-            
+
             const priceCA =
                 normalizeToBigInt(
-                    (contractProtocolStatus.data)[dataItem.key].PP_CA[0]
+                    contractProtocolStatus.data[dataItem.key].PP_CA[0]
                 ) || 0n;
 
-            const nACcb = (contractProtocolStatus.data)[dataItem.key].nACcb || 0n;
+            const nACcb = contractProtocolStatus.data[dataItem.key].nACcb || 0n;
             collateralInUSD = mulPrecision(nACcb, priceCA);
             collateralTotalInUSD = collateralTotalInUSD + collateralInUSD;
         });
@@ -40,7 +43,7 @@ export default function TVL(): JSX.Element {
 
             <div className="card-content">
                 <div className="big-number">
-                    {!(contractProtocolStatus.data)?.canOperate
+                    {!contractProtocolStatus.data?.canOperate
                         ? "--"
                         : PrecisionNumbers({
                               amount: collateralTotalInUSD

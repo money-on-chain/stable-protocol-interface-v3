@@ -93,7 +93,7 @@ export async function runMulticallSync(
     });
 
     let finalStorage: Record<string | number, unknown> | undefined;
-    
+
     if (results && results.length > 0) {
         storage["canOperate"] = canOperate;
         finalStorage = storage;

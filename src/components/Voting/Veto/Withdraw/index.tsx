@@ -77,19 +77,26 @@ const VetoWithdraw: React.FC = () => {
 
         // Convert getState from bigint to number for the helper function
         const statusData = contractStatusOmoc.data;
-        
+
         // Check if votingmachine data exists before accessing it
-        if (!statusData.votingmachine || !statusData.votingmachine.getVotingData) {
+        if (
+            !statusData.votingmachine ||
+            !statusData.votingmachine.getVotingData
+        ) {
             return;
         }
-        
+
         const lockedByVeto = tcLockedByVeto(
-            userVeto.data as { vetoMachine: { getUserLockedAmount: Record<string, Record<string, bigint>>; }; },
+            userVeto.data as {
+                vetoMachine: {
+                    getUserLockedAmount: Record<string, Record<string, bigint>>;
+                };
+            },
             {
                 votingmachine: {
                     getVotingData: statusData.votingmachine.getVotingData,
                     getState: Number(statusData.votingmachine.getState),
-                }
+                },
             },
             address
         );
@@ -120,7 +127,12 @@ const VetoWithdraw: React.FC = () => {
         if (contractStatusOmoc.data && userOmocBalance.data && userVeto.data) {
             refreshData();
         }
-    }, [contractStatusOmoc.data, userOmocBalance.data, userVeto.data, refreshData]);
+    }, [
+        contractStatusOmoc.data,
+        userOmocBalance.data,
+        userVeto.data,
+        refreshData,
+    ]);
 
     const onVetoWithdraw = async (
         proposal: string,
@@ -162,7 +174,9 @@ const VetoWithdraw: React.FC = () => {
             });
     };
 
-    const VetoWithdrawTokenCard: React.FC<{ token: InfoUserTC }> = ({ token }) => {
+    const VetoWithdrawTokenCard: React.FC<{ token: InfoUserTC }> = ({
+        token,
+    }) => {
         const { t } = useProjectTranslation();
 
         return (
@@ -191,10 +205,12 @@ const VetoWithdraw: React.FC = () => {
                         <div className="cta-container">
                             <button
                                 className="button--small"
-                                onClick={() => void onVetoWithdraw(
-                                    token.proposal,
-                                    token.address
-                                )}
+                                onClick={() =>
+                                    void onVetoWithdraw(
+                                        token.proposal,
+                                        token.address
+                                    )
+                                }
                             >
                                 {t(`voting.veto.vetoWithdraw.button`)}
                             </button>
@@ -219,7 +235,9 @@ const VetoWithdraw: React.FC = () => {
                                     {t(`voting.veto.vetoWithdraw.headerToken`)}
                                 </div>
                                 <div className="vetoWithdrawProposal">
-                                    {t(`voting.veto.vetoWithdraw.headerProposal`)}
+                                    {t(
+                                        `voting.veto.vetoWithdraw.headerProposal`
+                                    )}
                                 </div>
                                 <div className="vetoWithdrawAmount">
                                     {t(`voting.veto.vetoWithdraw.headerAmount`)}

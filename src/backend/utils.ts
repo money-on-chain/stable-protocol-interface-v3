@@ -29,11 +29,14 @@ const getExecutionFee = async (
     let latestBaseFee: bigint;
     if (getNetworkFromProject() === "rsk") {
         // RSK uses minimumGasPrice instead of baseFeePerGas
-        const blockWithMinGasPrice = lastBlock as typeof lastBlock & { minimumGasPrice?: bigint | string };
+        const blockWithMinGasPrice = lastBlock as typeof lastBlock & {
+            minimumGasPrice?: bigint | string;
+        };
         const minGasPrice = blockWithMinGasPrice.minimumGasPrice;
-        latestBaseFee = typeof minGasPrice === 'bigint' 
-            ? minGasPrice 
-            : BigInt(minGasPrice ?? 0);
+        latestBaseFee =
+            typeof minGasPrice === "bigint"
+                ? minGasPrice
+                : BigInt(minGasPrice ?? 0);
     } else {
         latestBaseFee = BigInt(lastBlock.baseFeePerGas ?? 0);
     }

@@ -19,7 +19,9 @@ const api = <T = unknown>(
                 resolve(allData ? response : response.data);
             })
             .catch((error) => {
-                reject(error instanceof Error ? error : new Error(String(error)));
+                reject(
+                    error instanceof Error ? error : new Error(String(error))
+                );
             });
     });
 };

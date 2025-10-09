@@ -10,7 +10,12 @@ import type { useProposalCount } from "../hooks/useProposalCount";
 import type { useUserVeto } from "../hooks/useUserVeto";
 import type { UseBaseCoinBalanceResult } from "../types/status";
 import type { DContracts } from "./hooks";
-import type { ContractProtocolStatusResult, UserBalanceResult, UserOmocBalanceResult, UserVestingResult } from "./status";
+import type {
+    ContractProtocolStatusResult,
+    UserBalanceResult,
+    UserOmocBalanceResult,
+    UserVestingResult,
+} from "./status";
 
 // Reusable EVM address
 export type Address = `0x${string}`;

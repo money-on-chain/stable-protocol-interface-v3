@@ -12,7 +12,7 @@ export default function SectionLiquidityMining(): React.ReactElement {
         contractProtocolStatus,
         userBalance,
         vestingAddress,
-        isVestingLoaded        
+        isVestingLoaded,
     } = useWalletContext();
     const [ready, setReady] = useState<boolean>(false);
     const [usingVestingAddress, setUsingVestingAddress] = useState<string>("");

@@ -83,12 +83,17 @@ export function useMultiCall(
     // Note: We rely on parent hooks to provide stable 'calls' arrays via their own useMemo
     // Track both length and a hash of call signatures to detect meaningful changes
     const callsSignature = useMemo(() => {
-        return calls.map(c => `${typeof c.contract === 'string' ? c.contract : c.contract.address}:${c.functionName}`).join('|');
+        return calls
+            .map(
+                (c) =>
+                    `${typeof c.contract === "string" ? c.contract : c.contract.address}:${c.functionName}`
+            )
+            .join("|");
     }, [calls]);
 
     const contracts = useMemo(() => {
         if (calls.length === 0) return [];
-        
+
         return calls.map(({ contract, functionName, args }) => {
             const isGetBalance = functionName === "getBalance";
             const isAddressOnly = typeof contract === "string";
@@ -149,9 +154,13 @@ export function useMultiCall(
     useEffect(() => {
         if (results !== prevResultsRef.current) {
             if (results !== undefined) {
-                console.log(`[Multicall Fetch] ${scopeKey || 'unknown'} - ${results.length} results - ${new Date().toLocaleTimeString()}`);
+                console.log(
+                    `[Multicall Fetch] ${scopeKey || "unknown"} - ${results.length} results - ${new Date().toLocaleTimeString()}`
+                );
             } else {
-                console.log(`[Multicall Loading] ${scopeKey || 'unknown'} - ${calls.length} calls pending - ${new Date().toLocaleTimeString()}`);
+                console.log(
+                    `[Multicall Loading] ${scopeKey || "unknown"} - ${calls.length} calls pending - ${new Date().toLocaleTimeString()}`
+                );
             }
             prevResultsRef.current = results;
         }
@@ -160,7 +169,7 @@ export function useMultiCall(
     // Step 3: Structure result into a nested dictionary, with optional transforms
     let storage: Record<string | number, unknown> | undefined = {};
     let canOperate = true;
-    
+
     // Handle different result states
     if (!results || results.length === 0) {
         // No results yet - this is normal during initial load or when calls are empty
@@ -171,10 +180,10 @@ export function useMultiCall(
     } else if (results.length !== calls.length) {
         // Length mismatch - this can happen with stale cached results
         console.warn(
-            `[Multicall] Length mismatch for ${scopeKey || 'unknown'}: results=${results.length}, calls=${calls.length}. Using available data.`
+            `[Multicall] Length mismatch for ${scopeKey || "unknown"}: results=${results.length}, calls=${calls.length}. Using available data.`
         );
     }
-    
+
     // Only process results that have corresponding calls
     const safeLength = Math.min(results?.length || 0, calls.length);
     results?.slice(0, safeLength).forEach((item, i) => {

@@ -120,7 +120,7 @@ function Vote(props: VoteProps): JSX.Element {
     const voteMinPctToVeto = infoVoting["VOTE_MIN_PCT_TO_VETO"];
     const minForQuorum = infoVoting["MIN_FOR_QUORUM"];
     const voteMinToVeto = infoVoting["VOTE_MIN_TO_VETO"];
-    
+
     const refreshVotingFinish = useCallback((): void => {
         /* Voting Finish Reason */
         /* 0 - No reason */
@@ -139,10 +139,7 @@ function Vote(props: VoteProps): JSX.Element {
         } else if (votingData["expired"]) {
             setVotingFinish(true);
             setVotingInFavorOrAgainstError(true);
-            if (
-                votingData["totalVoted"] <
-                minForQuorum * DECIMALS_18
-            ) {
+            if (votingData["totalVoted"] < minForQuorum * DECIMALS_18) {
                 setVotingFinishReason(2);
             } else if (
                 votingData["againstVotesPCT"] >=
@@ -153,12 +150,7 @@ function Vote(props: VoteProps): JSX.Element {
                 setVotingFinishReason(1);
             }
         }
-    }, [
-        votingData,
-        voteMinPctToVeto,
-        minForQuorum,
-        voteMinToVeto,
-    ]);
+    }, [votingData, voteMinPctToVeto, minForQuorum, voteMinToVeto]);
 
     useEffect(() => {
         onValidateVotingInFavorOrAgainst();
@@ -481,7 +473,9 @@ function Vote(props: VoteProps): JSX.Element {
                                             <div className="cta-options-group">
                                                 <button
                                                     className="button secondary"
-                                                    onClick={() => void onRunVoteStep()}
+                                                    onClick={() =>
+                                                        void onRunVoteStep()
+                                                    }
                                                 >
                                                     {t(
                                                         "voting.cta.btnPushNextStep"

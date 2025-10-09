@@ -28,21 +28,26 @@ export default function Portfolio(): JSX.Element {
         userBaseCoinBalance.balance
     ) {
         settings.tokens.CA.forEach(function (dataItem: TokenConfig) {
-            if (!dataItem.key) {/*console.error("CA dataItem.key is undefined");*/ return};
-            
+            if (!dataItem.key) {
+                /*console.error("CA dataItem.key is undefined");*/ return;
+            }
+
             // Check if the required data exists before accessing it
-            if (!userBalance.data?.CA?.[dataItem.key] || !contractProtocolStatus.data?.[dataItem.key]) {
+            if (
+                !userBalance.data?.CA?.[dataItem.key] ||
+                !contractProtocolStatus.data?.[dataItem.key]
+            ) {
                 return;
             }
-            
+
             ////////////////
             // Tokens CA
             ///////////////
 
-            balance = (userBalance.data).CA[dataItem.key].balance;
+            balance = userBalance.data.CA[dataItem.key].balance;
             price =
                 normalizeToBigInt(
-                    (contractProtocolStatus.data)[dataItem.key].PP_CA[0]
+                    contractProtocolStatus.data[dataItem.key].PP_CA[0]
                 ) || 0n;
 
             balanceUSD = mulPrecision(balance, price);
@@ -51,15 +56,15 @@ export default function Portfolio(): JSX.Element {
             /////////////
             // Token TC
             ////////////
-            balance = (userBalance.data)[dataItem.key].TC.balance;
+            balance = userBalance.data[dataItem.key].TC.balance;
             const priceTEC: bigint =
-                (contractProtocolStatus.data)[dataItem.key].getPTCac;
+                contractProtocolStatus.data[dataItem.key].getPTCac;
             const priceCA: bigint =
                 normalizeToBigInt(
-                    (contractProtocolStatus.data)[dataItem.key].PP_CA[0]
+                    contractProtocolStatus.data[dataItem.key].PP_CA[0]
                 ) || 0n;
 
-            if ((contractProtocolStatus.data).canOperate) {
+            if (contractProtocolStatus.data.canOperate) {
                 price = mulPrecision(priceTEC, priceCA);
                 balanceUSD = mulPrecision(balance, price);
                 totalUSD = totalUSD + balanceUSD;
@@ -69,18 +74,23 @@ export default function Portfolio(): JSX.Element {
         // Tokens TP
         //////////////
         settings.tokens.TP.forEach(function (dataItem: TokenConfig) {
-            if (!dataItem.key) {/*console.error("TP dataItem.key is undefined");*/ return};
-            
+            if (!dataItem.key) {
+                /*console.error("TP dataItem.key is undefined");*/ return;
+            }
+
             // Check if the required data exists before accessing it
-            if (!userBalance.data?.TP?.[0]?.[dataItem.key] || !contractProtocolStatus.data?.[0]?.PP_TP?.[dataItem.key]) {
+            if (
+                !userBalance.data?.TP?.[0]?.[dataItem.key] ||
+                !contractProtocolStatus.data?.[0]?.PP_TP?.[dataItem.key]
+            ) {
                 return;
             }
-            
-            balance = (userBalance.data).TP[0][dataItem.key].balance;
+
+            balance = userBalance.data.TP[0][dataItem.key].balance;
             price = dataItem.peggedUSD
                 ? 1n
                 : normalizeToBigInt(
-                      (contractProtocolStatus.data)[0].PP_TP[dataItem.key][0]
+                      contractProtocolStatus.data[0].PP_TP[dataItem.key][0]
                   ) || 0n;
             balanceUSD = divPrecision(balance, price);
             totalUSD = totalUSD + balanceUSD;
@@ -91,7 +101,8 @@ export default function Portfolio(): JSX.Element {
         //////////////
         balance = userBaseCoinBalance.balance || 0n;
         price =
-            normalizeToBigInt((contractProtocolStatus.data)?.PP_COINBASE?.[0]) || 0n;
+            normalizeToBigInt(contractProtocolStatus.data?.PP_COINBASE?.[0]) ||
+            0n;
         balanceUSD = mulPrecision(balance, price);
         totalUSD = totalUSD + balanceUSD;
 
@@ -99,14 +110,23 @@ export default function Portfolio(): JSX.Element {
         // Fee Token (TF) the price provider is expressed in collateral
         ////////////////
         // Check if the required data exists before accessing it
-        if (userBalance.data?.[0]?.FeeToken && contractProtocolStatus.data?.[0]?.PP_CA && contractProtocolStatus.data?.[0]?.PP_FeeToken) {
-            balance = (userBalance.data)[0].FeeToken.balance;
+        if (
+            userBalance.data?.[0]?.FeeToken &&
+            contractProtocolStatus.data?.[0]?.PP_CA &&
+            contractProtocolStatus.data?.[0]?.PP_FeeToken
+        ) {
+            balance = userBalance.data[0].FeeToken.balance;
             const priceCA_0: bigint =
-                normalizeToBigInt((contractProtocolStatus.data)[0].PP_CA[0]) || 0n;
-            const priceInCA: bigint =
-                normalizeToBigInt((contractProtocolStatus.data)[0].PP_FeeToken[0]) ||
+                normalizeToBigInt(contractProtocolStatus.data[0].PP_CA[0]) ||
                 0n;
-            balanceUSD = mulPrecision(mulPrecision(balance, priceInCA), priceCA_0);
+            const priceInCA: bigint =
+                normalizeToBigInt(
+                    contractProtocolStatus.data[0].PP_FeeToken[0]
+                ) || 0n;
+            balanceUSD = mulPrecision(
+                mulPrecision(balance, priceInCA),
+                priceCA_0
+            );
             totalUSD = totalUSD + balanceUSD;
         }
     }

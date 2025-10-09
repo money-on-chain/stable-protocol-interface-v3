@@ -34,7 +34,8 @@ const mintTC = async (
     } = interfaceContext;
 
     const vendorAddress = (import.meta.env
-        .REACT_APP_ENVIRONMENT_VENDOR_ADDRESS || "0x0000000000000000000000000000000000000000") as `0x${string}`;
+        .REACT_APP_ENVIRONMENT_VENDOR_ADDRESS ||
+        "0x0000000000000000000000000000000000000000") as `0x${string}`;
 
     // Verifications
     if (!address) throw new Error("Address not found");
@@ -61,8 +62,7 @@ const mintTC = async (
             (settings.tokens.CA[caIndex] as TokenConfig).name
         } in your balance`
     );
-    const userReserveBalance = (userBalance.data).CA[caIndex]
-        .balance;
+    const userReserveBalance = userBalance.data.CA[caIndex].balance;
     if (limitAmount > userReserveBalance)
         throw new Error(
             `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} balance`
@@ -107,8 +107,7 @@ const mintTC = async (
     if (isRsk) {
         configParams.value = await getExecutionFee(
             publicClient,
-            (contractProtocolStatus.data)[caIndex]
-                .tcMintExecCost,
+            contractProtocolStatus.data[caIndex].tcMintExecCost,
             0
         );
     }
@@ -164,7 +163,8 @@ const mintTP = async (
     } = interfaceContext;
 
     const vendorAddress = (import.meta.env
-        .REACT_APP_ENVIRONMENT_VENDOR_ADDRESS || "0x0000000000000000000000000000000000000000") as `0x${string}`;
+        .REACT_APP_ENVIRONMENT_VENDOR_ADDRESS ||
+        "0x0000000000000000000000000000000000000000") as `0x${string}`;
 
     // Verifications
     if (!address) throw new Error("Address not found");
@@ -195,8 +195,7 @@ const mintTP = async (
             (settings.tokens.CA[caIndex] as TokenConfig).name
         } in your balance`
     );
-    const userReserveBalance = (userBalance.data).CA[caIndex]
-        .balance;
+    const userReserveBalance = userBalance.data.CA[caIndex].balance;
     if (limitAmount > userReserveBalance)
         throw new Error(
             `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} balance`
@@ -225,9 +224,8 @@ const mintTP = async (
      */
 
     // There are sufficient PEGGED in the contracts to mint?
-    const tpAvailableToMint = (
-        contractProtocolStatus.data
-    )[caIndex].getTPAvailableToMint[tpIndex];
+    const tpAvailableToMint =
+        contractProtocolStatus.data[caIndex].getTPAvailableToMint[tpIndex];
 
     if (qTP > tpAvailableToMint)
         throw new Error(
@@ -253,8 +251,7 @@ const mintTP = async (
         configParams.value =
             (await getExecutionFee(
                 publicClient,
-                (contractProtocolStatus.data)[caIndex]
-                    .tpMintExecCost,
+                contractProtocolStatus.data[caIndex].tpMintExecCost,
                 0
             )) + limitAmount;
     }

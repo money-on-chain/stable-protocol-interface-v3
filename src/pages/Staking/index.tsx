@@ -27,7 +27,12 @@ export default function SectionStaking(): React.ReactElement {
         } else {
             setUsingVestingAddress("");
         }
-    }, [userOmocBalance.data, contractStatusOmoc.data]);
+    }, [
+        userOmocBalance.data,
+        contractStatusOmoc.data,
+        isVestingLoaded,
+        vestingAddress,
+    ]);
 
     return (
         <Fragment>

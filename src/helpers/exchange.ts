@@ -7,7 +7,10 @@ import {
 import { mintTC, mintTP, redeemTC, redeemTP } from "../backend/moc-rc20";
 import settings from "../settings/settings.json";
 import type { ContractInfo, DContracts } from "../types/hooks";
-import type { ContractProtocolStatusResult,UserBalanceResult } from "../types/status";
+import type {
+    ContractProtocolStatusResult,
+    UserBalanceResult,
+} from "../types/status";
 import type { InterfaceContext } from "../types/wallets";
 import { TokenSettings } from "./currencies";
 
@@ -140,22 +143,22 @@ function TokenAllowance(
     let allowance: bigint | undefined = 0n;
     switch (aTokenExchange[0]) {
         case "CA":
-            allowance = userBalance.data.CA[
-                parseInt(aTokenExchange[1])
-            ].allowance;
+            allowance =
+                userBalance.data.CA[parseInt(aTokenExchange[1])].allowance;
             break;
         case "TP":
-            allowance = userBalance.data.TP[
-                caIndex
-            ][parseInt(aTokenExchange[1])].allowance;
+            allowance =
+                userBalance.data.TP[caIndex][parseInt(aTokenExchange[1])]
+                    .allowance;
             break;
         case "TC":
-            allowance = 
+            allowance =
                 userBalance.data[parseInt(aTokenExchange[1])].TC.allowance;
             break;
         case "TF":
-            allowance = 
-                userBalance.data[parseInt(aTokenExchange[1])].FeeToken.allowance;                    
+            allowance =
+                userBalance.data[parseInt(aTokenExchange[1])].FeeToken
+                    .allowance;
             break;
         default:
             throw new Error("Invalid token name");
@@ -268,7 +271,9 @@ function TokenContract(
 ): TokenContractResult {
     // Ex. aTokenMap = CA_0, CA_1, TP_0, TP_1, TC_0, TC_1, COINBASE, TF_0, TF_1
     const tokenExchangeSettings = TokenSettings(tokenExchange);
-    if (!contracts) { throw new Error("Contracts not available"); }
+    if (!contracts) {
+        throw new Error("Contracts not available");
+    }
 
     const tokenMap: string = `${tokenExchange}`;
     const aTokenMap: string[] = tokenMap.split("_");

@@ -57,7 +57,7 @@ export default function Skeleton(): JSX.Element {
 
     const readProtocolStatus = useCallback((): void => {
         const { globalStatus, statusLabel, statusText } = checkerStatus();
-        
+
         if (globalStatus > 1) {
             setNotifStatus({
                 id: -1,
@@ -77,20 +77,30 @@ export default function Skeleton(): JSX.Element {
         if (!userVeto.data || !contractStatusOmoc.data || !address) return;
 
         const statusData = contractStatusOmoc.data;
-        
+
         // Check if votingmachine data exists before accessing it
-        if (!statusData.votingmachine || !statusData.votingmachine.getVotingData) {
+        if (
+            !statusData.votingmachine ||
+            !statusData.votingmachine.getVotingData
+        ) {
             return;
         }
-        
+
         if (
             isSomeTCLockedByVeto(
-                userVeto.data as { vetoMachine: { getUserLockedAmount: Record<string, Record<string, bigint>>; }; },
+                userVeto.data as {
+                    vetoMachine: {
+                        getUserLockedAmount: Record<
+                            string,
+                            Record<string, bigint>
+                        >;
+                    };
+                },
                 {
                     votingmachine: {
                         getVotingData: statusData.votingmachine.getVotingData,
                         getState: Number(statusData.votingmachine.getState),
-                    }
+                    },
                 },
                 address
             )

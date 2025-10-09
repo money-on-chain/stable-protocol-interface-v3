@@ -34,7 +34,8 @@ const mintTC = async (
     } = interfaceContext;
 
     const vendorAddress = (import.meta.env
-        .REACT_APP_ENVIRONMENT_VENDOR_ADDRESS || "0x0000000000000000000000000000000000000000") as `0x${string}`;
+        .REACT_APP_ENVIRONMENT_VENDOR_ADDRESS ||
+        "0x0000000000000000000000000000000000000000") as `0x${string}`;
 
     // Basic verifications
     if (!address) throw new Error("Address not found");
@@ -63,8 +64,7 @@ const mintTC = async (
         } in your balance`
     );
 
-    const userReserveBalance = (userBalance.data).CA[caIndex]
-        .balance;
+    const userReserveBalance = userBalance.data.CA[caIndex].balance;
     if (limitAmount > userReserveBalance)
         throw new Error(
             `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} balance`
@@ -110,8 +110,7 @@ const mintTC = async (
     if (isRsk) {
         configParams.value = await getExecutionFee(
             publicClient,
-            (contractProtocolStatus.data)[caIndex]
-                .tcMintExecCost,
+            contractProtocolStatus.data[caIndex].tcMintExecCost,
             2
         );
     }
@@ -147,10 +146,11 @@ const redeemTC = async (
         userBalance,
         publicClient,
     } = interfaceContext;
-    
+
     const vendorAddress = (import.meta.env
-        .REACT_APP_ENVIRONMENT_VENDOR_ADDRESS || "0x0000000000000000000000000000000000000000") as `0x${string}`;
-    
+        .REACT_APP_ENVIRONMENT_VENDOR_ADDRESS ||
+        "0x0000000000000000000000000000000000000000") as `0x${string}`;
+
     // Verifications
     if (!address) throw new Error("Address not found");
     if (!publicClient) throw new Error("Public client not found");
@@ -174,25 +174,22 @@ const redeemTC = async (
         `Redeeming ${qTC} ${(settings.tokens.TC[0] as TokenConfig).name} ... getting approx limit down to: ${limitAmount} ${(settings.tokens.CA[caIndex] as TokenConfig).name}... `
     );
 
-    const userTCBalance = (userBalance.data)[caIndex].TC.balance;
+    const userTCBalance = userBalance.data[caIndex].TC.balance;
     if (qTC > userTCBalance)
         throw new Error(
             `Insufficient ${(settings.tokens.TC[caIndex] as TokenConfig).name} user balance`
         );
 
     // There are sufficient TC in the contracts to redeem?
-    const tcAvailableToRedeem = (
-        contractProtocolStatus.data
-    )[caIndex].getTCAvailableToRedeem;
+    const tcAvailableToRedeem =
+        contractProtocolStatus.data[caIndex].getTCAvailableToRedeem;
     if (qTC > tcAvailableToRedeem)
         throw new Error(
             `Insufficient ${(settings.tokens.TC[caIndex] as TokenConfig).name}available to redeem in contract`
         );
 
     // There are sufficient CA in the contract
-    const caBalance = (contractProtocolStatus.data)[
-        caIndex
-    ].getACBalance;
+    const caBalance = contractProtocolStatus.data[caIndex].getACBalance;
     if (limitAmount > caBalance)
         throw new Error(
             `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} in the contract. Balance: ${caBalance} ${(settings.tokens.CA[caIndex] as TokenConfig).name}`
@@ -216,8 +213,7 @@ const redeemTC = async (
     if (isRsk) {
         configParams.value = await getExecutionFee(
             publicClient,
-            (contractProtocolStatus.data)[caIndex]
-                .tcRedeemExecCost,
+            contractProtocolStatus.data[caIndex].tcRedeemExecCost,
             2
         );
     }
@@ -256,7 +252,8 @@ const mintTP = async (
     } = interfaceContext;
 
     const vendorAddress = (import.meta.env
-        .REACT_APP_ENVIRONMENT_VENDOR_ADDRESS || "0x0000000000000000000000000000000000000000") as `0x${string}`;
+        .REACT_APP_ENVIRONMENT_VENDOR_ADDRESS ||
+        "0x0000000000000000000000000000000000000000") as `0x${string}`;
 
     // Verifications
     if (!address) throw new Error("Address not found");
@@ -286,8 +283,7 @@ const mintTP = async (
             (settings.tokens.CA[caIndex] as TokenConfig).name
         } in your balance`
     );
-    const userReserveBalance = (userBalance.data).CA[caIndex]
-        .balance;
+    const userReserveBalance = userBalance.data.CA[caIndex].balance;
     if (limitAmount > userReserveBalance)
         throw new Error(
             `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} balance`
@@ -316,9 +312,8 @@ const mintTP = async (
      */
 
     // There are sufficient PEGGED in the contracts to mint?
-    const tpAvailableToMint = (
-        contractProtocolStatus.data
-    )[caIndex].getTPAvailableToMint[tpIndex];
+    const tpAvailableToMint =
+        contractProtocolStatus.data[caIndex].getTPAvailableToMint[tpIndex];
 
     if (qTP > tpAvailableToMint)
         throw new Error(
@@ -343,8 +338,7 @@ const mintTP = async (
     if (isRsk) {
         configParams.value = await getExecutionFee(
             publicClient,
-            (contractProtocolStatus.data)[caIndex]
-                .tpMintExecCost,
+            contractProtocolStatus.data[caIndex].tpMintExecCost,
             2
         );
     }
@@ -383,7 +377,8 @@ const redeemTP = async (
     } = interfaceContext;
 
     const vendorAddress = (import.meta.env
-        .REACT_APP_ENVIRONMENT_VENDOR_ADDRESS || "0x0000000000000000000000000000000000000000") as `0x${string}`;
+        .REACT_APP_ENVIRONMENT_VENDOR_ADDRESS ||
+        "0x0000000000000000000000000000000000000000") as `0x${string}`;
 
     // Verifications
     if (!address) throw new Error("Address not found");
@@ -410,8 +405,7 @@ const redeemTP = async (
     console.log(
         `Redeeming ${qTP} ${(settings.tokens.TP[tpIndex] as TokenConfig).name} ... getting approx: ${limitAmount} ${(settings.tokens.CA[caIndex] as TokenConfig).name}... `
     );
-    const userTPBalance = (userBalance.data).TP[caIndex][tpIndex]
-        .balance;
+    const userTPBalance = userBalance.data.TP[caIndex][tpIndex].balance;
     if (qTP > userTPBalance)
         throw new Error(
             `Insufficient ${(settings.tokens.TP[tpIndex] as TokenConfig).name}  user balance`
@@ -427,9 +421,7 @@ const redeemTP = async (
     //     );
 
     // There are sufficient CA in the contract
-    const caBalance = (contractProtocolStatus.data)[
-        caIndex
-    ].getACBalance;
+    const caBalance = contractProtocolStatus.data[caIndex].getACBalance;
     if (limitAmount > caBalance)
         throw new Error(
             `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} in the contract. Balance: ${caBalance} ${(settings.tokens.CA[caIndex] as TokenConfig).name}`
@@ -453,8 +445,7 @@ const redeemTP = async (
     if (isRsk) {
         configParams.value = await getExecutionFee(
             publicClient,
-            (contractProtocolStatus.data)[caIndex]
-                .tpRedeemExecCost,
+            contractProtocolStatus.data[caIndex].tpRedeemExecCost,
             4
         );
     }

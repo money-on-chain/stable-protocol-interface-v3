@@ -101,4 +101,3 @@ export default function LastStakeOperations(): React.ReactElement {
         </div>
     );
 }
-

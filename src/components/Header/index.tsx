@@ -66,11 +66,13 @@ export default function SectionHeader(): JSX.Element {
     const [displayOptions, setDisplayOptions] = useState<MenuOption[]>([]);
     const currentProject: string = settings.project;
     useEffect(() => {
-        const menuOptions: MenuOption[] = (menuOptionsData as RawMenuOption[]).map((option: RawMenuOption) => ({
+        const menuOptions: MenuOption[] = (
+            menuOptionsData as RawMenuOption[]
+        ).map((option: RawMenuOption) => ({
             ...option,
             name: () => t(option.nameKey), // Traducimos el nombre dinámicamente
         }));
-        
+
         const filteredOptions: MenuOption[] = menuOptions
             .filter(
                 (option: MenuOption) =>

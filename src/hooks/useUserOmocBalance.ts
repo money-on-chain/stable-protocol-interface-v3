@@ -4,7 +4,7 @@ import type {
     Address,
     CallRequest,
     DContracts,
-    MultiCallInput    
+    MultiCallInput,
 } from "../types/hooks";
 import type { UserOmocBalanceResult } from "../types/status";
 import { useMultiCall } from "./useMulticall";

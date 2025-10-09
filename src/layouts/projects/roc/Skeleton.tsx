@@ -88,8 +88,8 @@ export default function Skeleton(): JSX.Element {
 
     const readTpLegacyBalance = (): void => {
         if (!userBalance.data) return;
-        if (!userBalance.data.tpLegacy) return;        
-        const tpLegacyBalance = (userBalance.data).tpLegacy?.balance;
+        if (!userBalance.data.tpLegacy) return;
+        const tpLegacyBalance = userBalance.data.tpLegacy?.balance;
         if (!tpLegacyBalance) return;
         if (tpLegacyBalance > 0n) {
             setCanSwap(true);

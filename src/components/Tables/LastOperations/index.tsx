@@ -2,7 +2,13 @@ import "./Styles.scss";
 
 import { DownCircleOutlined, UpCircleOutlined } from "@ant-design/icons";
 import { Modal, Skeleton, Table } from "antd";
-import React, { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import React, {
+    Fragment,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+} from "react";
 import Moment from "react-moment";
 
 import { useWalletContext } from "../../../context/Wallet";
@@ -173,23 +179,23 @@ export default function LastOperations(props: LastOperationsProps) {
         .split('"')
         .join("");
     /*const timeSke = 1500;*/
-    
+
     // Ref to store timeout ID for cleanup
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-    
+
     let data: TableRowData[] = [];
     const received_row: TableRowData[] = [];
     let txList: OperationData[] = [];
-    
+
     const transactionsList = useCallback(() => {
         if (isConnected && blockNumber && address) {
             console.warn("Loading table…");
-            
+
             // Clear any existing timeout before setting a new one
             if (timeoutRef.current) {
                 clearTimeout(timeoutRef.current);
             }
-            
+
             timeoutRef.current = setTimeout(() => {
                 const baseUrl = `${import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS}operations/list/`;
                 const queryParams = new URLSearchParams({
@@ -243,7 +249,7 @@ export default function LastOperations(props: LastOperationsProps) {
         const interval = setInterval(() => {
             transactionsList();
         }, 20000);
-        
+
         return () => {
             clearInterval(interval);
             // Clear timeout on cleanup to prevent memory leaks
@@ -252,7 +258,7 @@ export default function LastOperations(props: LastOperationsProps) {
             }
         };
     }, [transactionsList]);
-    
+
     useEffect(() => {
         transactionsList();
     }, [transactionsList]);
@@ -358,9 +364,12 @@ export default function LastOperations(props: LastOperationsProps) {
                 },
             };
         } else if (row_operation["operation"] === "TPMint") {
-            const statusData = status === "executed" ? row_operation.executed : row_operation.params;
+            const statusData =
+                status === "executed"
+                    ? row_operation.executed
+                    : row_operation.params;
             let tp_index =
-                (statusData?.tpIndex_) ||
+                statusData?.tpIndex_ ||
                 (statusData as { tpIndex?: number })?.tpIndex;
             if (tp_index === undefined) tp_index = 0;
 
@@ -395,9 +404,12 @@ export default function LastOperations(props: LastOperationsProps) {
                 },
             };
         } else if (row_operation["operation"] === "TPRedeem") {
-            const statusData = status === "executed" ? row_operation.executed : row_operation.params;
+            const statusData =
+                status === "executed"
+                    ? row_operation.executed
+                    : row_operation.params;
             let tp_index =
-                (statusData?.tpIndex_) ||
+                statusData?.tpIndex_ ||
                 (statusData as { tpIndex?: number })?.tpIndex;
             if (tp_index === undefined) tp_index = 0;
 
@@ -486,7 +498,9 @@ export default function LastOperations(props: LastOperationsProps) {
             return undefined;
         }
     }
-    const getErrorMessage = (error: string | number | null | undefined): string => {
+    const getErrorMessage = (
+        error: string | number | null | undefined
+    ): string => {
         switch (error) {
             case "qAC below minimum required":
                 return `${settings.tokens.CA[0].name} ${t("operations.errors.qACBelow")} `;
@@ -617,14 +631,20 @@ export default function LastOperations(props: LastOperationsProps) {
                                         </div>
                                         <div className="table-amount">
                                             {(() => {
-                                                const exchangeToken = token.exchange.token as TokenConfig;
+                                                const exchangeToken = token
+                                                    .exchange
+                                                    .token as TokenConfig;
                                                 return (
                                                     <PrecisionNumbers
                                                         amount={BigInt(
-                                                            token.exchange.amount
+                                                            token.exchange
+                                                                .amount
                                                         )}
                                                         token={exchangeToken}
-                                                        decimals={exchangeToken.visibleDecimals ?? 2}
+                                                        decimals={
+                                                            exchangeToken.visibleDecimals ??
+                                                            2
+                                                        }
                                                         i18n={i18n}
                                                     />
                                                 );
@@ -665,13 +685,17 @@ export default function LastOperations(props: LastOperationsProps) {
                                             </div>
                                             <div className="lastOp__detail__amount">
                                                 {(() => {
-                                                    const receiveToken = token.receive.token as TokenConfig;
+                                                    const receiveToken = token
+                                                        .receive
+                                                        .token as TokenConfig;
                                                     return PrecisionNumbers({
                                                         amount: BigInt(
                                                             token.receive.amount
                                                         ),
                                                         token: receiveToken,
-                                                        decimals: receiveToken.visibleDecimals ?? 2,
+                                                        decimals:
+                                                            receiveToken.visibleDecimals ??
+                                                            2,
                                                         i18n: i18n,
                                                     });
                                                 })()}
@@ -789,7 +813,15 @@ export default function LastOperations(props: LastOperationsProps) {
                 ),
                 key: element.key,
                 info: "",
-                description: <RowDetailMobile detail={element.detail as unknown as Parameters<typeof RowDetailMobile>[0]['detail']} />,
+                description: (
+                    <RowDetailMobile
+                        detail={
+                            element.detail as unknown as Parameters<
+                                typeof RowDetailMobile
+                            >[0]["detail"]
+                        }
+                    />
+                ),
             } as TableRowData);
         });
     };

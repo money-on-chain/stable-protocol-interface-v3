@@ -205,7 +205,8 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
             <div className="layout-card-title">
                 <h1>{t("staking.withdraw.title")}</h1>
                 <div className="withdraw-header-balance">
-                    {userInfoStaking["totalPendingExpiration"] !== undefined && (
+                    {userInfoStaking["totalPendingExpiration"] !==
+                        undefined && (
                         <div className="withdraw-header-group">
                             <div className="withdraw-header-balance-number">
                                 {PrecisionNumbers({
@@ -225,7 +226,8 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
                             </div>
                         </div>
                     )}
-                    {userInfoStaking["totalAvailableToWithdraw"] !== undefined && (
+                    {userInfoStaking["totalAvailableToWithdraw"] !==
+                        undefined && (
                         <div className="withdraw-header-group">
                             <div className="withdraw-header-balance-number">
                                 {PrecisionNumbers({

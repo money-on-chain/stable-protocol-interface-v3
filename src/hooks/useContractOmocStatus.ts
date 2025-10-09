@@ -23,7 +23,6 @@ const onErrorProposal = (): MultiCallErrorResult => {
     return { value: null, canOperate: true };
 };
 
-
 /**
  * React hook that wraps useMultiCall3 to fetch contract status data.
  * Builds the call array with useMemo so it remains stable between renders.
@@ -31,10 +30,9 @@ const onErrorProposal = (): MultiCallErrorResult => {
 export function useContractOmocStatus(
     contracts?: DContracts,
     refetchInterval = 30_000
-): ContractStatusOmocResult {    
-
+): ContractStatusOmocResult {
     const callsRequests = useMemo(() => {
-        if (!contracts) return [];        
+        if (!contracts) return [];
 
         const callRequest: MultiCallInput[] = [];
 
@@ -211,34 +209,37 @@ export function useContractOmocStatus(
                 });
             }
             if (contracts.VotingMachine) {
-            // Proposals
-            for (let i = 0; i <= 10; i++) {                
-                callRequest.push({
-                    contract: contracts.VotingMachine,
-                    functionName: 'getProposalByIndex',
-                    args: [BigInt(i)],
-                    resultType: [
-                        { type: "address", name: "proposalAddress" },
-                        { type: "uint256", name: "votingRound" },
-                        { type: "uint256", name: "votes" },
-                        { type: "uint256", name: "expirationTimeStamp" },
-                    ],
-                    keys: ["votingmachine", "getProposalByIndex", Number(i)],
-                    onError: onErrorProposal
-                });
-                
-            }
+                // Proposals
+                for (let i = 0; i <= 10; i++) {
+                    callRequest.push({
+                        contract: contracts.VotingMachine,
+                        functionName: "getProposalByIndex",
+                        args: [BigInt(i)],
+                        resultType: [
+                            { type: "address", name: "proposalAddress" },
+                            { type: "uint256", name: "votingRound" },
+                            { type: "uint256", name: "votes" },
+                            { type: "uint256", name: "expirationTimeStamp" },
+                        ],
+                        keys: [
+                            "votingmachine",
+                            "getProposalByIndex",
+                            Number(i),
+                        ],
+                        onError: onErrorProposal,
+                    });
+                }
 
-            for (let i = 0; i <= 10; i++) {
-                callRequest.push({
-                    contract: contracts.VotingMachine,
-                    functionName: 'proposalsList',
-                    args: [BigInt(i)],
-                    resultType: "address",
-                    keys: ["votingmachine", "proposalsList", Number(i)],
-                    onError: onErrorProposal
-                });
-            }
+                for (let i = 0; i <= 10; i++) {
+                    callRequest.push({
+                        contract: contracts.VotingMachine,
+                        functionName: "proposalsList",
+                        args: [BigInt(i)],
+                        resultType: "address",
+                        keys: ["votingmachine", "proposalsList", Number(i)],
+                        onError: onErrorProposal,
+                    });
+                }
             }
 
             // OMOC REGISTRY CONSTANT
@@ -353,8 +354,8 @@ export function useContractOmocStatus(
             }
         }
 
-      return callRequest
-    }, [contracts])
+        return callRequest;
+    }, [contracts]);
 
     // Pass callsRequests into your multicall hook (safe: it's a hook calling a hook)
     const multicallState = useMultiCall(callsRequests, {

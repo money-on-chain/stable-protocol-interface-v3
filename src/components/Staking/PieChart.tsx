@@ -50,7 +50,13 @@ const PieChartComponent: React.FC<PieChartComponentProps> = (props) => {
             convertBigIntToNumber(totalAvailableToWithdraw) +
             convertBigIntToNumber(lockedInVoting)
         );
-    }, [tgBalance, stakedBalance, totalPendingExpiration, totalAvailableToWithdraw, lockedInVoting]);
+    }, [
+        tgBalance,
+        stakedBalance,
+        totalPendingExpiration,
+        totalAvailableToWithdraw,
+        lockedInVoting,
+    ]);
 
     const readData = useCallback((): void => {
         const total: number = getTotal();
@@ -110,7 +116,15 @@ const PieChartComponent: React.FC<PieChartComponentProps> = (props) => {
         // END TEST
         setData(_data);
         setTotal(total);
-    }, [t, getTotal, tgBalance, totalPendingExpiration, totalAvailableToWithdraw, stakedBalance, lockedInVoting]);
+    }, [
+        t,
+        getTotal,
+        tgBalance,
+        totalPendingExpiration,
+        totalAvailableToWithdraw,
+        stakedBalance,
+        lockedInVoting,
+    ]);
 
     useEffect(() => {
         readData();

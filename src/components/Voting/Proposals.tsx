@@ -103,47 +103,53 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         onValidateSubmitProposalCallback();
     }, [contractStatusOmoc.data, onValidateSubmitProposalCallback]);
 
-    const searchProposal = useCallback((proposalAddress: string): ProposalData => {
-        let proposal: ProposalData = {
-            id: 0,
-            changeContract: "",
-            votingRound: 0n,
-            votesPositive: 0n,
-            votesPositivePCT: 0n,
-            expirationTimeStampFormat: "",
-            expired: true,
-            canUnregister: false,
-            canRunStep: false,
-            canVote: false,
-        };
-        for (let i = 0; i < proposalsData.length; i++) {
-            if (
-                proposalsData[i].changeContract.toLowerCase() ===
-                proposalAddress.toLowerCase()
-            ) {
-                proposal = proposalsData[i];
-            }
-        }
-        return proposal;
-    }, [proposalsData]);
-
-    const refreshViewProposalData = useCallback((currentProposalsData: ProposalData[]): void => {
-        if (viewProposal.changeContract != null) {
-            let proposal: ProposalData | undefined;
-            for (let i = 0; i < currentProposalsData.length; i++) {
+    const searchProposal = useCallback(
+        (proposalAddress: string): ProposalData => {
+            let proposal: ProposalData = {
+                id: 0,
+                changeContract: "",
+                votingRound: 0n,
+                votesPositive: 0n,
+                votesPositivePCT: 0n,
+                expirationTimeStampFormat: "",
+                expired: true,
+                canUnregister: false,
+                canRunStep: false,
+                canVote: false,
+            };
+            for (let i = 0; i < proposalsData.length; i++) {
                 if (
-                    currentProposalsData[i].changeContract.toLowerCase() ===
-                    viewProposal.changeContract.toLowerCase()
+                    proposalsData[i].changeContract.toLowerCase() ===
+                    proposalAddress.toLowerCase()
                 ) {
-                    proposal = currentProposalsData[i];
-                    break;
+                    proposal = proposalsData[i];
                 }
             }
-            if (proposal) {
-                setViewProposal(proposal);
+            return proposal;
+        },
+        [proposalsData]
+    );
+
+    const refreshViewProposalData = useCallback(
+        (currentProposalsData: ProposalData[]): void => {
+            if (viewProposal.changeContract != null) {
+                let proposal: ProposalData | undefined;
+                for (let i = 0; i < currentProposalsData.length; i++) {
+                    if (
+                        currentProposalsData[i].changeContract.toLowerCase() ===
+                        viewProposal.changeContract.toLowerCase()
+                    ) {
+                        proposal = currentProposalsData[i];
+                        break;
+                    }
+                }
+                if (proposal) {
+                    setViewProposal(proposal);
+                }
             }
-        }
-    }, [viewProposal.changeContract]);
+        },
+        [viewProposal.changeContract]
+    );
 
     const refreshProposals = useCallback((): void => {
         const propData: ProposalData[] = [];
@@ -256,9 +262,9 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         return true;
     };
 
-
     const addProposal = (): void => {
-        const valid = onValidateAddressProposal() && onValidateSubmitProposalCallback();
+        const valid =
+            onValidateAddressProposal() && onValidateSubmitProposalCallback();
         if (valid) {
             onSendAddProposal()
                 .then((/*res*/) => {})
@@ -497,7 +503,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                         </React.Fragment>
                     ))}
                 {actionProposal === "VIEW_PROPOSAL" &&
-                    viewProposal.changeContract !== "" && 
+                    viewProposal.changeContract !== "" &&
                     "canVote" in viewProposal && (
                         <>
                             {/* <div className={'title'}>
@@ -510,7 +516,9 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                                     infoUser={infoUser}
                                     onBack={onBackToProposalList}
                                     onUnRegisterProposal={onUnRegisterProposal}
-                                    onRunPreVoteStep={() => void onRunPreVoteStep()}
+                                    onRunPreVoteStep={() =>
+                                        void onRunPreVoteStep()
+                                    }
                                 />
                             </div>
                         </>

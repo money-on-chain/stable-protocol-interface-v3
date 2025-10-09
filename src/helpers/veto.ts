@@ -13,7 +13,8 @@ export function tcLockedByVeto(
     userAddress: string
 ): { tcAddress: string; proposal: string; amount: bigint }[] {
     if (!userVeto || !contractStatusOmoc || !userAddress) return [];
-    if(!userVeto.vetoMachine || !userVeto.vetoMachine.getUserLockedAmount) return [];
+    if (!userVeto.vetoMachine || !userVeto.vetoMachine.getUserLockedAmount)
+        return [];
     const [winnerProposal] = contractStatusOmoc.votingmachine.getVotingData;
     const state = contractStatusOmoc.votingmachine.getState;
     let proposalOnGoing = "";

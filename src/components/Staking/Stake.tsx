@@ -109,7 +109,13 @@ const Stake = (props: StakeProps): JSX.Element => {
 
     useEffect(() => {
         onValidate();
-    }, [amountToStake, amountToUnstake, isUnstaking, userInfoStaking, onValidate]);
+    }, [
+        amountToStake,
+        amountToUnstake,
+        isUnstaking,
+        userInfoStaking,
+        onValidate,
+    ]);
 
     const onChangeCurrency = (/*newCurrency*/): void => {
         onClear();

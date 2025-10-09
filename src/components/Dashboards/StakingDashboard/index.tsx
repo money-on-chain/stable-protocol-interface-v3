@@ -30,8 +30,12 @@ const withdrawalStatus: WithdrawalStatus = {
 };
 
 const Dashboard = (): JSX.Element => {
-    const { contractProtocolStatus, userOmocBalance, userVesting, isVestingLoaded } =
-        useWalletContext();
+    const {
+        contractProtocolStatus,
+        userOmocBalance,
+        userVesting,
+        isVestingLoaded,
+    } = useWalletContext();
     const { t, i18n } = useProjectTranslation();
     //const [activeTab, setActiveTab] = useState("tab1");
     const [tgBalance, setTgBalance] = useState<bigint>(0n);
@@ -43,9 +47,8 @@ const Dashboard = (): JSX.Element => {
     const [totalAvailableToWithdraw, setTotalAvailableToWithdraw] =
         useState<bigint>(0n);
     //const [loading, setLoading] = useState(true);
-    
-    const setStakingBalances = useCallback((): void => {
 
+    const setStakingBalances = useCallback((): void => {
         //try {
         let [_stakedBalance, _pendingWithdrawals]: [
             bigint,
@@ -122,7 +125,12 @@ const Dashboard = (): JSX.Element => {
             //setLoading(false);
             setStakingBalances();
         }
-    }, [contractProtocolStatus.data, userOmocBalance.data, userVesting.data, setStakingBalances]);
+    }, [
+        contractProtocolStatus.data,
+        userOmocBalance.data,
+        userVesting.data,
+        setStakingBalances,
+    ]);
 
     return (
         <div className="layout-card section__innerCard--big dashboard-staking-info">

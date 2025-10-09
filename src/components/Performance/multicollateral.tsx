@@ -14,37 +14,37 @@ export default function MultiCollateral(): JSX.Element {
     let leverage = 0n;
     if (contractProtocolStatus.data) {
         const normalizationFactors =
-            (contractProtocolStatus.data).getNormalizationFactors;
-        
+            contractProtocolStatus.data.getNormalizationFactors;
+
         // Check if normalizationFactors exists and is an array
         if (!normalizationFactors || !Array.isArray(normalizationFactors)) {
             leverage = 0n;
         } else {
-        
-        let factor: bigint;
-        let bucketLckAC: bigint;
-        let bucketAC: bigint;
-        let tvl = 0n;
-        let lckAC = 0n;
-        for (
-            let caIndex = 0;
-            caIndex < normalizationFactors.length;
-            caIndex++
-        ) {
-            // Check if the required data exists before accessing it
-            if (!(contractProtocolStatus.data)?.[caIndex]) {
-                continue;
-            }
-            
-            factor = normalizationFactors[caIndex];
-            bucketLckAC = (contractProtocolStatus.data)[caIndex].getLckAC;
-            bucketAC = (contractProtocolStatus.data)[caIndex].getTotalACavailable;
+            let factor: bigint;
+            let bucketLckAC: bigint;
+            let bucketAC: bigint;
+            let tvl = 0n;
+            let lckAC = 0n;
+            for (
+                let caIndex = 0;
+                caIndex < normalizationFactors.length;
+                caIndex++
+            ) {
+                // Check if the required data exists before accessing it
+                if (!contractProtocolStatus.data?.[caIndex]) {
+                    continue;
+                }
 
-            //tvl += bucketAC * factor;
-            //lckAC += bucketLckAC * factor;
-            tvl = tvl + mulPrecision(bucketAC, factor);
-            lckAC = lckAC + mulPrecision(bucketLckAC, factor);
-        }
+                factor = normalizationFactors[caIndex];
+                bucketLckAC = contractProtocolStatus.data[caIndex].getLckAC;
+                bucketAC =
+                    contractProtocolStatus.data[caIndex].getTotalACavailable;
+
+                //tvl += bucketAC * factor;
+                //lckAC += bucketLckAC * factor;
+                tvl = tvl + mulPrecision(bucketAC, factor);
+                lckAC = lckAC + mulPrecision(bucketLckAC, factor);
+            }
 
             //leverage = tvl / (tvl - lckAC);
             // Prevent division by zero
@@ -67,11 +67,11 @@ export default function MultiCollateral(): JSX.Element {
                     </div>
                     <div className="info">
                         <div className="amount">
-                            {!(contractProtocolStatus.data)?.canOperate
+                            {!contractProtocolStatus.data?.canOperate
                                 ? "--"
                                 : PrecisionNumbers({
                                       amount: contractProtocolStatus.data
-                                          ? (contractProtocolStatus.data)
+                                          ? contractProtocolStatus.data
                                                 .getCombinedCglb
                                           : 0n,
                                       token: TokenSettings("CA_0"),
@@ -88,11 +88,11 @@ export default function MultiCollateral(): JSX.Element {
                     </div>
                     <div className="info">
                         <div className="amount">
-                            {!(contractProtocolStatus.data)?.canOperate
+                            {!contractProtocolStatus.data?.canOperate
                                 ? "--"
                                 : PrecisionNumbers({
                                       amount: contractProtocolStatus.data
-                                          ? (contractProtocolStatus.data)
+                                          ? contractProtocolStatus.data
                                                 .getCombinedCtargemaCA
                                           : 0n,
                                       token: settings.tokens.CA[0],
@@ -109,7 +109,7 @@ export default function MultiCollateral(): JSX.Element {
                     </div>
                     <div className="info">
                         <div className="amount">
-                            {!(contractProtocolStatus.data)?.canOperate
+                            {!contractProtocolStatus.data?.canOperate
                                 ? "--"
                                 : PrecisionNumbers({
                                       amount: leverage,

@@ -59,61 +59,57 @@ export default function VestingSchedule(): React.ReactElement {
                 formatTimestamp((Number(tgeTimestamp) + Number(x)) * 1000)
             );
         } else {
-            dates = deltas.map(
-                (x: bigint) => Number(x) / 60 / 60 / 24
-            );
+            dates = deltas.map((x: bigint) => Number(x) / 60 / 60 / 24);
         }
     }
 
     const tgeFormat = formatTimestamp(Number(tgeTimestamp) * 1000);
 
     percents.forEach(function (percent: bigint, itemIndex: number) {
-            let strTotal: bigint | undefined = undefined;
-            if (total && total !== 0n) {
-                strTotal = (percent * total) / percentMultiplier;
-            }
+        let strTotal: bigint | undefined = undefined;
+        if (total && total !== 0n) {
+            strTotal = (percent * total) / percentMultiplier;
+        }
 
-            const date_release = new Date(dates[itemIndex]);
-            const date_now = new Date();
-            const timeDifference = date_release.getTime() - date_now.getTime();
-            const dayLefts = Math.round(timeDifference / (1000 * 3600 * 24));
+        const date_release = new Date(dates[itemIndex]);
+        const date_now = new Date();
+        const timeDifference = date_release.getTime() - date_now.getTime();
+        const dayLefts = Math.round(timeDifference / (1000 * 3600 * 24));
 
-            if (!(tgeFormat === dates[itemIndex])) {
-                vestingData.push({
-                    key: itemIndex,
-                    renderRow: (
-                        <div className="renderRow">
-                            <div className="releaseDate">
-                                {new Date(dates[itemIndex]).toLocaleString(
-                                    i18n.language
-                                )}
-                            </div>
-                            <div className="daysToRelease">
-                                {dayLefts < 0 ? 0 : dayLefts}
-                            </div>
-                            <div className="percentage">{`${((Number(percent) / Number(percentMultiplier)) * 100).toFixed(2)}%`}</div>
-                            <div className="amount">
-                                {PrecisionNumbers({
-                                    amount: strTotal || 0n,
-                                    token: settings.tokens.TG[0],
-                                    decimals: Number(
-                                        t("staking.display_decimals")
-                                    ),
-                                    i18n: i18n,
-                                })}
-                            </div>
-                            <div className="status">
-                                {dayLefts > 0
-                                    ? "Vested"
-                                    : tgeFormat === dates[itemIndex]
-                                      ? "TGE"
-                                      : "Released"}
-                            </div>
+        if (!(tgeFormat === dates[itemIndex])) {
+            vestingData.push({
+                key: itemIndex,
+                renderRow: (
+                    <div className="renderRow">
+                        <div className="releaseDate">
+                            {new Date(dates[itemIndex]).toLocaleString(
+                                i18n.language
+                            )}
                         </div>
-                    ),
-                });
-            }
-        });
+                        <div className="daysToRelease">
+                            {dayLefts < 0 ? 0 : dayLefts}
+                        </div>
+                        <div className="percentage">{`${((Number(percent) / Number(percentMultiplier)) * 100).toFixed(2)}%`}</div>
+                        <div className="amount">
+                            {PrecisionNumbers({
+                                amount: strTotal || 0n,
+                                token: settings.tokens.TG[0],
+                                decimals: Number(t("staking.display_decimals")),
+                                i18n: i18n,
+                            })}
+                        </div>
+                        <div className="status">
+                            {dayLefts > 0
+                                ? "Vested"
+                                : tgeFormat === dates[itemIndex]
+                                  ? "TGE"
+                                  : "Released"}
+                        </div>
+                    </div>
+                ),
+            });
+        }
+    });
 
     return (
         <>
