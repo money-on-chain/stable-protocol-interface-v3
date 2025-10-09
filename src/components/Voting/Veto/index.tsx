@@ -49,6 +49,26 @@ interface InfoUserTC {
     votingPower: bigint;
 }
 
+const defaultInfoVoting: InfoVoting = {
+    VOTE_MIN_PCT_TO_VETO: 0n,
+    state: 0,
+    votingData: {
+        winnerProposal: "",
+        inFavorVotes: 0n,
+        againstVotes: 0n,
+        votingExpirationTime: 0n,
+        expired: true,
+        totalVoted: 0n,
+        inFavorVotesPCT: 0n,
+        againstVotesPCT: 0n,
+        totalVetoPCT: 0n,
+    },
+};
+
+const defaultInfoUser: InfoUser = {
+    InfoUserTC: [],
+};
+
 interface VotingMachineData {
     getState: bigint;
     VOTE_MIN_PCT_TO_VETO: bigint;
@@ -88,27 +108,7 @@ const Veto: React.FC = () => {
     const [txHash, setTxHash] = useState<string>("");
     const [operationStatus, setOperationStatus] = useState<string>("sign");
 
-    const nowTimestamp: bigint = BigInt(Date.now());
-    const defaultInfoVoting: InfoVoting = {
-        VOTE_MIN_PCT_TO_VETO: 0n,
-        state: 0,
-        votingData: {
-            winnerProposal: "",
-            inFavorVotes: 0n,
-            againstVotes: 0n,
-            votingExpirationTime: 0n,
-            expired: true,
-            totalVoted: 0n,
-            inFavorVotesPCT: 0n,
-            againstVotesPCT: 0n,
-            totalVetoPCT: 0n,
-        },
-    };
     const [infoVoting, setInfoVoting] = useState<InfoVoting>(defaultInfoVoting);
-
-    const defaultInfoUser: InfoUser = {
-        InfoUserTC: [],
-    };
     const [infoUser, setInfoUser] = useState<InfoUser>(defaultInfoUser);
     const defaultInfoUserTC: InfoUserTC = {
         index: 0,
@@ -127,7 +127,7 @@ const Veto: React.FC = () => {
         if (!userVeto.data) return;
         if (!userBalance.data) return;
 
-        const cData: InfoVoting = { ...infoVoting };
+        const cData: InfoVoting = { ...defaultInfoVoting };
         const votingMachine = contractStatusOmoc.data
             .votingmachine as VotingMachineData;
         cData["state"] = Number(votingMachine.getState);
@@ -148,6 +148,7 @@ const Veto: React.FC = () => {
             Number(cData["votingData"]["votingExpirationTime"] * 1000n)
         );
 
+        const nowTimestamp: bigint = BigInt(Date.now());
         let expired: boolean = true;
         if (cData["votingData"]["votingExpirationTime"] * 1000n > nowTimestamp)
             expired = false;
@@ -172,7 +173,7 @@ const Veto: React.FC = () => {
             vetoMachine.getVetoPctForWinnerProposal;
         setInfoVoting(cData);
 
-        const cDataUser: InfoUser = { ...infoUser };
+        const cDataUser: InfoUser = { ...defaultInfoUser };
         cDataUser["InfoUserTC"] = [];
 
         if (contractsAddress?.CollateralToken) {
@@ -186,7 +187,7 @@ const Veto: React.FC = () => {
                     balance: (
                         userBalance.data[index] as { TC: { balance: bigint } }
                     ).TC.balance,
-                    proposal: infoVoting.votingData["winnerProposal"],
+                    proposal: cData.votingData["winnerProposal"],
                     votingPower:
                         BigInt(
                             vetoData.vetoMachine.getVotingPower[tc.address]
@@ -202,9 +203,6 @@ const Veto: React.FC = () => {
         userVeto.data,
         userBalance.data,
         contractsAddress?.CollateralToken,
-        infoVoting,
-        infoUser,
-        nowTimestamp,
     ]);
 
     useEffect(() => {

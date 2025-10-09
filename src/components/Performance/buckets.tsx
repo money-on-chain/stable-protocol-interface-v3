@@ -23,10 +23,13 @@ export default function Buckets(props: BucketsProps): JSX.Element {
     let nACcb: bigint = 0n;
     let leverage: bigint = 0n;
 
-    if (contractProtocolStatus.data) {
+    if (contractProtocolStatus.data && (contractProtocolStatus.data)[caIndex] && (contractProtocolStatus.data)[caIndex].getLckAC && (contractProtocolStatus.data)[caIndex].nACcb) {
         lckAC = (contractProtocolStatus.data)[caIndex].getLckAC;
-        nACcb = (contractProtocolStatus.data)[caIndex].nACcb;
-        leverage = divPrecision(nACcb, nACcb - lckAC);
+        nACcb = (contractProtocolStatus.data)[caIndex].nACcb;        
+        // Prevent division by zero
+        if (nACcb - lckAC !== 0n) {
+            leverage = divPrecision(nACcb, nACcb - lckAC);
+        }
     }
 
     return (

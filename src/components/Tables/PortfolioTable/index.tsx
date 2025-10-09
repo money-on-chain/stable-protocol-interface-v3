@@ -147,7 +147,8 @@ export default function PortfolioTable() {
                             (contractProtocolStatus.data).PP_COINBASE?.[0]
                         ) || 0n;
                     priceDelta = price - priceHistory;
-                    variation = divPrecision(priceDelta, priceHistory);
+                    // Prevent division by zero - if priceHistory is 0, set variation to 0
+                    variation = priceHistory === 0n ? 0n : divPrecision(priceDelta, priceHistory);
 
                     break;
                 case "CA":
@@ -165,10 +166,10 @@ export default function PortfolioTable() {
                             token.key;
 
                         // Convert balance to BigNumber with correct decimal precision
-                        balance = (userBalance.data).CA[token.key || 0]?.balance || 0n;
+                        balance = (userBalance.data)?.CA?.[token.key || 0]?.balance || 0n;
                         price =
                             normalizeToBigInt(
-                                (contractProtocolStatus.data)[token.key || 0]
+                                (contractProtocolStatus.data)?.[token.key || 0]
                                     ?.PP_CA?.[0]
                             ) || 0n;
 
@@ -181,7 +182,8 @@ export default function PortfolioTable() {
                                     ?.PP_CA?.[0]
                             ) || 0n;
                         priceDelta = price - priceHistory;
-                        variation = divPrecision(priceDelta, priceHistory);
+                        // Prevent division by zero - if priceHistory is 0, set variation to 0
+                        variation = priceHistory === 0n ? 0n : divPrecision(priceDelta, priceHistory);
                     }
 
                     break;
@@ -196,7 +198,7 @@ export default function PortfolioTable() {
                         // CALCULATE TOKENS TP USD-Pegged Tokens DATA
 
                         balance =
-                            (userBalance.data).TP?.[0]?.[token.key || 0]?.balance ||
+                            (userBalance.data)?.TP?.[0]?.[token.key || 0]?.balance ||
                             0n;
 
                         price = 1n;
@@ -206,7 +208,8 @@ export default function PortfolioTable() {
                         // variation No more historic data
                         priceHistory = 1n;
                         priceDelta = price - priceHistory;
-                        variation = divPrecision(priceDelta, priceHistory);
+                        // Prevent division by zero - if priceHistory is 0, set variation to 0
+                        variation = priceHistory === 0n ? 0n : divPrecision(priceDelta, priceHistory);
 
                         // const variation = priceDelta
                         //     .abs()
@@ -215,7 +218,7 @@ export default function PortfolioTable() {
                     } else {
                         //CALCULATE TOKENS TP NON-USD-Pegged Tokens DATA
                         balance =
-                            (userBalance.data).TP?.[0]?.[token.key || 0]?.balance ||
+                            (userBalance.data)?.TP?.[0]?.[token.key || 0]?.balance ||
                             0n;
                         price =
                             normalizeToBigInt(
@@ -229,7 +232,13 @@ export default function PortfolioTable() {
                             token.key || 0,
                             price
                         );
-                        balanceUSD = divPrecision(balance, price);
+                        
+                        if (price > 0n) {
+                            balanceUSD = divPrecision(balance, price);
+                        } else {
+                            balanceUSD = 0n;
+                        }
+                        
 
                         //variation No more historic data
                         priceHistory =
@@ -245,7 +254,8 @@ export default function PortfolioTable() {
                             priceHistory
                         );
                         priceDelta = price - priceHistory;
-                        variation = mulPrecision(
+                        // Prevent division by zero - if priceHistory is 0, set variation to 0
+                        variation = priceHistory === 0n ? 0n : mulPrecision(
                             divPrecision(absBigInt(priceDelta), priceHistory),
                             100n
                         );
@@ -261,15 +271,15 @@ export default function PortfolioTable() {
                         "_" +
                         token.key;
 
-                    balance = (userBalance.data)[token.key || 0]?.TC?.balance || 0n;
+                    balance = (userBalance.data)?.[token.key || 0]?.TC?.balance || 0n;
 
                     priceTEC =
                         normalizeToBigInt(
-                            (contractProtocolStatus.data)[token.key || 0]?.getPTCac
+                            (contractProtocolStatus.data)?.[token.key || 0]?.getPTCac
                         ) || 0n;
                     priceCA =
                         normalizeToBigInt(
-                            (contractProtocolStatus.data)[token.key || 0]?.PP_CA?.[0]
+                            (contractProtocolStatus.data)?.[token.key || 0]?.PP_CA?.[0]
                         ) || 0n;
                     price = mulPrecision(priceTEC, priceCA);
                     balanceUSD = mulPrecision(balance, price);
@@ -277,7 +287,7 @@ export default function PortfolioTable() {
                     // variation
                     priceHistory =
                         normalizeToBigInt(
-                            (contractProtocolStatus.data)[token.key || 0]?.getPTCac
+                            (contractProtocolStatus.data)?.[token.key || 0]?.getPTCac
                         ) || 0n;
                     priceHistory = mulPrecision(priceHistory, priceCA);
 
@@ -312,7 +322,8 @@ export default function PortfolioTable() {
                             (contractProtocolStatus.data)[0]?.PP_FeeToken?.[0]
                         ) || 0n;
                     priceDelta = price - priceHistory;
-                    variation = mulPrecision(
+                    // Prevent division by zero - if priceHistory is 0, set variation to 0
+                    variation = priceHistory === 0n ? 0n : mulPrecision(
                         divPrecision(absBigInt(priceDelta), priceHistory),
                         100n
                     );

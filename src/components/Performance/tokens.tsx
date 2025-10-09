@@ -125,6 +125,13 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
         // TP rows
         settings.tokens.TP.forEach((dataItem) => {
             if (!contractProtocolStatus.data) return;
+            if (!contractProtocolStatus.data[caIndex]) return;
+            
+            // Check if the required data exists before accessing it
+            if (!(contractProtocolStatus.data)[caIndex].PP_TP?.[dataItem.key] || 
+                !(contractProtocolStatus.data)[caIndex].getRealTPAvailableToMint) {
+                return;
+            }
             
             let price =
                 normalizeToBigInt(

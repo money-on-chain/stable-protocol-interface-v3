@@ -119,6 +119,11 @@ const Voting: React.FC = () => {
         if (!contractStatusOmoc.data) return;
         if (!userOmocBalance.data) return;
         
+        // Check if votingmachine data exists before accessing it
+        if (!contractStatusOmoc.data.votingmachine) {
+            return;
+        }
+        
         // Calculate current timestamp inside the callback
         const nowTimestamp: bigint = BigInt(Date.now());
         

@@ -78,6 +78,11 @@ export default function Skeleton(): JSX.Element {
 
         const statusData = contractStatusOmoc.data;
         
+        // Check if votingmachine data exists before accessing it
+        if (!statusData.votingmachine || !statusData.votingmachine.getVotingData) {
+            return;
+        }
+        
         if (
             isSomeTCLockedByVeto(
                 userVeto.data as { vetoMachine: { getUserLockedAmount: Record<string, Record<string, bigint>>; }; },

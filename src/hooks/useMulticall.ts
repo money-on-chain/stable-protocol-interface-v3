@@ -81,6 +81,11 @@ export function useMultiCall(
     // Step 1: Convert call definitions into wagmi-compatible format
     // Memoize to prevent unnecessary re-renders and refetches
     // Note: We rely on parent hooks to provide stable 'calls' arrays via their own useMemo
+    // Track both length and a hash of call signatures to detect meaningful changes
+    const callsSignature = useMemo(() => {
+        return calls.map(c => `${typeof c.contract === 'string' ? c.contract : c.contract.address}:${c.functionName}`).join('|');
+    }, [calls]);
+
     const contracts = useMemo(() => {
         if (calls.length === 0) return [];
         
@@ -115,7 +120,7 @@ export function useMultiCall(
             );
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [calls.length]);
+    }, [calls.length, callsSignature]);
 
     // Memoize external data - parent should provide stable reference
     const memoizedExternalData = externalData;
@@ -142,16 +147,45 @@ export function useMultiCall(
     // Log only when data actually changes (fetches), not on every render
     const prevResultsRef = useRef<typeof results>();
     useEffect(() => {
-        if (results !== prevResultsRef.current && results !== undefined) {
-            console.log(`[Multicall Fetch] ${scopeKey || 'unknown'} - ${new Date().toLocaleTimeString()}`);
+        if (results !== prevResultsRef.current) {
+            if (results !== undefined) {
+                console.log(`[Multicall Fetch] ${scopeKey || 'unknown'} - ${results.length} results - ${new Date().toLocaleTimeString()}`);
+            } else {
+                console.log(`[Multicall Loading] ${scopeKey || 'unknown'} - ${calls.length} calls pending - ${new Date().toLocaleTimeString()}`);
+            }
             prevResultsRef.current = results;
         }
-    }, [results, scopeKey]);
+    }, [results, scopeKey, calls.length]);
 
     // Step 3: Structure result into a nested dictionary, with optional transforms
     let storage: Record<string | number, unknown> | undefined = {};
     let canOperate = true;
-    results?.forEach((item, i) => {
+    
+    // Handle different result states
+    if (!results || results.length === 0) {
+        // No results yet - this is normal during initial load or when calls are empty
+        if (calls.length > 0) {
+            // We have calls but no results - this is expected during loading
+            // Don't log this as it's normal behavior
+        }
+    } else if (results.length !== calls.length) {
+        // Length mismatch - this can happen with stale cached results
+        console.warn(
+            `[Multicall] Length mismatch for ${scopeKey || 'unknown'}: results=${results.length}, calls=${calls.length}. Using available data.`
+        );
+    }
+    
+    // Only process results that have corresponding calls
+    const safeLength = Math.min(results?.length || 0, calls.length);
+    results?.slice(0, safeLength).forEach((item, i) => {
+        // Safety check: ensure calls[i] exists (should always be true now)
+        if (!calls[i]) {
+            console.warn(
+                `Multicall: results[${i}] exists but calls[${i}] is undefined. Skipping.`
+            );
+            return;
+        }
+
         const { resultType, keys, transform, onError } = calls[i];
 
         let value: unknown;
@@ -200,10 +234,15 @@ export function useMultiCall(
         }
     });
 
+    // Set canOperate flag and handle empty results
     if (results && results.length > 0) {
         storage["canOperate"] = canOperate;
-    } else {
+    } else if (calls.length > 0) {
+        // We have calls but no results yet - return undefined to indicate loading
         storage = undefined;
+    } else {
+        // No calls at all - return empty object
+        storage = { canOperate: true };
     }
 
     // merge with external data

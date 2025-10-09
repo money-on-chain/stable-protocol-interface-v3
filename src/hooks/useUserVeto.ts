@@ -14,11 +14,11 @@ let lastVotingPowerErrorLog = 0;
 const ERROR_LOG_THROTTLE = 30_000; // Log at most once every 30 seconds
 
 const onErrorProposal = (): MultiCallErrorResult => {
-    const now = Date.now();
+    /*const now = Date.now();
     if (now - lastProposalErrorLog > ERROR_LOG_THROTTLE) {
         console.warn("Proposal not exist");
         lastProposalErrorLog = now;
-    }
+    }*/
     return { value: null, canOperate: true };
 };
 

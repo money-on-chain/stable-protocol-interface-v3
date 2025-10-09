@@ -156,8 +156,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const contractStatusOmoc = useContractOmocStatus(
         contractsAddressLoaded && contractsAddress
             ? contractsAddress
-            : undefined,
-        proposalCount.data,
+            : undefined,        
         REFRESH_INTERVAL_CONTRACT_STATUS_OMOC
     );
 

@@ -15,6 +15,12 @@ export default function MultiCollateral(): JSX.Element {
     if (contractProtocolStatus.data) {
         const normalizationFactors =
             (contractProtocolStatus.data).getNormalizationFactors;
+        
+        // Check if normalizationFactors exists and is an array
+        if (!normalizationFactors || !Array.isArray(normalizationFactors)) {
+            leverage = 0n;
+        } else {
+        
         let factor: bigint;
         let bucketLckAC: bigint;
         let bucketAC: bigint;
@@ -25,6 +31,11 @@ export default function MultiCollateral(): JSX.Element {
             caIndex < normalizationFactors.length;
             caIndex++
         ) {
+            // Check if the required data exists before accessing it
+            if (!(contractProtocolStatus.data)?.[caIndex]) {
+                continue;
+            }
+            
             factor = normalizationFactors[caIndex];
             bucketLckAC = (contractProtocolStatus.data)[caIndex].getLckAC;
             bucketAC = (contractProtocolStatus.data)[caIndex].getTotalACavailable;
@@ -35,8 +46,12 @@ export default function MultiCollateral(): JSX.Element {
             lckAC = lckAC + mulPrecision(bucketLckAC, factor);
         }
 
-        //leverage = tvl / (tvl - lckAC);
-        leverage = divPrecision(tvl, tvl - lckAC);
+            //leverage = tvl / (tvl - lckAC);
+            // Prevent division by zero
+            if (tvl - lckAC !== 0n) {
+                leverage = divPrecision(tvl, tvl - lckAC);
+            }
+        }
     }
 
     return (

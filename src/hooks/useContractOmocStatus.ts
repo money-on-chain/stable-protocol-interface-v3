@@ -15,20 +15,14 @@ let lastProposalErrorLog = 0;
 const ERROR_LOG_THROTTLE = 30_000; // Log at most once every 30 seconds
 
 const onErrorProposal = (): MultiCallErrorResult => {
-    const now = Date.now();
+    /*const now = Date.now();
     if (now - lastProposalErrorLog > ERROR_LOG_THROTTLE) {
         console.warn("Proposal not exist");
         lastProposalErrorLog = now;
-    }
+    }*/
     return { value: null, canOperate: true };
 };
 
-interface ProposalCountResult {
-    votingMachine?: {
-        getProposalCount?: string | number | bigint;
-        getProposalsLength?: string | number | bigint;
-    };
-}
 
 /**
  * React hook that wraps useMultiCall3 to fetch contract status data.
@@ -36,21 +30,11 @@ interface ProposalCountResult {
  */
 export function useContractOmocStatus(
     contracts?: DContracts,
-    proposalCount?: ProposalCountResult,
     refetchInterval = 30_000
-): ContractStatusOmocResult {
-    // Extract stable primitive values for memoization
-    const preProposalsCount = proposalCount?.votingMachine?.getProposalCount;
-    const proposalsListLength = proposalCount?.votingMachine?.getProposalsLength;
+): ContractStatusOmocResult {    
 
     const callsRequests = useMemo(() => {
-        if (!contracts) return [];
-        let preProposalsLength = 0n;  
-        let proposalsLength = 0n;
-        if (preProposalsCount !== undefined && proposalsListLength !== undefined) {
-            preProposalsLength = BigInt(preProposalsCount);
-            proposalsLength = BigInt(proposalsListLength);
-        }
+        if (!contracts) return [];        
 
         const callRequest: MultiCallInput[] = [];
 
@@ -228,38 +212,32 @@ export function useContractOmocStatus(
             }
             if (contracts.VotingMachine) {
             // Proposals
-            let indexProp;
-            for (let i = 1; i < 30; i++) {
-                if (preProposalsLength - BigInt(i) >= 0) {
-                    indexProp = preProposalsLength - BigInt(i);
-                    callRequest.push({
-                        contract: contracts.VotingMachine,
-                        functionName: 'getProposalByIndex',
-                        args: [indexProp],
-                        resultType: [
-                            { type: "address", name: "proposalAddress" },
-                            { type: "uint256", name: "votingRound" },
-                            { type: "uint256", name: "votes" },
-                            { type: "uint256", name: "expirationTimeStamp" },
-                        ],
-                        keys: ["votingmachine", "getProposalByIndex", Number(indexProp)],
-                        onError: onErrorProposal
-                    });
-                }
+            for (let i = 0; i <= 10; i++) {                
+                callRequest.push({
+                    contract: contracts.VotingMachine,
+                    functionName: 'getProposalByIndex',
+                    args: [BigInt(i)],
+                    resultType: [
+                        { type: "address", name: "proposalAddress" },
+                        { type: "uint256", name: "votingRound" },
+                        { type: "uint256", name: "votes" },
+                        { type: "uint256", name: "expirationTimeStamp" },
+                    ],
+                    keys: ["votingmachine", "getProposalByIndex", Number(i)],
+                    onError: onErrorProposal
+                });
+                
             }
 
-            for (let i = 1; i < 30; i++) {
-                if (proposalsLength - BigInt(i) >= 0) {
-                    indexProp = proposalsLength - BigInt(i);
-                    callRequest.push({
-                        contract: contracts.VotingMachine,
-                        functionName: 'proposalsList',
-                        args: [indexProp],
-                        resultType: "address",
-                        keys: ["votingmachine", "proposalsList", Number(indexProp)],
-                        onError: onErrorProposal
-                    });
-                }
+            for (let i = 0; i <= 10; i++) {
+                callRequest.push({
+                    contract: contracts.VotingMachine,
+                    functionName: 'proposalsList',
+                    args: [BigInt(i)],
+                    resultType: "address",
+                    keys: ["votingmachine", "proposalsList", Number(i)],
+                    onError: onErrorProposal
+                });
             }
             }
 
@@ -376,7 +354,7 @@ export function useContractOmocStatus(
         }
 
       return callRequest
-    }, [contracts, preProposalsCount, proposalsListLength])
+    }, [contracts])
 
     // Pass callsRequests into your multicall hook (safe: it's a hook calling a hook)
     const multicallState = useMultiCall(callsRequests, {

@@ -29,6 +29,12 @@ export default function Portfolio(): JSX.Element {
     ) {
         settings.tokens.CA.forEach(function (dataItem: TokenConfig) {
             if (!dataItem.key) {/*console.error("CA dataItem.key is undefined");*/ return};
+            
+            // Check if the required data exists before accessing it
+            if (!userBalance.data?.CA?.[dataItem.key] || !contractProtocolStatus.data?.[dataItem.key]) {
+                return;
+            }
+            
             ////////////////
             // Tokens CA
             ///////////////
@@ -64,6 +70,12 @@ export default function Portfolio(): JSX.Element {
         //////////////
         settings.tokens.TP.forEach(function (dataItem: TokenConfig) {
             if (!dataItem.key) {/*console.error("TP dataItem.key is undefined");*/ return};
+            
+            // Check if the required data exists before accessing it
+            if (!userBalance.data?.TP?.[0]?.[dataItem.key] || !contractProtocolStatus.data?.[0]?.PP_TP?.[dataItem.key]) {
+                return;
+            }
+            
             balance = (userBalance.data).TP[0][dataItem.key].balance;
             price = dataItem.peggedUSD
                 ? 1n
@@ -79,21 +91,24 @@ export default function Portfolio(): JSX.Element {
         //////////////
         balance = userBaseCoinBalance.balance || 0n;
         price =
-            normalizeToBigInt((contractProtocolStatus.data).PP_COINBASE[0]) || 0n;
+            normalizeToBigInt((contractProtocolStatus.data)?.PP_COINBASE?.[0]) || 0n;
         balanceUSD = mulPrecision(balance, price);
         totalUSD = totalUSD + balanceUSD;
 
         /////////////////
         // Fee Token (TF) the price provider is expressed in collateral
         ////////////////
-        balance = (userBalance.data)[0].FeeToken.balance;
-        const priceCA_0: bigint =
-            normalizeToBigInt((contractProtocolStatus.data)[0].PP_CA[0]) || 0n;
-        const priceInCA: bigint =
-            normalizeToBigInt((contractProtocolStatus.data)[0].PP_FeeToken[0]) ||
-            0n;
-        balanceUSD = mulPrecision(mulPrecision(balance, priceInCA), priceCA_0);
-        totalUSD = totalUSD + balanceUSD;
+        // Check if the required data exists before accessing it
+        if (userBalance.data?.[0]?.FeeToken && contractProtocolStatus.data?.[0]?.PP_CA && contractProtocolStatus.data?.[0]?.PP_FeeToken) {
+            balance = (userBalance.data)[0].FeeToken.balance;
+            const priceCA_0: bigint =
+                normalizeToBigInt((contractProtocolStatus.data)[0].PP_CA[0]) || 0n;
+            const priceInCA: bigint =
+                normalizeToBigInt((contractProtocolStatus.data)[0].PP_FeeToken[0]) ||
+                0n;
+            balanceUSD = mulPrecision(mulPrecision(balance, priceInCA), priceCA_0);
+            totalUSD = totalUSD + balanceUSD;
+        }
     }
 
     return (

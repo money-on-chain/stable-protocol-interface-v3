@@ -160,7 +160,7 @@ export default function SectionHeader(): JSX.Element {
                         </a>
                     ))}
                     {moreMenuOptions.length > 0 && (
-                        <a
+                        <div
                             onClick={() =>
                                 setShowMoreDropdown(!showMoreDropdown)
                             }
@@ -194,7 +194,7 @@ export default function SectionHeader(): JSX.Element {
                                     )}
                                 </div>
                             )}
-                        </a>
+                        </div>
                     )}
                 </div>
                 <div className="wallet-user">

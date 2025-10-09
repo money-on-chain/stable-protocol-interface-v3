@@ -77,6 +77,12 @@ const VetoWithdraw: React.FC = () => {
 
         // Convert getState from bigint to number for the helper function
         const statusData = contractStatusOmoc.data;
+        
+        // Check if votingmachine data exists before accessing it
+        if (!statusData.votingmachine || !statusData.votingmachine.getVotingData) {
+            return;
+        }
+        
         const lockedByVeto = tcLockedByVeto(
             userVeto.data as { vetoMachine: { getUserLockedAmount: Record<string, Record<string, bigint>>; }; },
             {

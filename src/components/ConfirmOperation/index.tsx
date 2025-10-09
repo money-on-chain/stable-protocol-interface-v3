@@ -308,11 +308,16 @@ export default function ConfirmOperation(
     }, [opID, caIndex, userBalance]);
 
     useEffect(() => {
+        // Only poll if we have an opID and are in a state that requires polling
+        if (!opID || (status !== "QUEUED" && status !== "QUEUING")) {
+            return;
+        }
+
         const interval: NodeJS.Timeout = setInterval(() => {
             opStatus();
         }, 5000);
         return () => clearInterval(interval);
-    }, [opStatus]);
+    }, [opStatus, opID, status]);
 
     const onHideModalAllowance = (): void => {
         setShowModalAllowance(false);
