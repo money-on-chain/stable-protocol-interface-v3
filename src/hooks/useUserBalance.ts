@@ -167,11 +167,14 @@ export function useUserBalance(
             });
         }
 
-        // ---- Voting app special-case (usa el primer CollateralToken)
+        // ---- Voting app special-case (uses the first CollateralToken)
         if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting") {
             const firstCT = Array.isArray(contracts.CollateralToken)
                 ? contracts.CollateralToken[0]
                 : undefined;
+            const mocAddress = import.meta.env.REACT_APP_CONTRACT_VETO_MOC as
+            | Address
+            | undefined;
             if (firstCT) {
                 calls.push({
                     contract: firstCT,
@@ -184,7 +187,7 @@ export function useUserBalance(
                 calls.push({
                     contract: firstCT,
                     functionName: "allowance",
-                    args: [userAddress, contracts.Moc![0].address],
+                    args: [userAddress, mocAddress],
                     resultType: "uint256",
                     keys: [0, "TC", "allowance"],
                 });

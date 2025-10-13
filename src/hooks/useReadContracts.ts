@@ -338,7 +338,7 @@ const readContracts = async (
 
     // Single collateral (voting project) convenience
     if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting") {
-        const tcAddress = import.meta.env.REACT_APP_CONTRACT_TC as
+        const tcAddress = import.meta.env.REACT_APP_CONTRACT_VETO_TC as
             | Address
             | undefined;
         if (tcAddress) {

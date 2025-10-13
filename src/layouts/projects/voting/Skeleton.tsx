@@ -1,5 +1,5 @@
 import { Layout } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useChainId } from "wagmi";
 
@@ -8,6 +8,7 @@ import SectionHeader from "../../../components/Header";
 import { NetworkGuard } from "../../../components/NetworkGuard";
 import NotConnected from "../../../components/NotConnected";
 import NotificationBody from "../../../components/Notification";
+import UpdateToast from "../../../components/UpdateToast";
 import { useWalletContext } from "../../../context/Wallet";
 import { CheckStatusGlobal } from "../../../helpers/checkStatus";
 import { useProjectTranslation } from "../../../helpers/translations";
@@ -17,7 +18,6 @@ import { ALLOWED_CHAIN } from "../../../wagmiConfig";
 const { Content, Footer } = Layout;
 
 // Type definitions
-
 interface NotificationStatus {
     id: number;
     title: string;
@@ -26,23 +26,26 @@ interface NotificationStatus {
     iconLeft: string;
     isDismisable: boolean;
     dismissTime: number;
-    button?: { class: string; label: string; onClick: () => void };
+    button?: {
+        class: string;
+        label: string;
+        onClick: () => void;
+    };
 }
 export default function Skeleton(): JSX.Element {
     const { t } = useProjectTranslation();
+
     const {
         isConnected,
         contractProtocolStatus,
         userBalance,
         userOmocBalance,
-        userVeto,
         contractStatusOmoc,
+        userVeto,
         address,
     } = useWalletContext();
-    const navigate = useNavigate();
     const chainId = useChainId();
     const isWrongNetwork = isConnected && chainId !== ALLOWED_CHAIN.id;
-
     const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(
         null
     );
@@ -50,32 +53,11 @@ export default function Skeleton(): JSX.Element {
         null
     );
     const { checkerStatus } = CheckStatusGlobal();
+    const navigate = useNavigate();
 
-    useEffect(() => {
-        if (
-            contractProtocolStatus.data &&
-            userBalance.data &&
-            userOmocBalance.data &&
-            !isWrongNetwork
-        ) {
-            readProtocolStatus();
-        }
-        if (userVeto.data && contractStatusOmoc.data && address) {
-            readWithdrawStatus();
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [
-        contractProtocolStatus.data,
-        userBalance.data,
-        userOmocBalance.data,
-        userVeto.data,
-        contractStatusOmoc.data,
-        address,
-        isWrongNetwork,
-    ]);
-
-    const readProtocolStatus = (): void => {
+    const readProtocolStatus = useCallback((): void => {
         const { globalStatus, statusLabel, statusText } = checkerStatus();
+
         if (globalStatus > 1) {
             setNotifStatus({
                 id: -1,
@@ -89,13 +71,37 @@ export default function Skeleton(): JSX.Element {
         } else {
             setNotifStatus(null);
         }
-    };
+    }, [checkerStatus]);
 
-    const readWithdrawStatus = (): void => {
+    const readWithdrawStatus = useCallback((): void => {
+        if (!userVeto.data || !contractStatusOmoc.data || !address) return;
+
+        const statusData = contractStatusOmoc.data;
+
+        // Check if votingmachine data exists before accessing it
+        if (
+            !statusData.votingmachine ||
+            !statusData.votingmachine.getVotingData
+        ) {
+            return;
+        }
+
         if (
             isSomeTCLockedByVeto(
-                userVeto.data,
-                contractStatusOmoc.data,
+                userVeto.data as {
+                    vetoMachine: {
+                        getUserLockedAmount: Record<
+                            string,
+                            Record<string, bigint>
+                        >;
+                    };
+                },
+                {
+                    votingmachine: {
+                        getVotingData: statusData.votingmachine.getVotingData,
+                        getState: Number(statusData.votingmachine.getState),
+                    },
+                },
                 address
             )
         ) {
@@ -118,7 +124,30 @@ export default function Skeleton(): JSX.Element {
         } else {
             setVetoWithdraw(null);
         }
-    };
+    }, [userVeto.data, contractStatusOmoc.data, address, t, navigate]);
+
+    useEffect(() => {
+        if (
+            contractProtocolStatus.data &&
+            userBalance.data &&
+            userOmocBalance.data &&
+            !isWrongNetwork
+        ) {
+            readProtocolStatus();
+        }
+        if (userVeto.data && contractStatusOmoc.data && address) {
+            readWithdrawStatus();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [
+        contractProtocolStatus.data,
+        userBalance.data,
+        userOmocBalance.data,
+        contractStatusOmoc.data,
+        userVeto.data,
+        address,
+        isWrongNetwork,
+    ]);
 
     return (
         <Layout>
@@ -126,6 +155,7 @@ export default function Skeleton(): JSX.Element {
             <SectionHeader />
             <Content>
                 <NetworkGuard />
+                <UpdateToast />
                 {notifStatus && <NotificationBody notifStatus={notifStatus} />}
                 {vetoWithdraw && (
                     <NotificationBody notifStatus={vetoWithdraw} />

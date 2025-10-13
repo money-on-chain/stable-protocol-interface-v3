@@ -745,7 +745,7 @@ const Vesting: React.FC = () => {
                                 <div className="tx-amount-container">
                                     <div className="vesting-wallet-claim-amount tx-amount-data">
                                         {PrecisionNumbers({
-                                            amount: !userOmocBalance.data
+                                            amount: !userOmocBalance.data || !userOmocBalance.data.incentiveV2.userBalance
                                                 ? 0n
                                                 : userOmocBalance.data
                                                       .incentiveV2.userBalance,
@@ -940,6 +940,7 @@ const Vesting: React.FC = () => {
                             <h1>{t("vesting.cardTitle")}</h1>
                             <div id="vesting-verification">
                                 {userVesting.data &&
+                                    userVesting.data.vestingmachine &&
                                     userVesting.data.vestingmachine
                                         .isVerified &&
                                     isHolderVesting && (
@@ -963,6 +964,7 @@ const Vesting: React.FC = () => {
                                     </div>
                                 )}
                                 {userVesting.data &&
+                                    userVesting.data.vestingmachine &&
                                     !userVesting.data.vestingmachine
                                         .isVerified &&
                                     isHolderVesting && (
@@ -991,7 +993,7 @@ const Vesting: React.FC = () => {
                                     className="vesting__data"
                                 >
                                     {PrecisionNumbers({
-                                        amount: !userVesting.data
+                                        amount: !userVesting.data || !userVesting.data.vestingmachine
                                             ? 0n
                                             : userVesting.data.vestingmachine
                                                   .getAvailable,
@@ -1028,7 +1030,7 @@ const Vesting: React.FC = () => {
                                 className="vesting__data"
                             >
                                 {PrecisionNumbers({
-                                    amount: !userVesting.data
+                                    amount: !userVesting.data || !userVesting.data.vestingmachine
                                         ? 0n
                                         : vestingTotals["vested"],
                                     token: settings.tokens.TG[0],
@@ -1060,7 +1062,7 @@ const Vesting: React.FC = () => {
                                 className="vesting__data"
                             >
                                 {PrecisionNumbers({
-                                    amount: !userVesting.data
+                                    amount: !userVesting.data || !userVesting.data.vestingmachine
                                         ? 0n
                                         : userVesting.data.vestingmachine
                                               .staking.balance,
@@ -1082,7 +1084,7 @@ const Vesting: React.FC = () => {
                                 className="vesting__data"
                             >
                                 {PrecisionNumbers({
-                                    amount: !userVesting.data
+                                    amount: !userVesting.data || !userVesting.data.vestingmachine
                                         ? 0n
                                         : userVesting.data.vestingmachine.delay
                                               .getBalance,
@@ -1110,7 +1112,7 @@ const Vesting: React.FC = () => {
                         <div id="moc-total">
                             <div className="total-data">
                                 {PrecisionNumbers({
-                                    amount: !userVesting.data
+                                    amount: !userVesting.data || !userVesting.data.vestingmachine
                                         ? 0n
                                         : userVesting.data.vestingmachine
                                               .getTotal,

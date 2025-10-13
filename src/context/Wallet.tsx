@@ -63,7 +63,6 @@ import { useContractProtocolStatus } from "../hooks/useContractProtocolStatus";
 import { useIncentiveV2 } from "../hooks/useIncentiveV2";
 import { useLatestBlockNumber } from "../hooks/useLatestBlockNumber";
 import { useOffchainPrices } from "../hooks/useOffchainPrices";
-import { useProposalCount } from "../hooks/useProposalCount";
 import { readContracts } from "../hooks/useReadContracts";
 import { useUserBalance } from "../hooks/useUserBalance";
 import { useUserOmocBalance } from "../hooks/useUserOmocBalance";
@@ -145,14 +144,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         (offChainPrices as ParsedPrices[]) ?? undefined,
         REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS
     );
-
-    const proposalCount = useProposalCount(
-        contractsAddressLoaded && contractsAddress
-            ? contractsAddress
-            : undefined,
-        120_000
-    );
-
+    
     const contractStatusOmoc = useContractOmocStatus(
         contractsAddressLoaded && contractsAddress
             ? contractsAddress
@@ -772,7 +764,6 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 userBalance,
                 blockNumber,
                 offChainPrices,
-                proposalCount,
                 userBaseCoinBalance,
                 vestingAddress,
                 publicClient,
