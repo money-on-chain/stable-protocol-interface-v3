@@ -275,8 +275,8 @@ const Voting: React.FC = () => {
         const uBalance: bigint = vUsing.getBalance;
 
         const [lockedAmount, untilTimestamp] = vUsing.getLockingInfo;
-
-        if (untilTimestamp > nowTimestamp) {
+        
+        if (untilTimestamp * 1000n > nowTimestamp) {            
             cDataUser["Voting_Power"] = uBalance - lockedAmount;
         } else {
             cDataUser["Voting_Power"] = uBalance;
