@@ -275,7 +275,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     /* VESTING */
 
     const setVestingMachine = useCallback((vAddress: string): void => {
-        setVestingAddress(vAddress);
+        setVestingAddress(vAddress === "" ? undefined : vAddress);
         // Note: userVesting will automatically refetch when vestingAddress changes
         // due to its dependency on userVestingAddress in the useMemo hook
     }, []);
