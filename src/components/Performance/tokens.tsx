@@ -5,6 +5,7 @@ import { ConvertPeggedTokenPrice } from "../../helpers/currencies";
 import { mulPrecision, normalizeToBigInt } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings/settings.json";
+import type { TokenConfig } from "../../types/hooks";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 
 // Type definitions
@@ -106,7 +107,9 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                 : PrecisionNumbers({
                       amount: contractProtocolStatus.data[caIndex].nTCcb,
                       token: settings.tokens.TC[caIndex],
-                      decimals: settings.tokens.CA[caIndex].visibleDecimals,
+                      decimals:
+                          (settings.tokens.CA as TokenConfig[])[caIndex]
+                              ?.visibleDecimals || 6,
                       i18n,
                   }),
             mintable: "No limit",
@@ -116,7 +119,9 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                       amount: contractProtocolStatus.data[caIndex]
                           .getRealTCAvailableToRedeem,
                       token: settings.tokens.TC[caIndex],
-                      decimals: settings.tokens.CA[caIndex].visibleDecimals,
+                      decimals:
+                          (settings.tokens.CA as TokenConfig[])[caIndex]
+                              ?.visibleDecimals || 6,
                       i18n,
                   }),
             coverage: <div className="item-usd">--</div>,
@@ -190,7 +195,8 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                           amount: price,
                           token: settings.tokens.TP[dataItem.key],
                           decimals:
-                              settings.tokens.TP[dataItem.key].visiblePriceUSD,
+                              settings.tokens.TP[dataItem.key]
+                                  .visiblePriceDecimals,
                           i18n,
                       }),
                 ema: !contractProtocolStatus.data.canOperate
@@ -199,7 +205,8 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                           amount: tpEMA,
                           token: settings.tokens.TP[dataItem.key],
                           decimals:
-                              settings.tokens.TP[dataItem.key].visiblePriceUSD,
+                              settings.tokens.TP[dataItem.key]
+                                  .visiblePriceDecimals,
                           i18n,
                       }),
                 minted: !contractProtocolStatus.data.canOperate

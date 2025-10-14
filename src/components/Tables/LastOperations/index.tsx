@@ -287,14 +287,14 @@ export default function LastOperations(props: LastOperationsProps) {
                 exchange: {
                     amount: 0,
                     name: "",
-                    token: settings.tokens.CA[caIndex],
+                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
                     icon: `CA_${caIndex}`,
                     title: t("operations.actions.exchanged"),
                 },
                 receive: {
                     amount: 0,
                     name: "",
-                    token: settings.tokens.CA[caIndex],
+                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
                     icon: `CA_${caIndex}`,
                     title: t("operations.actions.received"),
                 },
@@ -309,8 +309,10 @@ export default function LastOperations(props: LastOperationsProps) {
                         status === "executed"
                             ? row_operation.executed?.qAC_ || 0
                             : row_operation.params?.qACmax || 0,
-                    name: settings.tokens.CA[caIndex].name,
-                    token: settings.tokens.CA[caIndex],
+                    name:
+                        (settings.tokens.CA as TokenConfig[])[caIndex]?.name ||
+                        "",
+                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
                     icon: `CA_${caIndex}`,
                     title:
                         status === "executed"
@@ -354,8 +356,10 @@ export default function LastOperations(props: LastOperationsProps) {
                         status === "executed"
                             ? row_operation.executed?.qAC_ || 0
                             : row_operation.params?.qACmin || 0,
-                    name: settings.tokens.CA[caIndex].name,
-                    token: settings.tokens.CA[caIndex],
+                    name:
+                        (settings.tokens.CA as TokenConfig[])[caIndex]?.name ||
+                        "",
+                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
                     icon: `CA_${caIndex}`,
                     title:
                         status === "executed"
@@ -380,8 +384,10 @@ export default function LastOperations(props: LastOperationsProps) {
                         status === "executed"
                             ? row_operation.executed?.qAC_ || 0
                             : row_operation.params?.qACmax || 0,
-                    name: settings.tokens.CA[caIndex].name,
-                    token: settings.tokens.CA[caIndex],
+                    name:
+                        (settings.tokens.CA as TokenConfig[])[caIndex]?.name ||
+                        "",
+                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
                     icon: `CA_${caIndex}`,
                     title:
                         status === "executed"
@@ -434,8 +440,10 @@ export default function LastOperations(props: LastOperationsProps) {
                         status === "executed"
                             ? row_operation.executed?.qAC_ || 0
                             : row_operation.params?.qACmin || 0,
-                    name: settings.tokens.CA[caIndex].name,
-                    token: settings.tokens.CA[caIndex],
+                    name:
+                        (settings.tokens.CA as TokenConfig[])[caIndex]?.name ||
+                        "",
+                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
                     icon: `CA_${caIndex}`,
                     title:
                         status === "executed"
@@ -480,7 +488,7 @@ export default function LastOperations(props: LastOperationsProps) {
                     action: "Error",
                     amount: 0,
                     name: "",
-                    token: settings.tokens.CA[caIndex],
+                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
                     icon: `CA_${caIndex}`,
                     title: "Revert",
                 },
@@ -488,7 +496,7 @@ export default function LastOperations(props: LastOperationsProps) {
                     action: "Error",
                     amount: 0,
                     name: "",
-                    token: settings.tokens.CA[caIndex],
+                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
                     icon: `CA_${caIndex}`,
                     title: "Revert",
                 },
@@ -503,9 +511,9 @@ export default function LastOperations(props: LastOperationsProps) {
     ): string => {
         switch (error) {
             case "qAC below minimum required":
-                return `${settings.tokens.CA[0].name} ${t("operations.errors.qACBelow")} `;
+                return `${(settings.tokens.CA as TokenConfig[])[0]?.name || ""} ${t("operations.errors.qACBelow")} `;
             case "Insufficient qac sent":
-                return `${settings.tokens.CA[0].name} ${t("operations.errors.insufficientQAC1")} ${settings.tokens.CA[0].name} ${t("operations.errors.insufficientQAC2")}`;
+                return `${(settings.tokens.CA as TokenConfig[])[0]?.name || ""} ${t("operations.errors.insufficientQAC1")} ${(settings.tokens.CA as TokenConfig[])[0]?.name || ""} ${t("operations.errors.insufficientQAC2")}`;
             case "Low coverage":
                 return t("operations.errors.lowCoverage");
             case "Invalid Flux Capacitor Operation":
@@ -872,7 +880,8 @@ export default function LastOperations(props: LastOperationsProps) {
 
             fee["amount"] = qACfee + qACVendorMarkup;
             fee["token"] = `CA_${caIndex}`;
-            fee["decimals"] = settings.tokens.CA[caIndex].decimals;
+            fee["decimals"] =
+                (settings.tokens.CA as TokenConfig[])[caIndex]?.decimals || 18;
         }
 
         if (fee["amount"] > 0n) {
@@ -974,13 +983,13 @@ export default function LastOperations(props: LastOperationsProps) {
         switch (token) {
             case "CA_0":
                 return {
-                    name: settings.tokens.CA[0].name,
-                    token: settings.tokens.CA[0],
+                    name: (settings.tokens.CA as TokenConfig[])[0]?.name || "",
+                    token: (settings.tokens.CA as TokenConfig[])[0],
                 };
             case "CA_1":
                 return {
-                    name: settings.tokens.CA[1].name,
-                    token: settings.tokens.CA[1],
+                    name: (settings.tokens.CA as TokenConfig[])[1]?.name || "",
+                    token: (settings.tokens.CA as TokenConfig[])[1],
                 };
             case "TC_0":
                 return {

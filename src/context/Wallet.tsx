@@ -144,7 +144,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         (offChainPrices as ParsedPrices[]) ?? undefined,
         REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS
     );
-    
+
     const contractStatusOmoc = useContractOmocStatus(
         contractsAddressLoaded && contractsAddress
             ? contractsAddress

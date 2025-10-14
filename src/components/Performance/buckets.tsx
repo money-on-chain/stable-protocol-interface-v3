@@ -5,6 +5,7 @@ import { TokenSettings } from "../../helpers/currencies";
 import { divPrecision } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings/settings.json";
+import type { TokenConfig } from "../../types/hooks";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import Tokens from "./tokens";
 
@@ -70,8 +71,9 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                           : 0n,
                                       token: TokenSettings(`CA_${caIndex}`),
                                       decimals:
-                                          settings.tokens.CA[caIndex]
-                                              .visibleDecimals,
+                                          (settings.tokens.CA as TokenConfig[])[
+                                              caIndex
+                                          ]?.visibleDecimals || 6,
                                       i18n: i18n,
                                   })}
                         </div>
@@ -154,8 +156,9 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                           : 0n,
                                       token: TokenSettings(`CA_${caIndex}`),
                                       decimals:
-                                          settings.tokens.CA[caIndex]
-                                              .visibleDecimals,
+                                          (settings.tokens.CA as TokenConfig[])[
+                                              caIndex
+                                          ]?.visibleDecimals || 6,
                                       i18n: i18n,
                                   })}
                         </div>

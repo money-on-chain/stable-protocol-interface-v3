@@ -2,6 +2,7 @@ import React from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
 import settings from "../../../settings/settings.json";
+import type { TokenConfig } from "../../../types/hooks";
 import StatusBucket from "./bucket";
 
 // Type definitions
@@ -19,13 +20,18 @@ export default function GlobalStatusModal(
     return (
         <div className="detailedGlobalStatusModal">
             <div className="collateralContainer">
-                {settings.tokens.CA.map((dataItem) => (
-                    <StatusBucket
-                        key={dataItem.key}
-                        caIndex={dataItem.key}
-                        statusCode={statusCode}
-                    ></StatusBucket>
-                ))}
+                {(settings.tokens.CA as TokenConfig[])
+                    .filter(
+                        (dataItem): dataItem is TokenConfig & { key: number } =>
+                            dataItem && typeof dataItem.key === "number"
+                    )
+                    .map((dataItem) => (
+                        <StatusBucket
+                            key={dataItem.key}
+                            caIndex={dataItem.key}
+                            statusCode={statusCode}
+                        ></StatusBucket>
+                    ))}
             </div>
             <div className="cta">
                 <button className="button" onClick={hideModal}>

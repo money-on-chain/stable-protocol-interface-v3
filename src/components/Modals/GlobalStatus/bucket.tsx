@@ -2,6 +2,7 @@ import React from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
 import settings from "../../../settings/settings.json";
+import type { TokenConfig } from "../../../types/hooks";
 
 // Type definitions
 interface StatusBucketProps {
@@ -32,7 +33,7 @@ export default function StatusBucket(props: StatusBucketProps): JSX.Element {
 
     const tpTokens = settings.tokens.TP;
     const tcTokens = settings.tokens.TC;
-    const caToken = settings.tokens.CA[caIndex];
+    const caToken = (settings.tokens.CA as TokenConfig[])[caIndex];
     const leveragedToken = tcTokens[caIndex];
 
     const status: number = statusCode[caIndex];

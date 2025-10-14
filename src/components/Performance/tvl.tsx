@@ -5,6 +5,7 @@ import { TokenSettings } from "../../helpers/currencies";
 import { mulPrecision, normalizeToBigInt } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings/settings.json";
+import type { TokenConfig } from "../../types/hooks";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 
 export default function TVL(): JSX.Element {
@@ -15,9 +16,10 @@ export default function TVL(): JSX.Element {
     let collateralInUSD: bigint;
 
     if (contractProtocolStatus.data) {
-        settings.tokens.CA.forEach(function (dataItem) {
+        (settings.tokens.CA as TokenConfig[]).forEach(function (dataItem) {
             // Check if the required data exists before accessing it
             if (
+                !dataItem?.key ||
                 !contractProtocolStatus.data?.[dataItem.key] ||
                 !contractProtocolStatus.data?.[dataItem.key]?.PP_CA
             ) {

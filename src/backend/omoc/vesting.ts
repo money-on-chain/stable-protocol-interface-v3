@@ -186,11 +186,11 @@ const addStake = async (
     const StakingMachine = contracts.StakingMachine;
     const VestingMachine = contracts.VestingMachine;
 
-    const target = checksumAddress(StakingMachine.address);
+    const target = StakingMachine.address;
     const data = encodeFunctionData({
         abi: StakingMachine.abi,
         functionName: "deposit",
-        args: [amount, checksumAddress(userAddress)],
+        args: [amount, vestingAddress],
     });
 
     const { request } = await simulateContract(config, {

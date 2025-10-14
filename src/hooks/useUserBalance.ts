@@ -173,8 +173,8 @@ export function useUserBalance(
                 ? contracts.CollateralToken[0]
                 : undefined;
             const mocAddress = import.meta.env.REACT_APP_CONTRACT_VETO_MOC as
-            | Address
-            | undefined;
+                | Address
+                | undefined;
             if (firstCT) {
                 calls.push({
                     contract: firstCT,

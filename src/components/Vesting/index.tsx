@@ -745,10 +745,14 @@ const Vesting: React.FC = () => {
                                 <div className="tx-amount-container">
                                     <div className="vesting-wallet-claim-amount tx-amount-data">
                                         {PrecisionNumbers({
-                                            amount: !userOmocBalance.data || !userOmocBalance.data.incentiveV2.userBalance
-                                                ? 0n
-                                                : userOmocBalance.data
-                                                      .incentiveV2.userBalance,
+                                            amount:
+                                                !userOmocBalance.data ||
+                                                !userOmocBalance.data
+                                                    .incentiveV2.userBalance
+                                                    ? 0n
+                                                    : userOmocBalance.data
+                                                          .incentiveV2
+                                                          .userBalance,
                                             token: settings.tokens.TG[0],
                                             decimals: Number(
                                                 t("staking.display_decimals")
@@ -993,10 +997,13 @@ const Vesting: React.FC = () => {
                                     className="vesting__data"
                                 >
                                     {PrecisionNumbers({
-                                        amount: !userVesting.data || !userVesting.data.vestingmachine
-                                            ? 0n
-                                            : userVesting.data.vestingmachine
-                                                  .getAvailable,
+                                        amount:
+                                            !userVesting.data ||
+                                            !userVesting.data.vestingmachine
+                                                ? 0n
+                                                : userVesting.data
+                                                      .vestingmachine
+                                                      .getAvailable,
                                         token: settings.tokens.TG[0],
                                         decimals: Number(
                                             t("staking.display_decimals")
@@ -1030,9 +1037,11 @@ const Vesting: React.FC = () => {
                                 className="vesting__data"
                             >
                                 {PrecisionNumbers({
-                                    amount: !userVesting.data || !userVesting.data.vestingmachine
-                                        ? 0n
-                                        : vestingTotals["vested"],
+                                    amount:
+                                        !userVesting.data ||
+                                        !userVesting.data.vestingmachine
+                                            ? 0n
+                                            : vestingTotals["vested"],
                                     token: settings.tokens.TG[0],
                                     decimals: Number(
                                         t("staking.display_decimals")
@@ -1062,10 +1071,12 @@ const Vesting: React.FC = () => {
                                 className="vesting__data"
                             >
                                 {PrecisionNumbers({
-                                    amount: !userVesting.data || !userVesting.data.vestingmachine
-                                        ? 0n
-                                        : userVesting.data.vestingmachine
-                                              .staking.balance,
+                                    amount:
+                                        !userVesting.data ||
+                                        !userVesting.data.vestingmachine
+                                            ? 0n
+                                            : userVesting.data.vestingmachine
+                                                  .staking.balance,
                                     token: settings.tokens.TG[0],
                                     decimals: Number(
                                         t("staking.display_decimals")
@@ -1084,10 +1095,12 @@ const Vesting: React.FC = () => {
                                 className="vesting__data"
                             >
                                 {PrecisionNumbers({
-                                    amount: !userVesting.data || !userVesting.data.vestingmachine
-                                        ? 0n
-                                        : userVesting.data.vestingmachine.delay
-                                              .getBalance,
+                                    amount:
+                                        !userVesting.data ||
+                                        !userVesting.data.vestingmachine
+                                            ? 0n
+                                            : userVesting.data.vestingmachine
+                                                  .delay.getBalance,
                                     token: settings.tokens.TG[0],
                                     decimals: Number(
                                         t("staking.display_decimals")
@@ -1112,10 +1125,12 @@ const Vesting: React.FC = () => {
                         <div id="moc-total">
                             <div className="total-data">
                                 {PrecisionNumbers({
-                                    amount: !userVesting.data || !userVesting.data.vestingmachine
-                                        ? 0n
-                                        : userVesting.data.vestingmachine
-                                              .getTotal,
+                                    amount:
+                                        !userVesting.data ||
+                                        !userVesting.data.vestingmachine
+                                            ? 0n
+                                            : userVesting.data.vestingmachine
+                                                  .getTotal,
                                     token: settings.tokens.TG[0],
                                     decimals: Number(
                                         t("staking.display_decimals")
