@@ -1,15 +1,15 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
 
+import { useWalletContext } from "../../context/Wallet";
+import { TokenSettings } from "../../helpers/currencies";
 import { useProjectTranslation } from "../../helpers/translations";
-import CompletedBar from "./CompletedBar";
-import BalanceBar from "./BalanceBar";
 import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
 import { PrecisionNumbers } from "../PrecisionNumbers";
-import { TokenSettings } from "../../helpers/currencies";
-import { useWalletContext } from "../../context/Wallet";
+import BalanceBar from "./BalanceBar";
+import CompletedBar from "./CompletedBar";
+import { VetoGraph } from "./Veto";
 
-
-const PRECISION_DECIMALS = 18n
+const PRECISION_DECIMALS = 18n;
 const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
 
 interface CreateBarGraphProps {
@@ -41,8 +41,10 @@ interface VoteProps {
             againstVotes: bigint;
             inFavorVotesPCT: bigint;
             againstVotesPCT: bigint;
+            votingExpirationTime: bigint;
             votingExpirationTimeFormat: string;
-            winnerProposal: string;            
+            winnerProposal: string;
+            totalVetoPCT: bigint;
         };
         MIN_FOR_QUORUM: bigint;
         MIN_PCT_FOR_QUORUM: bigint;
@@ -51,6 +53,7 @@ interface VoteProps {
         totalSupply: bigint;
         readyToVoteStep: boolean;
         state: number;
+        isVetoMachine: boolean;
     };
     infoUser: {
         Voting_Power: bigint;
@@ -95,48 +98,67 @@ function Vote(props: VoteProps): JSX.Element {
     const [votingFinishReason, setVotingFinishReason] = useState<number>(0);
 
     const { t, i18n, ns } = useProjectTranslation();
-    const { interfaceVotingVote, interfaceVotingVoteStep, interfaceVotingAcceptedStep, userOmocBalance, contractStatusOmoc } = useWalletContext()
+    const {
+        interfaceVotingVote,
+        interfaceVotingVoteStep,
+        interfaceVotingAcceptedStep,
+        userOmocBalance,
+        contractStatusOmoc,
+    } = useWalletContext();
     const space = "\u00A0";
 
-    useEffect(() => {
-        onValidateVotingInFavorOrAgainst();
-    }, [infoUser["Voting_Power"]]);
+    const votingPower = infoUser["Voting_Power"];
+    const onValidateVotingInFavorOrAgainst = useCallback((): boolean => {
+        if (votingPower <= 0n) {
+            // You need at least voting power > 0
+            setVotingInFavorOrAgainstError(true);
+            return false;
+        } else return true;
+    }, [votingPower]);
 
-    useEffect(() => {
-        refreshVotingFinish();
-    }, [
-        infoVoting["votingData"]["expired"],
-        infoVoting["votingData"]["totalVoted"],
-        infoVoting["votingData"]["againstVotesPCT"],
-    ]);
+    const votingData = infoVoting["votingData"];
+    const voteMinPctToVeto = infoVoting["VOTE_MIN_PCT_TO_VETO"];
+    const minForQuorum = infoVoting["MIN_FOR_QUORUM"];
+    const voteMinToVeto = infoVoting["VOTE_MIN_TO_VETO"];
 
-    const refreshVotingFinish = (): void => {
+    const refreshVotingFinish = useCallback((): void => {
         /* Voting Finish Reason */
         /* 0 - No reason */
         /* 1 - Success */
         /* 2 - No Quorum */
-        /* 3 - Proposal rejected by votes against */        
+        /* 3 - Proposal rejected by votes against */
+        /* 4 - Proposal vetoed by Collateral Token holders */
 
-        if (infoVoting["votingData"]["expired"]) {
+        if (
+            votingData["totalVetoPCT"] * 100n >=
+            voteMinPctToVeto * DECIMALS_18
+        ) {
+            setVotingFinishReason(4);
             setVotingFinish(true);
             setVotingInFavorOrAgainstError(true);
-            if (
-                infoVoting["votingData"]["totalVoted"] <
-                    infoVoting["MIN_FOR_QUORUM"] * DECIMALS_18
-                )
-            {
+        } else if (votingData["expired"]) {
+            setVotingFinish(true);
+            setVotingInFavorOrAgainstError(true);
+            if (votingData["totalVoted"] < minForQuorum * DECIMALS_18) {
                 setVotingFinishReason(2);
             } else if (
-                infoVoting["votingData"]["againstVotesPCT"] >=
-                    infoVoting["VOTE_MIN_TO_VETO"] * DECIMALS_18
-                )
-            {
+                votingData["againstVotesPCT"] >=
+                voteMinToVeto * DECIMALS_18
+            ) {
                 setVotingFinishReason(3);
             } else {
                 setVotingFinishReason(1);
             }
         }
-    };
+    }, [votingData, voteMinPctToVeto, minForQuorum, voteMinToVeto]);
+
+    useEffect(() => {
+        onValidateVotingInFavorOrAgainst();
+    }, [onValidateVotingInFavorOrAgainst]);
+
+    useEffect(() => {
+        refreshVotingFinish();
+    }, [refreshVotingFinish]);
 
     const votingGraphs: CreateBarGraphProps[] = [
         {
@@ -181,8 +203,6 @@ function Vote(props: VoteProps): JSX.Element {
     ];
 
     const onVote = async (inFavor: boolean): Promise<void> => {
-
-        console.log("onVote", inFavor);
         setModalTitle("Vote proposal");
         setVoteInFavor(inFavor);
         setShowProposalModal(true);
@@ -191,24 +211,22 @@ function Vote(props: VoteProps): JSX.Element {
         setIsOperationModalVisible(true);
 
         const onTransaction = (txHash: string): void => {
-            console.log("Sent transaction in Favor proposal...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
         const onReceipt = (/*receipt*/): void => {
-            console.log("Transaction in Favor proposal mined!...");
             setOperationStatus("success");
         };
-        const onError = (error: any): void => {
-            console.log("Transaction in Favor proposal error!...:", error);
+        const onError = (error: unknown): void => {
+            console.error("Transaction in Favor proposal error!...:", error);
             setOperationStatus("error");
         };
 
         await interfaceVotingVote(inFavor, onTransaction, onReceipt, onError)
             .then((/*res*/) => {
                 // Refresh status
-                userOmocBalance.refetch();
-                contractStatusOmoc.refetch();
+                void userOmocBalance.refetch();
+                void contractStatusOmoc.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -224,24 +242,22 @@ function Vote(props: VoteProps): JSX.Element {
         setIsOperationModalVisible(true);
 
         const onTransaction = (txHash: string): void => {
-            console.log("Sent transaction vote step ...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
         const onReceipt = (/*receipt*/): void => {
-            console.log("Transaction vote step mined!...");
             setOperationStatus("success");
         };
-        const onError = (error: any): void => {
-            console.log("Transaction vote step error!...:", error);
+        const onError = (error: unknown): void => {
+            console.error("Transaction vote step error!...:", error);
             setOperationStatus("error");
         };
 
         await interfaceVotingVoteStep(onTransaction, onReceipt, onError)
             .then((/*res*/) => {
                 // Refresh status
-                userOmocBalance.refetch();
-                contractStatusOmoc.refetch();
+                void userOmocBalance.refetch();
+                void contractStatusOmoc.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -257,37 +273,27 @@ function Vote(props: VoteProps): JSX.Element {
         setIsOperationModalVisible(true);
 
         const onTransaction = (txHash: string): void => {
-            console.log("Sent transaction accepted step ...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
         const onReceipt = (/*receipt*/): void => {
-            console.log("Transaction accepted step mined!...");
             setOperationStatus("success");
         };
-        const onError = (error: any): void => {
-            console.log("Transaction accepted step error!...:", error);
+        const onError = (error: unknown): void => {
+            console.error("Transaction accepted step error!...:", error);
             setOperationStatus("error");
         };
 
         await interfaceVotingAcceptedStep(onTransaction, onReceipt, onError)
             .then((/*res*/) => {
                 // Refresh status
-                userOmocBalance.refetch();
-                contractStatusOmoc.refetch();
+                void userOmocBalance.refetch();
+                void contractStatusOmoc.refetch();
             })
             .catch((e) => {
                 console.error(e);
                 setOperationStatus("error");
             });
-    };
-
-    const onValidateVotingInFavorOrAgainst = (): boolean => {        
-        if (infoUser["Voting_Power"] <= 0n) {
-            // You need at least voting power > 0
-            setVotingInFavorOrAgainstError(true);
-            return false;
-        } else return true;
     };
 
     return (
@@ -327,6 +333,12 @@ function Vote(props: VoteProps): JSX.Element {
                 {votingFinishReason === 3 && (
                     <div className="voting-status">
                         {t("voting.status.rejected")}
+                    </div>
+                )}
+
+                {votingFinishReason === 4 && (
+                    <div className="voting-status">
+                        {t("voting.status.vetoed")}
                     </div>
                 )}
             </div>
@@ -378,8 +390,12 @@ function Vote(props: VoteProps): JSX.Element {
                         </p>
                         <BalanceBar
                             key="1"
-                            infavor={infoVoting["votingData"]["inFavorVotesPCT"]}
-                            against={infoVoting["votingData"]["againstVotesPCT"]}
+                            infavor={
+                                infoVoting["votingData"]["inFavorVotesPCT"]
+                            }
+                            against={
+                                infoVoting["votingData"]["againstVotesPCT"]
+                            }
                             infavorVotes={
                                 infoVoting["votingData"]["inFavorVotes"]
                             }
@@ -404,8 +420,8 @@ function Vote(props: VoteProps): JSX.Element {
                                                     "Voting_Power"
                                                 ],
                                                 token: TokenSettings("TG"),
-                                                decimals: 2,                                                
-                                                i18n: i18n                                                
+                                                decimals: 2,
+                                                i18n: i18n,
                                             })}
                                             {t("staking.tokens.TG.abbr", {
                                                 ns: ns,
@@ -417,7 +433,7 @@ function Vote(props: VoteProps): JSX.Element {
                                                 ],
                                                 token: TokenSettings("TG"),
                                                 decimals: 4,
-                                                i18n: i18n                                                
+                                                i18n: i18n,
                                             })}
                                             %)
                                         </div>
@@ -425,7 +441,7 @@ function Vote(props: VoteProps): JSX.Element {
                                     <div className="cta-options-group votingButtons">
                                         <button
                                             className="button against"
-                                            onClick={() => onVote(false)}
+                                            onClick={() => void onVote(false)}
                                             disabled={
                                                 votingInFavorOrAgainstError
                                             }
@@ -435,7 +451,7 @@ function Vote(props: VoteProps): JSX.Element {
                                         </button>
                                         <button
                                             className="button infavor"
-                                            onClick={() => onVote(true)}
+                                            onClick={() => void onVote(true)}
                                             disabled={
                                                 votingInFavorOrAgainstError
                                             }
@@ -457,7 +473,9 @@ function Vote(props: VoteProps): JSX.Element {
                                             <div className="cta-options-group">
                                                 <button
                                                     className="button secondary"
-                                                    onClick={onRunVoteStep}
+                                                    onClick={() =>
+                                                        void onRunVoteStep()
+                                                    }
                                                 >
                                                     {t(
                                                         "voting.cta.btnPushNextStep"
@@ -474,7 +492,7 @@ function Vote(props: VoteProps): JSX.Element {
                                     </div>
                                     <button
                                         className="button secondary"
-                                        onClick={onRunAcceptedStep}
+                                        onClick={() => void onRunAcceptedStep()}
                                     >
                                         {t(
                                             "voting.cta.btnApplyChangesToContracts"
@@ -485,7 +503,10 @@ function Vote(props: VoteProps): JSX.Element {
                         </div>
                     </div>
                 </div>
-
+                {infoVoting["isVetoMachine"] &&
+                    !infoVoting["readyToVoteStep"] && (
+                        <VetoGraph infoVoting={infoVoting} />
+                    )}
                 {isOperationModalVisible && (
                     <VotingStatusModal
                         title={modalTitle}
@@ -505,4 +526,4 @@ function Vote(props: VoteProps): JSX.Element {
     );
 }
 
-export default Vote; 
+export default Vote;

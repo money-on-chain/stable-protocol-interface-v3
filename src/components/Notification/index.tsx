@@ -1,7 +1,8 @@
+import "./Styles.scss";
+
 import React /*, { useEffect }*/ from "react";
 
 import { useProjectTranslation } from "../../helpers/translations";
-import "./Styles.scss";
 
 interface NotifStatus {
     notifClass: string;
@@ -9,13 +10,16 @@ interface NotifStatus {
     title: string;
     textContent: string;
     isDismisable?: boolean;
+    button?: { class: string; label: string; onClick: () => void };
 }
 
 interface NotificationBodyProps {
     notifStatus: NotifStatus;
 }
 
-export default function NotificationBody(props: NotificationBodyProps): React.ReactElement {
+export default function NotificationBody(
+    props: NotificationBodyProps
+): React.ReactElement {
     const { t } = useProjectTranslation();
     //const [visible, setVisible] = useState(false);
     const { notifStatus } = props;
@@ -52,6 +56,13 @@ export default function NotificationBody(props: NotificationBodyProps): React.Re
                     </div>
                 )}
             </div>
+            {notifStatus.button && (
+                <div className={`${notifStatus.button.class}-notif`}>
+                    <button onClick={notifStatus.button.onClick}>
+                        {notifStatus.button.label}
+                    </button>
+                </div>
+            )}
         </div>
     );
-} 
+}

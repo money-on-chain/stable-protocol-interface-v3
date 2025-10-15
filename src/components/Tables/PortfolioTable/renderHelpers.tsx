@@ -1,9 +1,9 @@
-import PropTypes from "prop-types";
 import React from "react";
 
-import { PrecisionNumbers } from "../../PrecisionNumbers";
-import settings from "../../../settings/settings.json";
 import { absBigInt } from "../../../helpers/precision";
+import settings from "../../../settings/settings.json";
+import type { ContractProtocolStatusResult } from "../../../types/status";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
 
 interface TokenRowProps {
     key: number;
@@ -25,8 +25,8 @@ interface TokenRowProps {
     visiblePriceDecimals: number;
     visibleBalanceDecimals: number;
     visibleBalanceUSDDecimals: number;
-    contractProtocolStatus: any;
-    i18n: any;
+    contractProtocolStatus: ContractProtocolStatusResult;
+    i18n: { languages: readonly string[] };
 }
 
 interface TokenRow {
@@ -55,7 +55,7 @@ export const generateTokenRow = ({
         if (priceDelta === 0n) return "";
         return priceDelta > 0n ? "+" : "-";
     };
-    
+
     return {
         key,
         renderRow: (
@@ -70,7 +70,7 @@ export const generateTokenRow = ({
                 </div>
                 {/* Token price */}
                 <div className="table__cell table__cell__price">
-                    {contractProtocolStatus.data.canOperate ? (
+                    {contractProtocolStatus.data?.canOperate ? (
                         <PrecisionNumbers
                             amount={price}
                             token={{
@@ -79,7 +79,7 @@ export const generateTokenRow = ({
                                 visibleDecimals: visiblePriceDecimals,
                             }}
                             decimals={visiblePriceDecimals}
-                            i18n={i18n}                            
+                            i18n={i18n}
                         />
                     ) : (
                         <>--</>
@@ -90,7 +90,7 @@ export const generateTokenRow = ({
                 {/* Token 24h variation */}
                 {settings.showPriceVariation && (
                     <div className="table__cell">
-                        {contractProtocolStatus.data.canOperate ? (
+                        {contractProtocolStatus.data?.canOperate ? (
                             <div className="table__cell__variation">
                                 {`${getSign()} `}
                                 <PrecisionNumbers
@@ -101,7 +101,7 @@ export const generateTokenRow = ({
                                         visibleDecimals: 2,
                                     }}
                                     decimals={2}
-                                    i18n={i18n}                                    
+                                    i18n={i18n}
                                 />
                                 {" %"}
                                 <span
@@ -134,7 +134,7 @@ export const generateTokenRow = ({
                             visibleDecimals: visibleBalanceDecimals,
                         }}
                         decimals={visibleBalanceDecimals}
-                        i18n={i18n}                        
+                        i18n={i18n}
                     />{" "}
                     <div className="token__ticker">
                         {/* {tokenTicker}  */}
@@ -146,7 +146,7 @@ export const generateTokenRow = ({
                 </div>
                 {/* Token balance in USD */}
                 <div className="table__cell table__cell__usdBalance">
-                    {contractProtocolStatus.data.canOperate ? (
+                    {contractProtocolStatus.data?.canOperate ? (
                         <PrecisionNumbers
                             amount={balanceUSD}
                             token={{
@@ -155,7 +155,7 @@ export const generateTokenRow = ({
                                 visibleDecimals: visibleBalanceUSDDecimals,
                             }}
                             decimals={visibleBalanceUSDDecimals}
-                            i18n={i18n}                            
+                            i18n={i18n}
                         />
                     ) : (
                         <>--</>
@@ -165,22 +165,4 @@ export const generateTokenRow = ({
             </div>
         ),
     };
-};
-
-generateTokenRow.propTypes = {
-    key: PropTypes.string,
-    label: PropTypes.string,
-    tokenIcon: PropTypes.string,
-    tokenName: PropTypes.string,
-    tokenTicker: PropTypes.string,
-    price: PropTypes.object,
-    balance: PropTypes.object,
-    balanceUSD: PropTypes.object,
-    priceDelta: PropTypes.object,
-    variation: PropTypes.object,
-    visiblePriceDecimals: PropTypes.number,
-    visibleBalanceDecimals: PropTypes.number,
-    visibleBalanceUSDDecimals: PropTypes.number,
-    contractProtocolStatus: PropTypes.object,
-    i18n: PropTypes.object,
 };

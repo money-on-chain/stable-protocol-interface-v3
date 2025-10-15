@@ -1,18 +1,17 @@
-import React, { useContext, useState, useEffect } from "react";
-import { Skeleton, Table } from "antd";
-import Moment from "react-moment";
-import moment from "moment-timezone";
-import PropTypes from "prop-types";
+import "./WithdrawV2.scss";
 
+import { Skeleton, Table } from "antd";
+import moment from "moment-timezone";
+import React, { useCallback, useEffect, useState } from "react";
+import Moment from "react-moment";
+
+import { useWalletContext } from "../../context/Wallet";
 import date from "../../helpers/date";
 import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers";
 import settings from "../../settings/settings.json";
-import StakingOptionsModal from "../Modals/StakingOptionsModal/index";
 import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
-import { useWalletContext } from "../../context/Wallet";
-
-import "./WithdrawV2.scss";
+import StakingOptionsModal from "../Modals/StakingOptionsModal/index";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 
 interface PendingWithdrawalItem {
     id: bigint;
@@ -24,9 +23,9 @@ interface PendingWithdrawalItem {
 interface WithdrawV2Props {
     userInfoStaking: {
         pendingWithdrawals: PendingWithdrawalItem[];
-        totalPendingExpiration: any;
-        totalAvailableToWithdraw: any;
-        [key: string]: any;
+        totalPendingExpiration: bigint;
+        totalAvailableToWithdraw: bigint;
+        [key: string]: unknown;
     };
 }
 
@@ -71,17 +70,7 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
         { title: "Unique Cell", dataIndex: "rowContent" },
     ];
 
-    useEffect(() => {
-        if (contractStatusOmoc.data && userInfoStaking["pendingWithdrawals"]) {
-            getWithdrawals();
-        }
-    }, [
-        contractStatusOmoc.data,
-        userInfoStaking["pendingWithdrawals"],
-        i18n.language,
-    ]);
-
-    const getWithdrawals = (): void => {
+    const getWithdrawals = useCallback((): void => {
         setTotalTable(userInfoStaking["pendingWithdrawals"].length);
         const tokensData: TableDataItem[] = userInfoStaking[
             "pendingWithdrawals"
@@ -160,7 +149,13 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
             ),
         }));
         setData(tokensData);
-    };
+    }, [userInfoStaking, i18n, t]);
+
+    useEffect(() => {
+        if (contractStatusOmoc.data && userInfoStaking["pendingWithdrawals"]) {
+            getWithdrawals();
+        }
+    }, [contractStatusOmoc.data, userInfoStaking, getWithdrawals]);
 
     // Columns
     ProvideColumnsTG.forEach(function (dataItem: TableColumn) {
@@ -210,7 +205,8 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
             <div className="layout-card-title">
                 <h1>{t("staking.withdraw.title")}</h1>
                 <div className="withdraw-header-balance">
-                    {userInfoStaking["totalPendingExpiration"] && (
+                    {userInfoStaking["totalPendingExpiration"] !==
+                        undefined && (
                         <div className="withdraw-header-group">
                             <div className="withdraw-header-balance-number">
                                 {PrecisionNumbers({
@@ -230,7 +226,8 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
                             </div>
                         </div>
                     )}
-                    {userInfoStaking["totalAvailableToWithdraw"] && (
+                    {userInfoStaking["totalAvailableToWithdraw"] !==
+                        undefined && (
                         <div className="withdraw-header-group">
                             <div className="withdraw-header-balance-number">
                                 {PrecisionNumbers({
@@ -309,7 +306,3 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
         </div>
     );
 }
-
-WithdrawV2.propTypes = {
-    userInfoStaking: PropTypes.object,
-};

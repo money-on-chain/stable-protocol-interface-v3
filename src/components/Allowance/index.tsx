@@ -1,14 +1,11 @@
-import React, { useContext, useState } from "react";
 import { Checkbox } from "antd";
-import PropTypes from "prop-types";
+import React, { useState } from "react";
 
+import { useWalletContext } from "../../context/Wallet";
 import { useProjectTranslation } from "../../helpers/translations";
-import { useWalletContext } from "@/context/Wallet";
 
-
-const PRECISION_DECIMALS = 18n
+const PRECISION_DECIMALS = 18n;
 const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
-
 
 interface AllowanceDialogProps {
     onCloseModal: () => void;
@@ -22,7 +19,9 @@ interface AllowanceDialogProps {
 
 type StatusType = "SUBMIT" | "SIGN" | "WAITING" | "ERROR";
 
-export default function AllowanceDialog(props: AllowanceDialogProps): JSX.Element {
+export default function AllowanceDialog(
+    props: AllowanceDialogProps
+): JSX.Element {
     const {
         onCloseModal,
         currencyYouExchange,
@@ -34,7 +33,7 @@ export default function AllowanceDialog(props: AllowanceDialogProps): JSX.Elemen
     } = props;
 
     const { t } = useProjectTranslation();
-    const { interfaceAllowanceAmount } = useWalletContext()
+    const { interfaceAllowanceAmount } = useWalletContext();
 
     const [status, setStatus] = useState<StatusType>("SUBMIT");
     let infinityAllowance: boolean = false;
@@ -63,8 +62,7 @@ export default function AllowanceDialog(props: AllowanceDialogProps): JSX.Elemen
             statusLabel = t("allowance.feedback.default");
     }
 
-    const onChange = (e: any): void => {
-        console.log(`checked = ${e.target.checked}`);
+    const onChange = (e: { target: { checked: boolean } }): void => {
         infinityAllowance = e.target.checked;
     };
 
@@ -94,7 +92,7 @@ export default function AllowanceDialog(props: AllowanceDialogProps): JSX.Elemen
         }
 
         setStatus("SIGN");
-        interfaceAllowanceAmount(
+        void interfaceAllowanceAmount(
             currencyYouExchange,
             currencyYouReceive,
             amountAllowance,
@@ -104,8 +102,8 @@ export default function AllowanceDialog(props: AllowanceDialogProps): JSX.Elemen
             .then((/*value*/) => {
                 onClose();
             })
-            .catch((error: any) => {
-                console.log(error);
+            .catch((error: unknown) => {
+                console.error("Allowance error:", error);
                 setStatus("ERROR");
             });
     };
@@ -113,12 +111,10 @@ export default function AllowanceDialog(props: AllowanceDialogProps): JSX.Elemen
     const onTransaction = (transactionHash: string): void => {
         // Tx receipt detected change status to waiting
         setStatus("WAITING");
-        console.log("On transaction: ", transactionHash);
     };
 
-    const onReceipt = async (receipt: any): Promise<void> => {
+    const onReceipt = (receipt: unknown): void => {
         // Tx is mined ok proceed with operation transaction
-        console.log("On receipt: ", receipt);
         /*
         // Events name list
         const filter = [
@@ -214,12 +210,3 @@ export default function AllowanceDialog(props: AllowanceDialogProps): JSX.Elemen
         </div>
     );
 }
-
-AllowanceDialog.propTypes = {
-    onCloseModal: PropTypes.func,
-    currencyYouExchange: PropTypes.string,
-    currencyYouReceive: PropTypes.string,
-    amountYouExchangeLimit: PropTypes.object,
-    onRealSendTransaction: PropTypes.func,
-    disAllowance: PropTypes.bool,
-};

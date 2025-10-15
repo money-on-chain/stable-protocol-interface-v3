@@ -621,10 +621,17 @@
             }
         },
         "alert": {
-            "title": "Usando dirección de Vesting Machine",
-            "explanation": "Para usar tu wallet normalmente desactiva 'Usar Vesting Machine' en la configuración de wallet",
-            "cta": "Ir a configuración de wallet",
-            "address": "Usando VM:"
+            "vmEnabled": {
+                "title": "Usando Dirección de Vesting",
+                "text": "Tu wallet está configurada para usar una Dirección de Vesting. Para usar tu dirección regular, haz clic en Cambiar a Dirección Regular.",
+                "addressLabel": "Dirección VM:",
+                "cta": "Cambiar a Dirección Regular"
+            },
+            "vmDisabled": {
+                "title": "Usando Dirección Regular",
+                "text": "Tu wallet está configurada para usar la dirección regular. Puedes habilitar una Dirección de Vesting si lo necesitas.",
+                "cta": "Habilitar Dirección de Vesting"
+            }
         },
         "cardTitle": "Vesting Machine",
         "status": {

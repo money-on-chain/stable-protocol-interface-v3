@@ -1,6 +1,8 @@
-import React from "react";
-import { useProjectTranslation } from "../../helpers/translations";
 import "./Styles.scss";
+
+import React from "react";
+
+import { useProjectTranslation } from "../../helpers/translations";
 export default function NotConnected(): React.ReactElement {
     const { t } = useProjectTranslation();
 

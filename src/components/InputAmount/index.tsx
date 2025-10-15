@@ -1,6 +1,8 @@
-import React, { useRef, useEffect } from "react";
-import { useProjectTranslation } from "../../helpers/translations";
 import "./Styles.scss";
+
+import React, { useEffect, useRef } from "react";
+
+import { useProjectTranslation } from "../../helpers/translations";
 
 interface InputAmountProps {
     balanceText?: string;
@@ -31,7 +33,7 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
 
     useEffect(() => {
         const handleWheel = (event: WheelEvent) => {
-            console.log("Wheel event triggered");
+            console.warn("Wheel event triggered");
             event.preventDefault();
         };
 
@@ -76,7 +78,7 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
             onValueChange("");
         }
     };
-    
+
     return (
         <div className="amountInput">
             <div className="amountInput__infoBar">
@@ -110,4 +112,4 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
     );
 };
 
-export default InputAmount; 
+export default InputAmount;

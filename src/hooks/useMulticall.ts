@@ -1,68 +1,64 @@
-import { useReadContracts } from 'wagmi'
+import { useEffect, useMemo, useRef } from "react";
+import type { Abi } from "viem";
+import { useReadContracts } from "wagmi";
 
-type ContractInput =
-  | { address: `0x${string}`; abi: any }
-  | string // for getBalance
-
-type ResultType = 'uint256' | 'int256' | 'address' | 'bool'
-
-type MultiCallInput = {
-  contract: ContractInput
-  functionName: string
-  args?: any[]
-  resultType?: ResultType
-  keys: (string | number)[]
-  transform?: (result: any) => any
-  onError?: () => { value: any; canOperate: boolean }
-}
-
-export interface UseStorageResult<T> {
-  data: T | undefined
-  isLoading: boolean
-  isFetching: boolean
-  refetch: () => Promise<{ data: T }>
-  error: Error | null
-}
+import type { MultiCallInput, MultiCallOptions } from "../types/hooks";
 
 /**
  * Assigns a value into a nested object structure given a path of keys.
  */
-function assignNestedValue(obj: any, path: (string | number)[], value: any) {
-  let current = obj
-  for (let i = 0; i < path.length - 1; i++) {
-    const key = path[i]
-    if (current[key] == null) {
-      current[key] = typeof path[i + 1] === 'number' ? [] : {}
+function assignNestedValue(
+    obj: Record<string | number, unknown>,
+    path: (string | number)[],
+    value: unknown
+) {
+    let current: Record<string | number, unknown> = obj;
+    for (let i = 0; i < path.length - 1; i++) {
+        const key = path[i];
+        if (current[key] == null) {
+            current[key] = typeof path[i + 1] === "number" ? [] : {};
+        }
+        current = current[key] as Record<string | number, unknown>;
     }
-    current = current[key]
-  }
-  current[path[path.length - 1]] = value
+    current[path[path.length - 1]] = value;
 }
 
-
-function deepMerge(target: any, source: any): any {
-  if (typeof target !== 'object' || typeof source !== 'object' || target == null || source == null) {
-    return source
-  }
-
-  const merged = Array.isArray(target) ? [...target] : { ...target }
-
-  for (const key in source) {
-    if (source.hasOwnProperty(key)) {
-      if (
-        typeof source[key] === 'object' &&
-        source[key] !== null &&
-        typeof merged[key] === 'object' &&
-        merged[key] !== null
-      ) {
-        merged[key] = deepMerge(merged[key], source[key])
-      } else {
-        merged[key] = source[key]
-      }
+function deepMerge(
+    target: Record<string | number, unknown>,
+    source: Record<string | number, unknown>
+): Record<string | number, unknown> {
+    if (
+        typeof target !== "object" ||
+        typeof source !== "object" ||
+        target == null ||
+        source == null
+    ) {
+        return source;
     }
-  }
 
-  return merged
+    const merged: Record<string | number, unknown> = Array.isArray(target)
+        ? { ...target }
+        : { ...target };
+
+    for (const key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+            if (
+                typeof source[key] === "object" &&
+                source[key] !== null &&
+                typeof merged[key] === "object" &&
+                merged[key] !== null
+            ) {
+                merged[key] = deepMerge(
+                    merged[key] as Record<string | number, unknown>,
+                    source[key] as Record<string | number, unknown>
+                );
+            } else {
+                merged[key] = source[key];
+            }
+        }
+    }
+
+    return merged;
 }
 
 /**
@@ -70,131 +66,209 @@ function deepMerge(target: any, source: any): any {
  * It supports deeply nested storage mapping, error fallbacks, and custom value transforms.
  */
 export function useMultiCall(
-  calls: MultiCallInput[] = [],
-  options: {
-    batchSize?: number,
-    refetchInterval?: number,
-    enabled?: boolean,
-    externalData?: Record<string | number, any>,
-    scopeKey?: string | undefined
-  } = {}
+    calls: MultiCallInput[] = [],
+    options: MultiCallOptions = {}
 ) {
-  // Step 1: Convert call definitions into wagmi-compatible format
-  const contracts = calls.map(({ contract, functionName, args }) => {
-    const isGetBalance = functionName === 'getBalance'
-    const isAddressOnly = typeof contract === 'string'
-
-    if (isGetBalance && isAddressOnly) {
-      return {
-        address: contract,
-        abi: [],
-        functionName: 'getBalance',
-        type: 'getBalance' as const,
-      }
-    }
-
-    if (
-      typeof contract === 'object' &&
-      'address' in contract &&
-      'abi' in contract
-    ) {
-      return {
-        address: contract.address,
-        abi: contract.abi,
-        functionName,
-        args,
-      }
-    }
-
-    throw new Error(`Invalid contract input for function "${functionName}"`)
-  })
-
-  // Step 2: Perform the multicall using wagmi
-  const {
-    data: results,
-    isLoading,
-    isFetching,
-    refetch,
-    error,
-    queryKey
-  } = useReadContracts({
-    batchSize: options.batchSize ?? 50,
-    contracts: contracts as any,
-    scopeKey: options.scopeKey ?? undefined,
-    query: {
-      refetchInterval: options.refetchInterval ?? 30_000,
-      enabled: options.enabled ?? true,
-    },
-  })
-
-  // Step 3: Structure result into a nested dictionary, with optional transforms
-  let storage: Record<string | number, any> | undefined = {}
-  let canOperate = true
-  results?.forEach((item, i) => {
+    // Extract options values for stable dependencies
     const {
-      resultType,
-      keys,
-      transform,
-      onError,
-    } = calls[i]
+        batchSize = 50,
+        scopeKey,
+        refetchInterval = 30_000,
+        enabled = true,
+        externalData,
+    } = options;
 
-    let value
+    // Step 1: Convert call definitions into wagmi-compatible format
+    // Memoize to prevent unnecessary re-renders and refetches
+    // Note: We rely on parent hooks to provide stable 'calls' arrays via their own useMemo
+    // Track both length and a hash of call signatures to detect meaningful changes
+    const callsSignature = useMemo(() => {
+        return calls
+            .map(
+                (c) =>
+                    `${typeof c.contract === "string" ? c.contract : c.contract.address}:${c.functionName}`
+            )
+            .join("|");
+    }, [calls]);
 
-    if (item.status === 'success') {
-      value = item.result
-      if (transform) {
-        try {
-          value = transform(value)
-        } catch (e) {
-          console.warn(`Transform failed for keys [${keys.join('.')}]`, e)
+    const contracts = useMemo(() => {
+        if (calls.length === 0) return [];
+
+        return calls.map(({ contract, functionName, args }) => {
+            const isGetBalance = functionName === "getBalance";
+            const isAddressOnly = typeof contract === "string";
+
+            if (isGetBalance && isAddressOnly) {
+                return {
+                    address: contract as `0x${string}`,
+                    abi: [] as Abi,
+                    functionName: "getBalance",
+                    type: "getBalance" as const,
+                };
+            }
+
+            if (
+                typeof contract === "object" &&
+                "address" in contract &&
+                "abi" in contract
+            ) {
+                return {
+                    address: contract.address,
+                    abi: contract.abi as Abi,
+                    functionName,
+                    args,
+                };
+            }
+
+            throw new Error(
+                `Invalid contract input for function "${functionName}"`
+            );
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [calls.length, callsSignature]);
+
+    // Memoize external data - parent should provide stable reference
+    const memoizedExternalData = externalData;
+
+    // Step 2: Perform the multicall using wagmi
+    const {
+        data: results,
+        isLoading,
+        isFetching,
+        refetch,
+        error,
+        queryKey,
+    } = useReadContracts({
+        batchSize,
+        contracts,
+        scopeKey,
+        query: {
+            refetchInterval,
+            enabled,
+            placeholderData: (previousData) => previousData, // Keep previous data while refetching
+        },
+    });
+
+    // Log only when data actually changes (fetches), not on every render
+    const prevResultsRef = useRef<typeof results>();
+    useEffect(() => {
+        if (results !== prevResultsRef.current) {
+            if (results !== undefined) {
+                console.warn(
+                    `[Multicall Fetch] ${scopeKey || "unknown"} - ${results.length} results - ${new Date().toLocaleTimeString()}`
+                );
+            } else {
+                console.warn(
+                    `[Multicall Loading] ${scopeKey || "unknown"} - ${calls.length} calls pending - ${new Date().toLocaleTimeString()}`
+                );
+            }
+            prevResultsRef.current = results;
         }
-      }
-    } else {
-      if (onError) {
-        const fallback = onError()
-        value = fallback.value
-        canOperate = fallback.canOperate
-      } else {
-        switch (resultType) {
-          case 'uint256':
-          case 'int256':
-            value = '0'
-            break
-          case 'address':
-            value = '0x'
-            break
-          case 'bool':
-            value = false
-            break
-          default:
-            value = null
+    }, [results, scopeKey, calls.length]);
+
+    // Step 3: Structure result into a nested dictionary, with optional transforms
+    let storage: Record<string | number, unknown> | undefined = {};
+    let canOperate = true;
+
+    // Handle different result states
+    if (!results || results.length === 0) {
+        // No results yet - this is normal during initial load or when calls are empty
+        if (calls.length > 0) {
+            // We have calls but no results - this is expected during loading
+            // Don't log this as it's normal behavior
         }
-        canOperate = false
-        console.warn(`Multicall failed for keys [${keys.join('.')}] at index ${i}`)
-      }
+    } else if (results.length !== calls.length) {
+        // Length mismatch - this can happen with stale cached results
+        console.warn(
+            `[Multicall] Length mismatch for ${scopeKey || "unknown"}: results=${results.length}, calls=${calls.length}. Using available data.`
+        );
     }
 
-    assignNestedValue(storage, keys, value)    
-  })
+    // Only process results that have corresponding calls
+    const safeLength = Math.min(results?.length || 0, calls.length);
+    results?.slice(0, safeLength).forEach((item, i) => {
+        // Safety check: ensure calls[i] exists (should always be true now)
+        if (!calls[i]) {
+            console.warn(
+                `Multicall: results[${i}] exists but calls[${i}] is undefined. Skipping.`
+            );
+            return;
+        }
 
-  if (results && results.length > 0) {
-    storage['canOperate'] = canOperate
-  } else {
-    storage = undefined
-  }
+        const { resultType, keys, transform, onError } = calls[i];
 
-  // merge with external data
-  if (storage && options.externalData) {
-    //storage = { ...storage, ...options.externalData }
-    storage = deepMerge(storage, options.externalData)    
-  }
+        let value: unknown;
 
-  return {
-    data: storage,
-    isLoading,
-    isFetching,
-    refetch,
-    error,
-    queryKey
-  }
+        if (item.status === "success") {
+            value = item.result;
+            if (transform) {
+                try {
+                    value = transform(value);
+                } catch (e) {
+                    console.warn(
+                        `Transform failed for keys [${keys.join(".")}]`,
+                        e
+                    );
+                }
+            }
+        } else {
+            if (onError) {
+                const fallback = onError();
+                value = fallback.value;
+                canOperate = fallback.canOperate;
+            } else {
+                switch (resultType) {
+                    case "uint256":
+                    case "int256":
+                        value = "0";
+                        break;
+                    case "address":
+                        value = "0x";
+                        break;
+                    case "bool":
+                        value = false;
+                        break;
+                    default:
+                        value = null;
+                }
+                canOperate = false;
+                console.warn(
+                    `Multicall failed for keys [${keys.join(".")}] at index ${i}`
+                );
+            }
+        }
+
+        if (storage) {
+            assignNestedValue(storage, keys, value);
+        }
+    });
+
+    // Set canOperate flag and handle empty results
+    if (results && results.length > 0) {
+        storage["canOperate"] = canOperate;
+    } else if (calls.length > 0) {
+        // We have calls but no results yet - return undefined to indicate loading
+        storage = undefined;
+    } else {
+        // No calls at all - return empty object
+        storage = { canOperate: true };
+    }
+
+    // merge with external data
+    if (storage && memoizedExternalData) {
+        //storage = { ...storage, ...memoizedExternalData }
+        storage = deepMerge(
+            storage,
+            memoizedExternalData as Record<string | number, unknown>
+        );
+    }
+
+    return {
+        data: storage,
+        isLoading,
+        isFetching,
+        refetch,
+        error,
+        queryKey,
+    };
 }

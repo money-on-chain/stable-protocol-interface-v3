@@ -1,5 +1,6 @@
-type NetworkType = "rsk" | "arbitrum";
+import type { PublicClient } from "viem";
 
+type NetworkType = "rsk" | "arbitrum";
 
 const getNetworkFromProject = (): NetworkType => {
     let network: NetworkType;
@@ -17,24 +18,33 @@ const getNetworkFromProject = (): NetworkType => {
 };
 
 const getExecutionFee = async (
-    publicClient: any,
+    publicClient: PublicClient,
     execCost: bigint,
     slippage: number
 ): Promise<bigint> => {
     //const lastBlock = await web3.eth.getBlock("latest")
 
-    const lastBlock = await publicClient.getBlock({ blockTag: 'latest' });
+    const lastBlock = await publicClient.getBlock({ blockTag: "latest" });
 
-    let latestBaseFee;
+    let latestBaseFee: bigint;
     if (getNetworkFromProject() === "rsk") {
-        latestBaseFee = BigInt(lastBlock.minimumGasPrice ?? 0);
+        // RSK uses minimumGasPrice instead of baseFeePerGas
+        const blockWithMinGasPrice = lastBlock as typeof lastBlock & {
+            minimumGasPrice?: bigint | string;
+        };
+        const minGasPrice = blockWithMinGasPrice.minimumGasPrice;
+        latestBaseFee =
+            typeof minGasPrice === "bigint"
+                ? minGasPrice
+                : BigInt(minGasPrice ?? 0);
     } else {
         latestBaseFee = BigInt(lastBlock.baseFeePerGas ?? 0);
     }
-    
+
     // calculate slippageMultiplier as bigint escalated to 6 decimals
     // Ej: 1.005 → 1005000 / 1000000
-    const slippagePercent = typeof slippage === 'number' ? slippage : parseFloat(slippage);
+    const slippagePercent =
+        typeof slippage === "number" ? slippage : parseFloat(slippage);
     const multiplier = Math.floor((1 + slippagePercent / 100) * 1_000_000); // escalated 1e6
     const multiplierBigInt = BigInt(multiplier);
 
@@ -42,12 +52,10 @@ const getExecutionFee = async (
     const baseExecFee = execCost * latestBaseFee;
     const execFee = (baseExecFee * multiplierBigInt) / 1_000_000n;
 
-    console.log(`Using Base Fee: ${latestBaseFee.toString()} * slippage ${slippage}% = ${execFee.toString()}`);
+    console.warn(
+        `Using Base Fee: ${latestBaseFee.toString()} * slippage ${slippage}% = ${execFee.toString()}`
+    );
     return execFee;
 };
 
-
-export {
-    getExecutionFee,
-    getNetworkFromProject
-};
+export { getExecutionFee, getNetworkFromProject };

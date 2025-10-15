@@ -1,16 +1,16 @@
 {
-  "prices": [
-    {
-      "COINBASE": "BTC/USD",
-      "CA": "BPRO/USD",
-      "TP": ["BPRO/ARS", "BPRO/COP"],
-      "TF": "MOC/BPRO"
-    },
-    {
-      "COINBASE": "BTC/USD",
-      "CA": "DOC/USD",
-      "TP": ["USD/ARS(CCB)", "USD/COP(CCB)"],
-      "TF": "MOC/USD"
-    }
-  ]
+    "prices": [
+        {
+            "COINBASE": "BTC/USD",
+            "CA": "BPRO/USD",
+            "TP": ["BPRO/ARS", "BPRO/COP"],
+            "TF": "MOC/BPRO"
+        },
+        {
+            "COINBASE": "BTC/USD",
+            "CA": "DOC/USD",
+            "TP": ["USD/ARS(CCB)", "USD/COP(CCB)"],
+            "TF": "MOC/USD"
+        }
+    ]
 }

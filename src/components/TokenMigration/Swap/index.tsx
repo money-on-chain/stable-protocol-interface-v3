@@ -1,20 +1,20 @@
-import React, { useContext, useState } from "react";
-import { Button } from "antd";
-import PropTypes from "prop-types";
+import "./style.scss";
 
+import { Button } from "antd";
+import React, { useState } from "react";
+
+import { useWalletContext } from "../../../context/Wallet";
+import { TokenSettings } from "../../../helpers/currencies";
 import { useProjectTranslation } from "../../../helpers/translations";
-import TokenMigratePNG from "./../../../assets/icons/tokenmigrate.png";
 import Copy from "../../Copy";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
-import { TokenSettings } from "../../../helpers/currencies";
-import { useWalletContext } from "../../../context/Wallet";
-import "./style.scss";
+import TokenMigratePNG from "./../../../assets/icons/tokenmigrate.png";
 
 interface SwapTokenProps {
     onCloseModal: () => void;
 }
 
-type StatusType = 
+type StatusType =
     | "SUBMIT"
     | "CONFIRM"
     | "ALLOWANCE-SIGN"
@@ -34,7 +34,11 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
     );
 
     const { t, i18n } = useProjectTranslation();
-    const { interfaceMigrateToken, interfaceAllowUseTokenMigrator, userBalance } = useWalletContext()
+    const {
+        interfaceMigrateToken,
+        interfaceAllowUseTokenMigrator,
+        userBalance,
+    } = useWalletContext();
 
     const onClose = (): void => {
         setStatus("SUBMIT");
@@ -60,7 +64,7 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
     const onTokenMigration = (): void => {
         // First change status to sign tx
         setStatus("TOKEN-MIGRATION-SIGN");
-        interfaceMigrateToken(
+        void interfaceMigrateToken(
             onTransactionTokenMigration,
             onReceiptTokenMigration,
             onErrorTokenMigration
@@ -76,13 +80,13 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
     const onTransactionTokenMigration = (transactionHash: string): void => {
         // Tx receipt detected change status to waiting
         setStatus("TOKEN-MIGRATION-WAITING");
-        console.log("On transaction token migration: ", transactionHash);
+        console.warn("On transaction token migration: ", transactionHash);
         setTxID(transactionHash);
     };
 
-    const onReceiptTokenMigration = async (receipt: any): Promise<void> => {
+    const onReceiptTokenMigration = (receipt: unknown): void => {
         // Tx is mined ok proceed with operation transaction
-        console.log("On receipt token migration: ", receipt);
+        console.warn("On receipt token migration: ", receipt);
         /*
         // Events name list
         const filter = [
@@ -101,10 +105,10 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
          */
     };
 
-    const onErrorTokenMigration = async (error: any): Promise<void> => {
+    const onErrorTokenMigration = (error: unknown): void => {
         // Tx error
         setStatus("TOKEN-MIGRATION-ERROR");
-        console.log("Transaction error: ", error);
+        console.error("Transaction error: ", error);
     };
 
     const onAuthorize = (): void => {
@@ -117,14 +121,14 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
             return;
         }
 
-        const allowanceAmount = userBalance.data.tpLegacy.balance
-        const oldAllowanceAmount = userBalance.data.tpLegacy.allowance
+        const allowanceAmount = userBalance.data.tpLegacy.balance;
+        const oldAllowanceAmount = userBalance.data.tpLegacy.allowance || 0n;
 
         if (oldAllowanceAmount >= allowanceAmount) {
             onTokenMigration();
         } else {
-            interfaceAllowUseTokenMigrator(
-                allowanceAmount.toString(),
+            void interfaceAllowUseTokenMigrator(
+                allowanceAmount,
                 onTransactionAuthorize,
                 onReceiptAuthorize,
                 onErrorAuthorize
@@ -141,13 +145,13 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
     const onTransactionAuthorize = (transactionHash: string): void => {
         // Tx receipt detected change status to waiting
         setStatus("ALLOWANCE-WAITING");
-        console.log("On transaction authorize: ", transactionHash);
+        console.warn("On transaction authorize: ", transactionHash);
         setTxID(transactionHash);
     };
 
-    const onReceiptAuthorize = async (receipt: any): Promise<void> => {
+    const onReceiptAuthorize = (receipt: unknown): void => {
         // Tx is mined ok proceed with operation transaction
-        console.log("On receipt authorize: ", receipt);
+        console.warn("On receipt authorize: ", receipt);
         /*
         // Events name list
         const filter = [
@@ -166,10 +170,10 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
          */
     };
 
-    const onErrorAuthorize = async (error: any): Promise<void> => {
+    const onErrorAuthorize = (error: unknown): void => {
         // Tx Authorize error
         setStatus("TOKEN-MIGRATION-ERROR");
-        console.log("Transaction error: ", error);
+        console.error("Transaction error: ", error);
     };
 
     const onConfirm = (): void => {
@@ -191,14 +195,14 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
     let title: string;
     let btnLabel: string = t("swapModal.buttonConfirm");
     let btnDisable: boolean = false;
-    
+
     if (!userBalance.data || !userBalance.data.tpLegacy) {
         console.error("tpLegacy data not available");
         return <div>Error: Token data not available</div>;
     }
-    
-    const tpLegacyBalance = userBalance.data.tpLegacy.balance
-    
+
+    const tpLegacyBalance = userBalance.data.tpLegacy.balance;
+
     switch (status) {
         case "SUBMIT":
             title = t("swapModal.modalTitle1");
@@ -207,7 +211,7 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
         case "CONFIRM":
             title = t("swapModal.modalTitle2");
             btnLabel = t("defaultCTA.buttonExchange");
-            if (tpLegacyBalance === 0) btnDisable = true;
+            if (tpLegacyBalance === 0n) btnDisable = true;
             break;
         case "ALLOWANCE-SIGN":
         case "ALLOWANCE-WAITING":
@@ -259,10 +263,11 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
                                 <div className="Amount">
                                     <div className="Value">
                                         {PrecisionNumbers({
-                                            amount: userBalance.data.tpLegacy.balance,
+                                            amount: userBalance.data.tpLegacy
+                                                .balance,
                                             token: TokenSettings("TP_0"),
                                             decimals: 4,
-                                            i18n: i18n                                            
+                                            i18n: i18n,
                                         })}
                                     </div>
                                     <div className="Token">RDOC</div>
@@ -275,10 +280,11 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
                                 <div className="Amount">
                                     <div className="Value">
                                         {PrecisionNumbers({
-                                            amount: userBalance.data.tpLegacy.balance,
+                                            amount: userBalance.data.tpLegacy
+                                                .balance,
                                             token: TokenSettings("TP_0"),
                                             decimals: 4,
-                                            i18n: i18n                                            
+                                            i18n: i18n,
                                         })}
                                     </div>
                                     <div className="Token">USDRIF</div>
@@ -450,7 +456,3 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
 };
 
 export default SwapToken;
-
-SwapToken.propTypes = {
-    onCloseModal: PropTypes.func,
-};

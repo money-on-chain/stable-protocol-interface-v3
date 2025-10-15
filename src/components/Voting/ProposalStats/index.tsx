@@ -1,9 +1,10 @@
+import "./Styles.scss";
+
 import React from "react";
 
+import { TokenSettings } from "../../../helpers/currencies";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
-import { TokenSettings } from "../../../helpers/currencies";
-import "./Styles.scss";
 
 interface ProposalStatsProps {
     amount: bigint;
@@ -11,10 +12,12 @@ interface ProposalStatsProps {
     label: string;
 }
 
-export default function ProposalStats(props: ProposalStatsProps): React.ReactElement {
+export default function ProposalStats(
+    props: ProposalStatsProps
+): React.ReactElement {
     const { i18n } = useProjectTranslation();
-    
-    const amountBig =props.amount;
+
+    const amountBig = props.amount;
     const percentageBig = props.percentage;
 
     // Convert data for display compatibility

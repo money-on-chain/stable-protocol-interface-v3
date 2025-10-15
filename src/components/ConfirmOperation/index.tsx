@@ -1,20 +1,29 @@
-import React, { useContext, useState, useEffect } from "react";
 import { Button, Collapse, Slider } from "antd";
+import type { AxiosError } from "axios";
 import axios from "axios";
-import PropTypes from "prop-types";
+import React, { useCallback, useEffect, useState } from "react";
+import type { TransactionReceipt } from "viem";
 
-import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers";
-import { TokenSettings, TokenBalance } from "../../helpers/currencies";
-
-import { isMintOperation, UserTokenAllowance } from "../../helpers/exchange";
-import ModalAllowanceOperation from "../Modals/Allowance";
-import CopyAddress from "../CopyAddress";
-import TXStatus from "./TXStatus";
 import { decodeEvents } from "../../backend/transaction";
 import { useWalletContext } from "../../context/Wallet";
+import { TokenBalance, TokenSettings } from "../../helpers/currencies";
+import { isMintOperation, UserTokenAllowance } from "../../helpers/exchange";
+import { useProjectTranslation } from "../../helpers/translations";
+import CopyAddress from "../CopyAddress";
+import ModalAllowanceOperation from "../Modals/Allowance";
+import { PrecisionNumbers } from "../PrecisionNumbers";
+import TXStatus from "./TXStatus";
 
 const { Panel } = Collapse;
+
+interface OperationStatusResponse {
+    status: number;
+}
+
+interface ContractEvent {
+    eventName: string;
+    args: Record<string, string | number>;
+}
 
 interface ConfirmOperationProps {
     currencyYouExchange: string;
@@ -35,7 +44,14 @@ interface ConfirmOperationProps {
     caIndex: number;
 }
 
-type StatusType = "SUBMIT" | "SIGN" | "QUEUING" | "QUEUED" | "CONFIRMING" | "SUCCESS" | "ERROR";
+type StatusType =
+    | "SUBMIT"
+    | "SIGN"
+    | "QUEUING"
+    | "QUEUED"
+    | "CONFIRMING"
+    | "SUCCESS"
+    | "ERROR";
 
 interface ToleranceLimits {
     exchange: bigint;
@@ -66,7 +82,6 @@ interface StatusLabels {
     [key: string]: string;
 }
 
-
 /**
  * Calculates the limit as: amount + amount * percentage
  * using only BigInt arithmetic by scaling the percentage.
@@ -76,18 +91,23 @@ interface StatusLabels {
  * @param {bigint} scale - Precision scale (default: 1_000_000n = 6 decimals).
  * @returns {bigint} The resulting amount with the percentage added.
  */
-function calculateLimit(amount: bigint, percentage: number, scale = 1_000_000n): bigint {    
+function calculateLimit(
+    amount: bigint,
+    percentage: number,
+    scale = 1_000_000n
+): bigint {
     // Convert the decimal percentage to a scaled integer
     const scaledPercentage = BigInt(Math.floor(percentage * Number(scale)));
-  
+
     // Compute: amount * (1 + percentage) = amount * (scale + scaledPercentage) / scale
     const limit = (amount * (scale + scaledPercentage)) / scale;
-  
+
     return limit;
 }
 
-
-export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Element {
+export default function ConfirmOperation(
+    props: ConfirmOperationProps
+): JSX.Element {
     const {
         currencyYouExchange,
         currencyYouReceive,
@@ -104,12 +124,13 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
         commissionFeeTokenUSD,
         commissionPercentFeeToken,
         radioSelectFee,
-        caIndex
+        caIndex,
     } = props;
 
     const { t, i18n, ns } = useProjectTranslation();
-    
-    const { contractProtocolStatus, userBalance, interfaceExchangeMethod } = useWalletContext()
+
+    const { contractProtocolStatus, userBalance, interfaceExchangeMethod } =
+        useWalletContext();
 
     const [status, setStatus] = useState<StatusType>("SUBMIT");
     const [amountYouExchange, setAmountYouExchange] = useState<bigint>(
@@ -121,33 +142,38 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
     const [toleranceError, setToleranceError] = useState<string>("");
     const [amountChanged, setAmountChanged] = useState<boolean>(false);
 
-    const IS_MINT: boolean = isMintOperation(currencyYouExchange, currencyYouReceive);
-    
+    const IS_MINT: boolean = isMintOperation(
+        currencyYouExchange,
+        currencyYouReceive
+    );
+
     useEffect(() => {
         setAmountYouExchange(inputAmountYouExchange);
-    }, []);
+    }, [inputAmountYouExchange]);
 
     useEffect(() => {
         let timerId: NodeJS.Timeout;
         if (status === "QUEUING") {
-            console.log(
+            console.warn(
                 "Operation queuing... waiting for operation execution."
             );
             timerId = setTimeout(() => {
                 if (status === "QUEUING") {
                     setStatus("ERROR");
-                    console.log(
+                    console.error(
                         "Operation failed after waiting 20 minutes for execution after queuing."
                     );
                 }
             }, 600000);
         }
         if (status === "QUEUED") {
-            console.log("Operation queued... waiting for operation execution.");
+            console.warn(
+                "Operation queued... waiting for operation execution."
+            );
             timerId = setTimeout(() => {
                 if (status === "QUEUED") {
                     setStatus("ERROR");
-                    console.log(
+                    console.error(
                         "Operation failed after waiting 10 minutes for execution."
                     );
                 }
@@ -157,57 +183,148 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
         return () => clearTimeout(timerId);
     }, [status]);
 
-    const toleranceLimits = (newTolerance: number): ToleranceLimits => {
-        let limitExchange: bigint;
-        let limitReceive: bigint;
-        if (IS_MINT) {
-            limitExchange = calculateLimit(amountYouExchange, newTolerance / 100);
-            limitReceive = amountYouReceive;
-        } else {
-            limitExchange = amountYouExchange;
-            limitReceive = calculateLimit(amountYouReceive, newTolerance / 100);
-        }
+    const toleranceLimits = useCallback(
+        (newTolerance: number): ToleranceLimits => {
+            let limitExchange: bigint;
+            let limitReceive: bigint;
+            if (IS_MINT) {
+                limitExchange = calculateLimit(
+                    amountYouExchange,
+                    newTolerance / 100
+                );
+                limitReceive = amountYouReceive;
+            } else {
+                limitExchange = amountYouExchange;
+                limitReceive = calculateLimit(
+                    amountYouReceive,
+                    newTolerance / 100
+                );
+            }
 
-        const limits: ToleranceLimits = {
-            exchange: limitExchange,
-            receive: limitReceive,
-        };
+            const limits: ToleranceLimits = {
+                exchange: limitExchange,
+                receive: limitReceive,
+            };
 
-        return limits;
-    };
+            return limits;
+        },
+        [IS_MINT, amountYouExchange, amountYouReceive]
+    );
 
     const limits: ToleranceLimits = toleranceLimits(tolerance);
 
-    const [amountYouExchangeLimit, setAmountYouExchangeLimit] = useState<bigint>(
-        limits.exchange
-    );
+    const [amountYouExchangeLimit, setAmountYouExchangeLimit] =
+        useState<bigint>(limits.exchange);
     const [amountYouReceiveLimit, setAmountYouReceiveLimit] = useState<bigint>(
         limits.receive
     );
-    const [showModalAllowance, setShowModalAllowance] = useState<boolean>(false);
-    const [showModalAllowanceFeeToken, setShowModalAllowanceFeeToken] = useState<boolean>(false);
-    const [disAllowanceFeeToken, setDisAllowanceFeeToken] = useState<boolean>(false);
+    const [showModalAllowance, setShowModalAllowance] =
+        useState<boolean>(false);
+    const [showModalAllowanceFeeToken, setShowModalAllowanceFeeToken] =
+        useState<boolean>(false);
+    const [disAllowanceFeeToken, setDisAllowanceFeeToken] =
+        useState<boolean>(false);
 
     useEffect(() => {
         if (amountYouExchange) {
             const limits: ToleranceLimits = toleranceLimits(tolerance);
             setAmountYouExchangeLimit(limits.exchange);
         }
-    }, [amountYouExchange]);
+    }, [amountYouExchange, tolerance, toleranceLimits]);
 
     useEffect(() => {
         if (amountYouReceive) {
             const limits: ToleranceLimits = toleranceLimits(tolerance);
             setAmountYouReceiveLimit(limits.receive);
         }
-    }, [amountYouReceive]);
+    }, [amountYouReceive, tolerance, toleranceLimits]);
+
+    const opStatus = useCallback((): void => {
+        if (!opID) {
+            console.warn("Operation Status: Checking... NO.");
+            return;
+        }
+
+        const apiUrl: string =
+            `${import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS}` +
+            "operations/oper_id/";
+        axios
+            .get<OperationStatusResponse>(apiUrl, {
+                params: {
+                    oper_id: opID,
+                    bucket_index: caIndex,
+                },
+                timeout: 10000,
+            })
+            .then((response) => {
+                if (response.status === 200) {
+                    if (response.data.status === 0) {
+                        // Pending executed
+                        console.warn("Operation Status: OK Pending execute.");
+                    } else if (response.data.status === 1) {
+                        // executed operation is finished
+
+                        setStatus("SUCCESS");
+
+                        // Remove Op ID
+                        setOpID(null);
+
+                        // Refresh user balance
+                        void userBalance.refetch();
+
+                        console.warn("Operation Status: OK Executed.");
+                    } else {
+                        setStatus("ERROR");
+
+                        // Remove Op ID
+                        setOpID(null);
+
+                        console.error(
+                            "Operation Status: Error! Status: ",
+                            response.data.status
+                        );
+                    }
+                }
+            })
+            .catch((error: AxiosError<OperationStatusResponse>) => {
+                if (error.response) {
+                    // The request was made and the server responded with a status code
+                    // that falls out of the range of 2xx
+                    if (error.response.status === 404) {
+                        console.warn(
+                            "Resource not found - Operation may not be indexed yet"
+                        );
+                    } else {
+                        console.error(
+                            "Server error:",
+                            error.response.status,
+                            error.response.data
+                        );
+                        setStatus("ERROR");
+                    }
+                } else if (error.request) {
+                    // The request was made but no response was received
+                    console.error("No response received:", error.request);
+                    //setStatus('ERROR');
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    console.error("Error setting up request:", error.message);
+                    setStatus("ERROR");
+                }
+            });
+    }, [opID, caIndex, userBalance]);
 
     useEffect(() => {
+        // Only poll if we have an opID and are in a state that requires polling
+        if (!opID || (status !== "QUEUED" && status !== "QUEUING")) {
+            return;
+        }
+
         const interval: NodeJS.Timeout = setInterval(() => {
             opStatus();
         }, 5000);
         return () => clearInterval(interval);
-    }, [opID]);
+    }, [opStatus, opID, status]);
 
     const onHideModalAllowance = (): void => {
         setShowModalAllowance(false);
@@ -218,7 +335,11 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
     };
 
     const showAllowance = (): boolean => {
-        const tokenAllowance: bigint = UserTokenAllowance(userBalance, currencyYouExchange, caIndex);
+        const tokenAllowance: bigint = UserTokenAllowance(
+            userBalance,
+            currencyYouExchange,
+            caIndex
+        );
         return amountYouExchangeLimit > tokenAllowance;
     };
 
@@ -232,7 +353,11 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
 
     const showAllowanceFeeToken = (): boolean => {
         //const caIndex = getCAIndex(currencyYouExchange, currencyYouReceive);
-        const tokenAllowance: bigint = UserTokenAllowance(userBalance, `TF_${caIndex}`, caIndex);
+        const tokenAllowance: bigint = UserTokenAllowance(
+            userBalance,
+            `TF_${caIndex}`,
+            caIndex
+        );
 
         if (radioSelectFee === 0 && tokenAllowance >= commissionFeeToken) {
             // if we select not to pay with fee token, please disallow to use Fee token
@@ -282,7 +407,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
             limitAmount = amountYouReceiveLimit;
         }
 
-        interfaceExchangeMethod(
+        void interfaceExchangeMethod(
             currencyYouExchange,
             currencyYouReceive,
             tokenAmount,
@@ -291,26 +416,32 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
             onReceipt
         )
             .then((/*value*/) => {
-                console.log("DONE!");
+                console.warn("DONE!");
             })
-            .catch((error: any) => {
+            .catch((error: AxiosError) => {
                 if (error.response) {
                     // The request was made and the server responded with a status code
                     // that falls out of the range of 2xx
                     if (error.response.status === 404) {
-                        console.warn('Resource not found - Operation may not be indexed yet');
+                        console.warn(
+                            "Resource not found - Operation may not be indexed yet"
+                        );
                     } else {
-                        console.error('Server error:', error.response.status, error.response.data);
-                        setStatus('ERROR');
+                        console.error(
+                            "Server error:",
+                            error.response.status,
+                            error.response.data
+                        );
+                        setStatus("ERROR");
                     }
                 } else if (error.request) {
                     // The request was made but no response was received
-                    console.error('No response received:', error.request);
-                    setStatus('ERROR');
+                    console.error("No response received:", error.request);
+                    setStatus("ERROR");
                 } else {
                     // Something happened in setting up the request that triggered an Error
-                    console.error('Error setting up request:', error.message);
-                    setStatus('ERROR');
+                    console.error("Error setting up request:", error.message);
+                    setStatus("ERROR");
                 }
             });
     };
@@ -318,87 +449,13 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
     const onTransaction = (transactionHash: string): void => {
         // Tx receipt detected change status to waiting
         setStatus("QUEUING");
-        console.log("On transaction: ", transactionHash);
+        console.warn("On transaction: ", transactionHash);
         setTxID(transactionHash);
     };
 
-    const opStatus = (): void => {
-        if (!opID) {
-            console.log("Operation Status: Checking... NO.");
-            return;
-        }
-
-        const apiUrl: string =
-            `${import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS}` +
-            "operations/oper_id/";
-        axios
-            .get(apiUrl, {
-                params: {
-                    oper_id: opID,
-                    bucket_index: caIndex
-                },
-                timeout: 10000,
-            })
-            .then((response: any) => {
-                if (response.status === 200) {
-                    if (response.data.status === 0) {
-                        // Pending executed
-                        console.log("Operation Status: OK Pending execute.");
-                    } else if (response.data.status === 1) {
-                        // executed operation is finished
-
-                        setStatus("SUCCESS");
-
-                        // Remove Op ID
-                        setOpID(null);
-
-                        // Refresh user balance
-                        userBalance.refetch();
-                        // auth.loadContractsStatusAndUserBalance().then(
-                        //     (/*value*/) => {
-                        //         console.log("Refresh user balance OK!");
-                        //     }
-                        // );
-
-                        console.log("Operation Status: OK Executed.");
-                    } else {
-                        setStatus("ERROR");
-
-                        // Remove Op ID
-                        setOpID(null);
-
-                        console.log(
-                            "Operation Status: Error! Status: ",
-                            response.data.status
-                        );
-                    }
-                }
-            })
-            .catch((error: any) => {
-                if (error.response) {
-                    // The request was made and the server responded with a status code
-                    // that falls out of the range of 2xx
-                    if (error.response.status === 404) {
-                        console.warn('Resource not found - Operation may not be indexed yet');
-                    } else {
-                        console.error('Server error:', error.response.status, error.response.data);
-                        setStatus('ERROR');
-                    }
-                } else if (error.request) {
-                    // The request was made but no response was received
-                    console.error('No response received:', error.request);
-                    //setStatus('ERROR');
-                } else {
-                    // Something happened in setting up the request that triggered an Error
-                    console.error('Error setting up request:', error.message);
-                    setStatus('ERROR');
-                }
-            });
-    };
-
-    const onQueued = (filteredEvents: any[]): void => {
+    const onQueued = (filteredEvents: ContractEvent[]): void => {
         let operId: number = 0;
-        filteredEvents.forEach(function (events: any) {
+        filteredEvents.forEach(function (events: ContractEvent) {
             if (events.eventName === "OperationQueued") {
                 // Is the event operation queue
                 for (const [eveName, eveValue] of Object.entries(events.args)) {
@@ -410,16 +467,16 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
         });
 
         if (operId > 0) {
-            console.log("Setting operation ID:", operId);
+            console.warn("Setting operation ID:", operId);
             setOpID(operId);
             //setOpID(33)
             setStatus("QUEUED");
         }
     };
 
-    const onReceipt = async (receipt: any): Promise<void> => {
+    const onReceipt = (receipt: unknown): void => {
         // Tx is mined ok
-        console.log("On receipt: ", receipt);
+        console.warn("On receipt: ", receipt);
 
         // Events name list
         const filter: string[] = [
@@ -429,20 +486,20 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
             "OperationExecuted",
         ];
 
-        
-        const contractName: string = "MocQueue";
+        const contractName = "MocQueue" as const;
 
         //const txRcp = await auth.web3.eth.getTransactionReceipt(
         //    receipt.transactionHash
         //);
-        const txRcp = receipt;
-        const filteredEvents: any[] = decodeEvents(txRcp, contractName as any, filter) || [];
+        const txRcp = receipt as TransactionReceipt;
+        const filteredEvents: ContractEvent[] =
+            (decodeEvents(txRcp, contractName, filter) as ContractEvent[]) ||
+            [];
 
         // on Queue
         onQueued(filteredEvents);
-        
     };
-    
+
     const statusLabels: StatusLabels = {
         SUBMIT: t("exchange.confirm.submit"),
         SIGN: t("exchange.confirm.sign"),
@@ -508,9 +565,12 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
         setAmountChanged(true);
         setTolerance(newTolerance);
         const limits: ToleranceLimits = toleranceLimits(newTolerance);
-        const totalBalance: bigint = TokenBalance(userBalance, currencyYouExchange);
+        const totalBalance: bigint = TokenBalance(
+            userBalance,
+            currencyYouExchange
+        );
         if (limits.exchange > totalBalance) {
-            console.log("Insufficient balance");
+            console.warn("Insufficient balance");
             setToleranceError("Tolerance exceeds user balance");
             setAmountYouExchangeLimit(limits.exchange);
             setAmountYouReceiveLimit(limits.receive);
@@ -531,7 +591,9 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
     let commissionPAY: bigint = commission;
     let commissionPAYUSD: bigint = commissionUSD;
     let commissionPercentPAY: bigint = commissionPercent;
-    let commissionSettings: any = TokenSettings(`CA_${caIndex}`);
+    let commissionSettings: ReturnType<typeof TokenSettings> = TokenSettings(
+        `CA_${caIndex}`
+    );
     let commissionTokenName: string;
 
     if (IS_MINT) {
@@ -564,11 +626,8 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                             {PrecisionNumbers({
                                 amount: amountYouExchangeLimit,
                                 token: TokenSettings(currencyYouExchange),
-                                decimals: amountYouExchangeLimit < 1n
-                                    ? 12
-                                    : 8,
-                                i18n: i18n
-                                
+                                decimals: amountYouExchangeLimit < 1n ? 12 : 8,
+                                i18n: i18n,
                             })}
                         </div>
                         <div className="tx-token">
@@ -596,10 +655,8 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                             {PrecisionNumbers({
                                 amount: amountYouReceive,
                                 token: TokenSettings(currencyYouReceive),
-                                decimals: amountYouReceive < 1n
-                                    ? 12
-                                    : 8,
-                                i18n: i18n                                
+                                decimals: amountYouReceive < 1n ? 12 : 8,
+                                i18n: i18n,
                             })}
                         </div>
                         <div className="tx-token">
@@ -619,7 +676,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                                             currencyYouReceive
                                         ),
                                         decimals: 4,
-                                        i18n: i18n                                        
+                                        i18n: i18n,
                                     })}
                                 </div>
                                 {t("exchange.confirm.minimumExplanation")}
@@ -638,7 +695,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                                 amount: commissionPercentPAY,
                                 token: commissionSettings,
                                 decimals: 2,
-                                i18n: i18n                                
+                                i18n: i18n,
                             })}
                             %)
                         </span>
@@ -648,7 +705,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                                 amount: commissionPAY,
                                 decimals: 10,
                                 token: commissionSettings,
-                                i18n: i18n                                
+                                i18n: i18n,
                             })}
                         </span>
                         <span className={"token_receive_name"}>
@@ -657,14 +714,17 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                         </span>
                         <span className={""}> (</span>
                         <span>
-                            {!contractProtocolStatus?.data.canOperate
+                            {!(
+                                contractProtocolStatus?.data?.canOperate ??
+                                false
+                            )
                                 ? "--"
                                 : PrecisionNumbers({
                                       amount: commissionPAYUSD,
                                       decimals: 2,
                                       token: TokenSettings(`CA_${caIndex}`),
                                       i18n: i18n,
-                                      isUSD: true
+                                      isUSD: true,
                                   })}
                         </span>
                         <span className={""}>
@@ -683,7 +743,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                                 amount: executionFee,
                                 decimals: 10,
                                 token: TokenSettings("COINBASE"),
-                                i18n: i18n                                
+                                i18n: i18n,
                             })}
                         </span>
                         <span className={"token_receive_name"}>
@@ -695,20 +755,20 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
 
                         <span className={""}> (</span>
                         <span>
-                            {!contractProtocolStatus?.data.canOperate
+                            {!(
+                                contractProtocolStatus?.data?.canOperate ??
+                                false
+                            )
                                 ? "--"
                                 : PrecisionNumbers({
                                       amount: executionFeeUSD,
                                       decimals: 2,
                                       token: TokenSettings(`CA_${caIndex}`),
                                       i18n: i18n,
-                                      isUSD: true                                      
+                                      isUSD: true,
                                   })}
                         </span>
-                        <span className={""}>
-                            {" "}
-                            USD
-                        </span>
+                        <span className={""}> USD</span>
                         <span className={""}>) </span>
                     </div>
                 </div>
@@ -753,7 +813,9 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                                         max={10}
                                         step={0.1}
                                         dots={false}
-                                        onChange={(val: number) => changeTolerance(val)}
+                                        onChange={(val: number) =>
+                                            changeTolerance(val)
+                                        }
                                     />
                                 </div>
                             </Panel>
@@ -774,7 +836,7 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
                                         amount: exchangingUSD,
                                         token: TokenSettings(`CA_${caIndex}`),
                                         decimals: 4,
-                                        i18n: i18n,                                        
+                                        i18n: i18n,
                                         isUSD: true,
                                     })}
                                 </div>
@@ -896,20 +958,3 @@ export default function ConfirmOperation(props: ConfirmOperationProps): JSX.Elem
         </div>
     );
 }
-
-ConfirmOperation.propTypes = {
-    currencyYouExchange: PropTypes.string,
-    currencyYouReceive: PropTypes.string,
-    exchangingUSD: PropTypes.object,
-    commission: PropTypes.object,
-    commissionUSD: PropTypes.object,
-    commissionPercent: PropTypes.object,
-    inputAmountYouExchange: PropTypes.object,
-    amountYouReceive: PropTypes.object,
-    onCloseModal: PropTypes.func,
-    executionFee: PropTypes.object,
-    commissionFeeToken: PropTypes.object,
-    commissionFeeTokenUSD: PropTypes.object,
-    commissionPercentFeeToken: PropTypes.object,
-    radioSelectFee: PropTypes.number,
-};

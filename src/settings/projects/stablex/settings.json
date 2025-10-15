@@ -7,17 +7,19 @@
     },
     "showPriceVariation": true,
     "tokens": {
-        "COINBASE": [{
-            "key": 0,
-            "name": "ETH",
-            "fullName": "Ethereum",
-            "decimals": 18,
-            "visibleDecimals": 6,
-            "visiblePriceDecimals": 2,
-            "visibleBalanceDecimals": 8,
-            "visibleBalanceUSDDecimals": 2,
-            "peggedUSD": false
-        }],
+        "COINBASE": [
+            {
+                "key": 0,
+                "name": "ETH",
+                "fullName": "Ethereum",
+                "decimals": 18,
+                "visibleDecimals": 6,
+                "visiblePriceDecimals": 2,
+                "visibleBalanceDecimals": 8,
+                "visibleBalanceUSDDecimals": 2,
+                "peggedUSD": false
+            }
+        ],
         "CA": [
             {
                 "key": 0,
@@ -31,16 +33,18 @@
                 "peggedUSD": false
             }
         ],
-        "TC": [{
-            "key": 0,
-            "name": "XETH",
-            "fullName": "XETH",
-            "decimals": 18,
-            "visibleDecimals": 6,
-            "visiblePriceDecimals": 2,
-            "visibleBalanceDecimals": 8,
-            "visibleBalanceUSDDecimals": 2
-        }],
+        "TC": [
+            {
+                "key": 0,
+                "name": "XETH",
+                "fullName": "XETH",
+                "decimals": 18,
+                "visibleDecimals": 6,
+                "visiblePriceDecimals": 2,
+                "visibleBalanceDecimals": 8,
+                "visibleBalanceUSDDecimals": 2
+            }
+        ],
         "TP": [
             {
                 "key": 0,
@@ -54,27 +58,31 @@
                 "peggedUSD": true
             }
         ],
-        "TF": [{
-            "key": 0,
-            "name": "XSTA",
-            "fullName": "StableX",
-            "decimals": 18,
-            "visibleDecimals": 6,
-            "visiblePriceDecimals": 2,
-            "visibleBalanceDecimals": 4,
-            "visibleBalanceUSDDecimals": 2,
-            "peggedUSD": false
-        }],
-        "TG": [{
-            "key": 0,
-            "name": "XSTA",
-            "fullName": "StableX",
-            "decimals": 18,
-            "visibleDecimals": 6,
-            "visiblePriceDecimals": 2,
-            "visibleBalanceDecimals": 8,
-            "visibleBalanceUSDDecimals": 2,
-            "peggedUSD": false
-        }]
+        "TF": [
+            {
+                "key": 0,
+                "name": "XSTA",
+                "fullName": "StableX",
+                "decimals": 18,
+                "visibleDecimals": 6,
+                "visiblePriceDecimals": 2,
+                "visibleBalanceDecimals": 4,
+                "visibleBalanceUSDDecimals": 2,
+                "peggedUSD": false
+            }
+        ],
+        "TG": [
+            {
+                "key": 0,
+                "name": "XSTA",
+                "fullName": "StableX",
+                "decimals": 18,
+                "visibleDecimals": 6,
+                "visiblePriceDecimals": 2,
+                "visibleBalanceDecimals": 8,
+                "visibleBalanceUSDDecimals": 2,
+                "peggedUSD": false
+            }
+        ]
     }
 }

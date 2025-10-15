@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export type Theme = "light" | "dark" | string;
+export type Theme = "light" | "dark";
 
 interface UseThemeResult {
     theme: Theme;
@@ -11,15 +11,21 @@ const useTheme = (): UseThemeResult => {
     const [theme, setTheme] = useState<Theme>(() => {
         // Verificar si el tema está guardado en localStorage
         const root = document.querySelector(":root");
-        let defaulTheme = "light";
+        let defaulTheme: Theme = "light";
         if (root) {
-            defaulTheme = getComputedStyle(root as Element)
+            const cssTheme = getComputedStyle(root)
                 .getPropertyValue("--default-theme")
                 .split('"')
                 .join("");
+            if (cssTheme === "light" || cssTheme === "dark") {
+                defaulTheme = cssTheme;
+            }
         }
         const storedTheme = localStorage.getItem("preferredColorScheme");
-        return storedTheme ? storedTheme : defaulTheme;
+        if (storedTheme === "light" || storedTheme === "dark") {
+            return storedTheme;
+        }
+        return defaulTheme;
     });
 
     useEffect(() => {

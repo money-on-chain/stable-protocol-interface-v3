@@ -1,12 +1,13 @@
-import React, { Fragment, useState, useEffect } from "react";
-import { useProjectTranslation } from "../../helpers/translations";
-import { pendingWithdrawalsFormat } from "../../helpers/staking";
-import Stake from "./Stake";
-import PieChartComponent from "./PieChart";
-import PerformanceChart from "./performanceChart";
-import Withdraw from "./WithdrawV2";
-import DashBoard from "./StakingDashboard";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
+
 import { useWalletContext } from "../../context/Wallet";
+import { pendingWithdrawalsFormat } from "../../helpers/staking";
+import { useProjectTranslation } from "../../helpers/translations";
+import PerformanceChart from "./performanceChart";
+import PieChartComponent from "./PieChart";
+import Stake from "./Stake";
+import DashBoard from "./StakingDashboard";
+import Withdraw from "./WithdrawV2";
 
 interface WithdrawalStatus {
     pending: string;
@@ -20,6 +21,7 @@ interface PendingWithdrawal {
 }
 
 interface UserInfoStaking {
+    [key: string]: unknown;
     tgBalance: bigint;
     stakedBalance: bigint;
     lockedBalance: bigint;
@@ -30,11 +32,9 @@ interface UserInfoStaking {
     unstakeBalance: bigint;
 }
 
-
 interface vUsing {
     getLockingInfo: [bigint, bigint];
 }
-
 
 interface PendingWithdrawalStatus {
     id: bigint;
@@ -48,9 +48,9 @@ const withdrawalStatus: WithdrawalStatus = {
     available: "AVAILABLE",
 };
 
-
-export default function Staking(): JSX.Element {    
-    const { userOmocBalance, isVestingLoaded, userVesting } = useWalletContext()
+export default function Staking(): JSX.Element {
+    const { userOmocBalance, isVestingLoaded, userVesting } =
+        useWalletContext();
     const { t } = useProjectTranslation();
     const [activeTab, setActiveTab] = useState<string>("tab1");
 
@@ -68,37 +68,61 @@ export default function Staking(): JSX.Element {
         defaultUserInfoStaking
     );
 
-    useEffect(() => {
-        if (userOmocBalance.data || userVesting.data) {
-            refreshBalances();
-        }
-    }, [userOmocBalance.data, userVesting.data]);
-
-    const refreshBalances = (): void => {
-        const cData: UserInfoStaking = { ...userInfoStaking };
+    const refreshBalances = useCallback((): void => {
+        const cData: UserInfoStaking = {
+            tgBalance: 0n,
+            stakedBalance: 0n,
+            lockedBalance: 0n,
+            pendingWithdrawals: [],
+            totalPendingExpiration: 0n,
+            totalAvailableToWithdraw: 0n,
+            lockedInVoting: 0n,
+            unstakeBalance: 0n,
+        };
         const nowTimestamp: number = Date.now();
         let pendingWithdrawals: PendingWithdrawal[] = [];
         let vUsing: vUsing;
-        
+
         if (isVestingLoaded() && userVesting.data) {
-            cData["tgBalance"] = userVesting.data.vestingmachine!.tgBalance;
-            cData["stakedBalance"] = userVesting.data.vestingmachine!.staking.balance;
-            cData["lockedBalance"] = userVesting.data.vestingmachine!.staking.getLockedBalance;
+            // Check if the required vesting data exists before accessing it
+            if (
+                !userVesting.data?.vestingmachine?.staking ||
+                !userVesting.data?.vestingmachine?.delay
+            ) {
+                return;
+            }
+
+            cData["tgBalance"] = userVesting.data.vestingmachine.tgBalance;
+            cData["stakedBalance"] =
+                userVesting.data.vestingmachine.staking.balance;
+            cData["lockedBalance"] =
+                userVesting.data.vestingmachine.staking.getLockedBalance;
             pendingWithdrawals = pendingWithdrawalsFormat(
-                userVesting.data.vestingmachine!.delay
+                userVesting.data.vestingmachine.delay
             );
-            vUsing = userVesting.data.vestingmachine!.staking;
-        } else {            
+            vUsing = userVesting.data.vestingmachine.staking;
+        } else {
+            // Check if the required data exists before accessing it
+            if (
+                !userOmocBalance.data?.TG ||
+                !userOmocBalance.data?.stakingmachine ||
+                !userOmocBalance.data?.delaymachine
+            ) {
+                return;
+            }
+
             cData["tgBalance"] = userOmocBalance.data.TG.balance;
-            cData["stakedBalance"] = userOmocBalance.data.stakingmachine!.getBalance;
-            cData["lockedBalance"] = userOmocBalance.data.stakingmachine!.getLockedBalance;
+            cData["stakedBalance"] =
+                userOmocBalance.data.stakingmachine.getBalance;
+            cData["lockedBalance"] =
+                userOmocBalance.data.stakingmachine.getLockedBalance;
             pendingWithdrawals = pendingWithdrawalsFormat(
                 userOmocBalance.data.delaymachine
             );
-            vUsing = userOmocBalance.data.stakingmachine!;            
+            vUsing = userOmocBalance.data.stakingmachine!;
         }
 
-        const [lockedAmount, lockedUntilTimestamp] = vUsing.getLockingInfo;        
+        const [lockedAmount, lockedUntilTimestamp] = vUsing.getLockingInfo;
 
         if (lockedUntilTimestamp * 1000n > BigInt(nowTimestamp)) {
             cData["lockedInVoting"] = lockedAmount;
@@ -106,43 +130,57 @@ export default function Staking(): JSX.Element {
             cData["lockedInVoting"] = 0n;
         }
 
-        cData["unstakeBalance"] = cData["stakedBalance"] - cData["lockedInVoting"];
+        cData["unstakeBalance"] =
+            cData["stakedBalance"] - cData["lockedInVoting"];
 
-        const pendingWithdrawalsFormatted: PendingWithdrawalStatus[] = pendingWithdrawals
-            .filter((withdrawal: PendingWithdrawal) => withdrawal.expiration)
-            .map((withdrawal: PendingWithdrawal) => {
-                const status: string =
-                    new Date(Number(withdrawal.expiration) * 1000) >
-                    new Date()
-                        ? withdrawalStatus.pending
-                        : withdrawalStatus.available;
+        const pendingWithdrawalsFormatted: PendingWithdrawalStatus[] =
+            pendingWithdrawals
+                .filter(
+                    (withdrawal: PendingWithdrawal) => withdrawal.expiration
+                )
+                .map((withdrawal: PendingWithdrawal) => {
+                    const status: string =
+                        new Date(Number(withdrawal.expiration) * 1000) >
+                        new Date()
+                            ? withdrawalStatus.pending
+                            : withdrawalStatus.available;
 
-                return {
-                    ...withdrawal,
-                    status,
-                };
-            });
+                    return {
+                        ...withdrawal,
+                        status,
+                    };
+                });
         let pendingExpirationAmount: bigint = 0n;
         let readyToWithdrawAmount: bigint = 0n;
-        pendingWithdrawalsFormatted.forEach(({ status, amount }: PendingWithdrawalStatus) => {
-            if (status === withdrawalStatus.pending) {
-                pendingExpirationAmount = pendingExpirationAmount + amount;
-            } else {
-                readyToWithdrawAmount = readyToWithdrawAmount + amount;
-            }
-        });
-        const pendingWithdrawalsSort: PendingWithdrawal[] = pendingWithdrawalsFormatted.sort(
-            function (a: PendingWithdrawal, b: PendingWithdrawal) {
-                return Number(b.id) - Number(a.id);
+        pendingWithdrawalsFormatted.forEach(
+            ({ status, amount }: PendingWithdrawalStatus) => {
+                if (status === withdrawalStatus.pending) {
+                    pendingExpirationAmount = pendingExpirationAmount + amount;
+                } else {
+                    readyToWithdrawAmount = readyToWithdrawAmount + amount;
+                }
             }
         );
+        const pendingWithdrawalsSort: PendingWithdrawalStatus[] =
+            pendingWithdrawalsFormatted.sort(function (
+                a: PendingWithdrawalStatus,
+                b: PendingWithdrawalStatus
+            ) {
+                return Number(b.id) - Number(a.id);
+            });
 
         cData["pendingWithdrawals"] = pendingWithdrawalsSort;
         cData["totalPendingExpiration"] = pendingExpirationAmount;
         cData["totalAvailableToWithdraw"] = readyToWithdrawAmount;
 
         setUserInfoStaking(cData);
-    };
+    }, [isVestingLoaded, userVesting.data, userOmocBalance.data]);
+
+    useEffect(() => {
+        if (userOmocBalance.data || userVesting.data) {
+            refreshBalances();
+        }
+    }, [userOmocBalance.data, userVesting.data, refreshBalances]);
 
     return (
         <div>

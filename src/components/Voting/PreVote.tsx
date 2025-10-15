@@ -1,13 +1,13 @@
 import React, { Fragment, useEffect, useState } from "react";
 
-import { useProjectTranslation } from "../../helpers/translations";
-import CompletedBar from "./CompletedBar";
-import { PrecisionNumbers } from "../PrecisionNumbers";
-import { TokenSettings } from "../../helpers/currencies";
-import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
 import { useWalletContext } from "../../context/Wallet";
+import { TokenSettings } from "../../helpers/currencies";
+import { useProjectTranslation } from "../../helpers/translations";
+import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
+import { PrecisionNumbers } from "../PrecisionNumbers";
+import CompletedBar from "./CompletedBar";
 
-const PRECISION_DECIMALS = 18n
+const PRECISION_DECIMALS = 18n;
 const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
 
 interface CreateBarGraphProps {
@@ -24,7 +24,7 @@ interface CreateBarGraphProps {
     valueNeedIt: bigint;
     valueTotal: bigint;
     pctCurrent: bigint;
-    pctNeedIt: bigint;    
+    pctNeedIt: bigint;
     amount1: bigint;
     percentage1: bigint;
     label2: string;
@@ -64,8 +64,6 @@ interface PreVoteProps {
     onUnRegisterProposal: (changeContract: string) => void;
     onRunPreVoteStep: () => void;
 }
-
-
 
 const CreateBarGraph: React.FC<CreateBarGraphProps> = (props) => {
     return (
@@ -107,21 +105,19 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
     } = props;
     const { t, i18n, ns } = useProjectTranslation();
     const space: string = "\u00A0";
-    const { interfaceVotingPreVote, userOmocBalance, contractStatusOmoc } = useWalletContext()
+    const { interfaceVotingPreVote, userOmocBalance, contractStatusOmoc } =
+        useWalletContext();
 
     const [isOperationModalVisible, setIsOperationModalVisible] =
         useState<boolean>(false);
     const [txHash, setTxHash] = useState<string>("");
     const [operationStatus, setOperationStatus] = useState<string>("sign");
     const [modalTitle, setModalTitle] = useState<string>("Voting in favor");
-    const [votingInFavorError, setVotingInFavorError] = useState<boolean>(false);
+    const [votingInFavorError, setVotingInFavorError] =
+        useState<boolean>(false);
     const [showProposalModal, setShowProposalModal] = useState<boolean>(false);
 
-    useEffect(() => {
-        onValidateVotingInFavor();
-    }, [infoUser["Voting_Power"], proposal["canVote"]]);
-
-    const onValidateVotingInFavor = (): boolean => {
+    const onValidateVotingInFavor = React.useCallback((): boolean => {
         if (infoUser["Voting_Power"] <= 0n) {
             // You need at least voting power > 0
             setVotingInFavorError(true);
@@ -133,7 +129,14 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
         }
 
         return true;
-    };
+    }, [infoUser, proposal]);
+
+    const votingPower = infoUser["Voting_Power"];
+    const canVote = proposal["canVote"];
+
+    useEffect(() => {
+        onValidateVotingInFavor();
+    }, [votingPower, canVote, onValidateVotingInFavor]);
 
     const preVotingGraphs: CreateBarGraphProps[] = [
         {
@@ -170,15 +173,10 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
         setIsOperationModalVisible(true);
 
         const onTransaction = (txHash: string): void => {
-            console.log(
-                "Sent transaction voting in favor proposal...: ",
-                txHash
-            );
             setTxHash(txHash);
             setOperationStatus("pending");
         };
         const onReceipt = (): void => {
-            console.log("Transaction voting in favor proposal mined!...");
             setOperationStatus("success");
             /*
             // Events name list
@@ -197,29 +195,28 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
             const filteredEvents = decodeEvents(txRcp, contractName, filter);
              */
         };
-        const onError = (error: any): void => {
-            console.log(
+        const onError = (error: unknown): void => {
+            console.error(
                 "Transaction voting in favor proposal error!...:",
                 error
             );
             setOperationStatus("error");
         };
 
-        await interfaceVotingPreVote(
-                proposal.changeContract,
+        try {
+            await interfaceVotingPreVote(
+                proposal.changeContract as `0x${string}`,
                 onTransaction,
                 onReceipt,
                 onError
-            )
-            .then((/*res*/) => {
-                // Refresh status
-                userOmocBalance.refetch();
-                contractStatusOmoc.refetch();
-            })
-            .catch((e) => {
-                console.error(e);
-                setOperationStatus("error");
-            });
+            );
+            // Refresh status
+            void userOmocBalance.refetch();
+            void contractStatusOmoc.refetch();
+        } catch (e) {
+            console.error(e);
+            setOperationStatus("error");
+        }
     };
 
     return (
@@ -348,7 +345,7 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
                                     {proposal.canVote && (
                                         <button
                                             className="button infavor"
-                                            onClick={onVoteInFavor}
+                                            onClick={() => void onVoteInFavor()}
                                             disabled={votingInFavorError}
                                         >
                                             <div className="icon icon__vote__infavor"></div>
@@ -402,4 +399,4 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
     );
 };
 
-export default PreVote; 
+export default PreVote;

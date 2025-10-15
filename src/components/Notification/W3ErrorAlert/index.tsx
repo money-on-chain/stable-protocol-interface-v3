@@ -1,6 +1,7 @@
-import React from "react";
-import { Alert } from "antd";
 import "./Styles.scss";
+
+import { Alert } from "antd";
+import React from "react";
 
 export default function W3ErrorAlert(): React.ReactElement {
     return (

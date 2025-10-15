@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import React, { useCallback, useEffect, useState } from "react";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
-import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers";
-import settings from "../../settings/settings.json";
-import { toBigIntPrecision } from "../../helpers/precision";
 import { bigIntToInputValue } from "../../helpers/currencies";
+import { toBigIntPrecision } from "../../helpers/precision";
+import { useProjectTranslation } from "../../helpers/translations";
+import settings from "../../settings/settings.json";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 
 interface UserInfoStaking {
     tgBalance: bigint;
@@ -25,8 +25,8 @@ interface PieChartComponentProps {
 }
 
 const convertBigIntToNumber = (amount: bigint) => {
-    return Number(bigIntToInputValue(amount, 'TG', 2));
-}
+    return Number(bigIntToInputValue(amount, "TG", 2));
+};
 
 const PieChartComponent: React.FC<PieChartComponentProps> = (props) => {
     const { t, i18n } = useProjectTranslation();
@@ -35,48 +35,74 @@ const PieChartComponent: React.FC<PieChartComponentProps> = (props) => {
     const { userInfoStaking } = props;
     const space: string = "\u00A0";
 
-    useEffect(() => {
-        readData();
+    // Extract properties to avoid complex expressions in dependency array
+    const tgBalance = userInfoStaking.tgBalance;
+    const stakedBalance = userInfoStaking.stakedBalance;
+    const totalPendingExpiration = userInfoStaking.totalPendingExpiration;
+    const totalAvailableToWithdraw = userInfoStaking.totalAvailableToWithdraw;
+    const lockedInVoting = userInfoStaking.lockedInVoting;
+
+    const getTotal = useCallback((): number => {
+        return (
+            convertBigIntToNumber(tgBalance) +
+            convertBigIntToNumber(stakedBalance - lockedInVoting) +
+            convertBigIntToNumber(totalPendingExpiration) +
+            convertBigIntToNumber(totalAvailableToWithdraw) +
+            convertBigIntToNumber(lockedInVoting)
+        );
     }, [
-        userInfoStaking["tgBalance"],
-        userInfoStaking["stakedBalance"],
-        userInfoStaking["totalPendingExpiration"],
-        userInfoStaking["totalAvailableToWithdraw"],
-        userInfoStaking["lockedInVoting"],
+        tgBalance,
+        stakedBalance,
+        totalPendingExpiration,
+        totalAvailableToWithdraw,
+        lockedInVoting,
     ]);
 
-    const readData = (): void => {
-        const total: number = getTotal();        
+    const readData = useCallback((): void => {
+        const total: number = getTotal();
         const _data: PieChartData[] = [
             {
                 type: t("staking.distribution.graph.balance"),
-                value: total > 0
-                    ? convertBigIntToNumber(userInfoStaking["tgBalance"]) / total * 100
-                    : 0,
+                value:
+                    total > 0
+                        ? (convertBigIntToNumber(tgBalance) / total) * 100
+                        : 0,
             },
             {
                 type: t("staking.distribution.graph.processingUnstake"),
-                value: total > 0
-                    ? convertBigIntToNumber(userInfoStaking["totalPendingExpiration"]) / total * 100
-                    : 0,
+                value:
+                    total > 0
+                        ? (convertBigIntToNumber(totalPendingExpiration) /
+                              total) *
+                          100
+                        : 0,
             },
             {
                 type: t("staking.distribution.graph.readyWithdraw"),
-                value: total > 0
-                    ? convertBigIntToNumber(userInfoStaking["totalAvailableToWithdraw"]) / total * 100
-                    : 0,
+                value:
+                    total > 0
+                        ? (convertBigIntToNumber(totalAvailableToWithdraw) /
+                              total) *
+                          100
+                        : 0,
             },
             {
                 type: t("staking.distribution.graph.staked"),
-                value: total > 0
-                    ? convertBigIntToNumber(userInfoStaking["stakedBalance"] - userInfoStaking["lockedInVoting"]) / total * 100
-                    : 0,
+                value:
+                    total > 0
+                        ? (convertBigIntToNumber(
+                              stakedBalance - lockedInVoting
+                          ) /
+                              total) *
+                          100
+                        : 0,
             },
             {
                 type: "Staked in voting",
-                value: total > 0
-                    ? convertBigIntToNumber(userInfoStaking["lockedInVoting"]) / total * 100
-                    : 0,
+                value:
+                    total > 0
+                        ? (convertBigIntToNumber(lockedInVoting) / total) * 100
+                        : 0,
             },
         ];
         // START TEST
@@ -90,16 +116,19 @@ const PieChartComponent: React.FC<PieChartComponentProps> = (props) => {
         // END TEST
         setData(_data);
         setTotal(total);
-    };
+    }, [
+        t,
+        getTotal,
+        tgBalance,
+        totalPendingExpiration,
+        totalAvailableToWithdraw,
+        stakedBalance,
+        lockedInVoting,
+    ]);
 
-    const getTotal = (): number => {
-        return convertBigIntToNumber(userInfoStaking["tgBalance"]) +
-        convertBigIntToNumber(userInfoStaking["stakedBalance"] - userInfoStaking["lockedInVoting"]) +
-        convertBigIntToNumber(userInfoStaking["totalPendingExpiration"]) +
-        convertBigIntToNumber(userInfoStaking["totalAvailableToWithdraw"]) +
-        convertBigIntToNumber(userInfoStaking["lockedInVoting"])
-        
-    };
+    useEffect(() => {
+        readData();
+    }, [readData]);
 
     // Retrieve CSS color variables
     const colorBalance: string = getComputedStyle(
@@ -131,12 +160,14 @@ const PieChartComponent: React.FC<PieChartComponentProps> = (props) => {
         <div>
             <div className="pie-chart-total">
                 <div className="pie-chart-total-amount">
-                    {total ? PrecisionNumbers({
-                        amount: toBigIntPrecision(total),
-                        token: settings.tokens.TG[0],
-                        decimals: 2,                        
-                        i18n: i18n                        
-                    }) : "--"}
+                    {total
+                        ? PrecisionNumbers({
+                              amount: toBigIntPrecision(total),
+                              token: settings.tokens.TG[0],
+                              decimals: 2,
+                              i18n: i18n,
+                          })
+                        : "--"}
                     {space}
                     {t("staking.governanceToken")}
                 </div>
@@ -188,4 +219,4 @@ const PieChartComponent: React.FC<PieChartComponentProps> = (props) => {
     );
 };
 
-export default PieChartComponent; 
+export default PieChartComponent;

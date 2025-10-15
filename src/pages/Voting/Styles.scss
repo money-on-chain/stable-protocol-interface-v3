@@ -59,6 +59,11 @@ $breakpoint-mobile: 600px;
     .infavor {
         background-color: var(--color-semantic-positive);
     }
+
+    .veto {
+        justify-content: left;
+        background-color: var(--color-semantic-negative);
+    }
 }
 .voting__proposals {
     width: 100%;

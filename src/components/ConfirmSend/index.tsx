@@ -1,13 +1,12 @@
-import React, { useState } from "react";
 import { Button } from "antd";
-import PropTypes from "prop-types";
+import React, { useState } from "react";
 
-import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers";
-import { TokenSettings } from "../../helpers/currencies";
-import CopyAddress from "../CopyAddress";
-import { toBigIntPrecision } from "../../helpers/precision";
 import { useWalletContext } from "../../context/Wallet";
+import { TokenSettings } from "../../helpers/currencies";
+import { toBigIntPrecision } from "../../helpers/precision";
+import { useProjectTranslation } from "../../helpers/translations";
+import CopyAddress from "../CopyAddress";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 
 interface ConfirmSendProps {
     currencyYouExchange: string;
@@ -28,8 +27,9 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
         onCloseModal,
     } = props;
 
-    const { t, i18n, ns } = useProjectTranslation();    
-    const { interfaceTransferToken, interfaceTransferCoinbase, userBalance } = useWalletContext()
+    const { t, i18n, ns } = useProjectTranslation();
+    const { interfaceTransferToken, interfaceTransferCoinbase, userBalance } =
+        useWalletContext();
 
     const [status, setStatus] = useState<StatusType>("SUBMIT");
     const [txID, setTxID] = useState<string>("");
@@ -37,25 +37,26 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
     const onSendTransaction = (): void => {
         // Real send transaction
         setStatus("SIGN");
-        const amountYouExchangeWei: bigint = toBigIntPrecision(amountYouExchange);
+        const amountYouExchangeWei: bigint =
+            toBigIntPrecision(amountYouExchange);
 
         if (currencyYouExchange === "COINBASE") {
-            interfaceTransferCoinbase(
+            void interfaceTransferCoinbase(
                 amountYouExchangeWei,
                 destinationAddress.toLowerCase(),
                 onTransaction,
                 onReceipt
             )
                 .then((/*value*/) => {
-                    console.log("DONE!");
+                    console.warn("DONE!");
                 })
-                .catch((error: any) => {
-                    console.log("ERROR");
+                .catch((error: unknown) => {
+                    console.error("ERROR");
                     setStatus("ERROR");
-                    console.log(error);
+                    console.error(error);
                 });
         } else {
-            interfaceTransferToken(
+            void interfaceTransferToken(
                 currencyYouExchange,
                 amountYouExchangeWei,
                 destinationAddress.toLowerCase(),
@@ -63,12 +64,12 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
                 onReceipt
             )
                 .then((/*value*/) => {
-                    console.log("DONE!");
+                    console.warn("DONE!");
                 })
-                .catch((error: any) => {
-                    console.log("ERROR");
+                .catch((error: unknown) => {
+                    console.error("ERROR");
                     setStatus("ERROR");
-                    console.log(error);
+                    console.error(error);
                 });
         }
     };
@@ -76,13 +77,13 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
     const onTransaction = (transactionHash: string): void => {
         // Tx receipt detected change status to waiting
         setStatus("WAITING");
-        console.log("On transaction: ", transactionHash);
+        console.warn("On transaction: ", transactionHash);
         setTxID(transactionHash);
     };
 
-    const onReceipt = async (receipt: any): Promise<void> => {
+    const onReceipt = (receipt: unknown): void => {
         // Tx is mined ok
-        console.log("On receipt: ", receipt);
+        console.warn("On receipt: ", receipt);
 
         /*
         // Events name list
@@ -104,7 +105,7 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
         setStatus("SUCCESS");
 
         // Refresh user balance
-        userBalance.refetch();
+        void userBalance.refetch();
     };
 
     let sentIcon: string = "";
@@ -151,7 +152,7 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
                                 amount: toBigIntPrecision(amountYouExchange),
                                 token: TokenSettings(currencyYouExchange),
                                 decimals: 8,
-                                i18n: i18n                                
+                                i18n: i18n,
                             })}
                         </div>
                         <div className="tx-token">
@@ -188,7 +189,7 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
                                     amount: exchangingUSD,
                                     token: TokenSettings("CA_0"),
                                     decimals: 8,
-                                    i18n: i18n                                    
+                                    i18n: i18n,
                                 })}
                             </div>
 
@@ -275,11 +276,3 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
         </div>
     );
 }
-
-ConfirmSend.propTypes = {
-    currencyYouExchange: PropTypes.string,
-    exchangingUSD: PropTypes.object,
-    amountYouExchange: PropTypes.string,
-    destinationAddress: PropTypes.string,
-    onCloseModal: PropTypes.func,
-};

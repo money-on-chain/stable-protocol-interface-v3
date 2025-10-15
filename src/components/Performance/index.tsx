@@ -1,16 +1,14 @@
-import React, { useState, useEffect } from "react";
 import { Modal } from "antd";
+import React, { useEffect, useState } from "react";
 
-import { useProjectTranslation } from "../../helpers/translations";
-import { CheckStatusGlobal } from "../../helpers/checkStatus";
-import GlobalStatusModal from "../Modals/GlobalStatus";
-import settings from "../../settings/settings.json";
-import Buckets from "./buckets";
-import TVL from "./tvl";
-import MultiCollateral from "./multicollateral";
 import { useWalletContext } from "../../context/Wallet";
-
-
+import { CheckStatusGlobal } from "../../helpers/checkStatus";
+import { useProjectTranslation } from "../../helpers/translations";
+import settings from "../../settings/settings.json";
+import GlobalStatusModal from "../Modals/GlobalStatus";
+import Buckets from "./buckets";
+import MultiCollateral from "./multicollateral";
+import TVL from "./tvl";
 
 export default function Performance(): JSX.Element {
     const space = "\u00A0";
@@ -18,11 +16,13 @@ export default function Performance(): JSX.Element {
     const [statusText, setStatusText] = useState<string>("--");
     const [statusLabelClass, setStatusLabelClass] = useState<string>("");
     const [statusCode, setStatusCode] = useState<number[]>([]);
-    const [showGlobalStatusModal, setShowGlobalStatusModal] = useState<boolean>(false);
+    const [showGlobalStatusModal, setShowGlobalStatusModal] =
+        useState<boolean>(false);
     const { t } = useProjectTranslation();
-    const { contractProtocolStatus, userBalance, blockNumber } = useWalletContext()
+    const { contractProtocolStatus, userBalance, blockNumber } =
+        useWalletContext();
     const { checkerStatus } = CheckStatusGlobal();
-    
+
     useEffect(() => {
         if (contractProtocolStatus.data && userBalance.data) {
             const { statusLabel, statusLabelClass, statusText, statusCode } =
@@ -32,12 +32,13 @@ export default function Performance(): JSX.Element {
             setStatusLabelClass(statusLabelClass);
             setStatusCode(statusCode);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [contractProtocolStatus.data, userBalance.data]);
 
     const showModal = (): void => {
         setShowGlobalStatusModal(true);
     };
-    
+
     const hideModal = (): void => {
         setShowGlobalStatusModal(false);
     };
@@ -117,12 +118,7 @@ export default function Performance(): JSX.Element {
 
             {/* Buckets */}
             {settings.tokens.CA.map(function (tokenSetting, caIndex) {
-                return (
-                    <Buckets
-                        caIndex={caIndex}
-                        key={caIndex}
-                    />
-                );
+                return <Buckets caIndex={caIndex} key={caIndex} />;
             })}
         </div>
     );

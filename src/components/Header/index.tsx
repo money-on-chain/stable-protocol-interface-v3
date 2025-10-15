@@ -1,16 +1,16 @@
-import { Layout } from "antd";
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import "./Styles.scss";
 
+import { Layout } from "antd";
+import React, { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import { useWalletContext } from "../../context/Wallet";
 import { useProjectTranslation } from "../../helpers/translations";
+import settings from "../../settings/settings.json";
 import DappVersion from "../DappVersion";
 import ThemeMode from "../ThemeMode";
-import settings from "../../settings/settings.json";
-import menuOptionsData from "./menuOptions.json";
 import Brand from "./Brand";
-import { useWalletContext } from "../../context/Wallet";
-
-import "./Styles.scss";
+import menuOptionsData from "./menuOptions.json";
 
 const { Header } = Layout;
 
@@ -38,12 +38,8 @@ const truncateAddress = (address: string): string => {
 export default function SectionHeader(): JSX.Element {
     const navigate = useNavigate();
     const location = useLocation();
-    const {
-        isConnected,
-        address,
-        onShowModalAccount,
-        onShowModalProviders,
-    } = useWalletContext();
+    const { isConnected, address, onShowModalAccount, onShowModalProviders } =
+        useWalletContext();
     //const [css_disable, setCssDisable] = useState("disable-nav-item");
     const [showMoreDropdown, setShowMoreDropdown] = useState<boolean>(false);
     const [showLanguageMenu, setShowLanguageMenu] = useState<boolean>(false);
@@ -59,15 +55,24 @@ export default function SectionHeader(): JSX.Element {
     const MAX_MAIN_MENU_ITEMS: number = 5;
 
     // Process JSON for navigation menu
-    const menuOptions: MenuOption[] = menuOptionsData.map((option: any) => ({
-        ...option,
-        name: () => t(option.nameKey), // Traducimos el nombre dinámicamente
-    }));
+    interface RawMenuOption {
+        path: string;
+        nameKey: string;
+        className: string;
+        allowedProjects: string[];
+    }
 
     // Filter options based on project and language changes
     const [displayOptions, setDisplayOptions] = useState<MenuOption[]>([]);
     const currentProject: string = settings.project;
     useEffect(() => {
+        const menuOptions: MenuOption[] = (
+            menuOptionsData as RawMenuOption[]
+        ).map((option: RawMenuOption) => ({
+            ...option,
+            name: () => t(option.nameKey), // Traducimos el nombre dinámicamente
+        }));
+
         const filteredOptions: MenuOption[] = menuOptions
             .filter(
                 (option: MenuOption) =>
@@ -117,7 +122,7 @@ export default function SectionHeader(): JSX.Element {
     const toggleLanguageSubmenu = (): void =>
         setShowLanguageSubmenu(!showLanguageSubmenu);
     const pickLanguage = (code: string): void => {
-        i18n.changeLanguage(code);
+        void i18n.changeLanguage(code);
         setLang(code);
         setShowLanguageMenu(false);
         localStorage.setItem("PreferredLang", code);
@@ -131,7 +136,10 @@ export default function SectionHeader(): JSX.Element {
     useEffect(() => {
         const preferredLanguage: string =
             localStorage.getItem("PreferredLang") || "en";
-        pickLanguage(preferredLanguage);
+        void i18n.changeLanguage(preferredLanguage);
+        setLang(preferredLanguage);
+        // Only run once on mount to load saved language preference
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
@@ -154,7 +162,7 @@ export default function SectionHeader(): JSX.Element {
                         </a>
                     ))}
                     {moreMenuOptions.length > 0 && (
-                        <a
+                        <div
                             onClick={() =>
                                 setShowMoreDropdown(!showMoreDropdown)
                             }
@@ -188,7 +196,7 @@ export default function SectionHeader(): JSX.Element {
                                     )}
                                 </div>
                             )}
-                        </a>
+                        </div>
                     )}
                 </div>
                 <div className="wallet-user">
@@ -210,11 +218,11 @@ export default function SectionHeader(): JSX.Element {
                         className={`wallet-address ${isConnected ? "walletConnected" : "walletDisconnected"}`}
                     >
                         {isConnected ? (
-                        <>                            
-                            <a onClick={onShowModalAccount}>
-                                {truncateAddress(address || "")}
-                            </a>                            
-                        </>
+                            <>
+                                <a onClick={onShowModalAccount}>
+                                    {truncateAddress(address || "")}
+                                </a>
+                            </>
                         ) : (
                             <a onClick={() => onShowModalProviders()}>
                                 {t("walletProviders.connectWalletButton")}

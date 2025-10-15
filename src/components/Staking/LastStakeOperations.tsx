@@ -1,16 +1,28 @@
-import React from "react";
 import { Skeleton, Table } from "antd";
+import React from "react";
 
 import { useProjectTranslation } from "../../helpers/translations";
 
-export default function LastStakeOperations() {
+interface StakingDataItem {
+    key: number;
+    date: string;
+    amount: number;
+    operation: string;
+}
+
+interface TableDataItem {
+    key: number;
+    details: React.ReactNode;
+}
+
+export default function LastStakeOperations(): React.ReactElement {
     const { t } = useProjectTranslation();
 
     const tableColumns = [{ title: "Token", dataIndex: "details" }];
     // hay que agregar los encabezados como html?
     // hay que incrementar un contador en el foreach?
-    const tableData = [];
-    const stakingData = [
+    const tableData: TableDataItem[] = [];
+    const stakingData: StakingDataItem[] = [
         { key: 1, date: "10/04/2024", amount: 223423.34, operation: "Stake" },
         { key: 2, date: "15/15/2024", amount: 223423.34, operation: "Stake" },
         {
@@ -66,7 +78,7 @@ export default function LastStakeOperations() {
                         {t("staking.history.columnOperation")}
                     </div>
                 </div>
-                {tableData ? (
+                {tableData.length > 0 ? (
                     <>
                         <div className="divider-horizontal"></div>
                         <Table
@@ -75,9 +87,9 @@ export default function LastStakeOperations() {
                             showHeader={false}
                             pagination={{
                                 pageSize: 1000,
-                                position: ["none", "bottomRight"],
+                                position: ["bottomRight"],
                                 defaultCurrent: 1,
-                                total: null,
+                                total: undefined,
                             }}
                             // scroll={{ y: 200 }}
                         />

@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import Modal from "antd/lib/modal/Modal";
 import { Button } from "antd";
+import Modal from "antd/lib/modal/Modal";
+import React, { useState } from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
 import ConfirmOperation from "../../ConfirmOperation";
@@ -9,22 +9,24 @@ interface ModalConfirmOperationProps {
     inputValidationError?: boolean;
     currencyYouExchange: string;
     currencyYouReceive: string;
-    exchangingUSD: bigint;     
-    commission: bigint; 
-    commissionUSD: bigint; 
-    commissionPercent: bigint; 
-    inputAmountYouExchange: bigint; 
-    amountYouReceive: bigint; 
-    executionFee: bigint; 
-    executionFeeUSD: bigint; 
-    commissionFeeToken: bigint; 
-    commissionFeeTokenUSD: bigint; 
-    commissionPercentFeeToken: bigint; 
+    exchangingUSD: bigint;
+    commission: bigint;
+    commissionUSD: bigint;
+    commissionPercent: bigint;
+    inputAmountYouExchange: bigint;
+    amountYouReceive: bigint;
+    executionFee: bigint;
+    executionFeeUSD: bigint;
+    commissionFeeToken: bigint;
+    commissionFeeTokenUSD: bigint;
+    commissionPercentFeeToken: bigint;
     radioSelectFee: number;
     caIndex: number;
 }
 
-export default function ModalConfirmOperation(props: ModalConfirmOperationProps): React.ReactElement {
+export default function ModalConfirmOperation(
+    props: ModalConfirmOperationProps
+): React.ReactElement {
     const { /*onClear,*/ inputValidationError } = props;
 
     const { t } = useProjectTranslation();
@@ -42,7 +44,7 @@ export default function ModalConfirmOperation(props: ModalConfirmOperationProps)
     const hideModal = (): void => {
         setVisible(false);
     };
-    
+
     return (
         <div className="ShowModalConfirmOperation">
             <Button

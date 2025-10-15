@@ -1,6 +1,6 @@
-import React from "react";
-import PropTypes from "prop-types";
 import "./Styles.scss";
+
+import React from "react";
 
 interface StatusData {
     status: string;
@@ -23,7 +23,10 @@ interface TXStatusProps {
 
 type StepType = "SIGN" | "QUEUING" | "QUEUED" | "SUCCESS";
 
-export default function TXStatus({ statusData, statusLabels }: TXStatusProps): JSX.Element {
+export default function TXStatus({
+    statusData,
+    statusLabels,
+}: TXStatusProps): JSX.Element {
     const { status } = statusData;
 
     // List of steps in order
@@ -70,7 +73,7 @@ export default function TXStatus({ statusData, statusLabels }: TXStatusProps): J
                     {steps.map((step: StepType, index: number) => {
                         let stepClass: string = "stepRow txSteps--todo";
                         let iconClass: string = "icon-tx-checkUnchecked"; // Default icon
-                        let label: string = statusLabels[step] || step;
+                        const label: string = statusLabels[step] || step;
 
                         if (index < stepIndex) {
                             stepClass = "stepRow txSteps--done";
@@ -94,8 +97,3 @@ export default function TXStatus({ statusData, statusLabels }: TXStatusProps): J
         </div>
     );
 }
-
-TXStatus.propTypes = {
-    statusData: PropTypes.object,
-    statusLabels: PropTypes.object,
-};

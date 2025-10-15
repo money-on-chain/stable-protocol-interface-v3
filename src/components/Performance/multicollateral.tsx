@@ -1,44 +1,57 @@
-import React, { useContext } from "react";
+import React from "react";
 
-import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers";
-import { TokenSettings } from "../../helpers/currencies";
-import settings from "../../settings/settings.json";
 import { useWalletContext } from "../../context/Wallet";
+import { TokenSettings } from "../../helpers/currencies";
 import { divPrecision, mulPrecision } from "../../helpers/precision";
-
-
+import { useProjectTranslation } from "../../helpers/translations";
+import settings from "../../settings/settings.json";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 
 export default function MultiCollateral(): JSX.Element {
-    const { i18n } = useProjectTranslation();    
-    const { contractProtocolStatus } = useWalletContext()
+    const { i18n } = useProjectTranslation();
+    const { contractProtocolStatus } = useWalletContext();
 
     let leverage = 0n;
     if (contractProtocolStatus.data) {
         const normalizationFactors =
             contractProtocolStatus.data.getNormalizationFactors;
-        let factor: bigint;
-        let bucketLckAC: bigint;
-        let bucketAC: bigint;
-        let tvl = 0n;
-        let lckAC = 0n;
-        for (
-            let caIndex = 0;
-            caIndex < normalizationFactors.length;
-            caIndex++
-        ) {
-            factor = normalizationFactors[caIndex];
-            bucketLckAC = contractProtocolStatus.data[caIndex].getLckAC;
-            bucketAC = contractProtocolStatus.data[caIndex].getTotalACavailable;
 
-            //tvl += bucketAC * factor;
-            //lckAC += bucketLckAC * factor;
-            tvl = tvl + (mulPrecision(bucketAC, factor));
-            lckAC = lckAC + (mulPrecision(bucketLckAC, factor));
+        // Check if normalizationFactors exists and is an array
+        if (!normalizationFactors || !Array.isArray(normalizationFactors)) {
+            leverage = 0n;
+        } else {
+            let factor: bigint;
+            let bucketLckAC: bigint;
+            let bucketAC: bigint;
+            let tvl = 0n;
+            let lckAC = 0n;
+            for (
+                let caIndex = 0;
+                caIndex < normalizationFactors.length;
+                caIndex++
+            ) {
+                // Check if the required data exists before accessing it
+                if (!contractProtocolStatus.data?.[caIndex]) {
+                    continue;
+                }
+
+                factor = normalizationFactors[caIndex];
+                bucketLckAC = contractProtocolStatus.data[caIndex].getLckAC;
+                bucketAC =
+                    contractProtocolStatus.data[caIndex].getTotalACavailable;
+
+                //tvl += bucketAC * factor;
+                //lckAC += bucketLckAC * factor;
+                tvl = tvl + mulPrecision(bucketAC, factor);
+                lckAC = lckAC + mulPrecision(bucketLckAC, factor);
+            }
+
+            //leverage = tvl / (tvl - lckAC);
+            // Prevent division by zero
+            if (tvl - lckAC !== 0n) {
+                leverage = divPrecision(tvl, tvl - lckAC);
+            }
         }
-
-        //leverage = tvl / (tvl - lckAC);
-        leverage = divPrecision(tvl, tvl - lckAC);
     }
 
     return (
@@ -63,7 +76,7 @@ export default function MultiCollateral(): JSX.Element {
                                           : 0n,
                                       token: TokenSettings("CA_0"),
                                       decimals: 4,
-                                      i18n: i18n                                      
+                                      i18n: i18n,
                                   })}
                         </div>
                         <div className="label">Coverage</div>
@@ -84,7 +97,7 @@ export default function MultiCollateral(): JSX.Element {
                                           : 0n,
                                       token: settings.tokens.CA[0],
                                       decimals: 4,
-                                      i18n: i18n
+                                      i18n: i18n,
                                   })}
                         </div>
                         <div className="label">Target Coverage Adjusted</div>
@@ -102,7 +115,7 @@ export default function MultiCollateral(): JSX.Element {
                                       amount: leverage,
                                       token: TokenSettings("CA_0"),
                                       decimals: 4,
-                                      i18n: i18n
+                                      i18n: i18n,
                                   })}
                         </div>
                         <div className="label">Leverage</div>

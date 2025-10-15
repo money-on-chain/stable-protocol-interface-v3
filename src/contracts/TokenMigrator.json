@@ -1,109 +1,109 @@
 {
-  "abi": [
-    {
-      "inputs": [
+    "abi": [
         {
-          "internalType": "contract IERC20",
-          "name": "legacyToken_",
-          "type": "address"
+            "inputs": [
+                {
+                    "internalType": "contract IERC20",
+                    "name": "legacyToken_",
+                    "type": "address"
+                },
+                {
+                    "internalType": "contract IERC20",
+                    "name": "newToken_",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "constructor"
         },
         {
-          "internalType": "contract IERC20",
-          "name": "newToken_",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "constructor"
-    },
-    {
-      "inputs": [],
-      "name": "InsufficientLegacyTokenBalance",
-      "type": "error"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "sender_",
-          "type": "address"
+            "inputs": [],
+            "name": "InsufficientLegacyTokenBalance",
+            "type": "error"
         },
         {
-          "indexed": true,
-          "internalType": "address",
-          "name": "user_",
-          "type": "address"
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "sender_",
+                    "type": "address"
+                },
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "user_",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "amount_",
+                    "type": "uint256"
+                }
+            ],
+            "name": "TokenMigrated",
+            "type": "event"
         },
         {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount_",
-          "type": "uint256"
-        }
-      ],
-      "name": "TokenMigrated",
-      "type": "event"
-    },
-    {
-      "inputs": [],
-      "name": "_totalMigrated",
-      "outputs": [
+            "inputs": [],
+            "name": "_totalMigrated",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
         {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "legacyToken",
-      "outputs": [
+            "inputs": [],
+            "name": "legacyToken",
+            "outputs": [
+                {
+                    "internalType": "contract IERC20",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
         {
-          "internalType": "contract IERC20",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "migrateToken",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
+            "inputs": [],
+            "name": "migrateToken",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
         {
-          "internalType": "address",
-          "name": "user_",
-          "type": "address"
-        }
-      ],
-      "name": "migrateTokenFrom",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "newToken",
-      "outputs": [
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "user_",
+                    "type": "address"
+                }
+            ],
+            "name": "migrateTokenFrom",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
         {
-          "internalType": "contract IERC20",
-          "name": "",
-          "type": "address"
+            "inputs": [],
+            "name": "newToken",
+            "outputs": [
+                {
+                    "internalType": "contract IERC20",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
         }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    }
-  ]
+    ]
 }

@@ -1,18 +1,15 @@
-import React, { Fragment, useEffect, useState } from "react";
 import { Input } from "antd";
-import { PrecisionNumbers } from "../PrecisionNumbers";
-import { TokenSettings } from "../../helpers/currencies";
-
-
-import { useProjectTranslation } from "../../helpers/translations";
-import Proposal from "./Proposal";
-import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
-import { formatTimestamp } from "../../helpers/staking";
-import PreVote from "./PreVote";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
+import { TokenSettings } from "../../helpers/currencies";
 import { divPrecision } from "../../helpers/precision";
-
+import { formatTimestamp } from "../../helpers/staking";
+import { useProjectTranslation } from "../../helpers/translations";
+import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
+import { PrecisionNumbers } from "../PrecisionNumbers";
+import PreVote from "./PreVote";
+import Proposal from "./Proposal";
 
 interface ProposalData {
     id: number;
@@ -31,8 +28,12 @@ interface EmptyProposal {
     changeContract: string;
 }
 
+interface ProposalItem {
+    [key: number]: [string, bigint, bigint, bigint];
+}
+
 interface InfoVoting {
-    proposals: any[];
+    proposals: ProposalItem;
     globalVotingRound: bigint;
     totalSupply: bigint;
     PRE_VOTE_MIN_PCT_TO_WIN: bigint;
@@ -51,7 +52,6 @@ interface ProposalsProps {
     infoUser: InfoUser;
 }
 
-
 const Proposals: React.FC<ProposalsProps> = (props) => {
     const { infoVoting, infoUser } = props;
 
@@ -59,7 +59,9 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         changeContract: "",
     };
     const [actionProposal, setActionProposal] = useState<string>("LIST");
-    const [viewProposal, setViewProposal] = useState<ProposalData | EmptyProposal>(emptyProposal);
+    const [viewProposal, setViewProposal] = useState<
+        ProposalData | EmptyProposal
+    >(emptyProposal);
     const [addProposalAddress, setAddProposalAddress] = useState<string>("");
     const [addProposalAddressError, setAddProposalAddressError] =
         useState<boolean>(false);
@@ -73,51 +75,83 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
     const [proposalsData, setProposalsData] = useState<ProposalData[]>([]);
 
     const { t, i18n, ns } = useProjectTranslation();
-    const { interfaceVotingPreVote, interfaceVotingUnRegister, interfaceVotingPreVoteStep, contractStatusOmoc, userOmocBalance, proposalCount } = useWalletContext()
+    const {
+        interfaceVotingPreVote,
+        interfaceVotingUnRegister,
+        interfaceVotingPreVoteStep,
+        contractStatusOmoc,
+        userOmocBalance,
+    } = useWalletContext();
     const space: string = "\u00A0";
 
-    useEffect(() => {
-        onValidateSubmitProposal();
-    }, [contractStatusOmoc.data]);
+    // Extract to avoid complex expressions in dependency arrays
+    const votingPower = infoUser.Voting_Power;
+    const minStake = infoVoting.MIN_STAKE;
+
+    const onValidateSubmitProposalCallback = useCallback((): boolean => {
+        if (votingPower < minStake) {
+            setAddProposalAddressErrorText(
+                // `You need at least ${infoVoting['MIN_STAKE'].toString()} amount of tokens to submit the proposal`
+                "Not enough balance. See below."
+            );
+            setAddProposalAddressError(true);
+            return false;
+        } else return true;
+    }, [votingPower, minStake]);
 
     useEffect(() => {
-        if (infoVoting["proposals"] != null) {
-            refreshProposals();
-        }
-    }, [infoVoting["proposals"]]);
+        onValidateSubmitProposalCallback();
+    }, [contractStatusOmoc.data, onValidateSubmitProposalCallback]);
 
-    const searchProposal = (proposalAddress: string): ProposalData => {
-        let proposal: ProposalData = {
-            id: 0,
-            changeContract: "",
-            votingRound: 0n,
-            votesPositive: 0n,
-            votesPositivePCT: 0n,
-            expirationTimeStampFormat: "",
-            expired: true,
-            canUnregister: false,
-            canRunStep: false,
-            canVote: false,
-        };
-        for (let i = 0; i < proposalsData.length; i++) {
-            if (
-                proposalsData[i].changeContract.toLowerCase() ===
-                proposalAddress.toLowerCase()
-            ) {
-                proposal = proposalsData[i];
+    const searchProposal = useCallback(
+        (proposalAddress: string): ProposalData => {
+            let proposal: ProposalData = {
+                id: 0,
+                changeContract: "",
+                votingRound: 0n,
+                votesPositive: 0n,
+                votesPositivePCT: 0n,
+                expirationTimeStampFormat: "",
+                expired: true,
+                canUnregister: false,
+                canRunStep: false,
+                canVote: false,
+            };
+            for (let i = 0; i < proposalsData.length; i++) {
+                if (
+                    proposalsData[i].changeContract.toLowerCase() ===
+                    proposalAddress.toLowerCase()
+                ) {
+                    proposal = proposalsData[i];
+                }
             }
-        }
-        return proposal;
-    };
+            return proposal;
+        },
+        [proposalsData]
+    );
 
-    const refreshViewProposalData = (): void => {
-        if (viewProposal.changeContract != null) {
-            const proposal = searchProposal(viewProposal.changeContract);
-            setViewProposal(proposal);
-        }
-    };
+    const refreshViewProposalData = useCallback(
+        (currentProposalsData: ProposalData[]): void => {
+            if (viewProposal.changeContract != null) {
+                let proposal: ProposalData | undefined;
+                for (let i = 0; i < currentProposalsData.length; i++) {
+                    if (
+                        currentProposalsData[i].changeContract.toLowerCase() ===
+                        viewProposal.changeContract.toLowerCase()
+                    ) {
+                        proposal = currentProposalsData[i];
+                        break;
+                    }
+                }
+                if (proposal) {
+                    setViewProposal(proposal);
+                }
+            }
+        },
+        [viewProposal.changeContract]
+    );
 
-    const refreshProposals = (): void => {
+    const refreshProposals = useCallback((): void => {
         const propData: ProposalData[] = [];
         let count = 0;
         const nowTimestamp = BigInt(Date.now());
@@ -132,16 +166,18 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             lenProp = Object.keys(infoVoting["proposals"]).length;
         for (let i = 0; i < lenProp; i++) {
             if (infoVoting["proposals"][i] != null) {
-
-                const [proposalAddress, propVotingRound, propVotes, propExpirationTimeStamp] = infoVoting["proposals"][i];
+                const [
+                    proposalAddress,
+                    propVotingRound,
+                    propVotes,
+                    propExpirationTimeStamp,
+                ] = infoVoting["proposals"][i];
                 expirationTimestamp = propExpirationTimeStamp * 1000n;
                 let expired = true;
                 if (expirationTimestamp > nowTimestamp) expired = false;
 
                 let canUnregister = false;
-                if (
-                    propVotingRound < infoVoting["globalVotingRound"]
-                )
+                if (propVotingRound < infoVoting["globalVotingRound"])
                     canUnregister = true;
 
                 votingRound = propVotingRound;
@@ -151,8 +187,11 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                 )
                     continue;
 
-                votesPositive = propVotes;                
-                votesPositivePCT = divPrecision(votesPositive * 100n, infoVoting["totalSupply"]);
+                votesPositive = propVotes;
+                votesPositivePCT = divPrecision(
+                    votesPositive * 100n,
+                    infoVoting["totalSupply"]
+                );
 
                 let canRunStep = false;
                 if (
@@ -180,11 +219,22 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         }
         setProposalsData(propData);
 
-        // Also refresh proposal view data
-        refreshViewProposalData();
-    };
+        // Also refresh proposal view data with the new data
+        refreshViewProposalData(propData);
+    }, [infoVoting, refreshViewProposalData]);
 
-    const onChangeInputAddProposal = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    // Extract to avoid complex expression in dependency array
+    const proposals = infoVoting.proposals;
+
+    useEffect(() => {
+        if (proposals != null) {
+            refreshProposals();
+        }
+    }, [proposals, refreshProposals]);
+
+    const onChangeInputAddProposal = (
+        e: React.ChangeEvent<HTMLInputElement>
+    ): void => {
         setAddProposalAddress(e.target.value.toLowerCase());
         onValidateAddProposalClear();
     };
@@ -212,19 +262,9 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         return true;
     };
 
-    const onValidateSubmitProposal = (): boolean => {
-        if (infoUser["Voting_Power"] < infoVoting["MIN_STAKE"]) {
-            setAddProposalAddressErrorText(
-                // `You need at least ${infoVoting['MIN_STAKE'].toString()} amount of tokens to submit the proposal`
-                "Not enough balance. See below."
-            );
-            setAddProposalAddressError(true);
-            return false;
-        } else return true;
-    };
-
     const addProposal = (): void => {
-        const valid = onValidateAddressProposal() && onValidateSubmitProposal();
+        const valid =
+            onValidateAddressProposal() && onValidateSubmitProposalCallback();
         if (valid) {
             onSendAddProposal()
                 .then((/*res*/) => {})
@@ -255,12 +295,10 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         setIsOperationModalVisible(true);
 
         const onTransaction = (txHash: string): void => {
-            console.log("Sent transaction add proposal...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
         const onReceipt = (): void => {
-            console.log("Transaction add proposal mined!...");
             setOperationStatus("success");
             /*
             // Events name list
@@ -280,21 +318,21 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
              */
             onCloseAddProposal();
         };
-        const onError = (error: any): void => {
-            console.log("Transaction add proposal error!...:", error);
+        const onError = (error: unknown): void => {
+            console.error("Transaction add proposal error:", error);
             setOperationStatus("error");
         };
 
         await interfaceVotingPreVote(
-                addProposalAddress,
-                onTransaction,
-                onReceipt,
-                onError
-            )
+            addProposalAddress as `0x${string}`,
+            onTransaction,
+            onReceipt,
+            onError
+        )
             .then((/*res*/) => {
                 // Refresh status
-                userOmocBalance.refetch();
-                contractStatusOmoc.refetch();                
+                void userOmocBalance.refetch();
+                void contractStatusOmoc.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -320,12 +358,10 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         setIsOperationModalVisible(true);
 
         const onTransaction = (txHash: string): void => {
-            console.log("Sent transaction unregister proposal...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
         const onReceipt = (): void => {
-            console.log("Transaction unregister proposal mined!...");
             setOperationStatus("success");
             /*
             // Events name list
@@ -344,21 +380,21 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             const filteredEvents = decodeEvents(txRcp, contractName, filter);
              */
         };
-        const onError = (error: any): void => {
-            console.log("Transaction unregister proposal error!...:", error);
+        const onError = (error: unknown): void => {
+            console.error("Transaction unregister proposal error:", error);
             setOperationStatus("error");
         };
 
         await interfaceVotingUnRegister(
-                proposalAddress,
-                onTransaction,
-                onReceipt,
-                onError
-            )
+            proposalAddress as `0x${string}`,
+            onTransaction,
+            onReceipt,
+            onError
+        )
             .then((/*res*/) => {
                 // Refresh status
-                userOmocBalance.refetch();
-                contractStatusOmoc.refetch();                
+                void userOmocBalance.refetch();
+                void contractStatusOmoc.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -381,12 +417,10 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         setIsOperationModalVisible(true);
 
         const onTransaction = (txHash: string): void => {
-            console.log("Sent transaction pre vote step ...: ", txHash);
             setTxHash(txHash);
             setOperationStatus("pending");
         };
         const onReceipt = (): void => {
-            console.log("Transaction pre vote step mined!...");
             setOperationStatus("success");
             /*
             // Events name list
@@ -405,16 +439,16 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             const filteredEvents = decodeEvents(txRcp, contractName, filter);
              */
         };
-        const onError = (error: any): void => {
-            console.log("Transaction pre vote step error!...:", error);
+        const onError = (error: unknown): void => {
+            console.error("Transaction pre vote step error:", error);
             setOperationStatus("error");
         };
 
         await interfaceVotingPreVoteStep(onTransaction, onReceipt, onError)
             .then((/*res*/) => {
                 // Refresh status
-                userOmocBalance.refetch();
-                contractStatusOmoc.refetch();
+                void userOmocBalance.refetch();
+                void contractStatusOmoc.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -454,7 +488,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             <div className="proposalsList__wrapper">
                 <div className={"title"}>
                     <h1>{t("voting.cardTitle.proposalsList")}</h1>
-                </div>                
+                </div>
                 {/* PROPOSALS LIST */}
                 {actionProposal === "LIST" &&
                     proposalsData.length > 0 &&
@@ -464,12 +498,13 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                                 proposal={proposal}
                                 infoVoting={infoVoting}
                                 onViewProposal={onViewProposal}
-                                onRunPreVoteStep={onRunPreVoteStep}
+                                onRunPreVoteStep={() => void onRunPreVoteStep()}
                             />
                         </React.Fragment>
                     ))}
                 {actionProposal === "VIEW_PROPOSAL" &&
-                    viewProposal.changeContract !== "" && (
+                    viewProposal.changeContract !== "" &&
+                    "canVote" in viewProposal && (
                         <>
                             {/* <div className={'title'}>
                                 <h1>{t('voting.cardTitle.proposalDetails')}</h1>
@@ -481,15 +516,17 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                                     infoUser={infoUser}
                                     onBack={onBackToProposalList}
                                     onUnRegisterProposal={onUnRegisterProposal}
-                                    onRunPreVoteStep={onRunPreVoteStep}
+                                    onRunPreVoteStep={() =>
+                                        void onRunPreVoteStep()
+                                    }
                                 />
                             </div>
                         </>
                     )}
-                {/* actionProposal === 'LIST' && !infoVoting['readyToPreVoteStep'] && */}                
+                {/* actionProposal === 'LIST' && !infoVoting['readyToPreVoteStep'] && */}
                 {actionProposal === "LIST" &&
                     !infoVoting["readyToPreVoteStep"] && (
-                        <> 
+                        <>
                             {actionProposal === "LIST" &&
                                 proposalsData.length === 0 && (
                                     <div className="proposals__empty">
@@ -505,7 +542,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                             </div>
                         </>
                     )}
-                    {actionProposal === "ADD" && (
+                {actionProposal === "ADD" && (
                     <div className="proposalsContainer">
                         <div className="addProposal">
                             <h2>{t("voting.cardTitle.addNewProposal")}</h2>
@@ -574,7 +611,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                                                 ],
                                                 token: TokenSettings("TG"),
                                                 decimals: 2,
-                                                i18n: i18n
+                                                i18n: i18n,
                                             })}
                                             {space}
                                             {t("staking.tokens.TG.abbr", {
@@ -586,8 +623,8 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                                                     "Voting_Power_PCT"
                                                 ],
                                                 token: TokenSettings("TG"),
-                                                decimals: 4,                                                
-                                                i18n: i18n                                                
+                                                decimals: 4,
+                                                i18n: i18n,
                                             })}
                                             % )
                                         </div>
@@ -642,4 +679,4 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
     );
 };
 
-export default Proposals; 
+export default Proposals;

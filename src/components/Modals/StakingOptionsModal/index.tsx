@@ -1,11 +1,12 @@
-import { Modal, Button, Spin, notification, Checkbox } from "antd";
-import React, { useEffect, useState, Fragment } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
+import { Button, Checkbox, Modal, notification, Spin } from "antd";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
+import type { TransactionReceipt } from "viem";
 
-import { useProjectTranslation } from "../../../helpers/translations";
-import { PrecisionNumbers } from "../../PrecisionNumbers";
-import settings from "../../../settings/settings.json";
 import { useWalletContext } from "../../../context/Wallet";
+import { useProjectTranslation } from "../../../helpers/translations";
+import settings from "../../../settings/settings.json";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
 
 interface StakingOptionsModalProps {
     mode?: string;
@@ -16,52 +17,61 @@ interface StakingOptionsModalProps {
     withdrawalId?: string;
 }
 
-const PRECISION_DECIMALS = 18n
+const PRECISION_DECIMALS = 18n;
 const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
 
 type StepType = 0 | 1 | 2 | 3 | 99;
-type ModeType = 'staking' | 'unstaking' | 'withdraw' | 'restake';
+type ModeType = "staking" | "unstaking" | "withdraw" | "restake";
 
-export default function StakingOptionsModal(props: StakingOptionsModalProps): React.ReactElement {
-    const { 
-        address, 
+interface TransactionResponse {
+    status: "success" | "reverted";
+    transactionHash: string;
+}
+
+export default function StakingOptionsModal(
+    props: StakingOptionsModalProps
+): React.ReactElement {
+    const {
+        address,
         userOmocBalance,
         userVesting,
-        isVestingLoaded, 
-        interfaceStakingApprove, 
-        interfaceStakingAddStake, 
-        interfaceStakingDelayMachineCancelWithdraw, 
-        interfaceStakingUnStake, 
-        interfaceStakingDelayMachineWithdraw        
-    } = useWalletContext()
+        isVestingLoaded,
+        interfaceStakingApprove,
+        interfaceStakingAddStake,
+        interfaceStakingDelayMachineCancelWithdraw,
+        interfaceStakingUnStake,
+        interfaceStakingDelayMachineWithdraw,
+    } = useWalletContext();
     const { t, i18n, ns } = useProjectTranslation();
     const { mode, onClose, visible, amount, onConfirm, withdrawalId } = props;
 
     const [step, setStep] = useState<StepType>(0);
-    
+
     const amountInEth = amount;
 
     let infinityAllowance = false;
 
-    useEffect(() => {
-        if (userOmocBalance.data && amountInEth || userVesting.data && amountInEth) checkAllowance();        
-    }, [userOmocBalance.data, amountInEth, userVesting.data]);
-
-    const onChangeInfinity = (e: any): void => {
-        console.log(`checked = ${e.target.checked}`);
-        infinityAllowance = e.target.checked;
-    };
-
-    const checkAllowance = (): void => {    
-        
+    const checkAllowance = useCallback((): void => {
         if (!amountInEth) return;
-        
+
         const allowanceAmount = isVestingLoaded()
             ? userVesting.data.vestingmachine?.staking?.allowance
             : userOmocBalance.data.stakingmachine?.tgAllowance;
-                
+
         if (allowanceAmount >= amountInEth) setStep(3);
-        
+    }, [amountInEth, isVestingLoaded, userOmocBalance.data, userVesting.data]);
+
+    useEffect(() => {
+        if (
+            (userOmocBalance.data && amountInEth) ||
+            (userVesting.data && amountInEth)
+        )
+            checkAllowance();
+    }, [userOmocBalance.data, amountInEth, userVesting.data, checkAllowance]);
+
+    const onChangeInfinity = (e: { target: { checked: boolean } }): void => {
+        console.warn(`checked = ${e.target.checked}`);
+        infinityAllowance = e.target.checked;
     };
 
     if (!mode) return <></>;
@@ -78,24 +88,24 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
         }
 
         const onTransaction = (txHash: string): void => {
-            console.log("Sent transaction allowance...: ", txHash);
+            console.warn("Sent transaction allowance...: ", txHash);
             setStep(2);
         };
         const onReceipt = (): void => {
-            console.log("Transaction allowance mined!...");
+            console.warn("Transaction allowance mined!...");
         };
-        const onError = (error: any): void => {
-            console.log("Transaction allowance error!...:", error);
+        const onError = (error: unknown): void => {
+            console.error("Transaction allowance error!...:", error);
         };
 
         if (!amountAllowance) return;
-        
+
         await interfaceStakingApprove(
-                amountAllowance,
-                onTransaction,
-                onReceipt,
-                onError
-            )
+            amountAllowance,
+            onTransaction,
+            onReceipt,
+            onError
+        )
             .then((/*res*/) => {
                 setStep(3);
                 return null;
@@ -114,69 +124,80 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
         onClose();
         onConfirm("sign", "");
         const onTransaction = (txHash: string): void => {
-            console.log("Sent transaction add stake...");
+            console.warn("Sent transaction add stake...");
             onConfirm("pending", txHash);
         };
         const onReceipt = (): void => {
-            console.log("Transaction add stake mined!...");
+            console.warn("Transaction add stake mined!...");
         };
-        const onError = (error: any): void => {
-            console.log("Transaction add stake error!...:", error);
+        const onError = (error: unknown): void => {
+            console.error("Transaction add stake error!...:", error);
         };
         if (!amount || !address) return;
-        
+
         setStep(99);
-        await interfaceStakingAddStake(
-                amount,
-                address,
-                onTransaction,
-                onReceipt,
-                onError
-            )
-            .then((res) => {
-                const status = res.status ? "success" : "error";
-                onConfirm(status, res.transactionHash);
+        const receipt = (await interfaceStakingAddStake(
+            amount,
+            address,
+            onTransaction,
+            onReceipt,
+            onError
+        )) as TransactionReceipt | undefined;
+        if (!receipt) return;
 
-                // Refresh user balance
-                isVestingLoaded() ? userVesting.refetch() : userOmocBalance.refetch();
+        const status = receipt.status === "success" ? "success" : "error";
+        onConfirm(status, receipt.transactionHash);
 
-                return null;
-            })
-            // .catch((/*e*/) => {
-            //     notification["error"]({
-            //         message: t("global.RewardsError_Title"),
-            //         description: t("global.RewardsError_Message"),
-            //         duration: 10,
-            //     });
-            //     onConfirm("error", "");
-            // });
+        // const status = res.status ? "success" : "error";
+        // onConfirm(status, res.transactionHash);
+
+        if (isVestingLoaded()) {
+            void userVesting.refetch();
+        } else {
+            void userOmocBalance.refetch();
+        }
+
+        // .catch((/*e*/) => {
+        //     notification["error"]({
+        //         message: t("global.RewardsError_Title"),
+        //         description: t("global.RewardsError_Message"),
+        //         duration: 10,
+        //     });
+        //     onConfirm("error", "");
+        // });
     };
 
     const CancelWithdraw = async (): Promise<void> => {
         onClose();
         onConfirm("sign", "");
         const onTransaction = (txHash: string): void => {
-            console.log("Sent cancel withdraw ...: ", txHash);
+            console.warn("Sent cancel withdraw ...: ", txHash);
             onConfirm("pending", txHash);
         };
         const onReceipt = (): void => {
-            console.log("Transaction cancel withdraw mined!...");
+            console.warn("Transaction cancel withdraw mined!...");
         };
-        const onError = (error: any): void => {
-            console.log("Transaction cancel withdraw error!...:", error);
+        const onError = (error: unknown): void => {
+            console.error("Transaction cancel withdraw error!...:", error);
         };
         await interfaceStakingDelayMachineCancelWithdraw(
-                withdrawalId || "",
-                onTransaction,
-                onReceipt,
-                onError
-            )
-            .then((res) => {
-                const status = res.status ? "success" : "error";
-                onConfirm(status, res.transactionHash);
+            withdrawalId || "",
+            onTransaction,
+            onReceipt,
+            onError
+        )
+            .then((res: unknown) => {
+                const response = res as TransactionResponse;
+                const status =
+                    response.status === "success" ? "success" : "error";
+                onConfirm(status, response.transactionHash);
 
                 // Refresh user balance
-                isVestingLoaded() ? userVesting.refetch() : userOmocBalance.refetch();
+                if (isVestingLoaded()) {
+                    void userVesting.refetch();
+                } else {
+                    void userOmocBalance.refetch();
+                }
 
                 return null;
             })
@@ -195,24 +216,30 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
         onClose();
         onConfirm("sign", "");
         const onTransaction = (txHash: string): void => {
-            console.log("Sent transaction unStake...: ", txHash);
+            console.warn("Sent transaction unStake...: ", txHash);
             onConfirm("pending", txHash);
         };
         const onReceipt = (): void => {
-            console.log("Transaction unStake mined!...");
+            console.warn("Transaction unStake mined!...");
         };
-        const onError = (error: any): void => {
-            console.log("Transaction unStake error!...:", error);
+        const onError = (error: unknown): void => {
+            console.error("Transaction unStake error!...:", error);
         };
         if (!amount) return;
-        
+
         await interfaceStakingUnStake(amount, onTransaction, onReceipt, onError)
-            .then((res) => {
-                const status = res.status ? "success" : "error";
-                onConfirm(status, res.transactionHash);
+            .then((res: unknown) => {
+                const response = res as TransactionResponse;
+                const status =
+                    response.status === "success" ? "success" : "error";
+                onConfirm(status, response.transactionHash);
 
                 // Refresh user balance
-                isVestingLoaded() ? userVesting.refetch() : userOmocBalance.refetch();
+                if (isVestingLoaded()) {
+                    void userVesting.refetch();
+                } else {
+                    void userOmocBalance.refetch();
+                }
 
                 return null;
             })
@@ -232,14 +259,14 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
 
         onConfirm("sign", "");
         const onTransaction = (txHash: string): void => {
-            console.log("Sent withdraw...: ", txHash);
+            console.warn("Sent withdraw...: ", txHash);
             onConfirm("pending", txHash);
         };
         const onReceipt = (): void => {
-            console.log("Transaction withdraw mined!...");
+            console.warn("Transaction withdraw mined!...");
         };
-        const onError = (error: any): void => {
-            console.log("Transaction withdraw error!...:", error);
+        const onError = (error: unknown): void => {
+            console.error("Transaction withdraw error!...:", error);
         };
         interfaceStakingDelayMachineWithdraw(
             withdrawalId || "",
@@ -247,12 +274,18 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
             onReceipt,
             onError
         )
-            .then((res) => {
-                const status = res.status ? "success" : "error";
-                onConfirm(status, res.transactionHash);
+            .then((res: unknown) => {
+                const response = res as TransactionResponse;
+                const status =
+                    response.status === "success" ? "success" : "error";
+                onConfirm(status, response.transactionHash);
 
                 // Refresh user balance
-                isVestingLoaded() ? userVesting.refetch() : userOmocBalance.refetch();
+                if (isVestingLoaded()) {
+                    void userVesting.refetch();
+                } else {
+                    void userOmocBalance.refetch();
+                }
 
                 return null;
             })
@@ -305,7 +338,7 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                                         <Button
                                             type="primary"
                                             className="button"
-                                            onClick={setAllowance}
+                                            onClick={() => void setAllowance()}
                                         >
                                             {t("allowance.confirm.authorize")}
                                         </Button>
@@ -340,7 +373,7 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                                         <Button
                                             type="default"
                                             className="button secondary"
-                                            onClick={setAllowance}
+                                            onClick={() => void setAllowance()}
                                         >
                                             {t("allowance.confirm.cancel")}
                                         </Button>
@@ -372,7 +405,7 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                                         <Button
                                             type="default"
                                             className="button secondary"
-                                            onClick={setAllowance}
+                                            onClick={() => void setAllowance()}
                                         >
                                             {t("allowance.confirm.cancel")}
                                         </Button>
@@ -398,9 +431,11 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                                             {PrecisionNumbers({
                                                 amount: amount || 0n,
                                                 token: settings.tokens.TG[0],
-                                                decimals: Number(t(
-                                                    "staking.display_decimals"
-                                                )),
+                                                decimals: Number(
+                                                    t(
+                                                        "staking.display_decimals"
+                                                    )
+                                                ),
                                                 //numericLabelParams: {},
                                                 i18n: i18n,
                                                 //skipContractConvert: true,
@@ -432,7 +467,7 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                                             </Button>
                                             <Button
                                                 type="primary"
-                                                onClick={addStake}
+                                                onClick={() => void addStake()}
                                                 className="button"
                                             >
                                                 {t(
@@ -486,7 +521,9 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                                 {PrecisionNumbers({
                                     amount: amount || 0n,
                                     token: settings.tokens.TG[0],
-                                    decimals: Number(t("staking.display_decimals")),
+                                    decimals: Number(
+                                        t("staking.display_decimals")
+                                    ),
                                     //numericLabelParams: {},
                                     i18n: i18n,
                                     //skipContractConvert: true,
@@ -517,7 +554,7 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                             </Button>
                             <Button
                                 type="primary"
-                                onClick={UnStake}
+                                onClick={() => void UnStake()}
                                 className="button"
                             >
                                 {t("staking.modal.StakingOptionsModal_Comfirm")}
@@ -544,7 +581,9 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                                     {PrecisionNumbers({
                                         amount: amount || 0n,
                                         token: settings.tokens.TG[0],
-                                        decimals: Number(t("staking.display_decimals")),
+                                        decimals: Number(
+                                            t("staking.display_decimals")
+                                        ),
                                         //numericLabelParams: {},
                                         i18n: i18n,
                                         //skipContractConvert: false,
@@ -582,7 +621,7 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                             <Button
                                 type="primary"
                                 className="button"
-                                onClick={withdraw}
+                                onClick={() => void withdraw()}
                             >
                                 {t("staking.modal.StakingOptionsModal_Comfirm")}
                             </Button>
@@ -608,7 +647,9 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                                     {PrecisionNumbers({
                                         amount: amount || 0n,
                                         token: settings.tokens.TG[0],
-                                        decimals: Number(t("staking.display_decimals")),
+                                        decimals: Number(
+                                            t("staking.display_decimals")
+                                        ),
                                         i18n: i18n,
                                     })}
                                     <div className="tx-token">
@@ -643,7 +684,7 @@ export default function StakingOptionsModal(props: StakingOptionsModalProps): Re
                             <Button
                                 type="primary"
                                 className="button"
-                                onClick={CancelWithdraw}
+                                onClick={() => void CancelWithdraw()}
                             >
                                 {t("staking.modal.StakingOptionsModal_Comfirm")}
                             </Button>

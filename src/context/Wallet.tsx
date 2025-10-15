@@ -1,346 +1,241 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
-import { useAccount, useConnect, useDisconnect, usePublicClient, useWalletClient } from 'wagmi'
-import { useLatestBlockNumber } from '../hooks/useLatestBlockNumber'
-import { useOffchainPrices } from '../hooks/useOffchainPrices'
-import { useContractProtocolStatus } from '../hooks/useContractProtocolStatus'
-import { useProposalCount } from '../hooks/useProposalCount'
-import { useContractOmocStatus } from '../hooks/useContractOmocStatus'
-import { useUserOmocBalance } from '../hooks/useUserOmocBalance'
-import { useUserBalance } from '../hooks/useUserBalance'
-import { readContracts } from '../hooks/useReadContracts'
-import { useBaseCoinBalance, UseBaseCoinBalanceReturn } from '../hooks/useBaseCoinBalance'
-import { useUserVesting } from '../hooks/useUserVesting'
-import { useIncentiveV2 } from '../hooks/useIncentiveV2'
-import { TokenContract, ApproveTokenContract } from '../helpers/exchange'
-import { UseStorageResult } from '../hooks/useMulticall'
-import { transferTokenTo, transferCoinbaseTo, AllowanceAmount, AllowUseTokenMigrator, MigrateToken } from '../backend/moc-base'
-import ModalAccount from '../components/Modals/Account'
-import ModalProviders from '../components/Modals/Providers'
-import { exchangeMethod } from "../helpers/exchange";
+import React, {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
+} from "react";
+import type { TransactionReceipt } from "viem";
 import {
-    addStake as addStakeVesting,
-    unStake as unStakeVesting,
-    delayMachineWithdraw as delayMachineWithdrawVesting,
-    delayMachineCancelWithdraw as delayMachineCancelWithdrawVesting,
-    approve as approveVesting,
-    withdraw as withdrawVesting,
-    withdrawAll as withdrawAllVesting,
-    vestingVerify,
-    preVote as preVoteVesting,
-    vote as voteVesting,
-} from "../backend/omoc/vesting";
+    useAccount,
+    useConnect,
+    useDisconnect,
+    usePublicClient,
+    useWalletClient,
+} from "wagmi";
+
+import {
+    AllowanceAmount,
+    AllowUseTokenMigrator,
+    MigrateToken,
+    transferCoinbaseTo,
+    transferTokenTo,
+} from "../backend/moc-base";
+import { claimV2 } from "../backend/omoc/incentivev2";
 import {
     addStake,
-    unStake,
-    delayMachineWithdraw,
-    delayMachineCancelWithdraw,
     approveStakingMachine,
+    delayMachineCancelWithdraw,
+    delayMachineWithdraw,
+    unStake,
 } from "../backend/omoc/staking";
-import { claimV2 } from "../backend/omoc/incentivev2";
+import {
+    addStake as addStakeVesting,
+    approve as approveVesting,
+    delayMachineCancelWithdraw as delayMachineCancelWithdrawVesting,
+    delayMachineWithdraw as delayMachineWithdrawVesting,
+    preVote as preVoteVesting,
+    unStake as unStakeVesting,
+    vestingVerify,
+    vote as voteVesting,
+    withdrawAll as withdrawAllVesting,
+} from "../backend/omoc/vesting";
+import { vetoVote, vetoWithdraw } from "../backend/omoc/veto";
 import {
     acceptedStep,
     preVote,
     preVoteStep,
+    unRegister,
     vote,
     voteStep,
-    unRegister,
 } from "../backend/omoc/voting";
+import ModalAccount from "../components/Modals/Account";
+import ModalProviders from "../components/Modals/Providers";
+import { ApproveTokenContract, TokenContract } from "../helpers/exchange";
+import { exchangeMethod } from "../helpers/exchange";
 import {
     loadVestingAddressesFromLocalStorage,
     saveVestingAddressesToLocalStorage,
 } from "../helpers/vesting";
+import { useBaseCoinBalance } from "../hooks/useBaseCoinBalance";
+import { useContractOmocStatus } from "../hooks/useContractOmocStatus";
+import { useContractProtocolStatus } from "../hooks/useContractProtocolStatus";
+import { useIncentiveV2 } from "../hooks/useIncentiveV2";
+import { useLatestBlockNumber } from "../hooks/useLatestBlockNumber";
+import { useOffchainPrices } from "../hooks/useOffchainPrices";
+import { readContracts } from "../hooks/useReadContracts";
+import { useUserBalance } from "../hooks/useUserBalance";
+import { useUserOmocBalance } from "../hooks/useUserOmocBalance";
+import { useUserVesting } from "../hooks/useUserVesting";
+import { useUserVeto } from "../hooks/useUserVeto";
 import api from "../services/api";
+import type { DContracts, ParsedPrices } from "../types/hooks";
+import type {
+    InterfaceContext,
+    OnReceipt,
+    OnTransaction,
+    WalletContextType,
+} from "../types/wallets";
 
-export type WalletContextType = {
-  isConnected: boolean
-  address?: `0x${string}`
-  connect: () => void
-  disconnect: () => void
-  contractsAddress: any
-  contractsAddressLoaded: boolean
-  contractStatusOmoc: any
-  contractProtocolStatus: any
-  userBalance: any
-  blockNumber?: bigint
-  offChainPrices: any
-  proposalCount?: bigint
-  publicClient: any
-  walletClient: any
-  readContractsAddresses: () => Promise<void>
-  interfaceTransferToken: (
-    currencyYouExchange: string,
-    amount: bigint,
-    destinationAddress: string,
-    onTransaction: OnTransaction,
-    onReceipt: OnReceipt
-  ) => Promise<void>
-  interfaceTransferCoinbase: (
-    amount: bigint,
-    destinationAddress: string,
-    onTransaction: OnTransaction,
-    onReceipt: OnReceipt
-  ) => Promise<void>
-  interfaceAllowanceAmount: (
-    currencyYouExchange: string,
-    currencyYouReceive: string,
-    amountAllowance: bigint,
-    onTransaction: OnTransaction,
-    onReceipt: OnReceipt
-  ) => Promise<void>
-  interfaceExchangeMethod: (
-    currencyYouExchange: string,
-    currencyYouReceive: string,
-    tokenAmount: bigint,
-    limitAmount: bigint,
-    onTransaction: OnTransaction,
-    onReceipt: OnReceipt
-  ) => Promise<any>
-  interfaceAllowUseTokenMigrator: (
-    amount: bigint,
-    onTransaction: OnTransaction,
-    onReceipt: OnReceipt,
-    onError: OnError
-  ) => Promise<any>
-  interfaceMigrateToken: (
-    onTransaction: OnTransaction,
-    onReceipt: OnReceipt,
-    onError: OnError
-  ) => Promise<any>
-  interfaceStakingApprove: (
-    amount: bigint,
-    onTransaction: OnTransaction,
-    onReceipt: OnReceipt,
-    onError: OnError
-  ) => Promise<any>
-  interfaceStakingAddStake: (
-    amount: bigint,
-    address: `0x${string}`,
-    onTransaction: OnTransaction,
-    onReceipt: OnReceipt,
-    onError: OnError
-  ) => Promise<any>
-  interfaceStakingDelayMachineWithdraw: (
-    idWithdraw: string | number,
-    onTransaction: OnTransaction,
-    onReceipt: OnReceipt,
-    onError: OnError
-  ) => Promise<any>
-  interfaceStakingDelayMachineCancelWithdraw: (
-    idWithdraw: string | number,
-    onTransaction: OnTransaction,
-    onReceipt: OnReceipt,
-    onError: OnError
-  ) => Promise<any>
-  isVestingLoaded: () => boolean
-  vestingAddress: string | undefined
-  onShowModalAccount: () => void
-  onShowModalAccountVesting: () => void
-  onHideModalAccount: () => void
-  setVestingMachine: (vAddress: string) => void
-  interfaceIncentiveV2Claim: (
-    signDataResponse: any,
-    onTransaction: OnTransaction,
-    onReceipt: OnReceipt,
-    onError: OnError
-  ) => Promise<any>
-  interfaceStakingUnStake: (
-    amount: bigint,
-    onTransaction: OnTransaction,
-    onReceipt: OnReceipt,
-    onError: OnError
-  ) => Promise<any>
-  interfaceVestingWithdraw: (
-    onTransaction: OnTransaction,
-    onReceipt: OnReceipt,
-    onError: OnError
-  ) => Promise<any>
-  interfaceVestingVerify: (
-    onTransaction: OnTransaction,
-    onReceipt: OnReceipt,
-    onError: OnError
-  ) => Promise<any>
-  interfaceVotingPreVote: (
-    changeContractAddress: `0x${string}`,
-    onTransaction: OnTransaction,
-    onReceipt: OnReceipt,
-    onError: OnError
-  ) => Promise<any>
-  interfaceVotingVote: (
-    inFavorAgainst: boolean,
-    onTransaction: OnTransaction,
-    onReceipt: OnReceipt,
-    onError: OnError
-  ) => Promise<any>
-  interfaceVotingPreVoteStep: (
-    onTransaction: OnTransaction,
-    onReceipt: OnReceipt,
-    onError: OnError
-  ) => Promise<any>
-  interfaceVotingVoteStep: (
-    onTransaction: OnTransaction,
-    onReceipt: OnReceipt,
-    onError: OnError
-  ) => Promise<any>
-  interfaceVotingAcceptedStep: (
-    onTransaction: OnTransaction,
-    onReceipt: OnReceipt,
-    onError: OnError
-  ) => Promise<any>
-  interfaceVotingUnRegister: (
-    changeContractAddress: `0x${string}`,
-    onTransaction: OnTransaction,
-    onReceipt: OnReceipt,
-    onError: OnError
-  ) => Promise<any>
-  userBaseCoinBalance: UseBaseCoinBalanceReturn
-  userVesting: UseStorageResult<any>
-  userIncentiveV2: UseStorageResult<any>
-  onShowModalProviders: () => void
-  onHideModalProviders: () => void
-  userOmocBalance: UseStorageResult<any>
-}
+// Callback types — avoid `any`
 
 interface VestingTransaction {
     vesting: string;
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 interface VestingResponse {
     transactions?: VestingTransaction[];
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
-export const WalletContext = createContext<WalletContextType | null>(null)
+export const WalletContext = createContext<WalletContextType | null>(null);
 
 export const useWalletContext = () => {
-  const ctx = useContext(WalletContext)
-  if (!ctx) {
-    throw new Error('useWalletContext must be used inside WalletProvider')
-  }
-  return ctx
-}
+    const ctx = useContext(WalletContext);
+    if (!ctx) {
+        throw new Error("useWalletContext must be used inside WalletProvider");
+    }
+    return ctx;
+};
 
-type OnTransaction = (hash: string) => void;
-type OnReceipt = (receipt: any) => void;
-type OnError = (error: any) => void;
-
-const REFRESH_INTERVAL_BLOCKS_NUMBER = 5_000
-const REFRESH_INTERVAL_OFFCHAIN_PRICES = 20_000
-const REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS = 30_000
-const REFRESH_INTERVAL_CONTRACT_STATUS_OMOC = 30_000
-const REFRESH_INTERVAL_USER_BALANCE = 30_000
+const REFRESH_INTERVAL_BLOCKS_NUMBER = 5_000;
+const REFRESH_INTERVAL_OFFCHAIN_PRICES = 20_000;
+const REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS = 30_000;
+const REFRESH_INTERVAL_CONTRACT_STATUS_OMOC = 30_000;
+const REFRESH_INTERVAL_USER_BALANCE = 30_000;
 
 export function WalletProvider({ children }: { children: React.ReactNode }) {
-    const { address, isConnected } = useAccount()
-    const { connect } = useConnect()
-    const { disconnect } = useDisconnect()
-    const publicClient = usePublicClient()
-    const walletClient = useWalletClient()
-    
-    const [contractsAddress, setContractsAddress] = useState<any>(null)
-    const [contractsAddressLoaded, setContractsAddressLoaded] = useState(false)
-    const [vestingAddress, setVestingAddress] = useState<string | undefined>(undefined)
+    const { address, isConnected } = useAccount();
+    const { connect } = useConnect();
+    const { disconnect } = useDisconnect();
+    const publicClient = usePublicClient();
+    const walletClient = useWalletClient();
 
-    const [offChainPrices, setOffChainPrices] = useState<any>(null)
-    const [showModalAccount, setShowModalAccount] = useState<boolean>(false)
-    const [showModalProviders, setShowModalProviders] = useState<boolean>(false)
-    const [vestingOn, setVestingOn] = useState<boolean>(false)
-    
+    const [contractsAddress, setContractsAddress] = useState<DContracts | null>(
+        null
+    );
+    const [contractsAddressLoaded, setContractsAddressLoaded] = useState(false);
+    const [vestingAddress, setVestingAddress] = useState<string | undefined>(
+        undefined
+    );
+
+    const [offChainPrices, setOffChainPrices] = useState<unknown>(null);
+    const [showModalAccount, setShowModalAccount] = useState<boolean>(false);
+    const [showModalProviders, setShowModalProviders] =
+        useState<boolean>(false);
+    const [vestingOn, setVestingOn] = useState<boolean>(false);
+    const toggleVesting = useCallback(() => {
+        setVestingOn((prev) => !prev);
+    }, []);
+
     // Hooks for contract data
-    const { blockNumber } = useLatestBlockNumber(REFRESH_INTERVAL_BLOCKS_NUMBER)
-    
-    const offChainPricesAPI = useOffchainPrices(REFRESH_INTERVAL_OFFCHAIN_PRICES)    
+    const { blockNumber } = useLatestBlockNumber(
+        REFRESH_INTERVAL_BLOCKS_NUMBER
+    );
+
+    const offChainPricesAPI = useOffchainPrices(
+        REFRESH_INTERVAL_OFFCHAIN_PRICES
+    );
 
     const contractProtocolStatus = useContractProtocolStatus(
-        contractsAddressLoaded ? contractsAddress : undefined,
+        contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
         Number(blockNumber),
-        offChainPrices ?? undefined,
+        (offChainPrices as ParsedPrices[]) ?? undefined,
         REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS
-    )
-
-    const { proposalCount } = useProposalCount(
-        contractsAddressLoaded ? (contractsAddress as any)?.VotingMachine : undefined,
-        120_000
-    )
+    );
 
     const contractStatusOmoc = useContractOmocStatus(
-        contractsAddressLoaded ? contractsAddress : undefined,
-        proposalCount as bigint | undefined,
+        contractsAddressLoaded && contractsAddress
+            ? contractsAddress
+            : undefined,
         REFRESH_INTERVAL_CONTRACT_STATUS_OMOC
-    )
+    );
 
     // Hooks for user data
 
-    const userBaseCoinBalance = useBaseCoinBalance(address, REFRESH_INTERVAL_USER_BALANCE)
+    const userBaseCoinBalance = useBaseCoinBalance(
+        address,
+        REFRESH_INTERVAL_USER_BALANCE
+    );
 
     const userBalance = useUserBalance(
-        contractsAddressLoaded ? contractsAddress : undefined,
+        contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
         address,
         REFRESH_INTERVAL_USER_BALANCE
-    )
+    );
 
     const userOmocBalance = useUserOmocBalance(
-        contractsAddressLoaded ? contractsAddress : undefined,
+        contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
         address,
         REFRESH_INTERVAL_USER_BALANCE
-    )
+    );
 
     const userVesting = useUserVesting(
-        contractsAddressLoaded ? contractsAddress : undefined,
+        contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
         address,
-        vestingAddress,
+        vestingAddress as `0x${string}` | undefined,
         REFRESH_INTERVAL_USER_BALANCE
-    )
+    );
 
     const userIncentiveV2 = useIncentiveV2(
-        contractsAddressLoaded ? contractsAddress : undefined,
+        contractsAddressLoaded && contractsAddress
+            ? contractsAddress
+            : undefined,
         address,
         REFRESH_INTERVAL_USER_BALANCE
-    )
+    );
+
+    const userVeto = useUserVeto(
+        contractsAddressLoaded && contractsAddress
+            ? contractsAddress
+            : undefined,
+        userBalance.data,
+        contractStatusOmoc.data,
+        address,
+        REFRESH_INTERVAL_USER_BALANCE
+    );
+
+    const readContractsAddresses = useCallback(async (): Promise<void> => {
+        if (!isConnected || contractsAddressLoaded || !publicClient) return;
+
+        try {
+            const contractsAddresses = await readContracts(publicClient);
+            setContractsAddress(contractsAddresses);
+            setContractsAddressLoaded(true);
+        } catch (e) {
+            console.error("Error loading contracts:", e);
+        }
+    }, [isConnected, contractsAddressLoaded, publicClient]);
 
     useEffect(() => {
         if (offChainPricesAPI.parsedPrices) {
-            setOffChainPrices(offChainPricesAPI.parsedPrices)
+            setOffChainPrices(offChainPricesAPI.parsedPrices);
         }
-    }, [offChainPricesAPI.parsedPrices])
+    }, [offChainPricesAPI.parsedPrices]);
 
-    
     useEffect(() => {
         if (!contractsAddressLoaded) {
-            readContractsAddresses()
+            void readContractsAddresses();
         }
-    }, [contractsAddressLoaded])
-
+    }, [contractsAddressLoaded, readContractsAddresses]);
 
     useEffect(() => {
         if (!isConnected && !showModalProviders) {
             setShowModalProviders(true);
         }
-    }, [isConnected])
+    }, [isConnected, showModalProviders]);
 
     useEffect(() => {
         // Refetch user data when address changes
-        if (!address) return        
-        userBaseCoinBalance?.refetch?.()
-        userBalance?.refetch?.()
-        userOmocBalance?.refetch?.()
-        userVesting?.refetch?.()
-        userIncentiveV2?.refetch?.()
-      }, [address]) // eslint-disable-line react-hooks/exhaustive-deps
+        if (!address) return;
+        void userBaseCoinBalance?.refetch?.();
+        void userBalance?.refetch?.();
+        void userOmocBalance?.refetch?.();
+        void userVesting?.refetch?.();
+        void userIncentiveV2?.refetch?.();
+    }, [address]); // eslint-disable-line react-hooks/exhaustive-deps
 
-
-    const readContractsAddresses = async (): Promise<void> => {    
-        if (!isConnected || contractsAddressLoaded) return
-
-        try {
-            const contractsAddresses = await readContracts(publicClient)
-            setContractsAddress(contractsAddresses)
-            setContractsAddressLoaded(true)
-        } catch (e) {
-            console.error("Error loading contracts:", e)
-        }
-    }
-   
     const onDisconnect = (): void => {
         disconnect();
     };
@@ -366,23 +261,24 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         setShowModalProviders(false);
     };
 
-    const buildInterfaceContext = (): any => {
+    const buildInterfaceContext = (): InterfaceContext => {
         return {
             publicClient,
             walletClient,
             contractProtocolStatus,
             userBalance,
-            address,
+            address: address,
             contracts: contractsAddress,
         };
     };
 
     /* VESTING */
 
-    const setVestingMachine = (vAddress: string): void => {
-        setVestingAddress(vAddress)
-        userVesting.refetch()
-    };
+    const setVestingMachine = useCallback((vAddress: string): void => {
+        setVestingAddress(vAddress === "" ? undefined : vAddress);
+        // Note: userVesting will automatically refetch when vestingAddress changes
+        // due to its dependency on userVestingAddress in the useMemo hook
+    }, []);
 
     const saveUserVesting = (response: VestingResponse): void => {
         if (
@@ -392,7 +288,9 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             const vFromStorage = loadVestingAddressesFromLocalStorage(
                 address as `0x${string}`
             );
-            let vLowerFromStorage = vFromStorage.map((v: string) => v.toLowerCase());
+            const vLowerFromStorage = vFromStorage.map((v: string) =>
+                v.toLowerCase()
+            );
 
             const newVesting: string[] = [];
             response.transactions.forEach((data) => {
@@ -420,19 +318,19 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         }).toString();
         const url = `${baseUrl}?${queryParams}`;
 
-        api("get", url)
-            .then((response: VestingResponse) => {
-                saveUserVesting(response);
+        api<VestingResponse>("get", url)
+            .then((response) => {
+                saveUserVesting(response as VestingResponse);
             })
             .catch((error: Error) => {
                 console.error(error);
             });
     };
 
-    const isVestingLoaded = (): boolean => { 
-        return !!(vestingAddress);
+    const isVestingLoaded = (): boolean => {
+        return !!vestingAddress;
     };
-    
+
     const interfaceTransferToken = async (
         currencyYouExchange: string,
         amount: bigint,
@@ -441,13 +339,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         onReceipt: OnReceipt
     ): Promise<void> => {
         if (!contractsAddress) return;
-    
+
         const tContract = TokenContract(contractsAddress, currencyYouExchange);
         if (tContract.token) {
             const interfaceContext = buildInterfaceContext();
             await transferTokenTo(
                 interfaceContext,
-                tContract.token,                
+                tContract.token,
                 destinationAddress,
                 amount,
                 onTransaction,
@@ -455,7 +353,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             );
         }
     };
-    
+
     const interfaceTransferCoinbase = async (
         amount: bigint,
         destinationAddress: string,
@@ -492,7 +390,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 interfaceContext,
                 approveInfo.token,
                 approveInfo.contractAllow,
-                amountAllowance,                
+                amountAllowance,
                 onTransaction,
                 onReceipt
             );
@@ -506,7 +404,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         limitAmount: bigint,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt
-    ): Promise<any> => {
+    ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         return exchangeMethod(
             interfaceContext,
@@ -523,8 +421,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         amount: bigint,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
-    ): Promise<any> => {
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         return AllowUseTokenMigrator(
             interfaceContext,
@@ -538,8 +436,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const interfaceMigrateToken = async (
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
-    ): Promise<any> => {
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         return MigrateToken(
             interfaceContext,
@@ -554,8 +452,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         amount: bigint,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
-    ): Promise<any> => {
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         if (isVestingLoaded() && vestingAddress) {
             return approveVesting(
@@ -579,9 +477,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         amount: bigint,
         address: `0x${string}`,
         onTransaction: OnTransaction,
-        onReceipt: OnReceipt,
-        onError: OnError
-    ): Promise<any> => {
+        onReceipt: OnReceipt
+    ): Promise<TransactionReceipt | undefined> => {
         const from = address;
         const interfaceContext = buildInterfaceContext();
         if (isVestingLoaded() && vestingAddress) {
@@ -608,8 +505,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         idWithdraw: string | number,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
-    ): Promise<any> => {
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         if (isVestingLoaded() && vestingAddress) {
             return delayMachineWithdrawVesting(
@@ -633,8 +530,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         idWithdraw: string | number,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
-    ): Promise<any> => {
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         if (isVestingLoaded() && vestingAddress) {
             return delayMachineCancelWithdrawVesting(
@@ -655,11 +552,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     };
 
     const interfaceIncentiveV2Claim = async (
-        signDataResponse: any,
+        signDataResponse: string | { signature: string },
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
-    ): Promise<any> => {
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         return claimV2(
             interfaceContext,
@@ -673,8 +570,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         amount: bigint,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
-    ): Promise<any> => {
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         if (isVestingLoaded() && vestingAddress) {
             return unStakeVesting(
@@ -685,20 +582,15 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 onReceipt
             );
         } else {
-            return unStake(
-                interfaceContext,
-                amount,
-                onTransaction,
-                onReceipt
-            );
+            return unStake(interfaceContext, amount, onTransaction, onReceipt);
         }
     };
 
     const interfaceVestingWithdraw = async (
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
-    ): Promise<any> => {
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         return withdrawAllVesting(
             interfaceContext,
@@ -720,8 +612,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const interfaceVestingVerify = async (
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
-    ): Promise<any> => {
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         return vestingVerify(
             interfaceContext,
@@ -736,8 +628,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         changeContractAddress: `0x${string}`,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
-    ): Promise<any> => {
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         if (isVestingLoaded() && vestingAddress) {
             return preVoteVesting(
@@ -761,8 +653,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         inFavorAgainst: boolean,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
-    ): Promise<any> => {
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         if (isVestingLoaded() && vestingAddress) {
             return voteVesting(
@@ -785,8 +677,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const interfaceVotingPreVoteStep = async (
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
-    ): Promise<any> => {
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         return preVoteStep(interfaceContext, onTransaction, onReceipt);
     };
@@ -794,8 +686,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const interfaceVotingVoteStep = async (
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
-    ): Promise<any> => {
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         return voteStep(interfaceContext, onTransaction, onReceipt);
     };
@@ -803,22 +695,18 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const interfaceVotingAcceptedStep = async (
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
-    ): Promise<any> => {
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
-        return acceptedStep(
-            interfaceContext,
-            onTransaction,
-            onReceipt
-        );
+        return acceptedStep(interfaceContext, onTransaction, onReceipt);
     };
 
     const interfaceVotingUnRegister = async (
         changeContractAddress: `0x${string}`,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
-    ): Promise<any> => {
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
         return unRegister(
             interfaceContext,
@@ -828,61 +716,98 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         );
     };
 
+    const interfaceVetoVote = async (
+        proposalAddress: `0x${string}`,
+        caIndex: number,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
+        const interfaceContext = buildInterfaceContext();
+        return vetoVote(
+            interfaceContext,
+            proposalAddress,
+            caIndex,
+            onTransaction,
+            onReceipt
+        );
+    };
+
+    const interfaceVetoWithdraw = async (
+        proposalAddress: `0x${string}`,
+        tcAddress: `0x${string}`,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
+        const interfaceContext = buildInterfaceContext();
+        return vetoWithdraw(
+            interfaceContext,
+            proposalAddress,
+            tcAddress,
+            onTransaction,
+            onReceipt
+        );
+    };
+
     return (
         <WalletContext.Provider
-        value={{
-            isConnected,
-            address,
-            
-            contractsAddress,
-            contractsAddressLoaded,
-            contractStatusOmoc,
-            contractProtocolStatus,
-            userBalance,
-            blockNumber,
-            offChainPrices,
-            proposalCount: proposalCount as bigint | undefined,
-            userBaseCoinBalance,
-            vestingAddress,
-            publicClient,
-            walletClient,
-            userVesting,
-            userOmocBalance,
-            userIncentiveV2,
-            connect,
-            disconnect,
-            readContractsAddresses,
-            interfaceTransferToken,
-            interfaceTransferCoinbase,
-            interfaceAllowanceAmount,
-            interfaceExchangeMethod,
-            interfaceAllowUseTokenMigrator,
-            interfaceMigrateToken,
-            isVestingLoaded,            
-            interfaceStakingApprove,
-            interfaceStakingAddStake,
-            interfaceStakingDelayMachineWithdraw,
-            interfaceStakingDelayMachineCancelWithdraw,            
-            onShowModalAccount,
-            onShowModalAccountVesting,
-            onHideModalAccount,
-            setVestingMachine,
-            interfaceIncentiveV2Claim,
-            interfaceStakingUnStake,
-            interfaceVestingWithdraw,
-            interfaceVestingVerify,
-            interfaceVotingPreVote,
-            interfaceVotingVote,
-            interfaceVotingPreVoteStep,
-            interfaceVotingVoteStep,
-            interfaceVotingAcceptedStep,
-            interfaceVotingUnRegister,
-            readUserVesting,            
-            onShowModalProviders,
-            onHideModalProviders
-        }}
+            value={{
+                vestingOn,
+                toggleVesting,
+                isConnected,
+                address,
+                contractsAddress,
+                contractsAddressLoaded,
+                contractStatusOmoc,
+                contractProtocolStatus,
+                userBalance,
+                blockNumber,
+                offChainPrices,
+                userBaseCoinBalance,
+                vestingAddress,
+                publicClient,
+                walletClient,
+                userVesting,
+                userOmocBalance,
+                userIncentiveV2,
+                userVeto,
+                connect,
+                disconnect,
+                readContractsAddresses,
+                interfaceTransferToken,
+                interfaceTransferCoinbase,
+                interfaceAllowanceAmount,
+                interfaceExchangeMethod,
+                interfaceAllowUseTokenMigrator,
+                interfaceMigrateToken,
+                isVestingLoaded,
+                interfaceStakingApprove,
+                interfaceStakingAddStake,
+                interfaceStakingDelayMachineWithdraw,
+                interfaceStakingDelayMachineCancelWithdraw,
+                onShowModalAccount,
+                onShowModalAccountVesting,
+                onHideModalAccount,
+                setVestingMachine,
+                interfaceIncentiveV2Claim,
+                interfaceStakingUnStake,
+                interfaceVestingWithdraw,
+                interfaceVestingVerify,
+                interfaceVotingPreVote,
+                interfaceVotingVote,
+                interfaceVotingPreVoteStep,
+                interfaceVotingVoteStep,
+                interfaceVotingAcceptedStep,
+                interfaceVotingUnRegister,
+                interfaceVetoVote,
+                interfaceVetoWithdraw,
+                readUserVesting,
+                onShowModalProviders,
+                onHideModalProviders,
+            }}
         >
-        {children}
+            {children}
             <ModalAccount
                 show={showModalAccount}
                 onShow={onShowModalAccount}
@@ -894,8 +819,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 show={showModalProviders}
                 onShow={onShowModalProviders}
                 onHide={onHideModalProviders}
-                
             />
         </WalletContext.Provider>
-    )
+    );
 }

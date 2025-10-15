@@ -1,0 +1,63 @@
+/*
+section_veto.scss contains all the css code for Veto section cards not contained in global.scss
+*/
+
+// Variables
+$breakpoint-mobile: 600px;
+
+.title {
+    color: var(--color-txt-primary);
+    font-size: 16px;
+    font-family: var(--brand-font);
+    font-weight: 600;
+    width: 100%;
+    text-align: left;
+    text-wrap: wrap;
+    word-break: break-all;
+    span {
+        color: var(--color-txt-secondary);
+        margin-bottom: 24px;
+    }
+}
+
+.vetoPage__backBtn {
+    width: 270px;
+}
+.vetoPage__backBtn:hover {
+}
+.vetoPage__tokenTitle {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    div.cta {
+        padding: 0;
+    }
+}
+.vetoPage__tokenInfo {
+    color: #bdbdbd;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+    span {
+        color: #fff;
+    }
+}
+.vetoBtn {
+    width: 250px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-semantic-negative);
+    box-shadow: none;
+    color: whi;
+}
+.vetoPage__vetoBtn:hover {
+    // background: #ff2323;
+}
+
+.vetoCTA {
+    margin: 0;
+}

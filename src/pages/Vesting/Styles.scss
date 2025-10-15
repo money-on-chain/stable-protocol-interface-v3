@@ -62,7 +62,7 @@ $breakpoint-mobile: 600px;
         .copy-icon {
             width: 22px;
             height: 22px;
-            background-image: url('../../assets/icons/CopyOutline.svg');
+            background-image: url("../../assets/icons/CopyOutline.svg");
             background-size: 22px 22px;
             background-repeat: no-repeat;
             display: block;
@@ -125,13 +125,13 @@ $breakpoint-mobile: 600px;
         .page-indicator {
             width: 16px;
             height: 16px;
-            background-image: url('../../assets/icons/PaginationDeselectedOutlined.svg');
+            background-image: url("../../assets/icons/PaginationDeselectedOutlined.svg");
             background-repeat: none;
             background-size: cover;
             filter: var(--color-icon-link-filter);
         }
         .page-indicator.active {
-            background-image: url('../../assets/icons/PaginationSelectedOutlined.svg');
+            background-image: url("../../assets/icons/PaginationSelectedOutlined.svg");
         }
     }
 
@@ -184,7 +184,7 @@ $breakpoint-mobile: 600px;
             .verification-icon--ownedWallet {
                 width: 16px;
                 height: 16px;
-                background-image: url('../../assets/icons/SuccessOutline.svg');
+                background-image: url("../../assets/icons/SuccessOutline.svg");
                 background-repeat: none;
                 background-size: cover;
                 filter: var(--filter-semantic-positive);
@@ -192,7 +192,7 @@ $breakpoint-mobile: 600px;
             .verification-icon--notOwnedWallet {
                 width: 16px;
                 height: 16px;
-                background-image: url('../../assets/icons/AttentionOutline.svg');
+                background-image: url("../../assets/icons/AttentionOutline.svg");
                 background-repeat: none;
                 background-size: cover;
                 filter: var(--filter-semantic-negative);

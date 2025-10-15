@@ -1,22 +1,25 @@
+import { type TransactionReceipt } from "viem";
+
+import type {
+    InterfaceContext,
+    OnReceipt,
+    OnTransaction,
+} from "../types/wallets";
 import {
     mintTC as mintTC_,
-    redeemTC as redeemTC_,
     mintTP as mintTP_,
+    redeemTC as redeemTC_,
     redeemTP as redeemTP_,
 } from "./moc-core";
 
-
-type OnTransaction = (hash: string) => void;
-type OnReceipt = (receipt: any) => void;
-
 const mintTC = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     caIndex: number,
     qTC: bigint,
     limitAmount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     // Mint Collateral token with CA support vendors
     return mintTC_(
         interfaceContext,
@@ -29,13 +32,13 @@ const mintTC = async (
 };
 
 const redeemTC = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     caIndex: number,
     qTC: bigint,
     limitAmount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     // Redeem Collateral token receiving CA support vendors
     return redeemTC_(
         interfaceContext,
@@ -48,14 +51,14 @@ const redeemTC = async (
 };
 
 const mintTP = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     caIndex: number,
     tpIndex: number,
     qTP: bigint,
     limitAmount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     // Mint pegged token with collateral CA BAG support vendor
     return mintTP_(
         interfaceContext,
@@ -69,14 +72,14 @@ const mintTP = async (
 };
 
 const redeemTP = async (
-    interfaceContext: any,
+    interfaceContext: InterfaceContext,
     caIndex: number,
     tpIndex: number,
     qTP: bigint,
     limitAmount: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
-): Promise<any> => {
+): Promise<TransactionReceipt | undefined> => {
     // Redeem pegged token receiving CA support vendor
     return redeemTP_(
         interfaceContext,
@@ -89,4 +92,4 @@ const redeemTP = async (
     );
 };
 
-export { mintTC, redeemTC, mintTP, redeemTP };
+export { mintTC, mintTP, redeemTC, redeemTP };
