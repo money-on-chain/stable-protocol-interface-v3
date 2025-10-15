@@ -1,17 +1,17 @@
-import BigNumber from "bignumber.js";
-import React, { useContext, useState } from "react";
 import { Checkbox } from "antd";
-import PropTypes from "prop-types";
+import React, { useState } from "react";
 
+import { useWalletContext } from "../../context/Wallet";
 import { useProjectTranslation } from "../../helpers/translations";
-import { AuthenticateContext } from "../../context/Auth";
-//import AccountDialog from '../Account';
+
+const PRECISION_DECIMALS = 18n;
+const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
 
 interface AllowanceDialogProps {
     onCloseModal: () => void;
     currencyYouExchange: string;
     currencyYouReceive: string;
-    amountYouExchangeLimit: BigNumber;
+    amountYouExchangeLimit: bigint;
     //amountYouReceiveLimit: BigNumber;
     onRealSendTransaction: () => void;
     disAllowance?: boolean;
@@ -19,7 +19,9 @@ interface AllowanceDialogProps {
 
 type StatusType = "SUBMIT" | "SIGN" | "WAITING" | "ERROR";
 
-export default function AllowanceDialog(props: AllowanceDialogProps): JSX.Element {
+export default function AllowanceDialog(
+    props: AllowanceDialogProps
+): JSX.Element {
     const {
         onCloseModal,
         currencyYouExchange,
@@ -31,7 +33,7 @@ export default function AllowanceDialog(props: AllowanceDialogProps): JSX.Elemen
     } = props;
 
     const { t } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext);
+    const { interfaceAllowanceAmount } = useWalletContext();
 
     const [status, setStatus] = useState<StatusType>("SUBMIT");
     let infinityAllowance: boolean = false;
@@ -60,8 +62,7 @@ export default function AllowanceDialog(props: AllowanceDialogProps): JSX.Elemen
             statusLabel = t("allowance.feedback.default");
     }
 
-    const onChange = (e: any): void => {
-        console.log(`checked = ${e.target.checked}`);
+    const onChange = (e: { target: { checked: boolean } }): void => {
         infinityAllowance = e.target.checked;
     };
 
@@ -78,20 +79,20 @@ export default function AllowanceDialog(props: AllowanceDialogProps): JSX.Elemen
     const onAuthorize = (): void => {
         // First change status to sign tx
         //amountAllowance = new BigNumber(1000) //Number.MAX_SAFE_INTEGER.toString()
-        let amountAllowance: BigNumber;
+        let amountAllowance: bigint;
         if (infinityAllowance) {
-            amountAllowance = new BigNumber(100000000000);
+            amountAllowance = 100000000n * DECIMALS_18; // very high value
         } else {
             amountAllowance = amountYouExchangeLimit;
         }
 
         if (disAllowance) {
             // Disallow to use the Token with amount 0
-            amountAllowance = new BigNumber(0);
+            amountAllowance = 0n;
         }
 
         setStatus("SIGN");
-        auth.interfaceAllowanceAmount(
+        void interfaceAllowanceAmount(
             currencyYouExchange,
             currencyYouReceive,
             amountAllowance,
@@ -101,8 +102,8 @@ export default function AllowanceDialog(props: AllowanceDialogProps): JSX.Elemen
             .then((/*value*/) => {
                 onClose();
             })
-            .catch((error: any) => {
-                console.log(error);
+            .catch((error: unknown) => {
+                console.error("Allowance error:", error);
                 setStatus("ERROR");
             });
     };
@@ -110,12 +111,10 @@ export default function AllowanceDialog(props: AllowanceDialogProps): JSX.Elemen
     const onTransaction = (transactionHash: string): void => {
         // Tx receipt detected change status to waiting
         setStatus("WAITING");
-        console.log("On transaction: ", transactionHash);
     };
 
-    const onReceipt = async (receipt: any): Promise<void> => {
+    const onReceipt = (receipt: unknown): void => {
         // Tx is mined ok proceed with operation transaction
-        console.log("On receipt: ", receipt);
         /*
         // Events name list
         const filter = [
@@ -211,12 +210,3 @@ export default function AllowanceDialog(props: AllowanceDialogProps): JSX.Elemen
         </div>
     );
 }
-
-AllowanceDialog.propTypes = {
-    onCloseModal: PropTypes.func,
-    currencyYouExchange: PropTypes.string,
-    currencyYouReceive: PropTypes.string,
-    amountYouExchangeLimit: PropTypes.object,
-    onRealSendTransaction: PropTypes.func,
-    disAllowance: PropTypes.bool,
-};

@@ -104,7 +104,7 @@ $breakpoint-mobile: 600px;
     cursor: pointer;
     margin-left: auto;
     width: 124px;
-    color: var(--color-btn-tertiary-txt-default);
+    // color: var(--color-btn-tertiary-txt-default);
 
     .cta__button {
         display: flex;
@@ -112,6 +112,7 @@ $breakpoint-mobile: 600px;
         background-color: var(--color-btn-tertiary-background-default);
         padding-left: 16px;
         height: 32px;
+        color: var(--color-btn-tertiary-txt-default);
     }
     .cta__button--disabled {
         display: flex;

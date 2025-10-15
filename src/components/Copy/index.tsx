@@ -1,6 +1,5 @@
 import { notification } from "antd";
 import React from "react";
-import PropTypes from "prop-types";
 
 import IconCopy from "./../../assets/icons/CopyOutline.svg";
 
@@ -22,7 +21,7 @@ export default function Copy(props: CopyProps): JSX.Element {
     } = props;
 
     const onClick = (): void => {
-        navigator.clipboard.writeText(textToCopy);
+        void navigator.clipboard.writeText(textToCopy);
         notification.open({
             message: "Copied",
             description: `${textToCopy} to clipboard`,
@@ -84,10 +83,3 @@ export default function Copy(props: CopyProps): JSX.Element {
         </>
     );
 }
-
-Copy.propTypes = {
-    textToShow: PropTypes.string,
-    textToCopy: PropTypes.string,
-    fastBTC: PropTypes.bool,
-    typeUrl: PropTypes.string,
-};

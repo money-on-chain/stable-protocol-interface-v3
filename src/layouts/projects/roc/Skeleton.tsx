@@ -1,20 +1,20 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Outlet } from "react-router-dom";
 import { Layout } from "antd";
-import BigNumber from "bignumber.js";
-import Web3 from "web3";
+import React, { useEffect, useState } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
 
-import { AuthenticateContext } from "../../../context/Auth";
-import SectionHeader from "../../../components/Header";
-import ModalTokenMigration from "../../../components/TokenMigration/Modal";
-import NotificationBody from "../../../components/Notification";
-import { CheckStatusGlobal } from "../../../helpers/checkStatus";
 import DappFooter from "../../../components/Footer/index";
-import W3ErrorAlert from "../../../components/Notification/W3ErrorAlert";
+import SectionHeader from "../../../components/Header";
+import NotificationBody from "../../../components/Notification";
+import ModalTokenMigration from "../../../components/TokenMigration/Modal";
+import { useWalletContext } from "../../../context/Wallet";
+import { CheckStatusGlobal } from "../../../helpers/checkStatus";
+import { useProjectTranslation } from "../../../helpers/translations";
+import { isSomeTCLockedByVeto } from "../../../helpers/veto";
 
 const { Content, Footer } = Layout;
 
 // Type definitions
+
 interface NotificationStatus {
     id: number;
     title: string;
@@ -23,27 +23,51 @@ interface NotificationStatus {
     iconLeft: string;
     isDismisable: boolean;
     dismissTime: number;
-}
-
-interface AuthContext {
-    contractStatusData: any;
-    userBalanceData: any;
-    web3Error: any;
-    isLoggedIn: boolean;
+    button?: { class: string; label: string; onClick: () => void };
 }
 
 export default function Skeleton(): JSX.Element {
-    const auth = useContext(AuthenticateContext) as AuthContext;
-    const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(null);
+    const { t } = useProjectTranslation();
+    const {
+        isConnected,
+        contractProtocolStatus,
+        userBalance,
+        userOmocBalance,
+        userVeto,
+        contractStatusOmoc,
+        address,
+    } = useWalletContext();
+    const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(
+        null
+    );
+    const [vetoWithdraw, setVetoWithdraw] = useState<NotificationStatus | null>(
+        null
+    );
     const [canSwap, setCanSwap] = useState<boolean>(false);
     const { checkerStatus } = CheckStatusGlobal();
-    
+    const navigate = useNavigate();
+
     useEffect(() => {
-        if (auth.contractStatusData && auth.userBalanceData) {
+        if (
+            contractProtocolStatus.data &&
+            userBalance.data &&
+            userOmocBalance.data
+        ) {
             readProtocolStatus();
             readTpLegacyBalance();
         }
-    }, [auth.contractStatusData, auth.userBalanceData]);
+        if (userVeto.data && contractStatusOmoc.data && address) {
+            readWithdrawStatus();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [
+        contractProtocolStatus.data,
+        userBalance.data,
+        userOmocBalance.data,
+        userVeto.data,
+        contractStatusOmoc.data,
+        address,
+    ]);
 
     const readProtocolStatus = (): void => {
         const { globalStatus, statusLabel, statusText } = checkerStatus();
@@ -63,14 +87,46 @@ export default function Skeleton(): JSX.Element {
     };
 
     const readTpLegacyBalance = (): void => {
-        const tpLegacyBalance = new BigNumber(
-            Web3.utils.fromWei(auth.userBalanceData.tpLegacy.balance, "ether")
-        );
-
-        if (tpLegacyBalance.gt(0)) {
+        if (!userBalance.data) return;
+        if (!userBalance.data.tpLegacy) return;
+        const tpLegacyBalance = userBalance.data.tpLegacy?.balance;
+        if (!tpLegacyBalance) return;
+        if (tpLegacyBalance > 0n) {
             setCanSwap(true);
         } else {
             setCanSwap(false);
+        }
+    };
+
+    const readWithdrawStatus = (): void => {
+        if (!userVeto.data) return;
+        if (!contractStatusOmoc.data) return;
+        if (!address) return;
+        if (
+            isSomeTCLockedByVeto(
+                userVeto.data,
+                contractStatusOmoc.data,
+                address
+            )
+        ) {
+            setVetoWithdraw({
+                id: -1,
+                title: t(`voting.veto.alert.title`),
+                textContent: t(`voting.veto.alert.text`),
+                notifClass: "warning",
+                iconLeft: "warning-icon", // Default icon since statusIcon doesn't exist
+                isDismisable: false,
+                dismissTime: 0,
+                button: {
+                    class: "button-withdraw",
+                    label: t(`voting.veto.alert.cta`),
+                    onClick: () => {
+                        navigate("/veto/withdraw");
+                    },
+                },
+            });
+        } else {
+            setVetoWithdraw(null);
         }
     };
 
@@ -82,10 +138,13 @@ export default function Skeleton(): JSX.Element {
 
                 {/* TODO load an array of notifStatus items, and load a mapping for showing notifs here in this section , interact with a React Context */}
                 {notifStatus && <NotificationBody notifStatus={notifStatus} />}
+                {vetoWithdraw && (
+                    <NotificationBody notifStatus={vetoWithdraw} />
+                )}
 
-                {auth.web3Error && <W3ErrorAlert />}
+                {/* {auth.web3Error && <W3ErrorAlert />} */}
 
-                {!auth.web3Error && auth.isLoggedIn && <Outlet />}
+                {isConnected && <Outlet />}
             </Content>
             <Footer>
                 <div className="footer-container">

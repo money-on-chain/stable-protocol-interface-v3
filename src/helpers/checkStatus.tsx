@@ -1,25 +1,7 @@
-import { useContext } from "react";
-import { BigNumber } from "bignumber.js";
-
-import { useProjectTranslation } from "./translations";
-import { AuthenticateContext } from "../context/Auth";
-import { fromContractPrecisionDecimals } from "./Formats";
+import { useWalletContext } from "../context/Wallet";
 import settings from "../settings/settings.json";
-
-// Type definitions
-interface AuthContext {
-    contractStatusData: {
-        canOperate: boolean;
-        [key: number]: {
-            getCglb: string;
-            getCtargemaCA: string;
-            liqThrld: string;
-            protThrld: string;
-            liquidated: boolean;
-            paused: boolean;
-        };
-    } | null;
-}
+import type { ContractProtocolStatusResult } from "../types/status";
+import { useProjectTranslation } from "./translations";
 
 interface StatusResult {
     globalStatus: number;
@@ -29,68 +11,61 @@ interface StatusResult {
     statusCode: number[];
 }
 
-function CheckStatusCA(auth: AuthContext, caIndex: number): number {
+function CheckStatusCA(
+    contractProtocolStatus: ContractProtocolStatusResult,
+    caIndex: number
+): number {
     /* Status Code:
-    -1: Error - !auth.contractStatusData
+    -1: Error - 
      0: Optimal - globalCoverage > getCtargemaCA
      1: Warning - globalCoverage > protThrld && globalCoverage <= getCtargemaCA
      2: Protected Mode - globalCoverage > liqThrld && globalCoverage <= protThrld
-     3: Liquidated or in process of liquidation - auth.contractStatusData[caIndex].liquidated
-     4: Paused - auth.contractStatusData[caIndex].paused
-     5: Can't operate - !auth.contractStatusData.canOperate
+     3: Liquidated or in process of liquidation - contractStatusData[caIndex].liquidated
+     4: Paused - contractStatusData[caIndex].paused
+     5: Can't operate - !contractStatusData.canOperate
     */
 
     let statusCode: number = -1;
 
-    if (!auth.contractStatusData) return statusCode;
+    if (!contractProtocolStatus.data) return statusCode;
 
-    const globalCoverage = new BigNumber(
-        fromContractPrecisionDecimals(
-            auth.contractStatusData[caIndex].getCglb,
-            settings.tokens.CA[caIndex].decimals
-        )
-    );
-    const getCtargemaCA = new BigNumber(
-        fromContractPrecisionDecimals(
-            auth.contractStatusData[caIndex].getCtargemaCA,
-            settings.tokens.CA[caIndex].decimals
-        )
-    );
-    const liqThrld = new BigNumber(
-        fromContractPrecisionDecimals(
-            auth.contractStatusData[caIndex].liqThrld,
-            settings.tokens.CA[caIndex].decimals
-        )
-    );
-    const protThrld = new BigNumber(
-        fromContractPrecisionDecimals(
-            auth.contractStatusData[caIndex].protThrld,
-            settings.tokens.CA[caIndex].decimals
-        )
-    );
+    const caData = contractProtocolStatus.data[caIndex];
 
-    if (globalCoverage.gt(getCtargemaCA)) {
+    if (!caData) return statusCode;
+
+    if (
+        !caData.getCglb ||
+        !caData.getCtargemaCA ||
+        caData.liqThrld ||
+        caData.protThrld
+    )
+        return statusCode;
+
+    const globalCoverage = caData.getCglb;
+    const getCtargemaCA = caData.getCtargemaCA;
+    const liqThrld = caData.liqThrld;
+    const protThrld = caData.protThrld;
+
+    if (globalCoverage > getCtargemaCA) {
         statusCode = 0;
-    } else if (
-        globalCoverage.gt(protThrld) &&
-        globalCoverage.lte(getCtargemaCA)
-    ) {
+    } else if (globalCoverage > protThrld && globalCoverage <= getCtargemaCA) {
         statusCode = 1;
-    } else if (globalCoverage.gt(liqThrld) && globalCoverage.lte(protThrld)) {
+    } else if (globalCoverage > liqThrld && globalCoverage <= protThrld) {
         statusCode = 2;
     } else {
         statusCode = 3;
     }
 
-    if (auth.contractStatusData[caIndex].liquidated) {
+    if (caData.liquidated) {
         statusCode = 3;
     }
 
-    if (auth.contractStatusData[caIndex].paused) {
+    if (caData.paused) {
         statusCode = 4;
     }
 
-    if (!auth.contractStatusData.canOperate) {
+    const canOperate = contractProtocolStatus.data.canOperate;
+    if (canOperate === false) {
         statusCode = 5;
     }
 
@@ -99,19 +74,19 @@ function CheckStatusCA(auth: AuthContext, caIndex: number): number {
 
 function CheckStatusGlobal() {
     const { t } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext) as AuthContext;
+    const { contractProtocolStatus } = useWalletContext();
 
     const checkerStatus = (): StatusResult => {
         let statusLabel: string = "--";
         let statusLabelClass: string = "";
         let statusText: string = "--";
 
-        let statusCode: number[] = [];
+        const statusCode: number[] = [];
         let statusCodeCA: number = -1;
         let countValid: number = 0;
         let countProtected: number = 0;
         for (let caIndex = 0; caIndex < settings.tokens.CA.length; caIndex++) {
-            statusCodeCA = CheckStatusCA(auth, caIndex);
+            statusCodeCA = CheckStatusCA(contractProtocolStatus, caIndex);
             statusCode.push(statusCodeCA);
 
             if (statusCodeCA < 1) {

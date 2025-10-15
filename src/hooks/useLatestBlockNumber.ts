@@ -1,0 +1,29 @@
+import { useQuery } from "@tanstack/react-query";
+import { getBlockNumber } from "viem/actions";
+import { usePublicClient } from "wagmi";
+
+/**
+ * Custom hook to keep track of the latest block number from the chain.
+ * Updates automatically every `refetchInterval` milliseconds.
+ */
+export function useLatestBlockNumber(refetchInterval = 10_000) {
+    const publicClient = usePublicClient();
+
+    const {
+        data: blockNumber,
+        isLoading,
+        isFetching,
+        refetch,
+        error,
+    } = useQuery({
+        queryKey: ["latestBlockNumber"],
+        queryFn: () => {
+            if (!publicClient) throw new Error("Public client not available");
+            return getBlockNumber(publicClient);
+        },
+        refetchInterval, // default: 10 seconds
+        enabled: !!publicClient,
+    });
+
+    return { blockNumber, isLoading, isFetching, refetch, error };
+}

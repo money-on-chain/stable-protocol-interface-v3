@@ -91,7 +91,7 @@ Example API operations
 
 **hash**: Hash of the transaction
 **blockNumber**: tx blocknumber
-**operId_**: Operation ID (unique for the operation)
+**operId\_**: Operation ID (unique for the operation)
 **status**: Status code of the operation.
 **operation**: Name of the operation,
 **createdAt**: Datetime of the operation created,
@@ -102,43 +102,39 @@ Example API operations
 
 ### Status of the operation
 
-* **-4**: Revert
-* **-3**: Stale Transaction
-* **-2**: Error Unhandled
-* **-1**: Error
-* **0**: Queue (Pending for execution)
-* **1**: Executed (Executed by the queue manager)
+- **-4**: Revert
+- **-3**: Stale Transaction
+- **-2**: Error Unhandled
+- **-1**: Error
+- **0**: Queue (Pending for execution)
+- **1**: Executed (Executed by the queue manager)
 
 ### Operation
 
-* **1**: mintTC
-* **2**: redeemTC
-* **3**: mintTP
-* **4**: redeemTP
-* **5**: mintTCandTP
-* **6**: redeemTCandTP
-* **7**: swapTCforTP
-* **8**: swapTPforTC
-* **9**: swapTPforTP
-
+- **1**: mintTC
+- **2**: redeemTC
+- **3**: mintTP
+- **4**: redeemTP
+- **5**: mintTCandTP
+- **6**: redeemTCandTP
+- **7**: swapTCforTP
+- **8**: swapTPforTC
+- **9**: swapTPforTP
 
 ### Collateral Asset (CA) Token:
 
-* **Flipmoney:** DOC
-* **RoC:** RIF
-
+- **Flipmoney:** DOC
+- **RoC:** RIF
 
 ### Token Pegged (TP):
 
-* **Flipmoney:** Go ARS, Go COP
-* **RoC:** USDRIF
+- **Flipmoney:** Go ARS, Go COP
+- **RoC:** USDRIF
 
+### Token Collateral (TC):
 
-### Token Collateral  (TC):
-
-* **Flipmoney:** Go Turbo
-* **RoC:** RIFPro
-
+- **Flipmoney:** Go Turbo
+- **RoC:** RIFPro
 
 ### Amounts
 
@@ -148,75 +144,78 @@ Example API operations
 
 Mint token collateral.
 
-* **Exchange**: CA. 
-* **Receive**: TC. 
+- **Exchange**: CA.
+- **Receive**: TC.
 
 **Status = 0**
-* **Amount Exchange**: params.qACmax
-* **Amount Receive**: params.qTC
-  
-**Status = 1**
-* **Amount Exchange**: executed.qAC_
-* **Amount Receive**: executed.qTC_
 
+- **Amount Exchange**: params.qACmax
+- **Amount Receive**: params.qTC
+
+**Status = 1**
+
+- **Amount Exchange**: executed.qAC\_
+- **Amount Receive**: executed.qTC\_
 
 ### Operation: redeemTC
 
 Redeem token collateral.
 
-* **Exchange**: TC.
-* **Receive**: CA. 
+- **Exchange**: TC.
+- **Receive**: CA.
 
 **Status = 0**
-* **Amount Exchange**: params.qTC
-* **Amount Receive**: params.qACmin
+
+- **Amount Exchange**: params.qTC
+- **Amount Receive**: params.qACmin
 
 **Status = 1**
-* **Amount Exchange**: executed.qTC_
-* **Amount Receive**: executed.qAC_
 
-
+- **Amount Exchange**: executed.qTC\_
+- **Amount Receive**: executed.qAC\_
 
 ### Operation: minTP
 
 Mint token pegged.
 
-* **Exchange**: CA.
-* **Receive**: TP. 
+- **Exchange**: CA.
+- **Receive**: TP.
 
 **Status = 0**
-* **Amount Exchange**: params.qACmax
-* **Amount Receive**: params.qTP
+
+- **Amount Exchange**: params.qACmax
+- **Amount Receive**: params.qTP
 
 **Status = 1**
-* **Amount Exchange**: executed.qAC_
-* **Amount Receive**: executed.qTP_
 
+- **Amount Exchange**: executed.qAC\_
+- **Amount Receive**: executed.qTP\_
 
-**Note**: **executed.tpIndex_** the index of the token, in the dapp we refer to some like this: 
-TP_0 with index 0, or TP_1 with index 1. 
+**Note**: **executed.tpIndex\_** the index of the token, in the dapp we refer to some like this:
+TP_0 with index 0, or TP_1 with index 1.
 
 ### Operation: redeemTP
 
 Redeem token pegged.
 
-* **Exchange**: TP.
-* **Receive**: CA. 
+- **Exchange**: TP.
+- **Receive**: CA.
 
 **Status = 0**
-* **Amount Exchange**: params.qACmax
-* **Amount Receive**: params.qTP
+
+- **Amount Exchange**: params.qACmax
+- **Amount Receive**: params.qTP
 
 **Status = 1**
-* **Amount Exchange**: executed.qAC_
-* **Amount Receive**: executed.qTP_
 
-**Note**: **executed.tpIndex_** the index of the token, in the dapp we refer to some like this:
+- **Amount Exchange**: executed.qAC\_
+- **Amount Receive**: executed.qTP\_
+
+**Note**: **executed.tpIndex\_** the index of the token, in the dapp we refer to some like this:
 TP_0 with index 0, or TP_1 with index 1.
-
 
 ### List operation status
 
-* **Queued:** status == 0
-* **Confirming:** status == 1 & executed.blockNumber + 10 > last_block_indexed
-* **Confirmed:** status == 1 & executed.blockNumber + 10 < last_block_indexed
+- **Queued:** status == 0
+- **Confirming:** status == 1 & executed.blockNumber + 10 > last_block_indexed
+- **Confirmed:** status == 1 & executed.blockNumber + 10 < last_block_indexed

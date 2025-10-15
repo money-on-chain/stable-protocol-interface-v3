@@ -9,6 +9,8 @@ const Send = React.lazy(() => import("../../../pages/Send/index"));
 const Staking = React.lazy(() => import("../../../pages/Staking/index"));
 const Vesting = React.lazy(() => import("../../../pages/Vesting/index"));
 const Voting = React.lazy(() => import("../../../pages/Voting/index"));
+const Veto = React.lazy(() => import("../../../pages/Veto/index"));
+const VetoWithdraw = React.lazy(() => import("../../../pages/Veto/Withdraw"));
 
 export default function Router(): React.ReactElement | null {
     return useRoutes([
@@ -35,6 +37,14 @@ export default function Router(): React.ReactElement | null {
                 {
                     path: "voting",
                     element: <Voting />,
+                },
+                {
+                    path: "veto",
+                    element: <Veto />,
+                },
+                {
+                    path: "veto/withdraw",
+                    element: <VetoWithdraw />,
                 },
                 { path: "404", element: <NotFound /> },
                 { path: "*", element: <Navigate to="/404" /> },

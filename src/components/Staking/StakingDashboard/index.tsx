@@ -1,17 +1,17 @@
-import React from "react";
-import BigNumber from "bignumber.js";
-
-import { PrecisionNumbers } from "../../PrecisionNumbers";
-import settings from "../../../settings/settings.json";
-import { useProjectTranslation } from "../../../helpers/translations";
 import "./Styles.scss";
 
+import React from "react";
+
+import { useProjectTranslation } from "../../../helpers/translations";
+import settings from "../../../settings/settings.json";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
+
 interface UserInfoStaking {
-    tgBalance: string | number;
-    unstakeBalance: string | number;
-    totalPendingExpiration: string | number;
-    totalAvailableToWithdraw: string | number;
-    lockedInVoting: BigNumber;
+    tgBalance: bigint;
+    unstakeBalance: bigint;
+    totalPendingExpiration: bigint;
+    totalAvailableToWithdraw: bigint;
+    lockedInVoting: bigint;
 }
 
 interface DashboardProps {
@@ -19,7 +19,7 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = (props) => {
-    const { t, i18n, ns } = useProjectTranslation();
+    const { t, i18n } = useProjectTranslation();
     const { userInfoStaking } = props;
 
     return (
@@ -33,12 +33,10 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                     <div className="stakingDash__data__amount">
                         {" "}
                         {PrecisionNumbers({
-                            amount: new BigNumber(userInfoStaking["tgBalance"]),
+                            amount: userInfoStaking["tgBalance"] || 0n,
                             token: settings.tokens.TG[0],
                             decimals: Number(t("staking.display_decimals")),
-                            numericLabelParams: {},
                             i18n: i18n,
-                            skipContractConvert: true,
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -54,14 +52,10 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                 <div className="stakingDash__data">
                     <div className="stakingDash__data__amount">
                         {PrecisionNumbers({
-                            amount: new BigNumber(
-                                userInfoStaking["unstakeBalance"]
-                            ),
+                            amount: userInfoStaking["unstakeBalance"] || 0n,
                             token: settings.tokens.TG[0],
                             decimals: Number(t("staking.display_decimals")),
-                            numericLabelParams: {},
                             i18n: i18n,
-                            skipContractConvert: true,
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -78,14 +72,11 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                     <div className="stakingDash__data__amount">
                         {" "}
                         {PrecisionNumbers({
-                            amount: new BigNumber(
-                                userInfoStaking["totalPendingExpiration"]
-                            ),
+                            amount:
+                                userInfoStaking["totalPendingExpiration"] || 0n,
                             token: settings.tokens.TG[0],
                             decimals: Number(t("staking.display_decimals")),
-                            numericLabelParams: {},
                             i18n: i18n,
-                            skipContractConvert: true,
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -102,14 +93,12 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                 <div className="stakingDash__data">
                     <div className="stakingDash__data__amount">
                         {PrecisionNumbers({
-                            amount: new BigNumber(
-                                userInfoStaking["totalAvailableToWithdraw"]
-                            ),
+                            amount:
+                                userInfoStaking["totalAvailableToWithdraw"] ||
+                                0n,
                             token: settings.tokens.TG[0],
                             decimals: Number(t("staking.display_decimals")),
-                            numericLabelParams: {},
                             i18n: i18n,
-                            skipContractConvert: true,
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -119,7 +108,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
             </div>
             {/* Locked in voting */}
 
-            {userInfoStaking["lockedInVoting"].gt(0) && (
+            {userInfoStaking["lockedInVoting"] > BigInt(0) && (
                 <div className="stakingDash__item">
                     <div className="stakingDash__icon__back">
                         <div className="icon__govLockedTokensVoting"></div>
@@ -127,14 +116,10 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                     <div className="stakingDash__data">
                         <div className="stakingDash__data__amount">
                             {PrecisionNumbers({
-                                amount: new BigNumber(
-                                    userInfoStaking["lockedInVoting"]
-                                ),
+                                amount: userInfoStaking["lockedInVoting"] || 0n,
                                 token: settings.tokens.TG[0],
                                 decimals: Number(t("staking.display_decimals")),
-                                numericLabelParams: {},
                                 i18n: i18n,
-                                skipContractConvert: true,
                             })}
                         </div>
                         <div className="stakingDash__data__label">

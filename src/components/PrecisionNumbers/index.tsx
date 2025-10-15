@@ -1,118 +1,71 @@
-import React, { Fragment } from "react";
 import { Tooltip } from "antd";
-// @ts-ignore
-import NumericLabel from "react-pretty-numbers";
-import BigNumber from "bignumber.js";
+import React, { Fragment } from "react";
+import { formatUnits } from "viem";
 
-interface Token {
-    decimals: number;
-    visibleDecimals: number;
-}
+import type { TokenConfig } from "../../types/hooks";
 
 interface I18n {
     languages: readonly string[];
 }
 
 interface PrecisionNumbersProps {
-    amount: any; // BigNumber or string/number
-    token: Token;
+    amount: bigint;
+    token: TokenConfig;
     decimals?: number;
-    numericLabelParams?: any;
     i18n: I18n;
-    skipContractConvert?: boolean;
+    isInWei?: boolean;
     isUSD?: boolean;
+    compact?: boolean;
 }
 
-const fromContractPrecisionDecimals = (amount: any, decimals: number): BigNumber => {
-    return new BigNumber(amount).div(
-        new BigNumber(10).exponentiatedBy(decimals)
-    );
-};
-
-const formatLargeNumber = (numberBig: BigNumber, decimals: number): string => {
-    const billion = new BigNumber(1e9);
-    const million = new BigNumber(1e6);
-
-    if (numberBig.gte(billion)) {
-        const billions = numberBig.div(billion);
-        return (
-            billions.toFormat(decimals, BigNumber.ROUND_HALF_EVEN, {
-                decimalSeparator: ".",
-                groupSeparator: ",",
-            }) + " B "
-        );
-    } else if (numberBig.gte(million)) {
-        const millions = numberBig.div(million);
-        return (
-            millions.toFormat(decimals, BigNumber.ROUND_HALF_EVEN, {
-                decimalSeparator: ".",
-                groupSeparator: ",",
-            }) + " M "
-        );
-    } else {
-        return numberBig.toFormat(decimals, BigNumber.ROUND_UP, {
-            decimalSeparator: ".",
-            groupSeparator: ",",
-        });
-    }
-};
-
-const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
+export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
     amount,
     token,
     decimals,
-    numericLabelParams = {},
     i18n,
-    skipContractConvert = false,
+    isInWei = true,
     isUSD = false,
+    compact = false,
 }) => {
-    let amountBig: BigNumber;
-    if (skipContractConvert) {
-        amountBig = amount;
-    } else {
-        amountBig = fromContractPrecisionDecimals(amount, token.decimals);
+    if (typeof amount !== "bigint") {
+        console.warn("❌ amount must be bigint:", amount);
+        return <span>Error</span>;
     }
 
-    if (!decimals) {
-        decimals = token.visibleDecimals;
-    }
-    let amountFormat: string;
-    if (!isUSD) {
-        amountFormat = amountBig.toFormat(decimals, BigNumber.ROUND_UP, {
-            decimalSeparator: ".",
-            groupSeparator: ",",
-        });
-    } else {
-        amountFormat = formatLargeNumber(amountBig, decimals);
+    const tokenDecimals = token?.decimals ?? 18;
+    const precision = decimals ?? token?.visibleDecimals ?? 2;
+
+    let formattedString = "0";
+    try {
+        formattedString = isInWei
+            ? formatUnits(amount, tokenDecimals)
+            : amount.toString();
+    } catch (err) {
+        console.error("❌ Error in formatUnits:", err);
+        return <span>Error</span>;
     }
 
-    const params = Object.assign(
-        {
-            shortFormat: !isUSD,
-            justification: "L",
-            locales: i18n.languages[0],
-            shortFormatMinValue: 1000000,
-            commafy: true,
-            shortFormatPrecision: decimals,
-            precision: decimals,
-            title: "",
-            cssClass: ["display-inline"],
-        },
-        numericLabelParams
-    );
+    const floatValue = parseFloat(formattedString);
 
-    // If is very big number
-    if (amountBig.gte(new BigNumber(115792089237316200000000000000000000))) {
+    // Formatter using Intl.NumberFormat
+    const formatter = new Intl.NumberFormat(i18n.languages[0] || "en-US", {
+        notation: compact ? "compact" : "standard", // 👈 formato compacto
+        maximumFractionDigits: precision,
+        minimumFractionDigits: precision,
+    });
+
+    const displayValue = formatter.format(floatValue);
+
+    // Avoid rendering extremely large numbers
+    if (amount >= 2n ** 255n) {
         return <span>Infinity +</span>;
-    } else {
-        return isUSD ? (
-            <Fragment>{amountFormat}</Fragment>
-        ) : (
-            <Tooltip title={amountBig.eq(0) ? "0" : amountBig.toString()}>
-                <NumericLabel {...{ params }}>{amountFormat}</NumericLabel>
-            </Tooltip>
-        );
     }
-};
 
-export { PrecisionNumbers };
+    return isUSD ? (
+        <Fragment>{displayValue}</Fragment>
+    ) : (
+        <Tooltip title={formattedString}>
+            <span>{displayValue}</span>
+        </Tooltip>
+    );
+};

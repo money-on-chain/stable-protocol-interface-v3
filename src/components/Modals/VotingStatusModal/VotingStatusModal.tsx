@@ -1,5 +1,5 @@
 import Modal from "antd/lib/modal/Modal";
-import React, { Fragment } from "react";
+import React from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
 import CopyAddress from "../../CopyAddress";
@@ -12,7 +12,7 @@ interface VotingStatusModalProps {
     operationStatus?: string;
     txHash?: string;
     proposalChanger?: string;
-    votingInFavor?: number;
+    votingInFavor?: boolean;
     showProposal?: boolean;
 }
 

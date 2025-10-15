@@ -1,28 +1,23 @@
 {
     "collateral": "rc20",
     "project": "voting",
-    "showPriceVariation":true,
+    "dapp": {
+        "name": "Voting UI",
+        "description": "Voting UI"
+    },
+    "showPriceVariation": true,
     "tokens": {
-
-        "CA": [
+        "CA": [],
+        "TC": [
             {
-                "key": 0,
-                "name": "RIF",
+                "name": "BPRO",
+                "fullName": "BITPro",
                 "decimals": 18,
                 "visiblePriceDecimals": 4,
                 "visibleBalanceDecimals": 4,
                 "visibleBalanceUSDDecimals": 2
-
             }
         ],
-        "TC": [{
-            "name": "RIFP",
-            "fullName": "RIFPro",
-            "decimals": 18,
-            "visiblePriceDecimals": 4,
-            "visibleBalanceDecimals": 4,
-            "visibleBalanceUSDDecimals": 2
-        }],
         "TP": [
             {
                 "key": 0,
@@ -35,29 +30,35 @@
                 "peggedUSD": true
             }
         ],
-        "TF": [{
-            "name": "MOC",
-            "decimals": 18,
-            "visibleDecimals": 6,
-            "visiblePriceDecimals": 2,
-            "visibleBalanceDecimals": 2,
-            "visibleBalanceUSDDecimals": 2
-        }],
-        "TG": [{
-            "name": "MOC",
-            "decimals": 18,
-            "visibleDecimals": 2,
-            "visiblePriceDecimals": 2,
-            "visibleBalanceDecimals": 2,
-            "visibleBalanceUSDDecimals": 2
-             }],
-        "COINBASE": [{
-            "name": "RBTC",
-            "fullName": "Smart Bitcoin",
-            "decimals": 18,
-            "visiblePriceDecimals": 2,
-            "visibleBalanceDecimals": 8,
-            "visibleBalanceUSDDecimals": 2
-        }]
+        "TF": [
+            {
+                "name": "MOC",
+                "decimals": 18,
+                "visibleDecimals": 6,
+                "visiblePriceDecimals": 2,
+                "visibleBalanceDecimals": 2,
+                "visibleBalanceUSDDecimals": 2
+            }
+        ],
+        "TG": [
+            {
+                "name": "MOC",
+                "decimals": 18,
+                "visibleDecimals": 2,
+                "visiblePriceDecimals": 2,
+                "visibleBalanceDecimals": 2,
+                "visibleBalanceUSDDecimals": 2
+            }
+        ],
+        "COINBASE": [
+            {
+                "name": "RBTC",
+                "fullName": "Smart Bitcoin",
+                "decimals": 18,
+                "visiblePriceDecimals": 2,
+                "visibleBalanceDecimals": 8,
+                "visibleBalanceUSDDecimals": 2
+            }
+        ]
     }
 }

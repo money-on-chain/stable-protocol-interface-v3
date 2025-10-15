@@ -1,17 +1,20 @@
-import React, { useState } from "react";
+import "./style.scss";
+
 import Modal from "antd/lib/modal/Modal";
+import React, { useState } from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
 import Swap from "../Swap";
-import "./style.scss";
 
-// If you know the props type, replace 'any' with the correct interface
+// If you know the props type, replace 'unknown' with the correct interface
 export interface ModalTokenMigrationProps {
     // Add specific prop types here if known
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
-export default function ModalTokenMigration(props: ModalTokenMigrationProps): React.ReactElement {
+export default function ModalTokenMigration(
+    props: ModalTokenMigrationProps
+): React.ReactElement {
     const [visible, setVisible] = useState(false);
 
     const showModal = () => {

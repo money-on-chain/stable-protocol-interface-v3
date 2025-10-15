@@ -99,6 +99,23 @@
             "incorrect": "Vesting Machine Address format appears to be incorrect"
         }
     },
+    "walletProviders": {
+        "connectWalletButton": "Connect Wallet",
+        "connectYourWallet": "Connect your Wallet",
+        "noBrowserWallets": "No browser wallets detected",
+        "providers": {
+            "injected": "Browser Wallet",
+            "metamask": "MetaMask Wallet",
+            "coinbase": "Coinbase Walle",
+            "multisig": "Safe (multi-sig)",
+            "walletconnect": "WalletConnect (QR / mobile)"
+        },
+        "toolTip": {
+            "walletConnected": "For hardware wallets like Ledger Live, Keystone, GridPlus: 1) Open your wallet app 2) Select Connect with WalletConnect 3) Scan the QR code shown here.",
+            "injected": "To use Ledger or Trezor: 1) Open MetaMask or Rabby 2) Connect your hardware wallet in settings 3) Select the account here.",
+            "metamask": "To use Ledger or Trezor: 1) Open MetaMask or Rabby 2) Connect your hardware wallet in settings 3) Select the account here. "
+        }
+    },
 
     "exchange": {
         "tokens": {
@@ -388,6 +405,7 @@
     },
 
     "language": {
+        "languageCTA": "Selecet Language:",
         "en": "🇬🇧 English",
         "es": "🇪🇸 Español"
     },
@@ -494,7 +512,7 @@
                 "expiration": "Expiration",
                 "amount": "Amount",
                 "status": "Status",
-                "actions": "Available actions"
+                "actions": "Options"
             }
         },
         "history": {
@@ -615,10 +633,17 @@
             }
         },
         "alert": {
-            "title": "Using Vesting Adress",
-            "explanation": "To use your regular wallet turn of 'Use Vesting Address' in the wallet settings",
-            "cta": "Go to wallet settings",
-            "address": "Using VM:"
+            "vmEnabled": {
+                "title": "Using Vesting Address",
+                "text": "Your wallet is currently set to use a Vesting Address. To use your regular wallet instead, click on Switch to Wallet Address.",
+                "addressLabel": "VM Address:",
+                "cta": "Switch to Wallet Address"
+            },
+            "vmDisabled": {
+                "title": "Using Regular Wallet Address",
+                "text": "Your wallet is currently set to use the regular address. You can enable a Vesting Address if needed.",
+                "cta": "Enable Vesting Address"
+            }
         },
         "cardTitle": "Vesting Machine",
         "status": {

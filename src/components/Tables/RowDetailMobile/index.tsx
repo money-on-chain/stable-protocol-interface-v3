@@ -1,7 +1,8 @@
+import "./Styles.scss";
+
 import React from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
-import "./Styles.scss";
 
 interface DetailData {
     event: string;

@@ -1,26 +1,34 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
-import svgr from 'vite-plugin-svgr'
-import path from 'path'
+import react from "@vitejs/plugin-react-swc";
+import fs from "fs";
+import path from "path";
+import { defineConfig } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
+import svgr from "vite-plugin-svgr";
 
-// https://vitejs.dev/config/
+const manifestFromPublic = JSON.parse(
+    fs.readFileSync(path.resolve(__dirname, "public/manifest.json"), "utf-8")
+) as Record<string, unknown>;
+
 export default defineConfig({
-    base: '',
+    base: "",
     envPrefix: "REACT_APP_",
     plugins: [
         react(),
-        svgr({
-            svgrOptions: {
-                // svgr options
+        svgr({ svgrOptions: {} }),
+        VitePWA({
+            registerType: "autoUpdate",
+            workbox: {
+                navigateFallbackDenylist: [/^\/api\//],
             },
-        })
+            manifest: manifestFromPublic,
+        }),
     ],
     resolve: {
-        mainFields: ['browser', 'module', 'jsnext'],
-        alias: {
-            '@': path.resolve(__dirname, './src'),
-        },
+        mainFields: ["browser", "module", "jsnext"],
+        alias: { "@": path.resolve(__dirname, "./src") },
     },
-    // TypeScript support is built into Vite
-    // Vite will automatically handle .ts and .tsx files
-})
+    preview: {
+        allowedHosts: [".ngrok-free.app"],
+        port: 4173,
+    },
+});

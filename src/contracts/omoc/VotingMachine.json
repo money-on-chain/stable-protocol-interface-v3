@@ -11,35 +11,160 @@
                 {
                     "indexed": true,
                     "internalType": "address",
+                    "name": "proposal",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "round",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "bool",
+                    "name": "success",
+                    "type": "bool"
+                }
+            ],
+            "name": "AcceptedStepEvent",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": true,
+                    "internalType": "address",
                     "name": "user",
                     "type": "address"
                 },
                 {
                     "indexed": true,
                     "internalType": "address",
-                    "name": "subaccount",
+                    "name": "proposal",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "stake",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "round",
+                    "type": "uint256"
+                }
+            ],
+            "name": "PreVoteEvent",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "proposal",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "votesInFavor",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "round",
+                    "type": "uint256"
+                }
+            ],
+            "name": "PreVoteStepEvent",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "proposal",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "round",
+                    "type": "uint256"
+                }
+            ],
+            "name": "UnregisterEvent",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "user",
                     "type": "address"
                 },
                 {
                     "indexed": true,
                     "internalType": "address",
-                    "name": "destination",
+                    "name": "proposal",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "bool",
+                    "name": "inFavorAgainst",
+                    "type": "bool"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "stake",
+                    "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "round",
+                    "type": "uint256"
+                }
+            ],
+            "name": "VoteEvent",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "proposal",
                     "type": "address"
                 },
                 {
                     "indexed": false,
                     "internalType": "uint256",
-                    "name": "amount",
+                    "name": "round",
                     "type": "uint256"
                 },
                 {
                     "indexed": false,
-                    "internalType": "uint256",
-                    "name": "mocs",
-                    "type": "uint256"
+                    "internalType": "enum VotingMachineStorage.ProposalResult",
+                    "name": "result",
+                    "type": "uint8"
                 }
             ],
-            "name": "VoteEvent",
+            "name": "VoteStepEvent",
             "type": "event"
         },
         {
@@ -602,6 +727,32 @@
             "type": "function"
         },
         {
+            "inputs": [],
+            "name": "acceptedStep",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_changeContractAddress",
+                    "type": "address"
+                }
+            ],
+            "name": "canUnregister",
+            "outputs": [
+                {
+                    "internalType": "bool",
+                    "name": "",
+                    "type": "bool"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
             "inputs": [
                 {
                     "internalType": "contract IGovernor",
@@ -647,306 +798,6 @@
             "type": "function"
         },
         {
-            "inputs": [],
-            "name": "governor",
-            "outputs": [
-                {
-                    "internalType": "contract IGovernor",
-                    "name": "",
-                    "type": "address"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "registry",
-            "outputs": [
-                {
-                    "internalType": "contract IRegistry",
-                    "name": "",
-                    "type": "address"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "",
-                    "type": "address"
-                }
-            ],
-            "name": "votes",
-            "outputs": [
-                {
-                    "internalType": "address",
-                    "name": "addr",
-                    "type": "address"
-                },
-                {
-                    "internalType": "uint8",
-                    "name": "round",
-                    "type": "uint8"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "contract IGovernor",
-                    "name": "_governor",
-                    "type": "address"
-                },
-                {
-                    "internalType": "contract IGovernor",
-                    "name": "_controlledGovernor",
-                    "type": "address"
-                },
-                {
-                    "internalType": "contract IRegistry",
-                    "name": "_registry",
-                    "type": "address"
-                }
-            ],
-            "name": "initialize",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "getState",
-            "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "getVotingRound",
-            "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "_changeContractAddress",
-                    "type": "address"
-                }
-            ],
-            "name": "preVote",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "bool",
-                    "name": "_inFavorAgainst",
-                    "type": "bool"
-                }
-            ],
-            "name": "vote",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "getVoteInfo",
-            "outputs": [
-                {
-                    "internalType": "address",
-                    "name": "winnerProposal",
-                    "type": "address"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "inFavorVotes",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "againstVotes",
-                    "type": "uint256"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "vetoCondition",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "veto",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "readyToPreVoteStep",
-            "outputs": [
-                {
-                    "internalType": "bool",
-                    "name": "",
-                    "type": "bool"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "preVoteStep",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "readyToVoteStep",
-            "outputs": [
-                {
-                    "internalType": "bool",
-                    "name": "",
-                    "type": "bool"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "voteStep",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "vetoStep",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "acceptedStep",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "_changeContractAddress",
-                    "type": "address"
-                }
-            ],
-            "name": "canUnregister",
-            "outputs": [
-                {
-                    "internalType": "bool",
-                    "name": "",
-                    "type": "bool"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "_changeContractAddress",
-                    "type": "address"
-                }
-            ],
-            "name": "unregister",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "isVeto",
-            "outputs": [
-                {
-                    "internalType": "bool",
-                    "name": "",
-                    "type": "bool"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "totalSupply",
-            "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "total",
-                    "type": "uint256"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "getTotalAgainstVotes",
-            "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "total",
-                    "type": "uint256"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [],
-            "name": "getProposalCount",
-            "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
             "inputs": [
                 {
                     "internalType": "uint256",
@@ -982,6 +833,118 @@
         },
         {
             "inputs": [],
+            "name": "getProposalCount",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "getProposalsLength",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "getState",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "getTotalAgainstVotes",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "total",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "user",
+                    "type": "address"
+                }
+            ],
+            "name": "getUserVote",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "voteAddress",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "voteRound",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "getVetoMachineVotes",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "getVoteInfo",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "winnerProposal",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "inFavorVotes",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "againstVotes",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
             "name": "getVotingData",
             "outputs": [
                 {
@@ -1009,24 +972,275 @@
             "type": "function"
         },
         {
-            "inputs": [
+            "inputs": [],
+            "name": "getVotingRound",
+            "outputs": [
                 {
-                    "internalType": "address",
-                    "name": "user",
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "governor",
+            "outputs": [
+                {
+                    "internalType": "contract IGovernor",
+                    "name": "",
                     "type": "address"
                 }
             ],
-            "name": "getUserVote",
-            "outputs": [
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
                 {
-                    "internalType": "address",
-                    "name": "voteAddress",
+                    "internalType": "contract IGovernor",
+                    "name": "_governor",
                     "type": "address"
                 },
                 {
+                    "internalType": "contract IGovernor",
+                    "name": "_controlledGovernor",
+                    "type": "address"
+                },
+                {
+                    "internalType": "contract IRegistry",
+                    "name": "_registry",
+                    "type": "address"
+                }
+            ],
+            "name": "initialize",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "isVeto",
+            "outputs": [
+                {
+                    "internalType": "bool",
+                    "name": "",
+                    "type": "bool"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_changeContractAddress",
+                    "type": "address"
+                }
+            ],
+            "name": "preVote",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "preVoteStep",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "name": "proposals",
+            "outputs": [
+                {
                     "internalType": "uint256",
-                    "name": "voteRound",
+                    "name": "votingRound",
                     "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "inFavorVotes",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "againstVotes",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "vetoes",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "enum VotingMachineStorage.ProposalResult",
+                    "name": "result",
+                    "type": "uint8"
+                },
+                {
+                    "internalType": "bool",
+                    "name": "success",
+                    "type": "bool"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "name": "proposalsList",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "readyToPreVoteStep",
+            "outputs": [
+                {
+                    "internalType": "bool",
+                    "name": "",
+                    "type": "bool"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "readyToVoteStep",
+            "outputs": [
+                {
+                    "internalType": "bool",
+                    "name": "",
+                    "type": "bool"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "registry",
+            "outputs": [
+                {
+                    "internalType": "contract IRegistry",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "totalSupply",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "total",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_changeContractAddress",
+                    "type": "address"
+                }
+            ],
+            "name": "unregister",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "veto",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "vetoCondition",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "vetoStep",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "bool",
+                    "name": "_inFavorAgainst",
+                    "type": "bool"
+                }
+            ],
+            "name": "vote",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "voteStep",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "name": "votes",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "addr",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint8",
+                    "name": "round",
+                    "type": "uint8"
                 }
             ],
             "stateMutability": "view",

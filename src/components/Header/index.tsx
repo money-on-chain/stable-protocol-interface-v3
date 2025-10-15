@@ -1,16 +1,16 @@
-import { Layout } from "antd";
-import React, { useContext, useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import "./Styles.scss";
 
+import { Layout } from "antd";
+import React, { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import { useWalletContext } from "../../context/Wallet";
 import { useProjectTranslation } from "../../helpers/translations";
-import { AuthenticateContext } from "../../context/Auth";
+import settings from "../../settings/settings.json";
 import DappVersion from "../DappVersion";
 import ThemeMode from "../ThemeMode";
-import settings from "../../settings/settings.json";
-import menuOptionsData from "./menuOptions.json";
 import Brand from "./Brand";
-
-import "./Styles.scss";
+import menuOptionsData from "./menuOptions.json";
 
 const { Header } = Layout;
 
@@ -27,16 +27,26 @@ interface LanguageOption {
     code: string;
 }
 
+const truncateAddress = (address: string): string => {
+    return (
+        address.substring(0, 6) +
+        "..." +
+        address.substring(address.length - 4, address.length)
+    );
+};
+
 export default function SectionHeader(): JSX.Element {
     const navigate = useNavigate();
     const location = useLocation();
-    const auth = useContext(AuthenticateContext);
+    const { isConnected, address, onShowModalAccount, onShowModalProviders } =
+        useWalletContext();
     //const [css_disable, setCssDisable] = useState("disable-nav-item");
     const [showMoreDropdown, setShowMoreDropdown] = useState<boolean>(false);
     const [showLanguageMenu, setShowLanguageMenu] = useState<boolean>(false);
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
-    const [showLanguageSubmenu, setShowLanguageSubmenu] = useState<boolean>(false);
+    const [showLanguageSubmenu, setShowLanguageSubmenu] =
+        useState<boolean>(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
     const { t, i18n, ns } = useProjectTranslation();
@@ -45,15 +55,24 @@ export default function SectionHeader(): JSX.Element {
     const MAX_MAIN_MENU_ITEMS: number = 5;
 
     // Process JSON for navigation menu
-    const menuOptions: MenuOption[] = menuOptionsData.map((option: any) => ({
-        ...option,
-        name: () => t(option.nameKey), // Traducimos el nombre dinámicamente
-    }));
+    interface RawMenuOption {
+        path: string;
+        nameKey: string;
+        className: string;
+        allowedProjects: string[];
+    }
 
     // Filter options based on project and language changes
     const [displayOptions, setDisplayOptions] = useState<MenuOption[]>([]);
     const currentProject: string = settings.project;
     useEffect(() => {
+        const menuOptions: MenuOption[] = (
+            menuOptionsData as RawMenuOption[]
+        ).map((option: RawMenuOption) => ({
+            ...option,
+            name: () => t(option.nameKey), // Traducimos el nombre dinámicamente
+        }));
+
         const filteredOptions: MenuOption[] = menuOptions
             .filter(
                 (option: MenuOption) =>
@@ -62,14 +81,18 @@ export default function SectionHeader(): JSX.Element {
             )
             .map((option: MenuOption) => ({
                 ...option,
-                name: option.name, // No ejecutamos name() aquí, mantenemos la función
+                name: option.name, // keep the function
             }));
         setDisplayOptions(filteredOptions);
     }, [currentProject, lang, t]);
 
     // Manage main and more menu options
-    const mainMenuOptions: MenuOption[] = displayOptions.slice(0, MAX_MAIN_MENU_ITEMS);
-    const moreMenuOptions: MenuOption[] = displayOptions.slice(MAX_MAIN_MENU_ITEMS);
+    const mainMenuOptions: MenuOption[] = displayOptions.slice(
+        0,
+        MAX_MAIN_MENU_ITEMS
+    );
+    const moreMenuOptions: MenuOption[] =
+        displayOptions.slice(MAX_MAIN_MENU_ITEMS);
 
     const handleOptionClick = (path: string): void => {
         setShowMoreDropdown(false);
@@ -99,7 +122,7 @@ export default function SectionHeader(): JSX.Element {
     const toggleLanguageSubmenu = (): void =>
         setShowLanguageSubmenu(!showLanguageSubmenu);
     const pickLanguage = (code: string): void => {
-        i18n.changeLanguage(code);
+        void i18n.changeLanguage(code);
         setLang(code);
         setShowLanguageMenu(false);
         localStorage.setItem("PreferredLang", code);
@@ -111,8 +134,12 @@ export default function SectionHeader(): JSX.Element {
     ];
 
     useEffect(() => {
-        const preferredLanguage: string = localStorage.getItem("PreferredLang") || "en";
-        pickLanguage(preferredLanguage);
+        const preferredLanguage: string =
+            localStorage.getItem("PreferredLang") || "en";
+        void i18n.changeLanguage(preferredLanguage);
+        setLang(preferredLanguage);
+        // Only run once on mount to load saved language preference
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (
@@ -135,7 +162,7 @@ export default function SectionHeader(): JSX.Element {
                         </a>
                     ))}
                     {moreMenuOptions.length > 0 && (
-                        <a
+                        <div
                             onClick={() =>
                                 setShowMoreDropdown(!showMoreDropdown)
                             }
@@ -147,25 +174,29 @@ export default function SectionHeader(): JSX.Element {
                             </span>{" "}
                             {showMoreDropdown && (
                                 <div className="dropdown-menu show">
-                                    {moreMenuOptions.map((option: MenuOption) => (
-                                        <a
-                                            onClick={() =>
-                                                handleOptionClick(option.path)
-                                            }
-                                            className={`menu-nav-item disable-nav-item ${location.pathname === option.path ? "menu-nav-item-selected" : ""}`}
-                                            key={option.path}
-                                        >
-                                            <i
-                                                className={`${option.className}${location.pathname === option.path ? "-selected" : ""}`}
-                                            ></i>
-                                            <span className="menu-nav-item-title">
-                                                {option.name()}
-                                            </span>
-                                        </a>
-                                    ))}
+                                    {moreMenuOptions.map(
+                                        (option: MenuOption) => (
+                                            <a
+                                                onClick={() =>
+                                                    handleOptionClick(
+                                                        option.path
+                                                    )
+                                                }
+                                                className={`menu-nav-item disable-nav-item ${location.pathname === option.path ? "menu-nav-item-selected" : ""}`}
+                                                key={option.path}
+                                            >
+                                                <i
+                                                    className={`${option.className}${location.pathname === option.path ? "-selected" : ""}`}
+                                                ></i>
+                                                <span className="menu-nav-item-title">
+                                                    {option.name()}
+                                                </span>
+                                            </a>
+                                        )
+                                    )}
                                 </div>
                             )}
-                        </a>
+                        </div>
                     )}
                 </div>
                 <div className="wallet-user">
@@ -176,37 +207,50 @@ export default function SectionHeader(): JSX.Element {
                         <a className="translation-selector">
                             {
                                 languageOptions.find(
-                                    (option: LanguageOption) => option.code === lang
+                                    (option: LanguageOption) =>
+                                        option.code === lang
                                 )?.name
                             }
                         </a>
-                        <i className="logo-translation"></i>
+                        <div className="logo-translation"></div>
                     </div>
-                    <div className="wallet-address">
-                        <a onClick={auth.onShowModalAccount}>
-                            {auth.accountData.truncatedAddress}
-                        </a>
+                    <div
+                        className={`wallet-address ${isConnected ? "walletConnected" : "walletDisconnected"}`}
+                    >
+                        {isConnected ? (
+                            <>
+                                <a onClick={onShowModalAccount}>
+                                    {truncateAddress(address || "")}
+                                </a>
+                            </>
+                        ) : (
+                            <a onClick={() => onShowModalProviders()}>
+                                {t("walletProviders.connectWalletButton")}
+                            </a>
+                        )}
                         <div className="logo-wallet"></div>
                     </div>
                     {showLanguageMenu && (
                         <div className="language-menu">
                             <div>
-                                {languageOptions.map((option: LanguageOption) => {
-                                    return (
-                                        <div
-                                            className={`menu-item${lang === option.code ? "-selected" : ""}`}
-                                            onClick={() =>
-                                                pickLanguage(option.code)
-                                            }
-                                            key={option.code}
-                                        >
-                                            <span>{option.name}</span>
-                                            {lang === option.code && (
-                                                <div className="icon-checked"></div>
-                                            )}
-                                        </div>
-                                    );
-                                })}
+                                {languageOptions.map(
+                                    (option: LanguageOption) => {
+                                        return (
+                                            <div
+                                                className={`menu-item${lang === option.code ? "-selected" : ""}`}
+                                                onClick={() =>
+                                                    pickLanguage(option.code)
+                                                }
+                                                key={option.code}
+                                            >
+                                                <span>{option.name}</span>
+                                                {lang === option.code && (
+                                                    <div className="icon-checked"></div>
+                                                )}
+                                            </div>
+                                        );
+                                    }
+                                )}
                             </div>
                         </div>
                     )}
@@ -245,7 +289,6 @@ export default function SectionHeader(): JSX.Element {
                                             className={`${option.className} mobile__menu__icon`}
                                         ></div>
                                         <div>{option.name()}</div>{" "}
-                                        {/* Ahora option.name() debería funcionar */}
                                     </a>
                                 ))}
                                 <div className="language__options">
@@ -255,11 +298,12 @@ export default function SectionHeader(): JSX.Element {
                                     >
                                         {showLanguageSubmenu ? (
                                             <div className="mobile-language-title">
-                                                Select Language:
+                                                {t("language.languageCTA")}{" "}
                                             </div>
                                         ) : (
                                             languageOptions.find(
-                                                (option: LanguageOption) => option.code === lang
+                                                (option: LanguageOption) =>
+                                                    option.code === lang
                                             )?.name
                                         )}
                                         {/* Language Menu for Mobile */}
@@ -267,7 +311,9 @@ export default function SectionHeader(): JSX.Element {
                                             <div className="mobile-language-submenu">
                                                 {/* Language Submenú for Mobile */}
                                                 {languageOptions.map(
-                                                    (option: LanguageOption) => (
+                                                    (
+                                                        option: LanguageOption
+                                                    ) => (
                                                         <div
                                                             key={option.code}
                                                             className={`mobile-menu-item${lang === option.code ? "-selected" : ""}`}

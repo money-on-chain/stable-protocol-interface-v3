@@ -1,20 +1,20 @@
-import React, { Fragment, useEffect, useState } from "react";
-import { useContext } from "react";
-import { Skeleton } from "antd";
-
-import { AuthenticateContext } from "../../context/Auth";
-import Vesting from "../../components/Vesting";
 import "./Styles.scss";
 
+import { Skeleton } from "antd";
+import React, { Fragment, useEffect, useState } from "react";
+
+import Vesting from "../../components/Vesting";
+import { useWalletContext } from "../../context/Wallet";
+
 export default function SectionVesting(): React.ReactElement {
-    const auth = useContext(AuthenticateContext);
+    const { contractStatusOmoc } = useWalletContext();
     const [ready, setReady] = useState<boolean>(false);
-    
+
     useEffect(() => {
-        if (auth.contractStatusData) {
+        if (contractStatusOmoc.data) {
             setReady(true);
         }
-    }, [auth]);
+    }, [contractStatusOmoc.data]);
 
     return (
         <Fragment>

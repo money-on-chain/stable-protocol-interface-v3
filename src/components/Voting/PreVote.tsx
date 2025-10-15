@@ -1,28 +1,38 @@
-import React, { Fragment, useContext, useEffect, useState } from "react";
-import BigNumber from "bignumber.js";
+import React, { Fragment, useEffect, useState } from "react";
 
-import { useProjectTranslation } from "../../helpers/translations";
-import CompletedBar from "./CompletedBar";
-import { PrecisionNumbers } from "../PrecisionNumbers";
+import { useWalletContext } from "../../context/Wallet";
 import { TokenSettings } from "../../helpers/currencies";
-import { AuthenticateContext } from "../../context/Auth";
+import { useProjectTranslation } from "../../helpers/translations";
 import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
+import { PrecisionNumbers } from "../PrecisionNumbers";
+import CompletedBar from "./CompletedBar";
+
+const PRECISION_DECIMALS = 18n;
+const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
 
 interface CreateBarGraphProps {
     id: number;
     description: string;
-    percentage: string;
-    needed: string;
+    percentage: bigint;
+    needed: bigint;
     type: string;
+    labelCurrent: string;
+    labelNeedIt: string;
+    labelTotal: string;
     label1: string;
-    amount1: BigNumber;
-    percentage1: BigNumber;
+    valueCurrent: bigint;
+    valueNeedIt: bigint;
+    valueTotal: bigint;
+    pctCurrent: bigint;
+    pctNeedIt: bigint;
+    amount1: bigint;
+    percentage1: bigint;
     label2: string;
-    amount2: BigNumber;
-    percentage2: BigNumber;
+    amount2: bigint;
+    percentage2: bigint;
     label3: string;
-    amount3: BigNumber;
-    percentage3: BigNumber;
+    amount3: bigint;
+    percentage3: bigint;
 }
 
 interface Proposal {
@@ -30,20 +40,20 @@ interface Proposal {
     canVote: boolean;
     canRunStep: boolean;
     canUnregister: boolean;
-    votesPositive: BigNumber;
-    votesPositivePCT: BigNumber;
+    votesPositive: bigint;
+    votesPositivePCT: bigint;
     expirationTimeStampFormat: string;
 }
 
 interface InfoVoting {
-    PRE_VOTE_MIN_PCT_TO_WIN: BigNumber;
-    PRE_VOTE_MIN_TO_WIN: BigNumber;
-    totalSupply: BigNumber;
+    PRE_VOTE_MIN_PCT_TO_WIN: bigint;
+    PRE_VOTE_MIN_TO_WIN: bigint;
+    totalSupply: bigint;
 }
 
 interface InfoUser {
-    Voting_Power: BigNumber;
-    Voting_Power_PCT: BigNumber;
+    Voting_Power: bigint;
+    Voting_Power_PCT: bigint;
 }
 
 interface PreVoteProps {
@@ -53,16 +63,6 @@ interface PreVoteProps {
     infoUser: InfoUser;
     onUnRegisterProposal: (changeContract: string) => void;
     onRunPreVoteStep: () => void;
-}
-
-interface AuthContext {
-    interfaceVotingPreVote: (
-        changeContract: string,
-        onTransaction: (txHash: string) => void,
-        onReceipt: () => void,
-        onError: (error: any) => void
-    ) => Promise<any>;
-    loadContractsStatusAndUserBalance: () => Promise<any>;
 }
 
 const CreateBarGraph: React.FC<CreateBarGraphProps> = (props) => {
@@ -105,22 +105,20 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
     } = props;
     const { t, i18n, ns } = useProjectTranslation();
     const space: string = "\u00A0";
-    const auth = useContext(AuthenticateContext) as AuthContext;
+    const { interfaceVotingPreVote, userOmocBalance, contractStatusOmoc } =
+        useWalletContext();
 
     const [isOperationModalVisible, setIsOperationModalVisible] =
         useState<boolean>(false);
     const [txHash, setTxHash] = useState<string>("");
     const [operationStatus, setOperationStatus] = useState<string>("sign");
     const [modalTitle, setModalTitle] = useState<string>("Voting in favor");
-    const [votingInFavorError, setVotingInFavorError] = useState<boolean>(false);
+    const [votingInFavorError, setVotingInFavorError] =
+        useState<boolean>(false);
     const [showProposalModal, setShowProposalModal] = useState<boolean>(false);
 
-    useEffect(() => {
-        onValidateVotingInFavor();
-    }, [infoUser["Voting_Power"], proposal["canVote"]]);
-
-    const onValidateVotingInFavor = (): boolean => {
-        if (infoUser["Voting_Power"].lte(new BigNumber(0))) {
+    const onValidateVotingInFavor = React.useCallback((): boolean => {
+        if (infoUser["Voting_Power"] <= 0n) {
             // You need at least voting power > 0
             setVotingInFavorError(true);
             return false;
@@ -131,14 +129,21 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
         }
 
         return true;
-    };
+    }, [infoUser, proposal]);
+
+    const votingPower = infoUser["Voting_Power"];
+    const canVote = proposal["canVote"];
+
+    useEffect(() => {
+        onValidateVotingInFavor();
+    }, [votingPower, canVote, onValidateVotingInFavor]);
 
     const preVotingGraphs: CreateBarGraphProps[] = [
         {
             id: 0,
             description: "votes need to advance to next step",
-            percentage: `${proposal.votesPositivePCT}%`,
-            needed: `${infoVoting.PRE_VOTE_MIN_PCT_TO_WIN}%`,
+            percentage: proposal.votesPositivePCT,
+            needed: infoVoting.PRE_VOTE_MIN_PCT_TO_WIN * DECIMALS_18,
             type: "brand",
             labelCurrent: "Votes",
             labelNeedIt: "Quorum",
@@ -147,17 +152,16 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
             valueNeedIt: infoVoting["PRE_VOTE_MIN_TO_WIN"],
             valueTotal: infoVoting["totalSupply"],
             pctCurrent: proposal.votesPositivePCT,
-            pctNeedIt: new BigNumber(infoVoting["PRE_VOTE_MIN_PCT_TO_WIN"]),
-
+            pctNeedIt: infoVoting["PRE_VOTE_MIN_PCT_TO_WIN"],
             label1: "Votes received",
             amount1: proposal.votesPositive,
             percentage1: proposal.votesPositivePCT,
             label2: "Votes needed for Quroum",
-            amount2: infoVoting["PRE_VOTE_MIN_TO_WIN"],
-            percentage2: new BigNumber(infoVoting["PRE_VOTE_MIN_PCT_TO_WIN"]),
+            amount2: infoVoting["PRE_VOTE_MIN_TO_WIN"] * DECIMALS_18,
+            percentage2: infoVoting["PRE_VOTE_MIN_PCT_TO_WIN"] * DECIMALS_18,
             label3: "Total circulating tokens",
             amount3: infoVoting["totalSupply"],
-            percentage3: new BigNumber(100),
+            percentage3: 100n * DECIMALS_18,
         },
     ];
 
@@ -169,15 +173,10 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
         setIsOperationModalVisible(true);
 
         const onTransaction = (txHash: string): void => {
-            console.log(
-                "Sent transaction voting in favor proposal...: ",
-                txHash
-            );
             setTxHash(txHash);
             setOperationStatus("pending");
         };
         const onReceipt = (): void => {
-            console.log("Transaction voting in favor proposal mined!...");
             setOperationStatus("success");
             /*
             // Events name list
@@ -196,31 +195,28 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
             const filteredEvents = decodeEvents(txRcp, contractName, filter);
              */
         };
-        const onError = (error: any): void => {
-            console.log(
+        const onError = (error: unknown): void => {
+            console.error(
                 "Transaction voting in favor proposal error!...:",
                 error
             );
             setOperationStatus("error");
         };
 
-        await auth
-            .interfaceVotingPreVote(
-                proposal.changeContract,
+        try {
+            await interfaceVotingPreVote(
+                proposal.changeContract as `0x${string}`,
                 onTransaction,
                 onReceipt,
                 onError
-            )
-            .then((/*res*/) => {
-                // Refresh status
-                auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-                    console.log("Refresh user balance OK!");
-                });
-            })
-            .catch((e) => {
-                console.error(e);
-                setOperationStatus("error");
-            });
+            );
+            // Refresh status
+            void userOmocBalance.refetch();
+            void contractStatusOmoc.refetch();
+        } catch (e) {
+            console.error(e);
+            setOperationStatus("error");
+        }
     };
 
     return (
@@ -319,9 +315,9 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
                                                     ],
                                                     token: TokenSettings("TG"),
                                                     decimals: 2,
-                                                    numericLabelParams: {},
+                                                    //numericLabelParams: {},
                                                     i18n: i18n,
-                                                    skipContractConvert: true,
+                                                    //skipContractConvert: true,
                                                 })}
                                                 {t("staking.tokens.TG.abbr", {
                                                     ns: ns,
@@ -333,9 +329,9 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
                                                     ],
                                                     token: TokenSettings("TG"),
                                                     decimals: 2,
-                                                    numericLabelParams: {},
+                                                    //numericLabelParams: {},
                                                     i18n: i18n,
-                                                    skipContractConvert: true,
+                                                    //skipContractConvert: true,
                                                 })}
                                                 %)
                                             </div>
@@ -349,7 +345,7 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
                                     {proposal.canVote && (
                                         <button
                                             className="button infavor"
-                                            onClick={onVoteInFavor}
+                                            onClick={() => void onVoteInFavor()}
                                             disabled={votingInFavorError}
                                         >
                                             <div className="icon icon__vote__infavor"></div>
@@ -403,4 +399,4 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
     );
 };
 
-export default PreVote; 
+export default PreVote;

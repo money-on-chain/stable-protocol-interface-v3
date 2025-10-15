@@ -1,19 +1,22 @@
-import React, { useState } from "react";
+import { Button } from "antd";
 import Modal from "antd/lib/modal/Modal";
+import React, { useState } from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
 import ConfirmSend from "../../ConfirmSend";
-import { Button } from "antd";
 
 interface ModalConfirmSendProps {
     inputValidationError?: boolean;
     currencyYouExchange: string;
-    exchangingUSD: any; // BigNumber type
+    exchangingUSD: bigint;
     amountYouExchange: string;
     destinationAddress: string;
+    onClear: () => void;
 }
 
-export default function ModalConfirmSend(props: ModalConfirmSendProps): React.ReactElement {
+export default function ModalConfirmSend(
+    props: ModalConfirmSendProps
+): React.ReactElement {
     const { /*onClear,*/ inputValidationError } = props;
 
     const { t } = useProjectTranslation();

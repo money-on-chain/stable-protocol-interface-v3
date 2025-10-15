@@ -42,171 +42,11 @@ html {
 }
 
 /*
-    --- rLOGIN ---
+    Wallet connect modal
 */
 
-.rlogin-modal-container {
-    // Hide theme switcher
-    .rlogin-modal-close-button {
-        display: none;
-    }
-
-    .rlogin-modal-lightbox {
-        backdrop-filter: blur(5px) !important;
-    }
-
-    #theme-switcher {
-        display: var(--rlogin-themeswitcher-display) !important;
-    }
-
-    // Title bar (powerded by + RIF logo)
-    .rlogin-modal-header {
-        border-radius: var(--rlogin-border-radius) var(--rlogin-border-radius) 0
-            0 !important;
-        background-color: var(--rlogin-title-background-color) !important;
-
-        .sc-jJEKmz.jtUgPh {
-            color: var(--rlogin-poweredby-color);
-        }
-        .sc-hiSbEG.fFKpiV,
-        .sc-eBMEME,
-        .gKVFYd {
-            filter: var(--rlogin-logo-filter-color) !important;
-        }
-    }
-
-    // Provider buttons
-    .rlogin-provider-container {
-        box-shadow: var(--rlogin-provider-border-shadow);
-        background-color: var(--rlogin-provider-background-color) !important;
-    }
-
-    .rlogin-header3 {
-        color: var(--rlogin-content-txt-color) !important;
-        font-weight: 600 !important;
-        font-family: var(--main-font) !important;
-    }
-    // display none to avoid an extra gap when div is empty
-    // ONLY if there is NO custodial wallet support
-    .rlogin-providers-custodial {
-        display: none;
-    }
-
-    // Language dropdown
-    #languages {
-        background-color: transparent !important;
-    }
-
-    // Content card
-    .rlogin-modal-card {
-        backdrop-filter: blur(10px);
-        border-radius: var(--rlogin-border-radius) !important;
-        background-color: var(--rlogin-content-background-color) !important;
-
-        // Title
-        .rlogin-header2 {
-            margin: 24px 0 24px 0;
-            color: var(--rlogin-content-title-color) !important;
-            font-weight: 600 !important;
-            font-family: var(--brand-font) !important;
-        }
-    }
-
-    .rlogin-modal-body {
-        box-shadow: var(--rlogin-content-shadow-inset) !important;
-        border: 4px solid var(--rlogin-content-border-color) !important;
-        border-radius: 0 0 var(--rlogin-border-radius)
-            var(--rlogin-border-radius) !important;
-    }
-
-    .cUGxCk {
-        color: var(--rlogin-spinner-color) !important;
-    }
-
-    .sc-hmdomO,
-    .eakXkU {
-        box-shadow: var(--rlogin-provider-border-shadow);
-        background-color: var(--rlogin-provider-background-color) !important;
-        .icon {
-            width: 0;
-        }
-    }
-
-    button {
-        /*background-color: red;*/
-    }
-
-    .rlogin-button {
-        transition:
-            background-color 0.3s,
-            color 0.3s,
-            border-color 0.3s;
-        cursor: pointer;
-        box-shadow: var(--color-btn-primary-background-default-shadow);
-        border-width: 0px;
-        border-color: var(--color-btn-primary-txt-default);
-        border-radius: var(--btn-radius);
-        background-color: var(
-            --color-btn-primary-background-default
-        ) !important;
-        // width: var(--btn-width);
-        // height: var(--btn-height);
-        color: var(--color-btn-primary-txt-default);
-        font-weight: 700;
-        font-size: 18px;
-        font-family: var(--main-font);
-        text-align: center;
-    }
-
-    .rlogin-button:hover {
-        box-shadow: none;
-        background-color: var(
-            --color-btn-primary-background-disabled
-        ) !important;
-        color: var(--color-btn-primary-txt-disabled) !important;
-    }
-
-    .rlogin-button:hover,
-    .rlogin-button:focus {
-        border-color: var(--color-btn-primary-txt-hover) !important;
-        background: var(--color-btn-primary-background-hover) !important;
-        color: var(--color-btn-primary-txt-hover) !important;
-    }
-    .cancel {
-        box-shadow: var(--color-btn-secondary-background-default-shadow);
-        border: 2px solid var(--color-btn-secondary-txt-default);
-        background-color: var(
-            --color-btn-secondary-background-default
-        ) !important;
-        color: var(--color-btn-secondary-txt-default);
-    }
-
-    .kRsGLN {
-        // Wallet list row active/hover
-        background-color: var(--color-btn-primary-background-active) !important;
-        color: var(--color-btn-primary-txt-active);
-    }
-    .PSDUo:hover {
-        // Wallet list row hover (different class than active)
-
-        background-color: var(--color-btn-primary-background-hover) !important;
-        color: var(--color-btn-primary-txt-active) !important;
-    }
-
-    .jfpzdm {
-        // Wallet list pagination buttons
-        margin-right: 8px;
-        margin-left: 8px;
-        border: 2px solid var(--color-btn-secondary-txt-default);
-        background-color: var(
-            --color-btn-secondary-background-default
-        ) !important;
-        color: var(--color-btn-secondary-txt-default);
-        &:hover {
-            border-color: var(--color-btn-secondary-txt-hover);
-            color: var(--color-btn-secondary-txt-hover);
-        }
-    }
+w3m-modal {
+    z-index: 5000;
 }
 
 /*
@@ -1111,39 +951,103 @@ h2 {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100%;
-    border-radius: var(--card-border-radius);
-    color: var(--notification-permanent-text);
     border: 0px;
+    border-radius: var(--card-border-radius);
+    background-color: var(--notification-info-background);
+    width: 100%;
+    color: var(--notification-permanent-text);
 
+    .anticon {
+        width: 24px;
+        height: 24px;
+        margin: 16px;
+    }
     .ant-alert-message {
-        font-weight: 600;
-        font-size: 20px;
-        font-family: var(--brand-font);
         color: var(--notification-permanent-text);
+        font-weight: 600;
+        font-size: 16px;
+        font-family: var(--brand-font);
+        padding-left: 8px;
+    }
+    .ant-alert-content {
+        max-width: 100%;
+    }
+    .alert__message {
+        line-height: 1.2;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        .alert__title {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .alert__text {
+            font-weight: 400;
+        }
+        .alert__label {
+            font-weight: 600;
+        }
+        .alert__address {
+            font-weight: 400;
+        }
+    }
+    .alert__switch {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        .alert__switch__label {
+            font-weight: 600;
+        }
     }
     button {
         border: none;
         background-color: transparent;
+        margin-top: 16px;
+        margin-bottom: 16px;
         span {
             font-weight: 600;
             font-size: 14px;
             text-decoration: underline;
         }
     }
+    .button--small {
+        box-shadow: none;
+        border: 1px solid var(--color-btn-primary-txt-default);
+        border-radius: var(--btn-radius-tiny);
+        // background-color: var(--color-btn-primary-txt-default);
+        color: var(--color-btn-primary-txt-default);
+        padding-right: 16px;
+        padding-left: 16px;
+        width: auto;
+        height: 22px;
+        font-size: 12px;
+        line-height: 1;
+    }
     button:hover,
     button:focus,
     button:active {
-        background-color: transparent;
-        border: none;
-        color: var(--color-btn-primary-txt-hover);
+        color: var(--color-btn-primary-txt-default);
+        background-color: var(--color-btn-primary-background-default);
+        outline: 2px solid;
     }
     .address {
-        font-weight: 600;
         margin-bottom: 16px;
+        font-weight: 600;
     }
 }
-
+.notification-container-warning {
+    .text-content,
+    h4 {
+        color: var(--notification-warning-text) !important;
+    }
+    button {
+        @extend .button;
+        background-color: var(--notification-warning-text) !important;
+        color: var(--notification-warning-background) !important;
+        width: 250px !important;
+    }
+}
 .alert-success {
     background-color: var(--color-semantic-positive);
     > .anticon {

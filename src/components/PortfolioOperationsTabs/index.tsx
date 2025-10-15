@@ -1,10 +1,10 @@
-import React, { Fragment, /*useContext, useEffect,*/ useState } from "react";
-
-//import { AuthenticateContext } from "../../context/Auth";
-import { useProjectTranslation } from "../../helpers/translations";
-import Portfolio from "../../components/Dashboards/Portfolio";
-import ListOperationsMobile from "../Tables/LastOperations";
 import "./Styles.scss";
+
+import React, { useState } from "react";
+
+import Portfolio from "../../components/Dashboards/Portfolio";
+import { useProjectTranslation } from "../../helpers/translations";
+import ListOperationsMobile from "../Tables/LastOperations";
 
 interface Tab {
     id: number;
@@ -13,7 +13,7 @@ interface Tab {
 
 export default function HomeTabs(): React.ReactElement {
     const { t } = useProjectTranslation();
-    //const auth = useContext(AuthenticateContext);
+
     //const [ready, setReady] = useState(false);
 
     /*

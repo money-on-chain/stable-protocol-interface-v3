@@ -1,46 +1,48 @@
 import React from "react";
-import BigNumber from "bignumber.js";
 
 import { useProjectTranslation } from "../../helpers/translations";
 import CompletedBar from "./CompletedBar";
 import ProposalStats from "./ProposalStats";
 
+const PRECISION_DECIMALS = 18n;
+const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
+
 interface CreateBarGraphProps {
     id: number;
     description: string;
-    percentage: string;
-    needed: string;
+    percentage: bigint;
+    needed: bigint;
     type: string;
     label1: string;
-    amount1: BigNumber;
-    percentage1: BigNumber;
+    amount1: bigint;
+    percentage1: bigint;
     label2: string;
-    amount2: BigNumber;
-    percentage2: BigNumber;
+    amount2: bigint;
+    percentage2: bigint;
     label3: string;
-    amount3: BigNumber;
-    percentage3: BigNumber;
+    amount3: bigint;
+    percentage3: bigint;
 }
 
 interface CreateStatsProps {
     id: number;
     label: string;
-    amount: BigNumber;
-    percentage: BigNumber | number;
+    amount: bigint;
+    percentage: bigint;
 }
 
 interface Proposal {
     changeContract: string;
-    votesPositive: BigNumber;
-    votesPositivePCT: BigNumber;
+    votesPositive: bigint;
+    votesPositivePCT: bigint;
     expirationTimeStampFormat: string;
     canRunStep: boolean;
 }
 
 interface InfoVoting {
-    PRE_VOTE_MIN_PCT_TO_WIN: BigNumber;
-    PRE_VOTE_MIN_TO_WIN: BigNumber;
-    totalSupply: BigNumber;
+    PRE_VOTE_MIN_PCT_TO_WIN: bigint;
+    PRE_VOTE_MIN_TO_WIN: bigint;
+    totalSupply: bigint;
 }
 
 interface ProposalProps {
@@ -99,8 +101,8 @@ const Proposal: React.FC<ProposalProps> = (props) => {
         {
             id: 0,
             description: "Votes required to move to the next stage",
-            percentage: `${proposal.votesPositivePCT}%`,
-            needed: `${infoVoting.PRE_VOTE_MIN_PCT_TO_WIN}%`,
+            percentage: proposal.votesPositivePCT,
+            needed: infoVoting.PRE_VOTE_MIN_PCT_TO_WIN * DECIMALS_18,
             type: "brand",
             // labelCurrent: 'Votes',
             // labelNeedIt: 'Quorum',
@@ -115,11 +117,11 @@ const Proposal: React.FC<ProposalProps> = (props) => {
             amount1: proposal.votesPositive,
             percentage1: proposal.votesPositivePCT,
             label2: "Votes needed for Quroum",
-            amount2: infoVoting["PRE_VOTE_MIN_TO_WIN"],
-            percentage2: new BigNumber(infoVoting["PRE_VOTE_MIN_PCT_TO_WIN"]),
+            amount2: infoVoting["PRE_VOTE_MIN_TO_WIN"] * DECIMALS_18,
+            percentage2: infoVoting["PRE_VOTE_MIN_PCT_TO_WIN"] * DECIMALS_18,
             label3: "Total circulating tokens",
             amount3: infoVoting["totalSupply"],
-            percentage3: new BigNumber(100),
+            percentage3: 100n * DECIMALS_18,
         },
     ];
 
@@ -133,14 +135,14 @@ const Proposal: React.FC<ProposalProps> = (props) => {
         {
             id: 1,
             label: "Requiered Quorum",
-            amount: infoVoting["PRE_VOTE_MIN_TO_WIN"],
-            percentage: new BigNumber(infoVoting["PRE_VOTE_MIN_PCT_TO_WIN"]),
+            amount: infoVoting["PRE_VOTE_MIN_TO_WIN"] * DECIMALS_18,
+            percentage: infoVoting["PRE_VOTE_MIN_PCT_TO_WIN"] * DECIMALS_18,
         },
         {
             id: 2,
             label: "Total circulating Tokens",
             amount: infoVoting["totalSupply"],
-            percentage: 100,
+            percentage: 100n * DECIMALS_18,
         },
     ];
 
@@ -230,4 +232,4 @@ const Proposal: React.FC<ProposalProps> = (props) => {
     );
 };
 
-export default Proposal; 
+export default Proposal;

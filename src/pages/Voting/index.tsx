@@ -1,37 +1,45 @@
-import React, { Fragment, useEffect, useState } from "react";
-import { useContext } from "react";
-import { Skeleton } from "antd";
-
-import { AuthenticateContext } from "../../context/Auth";
-import Voting from "../../components/Voting";
-import UseVestingAlert from "../../components/Notification/UsingVestingAlert";
 import "./Styles.scss";
 
+import { Skeleton } from "antd";
+import React, { Fragment, useEffect, useState } from "react";
+
+import VestingStatusAlert from "../../components/Notification/VestingStatusAlert";
+import Voting from "../../components/Voting";
+import { useWalletContext } from "../../context/Wallet";
+
 export default function SectionVoting(): React.ReactElement {
-    const auth = useContext(AuthenticateContext);
+    const {
+        contractStatusOmoc,
+        userOmocBalance,
+        isVestingLoaded,
+        vestingAddress,
+    } = useWalletContext();
     const [ready, setReady] = useState<boolean>(false);
     const [usingVestingAddress, setUsingVestingAddress] = useState<string>("");
 
     useEffect(() => {
-        if (auth.contractStatusData) {
+        if (contractStatusOmoc.data && userOmocBalance.data) {
             setReady(true);
         }
-        if (auth.userBalanceData && auth.isVestingLoaded()) {
-            const vestingAddress = auth.vestingAddress();
-            setUsingVestingAddress(vestingAddress || "");
+        if (userOmocBalance.data && isVestingLoaded() && vestingAddress) {
+            const vestingAddr = vestingAddress;
+            setUsingVestingAddress(vestingAddr || "");
         } else {
             setUsingVestingAddress("");
         }
-    }, [auth]);
+    }, [
+        contractStatusOmoc.data,
+        userOmocBalance.data,
+        isVestingLoaded,
+        vestingAddress,
+    ]);
 
     return (
         <Fragment>
             <div className="section-container">
-                {usingVestingAddress !== "" && (
-                    <div className={"content-page"}>
-                        {<UseVestingAlert address={usingVestingAddress} />}
-                    </div>
-                )}
+                <div className="content-page">
+                    <VestingStatusAlert />
+                </div>
                 {ready ? <Voting /> : <Skeleton active />}
             </div>
         </Fragment>

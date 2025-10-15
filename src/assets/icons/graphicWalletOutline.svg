@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64px" height="64px" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Graphic/Wallet/Outline</title>
+    <g id="Graphic/Wallet/Outline" stroke="none" fill="none" fill-rule="nonzero">
+        <rect id="Area" x="0" y="0" width="64" height="64"></rect>
+        <g id="Group" stroke-width="1" fill-rule="evenodd">
+            <circle id="Oval" fill="#101214" fill-rule="nonzero" cx="48" cy="37" r="2"></circle>
+            <path d="M7,15 C4.239,15 2,12.761 2,10 L2,10 C2,7.239 4.239,5 7,5 L47,5 L47,9" id="Path" stroke="#101214" stroke-width="2"></path>
+            <path d="M58,31 L58,15 L7,15 C4.239,15 2,12.761 2,10 L2,51 C2,55.418 5.582,59 10,59 L58,59 L58,43" id="Path" stroke="#101214" stroke-width="2"></path>
+            <path d="M62,43 L48,43 C44.686,43 42,40.314 42,37 L42,37 C42,33.686 44.686,31 48,31 L62,31 L62,43 Z" id="Path" stroke="#101214" stroke-width="2"></path>
+        </g>
+    </g>
+</svg>

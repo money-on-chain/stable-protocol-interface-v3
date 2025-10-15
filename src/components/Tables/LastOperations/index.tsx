@@ -1,26 +1,62 @@
-import React, { Fragment, useContext, useEffect, useState } from "react";
-import { DownCircleOutlined, UpCircleOutlined } from "@ant-design/icons";
-import { Table, Skeleton, Modal } from "antd";
-import Moment from "react-moment";
-import BigNumber from "bignumber.js";
-import PropTypes from "prop-types";
-
-import RowDetailMobile from "../RowDetailMobile";
-import api from "../../../services/api";
-import Copy from "../../Copy";
-import date from "../../../helpers/date";
-import { AuthenticateContext } from "../../../context/Auth";
-import { useProjectTranslation } from "../../../helpers/translations";
-import settings from "../../../settings/settings.json";
-import { PrecisionNumbers } from "../../PrecisionNumbers";
-import { fromContractPrecisionDecimals } from "../../../helpers/Formats";
-import { TokenSettings } from "../../../helpers/currencies";
-import AboutQueue from "../../Modals/AboutQueue";
 import "./Styles.scss";
+
+import { DownCircleOutlined, UpCircleOutlined } from "@ant-design/icons";
+import { Modal, Skeleton, Table } from "antd";
+import React, {
+    Fragment,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+} from "react";
+import Moment from "react-moment";
+
+import { useWalletContext } from "../../../context/Wallet";
+import { TokenSettings } from "../../../helpers/currencies";
+import date from "../../../helpers/date";
+import { useProjectTranslation } from "../../../helpers/translations";
+import api from "../../../services/api";
+import settings from "../../../settings/settings.json";
+import type { TokenConfig } from "../../../types/hooks";
+import Copy from "../../Copy";
+import AboutQueue from "../../Modals/AboutQueue";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
+import RowDetailMobile from "../RowDetailMobile";
 
 // Type definitions
 interface LastOperationsProps {
     token: string;
+}
+
+interface DetailData {
+    event: string;
+    created: React.ReactNode;
+    gas_used: string | number;
+    oper_id: string | number | null;
+    confirmation: React.ReactNode | string;
+    recipient: React.ReactNode | string;
+    status: string;
+    error_code: string | number;
+    block: string | number;
+    executed_tx_hash: string;
+    executed_tx_hash_truncate: string;
+    fee: React.ReactNode | string;
+    tx_hash: string;
+    tx_hash_truncate: string;
+    msg: string;
+    reason: string;
+    exchange?: {
+        action?: string;
+        amount: string | number;
+        name: string;
+        title: string;
+    };
+    receive?: {
+        action?: string;
+        amount: string | number;
+        name: string;
+        title: string;
+    };
 }
 
 interface OperationData {
@@ -84,7 +120,7 @@ interface TokenExchangeResult {
         action?: string;
         amount: string | number;
         name: string;
-        token: any;
+        token: unknown;
         icon: string;
         title: string;
     };
@@ -92,7 +128,7 @@ interface TokenExchangeResult {
         action?: string;
         amount: string | number;
         name: string;
-        token: any;
+        token: unknown;
         icon: string;
         title: string;
     };
@@ -105,7 +141,7 @@ interface TableRowData {
     receive: React.ReactNode;
     date: React.ReactNode;
     status: React.ReactNode;
-    detail: any;
+    detail: DetailData;
     renderRow: React.ReactNode;
     description: React.ReactNode;
 }
@@ -119,7 +155,7 @@ export default function LastOperations(props: LastOperationsProps) {
     const { token } = props;
     const [current, setCurrent] = useState(1);
     const { t, i18n, ns } = useProjectTranslation();
-    const auth = useContext(AuthenticateContext);
+    const { isConnected, address, blockNumber } = useWalletContext();
     const [ready, setReady] = useState(false);
     /*useEffect(() => {
         if (auth.contractStatusData) {
@@ -127,8 +163,11 @@ export default function LastOperations(props: LastOperationsProps) {
         }
     }, [auth]);*/
 
-    const { accountData = {} as any } = auth;
-    const [dataJson, setDataJson] = useState<ApiResponse>({ operations: [], total: 0 });
+    //const { accountData = {} as any } = auth;
+    const [dataJson, setDataJson] = useState<ApiResponse>({
+        operations: [],
+        total: 0,
+    });
     const [totalTable, setTotalTable] = useState(0);
     const [pageSize, setPageSize] = useState(10);
     //const [loadingSke, setLoadingSke] = useState(true);
@@ -140,38 +179,45 @@ export default function LastOperations(props: LastOperationsProps) {
         .split('"')
         .join("");
     /*const timeSke = 1500;*/
-    var data: TableRowData[] = [];
+
+    // Ref to store timeout ID for cleanup
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    let data: TableRowData[] = [];
     const received_row: TableRowData[] = [];
-    var txList: OperationData[] = [];
-    const transactionsList = (/*skip*/) => {
-        if (auth.isLoggedIn) {
-            console.log("Loading table…");
-            /*const datas = {
-                address: accountData.Owner,
-                limit: 10,
-                skip: (skip - 1 + (skip - 1)) * 10,
-            };*/
-            setTimeout(() => {
+    let txList: OperationData[] = [];
+
+    const transactionsList = useCallback(() => {
+        if (isConnected && blockNumber && address) {
+            console.warn("Loading table…");
+
+            // Clear any existing timeout before setting a new one
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+
+            timeoutRef.current = setTimeout(() => {
                 const baseUrl = `${import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS}operations/list/`;
                 const queryParams = new URLSearchParams({
-                    recipient: accountData.Owner,
+                    recipient: address || "",
                     limit: "1000",
                     skip: "0",
                 }).toString();
                 const url = `${baseUrl}?${queryParams}`;
 
                 api("get", url)
-                    .then((response: ApiResponse) => {
-                        setDataJson(response);
-                        setTotalTable(response.total);
+                    .then((response: unknown) => {
+                        const typedResponse = response as ApiResponse;
+                        setDataJson(typedResponse);
+                        setTotalTable(typedResponse.total);
                         setReady(true);
                     })
                     .catch((error) => {
                         console.error(error);
                     });
-            }, 500);
+            }, 15000);
         }
-    };
+    }, [isConnected, blockNumber, address]);
     // #section Operation detail custom expand function
     const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
 
@@ -202,21 +248,31 @@ export default function LastOperations(props: LastOperationsProps) {
     useEffect(() => {
         const interval = setInterval(() => {
             transactionsList();
-        }, 3000);
-        return () => clearInterval(interval);
-    }, [accountData.Owner]);
+        }, 20000);
+
+        return () => {
+            clearInterval(interval);
+            // Clear timeout on cleanup to prevent memory leaks
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+        };
+    }, [transactionsList]);
+
     useEffect(() => {
         transactionsList();
-    }, [accountData.Owner]);
+    }, [transactionsList]);
     const onChange = (page: number) => {
-        if (accountData !== undefined) {
+        if (isConnected) {
             setCurrent(page);
             data_row();
             transactionsList();
         }
     };
 
-    function tokenExchange(row_operation: OperationData): TokenExchangeResult | undefined {
+    function tokenExchange(
+        row_operation: OperationData
+    ): TokenExchangeResult | undefined {
         let status = "";
         if (row_operation.executed) {
             status = "executed";
@@ -231,14 +287,14 @@ export default function LastOperations(props: LastOperationsProps) {
                 exchange: {
                     amount: 0,
                     name: "",
-                    token: settings.tokens.CA[caIndex],
+                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
                     icon: `CA_${caIndex}`,
                     title: t("operations.actions.exchanged"),
                 },
                 receive: {
                     amount: 0,
                     name: "",
-                    token: settings.tokens.CA[caIndex],
+                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
                     icon: `CA_${caIndex}`,
                     title: t("operations.actions.received"),
                 },
@@ -253,8 +309,10 @@ export default function LastOperations(props: LastOperationsProps) {
                         status === "executed"
                             ? row_operation.executed?.qAC_ || 0
                             : row_operation.params?.qACmax || 0,
-                    name: settings.tokens.CA[caIndex].name,
-                    token: settings.tokens.CA[caIndex],
+                    name:
+                        (settings.tokens.CA as TokenConfig[])[caIndex]?.name ||
+                        "",
+                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
                     icon: `CA_${caIndex}`,
                     title:
                         status === "executed"
@@ -298,8 +356,10 @@ export default function LastOperations(props: LastOperationsProps) {
                         status === "executed"
                             ? row_operation.executed?.qAC_ || 0
                             : row_operation.params?.qACmin || 0,
-                    name: settings.tokens.CA[caIndex].name,
-                    token: settings.tokens.CA[caIndex],
+                    name:
+                        (settings.tokens.CA as TokenConfig[])[caIndex]?.name ||
+                        "",
+                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
                     icon: `CA_${caIndex}`,
                     title:
                         status === "executed"
@@ -308,7 +368,13 @@ export default function LastOperations(props: LastOperationsProps) {
                 },
             };
         } else if (row_operation["operation"] === "TPMint") {
-            let tp_index = row_operation[status]["tpIndex"] || row_operation[status]["tpIndex_"];
+            const statusData =
+                status === "executed"
+                    ? row_operation.executed
+                    : row_operation.params;
+            let tp_index =
+                statusData?.tpIndex_ ||
+                (statusData as { tpIndex?: number })?.tpIndex;
             if (tp_index === undefined) tp_index = 0;
 
             return {
@@ -318,8 +384,10 @@ export default function LastOperations(props: LastOperationsProps) {
                         status === "executed"
                             ? row_operation.executed?.qAC_ || 0
                             : row_operation.params?.qACmax || 0,
-                    name: settings.tokens.CA[caIndex].name,
-                    token: settings.tokens.CA[caIndex],
+                    name:
+                        (settings.tokens.CA as TokenConfig[])[caIndex]?.name ||
+                        "",
+                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
                     icon: `CA_${caIndex}`,
                     title:
                         status === "executed"
@@ -342,7 +410,13 @@ export default function LastOperations(props: LastOperationsProps) {
                 },
             };
         } else if (row_operation["operation"] === "TPRedeem") {
-            let tp_index = row_operation[status]["tpIndex"] || row_operation[status]["tpIndex_"];
+            const statusData =
+                status === "executed"
+                    ? row_operation.executed
+                    : row_operation.params;
+            let tp_index =
+                statusData?.tpIndex_ ||
+                (statusData as { tpIndex?: number })?.tpIndex;
             if (tp_index === undefined) tp_index = 0;
 
             return {
@@ -366,8 +440,10 @@ export default function LastOperations(props: LastOperationsProps) {
                         status === "executed"
                             ? row_operation.executed?.qAC_ || 0
                             : row_operation.params?.qACmin || 0,
-                    name: settings.tokens.CA[caIndex].name,
-                    token: settings.tokens.CA[caIndex],
+                    name:
+                        (settings.tokens.CA as TokenConfig[])[caIndex]?.name ||
+                        "",
+                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
                     icon: `CA_${caIndex}`,
                     title:
                         status === "executed"
@@ -412,7 +488,7 @@ export default function LastOperations(props: LastOperationsProps) {
                     action: "Error",
                     amount: 0,
                     name: "",
-                    token: settings.tokens.CA[caIndex],
+                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
                     icon: `CA_${caIndex}`,
                     title: "Revert",
                 },
@@ -420,22 +496,24 @@ export default function LastOperations(props: LastOperationsProps) {
                     action: "Error",
                     amount: 0,
                     name: "",
-                    token: settings.tokens.CA[caIndex],
+                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
                     icon: `CA_${caIndex}`,
                     title: "Revert",
                 },
             };
         } else {
-            console.log("CAN'T OPERATE: " + row_operation.operation);
+            console.warn("CAN'T OPERATE: " + row_operation.operation);
             return undefined;
         }
     }
-    const getErrorMessage = (error: any) => {
+    const getErrorMessage = (
+        error: string | number | null | undefined
+    ): string => {
         switch (error) {
             case "qAC below minimum required":
-                return `${settings.tokens.CA[0].name} ${t("operations.errors.qACBelow")} `;
+                return `${(settings.tokens.CA as TokenConfig[])[0]?.name || ""} ${t("operations.errors.qACBelow")} `;
             case "Insufficient qac sent":
-                return `${settings.tokens.CA[0].name} ${t("operations.errors.insufficientQAC1")} ${settings.tokens.CA[0].name} ${t("operations.errors.insufficientQAC2")}`;
+                return `${(settings.tokens.CA as TokenConfig[])[0]?.name || ""} ${t("operations.errors.insufficientQAC1")} ${(settings.tokens.CA as TokenConfig[])[0]?.name || ""} ${t("operations.errors.insufficientQAC2")}`;
             case "Low coverage":
                 return t("operations.errors.lowCoverage");
             case "Invalid Flux Capacitor Operation":
@@ -449,7 +527,7 @@ export default function LastOperations(props: LastOperationsProps) {
             case "null":
                 return t("operations.errors.noMessage");
             default:
-                return error;
+                return String(error);
         }
     };
     const data_row = () => {
@@ -472,7 +550,7 @@ export default function LastOperations(props: LastOperationsProps) {
             });
         }
         /*******************************filter by type (token)***********************************/
-        var pre_datas: OperationData[] = [];
+        let pre_datas: OperationData[] = [];
         if (dataJson.operations !== undefined) {
             pre_datas = dataJson.operations.filter((data_j) => {
                 return token !== "all" ? data_j.tokenInvolved === token : true;
@@ -529,7 +607,7 @@ export default function LastOperations(props: LastOperationsProps) {
                         "--"
                     ),
                 block: data["blockNumber"] || "--",
-                tx_hash_truncate: TruncatedAddress(data["hash"]) || "--",
+                tx_hash_truncate: TruncatedAddress(data["hash"] || "") || "--",
                 tx_hash: data["hash"] || "--",
                 gas_fee: data["gas_fee"] || data["gasFeeRBTC"] || "--",
                 gas: data["gas"] || "--",
@@ -541,8 +619,8 @@ export default function LastOperations(props: LastOperationsProps) {
                     t("operations.errors.noMessage"),
                 reason: data["reason_"] || "--",
                 executed_tx_hash_truncate:
-                    TruncatedAddress(data["params"]["hash"]) || "--",
-                executed_tx_hash: data["params"]["hash"] || "--",
+                    TruncatedAddress(data.params?.hash || "") || "--",
+                executed_tx_hash: data.params?.hash || "--",
                 status: getStatus(data) || "--",
                 fee: getFee(data) || "--",
             };
@@ -560,12 +638,25 @@ export default function LastOperations(props: LastOperationsProps) {
                                             {token.exchange.title}
                                         </div>
                                         <div className="table-amount">
-                                            <PrecisionNumbers
-                                                amount={token.exchange.amount}
-                                                token={token.exchange.token}
-                                                decimals={token.exchange.token.visibleDecimals ?? 2}
-                                                i18n={i18n}
-                                            />
+                                            {(() => {
+                                                const exchangeToken = token
+                                                    .exchange
+                                                    .token as TokenConfig;
+                                                return (
+                                                    <PrecisionNumbers
+                                                        amount={BigInt(
+                                                            token.exchange
+                                                                .amount
+                                                        )}
+                                                        token={exchangeToken}
+                                                        decimals={
+                                                            exchangeToken.visibleDecimals ??
+                                                            2
+                                                        }
+                                                        i18n={i18n}
+                                                    />
+                                                );
+                                            })()}
                                         </div>
                                     </div>
                                     <div className="lastOp__detail__token__container">
@@ -601,18 +692,21 @@ export default function LastOperations(props: LastOperationsProps) {
                                                 {token.receive.title}
                                             </div>
                                             <div className="lastOp__detail__amount">
-                                                {PrecisionNumbers({
-                                                    amount: token.receive
-                                                        .amount,
-                                                    token: token.receive.token,
-                                                    decimals:
-                                                        token.receive.token
-                                                            .visibleDecimals ??
-                                                        2,
-                                                    t: t,
-                                                    i18n: i18n,
-                                                    ns: ns,
-                                                })}
+                                                {(() => {
+                                                    const receiveToken = token
+                                                        .receive
+                                                        .token as TokenConfig;
+                                                    return PrecisionNumbers({
+                                                        amount: BigInt(
+                                                            token.receive.amount
+                                                        ),
+                                                        token: receiveToken,
+                                                        decimals:
+                                                            receiveToken.visibleDecimals ??
+                                                            2,
+                                                        i18n: i18n,
+                                                    });
+                                                })()}
                                             </div>
                                         </div>
                                         <div className="lastOp__detail__token__container">
@@ -686,7 +780,7 @@ export default function LastOperations(props: LastOperationsProps) {
                 detail: detail || "--",
                 renderRow: <></>,
                 description: <></>,
-            });
+            } as TableRowData);
         });
 
         received_row.forEach((element) => {
@@ -727,8 +821,16 @@ export default function LastOperations(props: LastOperationsProps) {
                 ),
                 key: element.key,
                 info: "",
-                description: <RowDetailMobile detail={element.detail} />,
-            });
+                description: (
+                    <RowDetailMobile
+                        detail={
+                            element.detail as unknown as Parameters<
+                                typeof RowDetailMobile
+                            >[0]["detail"]
+                        }
+                    />
+                ),
+            } as TableRowData);
         });
     };
 
@@ -747,28 +849,20 @@ export default function LastOperations(props: LastOperationsProps) {
         );
     }
     function getFee(row_operation: OperationData) {
-        const fee: { amount: BigNumber; token: string | null; decimals: number } = { amount: new BigNumber(0), token: null, decimals: 18 };
-        const caIndex = row_operation["bucket_index"]
+        const fee: { amount: bigint; token: string | null; decimals: number } =
+            { amount: 0n, token: null, decimals: 18 };
+        const caIndex = row_operation["bucket_index"];
 
         if (
             row_operation["executed"] &&
             row_operation["executed"]["qFeeToken_"]
         ) {
-            const qFeeToken = new BigNumber(
-                fromContractPrecisionDecimals(
-                    row_operation["executed"]["qFeeToken_"],
-                    settings.tokens.TF[0].decimals
-                )
+            const qFeeToken = BigInt(row_operation["executed"]["qFeeToken_"]);
+            const qFeeTokenVendorMarkup = BigInt(
+                row_operation["executed"]["qFeeTokenVendorMarkup_"] || "0"
             );
 
-            const qFeeTokenVendorMarkup = new BigNumber(
-                fromContractPrecisionDecimals(
-                    row_operation["executed"]["qFeeTokenVendorMarkup_"],
-                    settings.tokens.TF[0].decimals
-                )
-            );
-
-            fee["amount"] = qFeeToken.plus(qFeeTokenVendorMarkup);
+            fee["amount"] = qFeeToken + qFeeTokenVendorMarkup;
             fee["token"] = "TF";
             fee["decimals"] = settings.tokens.TF[0].decimals;
         }
@@ -776,39 +870,29 @@ export default function LastOperations(props: LastOperationsProps) {
         if (
             row_operation["executed"] &&
             row_operation["executed"]["qACfee_"] &&
-            fee["amount"].eq(0)
+            fee["amount"] === 0n
         ) {
-            const qACfee = new BigNumber(
-                fromContractPrecisionDecimals(
-                    row_operation["executed"]["qACfee_"],
-                    settings.tokens.CA[caIndex].decimals
-                )
+            const qACfee = BigInt(row_operation["executed"]["qACfee_"]);
+
+            const qACVendorMarkup = BigInt(
+                row_operation["executed"]["qACVendorMarkup_"] || "0"
             );
 
-            const qACVendorMarkup = new BigNumber(
-                fromContractPrecisionDecimals(
-                    row_operation["executed"]["qACVendorMarkup_"],
-                    settings.tokens.CA[caIndex].decimals
-                )
-            );
-
-            fee["amount"] = qACfee.plus(qACVendorMarkup);
+            fee["amount"] = qACfee + qACVendorMarkup;
             fee["token"] = `CA_${caIndex}`;
-            fee["decimals"] = settings.tokens.CA[caIndex].decimals;
+            fee["decimals"] =
+                (settings.tokens.CA as TokenConfig[])[caIndex]?.decimals || 18;
         }
 
-        if (fee["amount"].gt(0)) {
+        if (fee["amount"] > 0n) {
             return (
                 <div className="LastOp__expanded__fee">
                     {/* <span className="value"> */}
                     {PrecisionNumbers({
-                        amount: new BigNumber(fee["amount"]),
-                        token: TokenSettings(fee["token"]),
+                        amount: fee["amount"],
+                        token: TokenSettings(fee["token"] || ""),
                         decimals: 6,
-                        t: t,
                         i18n: i18n,
-                        ns: ns,
-                        skipContractConvert: true,
                     })}
                     {/* </span> */}
                     <span className="token">
@@ -826,8 +910,8 @@ export default function LastOperations(props: LastOperationsProps) {
     }
     function getTransferAction(row_operation: OperationData) {
         if (
-            row_operation["params"]["sender"].toLowerCase() ===
-            accountData.Owner.toLowerCase()
+            row_operation.params?.sender?.toLowerCase() ===
+            address?.toLowerCase()
         ) {
             return t("operations.actions.destination");
         } else {
@@ -845,14 +929,14 @@ export default function LastOperations(props: LastOperationsProps) {
     }*/
     function getTransferAddress(row_operation: OperationData) {
         if (
-            row_operation["params"]["sender"].toLowerCase() ===
-            accountData.Owner.toLowerCase()
+            row_operation.params?.sender?.toLowerCase() ===
+            address?.toLowerCase()
         ) {
             // return truncateAddress(row_operation['params']['recipient'].toLowerCase())
-            return row_operation["params"]["recipient"].toLowerCase();
+            return row_operation.params?.recipient?.toLowerCase() || "";
         } else {
             //return truncateAddress(row_operation['params']['sender'].toLowerCase())
-            return row_operation["params"]["sender"].toLowerCase();
+            return row_operation.params?.sender?.toLowerCase() || "";
         }
     }
     function getStatus(row_operation: OperationData) {
@@ -869,8 +953,7 @@ export default function LastOperations(props: LastOperationsProps) {
             case 0:
                 if (
                     row_operation["params"] &&
-                    auth.contractStatusData &&
-                    BigInt(auth.contractStatusData.blockHeight || 0) <
+                    BigInt(blockNumber || 0) <
                         BigInt(row_operation["params"]["blockNumber"] || 0) +
                             confirmedBlocks
                 )
@@ -879,17 +962,16 @@ export default function LastOperations(props: LastOperationsProps) {
             case 1:
                 if (
                     row_operation["executed"] &&
-                    auth.contractStatusData &&
-                    BigInt(auth.contractStatusData.blockHeight || 0) <
+                    BigInt(blockNumber || 0) <
                         BigInt(row_operation["executed"]["blockNumber"] || 0) +
                             confirmedBlocks
                 )
                     return t("operations.actions.statusConfirming");
                 else if (
                     row_operation["operation"] === "Transfer" &&
-                    auth.contractStatusData &&
-                    BigInt(auth.contractStatusData.blockHeight || 0) <
-                        BigInt(row_operation["blockNumber"] || 0) + confirmedBlocks
+                    BigInt(blockNumber || 0) <
+                        BigInt(row_operation["blockNumber"] || 0) +
+                            confirmedBlocks
                 )
                     return t("operations.actions.statusConfirming");
                 else return t("operations.actions.statusConfirmed");
@@ -901,13 +983,13 @@ export default function LastOperations(props: LastOperationsProps) {
         switch (token) {
             case "CA_0":
                 return {
-                    name: settings.tokens.CA[0].name,
-                    token: settings.tokens.CA[0],
+                    name: (settings.tokens.CA as TokenConfig[])[0]?.name || "",
+                    token: (settings.tokens.CA as TokenConfig[])[0],
                 };
             case "CA_1":
                 return {
-                    name: settings.tokens.CA[1].name,
-                    token: settings.tokens.CA[1],
+                    name: (settings.tokens.CA as TokenConfig[])[1]?.name || "",
+                    token: (settings.tokens.CA as TokenConfig[])[1],
                 };
             case "TC_0":
                 return {
@@ -935,7 +1017,7 @@ export default function LastOperations(props: LastOperationsProps) {
                     token: settings.tokens.TF[0],
                 };
             default:
-                console.log("UNRECOGNIZED TOKEN: " + token);
+                console.warn("UNRECOGNIZED TOKEN: " + token);
                 return undefined;
         }
     }
@@ -1002,7 +1084,7 @@ export default function LastOperations(props: LastOperationsProps) {
                     txt: "TF",
                 };
             default:
-                console.log("UNRECOGNIZED TOKEN: " + name);
+                console.warn("UNRECOGNIZED TOKEN: " + name);
                 return {
                     image: (
                         <div
@@ -1084,7 +1166,7 @@ export default function LastOperations(props: LastOperationsProps) {
                             },
                         }}
                         columns={tableColumns}
-                        dataSource={auth.isLoggedIn == true ? data : undefined}
+                        dataSource={isConnected == true ? data : undefined}
                         scroll={{ y: lastOperationsHeight }}
                         style={{}}
                     />
@@ -1095,9 +1177,3 @@ export default function LastOperations(props: LastOperationsProps) {
         </>
     );
 }
-
-LastOperations.propTypes = {
-    token: PropTypes.string,
-    /*expanded: PropTypes.bool,
-    onClick: PropTypes.func,*/
-};

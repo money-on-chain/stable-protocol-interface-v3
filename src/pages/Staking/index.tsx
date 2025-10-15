@@ -1,37 +1,44 @@
-import React, { Fragment, useState, useEffect } from "react";
-import { useContext } from "react";
-import { Skeleton } from "antd";
-
-import { AuthenticateContext } from "../../context/Auth";
-import Staking from "../../components/Staking";
-import UseVestingAlert from "../../components/Notification/UsingVestingAlert";
-
 import "./Styles.scss";
 
+import { Skeleton } from "antd";
+import React, { Fragment, useEffect, useState } from "react";
+
+import VestingStatusAlert from "../../components/Notification/VestingStatusAlert";
+import Staking from "../../components/Staking";
+import { useWalletContext } from "../../context/Wallet";
+
 export default function SectionStaking(): React.ReactElement {
-    const auth = useContext(AuthenticateContext);
+    const {
+        contractStatusOmoc,
+        userOmocBalance,
+        isVestingLoaded,
+        vestingAddress,
+    } = useWalletContext();
     const [ready, setReady] = useState<boolean>(false);
     const [usingVestingAddress, setUsingVestingAddress] = useState<string>("");
-    
+
     useEffect(() => {
-        if (auth.contractStatusData) {
+        if (contractStatusOmoc.data && userOmocBalance.data) {
             setReady(true);
         }
-        if (auth.userBalanceData && auth.isVestingLoaded()) {
-            const vestingAddress = auth.vestingAddress();
-            setUsingVestingAddress(vestingAddress || "");
+        if (userOmocBalance.data && isVestingLoaded()) {
+            const vestingAddr = vestingAddress;
+            setUsingVestingAddress(vestingAddr || "");
         } else {
             setUsingVestingAddress("");
         }
-    }, [auth]);
+    }, [
+        userOmocBalance.data,
+        contractStatusOmoc.data,
+        isVestingLoaded,
+        vestingAddress,
+    ]);
 
     return (
         <Fragment>
             <div className="section-container">
                 <div className="sectionStaking">
-                    {usingVestingAddress !== "" && (
-                        <UseVestingAlert address={usingVestingAddress} />
-                    )}
+                    <VestingStatusAlert />
                     {ready ? <Staking /> : <Skeleton active />}
                 </div>
             </div>

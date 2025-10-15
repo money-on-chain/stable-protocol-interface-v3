@@ -1,17 +1,23 @@
 {
     "collateral": "coinbase",
     "project": "moc",
-    "showPriceVariation":true,
+    "dapp": {
+        "name": "MOC UI",
+        "description": "MOC UI"
+    },
+    "showPriceVariation": true,
     "tokens": {
-        "COINBASE": [{
-            "name": "RBTC",
-            "fullName": "Smart Bitcoin",
-            "decimals": 18,
-            "visibleDecimals": 6,
-            "visiblePriceDecimals": 2,
-            "visibleBalanceDecimals": 8,
-            "visibleBalanceUSDDecimals": 2
-        }],
+        "COINBASE": [
+            {
+                "name": "RBTC",
+                "fullName": "Smart Bitcoin",
+                "decimals": 18,
+                "visibleDecimals": 6,
+                "visiblePriceDecimals": 2,
+                "visibleBalanceDecimals": 8,
+                "visibleBalanceUSDDecimals": 2
+            }
+        ],
         "CA": [
             {
                 "key": 0,
@@ -23,16 +29,18 @@
                 "visibleBalanceDecimals": 8,
                 "visibleBalanceUSDDecimals": 2
             }
-        ], 
-        "TC": [{
-            "name": "BPRO",
-            "fullName": "Bpro",
-            "decimals": 18,
-            "visibleDecimals": 6,
-            "visiblePriceDecimals": 2,
-            "visibleBalanceDecimals": 8,
-            "visibleBalanceUSDDecimals": 2
-        }],
+        ],
+        "TC": [
+            {
+                "name": "BPRO",
+                "fullName": "Bpro",
+                "decimals": 18,
+                "visibleDecimals": 6,
+                "visiblePriceDecimals": 2,
+                "visibleBalanceDecimals": 8,
+                "visibleBalanceUSDDecimals": 2
+            }
+        ],
         "TP": [
             {
                 "key": 0,
@@ -47,22 +55,26 @@
             }
         ],
 
-        "TF": [{
-            "name": "MOC",
-            "decimals": 18,
-            "visibleDecimals": 6,
-            "visiblePriceDecimals": 2,
-            "visibleBalanceDecimals": 2,
-            "visibleBalanceUSDDecimals": 2
-        }],
-        "TG": [{
-            "name": "MOC",
-            "fullName": "MOC",
-            "decimals": 18,
-            "visibleDecimals": 6,
-            "visiblePriceDecimals": 4,
-            "visibleBalanceDecimals": 2,
-            "visibleBalanceUSDDecimals": 2
-        }]
+        "TF": [
+            {
+                "name": "MOC",
+                "decimals": 18,
+                "visibleDecimals": 6,
+                "visiblePriceDecimals": 2,
+                "visibleBalanceDecimals": 2,
+                "visibleBalanceUSDDecimals": 2
+            }
+        ],
+        "TG": [
+            {
+                "name": "MOC",
+                "fullName": "MOC",
+                "decimals": 18,
+                "visibleDecimals": 6,
+                "visiblePriceDecimals": 4,
+                "visibleBalanceDecimals": 2,
+                "visibleBalanceUSDDecimals": 2
+            }
+        ]
     }
 }

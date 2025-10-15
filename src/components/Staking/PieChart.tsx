@@ -1,17 +1,18 @@
-import React, { useEffect, useState } from "react";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
-import BigNumber from "bignumber.js";
+import React, { useCallback, useEffect, useState } from "react";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
+import { bigIntToInputValue } from "../../helpers/currencies";
+import { toBigIntPrecision } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
-import { PrecisionNumbers } from "../PrecisionNumbers";
 import settings from "../../settings/settings.json";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 
 interface UserInfoStaking {
-    tgBalance: string | number;
-    stakedBalance: string | number;
-    totalPendingExpiration: string | number;
-    totalAvailableToWithdraw: string | number;
-    lockedInVoting: string | number;
+    tgBalance: bigint;
+    stakedBalance: bigint;
+    totalPendingExpiration: bigint;
+    totalAvailableToWithdraw: bigint;
+    lockedInVoting: bigint;
 }
 
 interface PieChartData {
@@ -23,71 +24,85 @@ interface PieChartComponentProps {
     userInfoStaking: UserInfoStaking;
 }
 
+const convertBigIntToNumber = (amount: bigint) => {
+    return Number(bigIntToInputValue(amount, "TG", 2));
+};
+
 const PieChartComponent: React.FC<PieChartComponentProps> = (props) => {
     const { t, i18n } = useProjectTranslation();
     const [data, setData] = useState<PieChartData[]>([]);
-    const [total, setTotal] = useState<BigNumber>(new BigNumber(0));
+    const [total, setTotal] = useState<number>(0);
     const { userInfoStaking } = props;
     const space: string = "\u00A0";
 
-    useEffect(() => {
-        readData();
+    // Extract properties to avoid complex expressions in dependency array
+    const tgBalance = userInfoStaking.tgBalance;
+    const stakedBalance = userInfoStaking.stakedBalance;
+    const totalPendingExpiration = userInfoStaking.totalPendingExpiration;
+    const totalAvailableToWithdraw = userInfoStaking.totalAvailableToWithdraw;
+    const lockedInVoting = userInfoStaking.lockedInVoting;
+
+    const getTotal = useCallback((): number => {
+        return (
+            convertBigIntToNumber(tgBalance) +
+            convertBigIntToNumber(stakedBalance - lockedInVoting) +
+            convertBigIntToNumber(totalPendingExpiration) +
+            convertBigIntToNumber(totalAvailableToWithdraw) +
+            convertBigIntToNumber(lockedInVoting)
+        );
     }, [
-        userInfoStaking["tgBalance"],
-        userInfoStaking["stakedBalance"],
-        userInfoStaking["totalPendingExpiration"],
-        userInfoStaking["totalAvailableToWithdraw"],
-        userInfoStaking["lockedInVoting"],
+        tgBalance,
+        stakedBalance,
+        totalPendingExpiration,
+        totalAvailableToWithdraw,
+        lockedInVoting,
     ]);
 
-    const readData = (): void => {
-        const total: BigNumber = getTotal();
+    const readData = useCallback((): void => {
+        const total: number = getTotal();
         const _data: PieChartData[] = [
             {
                 type: t("staking.distribution.graph.balance"),
-                value: total.gt(0)
-                    ? BigNumber(userInfoStaking["tgBalance"])
-                          .div(total)
-                          .times(100)
-                          .toNumber()
-                    : 0,
+                value:
+                    total > 0
+                        ? (convertBigIntToNumber(tgBalance) / total) * 100
+                        : 0,
             },
             {
                 type: t("staking.distribution.graph.processingUnstake"),
-                value: total.gt(0)
-                    ? BigNumber(userInfoStaking["totalPendingExpiration"])
-                          .div(total)
-                          .times(100)
-                          .toNumber()
-                    : 0,
+                value:
+                    total > 0
+                        ? (convertBigIntToNumber(totalPendingExpiration) /
+                              total) *
+                          100
+                        : 0,
             },
             {
                 type: t("staking.distribution.graph.readyWithdraw"),
-                value: total.gt(0)
-                    ? BigNumber(userInfoStaking["totalAvailableToWithdraw"])
-                          .div(total)
-                          .times(100)
-                          .toNumber()
-                    : 0,
+                value:
+                    total > 0
+                        ? (convertBigIntToNumber(totalAvailableToWithdraw) /
+                              total) *
+                          100
+                        : 0,
             },
             {
                 type: t("staking.distribution.graph.staked"),
-                value: total.gt(0)
-                    ? BigNumber(userInfoStaking["stakedBalance"])
-                          .minus(userInfoStaking["lockedInVoting"])
-                          .div(total)
-                          .times(100)
-                          .toNumber()
-                    : 0,
+                value:
+                    total > 0
+                        ? (convertBigIntToNumber(
+                              stakedBalance - lockedInVoting
+                          ) /
+                              total) *
+                          100
+                        : 0,
             },
             {
                 type: "Staked in voting",
-                value: total.gt(0)
-                    ? BigNumber(userInfoStaking["lockedInVoting"])
-                          .div(total)
-                          .times(100)
-                          .toNumber()
-                    : 0,
+                value:
+                    total > 0
+                        ? (convertBigIntToNumber(lockedInVoting) / total) * 100
+                        : 0,
             },
         ];
         // START TEST
@@ -101,19 +116,19 @@ const PieChartComponent: React.FC<PieChartComponentProps> = (props) => {
         // END TEST
         setData(_data);
         setTotal(total);
-    };
+    }, [
+        t,
+        getTotal,
+        tgBalance,
+        totalPendingExpiration,
+        totalAvailableToWithdraw,
+        stakedBalance,
+        lockedInVoting,
+    ]);
 
-    const getTotal = (): BigNumber => {
-        return BigNumber.sum(
-            userInfoStaking["tgBalance"],
-            new BigNumber(userInfoStaking["stakedBalance"]).minus(
-                new BigNumber(userInfoStaking["lockedInVoting"])
-            ),
-            userInfoStaking["totalPendingExpiration"],
-            userInfoStaking["totalAvailableToWithdraw"],
-            userInfoStaking["lockedInVoting"]
-        );
-    };
+    useEffect(() => {
+        readData();
+    }, [readData]);
 
     // Retrieve CSS color variables
     const colorBalance: string = getComputedStyle(
@@ -145,14 +160,14 @@ const PieChartComponent: React.FC<PieChartComponentProps> = (props) => {
         <div>
             <div className="pie-chart-total">
                 <div className="pie-chart-total-amount">
-                    {PrecisionNumbers({
-                        amount: total,
-                        token: settings.tokens.TG[0],
-                        decimals: 2,
-                        numericLabelParams: {},
-                        i18n: i18n,
-                        skipContractConvert: true,
-                    })}
+                    {total
+                        ? PrecisionNumbers({
+                              amount: toBigIntPrecision(total),
+                              token: settings.tokens.TG[0],
+                              decimals: 2,
+                              i18n: i18n,
+                          })
+                        : "--"}
                     {space}
                     {t("staking.governanceToken")}
                 </div>
@@ -204,4 +219,4 @@ const PieChartComponent: React.FC<PieChartComponentProps> = (props) => {
     );
 };
 
-export default PieChartComponent; 
+export default PieChartComponent;

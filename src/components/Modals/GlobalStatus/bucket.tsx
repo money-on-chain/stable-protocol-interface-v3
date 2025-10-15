@@ -1,6 +1,8 @@
 import React from "react";
-import settings from "../../../settings/settings.json";
+
 import { useProjectTranslation } from "../../../helpers/translations";
+import settings from "../../../settings/settings.json";
+import type { TokenConfig } from "../../../types/hooks";
 
 // Type definitions
 interface StatusBucketProps {
@@ -31,7 +33,7 @@ export default function StatusBucket(props: StatusBucketProps): JSX.Element {
 
     const tpTokens = settings.tokens.TP;
     const tcTokens = settings.tokens.TC;
-    const caToken = settings.tokens.CA[caIndex];
+    const caToken = (settings.tokens.CA as TokenConfig[])[caIndex];
     const leveragedToken = tcTokens[caIndex];
 
     const status: number = statusCode[caIndex];
@@ -50,8 +52,13 @@ export default function StatusBucket(props: StatusBucketProps): JSX.Element {
         3: { mint: false, redeem: false },
     };
 
-    const caPermissions: Permissions = collateralPermissionsByStatus[status] || { mint: false, redeem: false };
-    const tpPermissions: Permissions = peggedPermissionsByStatus[status] || { mint: false, redeem: false };
+    const caPermissions: Permissions = collateralPermissionsByStatus[
+        status
+    ] || { mint: false, redeem: false };
+    const tpPermissions: Permissions = peggedPermissionsByStatus[status] || {
+        mint: false,
+        redeem: false,
+    };
 
     const summaryMap: { [key: number]: Summary } = {
         0: {
@@ -78,7 +85,10 @@ export default function StatusBucket(props: StatusBucketProps): JSX.Element {
         },
     };
 
-    const summary: Summary = summaryMap[status] || { label: "--", severity: "neutral" };
+    const summary: Summary = summaryMap[status] || {
+        label: "--",
+        severity: "neutral",
+    };
 
     const operations: Operation[] = [
         ...tpTokens.map((tp, index) => ({
