@@ -4,7 +4,6 @@ import { Skeleton } from "antd";
 import React, { Fragment, useEffect, useState } from "react";
 
 import LiquidityMiningClaim from "../../components/LiquidityMiningClaim";
-import UseVestingAlert from "../../components/Notification/UsingVestingAlert";
 import { useWalletContext } from "../../context/Wallet";
 
 export default function SectionLiquidityMining(): React.ReactElement {
@@ -38,9 +37,6 @@ export default function SectionLiquidityMining(): React.ReactElement {
         <Fragment>
             <div className="section-container">
                 <div className="sectionClaim">
-                    {usingVestingAddress !== "" && (
-                        <UseVestingAlert address={usingVestingAddress} />
-                    )}
                     {ready ? <LiquidityMiningClaim /> : <Skeleton active />}
                 </div>
             </div>
