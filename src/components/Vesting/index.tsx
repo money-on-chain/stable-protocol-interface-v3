@@ -803,7 +803,7 @@ const Vesting: React.FC = () => {
                                     <button
                                         className="button"
                                         disabled={!validCreateVM}
-                                        onClick={() => void onSendCreateVM}
+                                        onClick={onSendCreateVM}
                                     >
                                         {t(
                                             "vesting.vestingOnboarding.page3.ctaPrimary"
@@ -981,7 +981,7 @@ const Vesting: React.FC = () => {
                                             {t("vesting.status.notVerified")}
                                             <a
                                                 className={"verify__button"}
-                                                onClick={() => void onVerify}
+                                                onClick={onVerify}
                                             >
                                                 {t("vesting.status.verifyCTA")}
                                             </a>
@@ -1018,7 +1018,7 @@ const Vesting: React.FC = () => {
                             </div>
                             <button
                                 id="withdraw-cta"
-                                onClick={() => void onWithdraw}
+                                onClick={onWithdraw}
                                 disabled={!validWithdraw}
                             >
                                 {t("vesting.withdrawToWallet")}

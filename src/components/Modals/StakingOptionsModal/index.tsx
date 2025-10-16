@@ -373,7 +373,7 @@ export default function StakingOptionsModal(
                                         <Button
                                             type="default"
                                             className="button secondary"
-                                            onClick={() => void setAllowance()}
+                                            onClick={() => void onClose()}
                                         >
                                             {t("allowance.confirm.cancel")}
                                         </Button>
@@ -405,7 +405,7 @@ export default function StakingOptionsModal(
                                         <Button
                                             type="default"
                                             className="button secondary"
-                                            onClick={() => void setAllowance()}
+                                            onClick={() => void onClose()}
                                         >
                                             {t("allowance.confirm.cancel")}
                                         </Button>

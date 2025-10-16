@@ -38,3 +38,11 @@
     width: 100%;
 }
 /* #endregion WITHDRAW CARD WIDE  */
+
+/* #region HIDE VESTING ONBOARDING FOR Flipmoney  */
+#vestingOnboardingPagination,
+#vestingOnboardingUseClaimCode,
+#vestingOnboardingClaimCodeExplanation {
+    display: none;
+}
+/* #endregion HIDE VESTING ONBOARDING FOR Flipmoney  */
