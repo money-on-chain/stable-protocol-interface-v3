@@ -173,7 +173,7 @@ export default function PortfolioTable() {
 
                         // Convert balance to BigNumber with correct decimal precision
                         balance =
-                            userBalance.data?.CA?.[token.key || 0]?.balance ||
+                            normalizeToBigInt(userBalance.data?.CA?.[token.key || 0]?.balance) ||
                             0n;
                         price =
                             normalizeToBigInt(
@@ -209,8 +209,8 @@ export default function PortfolioTable() {
                         // CALCULATE TOKENS TP USD-Pegged Tokens DATA
 
                         balance =
-                            userBalance.data?.TP?.[0]?.[token.key || 0]
-                                ?.balance || 0n;
+                            normalizeToBigInt(userBalance.data?.TP?.[0]?.[token.key || 0]
+                                ?.balance) || 0n;
 
                         price = 1n;
 
@@ -232,8 +232,8 @@ export default function PortfolioTable() {
                     } else {
                         //CALCULATE TOKENS TP NON-USD-Pegged Tokens DATA
                         balance =
-                            userBalance.data?.TP?.[0]?.[token.key || 0]
-                                ?.balance || 0n;
+                            normalizeToBigInt(userBalance.data?.TP?.[0]?.[token.key || 0]
+                                ?.balance) || 0n;
                         price =
                             normalizeToBigInt(
                                 contractProtocolStatus.data[0]?.PP_TP?.[
@@ -291,7 +291,7 @@ export default function PortfolioTable() {
                         token.key;
 
                     balance =
-                        userBalance.data?.[token.key || 0]?.TC?.balance || 0n;
+                        normalizeToBigInt(userBalance.data?.[token.key || 0]?.TC?.balance) || 0n;
 
                     priceTEC =
                         normalizeToBigInt(
@@ -322,7 +322,7 @@ export default function PortfolioTable() {
 
                     tokenIcon = "icon-token-" + token.type.toLowerCase();
                     balance =
-                        userBalance.data[token.key || 0]?.FeeToken?.balance ||
+                        normalizeToBigInt(userBalance.data[token.key || 0]?.FeeToken?.balance) ||
                         0n;
 
                     // RAW price for balance and variation calculation

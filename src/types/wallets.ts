@@ -6,7 +6,7 @@ import type { useConnect } from "wagmi";
 import type { useContractOmocStatus } from "../hooks/useContractOmocStatus";
 import type { useContractProtocolStatus } from "../hooks/useContractProtocolStatus";
 import type { useIncentiveV2 } from "../hooks/useIncentiveV2";
-import type { useProposalCount } from "../hooks/useProposalCount";
+// import type { useProposalCount } from "../hooks/useProposalCount";
 import type { useUserVeto } from "../hooks/useUserVeto";
 import type { UseBaseCoinBalanceResult } from "../types/status";
 import type { DContracts } from "./hooks";
@@ -59,7 +59,7 @@ export type WalletContextType = {
 
     blockNumber?: bigint;
     offChainPrices: unknown;
-    proposalCount?: ReturnType<typeof useProposalCount>;
+    // proposalCount?: ReturnType<typeof useProposalCount>;
 
     publicClient: ReturnType<typeof usePublicClient> | undefined;
     walletClient: ReturnType<typeof useWalletClient>;
@@ -235,4 +235,17 @@ export type WalletContextType = {
 
     // keep these if you need them exposed
     readUserVesting: () => void;
+
+    // RPC error handling
+    rpcError: {
+        hasError: boolean;
+        errorMessage: string;
+        isRetrying: boolean;
+        retryCount: number;
+    };
+    handleRpcError: (error: unknown) => void;
+    retryConnection: () => Promise<void>;
+    clearRpcError: () => void;
+    isRpcHealthy: boolean;
+    checkConnectivityNow: () => Promise<void>;
 };

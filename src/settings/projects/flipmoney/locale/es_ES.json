@@ -5,7 +5,13 @@
     "invalidValueDescription": "No hay ningún valor para mostrar",
     "invalidValuePlaceholder": "--",
     "notification": {
-        "dismiss": "Descartar"
+        "dismiss": "Descartar",
+        "rpcError": {
+            "title": "Error de Conexión de Red",
+            "description": "No se puede conectar a la red blockchain. Esto puede deberse a congestión de red o problemas del servidor RPC. El sistema reintentará automáticamente, o puedes intentar nuevamente manualmente.",
+            "retry": "Reintentar Conexión",
+            "dismiss": "Descartar"
+        }
     },
     "txFeedback": { "txIdLabel": "ID de transacción" },
     "button": { "inputMaxValue": "max" },
@@ -104,9 +110,8 @@
         "connectYourWallet": "Connecta tu Wallet",
         "noBrowserWallets": "Sin wallets de navegador detectadas",
         "providers": {
-            "injected": "Browser Wallet",
+            "injected": "Browser Wallet / MetaMask",
             "metamask": "MetaMask Wallet",
-            "coinbase": "Coinbase Walle",
             "multisig": "Safe (multi-sig)",
             "walletconnect": "WalletConnect (QR / móbil)"
         },
@@ -526,18 +531,6 @@
                 "withdraw": "Withdraw"
             }
         },
-        "history": {
-            "title": "Staking - Últimas Operaciones",
-            "columnDate": "Fecha",
-            "columnAmount": "Cantidad",
-            "columnOperation": "Operación",
-            "operatons": {
-                "stake": "Stake",
-                "unstake": "Unstake",
-                "restake": "Restake",
-                "withdraw": "Withdraw"
-            }
-        },
         "tokens": {
             "TG": {
                 "label": "Flip",
@@ -553,7 +546,6 @@
                 "restake": "Restake",
                 "withdraw": "Withdraw"
             },
-            "StakingOptions_AvailableToWithdraw": "Listo para Retirar",
             "StakingOptions_PendingExpiration": "Procesando unstake",
             "StakingOptions_WithdrawAll": "Hacer Withdraw del total",
             "StakingOptions_Restake": "Restake",
@@ -567,7 +559,6 @@
             "StakingOptionsModal_SetAllowance": "Autorizar Allowance",
             "StakingOptionsModal_Authorize": "Autorizar",
             "StakingOptionsModal_ReviewYourWalletDescription": "Por favor revise su wallet",
-            "StakingOptionsModal_Authorize": "Authorize",
             "StakingOptionsModal_AllowanceDescription": "Antes de continuar con el staking deberás permitir el \"allowance\" para que el sistema pueda acceder a los tokens. Esto solo debe hacerse la primera vez y no bloquea ningún token de tu wallet.",
             "StakingOptionsModal_ProccessingAllowance": "Procesando Allowance, por favor espera",
             "StakingOptionsModal_StakingDescription": "Los MoCs stakeados recibirán recompensas del Programa de Recompensas de Staking de MoC. Puedes retirar tus MoC's cuando quieras, el proceso de retiro tomará 30 días",

@@ -8,6 +8,7 @@ import SectionHeader from "../../../components/Header";
 import { NetworkGuard } from "../../../components/NetworkGuard";
 import NotConnected from "../../../components/NotConnected";
 import NotificationBody from "../../../components/Notification";
+import RpcErrorAlert from "../../../components/Notification/RpcErrorAlert";
 import UpdateToast from "../../../components/UpdateToast";
 import { useWalletContext } from "../../../context/Wallet";
 import { CheckStatusGlobal } from "../../../helpers/checkStatus";
@@ -43,7 +44,13 @@ export default function Skeleton(): JSX.Element {
         contractStatusOmoc,
         userVeto,
         address,
+        rpcError,
+        retryConnection,
+        clearRpcError,
     } = useWalletContext();
+
+    // Debug RPC error state (removed verbose logs)
+    useEffect(() => {}, [rpcError]);
     const chainId = useChainId();
     const isWrongNetwork = isConnected && chainId !== ALLOWED_CHAIN.id;
     const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(
@@ -151,11 +158,17 @@ export default function Skeleton(): JSX.Element {
 
     return (
         <Layout>
-            {/* <AutoReconnect />  Always runs on mount */}
             <SectionHeader />
             <Content>
                 <NetworkGuard />
                 <UpdateToast />
+                {rpcError.hasError && (
+                    <RpcErrorAlert
+                        error={rpcError}
+                        onRetry={retryConnection}
+                        onDismiss={clearRpcError}
+                    />
+                )}
                 {notifStatus && <NotificationBody notifStatus={notifStatus} />}
                 {vetoWithdraw && (
                     <NotificationBody notifStatus={vetoWithdraw} />
