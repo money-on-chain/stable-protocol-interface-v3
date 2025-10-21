@@ -16,30 +16,30 @@ export function useRpcErrorIntegration() {
         const originalConsoleError = console.error;
 
         const rpcErrorPatterns = [
-            'cors',
-            'network error',
-            'fetch failed',
-            'connection refused',
-            'timeout',
-            'rpc error',
-            'blocked by cors policy',
-            'preflight request',
-            'access control check',
-            'http ok status',
-            'failed to fetch',
-            'network request failed',
-            'connection reset',
-            'econnreset',
-            'enotfound',
-            'etimedout',
-            'unable to connect to',
+            "cors",
+            "network error",
+            "fetch failed",
+            "connection refused",
+            "timeout",
+            "rpc error",
+            "blocked by cors policy",
+            "preflight request",
+            "access control check",
+            "http ok status",
+            "failed to fetch",
+            "network request failed",
+            "connection reset",
+            "econnreset",
+            "enotfound",
+            "etimedout",
+            "unable to connect to",
             // Additional patterns for devtools request blocking and generic failures
-            'blocked',
-            'net::err_blocked_by_client',
-            'err_blocked_by_client',
-            'failed to load resource',
-            'typeerror: failed to fetch',
-            'err_failed'
+            "blocked",
+            "net::err_blocked_by_client",
+            "err_blocked_by_client",
+            "failed to load resource",
+            "typeerror: failed to fetch",
+            "err_failed",
         ];
 
         const checkAndHandle = (raw: unknown) => {
@@ -55,10 +55,12 @@ export function useRpcErrorIntegration() {
         };
 
         console.error = (...args) => {
-            const errorString = args.join(' ').toLowerCase();
-            const isRpcError = rpcErrorPatterns.some(pattern => errorString.includes(pattern));
+            const errorString = args.join(" ").toLowerCase();
+            const isRpcError = rpcErrorPatterns.some((pattern) =>
+                errorString.includes(pattern)
+            );
             if (isRpcError) {
-                console.log("🚨 RPC Error detected:", args[0]);
+                console.warn("🚨 RPC Error detected:", args[0]);
                 handleRpcError(args[0]);
             }
             originalConsoleError.apply(console, args);
@@ -72,16 +74,18 @@ export function useRpcErrorIntegration() {
             checkAndHandle(event.message || event.error);
         };
 
-        window.addEventListener('unhandledrejection', onUnhandledRejection);
-        window.addEventListener('error', onWindowError);
+        window.addEventListener("unhandledrejection", onUnhandledRejection);
+        window.addEventListener("error", onWindowError);
 
         return () => {
             console.error = originalConsoleError;
-            window.removeEventListener('unhandledrejection', onUnhandledRejection);
-            window.removeEventListener('error', onWindowError);
+            window.removeEventListener(
+                "unhandledrejection",
+                onUnhandledRejection
+            );
+            window.removeEventListener("error", onWindowError);
         };
     }, [handleRpcError]);
 
     return { handleRpcError };
 }
-

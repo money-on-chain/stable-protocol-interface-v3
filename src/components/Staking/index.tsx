@@ -92,11 +92,15 @@ export default function Staking(): JSX.Element {
                 return;
             }
 
-            cData["tgBalance"] = BigInt(userVesting.data.vestingmachine.tgBalance || 0);
-            cData["stakedBalance"] =
-                BigInt(userVesting.data.vestingmachine.staking.balance || 0);
-            cData["lockedBalance"] =
-                BigInt(userVesting.data.vestingmachine.staking.getLockedBalance || 0);
+            cData["tgBalance"] = BigInt(
+                userVesting.data.vestingmachine.tgBalance || 0
+            );
+            cData["stakedBalance"] = BigInt(
+                userVesting.data.vestingmachine.staking.balance || 0
+            );
+            cData["lockedBalance"] = BigInt(
+                userVesting.data.vestingmachine.staking.getLockedBalance || 0
+            );
             pendingWithdrawals = pendingWithdrawalsFormat(
                 userVesting.data.vestingmachine.delay
             );
@@ -112,10 +116,12 @@ export default function Staking(): JSX.Element {
             }
 
             cData["tgBalance"] = BigInt(userOmocBalance.data.TG.balance || 0);
-            cData["stakedBalance"] =
-                BigInt(userOmocBalance.data.stakingmachine.getBalance || 0);
-            cData["lockedBalance"] =
-                BigInt(userOmocBalance.data.stakingmachine.getLockedBalance || 0);
+            cData["stakedBalance"] = BigInt(
+                userOmocBalance.data.stakingmachine.getBalance || 0
+            );
+            cData["lockedBalance"] = BigInt(
+                userOmocBalance.data.stakingmachine.getLockedBalance || 0
+            );
             pendingWithdrawals = pendingWithdrawalsFormat(
                 userOmocBalance.data.delaymachine
             );
@@ -124,13 +130,15 @@ export default function Staking(): JSX.Element {
 
         const lockingInfo = vUsing?.getLockingInfo;
         const normalizeToBigInt = (value: unknown): bigint => {
-            if (typeof value === "bigint") return value as bigint;
+            if (typeof value === "bigint") return value;
             if (typeof value === "number") return BigInt(value);
             if (typeof value === "string" && value !== "") return BigInt(value);
             return 0n;
         };
         const lockedAmount: bigint = normalizeToBigInt(lockingInfo?.[0]);
-        const lockedUntilTimestamp: bigint = normalizeToBigInt(lockingInfo?.[1]);
+        const lockedUntilTimestamp: bigint = normalizeToBigInt(
+            lockingInfo?.[1]
+        );
 
         if (lockedUntilTimestamp * 1000n > BigInt(nowTimestamp)) {
             cData["lockedInVoting"] = lockedAmount;
@@ -141,23 +149,23 @@ export default function Staking(): JSX.Element {
         cData["unstakeBalance"] =
             cData["stakedBalance"] - cData["lockedInVoting"];
 
-        const pendingWithdrawalsFormatted: PendingWithdrawalStatus[] =
-            (pendingWithdrawals || [])
-                .filter(
-                    (withdrawal: PendingWithdrawal) => withdrawal.expiration > 0n
-                )
-                .map((withdrawal: PendingWithdrawal) => {
-                    const status: string =
-                        new Date(Number(withdrawal.expiration) * 1000) >
-                        new Date()
-                            ? withdrawalStatus.pending
-                            : withdrawalStatus.available;
+        const pendingWithdrawalsFormatted: PendingWithdrawalStatus[] = (
+            pendingWithdrawals || []
+        )
+            .filter(
+                (withdrawal: PendingWithdrawal) => withdrawal.expiration > 0n
+            )
+            .map((withdrawal: PendingWithdrawal) => {
+                const status: string =
+                    new Date(Number(withdrawal.expiration) * 1000) > new Date()
+                        ? withdrawalStatus.pending
+                        : withdrawalStatus.available;
 
-                    return {
-                        ...withdrawal,
-                        status,
-                    };
-                });
+                return {
+                    ...withdrawal,
+                    status,
+                };
+            });
         let pendingExpirationAmount: bigint = 0n;
         let readyToWithdrawAmount: bigint = 0n;
         pendingWithdrawalsFormatted.forEach(

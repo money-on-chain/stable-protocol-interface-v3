@@ -25,20 +25,38 @@ export default function RpcErrorAlert({
     const { t } = useProjectTranslation();
 
     // Debug logging
-    console.log("🔍 RpcErrorAlert rendering with error:", error);
+    console.warn("🔍 RpcErrorAlert rendering with error:", error);
 
     return (
         <Alert
             className="alert alert-rpc-error"
-            message={t("notification.rpcError.title") || "Network Connection Error"}
+            message={
+                t("notification.rpcError.title") || "Network Connection Error"
+            }
             description={
                 <div className="rpc-error-description">
-                    <p>{t("notification.rpcError.description") || "Unable to connect to the blockchain network. This may be due to network congestion or RPC server issues. The system will automatically retry, or you can try again manually."}</p>
-                    <p style={{ fontSize: '12px', color: '#999', marginTop: '8px' }}>
-                        💡 The system will automatically detect when your connection is restored.
+                    <p>
+                        {t("notification.rpcError.description") ||
+                            "Unable to connect to the blockchain network. This may be due to network congestion or RPC server issues. The system will automatically retry, or you can try again manually."}
+                    </p>
+                    <p
+                        style={{
+                            fontSize: "12px",
+                            color: "#999",
+                            marginTop: "8px",
+                        }}
+                    >
+                        💡 The system will automatically detect when your
+                        connection is restored.
                     </p>
                     {error && (
-                        <p style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>
+                        <p
+                            style={{
+                                fontSize: "12px",
+                                color: "#666",
+                                marginTop: "8px",
+                            }}
+                        >
                             Error: {error.errorMessage}
                         </p>
                     )}
@@ -50,7 +68,8 @@ export default function RpcErrorAlert({
                                 loading={isRetrying}
                                 onClick={onRetry}
                             >
-                                {t("notification.rpcError.retry") || "Retry Connection"}
+                                {t("notification.rpcError.retry") ||
+                                    "Retry Connection"}
                             </Button>
                         )}
                         {onDismiss && (
@@ -59,7 +78,8 @@ export default function RpcErrorAlert({
                                 onClick={onDismiss}
                                 style={{ marginLeft: 8 }}
                             >
-                                {t("notification.rpcError.dismiss") || "Dismiss"}
+                                {t("notification.rpcError.dismiss") ||
+                                    "Dismiss"}
                             </Button>
                         )}
                     </div>

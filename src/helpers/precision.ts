@@ -27,28 +27,40 @@ export const toBigIntPrecision = (
 /**
  * Multiplies two values with a given precision
  */
-export const mulPrecision = (a: bigint | number | string, b: bigint | number | string) => {
+export const mulPrecision = (
+    a: bigint | number | string,
+    b: bigint | number | string
+) => {
     // Handle NaN and ensure both parameters are BigInt
-    const bigIntA = typeof a === 'bigint' ? a : (isNaN(Number(a)) ? 0n : BigInt(a || 0));
-    const bigIntB = typeof b === 'bigint' ? b : (isNaN(Number(b)) ? 0n : BigInt(b || 0));
+    const bigIntA =
+        typeof a === "bigint" ? a : isNaN(Number(a)) ? 0n : BigInt(a || 0);
+    const bigIntB =
+        typeof b === "bigint" ? b : isNaN(Number(b)) ? 0n : BigInt(b || 0);
     return (bigIntA * bigIntB) / DECIMALS_18;
 };
 
 /**
  * Divides two values with a given precision
  */
-export const divPrecision = (a: bigint | number | string, b: bigint | number | string) => {
+export const divPrecision = (
+    a: bigint | number | string,
+    b: bigint | number | string
+) => {
     // Handle NaN and ensure both parameters are BigInt
-    const bigIntA = typeof a === 'bigint' ? a : (isNaN(Number(a)) ? 0n : BigInt(a || 0));
-    const bigIntB = typeof b === 'bigint' ? b : (isNaN(Number(b)) ? 0n : BigInt(b || 0));
-    
+    const bigIntA =
+        typeof a === "bigint" ? a : isNaN(Number(a)) ? 0n : BigInt(a || 0);
+    const bigIntB =
+        typeof b === "bigint" ? b : isNaN(Number(b)) ? 0n : BigInt(b || 0);
+
     // Prevent division by zero
     if (bigIntB === 0n) return 0n;
-    
+
     return (bigIntA * DECIMALS_18) / bigIntB;
 };
 
-export const isZeroLike = (v: unknown): boolean => [0, 0n, undefined].includes(v as number | bigint | undefined) || Number.isNaN(v as number);
+export const isZeroLike = (v: unknown): boolean =>
+    [0, 0n, undefined].includes(v as number | bigint | undefined) ||
+    Number.isNaN(v as number);
 
 /**
  * Normalizes various value types to a bigint:
@@ -60,7 +72,9 @@ export const isZeroLike = (v: unknown): boolean => [0, 0n, undefined].includes(v
  * @param value - The value to normalize (can be bigint, string, hex, etc.)
  * @returns bigint if conversion is successful, otherwise null
  */
-export const normalizeToBigInt = (value: bigint | string | number | null | undefined) => {
+export const normalizeToBigInt = (
+    value: bigint | string | number | null | undefined
+) => {
     // Case 1: already a bigint
     if (typeof value === "bigint") return value;
 

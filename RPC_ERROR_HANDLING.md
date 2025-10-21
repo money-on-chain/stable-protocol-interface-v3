@@ -26,7 +26,7 @@ Previously, when the RSK testnet RPC node blocked requests with CORS errors, use
 [
     env("REACT_APP_RSK_TESTNET_RPC"), // Custom endpoint (optional)
     // Wallet connectors will provide additional endpoints
-]
+];
 ```
 
 ### 2. RPC Error Handler Hook (`src/hooks/useRpcErrorHandler.ts`)
@@ -65,7 +65,8 @@ When an RPC error occurs:
 The error handling is automatically integrated into the Wallet context:
 
 ```typescript
-const { rpcError, retryConnection, clearRpcError, isRpcHealthy } = useWalletContext();
+const { rpcError, retryConnection, clearRpcError, isRpcHealthy } =
+    useWalletContext();
 
 // Check if there's an RPC error
 if (rpcError.hasError) {
@@ -97,7 +98,7 @@ Set custom RPC endpoints in your environment:
 # RSK Testnet
 REACT_APP_RSK_TESTNET_RPC=https://your-custom-rpc-endpoint.com
 
-# RSK Mainnet  
+# RSK Mainnet
 REACT_APP_RSK_MAINNET_RPC=https://your-custom-rpc-endpoint.com
 
 # Local development

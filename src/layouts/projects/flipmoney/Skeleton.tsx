@@ -165,7 +165,7 @@ export default function Skeleton(): JSX.Element {
                 {rpcError.hasError && (
                     <RpcErrorAlert
                         error={rpcError}
-                        onRetry={retryConnection}
+                        onRetry={() => void retryConnection()}
                         onDismiss={clearRpcError}
                     />
                 )}

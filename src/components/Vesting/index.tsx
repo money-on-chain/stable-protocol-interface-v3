@@ -212,12 +212,16 @@ const Vesting: React.FC = () => {
         const total = userVesting.data.vestingmachine.getTotal;
         const lockedAmount = userVesting.data.vestingmachine.getLocked;
         const percentMultiplier = 10000n;
-        
+
         // Check if getParameters is valid and iterable
-        if (!getParameters || !Array.isArray(getParameters) || getParameters.length < 2) {
+        if (
+            !getParameters ||
+            !Array.isArray(getParameters) ||
+            getParameters.length < 2
+        ) {
             return amounts;
         }
-        
+
         const [percentages, timeDeltas] = getParameters;
 
         // Ensure timeDeltas and percentages are arrays
@@ -231,7 +235,11 @@ const Vesting: React.FC = () => {
             deltas.unshift(0n);
         }
 
-        if (percentages && percentages.length > 0 && percentages[0] < percentMultiplier) {
+        if (
+            percentages &&
+            percentages.length > 0 &&
+            percentages[0] < percentMultiplier
+        ) {
             percentages.unshift(percentMultiplier);
         }
 
@@ -758,8 +766,11 @@ const Vesting: React.FC = () => {
                                         {PrecisionNumbers({
                                             amount:
                                                 !userOmocBalance.data ||
-                                                !userOmocBalance.data.incentiveV2 ||
-                                                typeof userOmocBalance.data.incentiveV2.userBalance !== "bigint"
+                                                !userOmocBalance.data
+                                                    .incentiveV2 ||
+                                                typeof userOmocBalance.data
+                                                    .incentiveV2.userBalance !==
+                                                    "bigint"
                                                     ? 0n
                                                     : userOmocBalance.data
                                                           .incentiveV2
@@ -814,7 +825,7 @@ const Vesting: React.FC = () => {
                                     <button
                                         className="button"
                                         disabled={!validCreateVM}
-                                        onClick={onSendCreateVM}
+                                        onClick={(e) => void onSendCreateVM(e)}
                                     >
                                         {t(
                                             "vesting.vestingOnboarding.page3.ctaPrimary"
@@ -992,7 +1003,9 @@ const Vesting: React.FC = () => {
                                             {t("vesting.status.notVerified")}
                                             <a
                                                 className={"verify__button"}
-                                                onClick={onVerify}
+                                                onClick={(e) =>
+                                                    void onVerify(e)
+                                                }
                                             >
                                                 {t("vesting.status.verifyCTA")}
                                             </a>
@@ -1011,7 +1024,9 @@ const Vesting: React.FC = () => {
                                         amount:
                                             !userVesting.data ||
                                             !userVesting.data.vestingmachine ||
-                                            typeof userVesting.data.vestingmachine.getAvailable !== "bigint"
+                                            typeof userVesting.data
+                                                .vestingmachine.getAvailable !==
+                                                "bigint"
                                                 ? 0n
                                                 : userVesting.data
                                                       .vestingmachine
@@ -1030,7 +1045,7 @@ const Vesting: React.FC = () => {
                             </div>
                             <button
                                 id="withdraw-cta"
-                                onClick={onWithdraw}
+                                onClick={(e) => void onWithdraw(e)}
                                 disabled={!validWithdraw}
                             >
                                 {t("vesting.withdrawToWallet")}
@@ -1086,8 +1101,10 @@ const Vesting: React.FC = () => {
                                     amount:
                                         !userVesting.data ||
                                         !userVesting.data.vestingmachine ||
-                                        !userVesting.data.vestingmachine.staking ||
-                                        typeof userVesting.data.vestingmachine.staking.balance !== "bigint"
+                                        !userVesting.data.vestingmachine
+                                            .staking ||
+                                        typeof userVesting.data.vestingmachine
+                                            .staking.balance !== "bigint"
                                             ? 0n
                                             : userVesting.data.vestingmachine
                                                   .staking.balance,
@@ -1112,8 +1129,10 @@ const Vesting: React.FC = () => {
                                     amount:
                                         !userVesting.data ||
                                         !userVesting.data.vestingmachine ||
-                                        !userVesting.data.vestingmachine.delay ||
-                                        typeof userVesting.data.vestingmachine.delay.getBalance !== "bigint"
+                                        !userVesting.data.vestingmachine
+                                            .delay ||
+                                        typeof userVesting.data.vestingmachine
+                                            .delay.getBalance !== "bigint"
                                             ? 0n
                                             : userVesting.data.vestingmachine
                                                   .delay.getBalance,
@@ -1144,7 +1163,8 @@ const Vesting: React.FC = () => {
                                     amount:
                                         !userVesting.data ||
                                         !userVesting.data.vestingmachine ||
-                                        typeof userVesting.data.vestingmachine.getTotal !== "bigint"
+                                        typeof userVesting.data.vestingmachine
+                                            .getTotal !== "bigint"
                                             ? 0n
                                             : userVesting.data.vestingmachine
                                                   .getTotal,

@@ -21,7 +21,9 @@ function loadTokenMap(): TokenMap {
 const tokenMap = loadTokenMap();
 const tokenStake = (): string[] => Object.keys(tokenMap);
 
-const pendingWithdrawalsFormat = (delaymachine?: DelayMachine | null): Withdrawal[] => {
+const pendingWithdrawalsFormat = (
+    delaymachine?: DelayMachine | null
+): Withdrawal[] => {
     if (!delaymachine || !delaymachine.getTransactions) {
         return [];
     }
@@ -31,7 +33,7 @@ const pendingWithdrawalsFormat = (delaymachine?: DelayMachine | null): Withdrawa
         return [];
     }
 
-    const [ids, amounts, expirations] = tx as [bigint[], bigint[], bigint[]];
+    const [ids, amounts, expirations] = tx;
     if (!ids || !amounts || !expirations) {
         return [];
     }

@@ -3,12 +3,12 @@
     border-radius: 8px;
     position: relative;
     z-index: 1000;
-    
+
     .ant-alert-message {
         font-weight: 600;
         color: #ff4d4f;
     }
-    
+
     .rpc-error-description {
         p {
             margin: 0 0 12px 0;
@@ -16,7 +16,7 @@
             line-height: 1.5;
         }
     }
-    
+
     .rpc-error-actions {
         display: flex;
         align-items: center;
@@ -30,7 +30,7 @@
         .ant-alert-message {
             color: #ff7875;
         }
-        
+
         .rpc-error-description p {
             color: #d9d9d9;
         }

@@ -34,12 +34,16 @@ export default function VestingSchedule(): React.ReactElement {
     const tgeTimestamp = userVesting.data.vestingfactory.getTGETimestamp;
     const total = userVesting.data.vestingmachine.getTotal;
     const percentMultiplier = 10000n;
-    
+
     // Check if getParameters is valid and iterable
-    if (!getParameters || !Array.isArray(getParameters) || getParameters.length < 2) {
+    if (
+        !getParameters ||
+        !Array.isArray(getParameters) ||
+        getParameters.length < 2
+    ) {
         return <div>No vesting parameters available</div>;
     }
-    
+
     const [percentages, timeDeltas] = getParameters;
 
     // Ensure timeDeltas and percentages are arrays
@@ -53,14 +57,20 @@ export default function VestingSchedule(): React.ReactElement {
         deltas.unshift(0n);
     }
 
-    if (percentages && percentages.length > 0 && percentages[0] < percentMultiplier) {
+    if (
+        percentages &&
+        percentages.length > 0 &&
+        percentages[0] < percentMultiplier
+    ) {
         percentages.unshift(percentMultiplier);
     }
 
     if (percentages && percentages.length > 0)
         percentages[percentages.length - 1] = 0n;
 
-    const percents = (percentages || []).map((x: bigint) => percentMultiplier - x);
+    const percents = (percentages || []).map(
+        (x: bigint) => percentMultiplier - x
+    );
 
     let dates: (string | number)[] = [];
     if (deltas) {
