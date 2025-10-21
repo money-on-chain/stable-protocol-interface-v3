@@ -200,7 +200,7 @@ export default function LastOperations(props: LastOperationsProps) {
                 const baseUrl = `${import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS}operations/list/`;
                 const queryParams = new URLSearchParams({
                     recipient: address || "",
-                    limit: "1000",
+                    limit: "10",
                     skip: "0",
                 }).toString();
                 const url = `${baseUrl}?${queryParams}`;

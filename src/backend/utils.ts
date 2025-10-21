@@ -52,9 +52,9 @@ const getExecutionFee = async (
     const baseExecFee = execCost * latestBaseFee;
     const execFee = (baseExecFee * multiplierBigInt) / 1_000_000n;
 
-    console.warn(
+    /*console.warn(
         `Using Base Fee: ${latestBaseFee.toString()} * slippage ${slippage}% = ${execFee.toString()}`
-    );
+    );*/
     return execFee;
 };
 

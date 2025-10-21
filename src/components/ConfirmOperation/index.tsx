@@ -416,7 +416,7 @@ export default function ConfirmOperation(
             onReceipt
         )
             .then((/*value*/) => {
-                console.warn("DONE!");
+                //console.warn("DONE!");
             })
             .catch((error: AxiosError) => {
                 if (error.response) {
