@@ -27,16 +27,28 @@ export const toBigIntPrecision = (
 /**
  * Multiplies two values with a given precision
  */
-export const mulPrecision = (a: bigint, b: bigint) => {
-    return (a * b) / DECIMALS_18;
+export const mulPrecision = (a: bigint | number | string, b: bigint | number | string) => {
+    // Handle NaN and ensure both parameters are BigInt
+    const bigIntA = typeof a === 'bigint' ? a : (isNaN(Number(a)) ? 0n : BigInt(a || 0));
+    const bigIntB = typeof b === 'bigint' ? b : (isNaN(Number(b)) ? 0n : BigInt(b || 0));
+    return (bigIntA * bigIntB) / DECIMALS_18;
 };
 
 /**
  * Divides two values with a given precision
  */
-export const divPrecision = (a: bigint, b: bigint) => {
-    return (a * DECIMALS_18) / b;
+export const divPrecision = (a: bigint | number | string, b: bigint | number | string) => {
+    // Handle NaN and ensure both parameters are BigInt
+    const bigIntA = typeof a === 'bigint' ? a : (isNaN(Number(a)) ? 0n : BigInt(a || 0));
+    const bigIntB = typeof b === 'bigint' ? b : (isNaN(Number(b)) ? 0n : BigInt(b || 0));
+    
+    // Prevent division by zero
+    if (bigIntB === 0n) return 0n;
+    
+    return (bigIntA * DECIMALS_18) / bigIntB;
 };
+
+export const isZeroLike = (v: unknown): boolean => [0, 0n, undefined].includes(v as number | bigint | undefined) || Number.isNaN(v as number);
 
 /**
  * Normalizes various value types to a bigint:
@@ -48,11 +60,23 @@ export const divPrecision = (a: bigint, b: bigint) => {
  * @param value - The value to normalize (can be bigint, string, hex, etc.)
  * @returns bigint if conversion is successful, otherwise null
  */
-export const normalizeToBigInt = (value: bigint | string | number) => {
+export const normalizeToBigInt = (value: bigint | string | number | null | undefined) => {
     // Case 1: already a bigint
     if (typeof value === "bigint") return value;
 
-    // Case 2: hex string (e.g. bytes32)
+    // Case 2: null or undefined
+    if (value === null || value === undefined) return null;
+
+    // Case 3: number
+    if (typeof value === "number") {
+        try {
+            return BigInt(Math.floor(value));
+        } catch (err) {
+            return null;
+        }
+    }
+
+    // Case 4: hex string (e.g. bytes32)
     if (typeof value === "string" && isHex(value)) {
         if (value.length === 66) {
             // 0x + 64 hex chars = bytes32
@@ -64,7 +88,7 @@ export const normalizeToBigInt = (value: bigint | string | number) => {
         }
     }
 
-    // Case 3: decimal numeric string (e.g. "1234567890000000000")
+    // Case 5: decimal numeric string (e.g. "1234567890000000000")
     if (typeof value === "string" && /^\d+$/.test(value)) {
         try {
             return BigInt(value);

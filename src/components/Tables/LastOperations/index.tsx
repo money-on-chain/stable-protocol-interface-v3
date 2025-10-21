@@ -835,7 +835,7 @@ export default function LastOperations(props: LastOperationsProps) {
     };
 
     data_row();
-    const tableColumns = columns.map((item) => ({ ...item }));
+    const tableColumns = (columns || []).map((item) => ({ ...item }));
     /*useEffect(() => {
         setTimeout(() => setLoadingSke(false), timeSke);
     }, [auth]);*/

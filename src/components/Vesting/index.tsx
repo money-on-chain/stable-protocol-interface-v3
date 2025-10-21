@@ -212,7 +212,18 @@ const Vesting: React.FC = () => {
         const total = userVesting.data.vestingmachine.getTotal;
         const lockedAmount = userVesting.data.vestingmachine.getLocked;
         const percentMultiplier = 10000n;
+        
+        // Check if getParameters is valid and iterable
+        if (!getParameters || !Array.isArray(getParameters) || getParameters.length < 2) {
+            return amounts;
+        }
+        
         const [percentages, timeDeltas] = getParameters;
+
+        // Ensure timeDeltas and percentages are arrays
+        if (!Array.isArray(timeDeltas) || !Array.isArray(percentages)) {
+            return amounts;
+        }
 
         const deltas = [...timeDeltas];
 
@@ -220,14 +231,14 @@ const Vesting: React.FC = () => {
             deltas.unshift(0n);
         }
 
-        if (percentages[0] < percentMultiplier) {
+        if (percentages && percentages.length > 0 && percentages[0] < percentMultiplier) {
             percentages.unshift(percentMultiplier);
         }
 
         if (percentages && percentages.length > 0)
             percentages[percentages.length - 1] = 0n;
 
-        const percents = percentages.map((x: bigint) => {
+        const percents = (percentages || []).map((x: bigint) => {
             return percentMultiplier - x;
         });
 
@@ -370,7 +381,7 @@ const Vesting: React.FC = () => {
     };
 
     const onVestingCreated = (filteredEvents: FilteredEvent[]): void => {
-        filteredEvents.forEach(function (events) {
+        (filteredEvents || []).forEach(function (events) {
             if (events.eventName === "VestingCreated") {
                 for (const [eveName, eveValue] of Object.entries(events.args)) {
                     if (eveName === "vesting") {
@@ -747,8 +758,8 @@ const Vesting: React.FC = () => {
                                         {PrecisionNumbers({
                                             amount:
                                                 !userOmocBalance.data ||
-                                                !userOmocBalance.data
-                                                    .incentiveV2.userBalance
+                                                !userOmocBalance.data.incentiveV2 ||
+                                                typeof userOmocBalance.data.incentiveV2.userBalance !== "bigint"
                                                     ? 0n
                                                     : userOmocBalance.data
                                                           .incentiveV2
@@ -999,7 +1010,8 @@ const Vesting: React.FC = () => {
                                     {PrecisionNumbers({
                                         amount:
                                             !userVesting.data ||
-                                            !userVesting.data.vestingmachine
+                                            !userVesting.data.vestingmachine ||
+                                            typeof userVesting.data.vestingmachine.getAvailable !== "bigint"
                                                 ? 0n
                                                 : userVesting.data
                                                       .vestingmachine
@@ -1073,7 +1085,9 @@ const Vesting: React.FC = () => {
                                 {PrecisionNumbers({
                                     amount:
                                         !userVesting.data ||
-                                        !userVesting.data.vestingmachine
+                                        !userVesting.data.vestingmachine ||
+                                        !userVesting.data.vestingmachine.staking ||
+                                        typeof userVesting.data.vestingmachine.staking.balance !== "bigint"
                                             ? 0n
                                             : userVesting.data.vestingmachine
                                                   .staking.balance,
@@ -1097,7 +1111,9 @@ const Vesting: React.FC = () => {
                                 {PrecisionNumbers({
                                     amount:
                                         !userVesting.data ||
-                                        !userVesting.data.vestingmachine
+                                        !userVesting.data.vestingmachine ||
+                                        !userVesting.data.vestingmachine.delay ||
+                                        typeof userVesting.data.vestingmachine.delay.getBalance !== "bigint"
                                             ? 0n
                                             : userVesting.data.vestingmachine
                                                   .delay.getBalance,
@@ -1127,7 +1143,8 @@ const Vesting: React.FC = () => {
                                 {PrecisionNumbers({
                                     amount:
                                         !userVesting.data ||
-                                        !userVesting.data.vestingmachine
+                                        !userVesting.data.vestingmachine ||
+                                        typeof userVesting.data.vestingmachine.getTotal !== "bigint"
                                             ? 0n
                                             : userVesting.data.vestingmachine
                                                   .getTotal,

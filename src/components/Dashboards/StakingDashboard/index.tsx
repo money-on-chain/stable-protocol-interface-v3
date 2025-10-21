@@ -76,7 +76,7 @@ const Dashboard = (): JSX.Element => {
         }
 
         const pendingWithdrawalsFormatted: PendingWithdrawalStatus[] =
-            _pendingWithdrawals
+            (_pendingWithdrawals || [])
                 .filter(
                     (withdrawal: PendingWithdrawal) => withdrawal.expiration
                 )

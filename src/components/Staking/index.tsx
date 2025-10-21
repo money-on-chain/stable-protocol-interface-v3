@@ -33,7 +33,7 @@ interface UserInfoStaking {
 }
 
 interface vUsing {
-    getLockingInfo: [bigint, bigint];
+    getLockingInfo?: [bigint, bigint] | null;
 }
 
 interface PendingWithdrawalStatus {
@@ -92,11 +92,11 @@ export default function Staking(): JSX.Element {
                 return;
             }
 
-            cData["tgBalance"] = userVesting.data.vestingmachine.tgBalance;
+            cData["tgBalance"] = BigInt(userVesting.data.vestingmachine.tgBalance || 0);
             cData["stakedBalance"] =
-                userVesting.data.vestingmachine.staking.balance;
+                BigInt(userVesting.data.vestingmachine.staking.balance || 0);
             cData["lockedBalance"] =
-                userVesting.data.vestingmachine.staking.getLockedBalance;
+                BigInt(userVesting.data.vestingmachine.staking.getLockedBalance || 0);
             pendingWithdrawals = pendingWithdrawalsFormat(
                 userVesting.data.vestingmachine.delay
             );
@@ -111,18 +111,26 @@ export default function Staking(): JSX.Element {
                 return;
             }
 
-            cData["tgBalance"] = userOmocBalance.data.TG.balance;
+            cData["tgBalance"] = BigInt(userOmocBalance.data.TG.balance || 0);
             cData["stakedBalance"] =
-                userOmocBalance.data.stakingmachine.getBalance;
+                BigInt(userOmocBalance.data.stakingmachine.getBalance || 0);
             cData["lockedBalance"] =
-                userOmocBalance.data.stakingmachine.getLockedBalance;
+                BigInt(userOmocBalance.data.stakingmachine.getLockedBalance || 0);
             pendingWithdrawals = pendingWithdrawalsFormat(
                 userOmocBalance.data.delaymachine
             );
             vUsing = userOmocBalance.data.stakingmachine!;
         }
 
-        const [lockedAmount, lockedUntilTimestamp] = vUsing.getLockingInfo;
+        const lockingInfo = vUsing?.getLockingInfo;
+        const normalizeToBigInt = (value: unknown): bigint => {
+            if (typeof value === "bigint") return value as bigint;
+            if (typeof value === "number") return BigInt(value);
+            if (typeof value === "string" && value !== "") return BigInt(value);
+            return 0n;
+        };
+        const lockedAmount: bigint = normalizeToBigInt(lockingInfo?.[0]);
+        const lockedUntilTimestamp: bigint = normalizeToBigInt(lockingInfo?.[1]);
 
         if (lockedUntilTimestamp * 1000n > BigInt(nowTimestamp)) {
             cData["lockedInVoting"] = lockedAmount;
@@ -134,9 +142,9 @@ export default function Staking(): JSX.Element {
             cData["stakedBalance"] - cData["lockedInVoting"];
 
         const pendingWithdrawalsFormatted: PendingWithdrawalStatus[] =
-            pendingWithdrawals
+            (pendingWithdrawals || [])
                 .filter(
-                    (withdrawal: PendingWithdrawal) => withdrawal.expiration
+                    (withdrawal: PendingWithdrawal) => withdrawal.expiration > 0n
                 )
                 .map((withdrawal: PendingWithdrawal) => {
                     const status: string =

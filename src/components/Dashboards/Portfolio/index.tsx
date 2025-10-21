@@ -99,7 +99,7 @@ export default function Portfolio(): JSX.Element {
         ///////////////
         // Coinbase
         //////////////
-        balance = userBaseCoinBalance.balance || 0n;
+        balance = BigInt(userBaseCoinBalance.balance || 0);
         price =
             normalizeToBigInt(contractProtocolStatus.data?.PP_COINBASE?.[0]) ||
             0n;

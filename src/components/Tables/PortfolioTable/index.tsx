@@ -136,7 +136,7 @@ export default function PortfolioTable() {
                     // CALCULATE COINBASE DATA
                     tokenIcon = "icon-token-" + token.type.toLowerCase();
 
-                    balance = userBaseCoinBalance.balance || 0n;
+                    balance = BigInt(userBaseCoinBalance.balance || 0);
 
                     price =
                         normalizeToBigInt(
@@ -445,7 +445,7 @@ export default function PortfolioTable() {
                 </div>
             </div>
             <div className="table__body">
-                {usdPriceTokensData.map((item) => (
+                {(usdPriceTokensData || []).map((item) => (
                     <div key={item.key} className="token-row">
                         {item.renderRow}
                     </div>
@@ -474,7 +474,7 @@ export default function PortfolioTable() {
                         </div>
                     </div>
                     <div className="table__body">
-                        {nonUSDpriceTokensData.map((item) => (
+                        {(nonUSDpriceTokensData || []).map((item) => (
                             <div key={item.key} className="token-row">
                                 {item.renderRow}
                             </div>

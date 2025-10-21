@@ -3,7 +3,7 @@ interface TokenMap {
 }
 
 interface DelayMachine {
-    getTransactions: [bigint[], bigint[], bigint[]];
+    getTransactions?: [bigint[], bigint[], bigint[]] | null;
 }
 
 interface Withdrawal {
@@ -21,10 +21,24 @@ function loadTokenMap(): TokenMap {
 const tokenMap = loadTokenMap();
 const tokenStake = (): string[] => Object.keys(tokenMap);
 
-const pendingWithdrawalsFormat = (delaymachine: DelayMachine): Withdrawal[] => {
-    const [ids, amounts, expirations] = delaymachine.getTransactions;
+const pendingWithdrawalsFormat = (delaymachine?: DelayMachine | null): Withdrawal[] => {
+    if (!delaymachine || !delaymachine.getTransactions) {
+        return [];
+    }
+
+    const tx = delaymachine.getTransactions;
+    if (!Array.isArray(tx) || tx.length !== 3) {
+        return [];
+    }
+
+    const [ids, amounts, expirations] = tx as [bigint[], bigint[], bigint[]];
+    if (!ids || !amounts || !expirations) {
+        return [];
+    }
+
+    const length = Math.min(ids.length, amounts.length, expirations.length);
     const withdraws: Withdrawal[] = [];
-    for (let i = 0; i < ids.length; i++) {
+    for (let i = 0; i < length; i++) {
         withdraws.push({
             id: ids[i],
             amount: amounts[i],

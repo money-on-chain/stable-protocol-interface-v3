@@ -42,7 +42,7 @@ export default function LastStakeOperations(): React.ReactElement {
     ];
 
     // Columns
-    stakingData.forEach(function (dataItem) {
+    (stakingData || []).forEach(function (dataItem) {
         tableData.push({
             key: dataItem.key,
             details: (
