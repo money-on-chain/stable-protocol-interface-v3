@@ -1,6 +1,6 @@
 import "./Styles.scss";
 
-import { Alert, Button } from "antd";
+import { Alert } from "antd";
 import React from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
@@ -29,40 +29,31 @@ export default function RpcErrorAlert({
 
     return (
         <Alert
-            className="alert alert-rpc-error"
+            className="alert alert-error alert-rpc-error"
             message={
                 t("notification.rpcError.title") || "Network Connection Error"
             }
             description={
                 <div className="rpc-error-description">
-                    <p>
-                        {t("notification.rpcError.description") ||
-                            "Unable to connect to the blockchain network. This may be due to network congestion or RPC server issues. The system will automatically retry, or you can try again manually."}
-                    </p>
-                    <p
-                        style={{
-                            fontSize: "12px",
-                            color: "#999",
-                            marginTop: "8px",
-                        }}
-                    >
-                        💡 The system will automatically detect when your
-                        connection is restored.
-                    </p>
-                    {error && (
-                        <p
-                            style={{
-                                fontSize: "12px",
-                                color: "#666",
-                                marginTop: "8px",
-                            }}
-                        >
-                            Error: {error.errorMessage}
-                        </p>
-                    )}
+                    <div className="rpc-error-description-texts">
+                        <div className="rpc-error-text">
+                            {t("notification.rpcError.description") ||
+                                "Unable to connect to the blockchain network. This may be due to network congestion or RPC server issues. The system will automatically retry, or you can try again manually."}
+                        </div>
+                        <div className="rpc-error-text">
+                            The system will automatically detect when your
+                            connection is restored.
+                        </div>
+                        {error && (
+                            <div className="rpc-error-text">
+                                Error: {error.errorMessage}
+                            </div>
+                        )}
+                    </div>
                     <div className="rpc-error-actions">
                         {onRetry && (
-                            <Button
+                            <button
+                                className="button button--small"
                                 type="primary"
                                 size="small"
                                 loading={isRetrying}
@@ -70,24 +61,24 @@ export default function RpcErrorAlert({
                             >
                                 {t("notification.rpcError.retry") ||
                                     "Retry Connection"}
-                            </Button>
+                            </button>
                         )}
                         {onDismiss && (
-                            <Button
+                            <button
+                                className="button button--small"
                                 size="small"
                                 onClick={onDismiss}
-                                style={{ marginLeft: 8 }}
                             >
                                 {t("notification.rpcError.dismiss") ||
                                     "Dismiss"}
-                            </Button>
+                            </button>
                         )}
                     </div>
                 </div>
             }
             type="error"
             showIcon
-            closable={!!onDismiss}
+            // closable={!!onDismiss}
             onClose={onDismiss}
         />
     );
