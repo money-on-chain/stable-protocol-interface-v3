@@ -171,9 +171,9 @@
         hue-rotate(300deg) brightness(103%) contrast(110%);
 
     --notification-error-background: var(--color-semantic-negative);
-    --notification-error-text: #ffffff;
-    --notification-error-filter: invert(100%) sepia(3%) saturate(12%)
-        hue-rotate(103deg) brightness(105%) contrast(105%);
+    --notification-error-text: #0c0c08;
+    --notification-error-filter: invert(0%) sepia(8%) saturate(7469%)
+        hue-rotate(300deg) brightness(103%) contrast(110%);
 
     --notification-warning-background: #0d0d0d;
     --notification-warning-text: #0c0c08;
