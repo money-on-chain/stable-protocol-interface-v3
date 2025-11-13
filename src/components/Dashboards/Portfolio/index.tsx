@@ -131,7 +131,7 @@ export default function Portfolio(): JSX.Element {
                 normalizeToBigInt(
                     contractProtocolStatus.data[0].PP_FeeToken[0]
                 ) || 0n;
-            balanceUSD = mulPrecision(
+            balanceUSD = divPrecision(
                 mulPrecision(balance, priceInCA),
                 priceCA_0
             );

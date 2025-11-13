@@ -344,7 +344,7 @@ export default function PortfolioTable() {
                             contractProtocolStatus.data[token.key || 0]
                                 ?.PP_CA?.[0]
                         ) || 0n;
-                    balanceUSD = mulPrecision(
+                    balanceUSD = divPrecision(
                         mulPrecision(balance, price),
                         priceCA
                     );
@@ -368,7 +368,7 @@ export default function PortfolioTable() {
                               );
 
                     // Now that balance and variation is calculated, is multiplied for priceCA for price final value
-                    price = mulPrecision(price, priceCA);
+                    price = divPrecision(price, priceCA);
 
                     break;
                 case "TG":
