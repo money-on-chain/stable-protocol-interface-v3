@@ -75,23 +75,21 @@ const Dashboard = (): JSX.Element => {
             );
         }
 
-        const pendingWithdrawalsFormatted: PendingWithdrawalStatus[] =
-            _pendingWithdrawals
-                .filter(
-                    (withdrawal: PendingWithdrawal) => withdrawal.expiration
-                )
-                .map((withdrawal: PendingWithdrawal) => {
-                    const status: string =
-                        new Date(Number(withdrawal.expiration) * 1000) >
-                        new Date()
-                            ? withdrawalStatus.pending
-                            : withdrawalStatus.available;
+        const pendingWithdrawalsFormatted: PendingWithdrawalStatus[] = (
+            _pendingWithdrawals || []
+        )
+            .filter((withdrawal: PendingWithdrawal) => withdrawal.expiration)
+            .map((withdrawal: PendingWithdrawal) => {
+                const status: string =
+                    new Date(Number(withdrawal.expiration) * 1000) > new Date()
+                        ? withdrawalStatus.pending
+                        : withdrawalStatus.available;
 
-                    return {
-                        ...withdrawal,
-                        status,
-                    };
-                });
+                return {
+                    ...withdrawal,
+                    status,
+                };
+            });
         let pendingExpirationAmount: bigint = 0n;
         let readyToWithdrawAmount: bigint = 0n;
         pendingWithdrawalsFormatted.forEach(

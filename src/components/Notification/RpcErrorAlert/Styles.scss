@@ -1,0 +1,59 @@
+.alert {
+    // outline: 4px dashed blue;
+
+    .ant-alert-message {
+        padding: 0;
+        color: var(--notification-error-text);
+        font-weight: 600;
+        // outline: 4px dashed cyan;
+    }
+
+    .ant-alert-icon {
+        filter: var(--notification-error-filter);
+    }
+}
+.alert-rpc-error {
+    display: flex;
+    position: relative;
+    z-index: 1000;
+    margin: 16px 0;
+    border-radius: 8px;
+    background-color: var(--notification-error-background);
+    font-weight: 600;
+    .rpc-error-description {
+        display: flex;
+        justify-content: space-between;
+
+        // outline: 4px dashed green;
+        .rpc-error-description-texts {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            color: var(--notification-error-text);
+            line-height: 1.5;
+        }
+    }
+
+    .rpc-error-actions {
+        display: flex;
+        flex-direction: column;
+        // justify-content: center;
+        align-items: center;
+        gap: 8px;
+        margin: 0px 0px 0px 32px;
+        width: 220px;
+        .button,
+        .button--small {
+            margin: 0px;
+            width: 100%;
+            border-color: var(--notification-error-text);
+            color: var(--notification-error-text);
+            background-color: none;
+        }
+    }
+    .rpc-error-actions {
+        .button:hover,
+        .button--small:hover {
+        }
+    }
+}

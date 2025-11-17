@@ -27,7 +27,7 @@ You can:
 
 Each release gets deployed to IPFS automatically.
 
-Please go to release section, there are several links to [releases](https://github.com/money-on-chain/stable-protocol-interface-v2/releases)
+Please go to release section, there are several links to [releases](https://github.com/money-on-chain/stable-protocol-interface-v3/releases)
 
 **Notes:** The list of operations of the user is get it through an API. We use an api also for the liquidity mining program, but is not need it to run or to exchange tokens.
 
@@ -51,10 +51,6 @@ Run
 
 `npm run start:flipmoney-testnet`
 
-or
-
-`npm run start:roc-testnet`
-
 **Note:** Start the environment you want to run ex. **"start:flipmoney-testnet"** to start environment Flipmoney Testnet
 
 ### Environment table
@@ -69,10 +65,9 @@ Environment is our already deployed contracts.
 
 ### Faucets
 
-In testnet you may need some test tRIF o tRBTC
+In testnet you may need some test RBTC
 
 - **Faucet tRBTC**: https://faucet.rsk.co/
-- **Faucet tRIF**: https://faucet.rifos.org/
 
 ### Contracts
 
@@ -80,14 +75,10 @@ In testnet you may need some test tRIF o tRBTC
 
 _[https://github.com/money-on-chain/stable-protocol-core-v2](https://github.com/money-on-chain/stable-protocol-core-v2)_
 
-**RIF on Chain implementation v2**
-
-_[https://github.com/money-on-chain/stable-protocol-roc-v2](https://github.com/money-on-chain/stable-protocol-roc-v2)_
-
 **Flipmoney implementation v2**
 
 _[https://github.com/money-on-chain/stable-protocol-roc-v2](https://github.com/money-on-chain/stable-protocol-roc-v2)_
 
 ### Integration
 
-If you want to integrate Money on Chain protocols please review our Integration repository: [https://github.com/money-on-chain/stable-protocol-backend-v2](https://github.com/money-on-chain/stable-protocol-backend-v2)
+If you want to integrate Money on Chain protocols please review our Integration repository: [https://github.com/money-on-chain/stable-protocol-backend-v3](https://github.com/money-on-chain/stable-protocol-backend-v3)

@@ -20,12 +20,12 @@ interface DecodedEvent {
 type ContractName = "MocQueue" | "Moc" | "MocVendors" | "VestingFactory";
 
 const renderEvent = (evente: DecodedEvent): void => {
-    console.error("");
-    console.error("\x1b[35m%s\x1b[0m", `Event: ${evente.eventName}`);
-    console.error("");
+    console.warn("");
+    console.warn("\x1b[35m%s\x1b[0m", `Event: ${evente.eventName}`);
+    console.warn("");
 
     for (const [eveName, eveValue] of Object.entries(evente.args)) {
-        console.error("\x1b[32m%s\x1b[0m", `${eveName}: ${String(eveValue)}`);
+        console.warn("\x1b[32m%s\x1b[0m", `${eveName}: ${String(eveValue)}`);
     }
 };
 

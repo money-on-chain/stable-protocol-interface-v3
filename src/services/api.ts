@@ -14,14 +14,42 @@ const api = <T = unknown>(
             ? { params }
             : { data: params };
 
-        axios({ method, url: `${url}`, ...data })
+        axios({
+            method,
+            url: `${url}`,
+            ...data,
+            timeout: 10000, // 10 second timeout
+        })
             .then((response: AxiosResponse<T>) => {
                 resolve(allData ? response : response.data);
             })
-            .catch((error) => {
-                reject(
-                    error instanceof Error ? error : new Error(String(error))
-                );
+            .catch((error: unknown) => {
+                // Enhanced error handling for network issues
+                const axiosError = error as {
+                    code?: string;
+                    response?: unknown;
+                };
+
+                if (axiosError.code === "ECONNABORTED") {
+                    reject(
+                        new Error(
+                            "Request timeout - network connection is slow"
+                        )
+                    );
+                } else if (
+                    axiosError.code === "NETWORK_ERROR" ||
+                    !axiosError.response
+                ) {
+                    reject(
+                        new Error("Network error - unable to connect to server")
+                    );
+                } else {
+                    reject(
+                        error instanceof Error
+                            ? error
+                            : new Error(String(error))
+                    );
+                }
             });
     });
 };

@@ -136,7 +136,7 @@ export default function ConfirmOperation(
     const [amountYouExchange, setAmountYouExchange] = useState<bigint>(
         inputAmountYouExchange
     );
-    const [tolerance, setTolerance] = useState<number>(0.7);
+    const [tolerance, setTolerance] = useState<number>(5.0);
     const [txID, setTxID] = useState<string>("");
     const [opID, setOpID] = useState<number | null>(null);
     const [toleranceError, setToleranceError] = useState<string>("");
@@ -416,7 +416,7 @@ export default function ConfirmOperation(
             onReceipt
         )
             .then((/*value*/) => {
-                console.warn("DONE!");
+                //console.warn("DONE!");
             })
             .catch((error: AxiosError) => {
                 if (error.response) {

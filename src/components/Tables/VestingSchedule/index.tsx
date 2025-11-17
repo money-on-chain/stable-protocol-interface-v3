@@ -34,7 +34,22 @@ export default function VestingSchedule(): React.ReactElement {
     const tgeTimestamp = userVesting.data.vestingfactory.getTGETimestamp;
     const total = userVesting.data.vestingmachine.getTotal;
     const percentMultiplier = 10000n;
+
+    // Check if getParameters is valid and iterable
+    if (
+        !getParameters ||
+        !Array.isArray(getParameters) ||
+        getParameters.length < 2
+    ) {
+        return <div>No vesting parameters available</div>;
+    }
+
     const [percentages, timeDeltas] = getParameters;
+
+    // Ensure timeDeltas and percentages are arrays
+    if (!Array.isArray(timeDeltas) || !Array.isArray(percentages)) {
+        return <div>Invalid vesting parameters format</div>;
+    }
 
     const deltas = [...timeDeltas];
 
@@ -42,24 +57,30 @@ export default function VestingSchedule(): React.ReactElement {
         deltas.unshift(0n);
     }
 
-    if (percentages[0] < percentMultiplier) {
+    if (
+        percentages &&
+        percentages.length > 0 &&
+        percentages[0] < percentMultiplier
+    ) {
         percentages.unshift(percentMultiplier);
     }
 
     if (percentages && percentages.length > 0)
         percentages[percentages.length - 1] = 0n;
 
-    const percents = percentages.map((x: bigint) => percentMultiplier - x);
+    const percents = (percentages || []).map(
+        (x: bigint) => percentMultiplier - x
+    );
 
     let dates: (string | number)[] = [];
     if (deltas) {
         if (tgeTimestamp) {
             // Convert timestamp to date.
-            dates = deltas.map((x: bigint) =>
+            dates = (deltas || []).map((x: bigint) =>
                 formatTimestamp((Number(tgeTimestamp) + Number(x)) * 1000)
             );
         } else {
-            dates = deltas.map((x: bigint) => Number(x) / 60 / 60 / 24);
+            dates = (deltas || []).map((x: bigint) => Number(x) / 60 / 60 / 24);
         }
     }
 

@@ -178,7 +178,7 @@ const Veto: React.FC = () => {
 
         if (contractsAddress?.CollateralToken) {
             const vetoData = userVeto.data as unknown as UserVetoData;
-            contractsAddress.CollateralToken.forEach((tc, index) => {
+            (contractsAddress.CollateralToken || []).forEach((tc, index) => {
                 const tokenInfo: InfoUserTC = {
                     index,
                     address: tc.address,

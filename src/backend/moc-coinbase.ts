@@ -55,13 +55,13 @@ const mintTC = async (
 
     // Verifications
     // User have sufficient reserve to pay?
-    console.warn(
+    /*console.warn(
         `To mint ${qTC} ${
             (settings.tokens.TC[caIndex] as TokenConfig).name
         } you need > ${limitAmount.toString()} ${
             (settings.tokens.CA[caIndex] as TokenConfig).name
         } in your balance`
-    );
+    );*/
     const userReserveBalance = userBalance.data.CA[caIndex].balance;
     if (limitAmount > userReserveBalance)
         throw new Error(
@@ -69,13 +69,13 @@ const mintTC = async (
         );
 
     // Allowance    reserveAllowance
-    console.warn(
+    /*console.warn(
         `Allowance: To mint ${qTC} ${
             (settings.tokens.TC[caIndex] as TokenConfig).name
         } you need > ${limitAmount.toString()} ${
             (settings.tokens.CA[caIndex] as TokenConfig).name
         } in your spendable balance`
-    );
+    );*/
     /*
     const userSpendableBalance = new BigNumber(
         fromContractPrecisionDecimals(
@@ -188,13 +188,13 @@ const mintTP = async (
     // Verifications
 
     // User have sufficient reserve to pay?
-    console.warn(
+    /*console.warn(
         `To mint ${qTP} ${
             (settings.tokens.TP[tpIndex] as TokenConfig).name
         } you need > ${limitAmount.toString()} ${
             (settings.tokens.CA[caIndex] as TokenConfig).name
         } in your balance`
-    );
+    );*/
     const userReserveBalance = userBalance.data.CA[caIndex].balance;
     if (limitAmount > userReserveBalance)
         throw new Error(
@@ -202,13 +202,13 @@ const mintTP = async (
         );
 
     // Allowance
-    console.warn(
+    /*console.warn(
         `Allowance: To mint ${qTP} ${
             (settings.tokens.TP[tpIndex] as TokenConfig).name
         } you need > ${limitAmount.toString()} ${
             (settings.tokens.CA[caIndex] as TokenConfig).name
         } in your spendable balance`
-    );
+    );*/
     /*
     const userSpendableBalance = new BigNumber(
         fromContractPrecisionDecimals(

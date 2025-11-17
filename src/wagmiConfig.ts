@@ -1,5 +1,5 @@
 // wagmiConfig.ts
-import { createConfig, http } from "wagmi";
+import { createConfig, fallback, http } from "wagmi";
 import { localhost, rootstock, rootstockTestnet } from "wagmi/chains";
 import {
     coinbaseWallet,
@@ -73,18 +73,62 @@ const connectors = [
     }),
 ] as const;
 
+// RPC endpoints for dApp - only use environment variables
+// Wallet connectors (MetaMask, WalletConnect, etc.) will provide their own RPC endpoints
+const getRpcEndpoints = (chainId: number) => {
+    switch (chainId) {
+        case rootstock.id:
+            return [
+                env("REACT_APP_RSK_MAINNET_RPC") || env("VITE_RSK_MAINNET_RPC"),
+            ].filter(Boolean);
+        case rootstockTestnet.id:
+            return [
+                env("REACT_APP_RSK_TESTNET_RPC") || env("VITE_RSK_TESTNET_RPC"),
+            ].filter(Boolean);
+        case localhost.id:
+            return [
+                env("REACT_APP_RSK_LOCALHOST_RPC") ||
+                    env("VITE_RSK_LOCALHOST_RPC"),
+                "http://localhost:8545", // Default localhost for development
+            ].filter(Boolean);
+        default:
+            return [];
+    }
+};
+
 export const config = createConfig({
     chains: CHAINS,
     connectors, // <-- no dynamic filtering here
     transports: {
-        [rootstock.id]: http(
-            env("REACT_APP_RSK_MAINNET_RPC") || env("VITE_RSK_MAINNET_RPC")
-        ),
-        [rootstockTestnet.id]: http(
-            env("REACT_APP_RSK_TESTNET_RPC") || env("VITE_RSK_TESTNET_RPC")
-        ),
-        [localhost.id]: http(
-            env("REACT_APP_RSK_LOCALHOST_RPC") || env("VITE_RSK_LOCALHOST_RPC")
+        [rootstock.id]:
+            getRpcEndpoints(rootstock.id).length > 0
+                ? fallback(
+                      getRpcEndpoints(rootstock.id).map((url) =>
+                          http(url, {
+                              retryCount: 3,
+                              retryDelay: 1000,
+                          })
+                      )
+                  )
+                : http(), // Let wallet connectors provide RPC
+        [rootstockTestnet.id]:
+            getRpcEndpoints(rootstockTestnet.id).length > 0
+                ? fallback(
+                      getRpcEndpoints(rootstockTestnet.id).map((url) =>
+                          http(url, {
+                              retryCount: 3,
+                              retryDelay: 1000,
+                          })
+                      )
+                  )
+                : http(), // Let wallet connectors provide RPC
+        [localhost.id]: fallback(
+            getRpcEndpoints(localhost.id).map((url) =>
+                http(url, {
+                    retryCount: 3,
+                    retryDelay: 1000,
+                })
+            )
         ),
     },
     ssr: false,

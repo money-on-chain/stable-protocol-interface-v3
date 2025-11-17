@@ -325,17 +325,19 @@ export default function LiquidityMiningClaims(): React.ReactElement {
         },
     ];
 
-    const tableData: TableDataItem[] = tempData.map((item, itemIndex) => ({
-        key: itemIndex,
-        renderRow: (
-            <div className="renderRow">
-                <div className="date">{item.date}</div>
-                <div className="amount">{item.amount}</div>
-                <div className="event">{item.event}</div>
-                <div className="status">{item.status}</div>
-            </div>
-        ),
-    }));
+    const tableData: TableDataItem[] = (tempData || []).map(
+        (item, itemIndex) => ({
+            key: itemIndex,
+            renderRow: (
+                <div className="renderRow">
+                    <div className="date">{item.date}</div>
+                    <div className="amount">{item.amount}</div>
+                    <div className="event">{item.event}</div>
+                    <div className="status">{item.status}</div>
+                </div>
+            ),
+        })
+    );
 
     return (
         <div className="layout-card">

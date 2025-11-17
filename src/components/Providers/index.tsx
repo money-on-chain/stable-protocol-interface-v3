@@ -1,6 +1,6 @@
 import "./Styles.scss";
 
-import { notification, Tooltip, Typography } from "antd";
+import { notification, Typography } from "antd";
 import React from "react";
 import type { Connector } from "wagmi";
 import { useAccount, useConnect } from "wagmi";
@@ -11,13 +11,8 @@ interface ProvidersProps {
     onCloseModal: () => void;
 }
 
-const ORDER = [
-    "injected",
-    "metaMask",
-    "coinbaseWallet",
-    "walletConnect",
-    "safe",
-] as const;
+const ORDER = ["injected", "walletConnect", "safe"] as const;
+
 const { Title, Text } = Typography;
 
 export default function WalletProviders({ onCloseModal }: ProvidersProps) {
@@ -36,7 +31,7 @@ export default function WalletProviders({ onCloseModal }: ProvidersProps) {
         []
     );
 
-    // Detect in-app wallet browser (MetaMask/Rainbow/Trust/Coinbase)
+    // Detect in-app wallet browser (MetaMask/Rainbow/Trust)
     const isInAppWallet = React.useMemo(
         () =>
             typeof window !== "undefined" &&
@@ -44,62 +39,50 @@ export default function WalletProviders({ onCloseModal }: ProvidersProps) {
         []
     );
 
+    // Helpers
     const isInjected = (c: Connector) =>
         c.id === "injected" || c.type === "injected";
-    const isMetaMask = (c: Connector) =>
-        c.id === "metaMask" || c.name.toLowerCase().includes("metamask");
     const isWalletConnect = (c: Connector) => c.id === "walletConnect";
-    const isCoinbase = (c: Connector) =>
-        c.id === "coinbaseWallet" || c.name.toLowerCase().includes("coinbase");
     const isSafe = (c: Connector) => c.id === "safe";
 
-    // Filtered visible (if not filtered in wagmiConfig)
+    // 1) Base: quedarnos SOLO con injected + walletConnect (+ safe si existe)
+    const baseAllowed = React.useMemo(
+        () =>
+            connectors.filter(
+                (c) => isInjected(c) || isWalletConnect(c) || isSafe(c)
+            ),
+        [connectors]
+    );
+
+    // 2) Visibilidad por contexto:
+    // - Mobile normal → solo WalletConnect
+    // - Mobile in-app → injected + WalletConnect
+    // - Desktop → injected + WalletConnect
     const visibleConnectors = React.useMemo(() => {
-        // Mobile normal → only WC
         if (isMobileUA && !isInAppWallet)
-            return connectors.filter((c) => c.id === "walletConnect");
-        // In-app wallet → injected + metamask (+ WC optional as fallback)
-        if (isMobileUA && isInAppWallet)
-            return connectors.filter(
-                (c) =>
-                    c.id === "injected" ||
-                    c.id === "metaMask" ||
-                    c.id === "walletConnect"
-            );
-        // Desktop → all
-        return connectors;
-    }, [connectors, isMobileUA, isInAppWallet]);
+            return baseAllowed.filter(isWalletConnect);
+        return baseAllowed;
+    }, [baseAllowed, isMobileUA, isInAppWallet]);
 
-    const hasInjectedMetaMask = visibleConnectors.some(
-        (c) => isInjected(c) && isMetaMask(c)
-    );
-    const filtered = visibleConnectors.filter(
-        (c) => !(isMetaMask(c) && !isInjected(c) && hasInjectedMetaMask)
-    );
+    // Agrupación simple: inyectados arriba
+    const installed = visibleConnectors.filter(isInjected);
+    const others = visibleConnectors.filter((c) => !installed.includes(c));
 
-    const installed = filtered.filter((c) => isInjected(c)); // inyectados van arriba
-    const others = filtered.filter((c) => !installed.includes(c));
-
-    // If only WC, hide the "no browser wallet" message
+    // Si solo hay WC, escondemos el aviso “no browser wallet”
     const wcOnly =
-        filtered.length > 0 && filtered.every((c) => c.id === "walletConnect");
+        visibleConnectors.length > 0 &&
+        visibleConnectors.every((c) => c.id === "walletConnect");
 
     const sortByOrder = (a: Connector, b: Connector) => {
-        const idx = (c: Connector) =>
-            ORDER.indexOf(
-                isInjected(c)
-                    ? "injected"
-                    : isMetaMask(c)
-                      ? "metaMask"
-                      : isCoinbase(c)
-                        ? "coinbaseWallet"
-                        : isWalletConnect(c)
-                          ? "walletConnect"
-                          : isSafe(c)
-                            ? "safe"
-                            : "walletConnect"
-            );
-        return idx(a) - idx(b);
+        const key = (c: Connector) =>
+            isInjected(c)
+                ? "injected"
+                : isWalletConnect(c)
+                  ? "walletConnect"
+                  : isSafe(c)
+                    ? "safe"
+                    : "walletConnect";
+        return ORDER.indexOf(key(a)) - ORDER.indexOf(key(b));
     };
     const othersOrdered = [...others].sort(sortByOrder);
 
@@ -107,10 +90,6 @@ export default function WalletProviders({ onCloseModal }: ProvidersProps) {
         try {
             setLoadingId(connector.uid);
             const isWC = connector.id === "walletConnect";
-            /*if (isWC) {
-          onCloseModal();
-          await new Promise((r) => setTimeout(r, 50));
-        }*/
             await connectAsync({ connector });
             if (!isWC) onCloseModal();
             localStorage.setItem("last-connector", connector.id);
@@ -147,13 +126,6 @@ export default function WalletProviders({ onCloseModal }: ProvidersProps) {
                             connector={c}
                             onClick={() => void handleConnect(c)}
                             loading={loadingId === c.uid}
-                            tooltip={getTooltip(
-                                c,
-                                isInjected,
-                                isMetaMask,
-                                isWalletConnect,
-                                t
-                            )}
                             isInAppWallet={isInAppWallet}
                             t={t}
                         />
@@ -165,13 +137,6 @@ export default function WalletProviders({ onCloseModal }: ProvidersProps) {
                             connector={c}
                             onClick={() => void handleConnect(c)}
                             loading={loadingId === c.uid}
-                            tooltip={getTooltip(
-                                c,
-                                isInjected,
-                                isMetaMask,
-                                isWalletConnect,
-                                t
-                            )}
                             isInAppWallet={isInAppWallet}
                             t={t}
                         />
@@ -186,26 +151,24 @@ function WalletOption({
     connector,
     onClick,
     loading,
-    tooltip,
     isInAppWallet,
     t,
 }: {
     connector: Connector;
     onClick: () => void;
     loading?: boolean;
-    tooltip?: string;
     isInAppWallet?: boolean;
     t: ReturnType<typeof useProjectTranslation>["t"];
 }) {
+    // WC siempre habilitado; injected habilitado en in-app aunque .ready diga lo contrario
     const ready =
         connector.id === "walletConnect"
             ? true
-            : isInAppWallet &&
-                (connector.id === "injected" || connector.id === "metaMask")
+            : isInAppWallet && connector.id === "injected"
               ? true
               : (connector.ready ?? true);
 
-    const button = (
+    return (
         <button onClick={onClick} disabled={!ready || loading}>
             <div>{labelFor(connector, t)}</div>
             <div
@@ -214,8 +177,6 @@ function WalletOption({
             {!ready && <span>(not available)</span>}
         </button>
     );
-
-    return tooltip ? <Tooltip title={tooltip}>{button}</Tooltip> : button;
 }
 
 function labelFor(
@@ -223,33 +184,12 @@ function labelFor(
     t: ReturnType<typeof useProjectTranslation>["t"]
 ) {
     const n = c.name.toLowerCase();
-    if (n.includes("metamask")) return t("walletProviders.providers.metamask");
-    if (n.includes("coinbase")) return t("walletProviders.providers.coinbase");
     if (c.id === "walletConnect")
         return t("walletProviders.providers.walletconnect");
     if (c.id === "safe") return t("walletProviders.providers.multisig");
-    if (c.id === "injected") return t("walletProviders.providers.injected");
+    if (c.id === "injected") {
+        // Si querés renombrar a “MetaMask” cuando el in-app es MetaMask, podés detectar window.ethereum.isMetaMask aquí.
+        return t("walletProviders.providers.injected");
+    }
     return c.name;
-}
-
-/**
- * Returns tooltip text depending on connector type
- */
-function getTooltip(
-    c: Connector,
-    isInjected: (c: Connector) => boolean,
-    isMetaMask: (c: Connector) => boolean,
-    isWalletConnect: (c: Connector) => boolean,
-    t: ReturnType<typeof useProjectTranslation>["t"]
-): string | undefined {
-    if (isWalletConnect(c)) {
-        return t("walletProviders.toolTip.walletConnected");
-    }
-    if (isMetaMask(c)) {
-        return t("walletProviders.toolTip.metamask");
-    }
-    if (isInjected(c)) {
-        return t("walletProviders.toolTip.injected");
-    }
-    return undefined;
 }

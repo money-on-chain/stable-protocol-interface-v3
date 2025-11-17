@@ -158,7 +158,7 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
     }, [contractStatusOmoc.data, userInfoStaking, getWithdrawals]);
 
     // Columns
-    ProvideColumnsTG.forEach(function (dataItem: TableColumn) {
+    (ProvideColumnsTG || []).forEach(function (dataItem: TableColumn) {
         columnsData.push({
             title: dataItem.title,
             dataIndex: dataItem.dataIndex,

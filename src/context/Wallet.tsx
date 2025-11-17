@@ -64,6 +64,8 @@ import { useIncentiveV2 } from "../hooks/useIncentiveV2";
 import { useLatestBlockNumber } from "../hooks/useLatestBlockNumber";
 import { useOffchainPrices } from "../hooks/useOffchainPrices";
 import { readContracts } from "../hooks/useReadContracts";
+import { useRpcErrorHandler } from "../hooks/useRpcErrorHandler";
+import { useRpcErrorIntegration } from "../hooks/useRpcErrorIntegration";
 import { useUserBalance } from "../hooks/useUserBalance";
 import { useUserOmocBalance } from "../hooks/useUserOmocBalance";
 import { useUserVesting } from "../hooks/useUserVesting";
@@ -128,6 +130,19 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const toggleVesting = useCallback(() => {
         setVestingOn((prev) => !prev);
     }, []);
+
+    // RPC error handling
+    const {
+        rpcError,
+        handleRpcError,
+        retryConnection,
+        clearError: clearRpcError,
+        isRpcHealthy,
+        checkConnectivityNow,
+    } = useRpcErrorHandler();
+
+    // Integrate RPC error handling globally
+    useRpcErrorIntegration();
 
     // Hooks for contract data
     const { blockNumber } = useLatestBlockNumber(
@@ -205,8 +220,9 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             setContractsAddressLoaded(true);
         } catch (e) {
             console.error("Error loading contracts:", e);
+            handleRpcError(e);
         }
-    }, [isConnected, contractsAddressLoaded, publicClient]);
+    }, [isConnected, contractsAddressLoaded, publicClient, handleRpcError]);
 
     useEffect(() => {
         if (offChainPricesAPI.parsedPrices) {
@@ -805,6 +821,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 readUserVesting,
                 onShowModalProviders,
                 onHideModalProviders,
+                // RPC error handling
+                rpcError,
+                handleRpcError,
+                retryConnection,
+                clearRpcError,
+                isRpcHealthy,
+                checkConnectivityNow,
             }}
         >
             {children}

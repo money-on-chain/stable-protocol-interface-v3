@@ -136,7 +136,7 @@ export default function PortfolioTable() {
                     // CALCULATE COINBASE DATA
                     tokenIcon = "icon-token-" + token.type.toLowerCase();
 
-                    balance = userBaseCoinBalance.balance || 0n;
+                    balance = BigInt(userBaseCoinBalance.balance || 0);
 
                     price =
                         normalizeToBigInt(
@@ -173,8 +173,9 @@ export default function PortfolioTable() {
 
                         // Convert balance to BigNumber with correct decimal precision
                         balance =
-                            userBalance.data?.CA?.[token.key || 0]?.balance ||
-                            0n;
+                            normalizeToBigInt(
+                                userBalance.data?.CA?.[token.key || 0]?.balance
+                            ) || 0n;
                         price =
                             normalizeToBigInt(
                                 contractProtocolStatus.data?.[token.key || 0]
@@ -209,8 +210,10 @@ export default function PortfolioTable() {
                         // CALCULATE TOKENS TP USD-Pegged Tokens DATA
 
                         balance =
-                            userBalance.data?.TP?.[0]?.[token.key || 0]
-                                ?.balance || 0n;
+                            normalizeToBigInt(
+                                userBalance.data?.TP?.[0]?.[token.key || 0]
+                                    ?.balance
+                            ) || 0n;
 
                         price = 1n;
 
@@ -232,8 +235,10 @@ export default function PortfolioTable() {
                     } else {
                         //CALCULATE TOKENS TP NON-USD-Pegged Tokens DATA
                         balance =
-                            userBalance.data?.TP?.[0]?.[token.key || 0]
-                                ?.balance || 0n;
+                            normalizeToBigInt(
+                                userBalance.data?.TP?.[0]?.[token.key || 0]
+                                    ?.balance
+                            ) || 0n;
                         price =
                             normalizeToBigInt(
                                 contractProtocolStatus.data[0]?.PP_TP?.[
@@ -291,7 +296,9 @@ export default function PortfolioTable() {
                         token.key;
 
                     balance =
-                        userBalance.data?.[token.key || 0]?.TC?.balance || 0n;
+                        normalizeToBigInt(
+                            userBalance.data?.[token.key || 0]?.TC?.balance
+                        ) || 0n;
 
                     priceTEC =
                         normalizeToBigInt(
@@ -322,8 +329,9 @@ export default function PortfolioTable() {
 
                     tokenIcon = "icon-token-" + token.type.toLowerCase();
                     balance =
-                        userBalance.data[token.key || 0]?.FeeToken?.balance ||
-                        0n;
+                        normalizeToBigInt(
+                            userBalance.data[token.key || 0]?.FeeToken?.balance
+                        ) || 0n;
 
                     // RAW price for balance and variation calculation
                     price =
@@ -336,7 +344,7 @@ export default function PortfolioTable() {
                             contractProtocolStatus.data[token.key || 0]
                                 ?.PP_CA?.[0]
                         ) || 0n;
-                    balanceUSD = mulPrecision(
+                    balanceUSD = divPrecision(
                         mulPrecision(balance, price),
                         priceCA
                     );
@@ -360,7 +368,7 @@ export default function PortfolioTable() {
                               );
 
                     // Now that balance and variation is calculated, is multiplied for priceCA for price final value
-                    price = mulPrecision(price, priceCA);
+                    price = divPrecision(price, priceCA);
 
                     break;
                 case "TG":
@@ -445,7 +453,7 @@ export default function PortfolioTable() {
                 </div>
             </div>
             <div className="table__body">
-                {usdPriceTokensData.map((item) => (
+                {(usdPriceTokensData || []).map((item) => (
                     <div key={item.key} className="token-row">
                         {item.renderRow}
                     </div>
@@ -474,7 +482,7 @@ export default function PortfolioTable() {
                         </div>
                     </div>
                     <div className="table__body">
-                        {nonUSDpriceTokensData.map((item) => (
+                        {(nonUSDpriceTokensData || []).map((item) => (
                             <div key={item.key} className="token-row">
                                 {item.renderRow}
                             </div>

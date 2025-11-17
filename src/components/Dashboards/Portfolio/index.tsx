@@ -44,7 +44,9 @@ export default function Portfolio(): JSX.Element {
             // Tokens CA
             ///////////////
 
-            balance = userBalance.data.CA[dataItem.key].balance;
+            balance =
+                normalizeToBigInt(userBalance.data.CA[dataItem.key].balance) ||
+                0n;
             price =
                 normalizeToBigInt(
                     contractProtocolStatus.data[dataItem.key].PP_CA[0]
@@ -56,7 +58,9 @@ export default function Portfolio(): JSX.Element {
             /////////////
             // Token TC
             ////////////
-            balance = userBalance.data[dataItem.key].TC.balance;
+            balance =
+                normalizeToBigInt(userBalance.data[dataItem.key].TC.balance) ||
+                0n;
             const priceTEC: bigint =
                 contractProtocolStatus.data[dataItem.key].getPTCac;
             const priceCA: bigint =
@@ -86,7 +90,10 @@ export default function Portfolio(): JSX.Element {
                 return;
             }
 
-            balance = userBalance.data.TP[0][dataItem.key].balance;
+            balance =
+                normalizeToBigInt(
+                    userBalance.data.TP[0][dataItem.key].balance
+                ) || 0n;
             price = dataItem.peggedUSD
                 ? 1n
                 : normalizeToBigInt(
@@ -99,7 +106,7 @@ export default function Portfolio(): JSX.Element {
         ///////////////
         // Coinbase
         //////////////
-        balance = userBaseCoinBalance.balance || 0n;
+        balance = BigInt(userBaseCoinBalance.balance || 0);
         price =
             normalizeToBigInt(contractProtocolStatus.data?.PP_COINBASE?.[0]) ||
             0n;
@@ -115,7 +122,8 @@ export default function Portfolio(): JSX.Element {
             contractProtocolStatus.data?.[0]?.PP_CA &&
             contractProtocolStatus.data?.[0]?.PP_FeeToken
         ) {
-            balance = userBalance.data[0].FeeToken.balance;
+            balance =
+                normalizeToBigInt(userBalance.data[0].FeeToken.balance) || 0n;
             const priceCA_0: bigint =
                 normalizeToBigInt(contractProtocolStatus.data[0].PP_CA[0]) ||
                 0n;
@@ -123,7 +131,7 @@ export default function Portfolio(): JSX.Element {
                 normalizeToBigInt(
                     contractProtocolStatus.data[0].PP_FeeToken[0]
                 ) || 0n;
-            balanceUSD = mulPrecision(
+            balanceUSD = divPrecision(
                 mulPrecision(balance, priceInCA),
                 priceCA_0
             );

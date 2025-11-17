@@ -100,7 +100,7 @@ const VetoWithdraw: React.FC = () => {
             },
             address
         );
-        lockedByVeto.forEach((locked) => {
+        (lockedByVeto || []).forEach((locked) => {
             const tcIndex = getTCTokenIndex(
                 collateralTokens || [],
                 locked.tcAddress
