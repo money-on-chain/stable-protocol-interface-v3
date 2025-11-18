@@ -65,7 +65,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                             {!contractProtocolStatus.data?.canOperate
                                 ? "--"
                                 : PrecisionNumbers({
-                                      amount: contractProtocolStatus.data
+                                      amount: contractProtocolStatus.data && contractProtocolStatus.data[caIndex]
                                           ? contractProtocolStatus.data[caIndex]
                                                 .getACBalance
                                           : 0n,
@@ -89,7 +89,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                             {!contractProtocolStatus.data?.canOperate
                                 ? "--"
                                 : PrecisionNumbers({
-                                      amount: contractProtocolStatus.data
+                                      amount: contractProtocolStatus.data && contractProtocolStatus.data[caIndex]
                                           ? contractProtocolStatus.data[caIndex]
                                                 .getCglb
                                           : 0n,
@@ -110,7 +110,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                             {!contractProtocolStatus.data?.canOperate
                                 ? "--"
                                 : PrecisionNumbers({
-                                      amount: contractProtocolStatus.data
+                                      amount: contractProtocolStatus.data && contractProtocolStatus.data[caIndex]
                                           ? contractProtocolStatus.data[caIndex]
                                                 .getCtargemaCA
                                           : 0n,
@@ -131,7 +131,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                             {!contractProtocolStatus.data?.canOperate
                                 ? "--"
                                 : PrecisionNumbers({
-                                      amount: contractProtocolStatus.data
+                                      amount: contractProtocolStatus.data && contractProtocolStatus.data[caIndex]
                                           ? leverage
                                           : 0n,
                                       token: TokenSettings(`CA_${caIndex}`),
@@ -151,7 +151,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                             {!contractProtocolStatus.data?.canOperate
                                 ? "--"
                                 : PrecisionNumbers({
-                                      amount: contractProtocolStatus.data
+                                      amount: contractProtocolStatus.data && contractProtocolStatus.data[caIndex]
                                           ? lckAC
                                           : 0n,
                                       token: TokenSettings(`CA_${caIndex}`),

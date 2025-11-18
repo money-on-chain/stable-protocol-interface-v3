@@ -73,7 +73,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
         </tr>
     );
 
-    if (contractProtocolStatus.data) {
+    if (contractProtocolStatus.data && contractProtocolStatus.data[caIndex]) {
         // TC row
         const priceTEC = contractProtocolStatus.data[caIndex].getPTCac || 0n;
         const priceCA =
