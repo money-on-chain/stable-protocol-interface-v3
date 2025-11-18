@@ -6,6 +6,7 @@ import React, {
     Fragment,
     useCallback,
     useEffect,
+    useMemo,
     useRef,
     useState,
 } from "react";
@@ -157,6 +158,14 @@ export default function LastOperations(props: LastOperationsProps) {
     const { t, i18n, ns } = useProjectTranslation();
     const { isConnected, address, blockNumber } = useWalletContext();
     const [ready, setReady] = useState(false);
+    
+    // Reset initial load flag when wallet disconnects or address changes
+    useEffect(() => {
+        if (!isConnected || !address) {
+            hasInitialLoadRef.current = false;
+            setReady(false);
+        }
+    }, [isConnected, address]);
     /*useEffect(() => {
         if (auth.contractStatusData) {
             setReady(true);
@@ -180,44 +189,42 @@ export default function LastOperations(props: LastOperationsProps) {
         .join("");
     /*const timeSke = 1500;*/
 
-    // Ref to store timeout ID for cleanup
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    // Ref to track if a request is in progress to prevent overlapping calls
+    const isLoadingRef = useRef<boolean>(false);
+    // Ref to track if initial load has happened
+    const hasInitialLoadRef = useRef<boolean>(false);
 
-    let data: TableRowData[] = [];
-    const received_row: TableRowData[] = [];
-    let txList: OperationData[] = [];
+    const fetchTransactions = useCallback((isPolling = false) => {
+        if (isConnected && blockNumber && address && !isLoadingRef.current) {
+            isLoadingRef.current = true;
+            const baseUrl = `${import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS}operations/list/`;
+            const skip = (current - 1) * pageSize;
+            const queryParams = new URLSearchParams({
+                recipient: address || "",
+                limit: String(pageSize),
+                skip: String(skip),
+            }).toString();
+            const url = `${baseUrl}?${queryParams}`;
 
-    const transactionsList = useCallback(() => {
-        if (isConnected && blockNumber && address) {
-            console.warn("Loading table…");
-
-            // Clear any existing timeout before setting a new one
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-            }
-
-            timeoutRef.current = setTimeout(() => {
-                const baseUrl = `${import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS}operations/list/`;
-                const queryParams = new URLSearchParams({
-                    recipient: address || "",
-                    limit: "10",
-                    skip: "0",
-                }).toString();
-                const url = `${baseUrl}?${queryParams}`;
-
-                api("get", url)
-                    .then((response: unknown) => {
-                        const typedResponse = response as ApiResponse;
-                        setDataJson(typedResponse);
-                        setTotalTable(typedResponse.total);
-                        setReady(true);
-                    })
-                    .catch((error) => {
-                        console.error(error);
-                    });
-            }, 15000);
+            api("get", url)
+                .then((response: unknown) => {
+                    const typedResponse = response as ApiResponse;
+                    setDataJson(typedResponse);
+                    setTotalTable(typedResponse.total);
+                    setReady(true);
+                    if (!isPolling) {
+                        hasInitialLoadRef.current = true;
+                    }
+                })
+                .catch((error) => {
+                    console.error(error);
+                    // Don't set ready to false on error, keep showing existing data
+                })
+                .finally(() => {
+                    isLoadingRef.current = false;
+                });
         }
-    }, [isConnected, blockNumber, address]);
+    }, [isConnected, blockNumber, address, current, pageSize]);
     // #section Operation detail custom expand function
     const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
 
@@ -245,28 +252,53 @@ export default function LastOperations(props: LastOperationsProps) {
             hidden: false,
         },
     ].filter((item) => !item.hidden);
+    // Initial load - immediate, no delay
     useEffect(() => {
-        const interval = setInterval(() => {
-            transactionsList();
-        }, 20000);
+        if (isConnected && blockNumber && address && !hasInitialLoadRef.current) {
+            fetchTransactions(false);
+        }
+    }, [isConnected, blockNumber, address, fetchTransactions]);
 
-        return () => {
-            clearInterval(interval);
-            // Clear timeout on cleanup to prevent memory leaks
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
+    // Polling - only after initial load, with interval
+    useEffect(() => {
+        if (!isConnected || !blockNumber || !address) {
+            return;
+        }
+
+        let intervalId: NodeJS.Timeout | null = null;
+        let checkTimeoutId: NodeJS.Timeout | null = null;
+
+        // Wait for initial load before starting polling
+        const startPolling = () => {
+            if (hasInitialLoadRef.current) {
+                // Poll every 20 seconds
+                intervalId = setInterval(() => {
+                    fetchTransactions(true);
+                }, 20000);
+            } else {
+                // Check again after a short delay if initial load hasn't happened
+                checkTimeoutId = setTimeout(startPolling, 100);
             }
         };
-    }, [transactionsList]);
 
+        checkTimeoutId = setTimeout(startPolling, 100);
+        
+        return () => {
+            if (checkTimeoutId) clearTimeout(checkTimeoutId);
+            if (intervalId) clearInterval(intervalId);
+        };
+    }, [isConnected, blockNumber, address, fetchTransactions]);
+
+    // Reload when page or pageSize changes
     useEffect(() => {
-        transactionsList();
-    }, [transactionsList]);
+        if (isConnected && blockNumber && address && hasInitialLoadRef.current) {
+            fetchTransactions(false);
+        }
+    }, [current, pageSize, isConnected, blockNumber, address, fetchTransactions]);
+
     const onChange = (page: number) => {
         if (isConnected) {
             setCurrent(page);
-            data_row();
-            transactionsList();
         }
     };
 
@@ -530,10 +562,13 @@ export default function LastOperations(props: LastOperationsProps) {
                 return String(error);
         }
     };
-    const data_row = () => {
+    // Memoize the processed table data to avoid recalculating on every render
+    const processedData = useMemo(() => {
         /*******************************sort descending by block number and then by operID***********************************/
+        // Create a copy to avoid mutating the original array
+        let sortedOperations: OperationData[] = [];
         if (dataJson.operations !== undefined) {
-            dataJson.operations.sort((a, b) => {
+            sortedOperations = [...dataJson.operations].sort((a, b) => {
                 if (a.blockNumber !== b.blockNumber) {
                     return (b.blockNumber || 0) - (a.blockNumber || 0);
                 }
@@ -550,15 +585,12 @@ export default function LastOperations(props: LastOperationsProps) {
             });
         }
         /*******************************filter by type (token)***********************************/
-        let pre_datas: OperationData[] = [];
-        if (dataJson.operations !== undefined) {
-            pre_datas = dataJson.operations.filter((data_j) => {
-                return token !== "all" ? data_j.tokenInvolved === token : true;
-            });
-        }
-        txList = pre_datas;
-        data = [];
-        txList.forEach((data) => {
+        const pre_datas: OperationData[] = sortedOperations.filter((data_j) => {
+            return token !== "all" ? data_j.tokenInvolved === token : true;
+        });
+        
+        const received_row: TableRowData[] = [];
+        pre_datas.forEach((data) => {
             const token = tokenExchange(data);
             if (!token) return;
 
@@ -783,6 +815,7 @@ export default function LastOperations(props: LastOperationsProps) {
             } as TableRowData);
         });
 
+        const data: TableRowData[] = [];
         received_row.forEach((element) => {
             data.push({
                 renderRow: (
@@ -832,10 +865,11 @@ export default function LastOperations(props: LastOperationsProps) {
                 ),
             } as TableRowData);
         });
-    };
-
-    data_row();
-    const tableColumns = (columns || []).map((item) => ({ ...item }));
+        
+        return data;
+    }, [dataJson.operations, token, i18n.language, t, expandedKeys, address, blockNumber]);
+    
+    const tableColumns = useMemo(() => (columns || []).map((item) => ({ ...item })), [columns]);
     /*useEffect(() => {
         setTimeout(() => setLoadingSke(false), timeSke);
     }, [auth]);*/
@@ -1130,7 +1164,7 @@ export default function LastOperations(props: LastOperationsProps) {
                     </Modal>
                 )}
             </div>
-            {ready ? (
+            {ready || processedData.length > 0 ? (
                 <>
                     <Table
                         className={
@@ -1166,9 +1200,10 @@ export default function LastOperations(props: LastOperationsProps) {
                             },
                         }}
                         columns={tableColumns}
-                        dataSource={isConnected == true ? data : undefined}
+                        dataSource={isConnected == true ? processedData : undefined}
                         scroll={{ y: lastOperationsHeight }}
                         style={{}}
+                        loading={!ready && processedData.length === 0}
                     />
                 </>
             ) : (
