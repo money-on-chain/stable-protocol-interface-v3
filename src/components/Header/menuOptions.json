@@ -33,7 +33,7 @@
         "nameKey": "menuOptions.vesting",
         "className": "logo-vesting",
         "path": "/vesting",
-        "allowedProjects": ["flipmoney", "moc", "voting"]
+        "allowedProjects": ["moc", "voting"]
     },
     {
         "nameKey": "menuOptions.liquidityMining",

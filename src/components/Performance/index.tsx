@@ -14,7 +14,7 @@ export default function Performance(): JSX.Element {
     const space = "\u00A0";
     const [statusLabel, setStatusLabel] = useState<string>("--");
     const [statusText, setStatusText] = useState<string>("--");
-    const [statusLabelClass, setStatusLabelClass] = useState<string>("");
+    const [statusLabelClass, setStatusLabelClass] = useState<string>("status-neutral");
     const [statusCode, setStatusCode] = useState<number[]>([]);
     const [showGlobalStatusModal, setShowGlobalStatusModal] =
         useState<boolean>(false);

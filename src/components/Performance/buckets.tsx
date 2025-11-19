@@ -62,20 +62,17 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                     </div>
                     <div className="info">
                         <div className="amount">
-                            {!contractProtocolStatus.data?.canOperate
-                                ? "--"
-                                : PrecisionNumbers({
-                                      amount: contractProtocolStatus.data && contractProtocolStatus.data[caIndex]
-                                          ? contractProtocolStatus.data[caIndex]
-                                                .getACBalance
-                                          : 0n,
+                            {contractProtocolStatus.data?.[caIndex]?.getACBalance
+                                ? PrecisionNumbers({
+                                      amount: contractProtocolStatus.data[caIndex].getACBalance,
                                       token: TokenSettings(`CA_${caIndex}`),
                                       decimals:
                                           (settings.tokens.CA as TokenConfig[])[
                                               caIndex
                                           ]?.visibleDecimals || 6,
                                       i18n: i18n,
-                                  })}
+                                  })
+                                : "--"}
                         </div>
                         <div className="label">Amount in protocol</div>
                     </div>
@@ -86,17 +83,14 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                     </div>
                     <div className="info">
                         <div className="amount">
-                            {!contractProtocolStatus.data?.canOperate
-                                ? "--"
-                                : PrecisionNumbers({
-                                      amount: contractProtocolStatus.data && contractProtocolStatus.data[caIndex]
-                                          ? contractProtocolStatus.data[caIndex]
-                                                .getCglb
-                                          : 0n,
+                            {contractProtocolStatus.data?.[caIndex]?.getCglb
+                                ? PrecisionNumbers({
+                                      amount: contractProtocolStatus.data[caIndex].getCglb,
                                       token: settings.tokens.CA[caIndex],
                                       decimals: 4,
                                       i18n: i18n,
-                                  })}
+                                  })
+                                : "--"}
                         </div>
                         <div className="label">Coverage</div>
                     </div>
@@ -107,17 +101,14 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                     </div>
                     <div className="info">
                         <div className="amount">
-                            {!contractProtocolStatus.data?.canOperate
-                                ? "--"
-                                : PrecisionNumbers({
-                                      amount: contractProtocolStatus.data && contractProtocolStatus.data[caIndex]
-                                          ? contractProtocolStatus.data[caIndex]
-                                                .getCtargemaCA
-                                          : 0n,
+                            {contractProtocolStatus.data?.[caIndex]?.getCtargemaCA
+                                ? PrecisionNumbers({
+                                      amount: contractProtocolStatus.data[caIndex].getCtargemaCA,
                                       token: TokenSettings(`CA_${caIndex}`),
                                       decimals: 4,
                                       i18n: i18n,
-                                  })}
+                                  })
+                                : "--"}
                         </div>
                         <div className="label">Target Coverage Adjusted</div>
                     </div>
@@ -128,16 +119,14 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                     </div>
                     <div className="info">
                         <div className="amount">
-                            {!contractProtocolStatus.data?.canOperate
-                                ? "--"
-                                : PrecisionNumbers({
-                                      amount: contractProtocolStatus.data && contractProtocolStatus.data[caIndex]
-                                          ? leverage
-                                          : 0n,
+                            { leverage !== 0n
+                                ? PrecisionNumbers({
+                                      amount: leverage,
                                       token: TokenSettings(`CA_${caIndex}`),
                                       decimals: 4,
                                       i18n: i18n,
-                                  })}
+                                  })
+                                : "--"}
                         </div>
                         <div className="label">Leverage</div>
                     </div>
@@ -148,19 +137,17 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                     </div>
                     <div className="info">
                         <div className="amount">
-                            {!contractProtocolStatus.data?.canOperate
-                                ? "--"
-                                : PrecisionNumbers({
-                                      amount: contractProtocolStatus.data && contractProtocolStatus.data[caIndex]
-                                          ? lckAC
-                                          : 0n,
+                            { lckAC !== 0n
+                                ? PrecisionNumbers({
+                                      amount: lckAC,
                                       token: TokenSettings(`CA_${caIndex}`),
                                       decimals:
                                           (settings.tokens.CA as TokenConfig[])[
                                               caIndex
                                           ]?.visibleDecimals || 6,
                                       i18n: i18n,
-                                  })}
+                                  })
+                                : "--"}
                         </div>
                         <div className="label">Locked Collateral</div>
                     </div>
