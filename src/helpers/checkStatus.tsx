@@ -33,14 +33,6 @@ function CheckStatusCA(
 
     if (!caData) return statusCode;
 
-    if (
-        !caData.getCglb ||
-        !caData.getCtargemaCA ||
-        caData.liqThrld ||
-        caData.protThrld
-    )
-        return statusCode;
-
     const globalCoverage = caData.getCglb;
     const getCtargemaCA = caData.getCtargemaCA;
     const liqThrld = caData.liqThrld;
@@ -52,7 +44,7 @@ function CheckStatusCA(
         statusCode = 1;
     } else if (globalCoverage > liqThrld && globalCoverage <= protThrld) {
         statusCode = 2;
-    } else {
+    } else if (globalCoverage <= liqThrld) {
         statusCode = 3;
     }
 
@@ -68,7 +60,7 @@ function CheckStatusCA(
     if (canOperate === false) {
         statusCode = 5;
     }
-
+    
     return statusCode;
 }
 
@@ -78,7 +70,7 @@ function CheckStatusGlobal() {
 
     const checkerStatus = (): StatusResult => {
         let statusLabel: string = "--";
-        let statusLabelClass: string = "";
+        let statusLabelClass: string = "status-neutral";
         let statusText: string = "--";
 
         const statusCode: number[] = [];
