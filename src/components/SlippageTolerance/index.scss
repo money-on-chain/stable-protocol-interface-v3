@@ -1,0 +1,140 @@
+.slippage-tolerance {
+    // Layout & container styles go here
+    padding: 8px 32px;
+    border: 1px solid var(--dividers);
+    border-radius: var(--card-border-radius);
+    width: 100%;
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: white;
+        font-size: 16px;
+    }
+
+    &__label {
+        // Typography for label
+    }
+
+    &__pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+
+        &--mode-auto {
+            // Styles when the current mode is "auto"
+            background-color: purple;
+        }
+
+        &--mode-custom {
+            // Styles when the current mode is "custom"
+            background-color: yellow;
+        }
+    }
+
+    &__pill-mode {
+        // Mode text styles
+        background-color: pink;
+    }
+
+    &__pill-separator {
+        // Separator dot styles
+        background-color: orange;
+    }
+
+    &__pill-value {
+        // Value text styles
+        background-color: green;
+    }
+
+    &__pill-icon {
+        // Icon styles
+    }
+
+    &__panel {
+        margin-top: 0.75rem;
+        // Panel background, padding, etc.
+        // background-color: cyan;
+    }
+
+    &__options {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        // Container for all option buttons and custom input
+    }
+
+    &__option {
+        border: 1px solid var(--color-btn-tertiary-txt-default);
+        border-radius: 4px;
+        // Base button styles for Auto / presets
+        background-color: var(--color-btn-tertiary-background-default);
+        padding: 2px 4px;
+        color: var(--color-btn-tertiary-txt-default);
+        font-weight: 600;
+
+        &--active {
+            // Active state styles
+            background-color: fuchsia;
+        }
+
+        &--auto {
+            // Specific styles for the Auto button if needed
+        }
+
+        &--preset {
+            // Specific styles for preset buttons if needed
+        }
+    }
+
+    &__custom {
+        margin-left: auto;
+        // Push custom input group to the right if desired
+    }
+
+    &__input-group {
+        display: inline-flex;
+        position: relative;
+        align-items: center;
+    }
+
+    &__input {
+        // Input styles
+        padding-right: 2.5rem; // Space for suffix and check button
+        // text-align: right;
+        border: 1px solid var(--color-btn-tertiary-txt-default);
+        border-radius: 4px;
+        background-color: var(--color-btn-tertiary-background-default);
+        padding: 2px 4px;
+        color: var(--color-btn-tertiary-txt-default);
+        font-weight: 600;
+    }
+
+    &__input-suffix {
+        position: absolute;
+        right: 2rem;
+        color: var(--color-btn-tertiary-txt-default);
+
+        // Align the "%" suffix inside the input group
+    }
+
+    &__confirm {
+        // Styles for the integrated "check / set" button
+        background-color: red;
+    }
+
+    &--disabled {
+        // Disabled styles for the whole component
+    }
+
+    &--expanded {
+        // Optional styles when panel is expanded
+    }
+
+    &--collapsed {
+        // Optional styles when panel is collapsed
+    }
+}

@@ -1381,6 +1381,21 @@ h2 {
         color: var(--color-txt-secondary);
     }
 }
+.tx-slippage-container {
+    display: flex;
+    flex-direction: column;
+    color: var(--color-txt-primary);
+    margin-top: 16px;
+    // gap: 8px;
+    font-weight: 600;
+    .tx-slippage-label {
+        display: flex;
+    }
+    .tx-slippage-text {
+        color: var(--color-txt-secondary);
+        font-size: 11px;
+    }
+}
 .tx-id-container {
     // Transaction ID link container in cased some extra information is addded in the future
     display: flex;
