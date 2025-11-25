@@ -30,6 +30,7 @@
         "lint": "eslint . --max-warnings 0",
         "lint:fix": "eslint . --fix",
         "typecheck": "tsc --noEmit",
+        "dev:from-env": "bash ./prepare_target.sh $REACT_APP_ENVIRONMENT_APP_PROJECT && export REACT_APP_VERSION=$npm_package_version && vite",
         "format": "prettier \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml,css,scss,html}\" --write",
         "format:check": "prettier \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml,css,scss,html}\" --check",
         "reload:flipmoney-alpha-testnet": "export REACT_APP_VERSION=$npm_package_version && env-cmd -f .env.flipmoneyAlphaTestnet vite",
