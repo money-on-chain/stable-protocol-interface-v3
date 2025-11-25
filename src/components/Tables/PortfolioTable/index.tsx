@@ -138,17 +138,12 @@ export default function PortfolioTable() {
 
                     balance = BigInt(userBaseCoinBalance.balance || 0);
 
-                    price =
-                        normalizeToBigInt(
-                            contractProtocolStatus.data.PP_COINBASE?.[0]
-                        ) || 0n;
+                    price = contractProtocolStatus.data.PP_COINBASE?.[0] || 0n;
                     balanceUSD = mulPrecision(balance, price);
 
                     // variation No more historic data
                     priceHistory =
-                        normalizeToBigInt(
-                            contractProtocolStatus.data.PP_COINBASE?.[0]
-                        ) || 0n;
+                        contractProtocolStatus.data.PP_COINBASE?.[0] || 0n;
                     priceDelta = price - priceHistory;
                     // Prevent division by zero - if priceHistory is 0, set variation to 0
                     variation =
@@ -177,19 +172,15 @@ export default function PortfolioTable() {
                                 userBalance.data?.CA?.[token.key || 0]?.balance
                             ) || 0n;
                         price =
-                            normalizeToBigInt(
-                                contractProtocolStatus.data?.[token.key || 0]
-                                    ?.PP_CA?.[0]
-                            ) || 0n;
+                            contractProtocolStatus.data?.[token.key || 0]
+                                ?.PP_CA?.[0] || 0n;
 
                         balanceUSD = mulPrecision(balance, price);
 
                         // variation No more historic data
                         priceHistory =
-                            normalizeToBigInt(
-                                contractProtocolStatus.data[token.key || 0]
-                                    ?.PP_CA?.[0]
-                            ) || 0n;
+                            contractProtocolStatus.data[token.key || 0]
+                                ?.PP_CA?.[0] || 0n;
                         priceDelta = price - priceHistory;
                         // Prevent division by zero - if priceHistory is 0, set variation to 0
                         variation =
@@ -240,11 +231,9 @@ export default function PortfolioTable() {
                                     ?.balance
                             ) || 0n;
                         price =
-                            normalizeToBigInt(
-                                contractProtocolStatus.data[0]?.PP_TP?.[
-                                    token.key || 0
-                                ]?.[0]
-                            ) || 0n;
+                            contractProtocolStatus.data[0]?.PP_TP?.[
+                                token.key || 0
+                            ]?.[0] || 0n;
                         price = ConvertPeggedTokenPrice(
                             contractProtocolStatus,
                             0,
@@ -305,11 +294,9 @@ export default function PortfolioTable() {
                             contractProtocolStatus.data?.[token.key || 0]
                                 ?.getPTCac
                         ) || 0n;
-                    priceCA =
-                        normalizeToBigInt(
-                            contractProtocolStatus.data?.[token.key || 0]
+                    priceCA = contractProtocolStatus.data?.[token.key || 0]
                                 ?.PP_CA?.[0]
-                        ) || 0n;
+                         || 0n;
                     price = mulPrecision(priceTEC, priceCA);
                     balanceUSD = mulPrecision(balance, price);
 
@@ -335,15 +322,11 @@ export default function PortfolioTable() {
 
                     // RAW price for balance and variation calculation
                     price =
-                        normalizeToBigInt(
-                            contractProtocolStatus.data[0]?.PP_FeeToken?.[0]
-                        ) || 0n;
+                        contractProtocolStatus.data[0]?.PP_FeeToken?.[0] || 0n;
 
                     priceCA =
-                        normalizeToBigInt(
-                            contractProtocolStatus.data[token.key || 0]
-                                ?.PP_CA?.[0]
-                        ) || 0n;
+                        contractProtocolStatus.data[token.key || 0]
+                            ?.PP_CA?.[0] || 0n;
                     balanceUSD = divPrecision(
                         mulPrecision(balance, price),
                         priceCA
@@ -351,9 +334,7 @@ export default function PortfolioTable() {
 
                     // variation
                     priceHistory =
-                        normalizeToBigInt(
-                            contractProtocolStatus.data[0]?.PP_FeeToken?.[0]
-                        ) || 0n;
+                        contractProtocolStatus.data[0]?.PP_FeeToken?.[0] || 0n;
                     priceDelta = price - priceHistory;
                     // Prevent division by zero - if priceHistory is 0, set variation to 0
                     variation =

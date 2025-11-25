@@ -45,16 +45,14 @@ export default function TVL(): JSX.Element {
 
             <div className="card-content">
                 <div className="big-number">
-                    {!contractProtocolStatus.data?.canOperate
-                        ? "--"
-                        : PrecisionNumbers({
-                              amount: collateralTotalInUSD
-                                  ? collateralTotalInUSD
-                                  : 0n,
-                              token: TokenSettings("CA_0"),
-                              decimals: 2,
-                              i18n: i18n,
-                          })}
+                    {PrecisionNumbers({
+                        amount: collateralTotalInUSD
+                            ? collateralTotalInUSD
+                            : 0n,
+                        token: TokenSettings("CA_0"),
+                        decimals: 2,
+                        i18n: i18n,
+                    })}
                 </div>
                 <div className="caption">
                     {t("performance.tvl.expressedIn")}

@@ -22,7 +22,6 @@ function CheckStatusCA(
      2: Protected Mode - globalCoverage > liqThrld && globalCoverage <= protThrld
      3: Liquidated or in process of liquidation - contractStatusData[caIndex].liquidated
      4: Paused - contractStatusData[caIndex].paused
-     5: Can't operate - !contractStatusData.canOperate
     */
 
     let statusCode: number = -1;
@@ -56,11 +55,6 @@ function CheckStatusCA(
         statusCode = 4;
     }
 
-    const canOperate = contractProtocolStatus.data.canOperate;
-    if (canOperate === false) {
-        statusCode = 5;
-    }
-    
     return statusCode;
 }
 

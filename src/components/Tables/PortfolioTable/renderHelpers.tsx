@@ -70,7 +70,7 @@ export const generateTokenRow = ({
                 </div>
                 {/* Token price */}
                 <div className="table__cell table__cell__price">
-                    {contractProtocolStatus.data?.canOperate ? (
+                    {price ? (
                         <PrecisionNumbers
                             amount={price}
                             token={{
@@ -90,7 +90,7 @@ export const generateTokenRow = ({
                 {/* Token 24h variation */}
                 {settings.showPriceVariation && (
                     <div className="table__cell">
-                        {contractProtocolStatus.data?.canOperate ? (
+                        {variation !== 0n ? (
                             <div className="table__cell__variation">
                                 {`${getSign()} `}
                                 <PrecisionNumbers
@@ -146,7 +146,7 @@ export const generateTokenRow = ({
                 </div>
                 {/* Token balance in USD */}
                 <div className="table__cell table__cell__usdBalance">
-                    {contractProtocolStatus.data?.canOperate ? (
+                    {balanceUSD ? (
                         <PrecisionNumbers
                             amount={balanceUSD}
                             token={{

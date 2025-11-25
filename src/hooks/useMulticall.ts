@@ -168,7 +168,6 @@ export function useMultiCall(
 
     // Step 3: Structure result into a nested dictionary, with optional transforms
     let storage: Record<string | number, unknown> | undefined = {};
-    let canOperate = true;
 
     // Handle different result states
     if (!results || results.length === 0) {
@@ -215,7 +214,6 @@ export function useMultiCall(
             if (onError) {
                 const fallback = onError();
                 value = fallback.value;
-                canOperate = fallback.canOperate;
             } else {
                 switch (resultType) {
                     case "uint256":
@@ -231,7 +229,6 @@ export function useMultiCall(
                     default:
                         value = null;
                 }
-                canOperate = false;
                 console.warn(
                     `Multicall failed for keys [${keys.join(".")}] at index ${i}`
                 );
@@ -244,14 +241,9 @@ export function useMultiCall(
     });
 
     // Set canOperate flag and handle empty results
-    if (results && results.length > 0) {
-        storage["canOperate"] = canOperate;
-    } else if (calls.length > 0) {
+    if (calls.length === 0) {
         // We have calls but no results yet - return undefined to indicate loading
         storage = undefined;
-    } else {
-        // No calls at all - return empty object
-        storage = { canOperate: true };
     }
 
     // merge with external data
@@ -261,6 +253,11 @@ export function useMultiCall(
             storage,
             memoizedExternalData as Record<string | number, unknown>
         );
+
+        if (storage.length === 0) {
+            // We have calls but no results yet - return undefined to indicate loading
+            storage = undefined;
+        }
     }
 
     return {

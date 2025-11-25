@@ -31,7 +31,6 @@ export async function runMulticallSync(
     calls: SyncMulticallInput[]
 ): Promise<{
     data: Record<string | number, unknown> | undefined;
-    canOperate: boolean;
 }> {
     const contracts = calls.map(({ contract, functionName, args }) => ({
         address: contract.address,
@@ -46,7 +45,6 @@ export async function runMulticallSync(
     });
 
     const storage: Record<string | number, unknown> = {};
-    let canOperate = true;
 
     results.forEach((item, i) => {
         const { resultType, keys, transform, onError } = calls[i];
@@ -68,7 +66,6 @@ export async function runMulticallSync(
             if (onError) {
                 const fallback = onError();
                 value = fallback.value;
-                canOperate = fallback.canOperate;
             } else {
                 switch (resultType) {
                     case "uint256":
@@ -84,7 +81,6 @@ export async function runMulticallSync(
                     default:
                         value = null;
                 }
-                canOperate = false;
                 console.warn(`Multicall failed for keys [${keys.join(".")}]`);
             }
         }
@@ -95,11 +91,10 @@ export async function runMulticallSync(
     let finalStorage: Record<string | number, unknown> | undefined;
 
     if (results && results.length > 0) {
-        storage["canOperate"] = canOperate;
         finalStorage = storage;
     } else {
         finalStorage = undefined;
     }
 
-    return { data: finalStorage, canOperate };
+    return { data: finalStorage };
 }

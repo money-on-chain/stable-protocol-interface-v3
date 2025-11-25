@@ -19,7 +19,7 @@ const onErrorProposal = (): MultiCallErrorResult => {
         console.warn("Proposal not exist");
         lastProposalErrorLog = now;
     }*/
-    return { value: null, canOperate: true };
+    return { value: null };
 };
 
 const onErrorVotingPower = (): MultiCallErrorResult => {
@@ -30,7 +30,7 @@ const onErrorVotingPower = (): MultiCallErrorResult => {
         );
         lastVotingPowerErrorLog = now;
     }
-    return { value: 0n, canOperate: true };
+    return { value: 0n };
 };
 
 /**
