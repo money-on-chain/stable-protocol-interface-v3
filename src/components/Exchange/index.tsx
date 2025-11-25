@@ -3,6 +3,7 @@ import { Radio, Space } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
 
 import { getExecutionFee } from "../../backend/utils";
+import { SlippageTolerance } from "../../components/SlippageTolerance";
 import { useWalletContext } from "../../context/Wallet";
 import { CheckStatusGlobal } from "../../helpers/checkStatus";
 import {
@@ -31,7 +32,6 @@ import CurrencyPopUp from "../CurrencyPopUp";
 import InputAmount from "../InputAmount/";
 import ModalConfirmOperation from "../Modals/ConfirmOperation";
 import { PrecisionNumbers } from "../PrecisionNumbers";
-
 // Type definitions
 interface CommissionInfo {
     fee: bigint;
@@ -44,6 +44,7 @@ interface CommissionInfo {
 
 export default function Exchange(): JSX.Element {
     const { t, i18n, ns } = useProjectTranslation();
+    const space: string = "\u00A0";
 
     const { contractProtocolStatus, userBalance, publicClient } =
         useWalletContext();
@@ -887,9 +888,23 @@ export default function Exchange(): JSX.Element {
                                 {t("fees.disclaimer1")} <br />
                                 {t("fees.disclaimer2")}
                             </div>
+                            <div className="tx-slippage-container">
+                                {/* <div className="divider-horizontal"></div> */}
+                                <div className="tx-slippage-label">
+                                    Slippage tolerance: {space}
+                                    <div className="tx-slippage-value">
+                                        VALUE
+                                    </div>
+                                </div>
+                                <div className="tx-slippage-text">
+                                    Slippage tolerance can be adjusted during
+                                    the next confirmation step
+                                </div>
+                            </div>
+                            <SlippageTolerance />
                         </div>
                     </div>
-                </div>{" "}
+                </div>
             </div>
             <div className="cta-container">
                 <div className="cta-info-group">
