@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Icon/Edit</title>
+    <g id="Icon/Edit" stroke="none" fill="none" fill-rule="nonzero">
+        <rect id="Area" x="0" y="0" width="24" height="24"></rect>
+        <g id="Group" stroke-width="1" fill-rule="evenodd" transform="translate(0, -1)" fill="#101214">
+            <path d="M12,12.25 C12.6904,12.25 13.25,11.6904 13.25,11 C13.25,10.3096 12.6904,9.75 12,9.75 C11.3096,9.75 10.75,10.3096 10.75,11 C10.75,11.6904 11.3096,12.25 12,12.25 Z" id="Path"></path>
+            <path d="M7.25,12.25 C7.94036,12.25 8.5,11.6904 8.5,11 C8.5,10.3096 7.94036,9.75 7.25,9.75 C6.55964,9.75 6,10.3096 6,11 C6,11.6904 6.55964,12.25 7.25,12.25 Z" id="Path"></path>
+            <path d="M1,7 C1,5.34315 2.34315,4 4,4 L20,4 C21.6569,4 23,5.34315 23,7 L23,9 L21,9 L21,7 C21,6.44772 20.5523,6 20,6 L4,6 C3.44772,6 3,6.44772 3,7 L3,15 C3,15.5523 3.44772,16 4,16 L11,16 L11,18 L4,18 C2.34315,18 1,16.6569 1,15 L1,7 Z" id="Path"></path>
+            <path d="M16,21 L22.5,14.5 C23.3284,13.6716 23.3284,12.3284 22.5,11.5 C21.6716,10.6716 20.3284,10.6716 19.5,11.5 L13,18 L13,21 L16,21 Z" id="Path"></path>
+        </g>
+    </g>
+</svg>

@@ -29,6 +29,12 @@ export interface SlippageToleranceProps {
     /** Called whenever the slippage state changes */
     onChange?: (next: SlippageState) => void;
 
+    /** Notifies about interaction state: pending custom value and validity */
+    onInteractionChange?: (state: {
+        hasPendingCustom: boolean;
+        isValid: boolean;
+    }) => void;
+
     /** Disables all interactions */
     disabled?: boolean;
 
@@ -38,6 +44,9 @@ export interface SlippageToleranceProps {
 const DEFAULT_AUTO_SLIPPAGE = 0.5;
 const DEFAULT_PRESETS = [0.1, 0.5, 1.0];
 
+const MIN_CUSTOM_SLIPPAGE = 0; // 0%
+const MAX_CUSTOM_SLIPPAGE = 100; // 100%
+
 export const SlippageTolerance: React.FC<SlippageToleranceProps> = ({
     pairId,
     state,
@@ -45,6 +54,7 @@ export const SlippageTolerance: React.FC<SlippageToleranceProps> = ({
     autoDefault,
     presets,
     onChange,
+    onInteractionChange,
     disabled,
     className,
 }) => {
@@ -71,11 +81,34 @@ export const SlippageTolerance: React.FC<SlippageToleranceProps> = ({
     });
 
     const currentState = isControlled ? state : internalState;
+    const [validationError, setValidationError] = useState<string | null>(null);
 
     // Expanded / collapsed panel
     const [isExpanded, setIsExpanded] = useState<boolean>(() => {
         return currentState.mode === "custom";
     });
+
+    const validateCustomInput = (rawValue: string): string | null => {
+        const trimmed = rawValue.trim();
+        if (trimmed === "") {
+            return null; // no value yet, no error
+        }
+
+        const parsed = parseFloat(trimmed.replace(",", "."));
+        if (Number.isNaN(parsed)) {
+            return "Please enter a valid number.";
+        }
+
+        if (parsed < MIN_CUSTOM_SLIPPAGE) {
+            return `Slippage cannot be lower than ${MIN_CUSTOM_SLIPPAGE}%.`;
+        }
+
+        if (parsed > MAX_CUSTOM_SLIPPAGE) {
+            return `Slippage cannot be higher than ${MAX_CUSTOM_SLIPPAGE}%.`;
+        }
+
+        return null;
+    };
 
     // String value used for the custom input
     const [customInput, setCustomInput] = useState<string>(() =>
@@ -111,6 +144,9 @@ export const SlippageTolerance: React.FC<SlippageToleranceProps> = ({
 
     const handleSelectAuto = () => {
         if (disabled) return;
+        // Selecting Auto should clear any pending custom state
+        setCustomInput("");
+        setValidationError(null);
         const next: SlippageState = {
             mode: "auto",
             value: resolvedAutoDefault,
@@ -120,6 +156,9 @@ export const SlippageTolerance: React.FC<SlippageToleranceProps> = ({
 
     const handleSelectPreset = (preset: number) => {
         if (disabled) return;
+        // Selecting a preset should clear any pending custom state
+        setCustomInput("");
+        setValidationError(null);
         const next: SlippageState = { mode: "custom", value: preset };
         emitChange(next, true);
     };
@@ -127,18 +166,21 @@ export const SlippageTolerance: React.FC<SlippageToleranceProps> = ({
     const handleCustomInputChange = (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
-        setCustomInput(event.target.value);
+        const rawValue = event.target.value;
+        setCustomInput(rawValue);
+        setValidationError(validateCustomInput(rawValue));
     };
 
     const handleConfirmCustom = () => {
         if (disabled) return;
-        const parsed = parseFloat(customInput.replace(",", "."));
 
-        if (Number.isNaN(parsed) || parsed < 0) {
-            // You might want to add proper validation feedback here
+        const error = validateCustomInput(customInput);
+        if (error) {
+            setValidationError(error);
             return;
         }
 
+        const parsed = parseFloat(customInput.replace(",", "."));
         const next: SlippageState = { mode: "custom", value: parsed };
         emitChange(next, true);
     };
@@ -159,6 +201,36 @@ export const SlippageTolerance: React.FC<SlippageToleranceProps> = ({
 
     const pillModeLabel = currentState.mode === "auto" ? "Auto" : "Custom";
     const pillValueLabel = formatPercentage(currentState.value);
+    const isCustomActive = currentState.mode === "custom";
+
+    // Derived interaction state: pending custom vs confirmed value
+    const trimmedCustom = customInput.trim();
+
+    const parsedCustom =
+        trimmedCustom === ""
+            ? null
+            : parseFloat(trimmedCustom.replace(",", "."));
+
+    const hasPendingCustom =
+        trimmedCustom !== "" &&
+        parsedCustom !== null &&
+        !Number.isNaN(parsedCustom) &&
+        // If mode is auto, any non-empty value is pending.
+        // If mode is custom, pending when input differs from current confirmed value.
+        (currentState.mode !== "custom" || parsedCustom !== currentState.value);
+
+    const hasError = Boolean(validationError);
+    const isValid = !hasError && !hasPendingCustom;
+
+    // Notify parent about interaction state so it can, for example,
+    // disable the outer "Confirm" button while there is a pending custom value.
+    useEffect(() => {
+        if (!onInteractionChange) return;
+        onInteractionChange({
+            hasPendingCustom,
+            isValid,
+        });
+    }, [hasPendingCustom, isValid, onInteractionChange]);
 
     const rootClassName = [
         "slippage-tolerance",
@@ -166,6 +238,8 @@ export const SlippageTolerance: React.FC<SlippageToleranceProps> = ({
             ? "slippage-tolerance--expanded"
             : "slippage-tolerance--collapsed",
         disabled ? "slippage-tolerance--disabled" : "",
+        isCustomActive ? "slippage-tolerance--custom-active" : "",
+        hasError ? "slippage-tolerance--error" : "",
         className ?? "",
     ]
         .filter(Boolean)
@@ -175,32 +249,23 @@ export const SlippageTolerance: React.FC<SlippageToleranceProps> = ({
         <div className={rootClassName} data-pair-id={pairId}>
             <div className="slippage-tolerance__header">
                 <div className="slippage-tolerance__label">
-                    Slippage Tolerance
-                </div>
-
-                <button
-                    type="button"
-                    className={`slippage-tolerance__pill slippage-tolerance__pill--mode-${currentState.mode}`}
-                    onClick={toggleExpanded}
-                    disabled={disabled}
-                >
-                    <span className="slippage-tolerance__pill-mode">
-                        {pillModeLabel}
-                    </span>
-                    <span className="slippage-tolerance__pill-separator">
-                        ·
-                    </span>
-                    <span className="slippage-tolerance__pill-value">
-                        {pillValueLabel}
-                    </span>
-                    <span
-                        className="slippage-tolerance__pill-icon"
-                        aria-hidden="true"
+                    Slippage Tolerance:
+                    <button
+                        type="button"
+                        className={`slippage-tolerance__pill slippage-tolerance__pill--mode-${currentState.mode}`}
+                        onClick={toggleExpanded}
+                        disabled={disabled}
                     >
-                        {/* You can replace this with an actual icon */}
-                        ✏️
-                    </span>
-                </button>
+                        <div className="slippage-tolerance__pill-mode">
+                            {pillModeLabel}
+                        </div>
+                        {/* <div className="slippage-tolerance__pill-separator"></div> */}
+                        <div className="slippage-tolerance__pill-value">
+                            {pillValueLabel}
+                        </div>
+                        <div className="icon-edit-value slippage-tolerance__pill-icon"></div>
+                    </button>
+                </div>
             </div>
 
             {isExpanded && (
@@ -254,23 +319,30 @@ export const SlippageTolerance: React.FC<SlippageToleranceProps> = ({
                                     placeholder="Custom"
                                     disabled={disabled}
                                 />
-                                <span className="slippage-tolerance__input-suffix">
+                                <div className="slippage-tolerance__input-suffix">
                                     %
-                                </span>
+                                </div>
                                 <button
                                     type="button"
                                     className="slippage-tolerance__confirm"
                                     onClick={handleConfirmCustom}
                                     disabled={
-                                        disabled || customInput.trim() === ""
+                                        disabled ||
+                                        customInput.trim() === "" ||
+                                        Boolean(validationError)
                                     }
                                     aria-label="Set custom slippage"
                                 >
-                                    ✓
+                                    <div className="icon-accept slippage-tolerance__accept"></div>
                                 </button>
                             </div>
                         </div>
                     </div>
+                    {validationError && (
+                        <div className="slippage-tolerance__feedback">
+                            {validationError}
+                        </div>
+                    )}
                 </div>
             )}
         </div>

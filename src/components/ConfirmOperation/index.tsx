@@ -3,6 +3,7 @@ import type { AxiosError } from "axios";
 import axios from "axios";
 import React, { useCallback, useEffect, useState } from "react";
 import type { TransactionReceipt } from "viem";
+import { SlippageTolerance } from "../../components/SlippageTolerance";
 
 import { decodeEvents } from "../../backend/transaction";
 import { useWalletContext } from "../../context/Wallet";
@@ -142,6 +143,13 @@ export default function ConfirmOperation(
     const [toleranceError, setToleranceError] = useState<string>("");
     const [amountChanged, setAmountChanged] = useState<boolean>(false);
 
+    const [slippageUiState, setSlippageUiState] = useState<{
+        hasPendingCustom: boolean;
+        isValid: boolean;
+    }>({
+        hasPendingCustom: false,
+        isValid: true,
+    });
     const IS_MINT: boolean = isMintOperation(
         currencyYouExchange,
         currencyYouReceive
@@ -778,50 +786,21 @@ export default function ConfirmOperation(
                     {t("fees.disclaimer2")}
                 </div>
             </div>
-            <div className="divider-horizontal"></div>
+            {/* <div className="divider-horizontal"></div> */}
             {status === "SUBMIT" && (
                 <div className="tx-submit">
-                    <div className="customize-tolerance">
-                        <Collapse accordion className="CollapseTolerance">
-                            <Panel
-                                showArrow={false}
-                                header={
-                                    <div className="VariationHeader">
-                                        <div className="PriceVariationSetting">
-                                            <i className="icon-preferences"></i>
-                                            <span className="SliderText">
-                                                {t(
-                                                    "exchange.priceVariation.title"
-                                                )}
-                                            </span>
-                                        </div>
-                                    </div>
-                                }
-                                key="1"
-                            >
-                                <div className="PriceVariationContainer">
-                                    <div className="warningSlider">
-                                        {t(
-                                            "exchange.priceVariation.sliderLabel"
-                                        )}
-                                    </div>
-                                    <Slider
-                                        className="SliderControl"
-                                        marks={priceVariationToleranceMarks}
-                                        defaultValue={tolerance}
-                                        min={0}
-                                        max={10}
-                                        step={0.1}
-                                        dots={false}
-                                        onChange={(val: number) =>
-                                            changeTolerance(val)
-                                        }
-                                    />
-                                </div>
-                            </Panel>
-                        </Collapse>
-                    </div>
                     <div className="cta-container">
+                        <SlippageTolerance
+                            pairId={`${currencyYouExchange}-${currencyYouReceive}`}
+                            defaultState={{
+                                mode: "auto",
+                                value: tolerance,
+                            }}
+                            onChange={(next) => changeTolerance(next.value)}
+                            onInteractionChange={(state) =>
+                                setSlippageUiState(state)
+                            }
+                        />
                         <div className="cta-info-group">
                             <div className="cta-info-summary">
                                 <div className={"token_exchange"}>
@@ -854,18 +833,21 @@ export default function ConfirmOperation(
                             </div>
                         )}
                         <div className="cta-options-group">
-                            <Button
+                            <button
                                 type="default"
                                 className="button secondary"
                                 onClick={onClose}
                             >
                                 {t("exchange.buttonCancel")}
-                            </Button>
+                            </button>
                             <button
                                 type="button"
                                 className="button"
                                 onClick={onSendTransactionAllowFeeToken}
-                                disabled={toleranceError !== ""}
+                                disabled={
+                                    toleranceError !== "" ||
+                                    !slippageUiState.isValid
+                                }
                             >
                                 {t("exchange.buttonConfirm")}
                             </button>
