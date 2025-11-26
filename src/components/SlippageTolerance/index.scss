@@ -1,97 +1,108 @@
 .slippage-tolerance {
-    // Layout & container styles go here
-    padding: 8px 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
     border: 1px solid var(--dividers);
     border-radius: var(--card-border-radius);
+    padding: 8px 32px;
     width: 100%;
+    // Layout & container styles go here
+    color: var(--color-txt-secondary);
+
     &__header {
         display: flex;
-        justify-content: space-between;
+        justify-content: space-around;
         align-items: center;
-        color: white;
+        gap: 8px;
         font-size: 16px;
     }
 
     &__label {
         // Typography for label
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
     &__pill {
-        display: inline-flex;
+        display: flex;
         align-items: center;
-        gap: 0.25rem;
+        gap: 4px;
         cursor: pointer;
         border: none;
         background: transparent;
 
         &--mode-auto {
             // Styles when the current mode is "auto"
-            background-color: purple;
+            // background-color: purple;
         }
 
         &--mode-custom {
             // Styles when the current mode is "custom"
-            background-color: yellow;
+            color: var(--color-txt-highlight);
         }
     }
 
     &__pill-mode {
         // Mode text styles
-        background-color: pink;
     }
 
     &__pill-separator {
         // Separator dot styles
-        background-color: orange;
     }
 
     &__pill-value {
         // Value text styles
-        background-color: green;
     }
 
     &__pill-icon {
+        margin-top: 2px;
+        margin-left: 4px;
         // Icon styles
     }
-
+    &__accept {
+        margin-left: 5px;
+    }
     &__panel {
-        margin-top: 0.75rem;
-        // Panel background, padding, etc.
-        // background-color: cyan;
+        display: flex;
+        flex-direction: column;
+        margin-top: 16px;
     }
 
     &__options {
         display: flex;
-        align-items: center;
-        gap: 0.5rem;
+        justify-content: center;
+        gap: 8px;
+
         // Container for all option buttons and custom input
     }
 
     &__option {
-        border: 1px solid var(--color-btn-tertiary-txt-default);
+        border: 1px solid var(--color-txt-primary);
+        color: var(--color-txt-primary);
         border-radius: 4px;
         // Base button styles for Auto / presets
         background-color: var(--color-btn-tertiary-background-default);
         padding: 2px 4px;
-        color: var(--color-btn-tertiary-txt-default);
+        // color: var(--color-btn-tertiary-txt-default);
         font-weight: 600;
 
+        &--preset {
+            // Specific styles for preset buttons if needed
+        }
         &--active {
+            border-color: var(--color-btn-tertiary-txt-default);
             // Active state styles
-            background-color: fuchsia;
+            color: var(--color-btn-tertiary-txt-default);
         }
 
         &--auto {
             // Specific styles for the Auto button if needed
         }
-
-        &--preset {
-            // Specific styles for preset buttons if needed
-        }
     }
 
     &__custom {
-        margin-left: auto;
+        // margin-left: auto;
         // Push custom input group to the right if desired
     }
 
@@ -102,30 +113,41 @@
     }
 
     &__input {
-        // Input styles
-        padding-right: 2.5rem; // Space for suffix and check button
-        // text-align: right;
-        border: 1px solid var(--color-btn-tertiary-txt-default);
+        border: none;
         border-radius: 4px;
         background-color: var(--color-btn-tertiary-background-default);
         padding: 2px 4px;
-        color: var(--color-btn-tertiary-txt-default);
+        padding-right: 2.5rem;
+        max-width: 96px;
+        color: var(--color-txt-primary);
         font-weight: 600;
     }
-
+    &--custom-active &__input {
+        border: 1px solid var(--color-txt-highlight);
+        color: var(--color-txt-highlight);
+    }
+    &--error &__input {
+        border: 1px solid var(--color-semantic-negative);
+        color: var(--color-semantic-negative);
+    }
     &__input-suffix {
         position: absolute;
         right: 2rem;
-        color: var(--color-btn-tertiary-txt-default);
+        color: var(--color-txt-primary);
 
         // Align the "%" suffix inside the input group
     }
 
     &__confirm {
+        border: none;
         // Styles for the integrated "check / set" button
-        background-color: red;
+        background-color: transparent;
     }
-
+    &__feedback {
+        margin-top: 4px;
+        color: var(--color-semantic-negative);
+        text-align: center;
+    }
     &--disabled {
         // Disabled styles for the whole component
     }

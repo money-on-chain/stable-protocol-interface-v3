@@ -186,7 +186,24 @@ icons.css contains all the css code for Icons across the Dapp
     background-repeat: no-repeat;
     display: block;
 }
-
+.icon-edit-value {
+    display: block;
+    filter: var(--color-icon-link-filter);
+    background-image: url("../icons/edit-value.svg");
+    background-size: 24px 24px;
+    background-repeat: no-repeat;
+    width: 24px;
+    height: 24px;
+}
+.icon-accept {
+    display: block;
+    filter: var(--color-icon-link-filter);
+    background-image: url("../icons/accept.svg");
+    background-size: 24px 24px;
+    background-repeat: no-repeat;
+    width: 24px;
+    height: 24px;
+}
 .icon-signifier {
     display: block;
     width: 32px;

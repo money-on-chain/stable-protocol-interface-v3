@@ -1,9 +1,8 @@
-import type { RadioChangeEvent } from "antd";
+import type { RadioChangeEvent, Alert } from "antd";
 import { Radio, Space } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
 
 import { getExecutionFee } from "../../backend/utils";
-import { SlippageTolerance } from "../../components/SlippageTolerance";
 import { useWalletContext } from "../../context/Wallet";
 import { CheckStatusGlobal } from "../../helpers/checkStatus";
 import {
@@ -874,7 +873,6 @@ export default function Exchange(): JSX.Element {
                                     the next confirmation step
                                 </div>
                             </div>
-                            <SlippageTolerance />
                         </div>
                     </div>
                 </div>
