@@ -142,7 +142,7 @@ const readContracts = async (
         };
 
         // warning this a hardcode for the price provider of the tp token
-        const overwritePPTP = [["0x6979513C5DE144B31dd36D87892fD6Cef95Cf59A".toLowerCase(), "0xAC7262297A33106603Ec19c50c0bBaF35F0701a2".toLowerCase()], ["0xCf330C2FE1e8b4980Fb19A310a32E2B119e4c1B1".toLowerCase(), "0x81852EEEA69A20D12A47A257EA4756847527E9E5".toLowerCase()]]
+        //const overwritePPTP = [["0x6979513C5DE144B31dd36D87892fD6Cef95Cf59A".toLowerCase(), "0xAC7262297A33106603Ec19c50c0bBaF35F0701a2".toLowerCase()], ["0xCf330C2FE1e8b4980Fb19A310a32E2B119e4c1B1".toLowerCase(), "0x81852EEEA69A20D12A47A257EA4756847527E9E5".toLowerCase()]]
 
         // Iterate buckets (CA list)
         for (let ca = 0; ca < s.CA.length; ca++) {
@@ -239,7 +239,8 @@ const readContracts = async (
                 if (!contracts.PP_TP![ca]) contracts.PP_TP![ca] = [];
 
                 contracts.PP_TP![ca].push({
-                    address: overwritePPTP[ca][tp] ? overwritePPTP[ca][tp] as Address : tpItem[1] as Address,
+                    //address: overwritePPTP[ca][tp] ? overwritePPTP[ca][tp] as Address : tpItem[1] as Address,
+                    address: tpItem[1] as Address,
                     abi: ABI_IPriceProvider,
                     name: "PP",
                     type: "",
