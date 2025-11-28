@@ -229,12 +229,13 @@ export default function LastOperations(props: LastOperationsProps) {
     const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
 
     // Expansion / Contraction
-    const handleExpand = (expanded: boolean, record: { key: string }) => {
-        const newExpandedKeys = expanded
-            ? [...expandedKeys, record.key]
-            : expandedKeys.filter((key) => key !== record.key);
-        setExpandedKeys(newExpandedKeys);
-    };
+    const handleExpand = useCallback((expanded: boolean, record: { key: string }) => {
+        setExpandedKeys((prevKeys) => {
+            return expanded
+                ? [...prevKeys, record.key]
+                : prevKeys.filter((key) => key !== record.key);
+        });
+    }, []);
 
     // Expansion Icon
     const ExpandIcon: React.FC<ExpandIconProps> = ({ expanded, onClick }) => (
@@ -302,9 +303,52 @@ export default function LastOperations(props: LastOperationsProps) {
         }
     };
 
-    function tokenExchange(
+    const getTokenInfo = useCallback((token: string) => {
+        switch (token) {
+            case "CA_0":
+                return {
+                    name: (settings.tokens.CA as TokenConfig[])[0]?.name || "",
+                    token: (settings.tokens.CA as TokenConfig[])[0],
+                };
+            case "CA_1":
+                return {
+                    name: (settings.tokens.CA as TokenConfig[])[1]?.name || "",
+                    token: (settings.tokens.CA as TokenConfig[])[1],
+                };
+            case "TC_0":
+                return {
+                    name: settings.tokens.TC[0].name,
+                    token: settings.tokens.TC[0],
+                };
+            case "TC_1":
+                return {
+                    name: settings.tokens.TC[1].name,
+                    token: settings.tokens.TC[1],
+                };
+            case "TP_0":
+                return {
+                    name: settings.tokens.TP[0].name,
+                    token: settings.tokens.TP[0],
+                };
+            case "TP_1":
+                return {
+                    name: settings.tokens.TP[1].name,
+                    token: settings.tokens.TP[1],
+                };
+            case "FeeToken":
+                return {
+                    name: settings.tokens.TF[0].name,
+                    token: settings.tokens.TF[0],
+                };
+            default:
+                console.warn("UNRECOGNIZED TOKEN: " + token);
+                return undefined;
+        }
+    }, []);
+
+    const tokenExchange = useCallback((
         row_operation: OperationData
-    ): TokenExchangeResult | undefined {
+    ): TokenExchangeResult | undefined => {
         let status = "";
         if (row_operation.executed) {
             status = "executed";
@@ -537,8 +581,8 @@ export default function LastOperations(props: LastOperationsProps) {
             console.warn("CAN'T OPERATE: " + row_operation.operation);
             return undefined;
         }
-    }
-    const getErrorMessage = (
+    }, [t, getTokenInfo]);
+    const getErrorMessage = useCallback((
         error: string | number | null | undefined
     ): string => {
         switch (error) {
@@ -561,7 +605,212 @@ export default function LastOperations(props: LastOperationsProps) {
             default:
                 return String(error);
         }
-    };
+    }, [t]);
+    const TruncatedAddress = useCallback((address: string, length = 6) => {
+        if (!address) return "";
+
+        return (
+            address.substring(0, length + 2) +
+            "…" +
+            address.substring(address.length - length)
+        );
+    }, []);
+    const getFee = useCallback((row_operation: OperationData) => {
+        const fee: { amount: bigint; token: string | null; decimals: number } =
+            { amount: 0n, token: null, decimals: 18 };
+        const caIndex = row_operation["bucket_index"];
+
+        if (
+            row_operation["executed"] &&
+            row_operation["executed"]["qFeeToken_"]
+        ) {
+            const qFeeToken = BigInt(row_operation["executed"]["qFeeToken_"]);
+            const qFeeTokenVendorMarkup = BigInt(
+                row_operation["executed"]["qFeeTokenVendorMarkup_"] || "0"
+            );
+
+            fee["amount"] = qFeeToken + qFeeTokenVendorMarkup;
+            fee["token"] = "TF";
+            fee["decimals"] = settings.tokens.TF[0].decimals;
+        }
+
+        if (
+            row_operation["executed"] &&
+            row_operation["executed"]["qACfee_"] &&
+            fee["amount"] === 0n
+        ) {
+            const qACfee = BigInt(row_operation["executed"]["qACfee_"]);
+
+            const qACVendorMarkup = BigInt(
+                row_operation["executed"]["qACVendorMarkup_"] || "0"
+            );
+
+            fee["amount"] = qACfee + qACVendorMarkup;
+            fee["token"] = `CA_${caIndex}`;
+            fee["decimals"] =
+                (settings.tokens.CA as TokenConfig[])[caIndex]?.decimals || 18;
+        }
+
+        if (fee["amount"] > 0n) {
+            return (
+                <div className="LastOp__expanded__fee">
+                    {/* <span className="value"> */}
+                    {PrecisionNumbers({
+                        amount: fee["amount"],
+                        token: TokenSettings(fee["token"] || ""),
+                        decimals: 6,
+                        i18n: i18n,
+                    })}
+                    {/* </span> */}
+                    <span className="token">
+                        {"  "}
+                        {"  "}
+                        {t(`exchange.tokens.${fee["token"]}.abbr`, {
+                            ns: ns,
+                        })}{" "}
+                    </span>
+                </div>
+            );
+        } else {
+            return "--";
+        }
+    }, [i18n, t, ns]);
+    const getTransferAction = useCallback((row_operation: OperationData) => {
+        if (
+            row_operation.params?.sender?.toLowerCase() ===
+            address?.toLowerCase()
+        ) {
+            return t("operations.actions.destination");
+        } else {
+            return t("operations.actions.origin");
+        }
+    }, [t, address]);
+    const getTransferAddress = useCallback((row_operation: OperationData) => {
+        if (
+            row_operation.params?.sender?.toLowerCase() ===
+            address?.toLowerCase()
+        ) {
+            // return truncateAddress(row_operation['params']['recipient'].toLowerCase())
+            return row_operation.params?.recipient?.toLowerCase() || "";
+        } else {
+            //return truncateAddress(row_operation['params']['sender'].toLowerCase())
+            return row_operation.params?.sender?.toLowerCase() || "";
+        }
+    }, [address]);
+    const getStatus = useCallback((row_operation: OperationData) => {
+        const confirmedBlocks = BigInt(10);
+        switch (row_operation["status"]) {
+            case -4:
+                return t("operations.actions.statusFailed");
+            case -3:
+                return t("operations.actions.statusFailed");
+            case -2:
+                return t("operations.actions.statusFailed");
+            case -1:
+                return t("operations.actions.statusFailed");
+            case 0:
+                if (
+                    row_operation["params"] &&
+                    BigInt(blockNumber || 0) <
+                        BigInt(row_operation["params"]["blockNumber"] || 0) +
+                            confirmedBlocks
+                )
+                    return t("operations.actions.statusQueuing");
+                else return t("operations.actions.statusQueued");
+            case 1:
+                if (
+                    row_operation["executed"] &&
+                    BigInt(blockNumber || 0) <
+                        BigInt(row_operation["executed"]["blockNumber"] || 0) +
+                            confirmedBlocks
+                )
+                    return t("operations.actions.statusConfirming");
+                else if (
+                    row_operation["operation"] === "Transfer" &&
+                    BigInt(blockNumber || 0) <
+                        BigInt(row_operation["blockNumber"] || 0) +
+                            confirmedBlocks
+                )
+                    return t("operations.actions.statusConfirming");
+                else return t("operations.actions.statusConfirmed");
+            default:
+                return t("operations.actions.statusFailed");
+        }
+    }, [t, blockNumber]);
+    const setStatusIcon = useCallback((status: string) => {
+        switch (status) {
+            case t("operations.actions.statusQueuing"):
+                return "QUEUING";
+            case t("operations.actions.statusQueued"):
+                return "QUEUED";
+            case t("operations.actions.statusConfirming"):
+                return "CONFIRMING";
+            case t("operations.actions.statusConfirmed"):
+                return "CONFIRMED";
+            case t("operations.actions.statusFailed"):
+                return "FAILED";
+            default:
+                return "FAILED";
+        }
+    }, [t]);
+    const getAsset = useCallback((name: string) => {
+        switch (name) {
+            case "CA_0":
+                return {
+                    image: <div className="icon-token-ca_0 icon-token-modif" />,
+                    color: "color-token-tp",
+                    txt: "CA",
+                };
+            case "CA_1":
+                return {
+                    image: <div className="icon-token-ca_1 icon-token-modif" />,
+                    color: "color-token-tp",
+                    txt: "CA",
+                };
+            case "TC_0":
+                return {
+                    image: <div className="icon-token-tc_0 icon-token-modif" />,
+                    color: "color-token-tc",
+                    txt: "TC",
+                };
+            case "TC_1":
+                return {
+                    image: <div className="icon-token-tc_1 icon-token-modif" />,
+                    color: "color-token-tc",
+                    txt: "TC",
+                };
+            case "TP_0":
+                return {
+                    image: <div className="icon-token-tp_0 icon-token-modif" />,
+                    color: "color-token-tc",
+                    txt: "TP",
+                };
+            case "TP_1":
+                return {
+                    image: <div className="icon-token-tp_1 icon-token-modif" />,
+                    color: "color-token-tc",
+                    txt: "TP",
+                };
+            case "FeeToken":
+                return {
+                    image: <div className="icon-token-tf icon-token-modif" />,
+                    color: "color-token-tf",
+                    txt: "TF",
+                };
+            default:
+                console.warn("UNRECOGNIZED TOKEN: " + name);
+                return {
+                    image: (
+                        <div
+                            className="icon-token-MOC"
+                            style={{ display: "block", margin: "auto" }}
+                        />
+                    ),
+                    color: "color-token-tp",
+                    txt: "TP",
+                };
+        }
+    }, []);
     // Memoize the processed table data to avoid recalculating on every render
     const processedData = useMemo(() => {
         /*******************************sort descending by block number and then by operID***********************************/
@@ -867,270 +1116,12 @@ export default function LastOperations(props: LastOperationsProps) {
         });
         
         return data;
-    }, [dataJson.operations, token, i18n.language, t, expandedKeys, address, blockNumber]);
+    }, [dataJson.operations, token, i18n, t, expandedKeys, getErrorMessage, getFee, getStatus, getTransferAction, getTransferAddress, handleExpand, setStatusIcon, tokenExchange, TruncatedAddress, getAsset]);
     
     const tableColumns = useMemo(() => (columns || []).map((item) => ({ ...item })), [columns]);
     /*useEffect(() => {
         setTimeout(() => setLoadingSke(false), timeSke);
     }, [auth]);*/
-    function TruncatedAddress(address: string, length = 6) {
-        if (!address) return "";
-
-        return (
-            address.substring(0, length + 2) +
-            "…" +
-            address.substring(address.length - length)
-        );
-    }
-    function getFee(row_operation: OperationData) {
-        const fee: { amount: bigint; token: string | null; decimals: number } =
-            { amount: 0n, token: null, decimals: 18 };
-        const caIndex = row_operation["bucket_index"];
-
-        if (
-            row_operation["executed"] &&
-            row_operation["executed"]["qFeeToken_"]
-        ) {
-            const qFeeToken = BigInt(row_operation["executed"]["qFeeToken_"]);
-            const qFeeTokenVendorMarkup = BigInt(
-                row_operation["executed"]["qFeeTokenVendorMarkup_"] || "0"
-            );
-
-            fee["amount"] = qFeeToken + qFeeTokenVendorMarkup;
-            fee["token"] = "TF";
-            fee["decimals"] = settings.tokens.TF[0].decimals;
-        }
-
-        if (
-            row_operation["executed"] &&
-            row_operation["executed"]["qACfee_"] &&
-            fee["amount"] === 0n
-        ) {
-            const qACfee = BigInt(row_operation["executed"]["qACfee_"]);
-
-            const qACVendorMarkup = BigInt(
-                row_operation["executed"]["qACVendorMarkup_"] || "0"
-            );
-
-            fee["amount"] = qACfee + qACVendorMarkup;
-            fee["token"] = `CA_${caIndex}`;
-            fee["decimals"] =
-                (settings.tokens.CA as TokenConfig[])[caIndex]?.decimals || 18;
-        }
-
-        if (fee["amount"] > 0n) {
-            return (
-                <div className="LastOp__expanded__fee">
-                    {/* <span className="value"> */}
-                    {PrecisionNumbers({
-                        amount: fee["amount"],
-                        token: TokenSettings(fee["token"] || ""),
-                        decimals: 6,
-                        i18n: i18n,
-                    })}
-                    {/* </span> */}
-                    <span className="token">
-                        {"  "}
-                        {"  "}
-                        {t(`exchange.tokens.${fee["token"]}.abbr`, {
-                            ns: ns,
-                        })}{" "}
-                    </span>
-                </div>
-            );
-        } else {
-            return "--";
-        }
-    }
-    function getTransferAction(row_operation: OperationData) {
-        if (
-            row_operation.params?.sender?.toLowerCase() ===
-            address?.toLowerCase()
-        ) {
-            return t("operations.actions.destination");
-        } else {
-            return t("operations.actions.origin");
-        }
-    }
-    /*
-    function truncateAddress(address) {
-        if (address === "") return "";
-        return (
-            address.substring(0, 6) +
-            "..." +
-            address.substring(address.length - 4, address.length)
-        );
-    }*/
-    function getTransferAddress(row_operation: OperationData) {
-        if (
-            row_operation.params?.sender?.toLowerCase() ===
-            address?.toLowerCase()
-        ) {
-            // return truncateAddress(row_operation['params']['recipient'].toLowerCase())
-            return row_operation.params?.recipient?.toLowerCase() || "";
-        } else {
-            //return truncateAddress(row_operation['params']['sender'].toLowerCase())
-            return row_operation.params?.sender?.toLowerCase() || "";
-        }
-    }
-    function getStatus(row_operation: OperationData) {
-        const confirmedBlocks = BigInt(10);
-        switch (row_operation["status"]) {
-            case -4:
-                return t("operations.actions.statusFailed");
-            case -3:
-                return t("operations.actions.statusFailed");
-            case -2:
-                return t("operations.actions.statusFailed");
-            case -1:
-                return t("operations.actions.statusFailed");
-            case 0:
-                if (
-                    row_operation["params"] &&
-                    BigInt(blockNumber || 0) <
-                        BigInt(row_operation["params"]["blockNumber"] || 0) +
-                            confirmedBlocks
-                )
-                    return t("operations.actions.statusQueuing");
-                else return t("operations.actions.statusQueued");
-            case 1:
-                if (
-                    row_operation["executed"] &&
-                    BigInt(blockNumber || 0) <
-                        BigInt(row_operation["executed"]["blockNumber"] || 0) +
-                            confirmedBlocks
-                )
-                    return t("operations.actions.statusConfirming");
-                else if (
-                    row_operation["operation"] === "Transfer" &&
-                    BigInt(blockNumber || 0) <
-                        BigInt(row_operation["blockNumber"] || 0) +
-                            confirmedBlocks
-                )
-                    return t("operations.actions.statusConfirming");
-                else return t("operations.actions.statusConfirmed");
-            default:
-                return t("operations.actions.statusFailed");
-        }
-    }
-    function getTokenInfo(token: string) {
-        switch (token) {
-            case "CA_0":
-                return {
-                    name: (settings.tokens.CA as TokenConfig[])[0]?.name || "",
-                    token: (settings.tokens.CA as TokenConfig[])[0],
-                };
-            case "CA_1":
-                return {
-                    name: (settings.tokens.CA as TokenConfig[])[1]?.name || "",
-                    token: (settings.tokens.CA as TokenConfig[])[1],
-                };
-            case "TC_0":
-                return {
-                    name: settings.tokens.TC[0].name,
-                    token: settings.tokens.TC[0],
-                };
-            case "TC_1":
-                return {
-                    name: settings.tokens.TC[1].name,
-                    token: settings.tokens.TC[1],
-                };
-            case "TP_0":
-                return {
-                    name: settings.tokens.TP[0].name,
-                    token: settings.tokens.TP[0],
-                };
-            case "TP_1":
-                return {
-                    name: settings.tokens.TP[1].name,
-                    token: settings.tokens.TP[1],
-                };
-            case "FeeToken":
-                return {
-                    name: settings.tokens.TF[0].name,
-                    token: settings.tokens.TF[0],
-                };
-            default:
-                console.warn("UNRECOGNIZED TOKEN: " + token);
-                return undefined;
-        }
-    }
-
-    function setStatusIcon(status: string) {
-        switch (status) {
-            case t("operations.actions.statusQueuing"):
-                return "QUEUING";
-            case t("operations.actions.statusQueued"):
-                return "QUEUED";
-            case t("operations.actions.statusConfirming"):
-                return "CONFIRMING";
-            case t("operations.actions.statusConfirmed"):
-                return "CONFIRMED";
-            case t("operations.actions.statusFailed"):
-                return "FAILED";
-            default:
-                return "FAILED";
-        }
-    }
-
-    function getAsset(name: string) {
-        switch (name) {
-            case "CA_0":
-                return {
-                    image: <div className="icon-token-ca_0 icon-token-modif" />,
-                    color: "color-token-tp",
-                    txt: "CA",
-                };
-            case "CA_1":
-                return {
-                    image: <div className="icon-token-ca_1 icon-token-modif" />,
-                    color: "color-token-tp",
-                    txt: "CA",
-                };
-            case "TC_0":
-                return {
-                    image: <div className="icon-token-tc_0 icon-token-modif" />,
-                    color: "color-token-tc",
-                    txt: "TC",
-                };
-            case "TC_1":
-                return {
-                    image: <div className="icon-token-tc_1 icon-token-modif" />,
-                    color: "color-token-tc",
-                    txt: "TC",
-                };
-            case "TP_0":
-                return {
-                    image: <div className="icon-token-tp_0 icon-token-modif" />,
-                    color: "color-token-tc",
-                    txt: "TP",
-                };
-            case "TP_1":
-                return {
-                    image: <div className="icon-token-tp_1 icon-token-modif" />,
-                    color: "color-token-tc",
-                    txt: "TP",
-                };
-            case "FeeToken":
-                return {
-                    image: <div className="icon-token-tf icon-token-modif" />,
-                    color: "color-token-tf",
-                    txt: "TF",
-                };
-            default:
-                console.warn("UNRECOGNIZED TOKEN: " + name);
-                return {
-                    image: (
-                        <div
-                            className="icon-token-MOC"
-                            style={{ display: "block", margin: "auto" }}
-                        />
-                    ),
-                    color: "color-token-tp",
-                    txt: "TP",
-                };
-        }
-    }
     const showModal = () => {
         setQueueModal(true);
     };

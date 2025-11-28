@@ -63,6 +63,7 @@ import { useContractProtocolStatus } from "../hooks/useContractProtocolStatus";
 import { useIncentiveV2 } from "../hooks/useIncentiveV2";
 import { useLatestBlockNumber } from "../hooks/useLatestBlockNumber";
 import { useOffchainPrices } from "../hooks/useOffchainPrices";
+import { useOnchainPrices } from "../hooks/useOnchainPrices";
 import { readContracts } from "../hooks/useReadContracts";
 import { useRpcErrorHandler } from "../hooks/useRpcErrorHandler";
 import { useRpcErrorIntegration } from "../hooks/useRpcErrorIntegration";
@@ -71,7 +72,6 @@ import { useUserOmocBalance } from "../hooks/useUserOmocBalance";
 import { useUserVesting } from "../hooks/useUserVesting";
 import { useUserVeto } from "../hooks/useUserVeto";
 import api from "../services/api";
-import { useOnchainPrices } from "../hooks/useOnchainPrices";
 import type { DContracts, ParsedPrices } from "../types/hooks";
 import type {
     InterfaceContext,

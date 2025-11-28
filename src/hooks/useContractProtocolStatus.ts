@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { checksumAddress } from "viem";
 
+import { normalizeToBigInt } from "../helpers/precision";
 import settings from "../settings/settings.json";
 import type {
     ContractInfo,
@@ -12,7 +13,6 @@ import type {
 } from "../types/hooks";
 import type { ContractProtocolStatusResult } from "../types/status";
 import { useMultiCall } from "./useMulticall";
-import { normalizeToBigInt } from "../helpers/precision";
 
 const onErrorGetPTCac = (): MultiCallErrorResult => {
     return { value: 0n };
@@ -21,7 +21,7 @@ const onErrorGetPTCac = (): MultiCallErrorResult => {
 /**
  * Checks if parsedPrices is empty (either empty array or empty object)
  */
-const isEmptyParsedPrices = (parsedPrices: ParsedPrices[] | undefined | unknown): boolean => {
+const isEmptyParsedPrices = (parsedPrices: ParsedPrices[] | undefined): boolean => {
     if (!parsedPrices) return true;
     if (Array.isArray(parsedPrices)) {
         return parsedPrices.length === 0;

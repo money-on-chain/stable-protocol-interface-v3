@@ -1,15 +1,14 @@
 import { useMemo } from "react";
 
+import { normalizeToBigInt } from "../helpers/precision";
+import settings from "../settings/settings.json";
 import type {
     ContractInfo,
     DContracts,
-    MultiCallErrorResult,
     MultiCallInput,
 } from "../types/hooks";
 import type { OnchainPricesResult } from "../types/status";
 import { useMultiCall } from "./useMulticall";
-import settings from "../settings/settings.json";
-import { normalizeToBigInt } from "../helpers/precision";
 
 
 

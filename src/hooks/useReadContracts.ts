@@ -240,7 +240,7 @@ const readContracts = async (
 
                 contracts.PP_TP![ca].push({
                     //address: overwritePPTP[ca][tp] ? overwritePPTP[ca][tp] as Address : tpItem[1] as Address,
-                    address: tpItem[1] as Address,
+                    address: tpItem[1],
                     abi: ABI_IPriceProvider,
                     name: "PP",
                     type: "",
