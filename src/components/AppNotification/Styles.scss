@@ -1,0 +1,208 @@
+// Root notification container (base layout for all notification types)
+.app-notification {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: var(--notification-border-radius, var(--card-border-radius));
+    border: 1px solid var(--notification-border-color);
+    background-color: var(--notification-bg-color) !important;
+    color: var(--notification-text-color);
+    font-family: var(--main-font);
+    font-size: 14px;
+    // outline: 2px dashed red;
+
+    // box-shadow: var(--notification-shadow, none);
+
+    // Density modifier: use when you need a more compact notification (e.g. tight layouts, tables)
+    &--compact {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    // Icon container: use when the notification shows a leading icon (status, info, etc.)
+    &__icon {
+        width: 24px;
+        height: 24px;
+        background-size: 24px;
+        flex-shrink: 0;
+        margin-top: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        filter: var(--notification-icon-filter);
+    }
+
+    // Main content wrapper: holds title, message, actions and optional details
+    &__body {
+        flex: 1;
+        min-width: 0;
+    }
+
+    // Notification title: short, bold summary of the message
+    &__title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        font-size: 16px;
+        font-family: var(--brand-font);
+        margin-bottom: 8px;
+    }
+
+    // Main text / message content (can contain inline HTML / rich text)
+    &__content {
+        // font-size: 14px;
+        line-height: 1.2;
+        // outline: 2px dashed green;
+        display: flex;
+    }
+
+    // Container for action buttons (primary, secondary, link)
+    &__actions {
+        margin-top: 8px;
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        gap: 8px;
+        // outline: 2px dashed blue;
+    }
+
+    // Base style for any action (button or link) inside the notification
+    &__action {
+        border: none;
+        outline: none;
+        cursor: pointer;
+        padding: 4px 10px;
+        border-radius: 999px;
+        border-color: var(--notification-text-color);
+        color: var(--notification-text-color);
+        font-size: 13px;
+        line-height: 1.2;
+        text-decoration: none;
+        text-align: center;
+        transition:
+            background-color 0.15s ease,
+            color 0.15s ease,
+            opacity 0.15s ease;
+
+        // Primary action: main call-to-action (e.g. “Retry”, “Confirm”)
+        &--primary {
+            color: var(--notification-text-color);
+            background-color: var(--notification-bg-color);
+            border: 2px solid var(--notification-text-color);
+        }
+
+        // Secondary action: less prominent action (e.g. “Cancel”, “Remind me later”)
+        &--secondary {
+            color: var(--notification-text-color);
+            background-color: var(--notification-bg-color);
+            border: 1px solid var(--notification-text-color);
+        }
+
+        // Link-style action: inline, text-only action (e.g. “View details”)
+        &--link {
+            background: none;
+            padding: 0;
+            border-radius: 0;
+            text-decoration: underline;
+            color: var(--notification-text-color);
+        }
+
+        // Disabled state: use when the action is not clickable (loading, unavailable, etc.)
+        &--disabled {
+            opacity: 0.5;
+            cursor: default;
+            pointer-events: none;
+        }
+    }
+
+    // Dismiss / close button (usually an “X” in the top-right corner)
+    &__close {
+        filter: var(--notification-icon-filter);
+        cursor: pointer;
+        border: none;
+        margin-left: 8px;
+        background-position: 1px 1px;
+        background-size: 21px 21px;
+        background-color: transparent;
+        width: 24px;
+        height: 24px;
+    }
+
+    /* Type modifiers (semantic variants controlled via CSS variables) */
+
+    // Neutral / default notification (informational with no specific status)
+    &--type-neutral {
+        --notification-bg-color: var(--notification-neutral-bg);
+        --notification-border-color: var(--dividers);
+        --notification-text-color: var(--notification-neutral-text);
+    }
+
+    // Informational notification (non-critical info, hints, tips)
+    &--type-info {
+        --notification-bg-color: var(
+            --notification-info-bg,
+            var(--color-info-bg)
+        );
+        --notification-border-color: var(
+            --notification-info-border,
+            var(--color-info-border)
+        );
+        --notification-text-color: var(
+            --notification-info-text,
+            var(--color-info-text)
+        );
+    }
+
+    // Success notification (operation completed, positive feedback)
+    &--type-success {
+        --notification-bg-color: var(--notification-success-background);
+        --notification-border-color: var(--notification-success-border);
+        --notification-text-color: var(--notification-success-text);
+        --notification-icon-filter: var(--notification-success-filter);
+    }
+
+    // Warning notification (non-blocking issues, potential problems)
+    &--type-warning {
+        --notification-bg-color: var(--notification-warning-background);
+        --notification-border-color: var(--notification-warning-border);
+        --notification-text-color: var(--notification-warning-text);
+        --notification-icon-filter: var(--notification-warning-filter);
+    }
+
+    // Error notification (blocking issues, failures, critical problems)
+    &--type-error {
+        --notification-bg-color: var(--notification-error-background);
+        --notification-border-color: var(--notification-error-border);
+        --notification-text-color: var(--notification-error-text);
+        --notification-icon-filter: var(--notification-error-filter);
+    }
+
+    // Container for expandable / advanced details (e.g. raw error, debug info)
+    &__details {
+        margin-top: 8px;
+        font-size: 13px;
+    }
+
+    // Button / link that toggles the visibility of the details section
+    &__details-toggle {
+        border: none;
+        background: none;
+        padding: 0;
+        cursor: pointer;
+        text-decoration: underline;
+        font-size: 13px;
+        // color: var(--color-txt-highlight);
+    }
+
+    // Body of the details section (shown when details are expanded)
+    &__details-body {
+        margin-top: 4px;
+        font-size: 13px;
+        line-height: 1.4;
+        opacity: 0.85;
+    }
+}
