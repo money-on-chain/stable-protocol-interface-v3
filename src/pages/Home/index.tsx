@@ -2,6 +2,7 @@ import "./Styles.scss";
 
 import React from "react";
 
+import { AppNotification } from "../../components/AppNotification";
 import Portfolio from "../../components/Dashboards/Portfolio";
 import HomeTabs from "../../components/PortfolioOperationsTabs";
 import LastOperations from "../../components/Tables/LastOperations";
@@ -17,9 +18,56 @@ export default function Home(): React.ReactElement {
                 </div>
             ) : (
                 <div className="section-container desktop-only">
+                    <AppNotification
+                        type="error"
+                        title="Network issue"
+                        icon={"icon-status-warning"}
+                        content={
+                            <>
+                                This is a sample of an error notification <br />
+                                Using HTML. You may even display a image banner.
+                            </>
+                        }
+                        details={
+                            <div className="notification-details-text">
+                                Lorem ipsum dolor sit amet, consectetur
+                                adipiscing elit. Vivamus efficitur, sapien non
+                                aliquet ultricies, neque odio cursus lorem, eget
+                                tincidunt justo urna sit amet nunc.
+                                <div
+                                    style={{ width: "32px", height: "32px" }}
+                                    className="icon-status-alert"
+                                ></div>
+                                Integer sit amet velit vel orci commodo
+                                tincidunt. Morbi vehicula feugiat dui, a
+                                pulvinar risus viverra a.
+                            </div>
+                        }
+                        detailsInitiallyOpen={false}
+                        dismissible
+                        actions={[
+                            {
+                                key: "retry",
+                                label: "Reintenta",
+                                type: "primary",
+                            },
+                            {
+                                key: "details",
+                                label: "Ver detalles",
+                                type: "secondary",
+                            },
+                            {
+                                key: "wiki",
+                                label: "Wiki",
+                                type: "link",
+                                href: "https://google.com",
+                                target: "_blank",
+                            },
+                        ]}
+                    />
                     <Portfolio />
                     <div className="content-last-operations">
-                        <LastOperations token={"all"}></LastOperations>
+                        <LastOperations token={"all"} />
                     </div>
                 </div>
             )}

@@ -1215,6 +1215,25 @@ h2 {
     color: var(--color-btn-secondary-txt-hover);
 }
 
+.app-notification__action {
+    // @extend .button--small;
+    // border: 1px solid var(--brand-color-overbrand) !important;
+    font-weight: 600;
+
+    &--primary {
+        // background-color: blue !important;
+        // color: var(--brand-color-overbrand) !important;
+    }
+    &--secondary {
+        // background-color: pink !important;
+        // color: var(--brand-color-overbrand) !important;
+    }
+    &--link {
+        // background-color: green !important;
+        // color: var(--brand-color-overbrand) !important;
+    }
+}
+
 /* #endregion BUTTONS */
 
 /* #region CUSTOMIZE PRICE VARIATION TOLERANCE */
