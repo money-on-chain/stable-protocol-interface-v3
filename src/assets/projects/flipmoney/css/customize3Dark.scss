@@ -171,12 +171,12 @@
         hue-rotate(300deg) brightness(103%) contrast(110%);
 
     --notification-error-background: var(--color-semantic-negative);
-    --notification-error-text: #0c0c08;
-    --notification-error-filter: invert(0%) sepia(8%) saturate(7469%)
-        hue-rotate(300deg) brightness(103%) contrast(110%);
+    --notification-error-text: #ffffff;
+    --notification-error-filter: invert(99%) sepia(0%) saturate(6014%)
+        hue-rotate(357deg) brightness(124%) contrast(90%);
 
     --notification-warning-background: #0d0d0d;
-    --notification-warning-text: #0c0c08;
+    --notification-warning-text: #b5b5b5;
     --notification-warning-filter: invert(0%) sepia(8%) saturate(7469%)
         hue-rotate(300deg) brightness(103%) contrast(110%);
 
