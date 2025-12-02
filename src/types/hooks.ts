@@ -135,7 +135,7 @@ export interface SyncMulticallInput {
     resultType?: ResultType;
     keys: (string | number)[];
     transform?: (result: unknown) => unknown;
-    onError?: () => { value: unknown; canOperate: boolean };
+    onError?: () => { value: unknown };
 }
 
 /** Local call shape (allows optional onError) */
@@ -177,10 +177,10 @@ export interface UseStorageResult<T> {
 
 // Interface for parsed prices structure from offchain API
 export interface ParsedPrices {
-    CA: bigint;
-    TP: bigint[];
-    TF: bigint;
-    COINBASE: bigint;
+    CA: [bigint, boolean];
+    TP: [bigint, boolean][];
+    TF: [bigint, boolean];
+    COINBASE: [bigint, boolean];
 }
 
 // Interface for external data structure used in multicall
@@ -206,7 +206,6 @@ export interface MultiCallOptions {
 // Interface for multicall result with error handling
 export interface MultiCallErrorResult {
     value: unknown;
-    canOperate: boolean;
 }
 
 // Interface for proposal count hook return type

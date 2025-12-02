@@ -714,18 +714,13 @@ export default function ConfirmOperation(
                         </span>
                         <span className={""}> (</span>
                         <span>
-                            {!(
-                                contractProtocolStatus?.data?.canOperate ??
-                                false
-                            )
-                                ? "--"
-                                : PrecisionNumbers({
-                                      amount: commissionPAYUSD,
-                                      decimals: 2,
-                                      token: TokenSettings(`CA_${caIndex}`),
-                                      i18n: i18n,
-                                      isUSD: true,
-                                  })}
+                            {PrecisionNumbers({
+                                amount: commissionPAYUSD,
+                                decimals: 2,
+                                token: TokenSettings(`CA_${caIndex}`),
+                                i18n: i18n,
+                                isUSD: true,
+                            })}
                         </span>
                         <span className={""}>
                             {" "}
@@ -755,18 +750,13 @@ export default function ConfirmOperation(
 
                         <span className={""}> (</span>
                         <span>
-                            {!(
-                                contractProtocolStatus?.data?.canOperate ??
-                                false
-                            )
-                                ? "--"
-                                : PrecisionNumbers({
-                                      amount: executionFeeUSD,
-                                      decimals: 2,
-                                      token: TokenSettings(`CA_${caIndex}`),
-                                      i18n: i18n,
-                                      isUSD: true,
-                                  })}
+                            {PrecisionNumbers({
+                                amount: executionFeeUSD,
+                                decimals: 2,
+                                token: TokenSettings(`CA_${caIndex}`),
+                                i18n: i18n,
+                                isUSD: true,
+                            })}
                         </span>
                         <span className={""}> USD</span>
                         <span className={""}>) </span>

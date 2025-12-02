@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { checksumAddress } from "viem";
 
+import { normalizeToBigInt } from "../helpers/precision";
 import settings from "../settings/settings.json";
 import type {
     ContractInfo,
@@ -14,7 +15,22 @@ import type { ContractProtocolStatusResult } from "../types/status";
 import { useMultiCall } from "./useMulticall";
 
 const onErrorGetPTCac = (): MultiCallErrorResult => {
-    return { value: 0n, canOperate: true };
+    return { value: 0n };
+};
+
+/**
+ * Checks if parsedPrices is empty (either empty array or empty object)
+ */
+const isEmptyParsedPrices = (parsedPrices: ParsedPrices[] | undefined): boolean => {
+    if (!parsedPrices) return true;
+    if (Array.isArray(parsedPrices)) {
+        return parsedPrices.length === 0;
+    }
+    // Check if it's an empty object (but not null, which is also typeof 'object')
+    if (typeof parsedPrices === 'object' && parsedPrices !== null) {
+        return Object.keys(parsedPrices).length === 0;
+    }
+    return true;
 };
 
 /**
@@ -24,37 +40,58 @@ const onErrorGetPTCac = (): MultiCallErrorResult => {
 export function useContractProtocolStatus(
     contracts?: DContracts,
     currentBlockNumber?: number,
-    parsedPrices?: ParsedPrices[],
+    offChainPrices?: ParsedPrices[],
+    onChainPrices?: ParsedPrices[],
     refetchInterval = 30_000
 ): ContractProtocolStatusResult {
+
     // Memoize external data to prevent unnecessary refetches
     const externalData: ExternalData = useMemo(() => {
+
+        let parsedPrices: ParsedPrices[] = [];
+        if (offChainPrices) {
+            parsedPrices = offChainPrices;
+        } else if (onChainPrices) {
+            parsedPrices = onChainPrices;
+        }
+
+        if (isEmptyParsedPrices(parsedPrices)) return {} as ExternalData;
+
         const data: ExternalData = {};
-        if (parsedPrices) {
+        if (parsedPrices && !isEmptyParsedPrices(parsedPrices)) {
             for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
                 data[ca] = {
-                    PP_CA: [parsedPrices[ca].CA, true],
+                    PP_CA: parsedPrices[ca].CA,
                     PP_TP: {},
                 };
                 for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
-                    data[ca].PP_TP[tp] = [parsedPrices[ca].TP[tp], true];
+                    data[ca].PP_TP[tp] = parsedPrices[ca].TP[tp];
                 }
             }
         }
         return data;
-    }, [parsedPrices]);
+    }, [offChainPrices, onChainPrices]);
 
     const callsRequests = useMemo(() => {
         if (!contracts) return [];
 
         if (!currentBlockNumber) return [];
 
-        if (
+        let parsedPrices: ParsedPrices[] = [];
+        if (offChainPrices) {
+            parsedPrices = offChainPrices;
+        } else if (onChainPrices) {
+            parsedPrices = onChainPrices;
+        }
+
+        if (isEmptyParsedPrices(parsedPrices)) return [];
+
+        /*if (
             typeof import.meta.env.REACT_APP_PRICE_OFFCHAIN_API !==
                 "undefined" &&
             !parsedPrices
         )
-            return [];
+            return [];*/
 
         if (
             typeof import.meta.env.REACT_APP_CONTRACT_MULTICOLLATERAL_GUARD ===
@@ -68,8 +105,23 @@ export function useContractProtocolStatus(
                 contract: contracts.PP_COINBASE,
                 functionName: "peek",
                 args: [],
-                resultType: "uint256",
+                resultType: [
+                    {
+                        internalType: "bytes32",
+                        name: "",
+                        type: "bytes32",
+                    },
+                    {
+                        internalType: "bool",
+                        name: "",
+                        type: "bool",
+                    },
+                ],
                 keys: ["PP_COINBASE"],
+                transform: (result: unknown) => {
+                    const tuple = result as [bigint, boolean];
+                    return [normalizeToBigInt(tuple[0]), tuple[1]];
+                }
             });
         }
 
@@ -89,9 +141,9 @@ export function useContractProtocolStatus(
         let priceOfflineTPs: bigint[] | undefined;
         const bucketsPACtps: bigint[][] = [];
         const tpAddresses: string[] = [];
-        if (parsedPrices) {
+        if (parsedPrices && !isEmptyParsedPrices(parsedPrices)) {
             for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
-                priceOfflineTPs = parsedPrices[ca].TP;
+                priceOfflineTPs = parsedPrices[ca].TP.map(tp => tp[0]);
                 bucketsPACtps.push(priceOfflineTPs);
             }
 
@@ -116,7 +168,7 @@ export function useContractProtocolStatus(
                 contracts.FC_MAX_ABSOLUTE_OP_PROVIDER?.[ca];
             FC_MAX_OP_DIFFERENCE_PROVIDER =
                 contracts.FC_MAX_OP_DIFFERENCE_PROVIDER?.[ca];
-            priceOfflineTPs = parsedPrices?.[ca]?.TP;
+            priceOfflineTPs = parsedPrices?.[ca]?.TP.map(tp => tp[0]);
 
             if (
                 !Moc ||
@@ -124,8 +176,8 @@ export function useContractProtocolStatus(
                 !MocQueue ||
                 !PP_FeeToken ||
                 !FC_MAX_ABSOLUTE_OP_PROVIDER ||
-                !FC_MAX_OP_DIFFERENCE_PROVIDER ||
-                !priceOfflineTPs
+                !FC_MAX_OP_DIFFERENCE_PROVIDER /*||
+                !priceOfflineTPs*/
             ) {
                 continue;
             }
@@ -286,6 +338,10 @@ export function useContractProtocolStatus(
                     },
                 ],
                 keys: [ca, "PP_FeeToken"],
+                transform: (result: unknown) => {
+                    const tuple = result as [bigint, boolean];
+                    return [normalizeToBigInt(tuple[0]), tuple[1]];
+                }
             });
 
             callRequest.push({
@@ -432,6 +488,10 @@ export function useContractProtocolStatus(
                         },
                     ],
                     keys: [ca, "PP_TP", tp],
+                    transform: (result: unknown) => {
+                        const tuple = result as [bigint, boolean];
+                        return [normalizeToBigInt(tuple[0]), tuple[1]];
+                    }
                 });
 
                 callRequest.push({
@@ -584,11 +644,15 @@ export function useContractProtocolStatus(
                     },
                 ],
                 keys: [ca, "PP_CA"],
+                transform: (result: unknown) => {
+                    const tuple = result as [bigint, boolean];
+                    return [normalizeToBigInt(tuple[0]), tuple[1]];
+                }
             });
         }
 
         return callRequest;
-    }, [contracts, currentBlockNumber, parsedPrices]);
+    }, [contracts, currentBlockNumber, offChainPrices, onChainPrices]);
 
     // Pass calls into your multicall hook (safe: it's a hook calling a hook)
     const multicallState = useMultiCall(callsRequests, {

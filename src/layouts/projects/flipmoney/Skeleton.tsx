@@ -14,6 +14,7 @@ import { useWalletContext } from "../../../context/Wallet";
 import { CheckStatusGlobal } from "../../../helpers/checkStatus";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { isSomeTCLockedByVeto } from "../../../helpers/veto";
+import settings from "../../../settings/settings.json";
 import { ALLOWED_CHAIN } from "../../../wagmiConfig";
 
 const { Content, Footer } = Layout;
@@ -59,6 +60,9 @@ export default function Skeleton(): JSX.Element {
     const [vetoWithdraw, setVetoWithdraw] = useState<NotificationStatus | null>(
         null
     );
+    const [priceNotValidStatus, setPriceNotValidStatus] = useState<NotificationStatus | null>(
+        null
+    );
     const { checkerStatus } = CheckStatusGlobal();
     const navigate = useNavigate();
 
@@ -79,6 +83,52 @@ export default function Skeleton(): JSX.Element {
             setNotifStatus(null);
         }
     }, [checkerStatus]);
+
+    const readPriceValidityStatus = useCallback((): void => {
+        if (!contractProtocolStatus.data || !contractProtocolStatus.data[0] || !contractProtocolStatus.data[0].PP_CA || !contractProtocolStatus.data[0].PP_FeeToken || !contractProtocolStatus.data[0].PP_TP) return;
+        let valid = true;
+        for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+
+            // check if PP_CA is valid
+            if (!contractProtocolStatus.data[ca].PP_CA[1]) {
+                valid = false;
+                break;
+            }
+
+            // check if PP_FeeToken is valid
+            if (!contractProtocolStatus.data[ca].PP_FeeToken[1]) {
+                valid = false;
+                break;
+            }
+
+            // check if PP_TP is valid
+            for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
+                if (!contractProtocolStatus.data[ca].PP_TP[tp][1]) {
+                    valid = false;
+                    break;
+                }
+            }
+        }
+
+        // check if PP_COINBASE is valid
+        if (!contractProtocolStatus.data.PP_COINBASE[1]) {
+            valid = false;
+        }
+
+        if (!valid) {
+            setPriceNotValidStatus({
+                id: -1,
+                title: `Warning, price is invalid or a bit old`,
+                textContent: `Price is invalid or a bit old, operate at your own risk`,
+                notifClass: "warning",
+                iconLeft: "warning-icon", // Default icon since statusIcon doesn't exist
+                isDismisable: false,
+                dismissTime: 0,
+            });
+        } else {
+            setPriceNotValidStatus(null);
+        }
+    }, [contractProtocolStatus.data]);
 
     const readWithdrawStatus = useCallback((): void => {
         if (!userVeto.data || !contractStatusOmoc.data || !address) return;
@@ -141,6 +191,7 @@ export default function Skeleton(): JSX.Element {
             !isWrongNetwork
         ) {
             readProtocolStatus();
+            readPriceValidityStatus();
         }
         if (userVeto.data && contractStatusOmoc.data && address) {
             readWithdrawStatus();
@@ -170,6 +221,7 @@ export default function Skeleton(): JSX.Element {
                     />
                 )}
                 {notifStatus && <NotificationBody notifStatus={notifStatus} />}
+                {priceNotValidStatus && <NotificationBody notifStatus={priceNotValidStatus} />}
                 {vetoWithdraw && (
                     <NotificationBody notifStatus={vetoWithdraw} />
                 )}

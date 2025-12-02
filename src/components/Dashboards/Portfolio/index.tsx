@@ -27,6 +27,7 @@ export default function Portfolio(): JSX.Element {
         userBalance.data &&
         userBaseCoinBalance.balance
     ) {
+
         settings.tokens.CA.forEach(function (dataItem: TokenConfig) {
             if (!dataItem.key) {
                 /*console.error("CA dataItem.key is undefined");*/ return;
@@ -47,10 +48,7 @@ export default function Portfolio(): JSX.Element {
             balance =
                 normalizeToBigInt(userBalance.data.CA[dataItem.key].balance) ||
                 0n;
-            price =
-                normalizeToBigInt(
-                    contractProtocolStatus.data[dataItem.key].PP_CA[0]
-                ) || 0n;
+            price = contractProtocolStatus.data[dataItem.key].PP_CA[0] || 0n;
 
             balanceUSD = mulPrecision(balance, price);
             totalUSD = totalUSD + balanceUSD;
@@ -64,15 +62,13 @@ export default function Portfolio(): JSX.Element {
             const priceTEC: bigint =
                 contractProtocolStatus.data[dataItem.key].getPTCac;
             const priceCA: bigint =
-                normalizeToBigInt(
-                    contractProtocolStatus.data[dataItem.key].PP_CA[0]
-                ) || 0n;
+                    contractProtocolStatus.data[dataItem.key].PP_CA[0] || 0n;
 
-            if (contractProtocolStatus.data.canOperate) {
-                price = mulPrecision(priceTEC, priceCA);
-                balanceUSD = mulPrecision(balance, price);
-                totalUSD = totalUSD + balanceUSD;
-            }
+            
+            price = mulPrecision(priceTEC, priceCA);
+            balanceUSD = mulPrecision(balance, price);
+            totalUSD = totalUSD + balanceUSD;
+                
         });
         ///////////////
         // Tokens TP
@@ -96,9 +92,7 @@ export default function Portfolio(): JSX.Element {
                 ) || 0n;
             price = dataItem.peggedUSD
                 ? 1n
-                : normalizeToBigInt(
-                      contractProtocolStatus.data[0].PP_TP[dataItem.key][0]
-                  ) || 0n;
+                : contractProtocolStatus.data[0].PP_TP[dataItem.key][0] || 0n;
             balanceUSD = divPrecision(balance, price);
             totalUSD = totalUSD + balanceUSD;
         });
@@ -108,7 +102,7 @@ export default function Portfolio(): JSX.Element {
         //////////////
         balance = BigInt(userBaseCoinBalance.balance || 0);
         price =
-            normalizeToBigInt(contractProtocolStatus.data?.PP_COINBASE?.[0]) ||
+            contractProtocolStatus.data?.PP_COINBASE?.[0] ||
             0n;
         balanceUSD = mulPrecision(balance, price);
         totalUSD = totalUSD + balanceUSD;
@@ -125,18 +119,17 @@ export default function Portfolio(): JSX.Element {
             balance =
                 normalizeToBigInt(userBalance.data[0].FeeToken.balance) || 0n;
             const priceCA_0: bigint =
-                normalizeToBigInt(contractProtocolStatus.data[0].PP_CA[0]) ||
+                contractProtocolStatus.data[0].PP_CA[0] ||
                 0n;
             const priceInCA: bigint =
-                normalizeToBigInt(
-                    contractProtocolStatus.data[0].PP_FeeToken[0]
-                ) || 0n;
+                contractProtocolStatus.data[0].PP_FeeToken[0] || 0n;
             balanceUSD = divPrecision(
                 mulPrecision(balance, priceInCA),
                 priceCA_0
             );
             totalUSD = totalUSD + balanceUSD;
         }
+
     }
 
     return (
@@ -148,10 +141,7 @@ export default function Portfolio(): JSX.Element {
                     </div>
                     <div className="tokens-list-header-balance">
                         <div className="tokens-list-header-balance-number">
-                            {contractProtocolStatus.data &&
-                            !contractProtocolStatus.data.canOperate
-                                ? "--"
-                                : PrecisionNumbers({
+                            {PrecisionNumbers({
                                       amount: totalUSD,
                                       token: settings.tokens.COINBASE[0],
                                       decimals: 2,

@@ -13,7 +13,6 @@ export type UserBalance = {
     CA: TokenBalance[];
     TP: TokenBalance[][];
     tpLegacy?: TokenBalance;
-    canOperate: boolean;
 };
 export type UserBalanceResult = Omit<UseStorageResult<unknown>, "data"> & {
     data: UserBalance;
@@ -24,7 +23,7 @@ export type OracleValue = {
     1: boolean; // válido o no
 };
 
-export type OracleArray = [string, boolean]; // Example: PP_FeeToken, PP_COINBASE
+export type OracleArray = [bigint, boolean]; // Example: PP_FeeToken, PP_COINBASE
 
 export type PegContainer = [bigint, string]; // value + address
 
@@ -76,7 +75,6 @@ export type ProtocolStatusEntry = {
 export type ContractProtocolStatus = {
     [key: number]: ProtocolStatusEntry;
     PP_COINBASE: OracleArray;
-    canOperate: boolean;
     getCombinedCglb: bigint;
     getCombinedCtargemaCA: bigint;
     getNormalizationFactors: bigint[];
@@ -115,7 +113,6 @@ export type VotingMachineInfo = {
 
 // Root type
 export type UserOmocBalance = {
-    canOperate: boolean;
     TG: TokenBalance;
     tgAllowance: bigint;
     delaymachine: DelayMachineInfo;
@@ -161,7 +158,6 @@ export type VestingMachineInfo = {
 };
 
 export type UserVesting = {
-    canOperate: boolean;
     vestingfactory: VestingFactoryInfo;
     vestingmachine: VestingMachineInfo;
     staking: StakingInfo;
@@ -230,7 +226,6 @@ export type VotingMachineStatus = {
 
 // Root type
 export type ContractStatusOmoc = {
-    canOperate: boolean;
     delaymachine: DelayMachineStatus;
     stakingmachine: StakingMachineStatus;
     supporters: SupportersStatus;
@@ -244,6 +239,14 @@ export type ContractStatusOmocResult = Omit<
 > & {
     data: ContractStatusOmoc;
 };
+
+export type OnchainPricesResult = Omit<
+    UseStorageResult<unknown>,
+    "data"
+> & {
+    data: ContractStatusOmoc;
+};
+
 
 export interface UseBaseCoinBalanceResult {
     balance: bigint | undefined;

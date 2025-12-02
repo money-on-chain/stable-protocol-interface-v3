@@ -62,7 +62,7 @@ const ABI_TokenMigrator = TokenMigrator.abi as readonly unknown[];
 const ABI_TokenPegged = TokenPegged.abi as readonly unknown[];
 
 /** onError handler used by some multicall entries */
-const onErrorTP = () => ({ value: null, canOperate: true });
+const onErrorTP = () => ({ value: null });
 
 /**
  * Read all protocol contracts/addresses based on settings + registry.
@@ -141,6 +141,9 @@ const readContracts = async (
             type: "",
         };
 
+        // warning this a hardcode for the price provider of the tp token
+        //const overwritePPTP = [["0x6979513C5DE144B31dd36D87892fD6Cef95Cf59A".toLowerCase(), "0xAC7262297A33106603Ec19c50c0bBaF35F0701a2".toLowerCase()], ["0xCf330C2FE1e8b4980Fb19A310a32E2B119e4c1B1".toLowerCase(), "0x81852EEEA69A20D12A47A257EA4756847527E9E5".toLowerCase()]]
+
         // Iterate buckets (CA list)
         for (let ca = 0; ca < s.CA.length; ca++) {
             const bucketAddr = (await readContract(publicClient, {
@@ -192,6 +195,7 @@ const readContracts = async (
 
             // TP list (via pegContainer/peggedTokenIndex)
             const tpAddresses: Address[] = [];
+            
             for (let tp = 0; tp < s.TP.length; tp++) {
                 const tpAddress = (await readContract(publicClient, {
                     address: moc.address,
@@ -230,9 +234,12 @@ const readContracts = async (
                     `Reading Price Provider Pair ${s.TP[tp].name}/${s.CA[ca].name} Contract... address: `,
                     tpItem[1]
                 );
+                
 
                 if (!contracts.PP_TP![ca]) contracts.PP_TP![ca] = [];
+
                 contracts.PP_TP![ca].push({
+                    //address: overwritePPTP[ca][tp] ? overwritePPTP[ca][tp] as Address : tpItem[1] as Address,
                     address: tpItem[1],
                     abi: ABI_IPriceProvider,
                     name: "PP",

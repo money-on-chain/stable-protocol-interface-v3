@@ -20,7 +20,7 @@ const onErrorProposal = (): MultiCallErrorResult => {
         console.warn("Proposal not exist");
         lastProposalErrorLog = now;
     }*/
-    return { value: null, canOperate: true };
+    return { value: null };
 };
 
 /**

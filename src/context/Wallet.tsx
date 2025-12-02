@@ -63,6 +63,7 @@ import { useContractProtocolStatus } from "../hooks/useContractProtocolStatus";
 import { useIncentiveV2 } from "../hooks/useIncentiveV2";
 import { useLatestBlockNumber } from "../hooks/useLatestBlockNumber";
 import { useOffchainPrices } from "../hooks/useOffchainPrices";
+import { useOnchainPrices } from "../hooks/useOnchainPrices";
 import { readContracts } from "../hooks/useReadContracts";
 import { useRpcErrorHandler } from "../hooks/useRpcErrorHandler";
 import { useRpcErrorIntegration } from "../hooks/useRpcErrorIntegration";
@@ -103,6 +104,7 @@ export const useWalletContext = () => {
 
 const REFRESH_INTERVAL_BLOCKS_NUMBER = 5_000;
 const REFRESH_INTERVAL_OFFCHAIN_PRICES = 20_000;
+const REFRESH_INTERVAL_ONCHAIN_PRICES = 20_000;
 const REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS = 30_000;
 const REFRESH_INTERVAL_CONTRACT_STATUS_OMOC = 30_000;
 const REFRESH_INTERVAL_USER_BALANCE = 30_000;
@@ -123,6 +125,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     );
 
     const [offChainPrices, setOffChainPrices] = useState<unknown>(null);
+    const [onChainPrices, setOnChainPrices] = useState<unknown>(null);
     const [showModalAccount, setShowModalAccount] = useState<boolean>(false);
     const [showModalProviders, setShowModalProviders] =
         useState<boolean>(false);
@@ -152,11 +155,19 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const offChainPricesAPI = useOffchainPrices(
         REFRESH_INTERVAL_OFFCHAIN_PRICES
     );
+    
+    const onChainPricesHook = useOnchainPrices(
+        contractsAddressLoaded && contractsAddress
+            ? contractsAddress
+            : undefined,
+        REFRESH_INTERVAL_ONCHAIN_PRICES
+    );
 
     const contractProtocolStatus = useContractProtocolStatus(
         contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
         Number(blockNumber),
         (offChainPrices as ParsedPrices[]) ?? undefined,
+        (onChainPrices as ParsedPrices[]) ?? undefined,
         REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS
     );
 
@@ -229,6 +240,12 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             setOffChainPrices(offChainPricesAPI.parsedPrices);
         }
     }, [offChainPricesAPI.parsedPrices]);
+
+    useEffect(() => {
+        if (onChainPricesHook.data) {
+            setOnChainPrices(onChainPricesHook.data);
+        }
+    }, [onChainPricesHook.data]);
 
     useEffect(() => {
         if (!contractsAddressLoaded) {
