@@ -56,7 +56,6 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
         disconnect,
         setVestingMachine,
     } = useWalletContext();
-    const [qrValue, setQrValue] = useState<string | null>(null);
     const [actionVesting, setActionVesting] = useState<"select" | "add">(
         "select"
     );
@@ -82,53 +81,32 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
         string | null
     >(defaultVestingAddress);
 
-    const onVestingOn = useCallback(async (): Promise<boolean> => {
-        let isLoaded = false;
-        if (vestingOn && vestingAddress === undefined) {
-            // switch On Vesting
-            if (vestingAddressDefault) {
-                if (!publicClient) return false;
-                //console.log('vestingAddressDefault', vestingAddressDefault)
-                isLoaded = await loadVesting(
+    useEffect(() => {
+        const run = async () => {
+            if (!publicClient) return;
+    
+            if (vestingOn && vestingAddress === undefined && vestingAddressDefault) {
+                const isLoaded = await loadVesting(
                     publicClient,
                     vestingAddressDefault as `0x${string}`
                 );
-                setVestingMachine(vestingAddressDefault);
+                if (isLoaded) {
+                    setVestingMachine(vestingAddressDefault);
+                }
             }
-        } else if (!vestingOn && vestingAddress !== undefined) {
-            // Disable using vesting machine
-            setVestingMachine("");
-            if (userBalance.data) {
-                // Clearing vesting data
+    
+            if (!vestingOn && vestingAddress !== undefined) {
+                setVestingMachine("");
             }
-
-            // Refresh status
-            // auth.loadContractsStatusAndUserBalance().then((/*value*/) => {
-            //     console.log("Refresh user balance OK!");
-            // });
-        }
-
-        return isLoaded;
-    }, [
-        vestingOn,
-        vestingAddress,
-        vestingAddressDefault,
-        publicClient,
-        setVestingMachine,
-        userBalance,
-    ]);
-
-    useEffect(() => {
-        void onVestingOn();
-    }, [onVestingOn]);
-
-    useEffect(() => {
-        const url =
-            import.meta.env.REACT_APP_ENVIRONMENT_EXPLORER_URL +
-            "/address/" +
-            address;
-        setQrValue(url);
-    }, [address]);
+        };
+    
+        void run();
+    }, [vestingOn, vestingAddress, vestingAddressDefault, publicClient, setVestingMachine]);
+    
+    const qrValue =
+    address && import.meta.env.REACT_APP_ENVIRONMENT_EXPLORER_URL
+        ? `${import.meta.env.REACT_APP_ENVIRONMENT_EXPLORER_URL}/address/${address}`
+        : "";
 
     const onClose = (): void => {
         onCloseModal();

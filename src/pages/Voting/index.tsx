@@ -1,7 +1,7 @@
 import "./Styles.scss";
 
 import { Skeleton } from "antd";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useMemo } from "react";
 
 import VestingStatusAlert from "../../components/Notification/VestingStatusAlert";
 import Voting from "../../components/Voting";
@@ -15,31 +15,24 @@ export default function SectionVoting(): React.ReactElement {
         isVestingLoaded,
         vestingAddress,
     } = useWalletContext();
-    const [ready, setReady] = useState<boolean>(false);
-    const [usingVestingAddress, setUsingVestingAddress] = useState<string>("");
 
-    useEffect(() => {
-        if (contractStatusOmoc.data && userOmocBalance.data) {
-            setReady(true);
-        }
+    const ready = !!(contractStatusOmoc.data && userOmocBalance.data);
+
+    const usingVestingAddress = useMemo(() => {
         if (userOmocBalance.data && isVestingLoaded() && vestingAddress) {
-            const vestingAddr = vestingAddress;
-            setUsingVestingAddress(vestingAddr || "");
-        } else {
-            setUsingVestingAddress("");
+            return vestingAddress;
         }
-    }, [
-        contractStatusOmoc.data,
-        userOmocBalance.data,
-        isVestingLoaded,
-        vestingAddress,
-    ]);
+        return "";
+    }, [userOmocBalance.data, isVestingLoaded, vestingAddress]);
 
     return (
         <Fragment>
             <div className="section-container">
                 <div className="content-page">
-                {(settings.project === "moc" || settings.project === "voting") && <VestingStatusAlert />}
+                    {(settings.project === "moc" ||
+                        settings.project === "voting") && (
+                        <VestingStatusAlert />
+                    )}
                 </div>
                 {ready ? <Voting /> : <Skeleton active />}
             </div>
