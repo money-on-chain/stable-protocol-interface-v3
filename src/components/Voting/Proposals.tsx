@@ -72,7 +72,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
     const [txHash, setTxHash] = useState<string>("");
     const [operationStatus, setOperationStatus] = useState<string>("sign");
     const [modalTitle, setModalTitle] = useState<string>("Proposal");
-    const [proposalsData, setProposalsData] = useState<ProposalData[]>([]);
+    //const [proposalsData, setProposalsData] = useState<ProposalData[]>([]);
 
     const { t, i18n, ns } = useProjectTranslation();
     const {
@@ -88,20 +88,83 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
     const votingPower = infoUser.Voting_Power;
     const minStake = infoVoting.MIN_STAKE;
 
-    const onValidateSubmitProposalCallback = useCallback((): boolean => {
+    const onValidateSubmitProposal = (): boolean => {
         if (votingPower < minStake) {
-            setAddProposalAddressErrorText(
-                // `You need at least ${infoVoting['MIN_STAKE'].toString()} amount of tokens to submit the proposal`
-                "Not enough balance. See below."
-            );
+            setAddProposalAddressErrorText("Not enough balance. See below.");
             setAddProposalAddressError(true);
             return false;
-        } else return true;
-    }, [votingPower, minStake]);
+        }
+        return true;
+    };
 
-    useEffect(() => {
-        onValidateSubmitProposalCallback();
-    }, [contractStatusOmoc.data, onValidateSubmitProposalCallback]);
+    const proposalsData: ProposalData[] = React.useMemo(() => {
+        const propData: ProposalData[] = [];
+        let count = 0;
+        const nowTimestamp = BigInt(Date.now());
+        const showLastRoundProposal = true;
+    
+        const entries = infoVoting.proposals;
+        if (!entries) return propData;
+    
+        let lenProp = Object.keys(entries).length;
+    
+        for (let i = 0; i < lenProp; i++) {
+            if (entries[i] == null) continue;
+    
+            const [
+                proposalAddress,
+                propVotingRound,
+                propVotes,
+                propExpirationTimeStamp,
+            ] = entries[i];
+    
+            const expirationTimestamp = propExpirationTimeStamp * 1000n;
+            const expired = expirationTimestamp <= nowTimestamp;
+    
+            let canUnregister = false;
+            if (propVotingRound < infoVoting.globalVotingRound) {
+                canUnregister = true;
+            }
+    
+            let votingRound = propVotingRound;
+            if (
+                votingRound < infoVoting.globalVotingRound &&
+                showLastRoundProposal
+            )
+                continue;
+    
+            const votesPositive = propVotes;
+            const votesPositivePCT = divPrecision(
+                votesPositive * 100n,
+                infoVoting.totalSupply
+            );
+    
+            let canRunStep = false;
+            if (
+                votesPositivePCT >= infoVoting.PRE_VOTE_MIN_PCT_TO_WIN &&
+                infoVoting.readyToPreVoteStep
+            ) {
+                canRunStep = true;
+            }
+    
+            propData.push({
+                id: count++,
+                changeContract: proposalAddress,
+                votingRound: propVotingRound,
+                votesPositive,
+                votesPositivePCT,
+                expirationTimeStampFormat: formatTimestamp(
+                    Number(expirationTimestamp)
+                ),
+                expired,
+                canUnregister,
+                canRunStep,
+                canVote: !expired && !infoVoting.readyToPreVoteStep,
+            });
+        }
+    
+        return propData;
+    }, [infoVoting]);
 
     const searchProposal = useCallback(
         (proposalAddress: string): ProposalData => {
@@ -129,108 +192,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         },
         [proposalsData]
     );
-
-    const refreshViewProposalData = useCallback(
-        (currentProposalsData: ProposalData[]): void => {
-            if (viewProposal.changeContract != null) {
-                let proposal: ProposalData | undefined;
-                for (let i = 0; i < currentProposalsData.length; i++) {
-                    if (
-                        currentProposalsData[i].changeContract.toLowerCase() ===
-                        viewProposal.changeContract.toLowerCase()
-                    ) {
-                        proposal = currentProposalsData[i];
-                        break;
-                    }
-                }
-                if (proposal) {
-                    setViewProposal(proposal);
-                }
-            }
-        },
-        [viewProposal.changeContract]
-    );
-
-    const refreshProposals = useCallback((): void => {
-        const propData: ProposalData[] = [];
-        let count = 0;
-        const nowTimestamp = BigInt(Date.now());
-        let expirationTimestamp = 0n;
-        let votesPositivePCT = 0n;
-        let votesPositive = 0n;
-        let votingRound = 0n;
-        const showLastRoundProposal = true;
-
-        let lenProp = 0;
-        if (infoVoting["proposals"] != null)
-            lenProp = Object.keys(infoVoting["proposals"]).length;
-        for (let i = 0; i < lenProp; i++) {
-            if (infoVoting["proposals"][i] != null) {
-                const [
-                    proposalAddress,
-                    propVotingRound,
-                    propVotes,
-                    propExpirationTimeStamp,
-                ] = infoVoting["proposals"][i];
-                expirationTimestamp = propExpirationTimeStamp * 1000n;
-                let expired = true;
-                if (expirationTimestamp > nowTimestamp) expired = false;
-
-                let canUnregister = false;
-                if (propVotingRound < infoVoting["globalVotingRound"])
-                    canUnregister = true;
-
-                votingRound = propVotingRound;
-                if (
-                    votingRound < infoVoting["globalVotingRound"] &&
-                    showLastRoundProposal
-                )
-                    continue;
-
-                votesPositive = propVotes;
-                votesPositivePCT = divPrecision(
-                    votesPositive * 100n,
-                    infoVoting["totalSupply"]
-                );
-
-                let canRunStep = false;
-                if (
-                    votesPositivePCT >= infoVoting["PRE_VOTE_MIN_PCT_TO_WIN"] &&
-                    infoVoting["readyToPreVoteStep"]
-                )
-                    canRunStep = true;
-
-                propData.push({
-                    id: count,
-                    changeContract: proposalAddress,
-                    votingRound: propVotingRound,
-                    votesPositive: votesPositive,
-                    votesPositivePCT: votesPositivePCT,
-                    expirationTimeStampFormat: formatTimestamp(
-                        Number(expirationTimestamp)
-                    ),
-                    expired: expired,
-                    canUnregister: canUnregister,
-                    canRunStep: canRunStep,
-                    canVote: !expired && !infoVoting["readyToPreVoteStep"],
-                });
-                count += 1;
-            }
-        }
-        setProposalsData(propData);
-
-        // Also refresh proposal view data with the new data
-        refreshViewProposalData(propData);
-    }, [infoVoting, refreshViewProposalData]);
-
-    // Extract to avoid complex expression in dependency array
-    const proposals = infoVoting.proposals;
-
-    useEffect(() => {
-        if (proposals != null) {
-            refreshProposals();
-        }
-    }, [proposals, refreshProposals]);
+    
 
     const onChangeInputAddProposal = (
         e: React.ChangeEvent<HTMLInputElement>
@@ -264,14 +226,12 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
 
     const addProposal = (): void => {
         const valid =
-            onValidateAddressProposal() && onValidateSubmitProposalCallback();
-        if (valid) {
-            onSendAddProposal()
-                .then((/*res*/) => {})
-                .catch((e) => {
-                    console.error(e);
-                });
-        }
+            onValidateAddressProposal() && onValidateSubmitProposal();
+        if (!valid) return;
+
+        onSendAddProposal()
+            .then(() => {})
+            .catch(console.error);
     };
 
     const onAddProposal = (e: React.MouseEvent): void => {
