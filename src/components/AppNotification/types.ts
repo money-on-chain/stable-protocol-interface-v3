@@ -3,8 +3,7 @@ export type AppNotificationType =
     | "info"
     | "success"
     | "warning"
-    | "error"
-    | "brand";
+    | "error";
 
 export type AppNotificationActionVisualType = "primary" | "secondary" | "link";
 

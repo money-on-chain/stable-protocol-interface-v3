@@ -1,3 +1,6 @@
+// Variables
+$breakpoint-mobile: 600px;
+
 // Root notification container (base layout for all notification types)
 .app-notification {
     position: relative;
@@ -7,7 +10,7 @@
     width: 100%;
     padding: 12px 16px;
     border-radius: var(--notification-border-radius, var(--card-border-radius));
-    border: 1px solid var(--notification-border-color);
+    border: var(--notification-border);
     background-color: var(--notification-bg-color) !important;
     color: var(--notification-text-color);
     font-family: var(--main-font);
@@ -60,6 +63,33 @@
         display: flex;
     }
 
+    &__actions-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    // Dismiss / close button (usually an “X” in the top-right corner)
+    &__close {
+        filter: var(--notification-icon-filter);
+        cursor: pointer;
+        border: none;
+        margin-left: 8px;
+        background-position: 1px 1px;
+        background-size: 12px;
+        background-color: transparent;
+        width: 16px;
+        height: 16px;
+        &-wrapper {
+            display: flex;
+            align-items: center;
+        }
+    }
+    .app-notification__countdown {
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
     // Container for action buttons (primary, secondary, link)
     &__actions {
         margin-top: 8px;
@@ -67,9 +97,7 @@
         flex-direction: column;
         flex-wrap: wrap;
         gap: 8px;
-        // outline: 2px dashed blue;
     }
-
     // Base style for any action (button or link) inside the notification
     &__action {
         border: none;
@@ -119,48 +147,28 @@
         }
     }
 
-    // Dismiss / close button (usually an “X” in the top-right corner)
-    &__close {
-        filter: var(--notification-icon-filter);
-        cursor: pointer;
-        border: none;
-        margin-left: 8px;
-        background-position: 1px 1px;
-        background-size: 21px 21px;
-        background-color: transparent;
-        width: 24px;
-        height: 24px;
-    }
-
     /* Type modifiers (semantic variants controlled via CSS variables) */
 
     // Neutral / default notification (informational with no specific status)
     &--type-neutral {
-        --notification-bg-color: var(--notification-neutral-bg);
-        --notification-border-color: var(--dividers);
+        --notification-bg-color: var(--notification-neutral-background);
+        --notification-border: var(--notification-neutral-border);
         --notification-text-color: var(--notification-neutral-text);
+        --notification-icon-filter: var(--notification-neutral-filter);
     }
 
     // Informational notification (non-critical info, hints, tips)
     &--type-info {
-        --notification-bg-color: var(
-            --notification-info-bg,
-            var(--color-info-bg)
-        );
-        --notification-border-color: var(
-            --notification-info-border,
-            var(--color-info-border)
-        );
-        --notification-text-color: var(
-            --notification-info-text,
-            var(--color-info-text)
-        );
+        --notification-bg-color: var(--notification-info-background);
+        --notification-border: var(--notification-info-border);
+        --notification-text-color: var(--notification-info-text);
+        --notification-icon-filter: var(--notification-info-filter);
     }
 
     // Success notification (operation completed, positive feedback)
     &--type-success {
         --notification-bg-color: var(--notification-success-background);
-        --notification-border-color: var(--notification-success-border);
+        --notification-border: var(--notification-success-border);
         --notification-text-color: var(--notification-success-text);
         --notification-icon-filter: var(--notification-success-filter);
     }
@@ -168,7 +176,7 @@
     // Warning notification (non-blocking issues, potential problems)
     &--type-warning {
         --notification-bg-color: var(--notification-warning-background);
-        --notification-border-color: var(--notification-warning-border);
+        --notification-border: var(--notification-warning-border);
         --notification-text-color: var(--notification-warning-text);
         --notification-icon-filter: var(--notification-warning-filter);
     }
@@ -176,7 +184,7 @@
     // Error notification (blocking issues, failures, critical problems)
     &--type-error {
         --notification-bg-color: var(--notification-error-background);
-        --notification-border-color: var(--notification-error-border);
+        --notification-border: var(--notification-error-border);
         --notification-text-color: var(--notification-error-text);
         --notification-icon-filter: var(--notification-error-filter);
     }
@@ -201,8 +209,26 @@
     // Body of the details section (shown when details are expanded)
     &__details-body {
         margin-top: 4px;
+        padding: 8px 16px;
         font-size: 13px;
         line-height: 1.4;
         opacity: 0.85;
+        border: 1px solid var(--notification-text-color);
+    }
+}
+
+@media (max-width: $breakpoint-mobile) {
+    .app-notification {
+        flex-direction: column;
+        &__actions-wrapper {
+            width: 100%;
+            outline: 1px dashed red;
+            flex-direction: row;
+        }
+        &__actions {
+            outline: 1px dashed blue;
+            flex-direction: row;
+            justify-content: space-between;
+        }
     }
 }
