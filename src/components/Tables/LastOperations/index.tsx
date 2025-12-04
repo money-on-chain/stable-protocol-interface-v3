@@ -193,15 +193,38 @@ export default function LastOperations(props: LastOperationsProps) {
     const isLoadingRef = useRef<boolean>(false);
     // Ref to track if initial load has happened
     const hasInitialLoadRef = useRef<boolean>(false);
+    // Refs to store current values to avoid recreating callback
+    const currentRef = useRef(current);
+    const pageSizeRef = useRef(pageSize);
+    const isConnectedRef = useRef(isConnected);
+    const addressRef = useRef(address);
+    const blockNumberRef = useRef(blockNumber);
+
+    // Update refs when values change
+    useEffect(() => {
+        currentRef.current = current;
+    }, [current]);
+    useEffect(() => {
+        pageSizeRef.current = pageSize;
+    }, [pageSize]);
+    useEffect(() => {
+        isConnectedRef.current = isConnected;
+    }, [isConnected]);
+    useEffect(() => {
+        addressRef.current = address;
+    }, [address]);
+    useEffect(() => {
+        blockNumberRef.current = blockNumber;
+    }, [blockNumber]);
 
     const fetchTransactions = useCallback((isPolling = false) => {
-        if (isConnected && blockNumber && address && !isLoadingRef.current) {
+        if (isConnectedRef.current && blockNumberRef.current && addressRef.current && !isLoadingRef.current) {
             isLoadingRef.current = true;
             const baseUrl = `${import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS}operations/list/`;
-            const skip = (current - 1) * pageSize;
+            const skip = (currentRef.current - 1) * pageSizeRef.current;
             const queryParams = new URLSearchParams({
-                recipient: address || "",
-                limit: String(pageSize),
+                recipient: addressRef.current || "",
+                limit: String(pageSizeRef.current),
                 skip: String(skip),
             }).toString();
             const url = `${baseUrl}?${queryParams}`;
@@ -224,7 +247,7 @@ export default function LastOperations(props: LastOperationsProps) {
                     isLoadingRef.current = false;
                 });
         }
-    }, [isConnected, blockNumber, address, current, pageSize]);
+    }, []); // Empty deps - using refs for all values
     // #section Operation detail custom expand function
     const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
 
@@ -258,7 +281,8 @@ export default function LastOperations(props: LastOperationsProps) {
         if (isConnected && blockNumber && address && !hasInitialLoadRef.current) {
             fetchTransactions(false);
         }
-    }, [isConnected, blockNumber, address, fetchTransactions]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isConnected, blockNumber, address]);
 
     // Polling - only after initial load, with interval
     useEffect(() => {
@@ -288,14 +312,16 @@ export default function LastOperations(props: LastOperationsProps) {
             if (checkTimeoutId) clearTimeout(checkTimeoutId);
             if (intervalId) clearInterval(intervalId);
         };
-    }, [isConnected, blockNumber, address, fetchTransactions]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isConnected, blockNumber, address]);
 
     // Reload when page or pageSize changes
     useEffect(() => {
         if (isConnected && blockNumber && address && hasInitialLoadRef.current) {
             fetchTransactions(false);
         }
-    }, [current, pageSize, isConnected, blockNumber, address, fetchTransactions]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [current, pageSize, isConnected, blockNumber, address]);
 
     const onChange = (page: number) => {
         if (isConnected) {

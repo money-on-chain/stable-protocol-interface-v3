@@ -1,7 +1,7 @@
 import "./Styles.scss";
 
 import { Skeleton } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { useWalletContext } from "../../../context/Wallet";
 import { ConvertPeggedTokenPrice } from "../../../helpers/currencies";
@@ -31,11 +31,27 @@ interface Label {
     usdBalance: string;
 }
 
+// Custom serializer that handles BigInt values
+const serializeWithBigInt = (obj: unknown): string => {
+    return JSON.stringify(obj, (key, value) => {
+        if (typeof value === 'bigint') {
+            return value.toString();
+        }
+        return value;
+    });
+};
+
 export default function PortfolioTable() {
     const { t, i18n } = useProjectTranslation();
     const { contractProtocolStatus, userBalance, userBaseCoinBalance } =
         useWalletContext();
     const [ready, setReady] = useState<boolean>(false);
+    
+    // Refs to track previous values and prevent infinite loops
+    const prevContractDataRef = useRef<unknown>(null);
+    const prevUserBalanceRef = useRef<unknown>(null);
+    const prevLanguageRef = useRef<string>(i18n.language);
+    const isProcessingRef = useRef<boolean>(false);
 
     // Default values for all tokens
     const label: Label = {
@@ -404,12 +420,39 @@ export default function PortfolioTable() {
     };
 
     useEffect(() => {
-        if (ready && contractProtocolStatus.data && userBalance.data) {
+        if (!ready || !contractProtocolStatus.data || !userBalance.data || isProcessingRef.current) {
+            return;
+        }
+
+        // Serialize current values for comparison (handles BigInt)
+        const currentContractData = serializeWithBigInt(contractProtocolStatus.data);
+        const currentUserBalance = serializeWithBigInt(userBalance.data);
+        const currentLanguage = i18n.language;
+
+        // Check if data has actually changed
+        const contractDataChanged = prevContractDataRef.current !== currentContractData;
+        const userBalanceChanged = prevUserBalanceRef.current !== currentUserBalance;
+        const languageChanged = prevLanguageRef.current !== currentLanguage;
+
+        // Only process if something actually changed
+        if (contractDataChanged || userBalanceChanged || languageChanged) {
+            isProcessingRef.current = true;
+            
+            // Update refs with current serialized values
+            prevContractDataRef.current = currentContractData;
+            prevUserBalanceRef.current = currentUserBalance;
+            prevLanguageRef.current = currentLanguage;
+
             const allTheTokens = createAllTheTokens(settings);
             processTokens(allTheTokens, settings, t);
+            
+            // Reset processing flag after state updates complete
+            Promise.resolve().then(() => {
+                isProcessingRef.current = false;
+            });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [ready, contractProtocolStatus.data, userBalance.data, i18n.language]); // i18n.language triggers re-translation
+    }, [ready, contractProtocolStatus.data, userBalance.data, i18n.language, t]);
 
     return ready ? (
         <div className="portfolio-table">
