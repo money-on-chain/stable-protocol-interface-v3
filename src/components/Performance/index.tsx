@@ -1,5 +1,5 @@
 import { Modal } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useState, useMemo } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
 import { CheckStatusGlobal } from "../../helpers/checkStatus";
@@ -12,10 +12,6 @@ import TVL from "./tvl";
 
 export default function Performance(): JSX.Element {
     const space = "\u00A0";
-    const [statusLabel, setStatusLabel] = useState<string>("--");
-    const [statusText, setStatusText] = useState<string>("--");
-    const [statusLabelClass, setStatusLabelClass] = useState<string>("status-neutral");
-    const [statusCode, setStatusCode] = useState<number[]>([]);
     const [showGlobalStatusModal, setShowGlobalStatusModal] =
         useState<boolean>(false);
     const { t } = useProjectTranslation();
@@ -23,17 +19,19 @@ export default function Performance(): JSX.Element {
         useWalletContext();
     const { checkerStatus } = CheckStatusGlobal();
 
-    useEffect(() => {
-        if (contractProtocolStatus.data && userBalance.data) {
-            const { statusLabel, statusLabelClass, statusText, statusCode } =
-                checkerStatus();
-            setStatusLabel(statusLabel);
-            setStatusText(statusText);
-            setStatusLabelClass(statusLabelClass);
-            setStatusCode(statusCode);
+    const status = useMemo(() => {
+        if (!contractProtocolStatus.data || !userBalance.data) {
+          return {
+            statusLabel: "--",
+            statusLabelClass: "status-neutral",
+            statusText: "--",
+            statusCode: [],
+          };
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [contractProtocolStatus.data, userBalance.data]);
+      
+        // Asumo que checkerStatus usa esas data internamente
+        return checkerStatus();
+      }, [contractProtocolStatus.data, userBalance.data]);
 
     const showModal = (): void => {
         setShowGlobalStatusModal(true);
@@ -57,14 +55,14 @@ export default function Performance(): JSX.Element {
                             <div className="stat-icon">
                                 <div className="status-lights-container">
                                     <div
-                                        className={`icon-status-lights-lamp icon-status-lights-${statusLabelClass}`}
+                                        className={`icon-status-lights-lamp icon-status-lights-${status.statusLabelClass}`}
                                     ></div>
                                     <div className="icon-status-lights"></div>
                                 </div>
                                 <div
-                                    className={`stat-label  ${statusLabelClass}`}
+                                    className={`stat-label  ${status.statusLabelClass}`}
                                 >
-                                    {statusLabel}
+                                    {status.statusLabel}
                                     <div className="block-info">
                                         {t("performance.status.showingBlock")}
                                         {space}
@@ -76,7 +74,7 @@ export default function Performance(): JSX.Element {
                             </div>
                         </div>
                         <div className="coll-2">
-                            <div className="status-text">{statusText}</div>
+                            <div className="status-text">{status.statusText}</div>
                             <button
                                 className="aboutShowModal__button"
                                 onClick={showModal}
@@ -102,7 +100,7 @@ export default function Performance(): JSX.Element {
                                 >
                                     <GlobalStatusModal
                                         hideModal={hideModal}
-                                        statusCode={statusCode}
+                                        statusCode={status.statusCode || []}
                                     />
                                 </Modal>
                             )}

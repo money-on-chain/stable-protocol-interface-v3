@@ -8,14 +8,9 @@ import { useWalletContext } from "../../context/Wallet";
 
 export default function SectionPerformance(): React.ReactElement {
     const { contractProtocolStatus } = useWalletContext();
-    const [ready, setReady] = useState<boolean>(false);
+    const [ready, setReady] = useState<boolean>(true);
 
-    useEffect(() => {
-        // Set component ready when contract status data is available
-        if (contractProtocolStatus.data) {
-            setReady(true);
-        }
-    }, [contractProtocolStatus.data]);
+    
 
     return (
         <Fragment>
