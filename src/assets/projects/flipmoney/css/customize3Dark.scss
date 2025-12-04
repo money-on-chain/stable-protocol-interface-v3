@@ -165,30 +165,40 @@
 
     // Notifications
 
-    --notification-success-background: var(--color-semantic-positive);
-    --notification-success-text: #0c0c08;
-    --notification-success-filter: invert(0%) sepia(8%) saturate(7469%)
-        hue-rotate(300deg) brightness(103%) contrast(110%);
-
-    --notification-error-background: var(--color-semantic-negative);
-    --notification-error-text: #ffffff;
-    --notification-error-filter: invert(99%) sepia(0%) saturate(6014%)
-        hue-rotate(357deg) brightness(124%) contrast(90%);
-
-    --notification-warning-background: #0d0d0d;
-    --notification-warning-text: #b5b5b5;
-    --notification-warning-filter: invert(0%) sepia(8%) saturate(7469%)
-        hue-rotate(300deg) brightness(103%) contrast(110%);
-
+    --notification-info-border: none;
     --notification-info-background: #b5b5b5;
     --notification-info-text: #0c0c08;
     --notification-info-filter: invert(0%) sepia(8%) saturate(7469%)
         hue-rotate(300deg) brightness(103%) contrast(110%);
 
-    --notification-permanent-background: #fff383;
-    --notification-permanent-text: #0c0c08;
-    --notification-permanent-filter: invert(0%) sepia(8%) saturate(7469%)
+    --notification-success-border: none;
+    --notification-success-background: var(--color-semantic-positive);
+    --notification-success-text: #0c0c08;
+    --notification-success-filter: invert(0%) sepia(8%) saturate(7469%)
         hue-rotate(300deg) brightness(103%) contrast(110%);
+
+    --notification-warning-border: 1px solid #c3ccd9;
+    --notification-warning-background: #1c1b21;
+    --notification-warning-text: #c3ccd9;
+    --notification-warning-filter: invert(79%) sepia(13%) saturate(234%)
+        hue-rotate(176deg) brightness(108%) contrast(79%);
+
+    --notification-neutral-border: 1px solid #fff383;
+    --notification-neutral-background: transparent;
+    --notification-neutral-text: #fff383;
+    --notification-neutral-filter: invert(97%) sepia(17%) saturate(4227%)
+        hue-rotate(309deg) brightness(125%) contrast(101%);
+
+    --notification-error-border: none;
+    --notification-error-background: var(--color-semantic-negative);
+    --notification-error-text: #ffffff;
+    --notification-error-filter: invert(99%) sepia(0%) saturate(6014%)
+        hue-rotate(357deg) brightness(124%) contrast(90%);
+
+    --notification-permanent-background: #fff383; // to be deprecated
+    --notification-permanent-text: #0c0c08; // to be deprecated
+    --notification-permanent-filter: invert(0%) sepia(8%) saturate(7469%)
+        hue-rotate(300deg) brightness(103%) contrast(110%); // to be deprecated
 
     // Main nav colors
 

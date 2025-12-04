@@ -1,7 +1,7 @@
 import "./Styles.scss";
 
 import type { CSSProperties, ReactNode } from "react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 export type AppNotificationType =
     | "info"
@@ -141,6 +141,12 @@ export const AppNotification: React.FC<AppNotificationProps> = ({
         detailsInitiallyOpen ?? false
     );
 
+    const [remainingSeconds, setRemainingSeconds] = useState<number | null>(
+        null
+    );
+
+    const autoCloseDeadlineRef = useRef<number | null>(null);
+
     const isVisible = isControlled ? visible : internalVisible;
 
     const handleVisibilityChange = (
@@ -183,6 +189,40 @@ export const AppNotification: React.FC<AppNotificationProps> = ({
             window.clearTimeout(timerId);
         };
     }, [isVisible, autoCloseAfterMs, isControlled, onDismiss, onVisibleChange]);
+
+    // Countdown for "Closing in XXs"
+    useEffect(() => {
+        if (!isVisible || !autoCloseAfterMs || autoCloseAfterMs <= 0) {
+            autoCloseDeadlineRef.current = null;
+            setRemainingSeconds(null);
+            return;
+        }
+
+        const now = Date.now();
+        const deadline = now + autoCloseAfterMs;
+        autoCloseDeadlineRef.current = deadline;
+
+        // Initial value
+        setRemainingSeconds(Math.ceil(autoCloseAfterMs / 1000));
+
+        const intervalId = window.setInterval(() => {
+            if (!autoCloseDeadlineRef.current) return;
+
+            const remainingMs = autoCloseDeadlineRef.current - Date.now();
+
+            if (remainingMs <= 0) {
+                setRemainingSeconds(0);
+                window.clearInterval(intervalId);
+                return;
+            }
+
+            setRemainingSeconds(Math.ceil(remainingMs / 1000));
+        }, 1000);
+
+        return () => {
+            window.clearInterval(intervalId);
+        };
+    }, [isVisible, autoCloseAfterMs]);
 
     const rootClassName = useMemo(() => {
         const classes = ["app-notification", `app-notification--type-${type}`];
@@ -292,7 +332,6 @@ export const AppNotification: React.FC<AppNotificationProps> = ({
             <div className="app-notification__body">
                 {title && (
                     <div className="app-notification__title">
-                        {" "}
                         {icon && (
                             <div
                                 className={`app-notification__icon ${icon}`}
@@ -323,15 +362,26 @@ export const AppNotification: React.FC<AppNotificationProps> = ({
                     </div>
                 )}
             </div>
-            {renderActions()}
-            {dismissible && (
-                <button
-                    type="button"
-                    className="app-notification__close icon__close__menu"
-                    aria-label="Dismiss notification"
-                    onClick={() => handleDismiss("manual")}
-                ></button>
-            )}
+            <div className="app-notification__actions-wrapper">
+                {dismissible && (
+                    <div className="app-notification__close-wrapper">
+                        {autoCloseAfterMs &&
+                            autoCloseAfterMs > 0 &&
+                            remainingSeconds !== null && (
+                                <span className="app-notification__countdown">
+                                    Closing in {remainingSeconds}s
+                                </span>
+                            )}
+                        <button
+                            type="button"
+                            className="app-notification__close icon__close__menu"
+                            aria-label="Dismiss notification"
+                            onClick={() => handleDismiss("manual")}
+                        ></button>
+                    </div>
+                )}
+                {renderActions()}
+            </div>
         </div>
     );
 };

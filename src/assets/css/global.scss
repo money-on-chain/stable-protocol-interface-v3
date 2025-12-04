@@ -865,6 +865,14 @@ h2 {
 /* #endregion UI ELEMENTS */
 
 /* #region CUSTOM NOTIFICATION BANNERS */
+
+.notification-container {
+    // !important should be removed after moving notifications to skeleton
+    display: flex !important;
+    flex-direction: column;
+    gap: 8px !important;
+}
+
 .ant-notification-notice {
     height: auto !important;
 }
@@ -882,6 +890,7 @@ h2 {
     .ant-notification-notice-closable {
         // padding-right: 60px !important;
     }
+
     .notification {
         display: flex;
         flex-direction: row;
