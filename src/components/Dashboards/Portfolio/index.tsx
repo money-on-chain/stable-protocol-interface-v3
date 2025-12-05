@@ -27,7 +27,6 @@ export default function Portfolio(): JSX.Element {
         userBalance.data &&
         userBaseCoinBalance.balance
     ) {
-
         settings.tokens.CA.forEach(function (dataItem: TokenConfig) {
             if (!dataItem.key) {
                 /*console.error("CA dataItem.key is undefined");*/ return;
@@ -62,13 +61,11 @@ export default function Portfolio(): JSX.Element {
             const priceTEC: bigint =
                 contractProtocolStatus.data[dataItem.key].getPTCac;
             const priceCA: bigint =
-                    contractProtocolStatus.data[dataItem.key].PP_CA[0] || 0n;
+                contractProtocolStatus.data[dataItem.key].PP_CA[0] || 0n;
 
-            
             price = mulPrecision(priceTEC, priceCA);
             balanceUSD = mulPrecision(balance, price);
             totalUSD = totalUSD + balanceUSD;
-                
         });
         ///////////////
         // Tokens TP
@@ -101,9 +98,7 @@ export default function Portfolio(): JSX.Element {
         // Coinbase
         //////////////
         balance = BigInt(userBaseCoinBalance.balance || 0);
-        price =
-            contractProtocolStatus.data?.PP_COINBASE?.[0] ||
-            0n;
+        price = contractProtocolStatus.data?.PP_COINBASE?.[0] || 0n;
         balanceUSD = mulPrecision(balance, price);
         totalUSD = totalUSD + balanceUSD;
 
@@ -119,8 +114,7 @@ export default function Portfolio(): JSX.Element {
             balance =
                 normalizeToBigInt(userBalance.data[0].FeeToken.balance) || 0n;
             const priceCA_0: bigint =
-                contractProtocolStatus.data[0].PP_CA[0] ||
-                0n;
+                contractProtocolStatus.data[0].PP_CA[0] || 0n;
             const priceInCA: bigint =
                 contractProtocolStatus.data[0].PP_FeeToken[0] || 0n;
             balanceUSD = divPrecision(
@@ -129,7 +123,6 @@ export default function Portfolio(): JSX.Element {
             );
             totalUSD = totalUSD + balanceUSD;
         }
-
     }
 
     return (
@@ -142,12 +135,12 @@ export default function Portfolio(): JSX.Element {
                     <div className="tokens-list-header-balance">
                         <div className="tokens-list-header-balance-number">
                             {PrecisionNumbers({
-                                      amount: totalUSD,
-                                      token: settings.tokens.COINBASE[0],
-                                      decimals: 2,
-                                      i18n: i18n,
-                                      compact: true,
-                                  })}
+                                amount: totalUSD,
+                                token: settings.tokens.COINBASE[0],
+                                decimals: 2,
+                                i18n: i18n,
+                                compact: true,
+                            })}
                             {space}
                             {t("portfolio.totalCurrency")}
                         </div>

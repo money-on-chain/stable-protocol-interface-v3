@@ -1,5 +1,5 @@
 import { Modal } from "antd";
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useState } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
 import { CheckStatusGlobal } from "../../helpers/checkStatus";
@@ -21,17 +21,17 @@ export default function Performance(): JSX.Element {
 
     const status = useMemo(() => {
         if (!contractProtocolStatus.data || !userBalance.data) {
-          return {
-            statusLabel: "--",
-            statusLabelClass: "status-neutral",
-            statusText: "--",
-            statusCode: [],
-          };
+            return {
+                statusLabel: "--",
+                statusLabelClass: "status-neutral",
+                statusText: "--",
+                statusCode: [],
+            };
         }
-      
+
         // Asumo que checkerStatus usa esas data internamente
         return checkerStatus();
-      }, [contractProtocolStatus.data, userBalance.data]);
+    }, [contractProtocolStatus.data, userBalance.data, checkerStatus]);
 
     const showModal = (): void => {
         setShowGlobalStatusModal(true);
@@ -74,7 +74,9 @@ export default function Performance(): JSX.Element {
                             </div>
                         </div>
                         <div className="coll-2">
-                            <div className="status-text">{status.statusText}</div>
+                            <div className="status-text">
+                                {status.statusText}
+                            </div>
                             <button
                                 className="aboutShowModal__button"
                                 onClick={showModal}

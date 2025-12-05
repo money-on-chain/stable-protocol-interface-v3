@@ -1,5 +1,5 @@
 import { Input } from "antd";
-import React, { Fragment, useCallback, useEffect, useState } from "react";
+import React, { Fragment, useCallback, useState } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
 import { TokenSettings } from "../../helpers/currencies";
@@ -102,43 +102,43 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         let count = 0;
         const nowTimestamp = BigInt(Date.now());
         const showLastRoundProposal = true;
-    
+
         const entries = infoVoting.proposals;
         if (!entries) return propData;
-    
-        let lenProp = Object.keys(entries).length;
-    
+
+        const lenProp = Object.keys(entries).length;
+
         for (let i = 0; i < lenProp; i++) {
             if (entries[i] == null) continue;
-    
+
             const [
                 proposalAddress,
                 propVotingRound,
                 propVotes,
                 propExpirationTimeStamp,
             ] = entries[i];
-    
+
             const expirationTimestamp = propExpirationTimeStamp * 1000n;
             const expired = expirationTimestamp <= nowTimestamp;
-    
+
             let canUnregister = false;
             if (propVotingRound < infoVoting.globalVotingRound) {
                 canUnregister = true;
             }
-    
-            let votingRound = propVotingRound;
+
+            const votingRound = propVotingRound;
             if (
                 votingRound < infoVoting.globalVotingRound &&
                 showLastRoundProposal
             )
                 continue;
-    
+
             const votesPositive = propVotes;
             const votesPositivePCT = divPrecision(
                 votesPositive * 100n,
                 infoVoting.totalSupply
             );
-    
+
             let canRunStep = false;
             if (
                 votesPositivePCT >= infoVoting.PRE_VOTE_MIN_PCT_TO_WIN &&
@@ -146,7 +146,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
             ) {
                 canRunStep = true;
             }
-    
+
             propData.push({
                 id: count++,
                 changeContract: proposalAddress,
@@ -162,7 +162,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                 canVote: !expired && !infoVoting.readyToPreVoteStep,
             });
         }
-    
+
         return propData;
     }, [infoVoting]);
 
@@ -192,7 +192,6 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         },
         [proposalsData]
     );
-    
 
     const onChangeInputAddProposal = (
         e: React.ChangeEvent<HTMLInputElement>
@@ -225,8 +224,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
     };
 
     const addProposal = (): void => {
-        const valid =
-            onValidateAddressProposal() && onValidateSubmitProposal();
+        const valid = onValidateAddressProposal() && onValidateSubmitProposal();
         if (!valid) return;
 
         onSendAddProposal()

@@ -1,5 +1,5 @@
 import { Input, notification, Select, Switch } from "antd";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import QRCode from "react-qr-code";
 import { readContract } from "viem/actions";
 
@@ -84,8 +84,12 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
     useEffect(() => {
         const run = async () => {
             if (!publicClient) return;
-    
-            if (vestingOn && vestingAddress === undefined && vestingAddressDefault) {
+
+            if (
+                vestingOn &&
+                vestingAddress === undefined &&
+                vestingAddressDefault
+            ) {
                 const isLoaded = await loadVesting(
                     publicClient,
                     vestingAddressDefault as `0x${string}`
@@ -94,19 +98,25 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
                     setVestingMachine(vestingAddressDefault);
                 }
             }
-    
+
             if (!vestingOn && vestingAddress !== undefined) {
                 setVestingMachine("");
             }
         };
-    
+
         void run();
-    }, [vestingOn, vestingAddress, vestingAddressDefault, publicClient, setVestingMachine]);
-    
+    }, [
+        vestingOn,
+        vestingAddress,
+        vestingAddressDefault,
+        publicClient,
+        setVestingMachine,
+    ]);
+
     const qrValue =
-    address && import.meta.env.REACT_APP_ENVIRONMENT_EXPLORER_URL
-        ? `${import.meta.env.REACT_APP_ENVIRONMENT_EXPLORER_URL}/address/${address}`
-        : "";
+        address && import.meta.env.REACT_APP_ENVIRONMENT_EXPLORER_URL
+            ? `${import.meta.env.REACT_APP_ENVIRONMENT_EXPLORER_URL}/address/${address}`
+            : "";
 
     const onClose = (): void => {
         onCloseModal();

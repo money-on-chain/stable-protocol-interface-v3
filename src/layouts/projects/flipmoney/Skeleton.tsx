@@ -1,5 +1,5 @@
 import { Layout } from "antd";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useChainId } from "wagmi";
 
@@ -95,7 +95,13 @@ export default function Skeleton(): JSX.Element {
     // 2) PRICE VALIDITY
     const priceNotValidStatus: NotificationStatus | null = React.useMemo(() => {
         const data = contractProtocolStatus.data;
-        if (!data || !data[0] || !data[0].PP_CA || !data[0].PP_FeeToken || !data[0].PP_TP) {
+        if (
+            !data ||
+            !data[0] ||
+            !data[0].PP_CA ||
+            !data[0].PP_FeeToken ||
+            !data[0].PP_TP
+        ) {
             return null;
         }
 
@@ -145,7 +151,10 @@ export default function Skeleton(): JSX.Element {
 
         const statusData = contractStatusOmoc.data;
 
-        if (!statusData.votingmachine || !statusData.votingmachine.getVotingData) {
+        if (
+            !statusData.votingmachine ||
+            !statusData.votingmachine.getVotingData
+        ) {
             return null;
         }
 
@@ -198,7 +207,9 @@ export default function Skeleton(): JSX.Element {
                     />
                 )}
                 {notifStatus && <NotificationBody notifStatus={notifStatus} />}
-                {priceNotValidStatus && <NotificationBody notifStatus={priceNotValidStatus} />}
+                {priceNotValidStatus && (
+                    <NotificationBody notifStatus={priceNotValidStatus} />
+                )}
                 {vetoWithdraw && (
                     <NotificationBody notifStatus={vetoWithdraw} />
                 )}

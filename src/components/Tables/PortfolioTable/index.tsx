@@ -34,10 +34,10 @@ interface Label {
 // Custom serializer that handles BigInt values
 const serializeWithBigInt = (obj: unknown): string => {
     return JSON.stringify(obj, (key, value) => {
-        if (typeof value === 'bigint') {
+        if (typeof value === "bigint") {
             return value.toString();
         }
-        return value;
+        return value as unknown;
     });
 };
 
@@ -46,7 +46,7 @@ export default function PortfolioTable() {
     const { contractProtocolStatus, userBalance, userBaseCoinBalance } =
         useWalletContext();
     const [ready, setReady] = useState<boolean>(false);
-    
+
     // Refs to track previous values and prevent infinite loops
     const prevContractDataRef = useRef<unknown>(null);
     const prevUserBalanceRef = useRef<unknown>(null);
@@ -310,9 +310,9 @@ export default function PortfolioTable() {
                             contractProtocolStatus.data?.[token.key || 0]
                                 ?.getPTCac
                         ) || 0n;
-                    priceCA = contractProtocolStatus.data?.[token.key || 0]
-                                ?.PP_CA?.[0]
-                         || 0n;
+                    priceCA =
+                        contractProtocolStatus.data?.[token.key || 0]
+                            ?.PP_CA?.[0] || 0n;
                     price = mulPrecision(priceTEC, priceCA);
                     balanceUSD = mulPrecision(balance, price);
 
@@ -420,24 +420,33 @@ export default function PortfolioTable() {
     };
 
     useEffect(() => {
-        if (!ready || !contractProtocolStatus.data || !userBalance.data || isProcessingRef.current) {
+        if (
+            !ready ||
+            !contractProtocolStatus.data ||
+            !userBalance.data ||
+            isProcessingRef.current
+        ) {
             return;
         }
 
         // Serialize current values for comparison (handles BigInt)
-        const currentContractData = serializeWithBigInt(contractProtocolStatus.data);
+        const currentContractData = serializeWithBigInt(
+            contractProtocolStatus.data
+        );
         const currentUserBalance = serializeWithBigInt(userBalance.data);
         const currentLanguage = i18n.language;
 
         // Check if data has actually changed
-        const contractDataChanged = prevContractDataRef.current !== currentContractData;
-        const userBalanceChanged = prevUserBalanceRef.current !== currentUserBalance;
+        const contractDataChanged =
+            prevContractDataRef.current !== currentContractData;
+        const userBalanceChanged =
+            prevUserBalanceRef.current !== currentUserBalance;
         const languageChanged = prevLanguageRef.current !== currentLanguage;
 
         // Only process if something actually changed
         if (contractDataChanged || userBalanceChanged || languageChanged) {
             isProcessingRef.current = true;
-            
+
             // Update refs with current serialized values
             prevContractDataRef.current = currentContractData;
             prevUserBalanceRef.current = currentUserBalance;
@@ -445,14 +454,20 @@ export default function PortfolioTable() {
 
             const allTheTokens = createAllTheTokens(settings);
             processTokens(allTheTokens, settings, t);
-            
+
             // Reset processing flag after state updates complete
-            Promise.resolve().then(() => {
+            void Promise.resolve().then(() => {
                 isProcessingRef.current = false;
             });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [ready, contractProtocolStatus.data, userBalance.data, i18n.language, t]);
+    }, [
+        ready,
+        contractProtocolStatus.data,
+        userBalance.data,
+        i18n.language,
+        t,
+    ]);
 
     return ready ? (
         <div className="portfolio-table">

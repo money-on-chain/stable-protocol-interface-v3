@@ -195,7 +195,7 @@ const readContracts = async (
 
             // TP list (via pegContainer/peggedTokenIndex)
             const tpAddresses: Address[] = [];
-            
+
             for (let tp = 0; tp < s.TP.length; tp++) {
                 const tpAddress = (await readContract(publicClient, {
                     address: moc.address,
@@ -234,7 +234,6 @@ const readContracts = async (
                     `Reading Price Provider Pair ${s.TP[tp].name}/${s.CA[ca].name} Contract... address: `,
                     tpItem[1]
                 );
-                
 
                 if (!contracts.PP_TP![ca]) contracts.PP_TP![ca] = [];
 

@@ -21,13 +21,15 @@ const onErrorGetPTCac = (): MultiCallErrorResult => {
 /**
  * Checks if parsedPrices is empty (either empty array or empty object)
  */
-const isEmptyParsedPrices = (parsedPrices: ParsedPrices[] | undefined): boolean => {
+const isEmptyParsedPrices = (
+    parsedPrices: ParsedPrices[] | undefined
+): boolean => {
     if (!parsedPrices) return true;
     if (Array.isArray(parsedPrices)) {
         return parsedPrices.length === 0;
     }
     // Check if it's an empty object (but not null, which is also typeof 'object')
-    if (typeof parsedPrices === 'object' && parsedPrices !== null) {
+    if (typeof parsedPrices === "object" && parsedPrices !== null) {
         return Object.keys(parsedPrices).length === 0;
     }
     return true;
@@ -44,10 +46,8 @@ export function useContractProtocolStatus(
     onChainPrices?: ParsedPrices[],
     refetchInterval = 30_000
 ): ContractProtocolStatusResult {
-
     // Memoize external data to prevent unnecessary refetches
     const externalData: ExternalData = useMemo(() => {
-
         let parsedPrices: ParsedPrices[] = [];
         if (offChainPrices) {
             parsedPrices = offChainPrices;
@@ -121,7 +121,7 @@ export function useContractProtocolStatus(
                 transform: (result: unknown) => {
                     const tuple = result as [bigint, boolean];
                     return [normalizeToBigInt(tuple[0]), tuple[1]];
-                }
+                },
             });
         }
 
@@ -143,7 +143,7 @@ export function useContractProtocolStatus(
         const tpAddresses: string[] = [];
         if (parsedPrices && !isEmptyParsedPrices(parsedPrices)) {
             for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
-                priceOfflineTPs = parsedPrices[ca].TP.map(tp => tp[0]);
+                priceOfflineTPs = parsedPrices[ca].TP.map((tp) => tp[0]);
                 bucketsPACtps.push(priceOfflineTPs);
             }
 
@@ -168,7 +168,7 @@ export function useContractProtocolStatus(
                 contracts.FC_MAX_ABSOLUTE_OP_PROVIDER?.[ca];
             FC_MAX_OP_DIFFERENCE_PROVIDER =
                 contracts.FC_MAX_OP_DIFFERENCE_PROVIDER?.[ca];
-            priceOfflineTPs = parsedPrices?.[ca]?.TP.map(tp => tp[0]);
+            priceOfflineTPs = parsedPrices?.[ca]?.TP.map((tp) => tp[0]);
 
             if (
                 !Moc ||
@@ -341,7 +341,7 @@ export function useContractProtocolStatus(
                 transform: (result: unknown) => {
                     const tuple = result as [bigint, boolean];
                     return [normalizeToBigInt(tuple[0]), tuple[1]];
-                }
+                },
             });
 
             callRequest.push({
@@ -491,7 +491,7 @@ export function useContractProtocolStatus(
                     transform: (result: unknown) => {
                         const tuple = result as [bigint, boolean];
                         return [normalizeToBigInt(tuple[0]), tuple[1]];
-                    }
+                    },
                 });
 
                 callRequest.push({
@@ -647,7 +647,7 @@ export function useContractProtocolStatus(
                 transform: (result: unknown) => {
                     const tuple = result as [bigint, boolean];
                     return [normalizeToBigInt(tuple[0]), tuple[1]];
-                }
+                },
             });
         }
 

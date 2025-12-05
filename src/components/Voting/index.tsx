@@ -1,6 +1,6 @@
 import "./Styles.scss";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React from "react";
 
 import { useWalletContext } from "../../context/Wallet";
 import {
@@ -74,61 +74,56 @@ const Voting: React.FC = () => {
         userVesting,
     } = useWalletContext();
 
-    const defaultInfoVoting: InfoVoting = {
-        globalVotingRound: 0n,
-        totalSupply: 0n,
-        PRE_VOTE_MIN_TO_WIN: 0n,
-        PRE_VOTE_MIN_PCT_TO_WIN: 0n,
-        MIN_PCT_FOR_QUORUM: 0n,
-        MIN_FOR_QUORUM: 0n,
-        MIN_STAKE: 0n,
-        VOTING_POWER: 0n,
-        VOTE_MIN_PCT_TO_VETO: 0n,
-        VOTE_MIN_TO_VETO: 0n,
-        proposals: {},
-        state: 0,
-        readyToPreVoteStep: false,
-        readyToVoteStep: false,
-        votingData: {
-            winnerProposal: "",
-            inFavorVotes: 0n,
-            againstVotes: 0n,
-            votingExpirationTime: 0n,
-            expired: true,
-            totalVotedPCT: 0n,
-            totalVoted: 0n,
-            votingExpirationTimeFormat: "",
-            inFavorVotesTotalSupplyPCT: 0n,
-            againstVotesTotalSupplyPCT: 0n,
-            inFavorVotesPCT: 0n,
-            againstVotesPCT: 0n,
-            totalVetoPCT: 0n,
-        },
-        votingInfo: {
-            winnerProposal: "",
-            inFavorVotes: 0n,
-            againstVotes: 0n,
-        },
-        isVetoMachine: false,
-    };
-
-
     const infoVoting: InfoVoting = React.useMemo(() => {
+        const defaultInfoVoting: InfoVoting = {
+            globalVotingRound: 0n,
+            totalSupply: 0n,
+            PRE_VOTE_MIN_TO_WIN: 0n,
+            PRE_VOTE_MIN_PCT_TO_WIN: 0n,
+            MIN_PCT_FOR_QUORUM: 0n,
+            MIN_FOR_QUORUM: 0n,
+            MIN_STAKE: 0n,
+            VOTING_POWER: 0n,
+            VOTE_MIN_PCT_TO_VETO: 0n,
+            VOTE_MIN_TO_VETO: 0n,
+            proposals: {},
+            state: 0,
+            readyToPreVoteStep: false,
+            readyToVoteStep: false,
+            votingData: {
+                winnerProposal: "",
+                inFavorVotes: 0n,
+                againstVotes: 0n,
+                votingExpirationTime: 0n,
+                expired: true,
+                totalVotedPCT: 0n,
+                totalVoted: 0n,
+                votingExpirationTimeFormat: "",
+                inFavorVotesTotalSupplyPCT: 0n,
+                againstVotesTotalSupplyPCT: 0n,
+                inFavorVotesPCT: 0n,
+                againstVotesPCT: 0n,
+                totalVetoPCT: 0n,
+            },
+            votingInfo: {
+                winnerProposal: "",
+                inFavorVotes: 0n,
+                againstVotes: 0n,
+            },
+            isVetoMachine: false,
+        };
+
         if (!contractStatusOmoc.data || !userOmocBalance.data) {
             return defaultInfoVoting;
         }
-    
+
         const vm = contractStatusOmoc.data.votingmachine;
-        if (
-            !vm ||
-            !vm.totalSupply ||
-            !vm.PRE_VOTE_MIN_PCT_TO_WIN
-        ) {
+        if (!vm || !vm.totalSupply || !vm.PRE_VOTE_MIN_PCT_TO_WIN) {
             return defaultInfoVoting;
         }
-    
+
         const nowTimestamp: bigint = BigInt(Date.now());
-    
+
         const cData: InfoVoting = {
             ...defaultInfoVoting,
             proposals: vm.getProposalByIndex as unknown as ProposalItem,
@@ -143,28 +138,23 @@ const Voting: React.FC = () => {
             VOTE_MIN_PCT_TO_VETO: BigInt(vm.VOTE_MIN_PCT_TO_VETO || 0),
             isVetoMachine: !!contractStatusOmoc.data.vetomachine,
         };
-    
+
         cData.PRE_VOTE_MIN_TO_WIN =
-            (mulPrecision(cData.totalSupply, cData.PRE_VOTE_MIN_PCT_TO_WIN) /
-                100n);
+            mulPrecision(cData.totalSupply, cData.PRE_VOTE_MIN_PCT_TO_WIN) /
+            100n;
         cData.MIN_FOR_QUORUM =
-            (mulPrecision(cData.totalSupply, cData.MIN_PCT_FOR_QUORUM) / 100n);
+            mulPrecision(cData.totalSupply, cData.MIN_PCT_FOR_QUORUM) / 100n;
         cData.VOTE_MIN_TO_VETO =
-            (mulPrecision(cData.totalSupply, cData.VOTE_MIN_PCT_TO_VETO) / 100n);
-    
+            mulPrecision(cData.totalSupply, cData.VOTE_MIN_PCT_TO_VETO) / 100n;
+
         // Voting data
         const [
             winnerProposal,
             inFavorVotes,
             againstVotes,
             votingExpirationTime,
-        ] = (vm.getVotingData || []) as [
-            string,
-            bigint,
-            bigint,
-            bigint,
-        ];
-    
+        ] = (vm.getVotingData || []) as [string, bigint, bigint, bigint];
+
         cData.votingData.winnerProposal = winnerProposal;
         cData.votingData.inFavorVotes = inFavorVotes;
         cData.votingData.againstVotes = againstVotes;
@@ -172,18 +162,17 @@ const Voting: React.FC = () => {
         cData.votingData.votingExpirationTimeFormat = formatTimestamp(
             Number((votingExpirationTime || 0n) * 1000n)
         );
-    
+
         const expirationMs = (votingExpirationTime || 0n) * 1000n;
         const expired = expirationMs <= nowTimestamp;
         cData.votingData.expired = expired;
-    
-        cData.votingData.totalVoted =
-            inFavorVotes + againstVotes;
-    
+
+        cData.votingData.totalVoted = inFavorVotes + againstVotes;
+
         if (!isZeroLike(cData.totalSupply)) {
             const totalSupply = cData.totalSupply || 0n;
             const totalVoted = cData.votingData.totalVoted || 0n;
-    
+
             cData.votingData.totalVotedPCT = divPrecision(
                 totalVoted * 100n,
                 totalSupply
@@ -205,61 +194,62 @@ const Voting: React.FC = () => {
                 totalVoted || 1n
             );
         }
-    
+
         // Voting Info
         const [infoWinnerProposal, infoInFavorVotes, infoAgainstVotes] =
             vm.getVoteInfo || [];
-    
+
         cData.votingInfo.winnerProposal = infoWinnerProposal;
         cData.votingInfo.inFavorVotes = infoInFavorVotes;
         cData.votingInfo.againstVotes = infoAgainstVotes;
-    
+
         cData.votingData.totalVetoPCT =
-            contractStatusOmoc.data.vetomachine
-                ?.getVetoPctForWinnerProposal || 0n;
-    
+            contractStatusOmoc.data.vetomachine?.getVetoPctForWinnerProposal ||
+            0n;
+
         return cData;
     }, [contractStatusOmoc.data, userOmocBalance.data]);
-    
-
-    const defaultInfoUser: InfoUser = {
-        Voting_Power: 0n,
-        Voting_Power_PCT: 0n,
-    };
 
     const infoUser: InfoUser = React.useMemo(() => {
+        const defaultInfoUser: InfoUser = {
+            Voting_Power: 0n,
+            Voting_Power_PCT: 0n,
+        };
+
         if (!contractStatusOmoc.data || !userOmocBalance.data) {
             return defaultInfoUser;
         }
-    
+
         const nowTimestamp: bigint = BigInt(Date.now());
-    
-        let vUsing: { getBalance: bigint; getLockingInfo: [bigint, bigint] } | undefined;
-    
+
+        let vUsing:
+            | { getBalance: bigint; getLockingInfo: [bigint, bigint] }
+            | undefined;
+
         if (isVestingLoaded() && userVesting.data) {
             vUsing = userVesting.data.vestingmachine?.staking;
         } else {
             vUsing = userOmocBalance.data.stakingmachine;
         }
-    
+
         if (!vUsing || !vUsing.getBalance || !vUsing.getLockingInfo) {
             return defaultInfoUser;
         }
-    
+
         const uBalance: bigint = vUsing.getBalance;
-    
+
         const [lockedAmount, untilTimestamp] = vUsing.getLockingInfo;
-    
+
         const votingPower =
             untilTimestamp * 1000n > nowTimestamp
                 ? uBalance - lockedAmount
                 : uBalance;
-    
+
         const votingPowerPct = divPrecision(
             (votingPower || 0n) * 100n,
             infoVoting.totalSupply || 0n
         );
-    
+
         return {
             Voting_Power: votingPower,
             Voting_Power_PCT: votingPowerPct,
@@ -268,10 +258,10 @@ const Voting: React.FC = () => {
         contractStatusOmoc.data,
         userOmocBalance.data,
         userVesting.data,
-        isVestingLoaded, // o lo ignorás si te molesta el linter y sabes que es estable
+        isVestingLoaded,
         infoVoting.totalSupply,
     ]);
-    
+
     return (
         <div className="section-container">
             {/* <div className="content-page"> */}
