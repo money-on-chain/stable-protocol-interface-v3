@@ -746,24 +746,24 @@ export default function Exchange(): JSX.Element {
                                                 >
                                                     {t("fees.labelFee")} (
                                                     {PrecisionNumbers({
-                                                              amount: commissionPercent,
-                                                              token: TokenSettings(
-                                                                  currencyYouExchange
-                                                              ),
-                                                              decimals: 2,
-                                                              i18n: i18n,
-                                                          })}
+                                                        amount: commissionPercent,
+                                                        token: TokenSettings(
+                                                            currencyYouExchange
+                                                        ),
+                                                        decimals: 2,
+                                                        i18n: i18n,
+                                                    })}
                                                     %)
                                                 </span>
                                                 <span className={""}> ≈ </span>
                                                 <span className={""}>
                                                     {PrecisionNumbers({
-                                                              amount: commission,
-                                                              token: TokenSettings(
-                                                                  `CA_${caIndex}`
-                                                              ),
-                                                              i18n: i18n,
-                                                          })}
+                                                        amount: commission,
+                                                        token: TokenSettings(
+                                                            `CA_${caIndex}`
+                                                        ),
+                                                        i18n: i18n,
+                                                    })}
                                                 </span>
                                                 <span className={""}>
                                                     {" "}
@@ -780,14 +780,14 @@ export default function Exchange(): JSX.Element {
                                                 <span className={""}> (</span>
                                                 <span>
                                                     {PrecisionNumbers({
-                                                              amount: commissionUSD,
-                                                              decimals: 2,
-                                                              token: TokenSettings(
-                                                                  `CA_${caIndex}`
-                                                              ),
-                                                              i18n: i18n,
-                                                              isUSD: true,
-                                                          })}
+                                                        amount: commissionUSD,
+                                                        decimals: 2,
+                                                        token: TokenSettings(
+                                                            `CA_${caIndex}`
+                                                        ),
+                                                        i18n: i18n,
+                                                        isUSD: true,
+                                                    })}
                                                 </span>
                                                 <span className={""}>
                                                     {" "}
@@ -806,24 +806,24 @@ export default function Exchange(): JSX.Element {
                                                 <span className={""}>
                                                     {t("fees.labelFee")} (
                                                     {PrecisionNumbers({
-                                                              amount: commissionPercentFeeToken,
-                                                              token: TokenSettings(
-                                                                  currencyYouExchange
-                                                              ),
-                                                              decimals: 2,
-                                                              i18n: i18n,
-                                                          })}
+                                                        amount: commissionPercentFeeToken,
+                                                        token: TokenSettings(
+                                                            currencyYouExchange
+                                                        ),
+                                                        decimals: 2,
+                                                        i18n: i18n,
+                                                    })}
                                                     %)
                                                 </span>
                                                 <span className={""}> ≈ </span>
                                                 <span className={""}>
                                                     {PrecisionNumbers({
-                                                              amount: commissionFeeToken,
-                                                              token: TokenSettings(
-                                                                  `TF_${caIndex}`
-                                                              ),
-                                                              i18n: i18n,
-                                                          })}
+                                                        amount: commissionFeeToken,
+                                                        token: TokenSettings(
+                                                            `TF_${caIndex}`
+                                                        ),
+                                                        i18n: i18n,
+                                                    })}
                                                 </span>
                                                 <span className={""}>
                                                     {" "}
@@ -835,14 +835,14 @@ export default function Exchange(): JSX.Element {
                                                 <span className={""}> (</span>
                                                 <span>
                                                     {PrecisionNumbers({
-                                                              amount: commissionFeeTokenUSD,
-                                                              decimals: 2,
-                                                              token: TokenSettings(
-                                                                  `CA_${caIndex}`
-                                                              ),
-                                                              i18n: i18n,
-                                                              isUSD: true,
-                                                          })}
+                                                        amount: commissionFeeTokenUSD,
+                                                        decimals: 2,
+                                                        token: TokenSettings(
+                                                            `CA_${caIndex}`
+                                                        ),
+                                                        i18n: i18n,
+                                                        isUSD: true,
+                                                    })}
                                                 </span>
                                                 <span className={""}>
                                                     {" "}

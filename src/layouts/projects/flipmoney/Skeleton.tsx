@@ -1,5 +1,5 @@
 import { Layout } from "antd";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useChainId } from "wagmi";
 
@@ -54,158 +54,144 @@ export default function Skeleton(): JSX.Element {
     useEffect(() => {}, [rpcError]);
     const chainId = useChainId();
     const isWrongNetwork = isConnected && chainId !== ALLOWED_CHAIN.id;
-    const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(
-        null
-    );
-    const [vetoWithdraw, setVetoWithdraw] = useState<NotificationStatus | null>(
-        null
-    );
-    const [priceNotValidStatus, setPriceNotValidStatus] = useState<NotificationStatus | null>(
-        null
-    );
+
     const { checkerStatus } = CheckStatusGlobal();
     const navigate = useNavigate();
 
-    const readProtocolStatus = useCallback((): void => {
+    // 1) NOTIF STATUS (global protocol)
+    const notifStatus: NotificationStatus | null = React.useMemo(() => {
+        if (
+            !contractProtocolStatus.data ||
+            !userBalance.data ||
+            !userOmocBalance.data ||
+            isWrongNetwork
+        ) {
+            return null;
+        }
+
         const { globalStatus, statusLabel, statusText } = checkerStatus();
 
         if (globalStatus > 1) {
-            setNotifStatus({
+            return {
                 id: -1,
                 title: `Warning, protocol status is ${statusLabel}`,
                 textContent: statusText,
                 notifClass: "warning",
-                iconLeft: "warning-icon", // Default icon since statusIcon doesn't exist
+                iconLeft: "warning-icon",
                 isDismisable: false,
                 dismissTime: 0,
-            });
-        } else {
-            setNotifStatus(null);
-        }
-    }, [checkerStatus]);
-
-    const readPriceValidityStatus = useCallback((): void => {
-        if (!contractProtocolStatus.data || !contractProtocolStatus.data[0] || !contractProtocolStatus.data[0].PP_CA || !contractProtocolStatus.data[0].PP_FeeToken || !contractProtocolStatus.data[0].PP_TP) return;
-        let valid = true;
-        for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
-
-            // check if PP_CA is valid
-            if (!contractProtocolStatus.data[ca].PP_CA[1]) {
-                valid = false;
-                break;
-            }
-
-            // check if PP_FeeToken is valid
-            if (!contractProtocolStatus.data[ca].PP_FeeToken[1]) {
-                valid = false;
-                break;
-            }
-
-            // check if PP_TP is valid
-            for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
-                if (!contractProtocolStatus.data[ca].PP_TP[tp][1]) {
-                    valid = false;
-                    break;
-                }
-            }
+            };
         }
 
-        // check if PP_COINBASE is valid
-        if (!contractProtocolStatus.data.PP_COINBASE[1]) {
-            valid = false;
-        }
-
-        if (!valid) {
-            setPriceNotValidStatus({
-                id: -1,
-                title: `Warning, price is invalid or a bit old`,
-                textContent: `Price is invalid or a bit old, operate at your own risk`,
-                notifClass: "warning",
-                iconLeft: "warning-icon", // Default icon since statusIcon doesn't exist
-                isDismisable: false,
-                dismissTime: 0,
-            });
-        } else {
-            setPriceNotValidStatus(null);
-        }
-    }, [contractProtocolStatus.data]);
-
-    const readWithdrawStatus = useCallback((): void => {
-        if (!userVeto.data || !contractStatusOmoc.data || !address) return;
-
-        const statusData = contractStatusOmoc.data;
-
-        // Check if votingmachine data exists before accessing it
-        if (
-            !statusData.votingmachine ||
-            !statusData.votingmachine.getVotingData
-        ) {
-            return;
-        }
-
-        if (
-            isSomeTCLockedByVeto(
-                userVeto.data as {
-                    vetoMachine: {
-                        getUserLockedAmount: Record<
-                            string,
-                            Record<string, bigint>
-                        >;
-                    };
-                },
-                {
-                    votingmachine: {
-                        getVotingData: statusData.votingmachine.getVotingData,
-                        getState: Number(statusData.votingmachine.getState),
-                    },
-                },
-                address
-            )
-        ) {
-            setVetoWithdraw({
-                id: -1,
-                title: t(`voting.veto.alert.title`),
-                textContent: t(`voting.veto.alert.text`),
-                notifClass: "warning",
-                iconLeft: "warning-icon", // Default icon since statusIcon doesn't exist
-                isDismisable: false,
-                dismissTime: 0,
-                button: {
-                    class: "button-withdraw",
-                    label: t(`voting.veto.alert.cta`),
-                    onClick: () => {
-                        navigate("/veto/withdraw");
-                    },
-                },
-            });
-        } else {
-            setVetoWithdraw(null);
-        }
-    }, [userVeto.data, contractStatusOmoc.data, address, t, navigate]);
-
-    useEffect(() => {
-        if (
-            contractProtocolStatus.data &&
-            userBalance.data &&
-            userOmocBalance.data &&
-            !isWrongNetwork
-        ) {
-            readProtocolStatus();
-            readPriceValidityStatus();
-        }
-        if (userVeto.data && contractStatusOmoc.data && address) {
-            readWithdrawStatus();
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        return null;
     }, [
         contractProtocolStatus.data,
         userBalance.data,
         userOmocBalance.data,
-        contractStatusOmoc.data,
-        userVeto.data,
-        address,
         isWrongNetwork,
+        checkerStatus,
     ]);
+
+    // 2) PRICE VALIDITY
+    const priceNotValidStatus: NotificationStatus | null = React.useMemo(() => {
+        const data = contractProtocolStatus.data;
+        if (
+            !data ||
+            !data[0] ||
+            !data[0].PP_CA ||
+            !data[0].PP_FeeToken ||
+            !data[0].PP_TP
+        ) {
+            return null;
+        }
+
+        let valid = true;
+
+        for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+            if (!data[ca].PP_CA[1]) {
+                valid = false;
+                break;
+            }
+            if (!data[ca].PP_FeeToken[1]) {
+                valid = false;
+                break;
+            }
+            for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
+                if (!data[ca].PP_TP[tp][1]) {
+                    valid = false;
+                    break;
+                }
+            }
+            if (!valid) break;
+        }
+
+        // check PP_COINBASE
+        if (!data.PP_COINBASE?.[1]) {
+            valid = false;
+        }
+
+        if (!valid) {
+            return {
+                id: -1,
+                title: `Warning, price is invalid or a bit old`,
+                textContent: `Price is invalid or a bit old, operate at your own risk`,
+                notifClass: "warning",
+                iconLeft: "warning-icon",
+                isDismisable: false,
+                dismissTime: 0,
+            };
+        }
+
+        return null;
+    }, [contractProtocolStatus.data]);
+
+    // 3) VETO WITHDRAW
+    const vetoWithdraw: NotificationStatus | null = React.useMemo(() => {
+        if (!userVeto.data || !contractStatusOmoc.data || !address) return null;
+
+        const statusData = contractStatusOmoc.data;
+
+        if (
+            !statusData.votingmachine ||
+            !statusData.votingmachine.getVotingData
+        ) {
+            return null;
+        }
+
+        const locked = isSomeTCLockedByVeto(
+            userVeto.data as {
+                vetoMachine: {
+                    getUserLockedAmount: Record<string, Record<string, bigint>>;
+                };
+            },
+            {
+                votingmachine: {
+                    getVotingData: statusData.votingmachine.getVotingData,
+                    getState: Number(statusData.votingmachine.getState),
+                },
+            },
+            address
+        );
+
+        if (!locked) return null;
+
+        return {
+            id: -1,
+            title: t(`voting.veto.alert.title`),
+            textContent: t(`voting.veto.alert.text`),
+            notifClass: "warning",
+            iconLeft: "warning-icon",
+            isDismisable: false,
+            dismissTime: 0,
+            button: {
+                class: "button-withdraw",
+                label: t(`voting.veto.alert.cta`),
+                onClick: () => {
+                    navigate("/veto/withdraw");
+                },
+            },
+        };
+    }, [userVeto.data, contractStatusOmoc.data, address, t, navigate]);
 
     return (
         <Layout>
@@ -221,7 +207,9 @@ export default function Skeleton(): JSX.Element {
                     />
                 )}
                 {notifStatus && <NotificationBody notifStatus={notifStatus} />}
-                {priceNotValidStatus && <NotificationBody notifStatus={priceNotValidStatus} />}
+                {priceNotValidStatus && (
+                    <NotificationBody notifStatus={priceNotValidStatus} />
+                )}
                 {vetoWithdraw && (
                     <NotificationBody notifStatus={vetoWithdraw} />
                 )}

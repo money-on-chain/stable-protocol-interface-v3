@@ -158,7 +158,7 @@ export default function LastOperations(props: LastOperationsProps) {
     const { t, i18n, ns } = useProjectTranslation();
     const { isConnected, address, blockNumber } = useWalletContext();
     const [ready, setReady] = useState(false);
-    
+
     // Reset initial load flag when wallet disconnects or address changes
     useEffect(() => {
         if (!isConnected || !address) {
@@ -193,15 +193,43 @@ export default function LastOperations(props: LastOperationsProps) {
     const isLoadingRef = useRef<boolean>(false);
     // Ref to track if initial load has happened
     const hasInitialLoadRef = useRef<boolean>(false);
+    // Refs to store current values to avoid recreating callback
+    const currentRef = useRef(current);
+    const pageSizeRef = useRef(pageSize);
+    const isConnectedRef = useRef(isConnected);
+    const addressRef = useRef(address);
+    const blockNumberRef = useRef(blockNumber);
+
+    // Update refs when values change
+    useEffect(() => {
+        currentRef.current = current;
+    }, [current]);
+    useEffect(() => {
+        pageSizeRef.current = pageSize;
+    }, [pageSize]);
+    useEffect(() => {
+        isConnectedRef.current = isConnected;
+    }, [isConnected]);
+    useEffect(() => {
+        addressRef.current = address;
+    }, [address]);
+    useEffect(() => {
+        blockNumberRef.current = blockNumber;
+    }, [blockNumber]);
 
     const fetchTransactions = useCallback((isPolling = false) => {
-        if (isConnected && blockNumber && address && !isLoadingRef.current) {
+        if (
+            isConnectedRef.current &&
+            blockNumberRef.current &&
+            addressRef.current &&
+            !isLoadingRef.current
+        ) {
             isLoadingRef.current = true;
             const baseUrl = `${import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS}operations/list/`;
-            const skip = (current - 1) * pageSize;
+            const skip = (currentRef.current - 1) * pageSizeRef.current;
             const queryParams = new URLSearchParams({
-                recipient: address || "",
-                limit: String(pageSize),
+                recipient: addressRef.current || "",
+                limit: String(pageSizeRef.current),
                 skip: String(skip),
             }).toString();
             const url = `${baseUrl}?${queryParams}`;
@@ -224,18 +252,21 @@ export default function LastOperations(props: LastOperationsProps) {
                     isLoadingRef.current = false;
                 });
         }
-    }, [isConnected, blockNumber, address, current, pageSize]);
+    }, []); // Empty deps - using refs for all values
     // #section Operation detail custom expand function
     const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
 
     // Expansion / Contraction
-    const handleExpand = useCallback((expanded: boolean, record: { key: string }) => {
-        setExpandedKeys((prevKeys) => {
-            return expanded
-                ? [...prevKeys, record.key]
-                : prevKeys.filter((key) => key !== record.key);
-        });
-    }, []);
+    const handleExpand = useCallback(
+        (expanded: boolean, record: { key: string }) => {
+            setExpandedKeys((prevKeys) => {
+                return expanded
+                    ? [...prevKeys, record.key]
+                    : prevKeys.filter((key) => key !== record.key);
+            });
+        },
+        []
+    );
 
     // Expansion Icon
     const ExpandIcon: React.FC<ExpandIconProps> = ({ expanded, onClick }) => (
@@ -255,10 +286,16 @@ export default function LastOperations(props: LastOperationsProps) {
     ].filter((item) => !item.hidden);
     // Initial load - immediate, no delay
     useEffect(() => {
-        if (isConnected && blockNumber && address && !hasInitialLoadRef.current) {
+        if (
+            isConnected &&
+            blockNumber &&
+            address &&
+            !hasInitialLoadRef.current
+        ) {
             fetchTransactions(false);
         }
-    }, [isConnected, blockNumber, address, fetchTransactions]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isConnected, blockNumber, address]);
 
     // Polling - only after initial load, with interval
     useEffect(() => {
@@ -283,19 +320,26 @@ export default function LastOperations(props: LastOperationsProps) {
         };
 
         checkTimeoutId = setTimeout(startPolling, 100);
-        
+
         return () => {
             if (checkTimeoutId) clearTimeout(checkTimeoutId);
             if (intervalId) clearInterval(intervalId);
         };
-    }, [isConnected, blockNumber, address, fetchTransactions]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isConnected, blockNumber, address]);
 
     // Reload when page or pageSize changes
     useEffect(() => {
-        if (isConnected && blockNumber && address && hasInitialLoadRef.current) {
+        if (
+            isConnected &&
+            blockNumber &&
+            address &&
+            hasInitialLoadRef.current
+        ) {
             fetchTransactions(false);
         }
-    }, [current, pageSize, isConnected, blockNumber, address, fetchTransactions]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [current, pageSize, isConnected, blockNumber, address]);
 
     const onChange = (page: number) => {
         if (isConnected) {
@@ -346,266 +390,268 @@ export default function LastOperations(props: LastOperationsProps) {
         }
     }, []);
 
-    const tokenExchange = useCallback((
-        row_operation: OperationData
-    ): TokenExchangeResult | undefined => {
-        let status = "";
-        if (row_operation.executed) {
-            status = "executed";
-        } else if (row_operation.params) {
-            status = "params";
-        }
+    const tokenExchange = useCallback(
+        (row_operation: OperationData): TokenExchangeResult | undefined => {
+            let status = "";
+            if (row_operation.executed) {
+                status = "executed";
+            } else if (row_operation.params) {
+                status = "params";
+            }
 
-        const caIndex = row_operation.bucket_index;
+            const caIndex = row_operation.bucket_index;
 
-        if (!status) {
-            return {
-                exchange: {
-                    amount: 0,
-                    name: "",
-                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
-                    icon: `CA_${caIndex}`,
-                    title: t("operations.actions.exchanged"),
-                },
-                receive: {
-                    amount: 0,
-                    name: "",
-                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
-                    icon: `CA_${caIndex}`,
-                    title: t("operations.actions.received"),
-                },
-            };
-        }
+            if (!status) {
+                return {
+                    exchange: {
+                        amount: 0,
+                        name: "",
+                        token: (settings.tokens.CA as TokenConfig[])[caIndex],
+                        icon: `CA_${caIndex}`,
+                        title: t("operations.actions.exchanged"),
+                    },
+                    receive: {
+                        amount: 0,
+                        name: "",
+                        token: (settings.tokens.CA as TokenConfig[])[caIndex],
+                        icon: `CA_${caIndex}`,
+                        title: t("operations.actions.received"),
+                    },
+                };
+            }
 
-        if (row_operation.operation === "TCMint") {
-            return {
-                exchange: {
-                    action: "TCMint",
-                    amount:
-                        status === "executed"
-                            ? row_operation.executed?.qAC_ || 0
-                            : row_operation.params?.qACmax || 0,
-                    name:
-                        (settings.tokens.CA as TokenConfig[])[caIndex]?.name ||
-                        "",
-                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
-                    icon: `CA_${caIndex}`,
-                    title:
-                        status === "executed"
-                            ? t("operations.actions.exchanged")
-                            : t("operations.actions.exchanging"),
-                },
-                receive: {
-                    action: "TCMint",
-                    amount:
-                        status === "executed"
-                            ? row_operation.executed?.qTC_ || 0
-                            : row_operation.params?.qTC || 0,
-                    name: settings.tokens.TC[caIndex].name,
-                    token: settings.tokens.TC[caIndex],
-                    icon: `TC_${caIndex}`,
-                    title:
-                        status === "executed"
-                            ? t("operations.actions.received")
-                            : t("operations.actions.receiving"),
-                },
-            };
-        } else if (row_operation.operation === "TCRedeem") {
-            return {
-                exchange: {
-                    action: "TCRedeem",
-                    amount:
-                        status === "executed"
-                            ? row_operation.executed?.qTC_ || 0
-                            : row_operation.params?.qTC || 0,
-                    name: settings.tokens.TC[caIndex].name,
-                    token: settings.tokens.TC[caIndex],
-                    icon: `TC_${caIndex}`,
-                    title:
-                        status === "executed"
-                            ? t("operations.actions.exchanged")
-                            : t("operations.actions.exchanging"),
-                },
-                receive: {
-                    action: "TCRedeem",
-                    amount:
-                        status === "executed"
-                            ? row_operation.executed?.qAC_ || 0
-                            : row_operation.params?.qACmin || 0,
-                    name:
-                        (settings.tokens.CA as TokenConfig[])[caIndex]?.name ||
-                        "",
-                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
-                    icon: `CA_${caIndex}`,
-                    title:
-                        status === "executed"
-                            ? t("operations.actions.received")
-                            : t("operations.actions.receiving"),
-                },
-            };
-        } else if (row_operation["operation"] === "TPMint") {
-            const statusData =
-                status === "executed"
-                    ? row_operation.executed
-                    : row_operation.params;
-            let tp_index =
-                statusData?.tpIndex_ ||
-                (statusData as { tpIndex?: number })?.tpIndex;
-            if (tp_index === undefined) tp_index = 0;
+            if (row_operation.operation === "TCMint") {
+                return {
+                    exchange: {
+                        action: "TCMint",
+                        amount:
+                            status === "executed"
+                                ? row_operation.executed?.qAC_ || 0
+                                : row_operation.params?.qACmax || 0,
+                        name:
+                            (settings.tokens.CA as TokenConfig[])[caIndex]
+                                ?.name || "",
+                        token: (settings.tokens.CA as TokenConfig[])[caIndex],
+                        icon: `CA_${caIndex}`,
+                        title:
+                            status === "executed"
+                                ? t("operations.actions.exchanged")
+                                : t("operations.actions.exchanging"),
+                    },
+                    receive: {
+                        action: "TCMint",
+                        amount:
+                            status === "executed"
+                                ? row_operation.executed?.qTC_ || 0
+                                : row_operation.params?.qTC || 0,
+                        name: settings.tokens.TC[caIndex].name,
+                        token: settings.tokens.TC[caIndex],
+                        icon: `TC_${caIndex}`,
+                        title:
+                            status === "executed"
+                                ? t("operations.actions.received")
+                                : t("operations.actions.receiving"),
+                    },
+                };
+            } else if (row_operation.operation === "TCRedeem") {
+                return {
+                    exchange: {
+                        action: "TCRedeem",
+                        amount:
+                            status === "executed"
+                                ? row_operation.executed?.qTC_ || 0
+                                : row_operation.params?.qTC || 0,
+                        name: settings.tokens.TC[caIndex].name,
+                        token: settings.tokens.TC[caIndex],
+                        icon: `TC_${caIndex}`,
+                        title:
+                            status === "executed"
+                                ? t("operations.actions.exchanged")
+                                : t("operations.actions.exchanging"),
+                    },
+                    receive: {
+                        action: "TCRedeem",
+                        amount:
+                            status === "executed"
+                                ? row_operation.executed?.qAC_ || 0
+                                : row_operation.params?.qACmin || 0,
+                        name:
+                            (settings.tokens.CA as TokenConfig[])[caIndex]
+                                ?.name || "",
+                        token: (settings.tokens.CA as TokenConfig[])[caIndex],
+                        icon: `CA_${caIndex}`,
+                        title:
+                            status === "executed"
+                                ? t("operations.actions.received")
+                                : t("operations.actions.receiving"),
+                    },
+                };
+            } else if (row_operation["operation"] === "TPMint") {
+                const statusData =
+                    status === "executed"
+                        ? row_operation.executed
+                        : row_operation.params;
+                let tp_index =
+                    statusData?.tpIndex_ ||
+                    (statusData as { tpIndex?: number })?.tpIndex;
+                if (tp_index === undefined) tp_index = 0;
 
-            return {
-                exchange: {
-                    action: "TPMint",
-                    amount:
-                        status === "executed"
-                            ? row_operation.executed?.qAC_ || 0
-                            : row_operation.params?.qACmax || 0,
-                    name:
-                        (settings.tokens.CA as TokenConfig[])[caIndex]?.name ||
-                        "",
-                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
-                    icon: `CA_${caIndex}`,
-                    title:
-                        status === "executed"
-                            ? t("operations.actions.exchanged")
-                            : t("operations.actions.exchanging"),
-                },
-                receive: {
-                    action: "TPMint",
-                    amount:
-                        status === "executed"
-                            ? row_operation.executed?.qTP_ || 0
-                            : row_operation.params?.qTP_ || 0,
-                    name: settings.tokens.TP[tp_index].name,
-                    token: settings.tokens.TP[tp_index],
-                    icon: `TP_${tp_index}`,
-                    title:
-                        status === "executed"
-                            ? t("operations.actions.received")
-                            : t("operations.actions.receiving"),
-                },
-            };
-        } else if (row_operation["operation"] === "TPRedeem") {
-            const statusData =
-                status === "executed"
-                    ? row_operation.executed
-                    : row_operation.params;
-            let tp_index =
-                statusData?.tpIndex_ ||
-                (statusData as { tpIndex?: number })?.tpIndex;
-            if (tp_index === undefined) tp_index = 0;
+                return {
+                    exchange: {
+                        action: "TPMint",
+                        amount:
+                            status === "executed"
+                                ? row_operation.executed?.qAC_ || 0
+                                : row_operation.params?.qACmax || 0,
+                        name:
+                            (settings.tokens.CA as TokenConfig[])[caIndex]
+                                ?.name || "",
+                        token: (settings.tokens.CA as TokenConfig[])[caIndex],
+                        icon: `CA_${caIndex}`,
+                        title:
+                            status === "executed"
+                                ? t("operations.actions.exchanged")
+                                : t("operations.actions.exchanging"),
+                    },
+                    receive: {
+                        action: "TPMint",
+                        amount:
+                            status === "executed"
+                                ? row_operation.executed?.qTP_ || 0
+                                : row_operation.params?.qTP_ || 0,
+                        name: settings.tokens.TP[tp_index].name,
+                        token: settings.tokens.TP[tp_index],
+                        icon: `TP_${tp_index}`,
+                        title:
+                            status === "executed"
+                                ? t("operations.actions.received")
+                                : t("operations.actions.receiving"),
+                    },
+                };
+            } else if (row_operation["operation"] === "TPRedeem") {
+                const statusData =
+                    status === "executed"
+                        ? row_operation.executed
+                        : row_operation.params;
+                let tp_index =
+                    statusData?.tpIndex_ ||
+                    (statusData as { tpIndex?: number })?.tpIndex;
+                if (tp_index === undefined) tp_index = 0;
 
-            return {
-                exchange: {
-                    action: "TPRedeem",
-                    amount:
-                        status === "executed"
-                            ? row_operation.executed?.qTP_ || 0
-                            : row_operation.params?.qTP_ || 0,
-                    name: settings.tokens.TP[tp_index].name,
-                    token: settings.tokens.TP[tp_index],
-                    icon: `TP_${tp_index}`,
-                    title:
-                        status === "executed"
-                            ? t("operations.actions.exchanged")
-                            : t("operations.actions.exchanging"),
-                },
-                receive: {
-                    action: "TPRedeem",
-                    amount:
-                        status === "executed"
-                            ? row_operation.executed?.qAC_ || 0
-                            : row_operation.params?.qACmin || 0,
-                    name:
-                        (settings.tokens.CA as TokenConfig[])[caIndex]?.name ||
-                        "",
-                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
-                    icon: `CA_${caIndex}`,
-                    title:
-                        status === "executed"
-                            ? t("operations.actions.received")
-                            : t("operations.actions.receiving"),
-                },
-            };
-        } else if (row_operation.operation === "Transfer") {
-            const tokenParam = row_operation.params?.token;
-            if (!tokenParam) return undefined;
+                return {
+                    exchange: {
+                        action: "TPRedeem",
+                        amount:
+                            status === "executed"
+                                ? row_operation.executed?.qTP_ || 0
+                                : row_operation.params?.qTP_ || 0,
+                        name: settings.tokens.TP[tp_index].name,
+                        token: settings.tokens.TP[tp_index],
+                        icon: `TP_${tp_index}`,
+                        title:
+                            status === "executed"
+                                ? t("operations.actions.exchanged")
+                                : t("operations.actions.exchanging"),
+                    },
+                    receive: {
+                        action: "TPRedeem",
+                        amount:
+                            status === "executed"
+                                ? row_operation.executed?.qAC_ || 0
+                                : row_operation.params?.qACmin || 0,
+                        name:
+                            (settings.tokens.CA as TokenConfig[])[caIndex]
+                                ?.name || "",
+                        token: (settings.tokens.CA as TokenConfig[])[caIndex],
+                        icon: `CA_${caIndex}`,
+                        title:
+                            status === "executed"
+                                ? t("operations.actions.received")
+                                : t("operations.actions.receiving"),
+                    },
+                };
+            } else if (row_operation.operation === "Transfer") {
+                const tokenParam = row_operation.params?.token;
+                if (!tokenParam) return undefined;
 
-            const token_info = getTokenInfo(tokenParam);
-            if (!token_info) return undefined;
+                const token_info = getTokenInfo(tokenParam);
+                if (!token_info) return undefined;
 
-            return {
-                exchange: {
-                    action: "Transfer",
-                    amount: row_operation.params?.amount || 0,
-                    name: token_info.name,
-                    token: token_info.token,
-                    icon: tokenParam,
-                    title:
-                        status === "executed"
-                            ? "TRANSFERRED"
-                            : t("operations.actions.transfer"),
-                },
-                receive: {
-                    action: "Transfer",
-                    amount: row_operation.params?.amount || 0,
-                    name: token_info.name,
-                    token: token_info.token,
-                    icon: tokenParam,
-                    title:
-                        status === "executed"
-                            ? "TRANSFERRED"
-                            : t("operations.actions.transfer"),
-                },
-            };
-        } else if (row_operation.operation === "ERROR") {
-            return {
-                exchange: {
-                    action: "Error",
-                    amount: 0,
-                    name: "",
-                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
-                    icon: `CA_${caIndex}`,
-                    title: "Revert",
-                },
-                receive: {
-                    action: "Error",
-                    amount: 0,
-                    name: "",
-                    token: (settings.tokens.CA as TokenConfig[])[caIndex],
-                    icon: `CA_${caIndex}`,
-                    title: "Revert",
-                },
-            };
-        } else {
-            console.warn("CAN'T OPERATE: " + row_operation.operation);
-            return undefined;
-        }
-    }, [t, getTokenInfo]);
-    const getErrorMessage = useCallback((
-        error: string | number | null | undefined
-    ): string => {
-        switch (error) {
-            case "qAC below minimum required":
-                return `${(settings.tokens.CA as TokenConfig[])[0]?.name || ""} ${t("operations.errors.qACBelow")} `;
-            case "Insufficient qac sent":
-                return `${(settings.tokens.CA as TokenConfig[])[0]?.name || ""} ${t("operations.errors.insufficientQAC1")} ${(settings.tokens.CA as TokenConfig[])[0]?.name || ""} ${t("operations.errors.insufficientQAC2")}`;
-            case "Low coverage":
-                return t("operations.errors.lowCoverage");
-            case "Invalid Flux Capacitor Operation":
-                return t("operations.errors.fluxCapacitor");
-            case "":
-                return t("operations.errors.noMessage");
-            case " ":
-                return t("operations.errors.noMessage");
-            case 0:
-                return t("operations.errors.noMessage");
-            case "null":
-                return t("operations.errors.noMessage");
-            default:
-                return String(error);
-        }
-    }, [t]);
+                return {
+                    exchange: {
+                        action: "Transfer",
+                        amount: row_operation.params?.amount || 0,
+                        name: token_info.name,
+                        token: token_info.token,
+                        icon: tokenParam,
+                        title:
+                            status === "executed"
+                                ? "TRANSFERRED"
+                                : t("operations.actions.transfer"),
+                    },
+                    receive: {
+                        action: "Transfer",
+                        amount: row_operation.params?.amount || 0,
+                        name: token_info.name,
+                        token: token_info.token,
+                        icon: tokenParam,
+                        title:
+                            status === "executed"
+                                ? "TRANSFERRED"
+                                : t("operations.actions.transfer"),
+                    },
+                };
+            } else if (row_operation.operation === "ERROR") {
+                return {
+                    exchange: {
+                        action: "Error",
+                        amount: 0,
+                        name: "",
+                        token: (settings.tokens.CA as TokenConfig[])[caIndex],
+                        icon: `CA_${caIndex}`,
+                        title: "Revert",
+                    },
+                    receive: {
+                        action: "Error",
+                        amount: 0,
+                        name: "",
+                        token: (settings.tokens.CA as TokenConfig[])[caIndex],
+                        icon: `CA_${caIndex}`,
+                        title: "Revert",
+                    },
+                };
+            } else {
+                console.warn("CAN'T OPERATE: " + row_operation.operation);
+                return undefined;
+            }
+        },
+        [t, getTokenInfo]
+    );
+    const getErrorMessage = useCallback(
+        (error: string | number | null | undefined): string => {
+            switch (error) {
+                case "qAC below minimum required":
+                    return `${(settings.tokens.CA as TokenConfig[])[0]?.name || ""} ${t("operations.errors.qACBelow")} `;
+                case "Insufficient qac sent":
+                    return `${(settings.tokens.CA as TokenConfig[])[0]?.name || ""} ${t("operations.errors.insufficientQAC1")} ${(settings.tokens.CA as TokenConfig[])[0]?.name || ""} ${t("operations.errors.insufficientQAC2")}`;
+                case "Low coverage":
+                    return t("operations.errors.lowCoverage");
+                case "Invalid Flux Capacitor Operation":
+                    return t("operations.errors.fluxCapacitor");
+                case "":
+                    return t("operations.errors.noMessage");
+                case " ":
+                    return t("operations.errors.noMessage");
+                case 0:
+                    return t("operations.errors.noMessage");
+                case "null":
+                    return t("operations.errors.noMessage");
+                default:
+                    return String(error);
+            }
+        },
+        [t]
+    );
     const TruncatedAddress = useCallback((address: string, length = 6) => {
         if (!address) return "";
 
@@ -615,144 +661,169 @@ export default function LastOperations(props: LastOperationsProps) {
             address.substring(address.length - length)
         );
     }, []);
-    const getFee = useCallback((row_operation: OperationData) => {
-        const fee: { amount: bigint; token: string | null; decimals: number } =
-            { amount: 0n, token: null, decimals: 18 };
-        const caIndex = row_operation["bucket_index"];
+    const getFee = useCallback(
+        (row_operation: OperationData) => {
+            const fee: {
+                amount: bigint;
+                token: string | null;
+                decimals: number;
+            } = { amount: 0n, token: null, decimals: 18 };
+            const caIndex = row_operation["bucket_index"];
 
-        if (
-            row_operation["executed"] &&
-            row_operation["executed"]["qFeeToken_"]
-        ) {
-            const qFeeToken = BigInt(row_operation["executed"]["qFeeToken_"]);
-            const qFeeTokenVendorMarkup = BigInt(
-                row_operation["executed"]["qFeeTokenVendorMarkup_"] || "0"
-            );
+            if (
+                row_operation["executed"] &&
+                row_operation["executed"]["qFeeToken_"]
+            ) {
+                const qFeeToken = BigInt(
+                    row_operation["executed"]["qFeeToken_"]
+                );
+                const qFeeTokenVendorMarkup = BigInt(
+                    row_operation["executed"]["qFeeTokenVendorMarkup_"] || "0"
+                );
 
-            fee["amount"] = qFeeToken + qFeeTokenVendorMarkup;
-            fee["token"] = "TF";
-            fee["decimals"] = settings.tokens.TF[0].decimals;
-        }
+                fee["amount"] = qFeeToken + qFeeTokenVendorMarkup;
+                fee["token"] = "TF";
+                fee["decimals"] = settings.tokens.TF[0].decimals;
+            }
 
-        if (
-            row_operation["executed"] &&
-            row_operation["executed"]["qACfee_"] &&
-            fee["amount"] === 0n
-        ) {
-            const qACfee = BigInt(row_operation["executed"]["qACfee_"]);
+            if (
+                row_operation["executed"] &&
+                row_operation["executed"]["qACfee_"] &&
+                fee["amount"] === 0n
+            ) {
+                const qACfee = BigInt(row_operation["executed"]["qACfee_"]);
 
-            const qACVendorMarkup = BigInt(
-                row_operation["executed"]["qACVendorMarkup_"] || "0"
-            );
+                const qACVendorMarkup = BigInt(
+                    row_operation["executed"]["qACVendorMarkup_"] || "0"
+                );
 
-            fee["amount"] = qACfee + qACVendorMarkup;
-            fee["token"] = `CA_${caIndex}`;
-            fee["decimals"] =
-                (settings.tokens.CA as TokenConfig[])[caIndex]?.decimals || 18;
-        }
+                fee["amount"] = qACfee + qACVendorMarkup;
+                fee["token"] = `CA_${caIndex}`;
+                fee["decimals"] =
+                    (settings.tokens.CA as TokenConfig[])[caIndex]?.decimals ||
+                    18;
+            }
 
-        if (fee["amount"] > 0n) {
-            return (
-                <div className="LastOp__expanded__fee">
-                    {/* <span className="value"> */}
-                    {PrecisionNumbers({
-                        amount: fee["amount"],
-                        token: TokenSettings(fee["token"] || ""),
-                        decimals: 6,
-                        i18n: i18n,
-                    })}
-                    {/* </span> */}
-                    <span className="token">
-                        {"  "}
-                        {"  "}
-                        {t(`exchange.tokens.${fee["token"]}.abbr`, {
-                            ns: ns,
-                        })}{" "}
-                    </span>
-                </div>
-            );
-        } else {
-            return "--";
-        }
-    }, [i18n, t, ns]);
-    const getTransferAction = useCallback((row_operation: OperationData) => {
-        if (
-            row_operation.params?.sender?.toLowerCase() ===
-            address?.toLowerCase()
-        ) {
-            return t("operations.actions.destination");
-        } else {
-            return t("operations.actions.origin");
-        }
-    }, [t, address]);
-    const getTransferAddress = useCallback((row_operation: OperationData) => {
-        if (
-            row_operation.params?.sender?.toLowerCase() ===
-            address?.toLowerCase()
-        ) {
-            // return truncateAddress(row_operation['params']['recipient'].toLowerCase())
-            return row_operation.params?.recipient?.toLowerCase() || "";
-        } else {
-            //return truncateAddress(row_operation['params']['sender'].toLowerCase())
-            return row_operation.params?.sender?.toLowerCase() || "";
-        }
-    }, [address]);
-    const getStatus = useCallback((row_operation: OperationData) => {
-        const confirmedBlocks = BigInt(10);
-        switch (row_operation["status"]) {
-            case -4:
-                return t("operations.actions.statusFailed");
-            case -3:
-                return t("operations.actions.statusFailed");
-            case -2:
-                return t("operations.actions.statusFailed");
-            case -1:
-                return t("operations.actions.statusFailed");
-            case 0:
-                if (
-                    row_operation["params"] &&
-                    BigInt(blockNumber || 0) <
-                        BigInt(row_operation["params"]["blockNumber"] || 0) +
-                            confirmedBlocks
-                )
-                    return t("operations.actions.statusQueuing");
-                else return t("operations.actions.statusQueued");
-            case 1:
-                if (
-                    row_operation["executed"] &&
-                    BigInt(blockNumber || 0) <
-                        BigInt(row_operation["executed"]["blockNumber"] || 0) +
-                            confirmedBlocks
-                )
-                    return t("operations.actions.statusConfirming");
-                else if (
-                    row_operation["operation"] === "Transfer" &&
-                    BigInt(blockNumber || 0) <
-                        BigInt(row_operation["blockNumber"] || 0) +
-                            confirmedBlocks
-                )
-                    return t("operations.actions.statusConfirming");
-                else return t("operations.actions.statusConfirmed");
-            default:
-                return t("operations.actions.statusFailed");
-        }
-    }, [t, blockNumber]);
-    const setStatusIcon = useCallback((status: string) => {
-        switch (status) {
-            case t("operations.actions.statusQueuing"):
-                return "QUEUING";
-            case t("operations.actions.statusQueued"):
-                return "QUEUED";
-            case t("operations.actions.statusConfirming"):
-                return "CONFIRMING";
-            case t("operations.actions.statusConfirmed"):
-                return "CONFIRMED";
-            case t("operations.actions.statusFailed"):
-                return "FAILED";
-            default:
-                return "FAILED";
-        }
-    }, [t]);
+            if (fee["amount"] > 0n) {
+                return (
+                    <div className="LastOp__expanded__fee">
+                        {/* <span className="value"> */}
+                        {PrecisionNumbers({
+                            amount: fee["amount"],
+                            token: TokenSettings(fee["token"] || ""),
+                            decimals: 6,
+                            i18n: i18n,
+                        })}
+                        {/* </span> */}
+                        <span className="token">
+                            {"  "}
+                            {"  "}
+                            {t(`exchange.tokens.${fee["token"]}.abbr`, {
+                                ns: ns,
+                            })}{" "}
+                        </span>
+                    </div>
+                );
+            } else {
+                return "--";
+            }
+        },
+        [i18n, t, ns]
+    );
+    const getTransferAction = useCallback(
+        (row_operation: OperationData) => {
+            if (
+                row_operation.params?.sender?.toLowerCase() ===
+                address?.toLowerCase()
+            ) {
+                return t("operations.actions.destination");
+            } else {
+                return t("operations.actions.origin");
+            }
+        },
+        [t, address]
+    );
+    const getTransferAddress = useCallback(
+        (row_operation: OperationData) => {
+            if (
+                row_operation.params?.sender?.toLowerCase() ===
+                address?.toLowerCase()
+            ) {
+                // return truncateAddress(row_operation['params']['recipient'].toLowerCase())
+                return row_operation.params?.recipient?.toLowerCase() || "";
+            } else {
+                //return truncateAddress(row_operation['params']['sender'].toLowerCase())
+                return row_operation.params?.sender?.toLowerCase() || "";
+            }
+        },
+        [address]
+    );
+    const getStatus = useCallback(
+        (row_operation: OperationData) => {
+            const confirmedBlocks = BigInt(10);
+            switch (row_operation["status"]) {
+                case -4:
+                    return t("operations.actions.statusFailed");
+                case -3:
+                    return t("operations.actions.statusFailed");
+                case -2:
+                    return t("operations.actions.statusFailed");
+                case -1:
+                    return t("operations.actions.statusFailed");
+                case 0:
+                    if (
+                        row_operation["params"] &&
+                        BigInt(blockNumber || 0) <
+                            BigInt(
+                                row_operation["params"]["blockNumber"] || 0
+                            ) +
+                                confirmedBlocks
+                    )
+                        return t("operations.actions.statusQueuing");
+                    else return t("operations.actions.statusQueued");
+                case 1:
+                    if (
+                        row_operation["executed"] &&
+                        BigInt(blockNumber || 0) <
+                            BigInt(
+                                row_operation["executed"]["blockNumber"] || 0
+                            ) +
+                                confirmedBlocks
+                    )
+                        return t("operations.actions.statusConfirming");
+                    else if (
+                        row_operation["operation"] === "Transfer" &&
+                        BigInt(blockNumber || 0) <
+                            BigInt(row_operation["blockNumber"] || 0) +
+                                confirmedBlocks
+                    )
+                        return t("operations.actions.statusConfirming");
+                    else return t("operations.actions.statusConfirmed");
+                default:
+                    return t("operations.actions.statusFailed");
+            }
+        },
+        [t, blockNumber]
+    );
+    const setStatusIcon = useCallback(
+        (status: string) => {
+            switch (status) {
+                case t("operations.actions.statusQueuing"):
+                    return "QUEUING";
+                case t("operations.actions.statusQueued"):
+                    return "QUEUED";
+                case t("operations.actions.statusConfirming"):
+                    return "CONFIRMING";
+                case t("operations.actions.statusConfirmed"):
+                    return "CONFIRMED";
+                case t("operations.actions.statusFailed"):
+                    return "FAILED";
+                default:
+                    return "FAILED";
+            }
+        },
+        [t]
+    );
     const getAsset = useCallback((name: string) => {
         switch (name) {
             case "CA_0":
@@ -837,7 +908,7 @@ export default function LastOperations(props: LastOperationsProps) {
         const pre_datas: OperationData[] = sortedOperations.filter((data_j) => {
             return token !== "all" ? data_j.tokenInvolved === token : true;
         });
-        
+
         const received_row: TableRowData[] = [];
         pre_datas.forEach((data) => {
             const token = tokenExchange(data);
@@ -1114,11 +1185,30 @@ export default function LastOperations(props: LastOperationsProps) {
                 ),
             } as TableRowData);
         });
-        
+
         return data;
-    }, [dataJson.operations, token, i18n, t, expandedKeys, getErrorMessage, getFee, getStatus, getTransferAction, getTransferAddress, handleExpand, setStatusIcon, tokenExchange, TruncatedAddress, getAsset]);
-    
-    const tableColumns = useMemo(() => (columns || []).map((item) => ({ ...item })), [columns]);
+    }, [
+        dataJson.operations,
+        token,
+        i18n,
+        t,
+        expandedKeys,
+        getErrorMessage,
+        getFee,
+        getStatus,
+        getTransferAction,
+        getTransferAddress,
+        handleExpand,
+        setStatusIcon,
+        tokenExchange,
+        TruncatedAddress,
+        getAsset,
+    ]);
+
+    const tableColumns = useMemo(
+        () => (columns || []).map((item) => ({ ...item })),
+        [columns]
+    );
     /*useEffect(() => {
         setTimeout(() => setLoadingSke(false), timeSke);
     }, [auth]);*/
@@ -1191,7 +1281,9 @@ export default function LastOperations(props: LastOperationsProps) {
                             },
                         }}
                         columns={tableColumns}
-                        dataSource={isConnected == true ? processedData : undefined}
+                        dataSource={
+                            isConnected == true ? processedData : undefined
+                        }
                         scroll={{ y: lastOperationsHeight }}
                         style={{}}
                         loading={!ready && processedData.length === 0}

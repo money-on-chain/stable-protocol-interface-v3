@@ -2,15 +2,9 @@ import { useMemo } from "react";
 
 import { normalizeToBigInt } from "../helpers/precision";
 import settings from "../settings/settings.json";
-import type {
-    ContractInfo,
-    DContracts,
-    MultiCallInput,
-} from "../types/hooks";
+import type { ContractInfo, DContracts, MultiCallInput } from "../types/hooks";
 import type { OnchainPricesResult } from "../types/status";
 import { useMultiCall } from "./useMulticall";
-
-
 
 /**
  * React hook that wraps useMultiCall3 to fetch contract status data.
@@ -30,7 +24,6 @@ export function useOnchainPrices(
         let PP_FeeToken: ContractInfo | undefined;
 
         for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
-
             // CA prices
             PP_CA = contracts.PP_CA?.[ca];
             if (!PP_CA) continue;
@@ -142,10 +135,6 @@ export function useOnchainPrices(
                     },
                 });
             }
-
-
-
-
         }
 
         return callRequest;

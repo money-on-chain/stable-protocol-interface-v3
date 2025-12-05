@@ -240,13 +240,9 @@ export type ContractStatusOmocResult = Omit<
     data: ContractStatusOmoc;
 };
 
-export type OnchainPricesResult = Omit<
-    UseStorageResult<unknown>,
-    "data"
-> & {
+export type OnchainPricesResult = Omit<UseStorageResult<unknown>, "data"> & {
     data: ContractStatusOmoc;
 };
-
 
 export interface UseBaseCoinBalanceResult {
     balance: bigint | undefined;

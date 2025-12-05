@@ -155,7 +155,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const offChainPricesAPI = useOffchainPrices(
         REFRESH_INTERVAL_OFFCHAIN_PRICES
     );
-    
+
     const onChainPricesHook = useOnchainPrices(
         contractsAddressLoaded && contractsAddress
             ? contractsAddress

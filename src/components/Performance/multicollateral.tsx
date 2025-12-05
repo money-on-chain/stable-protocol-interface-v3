@@ -12,7 +12,10 @@ export default function MultiCollateral(): JSX.Element {
     const { contractProtocolStatus } = useWalletContext();
 
     let leverage = 0n;
-    if (contractProtocolStatus.data && contractProtocolStatus.data.getNormalizationFactors) {
+    if (
+        contractProtocolStatus.data &&
+        contractProtocolStatus.data.getNormalizationFactors
+    ) {
         const normalizationFactors =
             contractProtocolStatus.data.getNormalizationFactors;
 
@@ -31,14 +34,19 @@ export default function MultiCollateral(): JSX.Element {
                 caIndex++
             ) {
                 // Check if the required data exists before accessing it
-                if (!contractProtocolStatus.data?.[caIndex] || !normalizationFactors[caIndex]) {
+                if (
+                    !contractProtocolStatus.data?.[caIndex] ||
+                    !normalizationFactors[caIndex]
+                ) {
                     continue;
                 }
 
                 factor = normalizationFactors[caIndex];
-                bucketLckAC = contractProtocolStatus.data[caIndex].getLckAC || 0n;
+                bucketLckAC =
+                    contractProtocolStatus.data[caIndex].getLckAC || 0n;
                 bucketAC =
-                    contractProtocolStatus.data[caIndex].getTotalACavailable || 0n;
+                    contractProtocolStatus.data[caIndex].getTotalACavailable ||
+                    0n;
 
                 //tvl += bucketAC * factor;
                 //lckAC += bucketLckAC * factor;
@@ -69,7 +77,8 @@ export default function MultiCollateral(): JSX.Element {
                         <div className="amount">
                             {contractProtocolStatus.data?.getCombinedCglb
                                 ? PrecisionNumbers({
-                                      amount: contractProtocolStatus.data.getCombinedCglb,
+                                      amount: contractProtocolStatus.data
+                                          .getCombinedCglb,
                                       token: TokenSettings("CA_0"),
                                       decimals: 4,
                                       i18n: i18n,
@@ -87,7 +96,8 @@ export default function MultiCollateral(): JSX.Element {
                         <div className="amount">
                             {contractProtocolStatus.data?.getCombinedCtargemaCA
                                 ? PrecisionNumbers({
-                                      amount: contractProtocolStatus.data.getCombinedCtargemaCA,
+                                      amount: contractProtocolStatus.data
+                                          .getCombinedCtargemaCA,
                                       token: settings.tokens.CA[0],
                                       decimals: 4,
                                       i18n: i18n,
