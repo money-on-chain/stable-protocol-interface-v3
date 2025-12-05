@@ -3,22 +3,24 @@ $breakpoint-mobile: 600px;
 
 // Root notification container (base layout for all notification types)
 .app-notification {
-    position: relative;
     display: flex;
-    align-items: flex-start;
+    position: relative;
+    flex-direction: column;
     gap: 12px;
-    width: 100%;
-    padding: 12px 16px;
-    border-radius: var(--notification-border-radius, var(--card-border-radius));
     border: var(--notification-border);
+    border-radius: var(--notification-border-radius, var(--card-border-radius));
     background-color: var(--notification-bg-color) !important;
+    padding: 12px 16px;
+    width: 100%;
     color: var(--notification-text-color);
-    font-family: var(--main-font);
     font-size: 14px;
-    // outline: 2px dashed red;
+    font-family: var(--main-font);
 
     // box-shadow: var(--notification-shadow, none);
-
+    &__header {
+        display: flex;
+        justify-content: space-between;
+    }
     // Density modifier: use when you need a more compact notification (e.g. tight layouts, tables)
     &--compact {
         padding: 8px 12px;
@@ -27,54 +29,58 @@ $breakpoint-mobile: 600px;
 
     // Icon container: use when the notification shows a leading icon (status, info, etc.)
     &__icon {
+        display: flex;
+        flex-shrink: 0;
+        justify-content: center;
+        align-items: center;
+        filter: var(--notification-icon-filter);
+        margin-top: 2px;
+        background-size: 24px;
         width: 24px;
         height: 24px;
-        background-size: 24px;
-        flex-shrink: 0;
-        margin-top: 2px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        filter: var(--notification-icon-filter);
     }
 
     // Main content wrapper: holds title, message, actions and optional details
     &__body {
-        flex: 1;
-        min-width: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        align-items: flex-end;
+        gap: 32px;
     }
 
     // Notification title: short, bold summary of the message
     &__title {
         display: flex;
+        justify-content: space-around;
         align-items: center;
         gap: 8px;
+        margin-bottom: 8px;
         font-weight: 600;
         font-size: 16px;
         font-family: var(--brand-font);
-        margin-bottom: 8px;
     }
 
     // Main text / message content (can contain inline HTML / rich text)
     &__content {
-        // font-size: 14px;
-        line-height: 1.2;
-        // outline: 2px dashed green;
         display: flex;
+        flex: 1;
+        flex-direction: column;
+        justify-content: space-between;
+        line-height: 1.2;
     }
 
     &__actions-wrapper {
         display: flex;
         flex-direction: column;
-        align-items: flex-end;
     }
 
     // Dismiss / close button (usually an “X” in the top-right corner)
     &__close {
         filter: var(--notification-icon-filter);
         cursor: pointer;
+        margin-left: 2px;
         border: none;
-        margin-left: 8px;
         background-position: 1px 1px;
         background-size: 12px;
         background-color: transparent;
@@ -82,7 +88,7 @@ $breakpoint-mobile: 600px;
         height: 16px;
         &-wrapper {
             display: flex;
-            align-items: center;
+            // align-items: center;
         }
     }
     .app-notification__countdown {
@@ -92,51 +98,50 @@ $breakpoint-mobile: 600px;
 
     // Container for action buttons (primary, secondary, link)
     &__actions {
-        margin-top: 8px;
         display: flex;
         flex-direction: column;
-        flex-wrap: wrap;
+        justify-content: flex-end;
         gap: 8px;
     }
     // Base style for any action (button or link) inside the notification
     &__action {
-        border: none;
-        outline: none;
-        cursor: pointer;
-        padding: 4px 10px;
-        border-radius: 999px;
-        border-color: var(--notification-text-color);
-        color: var(--notification-text-color);
-        font-size: 13px;
-        line-height: 1.2;
-        text-decoration: none;
-        text-align: center;
         transition:
             background-color 0.15s ease,
             color 0.15s ease,
             opacity 0.15s ease;
+        cursor: pointer;
+        outline: none;
+        border: none;
+        border-color: var(--notification-text-color);
+        border-radius: 999px;
+        padding: 4px 10px;
+        color: var(--notification-text-color);
+        font-size: 13px;
+        line-height: 1.2;
+        text-align: center;
+        text-decoration: none;
 
         // Primary action: main call-to-action (e.g. “Retry”, “Confirm”)
         &--primary {
-            color: var(--notification-text-color);
-            background-color: var(--notification-bg-color);
             border: 2px solid var(--notification-text-color);
+            background-color: var(--notification-bg-color);
+            color: var(--notification-text-color);
         }
 
         // Secondary action: less prominent action (e.g. “Cancel”, “Remind me later”)
         &--secondary {
-            color: var(--notification-text-color);
-            background-color: var(--notification-bg-color);
             border: 1px solid var(--notification-text-color);
+            background-color: var(--notification-bg-color);
+            color: var(--notification-text-color);
         }
 
         // Link-style action: inline, text-only action (e.g. “View details”)
         &--link {
+            border-radius: 0;
             background: none;
             padding: 0;
-            border-radius: 0;
-            text-decoration: underline;
             color: var(--notification-text-color);
+            text-decoration: underline;
         }
 
         // Disabled state: use when the action is not clickable (loading, unavailable, etc.)
@@ -197,38 +202,40 @@ $breakpoint-mobile: 600px;
 
     // Button / link that toggles the visibility of the details section
     &__details-toggle {
+        cursor: pointer;
         border: none;
         background: none;
         padding: 0;
-        cursor: pointer;
-        text-decoration: underline;
         font-size: 13px;
-        // color: var(--color-txt-highlight);
+        text-decoration: underline;
     }
 
     // Body of the details section (shown when details are expanded)
     &__details-body {
+        opacity: 0.85;
         margin-top: 4px;
+        border: 1px solid var(--notification-text-color);
         padding: 8px 16px;
         font-size: 13px;
         line-height: 1.4;
-        opacity: 0.85;
-        border: 1px solid var(--notification-text-color);
     }
 }
 
 @media (max-width: $breakpoint-mobile) {
     .app-notification {
-        flex-direction: column;
+        &__body {
+            flex-direction: column;
+            gap: 16px;
+        }
         &__actions-wrapper {
             width: 100%;
-            outline: 1px dashed red;
-            flex-direction: row;
+            align-items: center;
         }
         &__actions {
-            outline: 1px dashed blue;
             flex-direction: row;
-            justify-content: space-between;
+            align-items: center;
+            justify-content: space-around;
+            gap: 16px;
         }
     }
 }
