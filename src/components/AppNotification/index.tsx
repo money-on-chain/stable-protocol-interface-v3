@@ -35,8 +35,11 @@ export interface AppNotificationProps {
     /** Visual style / semantic type of the notification */
     type?: AppNotificationType;
 
-    /** Optional icon rendered on the left side */
-    icon?: ReactNode;
+    /** Optional icon CSS class rendered on the left side */
+    icon?: string; // 🔹 antes era ReactNode
+
+    /** If true, no icon will be rendered (overrides default and custom icons) */
+    noIcon?: boolean; // 🔹 nuevo prop
 
     /** Notification title (single line, bold by default) */
     title?: ReactNode;
@@ -101,16 +104,13 @@ export interface AppNotificationProps {
         reason: AppNotificationVisibilityChangeReason
     ) => void;
 
-    /**
-     * Optional ARIA role. Defaults to "status".
-     * You may want "alert" for error-type banners.
-     */
     role?: "status" | "alert";
 }
 
 export const AppNotification: React.FC<AppNotificationProps> = ({
     type = "neutral",
     icon,
+    noIcon,
     title,
     content,
     details,
@@ -131,6 +131,18 @@ export const AppNotification: React.FC<AppNotificationProps> = ({
     onVisibleChange,
     role = "status",
 }) => {
+    const defaultIcons: Record<AppNotificationType, string> = {
+        info: "icon-status-info",
+        warning: "icon-status-warning",
+        success: "icon-status-success",
+        neutral: "icon-status-neutral",
+        error: "icon-status-error",
+    };
+
+    // If noIcon is true, force no icon.
+    // Otherwise fallback to provided icon or default icon.
+    const iconClass = noIcon ? null : (icon ?? defaultIcons[type]);
+
     const isControlled = typeof visible === "boolean";
 
     const [internalVisible, setInternalVisible] = useState<boolean>(
@@ -329,47 +341,24 @@ export const AppNotification: React.FC<AppNotificationProps> = ({
             role={role}
             aria-live={role === "alert" ? "assertive" : "polite"}
         >
-            <div className="app-notification__body">
+            <div className="app-notification__header">
                 {title && (
                     <div className="app-notification__title">
-                        {icon && (
+                        {iconClass && (
                             <div
-                                className={`app-notification__icon ${icon}`}
-                            ></div>
+                                className={`app-notification__icon ${iconClass}`}
+                            />
                         )}
                         {title}
                     </div>
                 )}
-                {content && (
-                    <div className="app-notification__content">{content}</div>
-                )}
-                {details && (
-                    <div className="app-notification__details">
-                        <button
-                            type="button"
-                            className="app-notification__details-toggle"
-                            onClick={() => setIsDetailsOpen((prev) => !prev)}
-                        >
-                            {isDetailsOpen
-                                ? detailsToggleLabels.hide
-                                : detailsToggleLabels.show}
-                        </button>
-                        {isDetailsOpen && (
-                            <div className="app-notification__details-body">
-                                {details}
-                            </div>
-                        )}
-                    </div>
-                )}
-            </div>
-            <div className="app-notification__actions-wrapper">
                 {dismissible && (
                     <div className="app-notification__close-wrapper">
                         {autoCloseAfterMs &&
                             autoCloseAfterMs > 0 &&
                             remainingSeconds !== null && (
                                 <span className="app-notification__countdown">
-                                    Closing in {remainingSeconds}s
+                                    {remainingSeconds}s
                                 </span>
                             )}
                         <button
@@ -380,7 +369,36 @@ export const AppNotification: React.FC<AppNotificationProps> = ({
                         ></button>
                     </div>
                 )}
-                {renderActions()}
+            </div>
+            <div className="app-notification__body">
+                {content && (
+                    <div className="app-notification__content">
+                        {content}
+                        {details && (
+                            <div className="app-notification__details">
+                                <button
+                                    type="button"
+                                    className="app-notification__details-toggle"
+                                    onClick={() =>
+                                        setIsDetailsOpen((prev) => !prev)
+                                    }
+                                >
+                                    {isDetailsOpen
+                                        ? detailsToggleLabels.hide
+                                        : detailsToggleLabels.show}
+                                </button>
+                                {isDetailsOpen && (
+                                    <div className="app-notification__details-body">
+                                        {details}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )}
+                <div className="app-notification__actions-wrapper">
+                    {renderActions()}
+                </div>
             </div>
         </div>
     );
