@@ -14,7 +14,9 @@ import CopyAddress from "../CopyAddress";
 import ModalAllowanceOperation from "../Modals/Allowance";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import TXStatus from "./TXStatus";
+import settings from "../../settings/settings.json";
 
+const { slippage } = settings;
 const { Panel } = Collapse;
 
 interface OperationStatusResponse {
@@ -137,7 +139,7 @@ export default function ConfirmOperation(
     const [amountYouExchange, setAmountYouExchange] = useState<bigint>(
         inputAmountYouExchange
     );
-    const [tolerance, setTolerance] = useState<number>(5.0);
+    const [tolerance, setTolerance] = useState<number>(slippage.autoDefault);
     const [txID, setTxID] = useState<string>("");
     const [opID, setOpID] = useState<number | null>(null);
     const [toleranceError, setToleranceError] = useState<string>("");

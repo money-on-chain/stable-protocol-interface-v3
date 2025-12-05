@@ -27,10 +27,14 @@ import {
     toBigIntPrecision,
 } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
+import type { Settings } from "../../types/hooks";
 import CurrencyPopUp from "../CurrencyPopUp";
 import InputAmount from "../InputAmount/";
 import ModalConfirmOperation from "../Modals/ConfirmOperation";
 import { PrecisionNumbers } from "../PrecisionNumbers";
+import settings from "../../settings/settings.json";
+const { slippage } = settings as Settings;
+
 // Type definitions
 interface CommissionInfo {
     fee: bigint;
@@ -865,7 +869,7 @@ export default function Exchange(): JSX.Element {
                                 <div className="tx-slippage-label">
                                     Slippage tolerance: {space}
                                     <div className="tx-slippage-value">
-                                        VALUE
+                                        {slippage.autoDefault}
                                     </div>
                                 </div>
                                 <div className="tx-slippage-text">

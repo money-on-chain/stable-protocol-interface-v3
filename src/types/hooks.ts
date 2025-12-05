@@ -108,6 +108,10 @@ export interface Settings {
         name: string;
         description: string;
     };
+    slippage: {
+        autoDefault: number;
+        presets: number[];
+    };
     showPriceVariation: boolean;
     tokens: SettingsTokens;
 }
