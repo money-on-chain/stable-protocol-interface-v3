@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Icon/notification-neutral</title>
+    <g id="Icon/notification-neutral" stroke="none" fill="none" fill-rule="nonzero">
+        <rect id="Area" x="0" y="0" width="24" height="24"></rect>
+        <g id="Group" stroke-width="1" fill-rule="evenodd" stroke="#000000">
+            <path d="M12,22 C17.5228,22 22,17.5228 22,12 C22,6.47715 17.5228,2 12,2 C6.47715,2 2,6.47715 2,12 C2,17.5228 6.47715,22 12,22 Z" id="Path" stroke-width="2"></path>
+        </g>
+    </g>
+</svg>

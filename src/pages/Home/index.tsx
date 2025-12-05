@@ -112,7 +112,8 @@ export default function Home(): React.ReactElement {
                     <AppNotification
                         type="warning"
                         title="Warning Message"
-                        icon={"icon-status-warning"}
+                        // icon={"icon-status-warning"}
+                        noIcon
                         content={
                             <>
                                 This is a sample of an error notification <br />
@@ -159,7 +160,8 @@ export default function Home(): React.ReactElement {
                     <AppNotification
                         type="success"
                         title="Success Message"
-                        icon={"icon-status-success"}
+                        // icon={"icon-status-success"}
+                        // noIcon
                         content={
                             <>
                                 This is a sample of an error notification <br />
@@ -210,7 +212,7 @@ export default function Home(): React.ReactElement {
                     <AppNotification
                         type="error"
                         title="Temporal Message"
-                        icon={"icon-status-warning"}
+                        // icon={"icon-status-warning"}
                         content={
                             <>
                                 This is a sample of an error notification <br />
@@ -258,7 +260,7 @@ export default function Home(): React.ReactElement {
                     <AppNotification
                         type="info"
                         title="Info Message"
-                        icon={"icon-status-warning"}
+                        // icon={"icon-status-warning"}
                         content={
                             <>
                                 This is a sample of an error notification <br />
@@ -305,7 +307,7 @@ export default function Home(): React.ReactElement {
                     <AppNotification
                         type="warning"
                         title="Warning Message"
-                        icon={"icon-status-warning"}
+                        // icon={"icon-status-warning"}
                         content={
                             <>
                                 This is a sample of an error notification <br />
@@ -352,7 +354,8 @@ export default function Home(): React.ReactElement {
                     <AppNotification
                         type="success"
                         title="Success Message"
-                        icon={"icon-status-success"}
+                        // noicon
+                        // icon={"icon-status-success"}
                         content={
                             <>
                                 This is a sample of an error notification <br />
@@ -399,7 +402,8 @@ export default function Home(): React.ReactElement {
                     <AppNotification
                         type="neutral"
                         title="Neutral Message"
-                        icon={"icon-status-warning"}
+                        // icon={"icon-swap-arrow"}
+                        // noIcon
                         content={
                             <>
                                 This is a sample of an error notification <br />
@@ -449,7 +453,7 @@ export default function Home(): React.ReactElement {
                     <AppNotification
                         type="error"
                         title="Error Message"
-                        icon={"icon-status-error"}
+                        // icon={"icon-status-error"}
                         content={
                             <>
                                 This is a sample of an error notification <br />
