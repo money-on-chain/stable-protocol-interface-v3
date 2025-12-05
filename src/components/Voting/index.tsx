@@ -234,16 +234,19 @@ const Voting: React.FC = () => {
     
         const nowTimestamp: bigint = BigInt(Date.now());
     
-        let vUsing: { getBalance: bigint; getLockingInfo: [bigint, bigint] };
+        let vUsing: { getBalance: bigint; getLockingInfo: [bigint, bigint] } | undefined;
     
         if (isVestingLoaded() && userVesting.data) {
-            vUsing = userVesting.data.vestingmachine.staking;
+            vUsing = userVesting.data.vestingmachine?.staking;
         } else {
             vUsing = userOmocBalance.data.stakingmachine;
         }
     
+        if (!vUsing || !vUsing.getBalance || !vUsing.getLockingInfo) {
+            return defaultInfoUser;
+        }
+    
         const uBalance: bigint = vUsing.getBalance;
-        if (!vUsing.getLockingInfo) return defaultInfoUser;
     
         const [lockedAmount, untilTimestamp] = vUsing.getLockingInfo;
     
