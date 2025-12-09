@@ -217,3 +217,10 @@
         }
     }
 }
+.notification-center {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    outline: 2px dashed red !important;
+    padding: 32px;
+}

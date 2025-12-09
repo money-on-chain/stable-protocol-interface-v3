@@ -9,6 +9,10 @@ import { NetworkGuard } from "../../../components/NetworkGuard";
 import NotConnected from "../../../components/NotConnected";
 import NotificationBody from "../../../components/Notification";
 import RpcErrorAlert from "../../../components/Notification/RpcErrorAlert";
+import {
+    GlobalNotificationCenter,
+    NotificationProvider,
+} from "../../../components/Notifications";
 import UpdateToast from "../../../components/UpdateToast";
 import { useWalletContext } from "../../../context/Wallet";
 import { CheckStatusGlobal } from "../../../helpers/checkStatus";
@@ -194,32 +198,35 @@ export default function Skeleton(): JSX.Element {
     }, [userVeto.data, contractStatusOmoc.data, address, t, navigate]);
 
     return (
-        <Layout>
-            <SectionHeader />
-            <Content>
-                <NetworkGuard />
-                <UpdateToast />
-                {rpcError.hasError && (
-                    <RpcErrorAlert
-                        error={rpcError}
-                        onRetry={() => void retryConnection()}
-                        onDismiss={clearRpcError}
-                    />
-                )}
-                {notifStatus && <NotificationBody notifStatus={notifStatus} />}
-                {priceNotValidStatus && (
-                    <NotificationBody notifStatus={priceNotValidStatus} />
-                )}
-                {vetoWithdraw && (
-                    <NotificationBody notifStatus={vetoWithdraw} />
-                )}
-                {isConnected && !isWrongNetwork ? <Outlet /> : <NotConnected />}
-            </Content>
-            <Footer>
-                <div className="footer-container">
-                    <DappFooter></DappFooter>
-                </div>
-            </Footer>
-        </Layout>
+        <NotificationProvider>
+            <Layout>
+                <SectionHeader />
+
+                {/* Global notifications, always below the header */}
+                <GlobalNotificationCenter />
+
+                <Content>
+                    <NetworkGuard />
+                    <UpdateToast />
+                    {rpcError.hasError && (
+                        <RpcErrorAlert
+                            error={rpcError}
+                            onRetry={() => void retryConnection()}
+                            onDismiss={clearRpcError}
+                        />
+                    )}
+                    {notifStatus && <NotificationBody notifStatus={notifStatus} />}
+                    {vetoWithdraw && (
+                        <NotificationBody notifStatus={vetoWithdraw} />
+                    )}
+                    {isConnected && !isWrongNetwork ? <Outlet /> : <NotConnected />}
+                </Content>
+                <Footer>
+                    <div className="footer-container">
+                        <DappFooter></DappFooter>
+                    </div>
+                </Footer>
+            </Layout>
+        </NotificationProvider>
     );
 }
