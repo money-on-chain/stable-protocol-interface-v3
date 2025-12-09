@@ -3,7 +3,7 @@ import "./Styles.scss";
 import React from "react";
 
 import Portfolio from "../../components/Dashboards/Portfolio";
-import { AppNotification } from "../../components/Notifications/AppNotification";
+import { AppNotification } from "../../components/Notifications";
 import HomeTabs from "../../components/PortfolioOperationsTabs";
 import LastOperations from "../../components/Tables/LastOperations";
 
@@ -61,7 +61,7 @@ export default function Home(): React.ReactElement {
                                 target: "_blank",
                             },
                         ]}
-                    />{" "}
+                    />
                     <AppNotification
                         type="info"
                         title="Info Message"
@@ -212,6 +212,7 @@ export default function Home(): React.ReactElement {
                     <AppNotification
                         type="error"
                         title="Temporal Message"
+                        deliveryMode="center"
                         // icon={"icon-status-warning"}
                         content={
                             <>
@@ -307,6 +308,7 @@ export default function Home(): React.ReactElement {
                     <AppNotification
                         type="warning"
                         title="Warning Message"
+                        deliveryMode="center"
                         // icon={"icon-status-warning"}
                         content={
                             <>
@@ -354,6 +356,7 @@ export default function Home(): React.ReactElement {
                     <AppNotification
                         type="success"
                         title="Success Message"
+                        deliveryMode="center"
                         // noicon
                         // icon={"icon-status-success"}
                         content={

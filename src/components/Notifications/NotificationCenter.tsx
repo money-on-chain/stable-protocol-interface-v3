@@ -1,9 +1,9 @@
 import React from "react";
 
 import {
-    AppNotification,
     type AppNotificationVisibilityChangeReason,
-} from "./AppNotification";
+    BaseAppNotification,
+} from "./BaseAppNotification";
 import type { NotificationCenterItem, NotificationCenterProps } from "./types";
 
 /**
@@ -68,7 +68,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                 }
 
                 return (
-                    <AppNotification
+                    <BaseAppNotification
                         key={id}
                         {...appNotificationProps}
                         onDismiss={handleDismiss}
