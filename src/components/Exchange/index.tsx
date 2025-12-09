@@ -1,4 +1,4 @@
-import type { RadioChangeEvent, Alert } from "antd";
+import type { RadioChangeEvent } from "antd";
 import { Radio, Space } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
 
@@ -27,12 +27,12 @@ import {
     toBigIntPrecision,
 } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
+import settings from "../../settings/settings.json";
 import type { Settings } from "../../types/hooks";
 import CurrencyPopUp from "../CurrencyPopUp";
 import InputAmount from "../InputAmount/";
 import ModalConfirmOperation from "../Modals/ConfirmOperation";
 import { PrecisionNumbers } from "../PrecisionNumbers";
-import settings from "../../settings/settings.json";
 const { slippage } = settings as Settings;
 
 // Type definitions
@@ -63,7 +63,9 @@ export default function Exchange(): JSX.Element {
     const [amountYouExchange, setAmountYouExchange] = useState<bigint>(0n);
     const [amountYouReceive, setAmountYouReceive] = useState<bigint>(0n);
 
-    const [slippageTolerance, setSlippageTolerance] = useState<number>(slippage.autoDefault);
+    const [slippageTolerance, setSlippageTolerance] = useState<number>(
+        slippage.autoDefault
+    );
 
     //const [isDirtyYouExchange, setIsDirtyYouExchange] = useState(false);
     //const [isDirtyYouReceive, setIsDirtyYouReceive] = useState(false);

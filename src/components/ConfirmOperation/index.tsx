@@ -1,11 +1,11 @@
-import { Button, Collapse, Slider } from "antd";
+import { Collapse } from "antd";
 import type { AxiosError } from "axios";
 import axios from "axios";
 import React, { useCallback, useEffect, useState } from "react";
 import type { TransactionReceipt } from "viem";
-import { SlippageTolerance } from "../../components/SlippageTolerance";
 
 import { decodeEvents } from "../../backend/transaction";
+import { SlippageTolerance } from "../../components/SlippageTolerance";
 import { useWalletContext } from "../../context/Wallet";
 import { TokenBalance, TokenSettings } from "../../helpers/currencies";
 import { isMintOperation, UserTokenAllowance } from "../../helpers/exchange";

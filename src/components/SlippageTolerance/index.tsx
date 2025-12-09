@@ -1,6 +1,8 @@
 import "./index.scss";
-import settings from "../../settings/settings.json";
+
 import React, { useEffect, useMemo, useState } from "react";
+
+import settings from "../../settings/settings.json";
 
 const { slippage } = settings;
 export type SlippageMode = "auto" | "custom";
