@@ -35,13 +35,17 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
         .filter(Boolean)
         .join(" ");
 
+    // By keying the container with the list of ids we ensure the subtree
+    // is remounted whenever the notification collection changes.
+    const containerKey = notifications.map((n) => n.id).join("|");
+
     return (
-        <div className={containerClassName} style={style}>
+        <div className={containerClassName} style={style} key={containerKey}>
             {notifications.map((item: NotificationCenterItem) => {
                 const {
                     id,
                     itemOnDismiss,
-                    // The rest of props will go to AppNotification.
+                    // The rest of props will go to BaseAppNotification.
                     ...appNotificationProps
                 } = item;
 
