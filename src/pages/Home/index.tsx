@@ -41,7 +41,7 @@ export default function Home(): React.ReactElement {
                         }
                         detailsInitiallyOpen={false}
                         dismissible
-                        autoCloseAfterMs={90000}
+                        autoCloseAfterMs={3000}
                         actions={[
                             {
                                 key: "retry",
@@ -237,7 +237,7 @@ export default function Home(): React.ReactElement {
                         }
                         detailsInitiallyOpen={false}
                         dismissible
-                        autoCloseAfterMs={90000}
+                        autoCloseAfterMs={3000}
                         actions={[
                             {
                                 key: "retry",
