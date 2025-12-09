@@ -17,6 +17,7 @@ export default function Home(): React.ReactElement {
                     <AppNotification
                         type="error"
                         title="Temporal Message"
+                        deliveryMode="center"
                         icon={"icon-status-warning"}
                         content={
                             <>
@@ -65,6 +66,7 @@ export default function Home(): React.ReactElement {
                     <AppNotification
                         type="info"
                         title="Info Message"
+                        deliveryMode="center"
                         icon={"icon-status-warning"}
                         content={
                             <>
@@ -112,6 +114,7 @@ export default function Home(): React.ReactElement {
                     <AppNotification
                         type="warning"
                         title="Warning Message"
+                        deliveryMode="center"
                         // icon={"icon-status-warning"}
                         noIcon
                         content={
@@ -160,6 +163,7 @@ export default function Home(): React.ReactElement {
                     <AppNotification
                         type="success"
                         title="Success Message"
+                        deliveryMode="center"
                         // icon={"icon-status-success"}
                         // noIcon
                         content={
@@ -261,6 +265,7 @@ export default function Home(): React.ReactElement {
                     <AppNotification
                         type="info"
                         title="Info Message"
+                        deliveryMode="center"
                         // icon={"icon-status-warning"}
                         content={
                             <>
@@ -308,6 +313,7 @@ export default function Home(): React.ReactElement {
                     <AppNotification
                         type="warning"
                         title="Warning Message"
+                        deliveryMode="center"
                         deliveryMode="center"
                         // icon={"icon-status-warning"}
                         content={
@@ -405,6 +411,7 @@ export default function Home(): React.ReactElement {
                     <AppNotification
                         type="neutral"
                         title="Neutral Message"
+                        deliveryMode="center"
                         // icon={"icon-swap-arrow"}
                         // noIcon
                         content={
@@ -456,6 +463,7 @@ export default function Home(): React.ReactElement {
                     <AppNotification
                         type="error"
                         title="Error Message"
+                        deliveryMode="center"
                         // icon={"icon-status-error"}
                         content={
                             <>
