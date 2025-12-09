@@ -22,6 +22,8 @@ interface ModalConfirmOperationProps {
     commissionPercentFeeToken: bigint;
     radioSelectFee: number;
     caIndex: number;
+    slippageTolerance: number;
+    onChangeSlippageTolerance: (value: number) => void;
 }
 
 export default function ModalConfirmOperation(

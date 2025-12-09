@@ -63,6 +63,8 @@ export default function Exchange(): JSX.Element {
     const [amountYouExchange, setAmountYouExchange] = useState<bigint>(0n);
     const [amountYouReceive, setAmountYouReceive] = useState<bigint>(0n);
 
+    const [slippageTolerance, setSlippageTolerance] = useState<number>(slippage.autoDefault);
+
     //const [isDirtyYouExchange, setIsDirtyYouExchange] = useState(false);
     //const [isDirtyYouReceive, setIsDirtyYouReceive] = useState(false);
 
@@ -567,6 +569,11 @@ export default function Exchange(): JSX.Element {
         }
     };
 
+    const onChangeSlippageTolerance = (value: number): void => {
+        console.warn("slippage tolerance", value);
+        setSlippageTolerance(value);
+    };
+
     return (
         <div>
             <div className="sectionExchange__Content">
@@ -869,7 +876,7 @@ export default function Exchange(): JSX.Element {
                                 <div className="tx-slippage-label">
                                     Slippage tolerance: {space}
                                     <div className="tx-slippage-value">
-                                        {slippage.autoDefault}
+                                        {slippageTolerance} %
                                     </div>
                                 </div>
                                 <div className="tx-slippage-text">
@@ -925,6 +932,8 @@ export default function Exchange(): JSX.Element {
                         commissionPercentFeeToken={commissionPercentFeeToken}
                         radioSelectFee={radioSelectFee}
                         caIndex={caIndex}
+                        slippageTolerance={slippageTolerance}
+                        onChangeSlippageTolerance={onChangeSlippageTolerance}
                         //amountYouExchangeFee={amountYouExchangeFee}
                         //amountYouReceiveFee={amountYouReceiveFee}
                     />

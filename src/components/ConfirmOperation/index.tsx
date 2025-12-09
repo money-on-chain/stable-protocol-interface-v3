@@ -14,9 +14,7 @@ import CopyAddress from "../CopyAddress";
 import ModalAllowanceOperation from "../Modals/Allowance";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import TXStatus from "./TXStatus";
-import settings from "../../settings/settings.json";
 
-const { slippage } = settings;
 const { Panel } = Collapse;
 
 interface OperationStatusResponse {
@@ -45,6 +43,8 @@ interface ConfirmOperationProps {
     commissionPercentFeeToken: bigint;
     radioSelectFee: number;
     caIndex: number;
+    slippageTolerance: number;
+    onChangeSlippageTolerance: (value: number) => void;
 }
 
 type StatusType =
@@ -128,6 +128,8 @@ export default function ConfirmOperation(
         commissionPercentFeeToken,
         radioSelectFee,
         caIndex,
+        slippageTolerance,
+        onChangeSlippageTolerance,
     } = props;
 
     const { t, i18n, ns } = useProjectTranslation();
@@ -139,7 +141,7 @@ export default function ConfirmOperation(
     const [amountYouExchange, setAmountYouExchange] = useState<bigint>(
         inputAmountYouExchange
     );
-    const [tolerance, setTolerance] = useState<number>(slippage.autoDefault);
+    const [tolerance, setTolerance] = useState<number>(slippageTolerance);
     const [txID, setTxID] = useState<string>("");
     const [opID, setOpID] = useState<number | null>(null);
     const [toleranceError, setToleranceError] = useState<string>("");
@@ -589,6 +591,7 @@ export default function ConfirmOperation(
         setToleranceError("");
         setAmountYouExchangeLimit(limits.exchange);
         setAmountYouReceiveLimit(limits.receive);
+        onChangeSlippageTolerance(newTolerance);
     };
 
     const onClose = (): void => {
@@ -826,7 +829,7 @@ export default function ConfirmOperation(
                         )}
                         <div className="cta-options-group">
                             <button
-                                type="default"
+                                type="button"
                                 className="button secondary"
                                 onClick={onClose}
                             >
