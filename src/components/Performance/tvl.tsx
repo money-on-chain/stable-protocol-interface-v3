@@ -15,26 +15,29 @@ export default function TVL(): JSX.Element {
     let collateralTotalInUSD = 0n;
     let collateralInUSD: bigint;
 
-    if (contractProtocolStatus.data) {
-        (settings.tokens.CA as TokenConfig[]).forEach(function (dataItem) {
+    if (contractProtocolStatus.data) {        
+        for (const dataItem of settings.tokens.CA as TokenConfig[]) {
             // Check if the required data exists before accessing it
-            if (
-                !dataItem?.key ||
-                !contractProtocolStatus.data?.[dataItem.key] ||
-                !contractProtocolStatus.data?.[dataItem.key]?.PP_CA
-            ) {
-                return;
+            if (dataItem.key === undefined || dataItem.key === null) {
+                continue;
             }
-
+                        
+            const entry = contractProtocolStatus.data?.[dataItem.key];
+            if (!entry || !entry.PP_CA || entry.nACcb == null) {
+                continue;
+            }
+            
             const priceCA =
                 normalizeToBigInt(
                     contractProtocolStatus.data[dataItem.key].PP_CA[0]
                 ) || 0n;
 
             const nACcb = contractProtocolStatus.data[dataItem.key].nACcb || 0n;
+            
             collateralInUSD = mulPrecision(nACcb, priceCA);
             collateralTotalInUSD = collateralTotalInUSD + collateralInUSD;
-        });
+            
+        };
     }
 
     return (
