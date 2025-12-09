@@ -2,8 +2,8 @@ import "./Styles.scss";
 
 import React from "react";
 
-import { AppNotification } from "../../components/AppNotification";
 import Portfolio from "../../components/Dashboards/Portfolio";
+import { AppNotification } from "../../components/Notifications/AppNotification";
 import HomeTabs from "../../components/PortfolioOperationsTabs";
 import LastOperations from "../../components/Tables/LastOperations";
 
