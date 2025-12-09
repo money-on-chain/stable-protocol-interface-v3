@@ -220,6 +220,14 @@ $breakpoint-mobile: 600px;
         line-height: 1.4;
     }
 }
+.notification-center {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 24px;
+    outline: 2px dashed red !important;
+    // padding: 32px;
+}
 
 @media (max-width: $breakpoint-mobile) {
     .app-notification {
@@ -237,5 +245,11 @@ $breakpoint-mobile: 600px;
             justify-content: space-around;
             gap: 16px;
         }
+    }
+    .notification-center {
+        margin-left: 4px;
+        margin-right: 4px;
+        gap: 8px;
+        margin-top: 8px;
     }
 }
