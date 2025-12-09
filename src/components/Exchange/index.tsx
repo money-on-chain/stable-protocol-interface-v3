@@ -27,10 +27,13 @@ import {
     toBigIntPrecision,
 } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
+import settings from "../../settings/settings.json";
+import type { Settings } from "../../types/hooks";
 import CurrencyPopUp from "../CurrencyPopUp";
 import InputAmount from "../InputAmount/";
 import ModalConfirmOperation from "../Modals/ConfirmOperation";
 import { PrecisionNumbers } from "../PrecisionNumbers";
+const { slippage } = settings as Settings;
 
 // Type definitions
 interface CommissionInfo {
@@ -44,6 +47,7 @@ interface CommissionInfo {
 
 export default function Exchange(): JSX.Element {
     const { t, i18n, ns } = useProjectTranslation();
+    const space: string = "\u00A0";
 
     const { contractProtocolStatus, userBalance, publicClient } =
         useWalletContext();
@@ -58,6 +62,10 @@ export default function Exchange(): JSX.Element {
 
     const [amountYouExchange, setAmountYouExchange] = useState<bigint>(0n);
     const [amountYouReceive, setAmountYouReceive] = useState<bigint>(0n);
+
+    const [slippageTolerance, setSlippageTolerance] = useState<number>(
+        slippage.autoDefault
+    );
 
     //const [isDirtyYouExchange, setIsDirtyYouExchange] = useState(false);
     //const [isDirtyYouReceive, setIsDirtyYouReceive] = useState(false);
@@ -563,6 +571,11 @@ export default function Exchange(): JSX.Element {
         }
     };
 
+    const onChangeSlippageTolerance = (value: number): void => {
+        console.warn("slippage tolerance", value);
+        setSlippageTolerance(value);
+    };
+
     return (
         <div>
             <div className="sectionExchange__Content">
@@ -860,9 +873,22 @@ export default function Exchange(): JSX.Element {
                                 {t("fees.disclaimer1")} <br />
                                 {t("fees.disclaimer2")}
                             </div>
+                            <div className="tx-slippage-container">
+                                {/* <div className="divider-horizontal"></div> */}
+                                <div className="tx-slippage-label">
+                                    Slippage tolerance: {space}
+                                    <div className="tx-slippage-value">
+                                        {slippageTolerance} %
+                                    </div>
+                                </div>
+                                <div className="tx-slippage-text">
+                                    Slippage tolerance can be adjusted during
+                                    the next confirmation step
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>{" "}
+                </div>
             </div>
             <div className="cta-container">
                 <div className="cta-info-group">
@@ -908,6 +934,8 @@ export default function Exchange(): JSX.Element {
                         commissionPercentFeeToken={commissionPercentFeeToken}
                         radioSelectFee={radioSelectFee}
                         caIndex={caIndex}
+                        slippageTolerance={slippageTolerance}
+                        onChangeSlippageTolerance={onChangeSlippageTolerance}
                         //amountYouExchangeFee={amountYouExchangeFee}
                         //amountYouReceiveFee={amountYouReceiveFee}
                     />
