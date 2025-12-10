@@ -124,8 +124,6 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         undefined
     );
 
-    const [offChainPrices, setOffChainPrices] = useState<unknown>(null);
-    const [onChainPrices, setOnChainPrices] = useState<unknown>(null);
     const [showModalAccount, setShowModalAccount] = useState<boolean>(false);
     const [showModalProviders, setShowModalProviders] =
         useState<boolean>(false);
@@ -162,12 +160,16 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             : undefined,
         REFRESH_INTERVAL_ONCHAIN_PRICES
     );
+    const offChainPrices =
+        (offChainPricesAPI.parsedPrices as ParsedPrices[]) ?? undefined;
+    const onChainPrices =
+        (onChainPricesHook.data as ParsedPrices[]) ?? undefined;
 
     const contractProtocolStatus = useContractProtocolStatus(
         contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
         Number(blockNumber),
-        (offChainPrices as ParsedPrices[]) ?? undefined,
-        (onChainPrices as ParsedPrices[]) ?? undefined,
+        offChainPrices,
+        onChainPrices,
         REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS
     );
 
@@ -234,18 +236,6 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             handleRpcError(e);
         }
     }, [isConnected, contractsAddressLoaded, publicClient, handleRpcError]);
-
-    useEffect(() => {
-        if (offChainPricesAPI.parsedPrices) {
-            setOffChainPrices(offChainPricesAPI.parsedPrices);
-        }
-    }, [offChainPricesAPI.parsedPrices]);
-
-    useEffect(() => {
-        if (onChainPricesHook.data) {
-            setOnChainPrices(onChainPricesHook.data);
-        }
-    }, [onChainPricesHook.data]);
 
     useEffect(() => {
         if (!contractsAddressLoaded) {

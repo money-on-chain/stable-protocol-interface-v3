@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
 import { TokenSettings } from "../../helpers/currencies";
@@ -12,33 +12,25 @@ export default function TVL(): JSX.Element {
     const { t, i18n } = useProjectTranslation();
     const { contractProtocolStatus } = useWalletContext();
 
-    let collateralTotalInUSD = 0n;
-    let collateralInUSD: bigint;
+    const tvl = useMemo(() => {
+        if (!contractProtocolStatus.data) return 0n;
 
-    if (contractProtocolStatus.data) {        
+        let total = 0n;
+
         for (const dataItem of settings.tokens.CA as TokenConfig[]) {
-            // Check if the required data exists before accessing it
-            if (dataItem.key === undefined || dataItem.key === null) {
-                continue;
-            }
-                        
-            const entry = contractProtocolStatus.data?.[dataItem.key];
-            if (!entry || !entry.PP_CA || entry.nACcb == null) {
-                continue;
-            }
-            
-            const priceCA =
-                normalizeToBigInt(
-                    contractProtocolStatus.data[dataItem.key].PP_CA[0]
-                ) || 0n;
+            if (dataItem.key == null) continue;
 
-            const nACcb = contractProtocolStatus.data[dataItem.key].nACcb || 0n;
-            
-            collateralInUSD = mulPrecision(nACcb, priceCA);
-            collateralTotalInUSD = collateralTotalInUSD + collateralInUSD;
-            
-        };
-    }
+            const entry = contractProtocolStatus.data[dataItem.key];
+            if (!entry || !entry.PP_CA || entry.nACcb == null) continue;
+
+            const priceCA = normalizeToBigInt(entry.PP_CA[0]) || 0n;
+            const nACcb = entry.nACcb ?? 0n;
+
+            total += mulPrecision(nACcb, priceCA);
+        }
+
+        return total;
+    }, [contractProtocolStatus.data]);
 
     return (
         <div className="section__innerCard--small dash__perfTVL">
@@ -49,9 +41,7 @@ export default function TVL(): JSX.Element {
             <div className="card-content">
                 <div className="big-number">
                     {PrecisionNumbers({
-                        amount: collateralTotalInUSD
-                            ? collateralTotalInUSD
-                            : 0n,
+                        amount: tvl,
                         token: TokenSettings("CA_0"),
                         decimals: 2,
                         i18n: i18n,
