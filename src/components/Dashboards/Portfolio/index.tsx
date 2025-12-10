@@ -27,17 +27,15 @@ export default function Portfolio(): JSX.Element {
         userBalance.data &&
         userBaseCoinBalance.balance
     ) {
-        settings.tokens.CA.forEach(function (dataItem: TokenConfig) {
-            if (!dataItem.key) {
-                /*console.error("CA dataItem.key is undefined");*/ return;
-            }
+        for (const dataItem of settings.tokens.CA as TokenConfig[]) {
+            if (dataItem.key == null) continue;
 
             // Check if the required data exists before accessing it
             if (
                 !userBalance.data?.CA?.[dataItem.key] ||
                 !contractProtocolStatus.data?.[dataItem.key]
             ) {
-                return;
+                continue;
             }
 
             ////////////////
@@ -66,21 +64,19 @@ export default function Portfolio(): JSX.Element {
             price = mulPrecision(priceTEC, priceCA);
             balanceUSD = mulPrecision(balance, price);
             totalUSD = totalUSD + balanceUSD;
-        });
+        };
         ///////////////
         // Tokens TP
         //////////////
-        settings.tokens.TP.forEach(function (dataItem: TokenConfig) {
-            if (!dataItem.key) {
-                /*console.error("TP dataItem.key is undefined");*/ return;
-            }
+        for (const dataItem of settings.tokens.TP as TokenConfig[]) {
+            if (dataItem.key == null) continue;
 
             // Check if the required data exists before accessing it
             if (
                 !userBalance.data?.TP?.[0]?.[dataItem.key] ||
                 !contractProtocolStatus.data?.[0]?.PP_TP?.[dataItem.key]
             ) {
-                return;
+                continue;
             }
 
             balance =
@@ -92,7 +88,7 @@ export default function Portfolio(): JSX.Element {
                 : contractProtocolStatus.data[0].PP_TP[dataItem.key][0] || 0n;
             balanceUSD = divPrecision(balance, price);
             totalUSD = totalUSD + balanceUSD;
-        });
+        };
 
         ///////////////
         // Coinbase
