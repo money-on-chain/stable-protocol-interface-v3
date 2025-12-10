@@ -1,7 +1,7 @@
 import "./Styles.scss";
 
 import { Skeleton } from "antd";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment } from "react";
 
 import Performance from "../../components/Performance";
 import { useWalletContext } from "../../context/Wallet";

@@ -160,8 +160,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             : undefined,
         REFRESH_INTERVAL_ONCHAIN_PRICES
     );
-    const offChainPrices = (offChainPricesAPI.parsedPrices as ParsedPrices[]) ?? undefined;
-    const onChainPrices = (onChainPricesHook.data as ParsedPrices[]) ?? undefined;
+    const offChainPrices =
+        (offChainPricesAPI.parsedPrices as ParsedPrices[]) ?? undefined;
+    const onChainPrices =
+        (onChainPricesHook.data as ParsedPrices[]) ?? undefined;
 
     const contractProtocolStatus = useContractProtocolStatus(
         contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,

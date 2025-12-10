@@ -14,21 +14,21 @@ export default function TVL(): JSX.Element {
 
     const tvl = useMemo(() => {
         if (!contractProtocolStatus.data) return 0n;
-    
+
         let total = 0n;
-    
+
         for (const dataItem of settings.tokens.CA as TokenConfig[]) {
             if (dataItem.key == null) continue;
-    
+
             const entry = contractProtocolStatus.data[dataItem.key];
             if (!entry || !entry.PP_CA || entry.nACcb == null) continue;
-    
+
             const priceCA = normalizeToBigInt(entry.PP_CA[0]) || 0n;
             const nACcb = entry.nACcb ?? 0n;
-    
+
             total += mulPrecision(nACcb, priceCA);
         }
-    
+
         return total;
     }, [contractProtocolStatus.data]);
 
