@@ -124,8 +124,6 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         undefined
     );
 
-    //const [offChainPrices, setOffChainPrices] = useState<unknown>(null);
-    //const [onChainPrices, setOnChainPrices] = useState<unknown>(null);
     const [showModalAccount, setShowModalAccount] = useState<boolean>(false);
     const [showModalProviders, setShowModalProviders] =
         useState<boolean>(false);
@@ -236,20 +234,6 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             handleRpcError(e);
         }
     }, [isConnected, contractsAddressLoaded, publicClient, handleRpcError]);
-
-    /*useEffect(() => {
-        if (offChainPricesAPI.parsedPrices) {
-            setOffChainPrices(offChainPricesAPI.parsedPrices);
-        }
-    }, [offChainPricesAPI.parsedPrices]);*/
-
-    /*useEffect(() => {
-        if (onChainPricesHook.data) {
-            setOnChainPrices(onChainPricesHook.data);
-        }
-    }, [onChainPricesHook.data]);*/
-    
-
 
     useEffect(() => {
         if (!contractsAddressLoaded) {
