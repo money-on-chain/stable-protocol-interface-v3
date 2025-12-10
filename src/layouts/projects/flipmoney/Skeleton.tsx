@@ -7,9 +7,9 @@ import DappFooter from "../../../components/Footer/index";
 import SectionHeader from "../../../components/Header";
 import { NetworkGuard } from "../../../components/NetworkGuard";
 import NotConnected from "../../../components/NotConnected";
-import NotificationBody from "../../../components/Notification";
 import RpcErrorAlert from "../../../components/Notification/RpcErrorAlert";
 import {
+    AppNotification,
     GlobalNotificationCenter,
     NotificationProvider,
 } from "../../../components/Notifications";
@@ -23,21 +23,12 @@ import { ALLOWED_CHAIN } from "../../../wagmiConfig";
 
 const { Content, Footer } = Layout;
 
-// Type definitions
-interface NotificationStatus {
-    id: number;
-    title: string;
-    textContent: string;
-    notifClass: string;
-    iconLeft: string;
-    isDismisable: boolean;
-    dismissTime: number;
-    button?: {
-        class: string;
-        label: string;
-        onClick: () => void;
-    };
-}
+// Local notification state is based on AppNotification props to avoid duplicating types
+type InlineNotificationState = Pick<
+    React.ComponentProps<typeof AppNotification>,
+    "type" | "title" | "content" | "actions"
+>;
+
 export default function Skeleton(): JSX.Element {
     const { t } = useProjectTranslation();
 
@@ -54,16 +45,16 @@ export default function Skeleton(): JSX.Element {
         clearRpcError,
     } = useWalletContext();
 
-    // Debug RPC error state (removed verbose logs)
+    // Hook preserved to keep room for potential RPC error logging in the future
     useEffect(() => {}, [rpcError]);
+
     const chainId = useChainId();
     const isWrongNetwork = isConnected && chainId !== ALLOWED_CHAIN.id;
 
     const { checkerStatus } = CheckStatusGlobal();
     const navigate = useNavigate();
 
-    // 1) NOTIF STATUS (global protocol)
-    const notifStatus: NotificationStatus | null = React.useMemo(() => {
+    const protocolNotification: InlineNotificationState | null = React.useMemo(() => {
         if (
             !contractProtocolStatus.data ||
             !userBalance.data ||
@@ -77,13 +68,9 @@ export default function Skeleton(): JSX.Element {
 
         if (globalStatus > 1) {
             return {
-                id: -1,
+                type: "error",
                 title: `Warning, protocol status is ${statusLabel}`,
-                textContent: statusText,
-                notifClass: "warning",
-                iconLeft: "warning-icon",
-                isDismisable: false,
-                dismissTime: 0,
+                content: statusText,
             };
         }
 
@@ -150,7 +137,7 @@ export default function Skeleton(): JSX.Element {
     }, [contractProtocolStatus.data]);
 
     // 3) VETO WITHDRAW
-    const vetoWithdraw: NotificationStatus | null = React.useMemo(() => {
+    const vetoNotification: InlineNotificationState | null = React.useMemo(() => {
         if (!userVeto.data || !contractStatusOmoc.data || !address) return null;
 
         const statusData = contractStatusOmoc.data;
@@ -180,20 +167,19 @@ export default function Skeleton(): JSX.Element {
         if (!locked) return null;
 
         return {
-            id: -1,
-            title: t(`voting.veto.alert.title`),
-            textContent: t(`voting.veto.alert.text`),
-            notifClass: "warning",
-            iconLeft: "warning-icon",
-            isDismisable: false,
-            dismissTime: 0,
-            button: {
-                class: "button-withdraw",
-                label: t(`voting.veto.alert.cta`),
-                onClick: () => {
-                    navigate("/veto/withdraw");
+            type: "warning",
+            title: t("voting.veto.alert.title"),
+            content: t("voting.veto.alert.text"),
+            actions: [
+                {
+                    key: "veto-withdraw",
+                    label: t("voting.veto.alert.cta"),
+                    type: "primary",
+                    onClick: () => {
+                        navigate("/veto/withdraw");
+                    },
                 },
-            },
+            ],
         };
     }, [userVeto.data, contractStatusOmoc.data, address, t, navigate]);
 
@@ -202,12 +188,13 @@ export default function Skeleton(): JSX.Element {
             <Layout>
                 <SectionHeader />
 
-                {/* Global notifications, always below the header */}
+                {/* Global notification center, always rendered below the header */}
                 <GlobalNotificationCenter />
 
                 <Content>
                     <NetworkGuard />
                     <UpdateToast />
+
                     {rpcError.hasError && (
                         <RpcErrorAlert
                             error={rpcError}
@@ -215,15 +202,31 @@ export default function Skeleton(): JSX.Element {
                             onDismiss={clearRpcError}
                         />
                     )}
-                    {notifStatus && <NotificationBody notifStatus={notifStatus} />}
-                    {vetoWithdraw && (
-                        <NotificationBody notifStatus={vetoWithdraw} />
+                    {/* Protocol health notification (inline, non-dismissible on purpose) */}
+                    {protocolNotification && (
+                        <AppNotification
+                            {...protocolNotification}
+                            deliveryMode="center"
+                            dismissible={false}
+                        />
                     )}
-                    {isConnected && !isWrongNetwork ? <Outlet /> : <NotConnected />}
+                    {/* Veto withdrawal notification with primary CTA */}
+                    {vetoNotification && (
+                        <AppNotification
+                            {...vetoNotification}
+                            deliveryMode="center"
+                            dismissible={false}
+                        />
+                    )}
+                    {isConnected && !isWrongNetwork ? (
+                        <Outlet />
+                    ) : (
+                        <NotConnected />
+                    )}
                 </Content>
                 <Footer>
                     <div className="footer-container">
-                        <DappFooter></DappFooter>
+                        <DappFooter />
                     </div>
                 </Footer>
             </Layout>
