@@ -84,7 +84,7 @@ interface OperationData {
         qACmax?: string;
         qTC_?: string;
         qTC?: string;
-        qTP_?: string;
+        qTP?: string;
         qACmin?: string;
         tpIndex_?: number;
         recipient?: string;
@@ -495,7 +495,7 @@ export default function LastOperations(props: LastOperationsProps) {
                     statusData?.tpIndex_ ||
                     (statusData as { tpIndex?: number })?.tpIndex;
                 if (tp_index === undefined) tp_index = 0;
-
+                
                 return {
                     exchange: {
                         action: "TPMint",
@@ -518,7 +518,7 @@ export default function LastOperations(props: LastOperationsProps) {
                         amount:
                             status === "executed"
                                 ? row_operation.executed?.qTP_ || 0
-                                : row_operation.params?.qTP_ || 0,
+                                : row_operation.params?.qTP || 0,
                         name: settings.tokens.TP[tp_index].name,
                         token: settings.tokens.TP[tp_index],
                         icon: `TP_${tp_index}`,
@@ -544,7 +544,7 @@ export default function LastOperations(props: LastOperationsProps) {
                         amount:
                             status === "executed"
                                 ? row_operation.executed?.qTP_ || 0
-                                : row_operation.params?.qTP_ || 0,
+                                : row_operation.params?.qTP || 0,
                         name: settings.tokens.TP[tp_index].name,
                         token: settings.tokens.TP[tp_index],
                         icon: `TP_${tp_index}`,
