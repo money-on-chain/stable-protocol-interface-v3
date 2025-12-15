@@ -1,7 +1,7 @@
 import { Collapse } from "antd";
 import type { AxiosError } from "axios";
 import axios from "axios";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import type { TransactionReceipt } from "viem";
 
 import { decodeEvents } from "../../backend/transaction";
@@ -251,8 +251,30 @@ export default function ConfirmOperation(
         }
     }, [amountYouReceive, tolerance, toleranceLimits]);
 
+    // Use refs to store latest values to avoid recreating the callback
+    const opIDRef = useRef<number | null>(opID);
+    const caIndexRef = useRef<number>(caIndex);
+    const userBalanceRefetchRef = useRef(userBalance.refetch);
+    
+    useEffect(() => {
+        opIDRef.current = opID;
+    }, [opID]);
+    
+    useEffect(() => {
+        caIndexRef.current = caIndex;
+    }, [caIndex]);
+    
+    useEffect(() => {
+        userBalanceRefetchRef.current = userBalance.refetch;
+    }, [userBalance.refetch]);
+
     const opStatus = useCallback((): void => {
-        if (!opID) {
+        const currentOpID = opIDRef.current;
+        const currentCaIndex = caIndexRef.current;
+
+        //console.log("opStatus called with:", { currentOpID, currentCaIndex });
+
+        if (!currentOpID || currentOpID < 0) {
             console.warn("Operation Status: Checking... NO.");
             return;
         }
@@ -263,13 +285,17 @@ export default function ConfirmOperation(
         axios
             .get<OperationStatusResponse>(apiUrl, {
                 params: {
-                    oper_id: opID,
-                    bucket_index: caIndex,
+                    oper_id: currentOpID,
+                    bucket_index: currentCaIndex,
                 },
                 timeout: 10000,
             })
             .then((response) => {
+                                
                 if (response.status === 200) {
+
+                    
+
                     if (response.data.status === 0) {
                         // Pending executed
                         console.warn("Operation Status: OK Pending execute.");
@@ -282,7 +308,7 @@ export default function ConfirmOperation(
                         setOpID(null);
 
                         // Refresh user balance
-                        void userBalance.refetch();
+                        void userBalanceRefetchRef.current();
 
                         console.warn("Operation Status: OK Executed.");
                     } else {
@@ -324,18 +350,26 @@ export default function ConfirmOperation(
                     setStatus("ERROR");
                 }
             });
-    }, [opID, caIndex, userBalance]);
+    }, []);
 
     useEffect(() => {
+        //console.log("Polling useEffect triggered:", { opID, status, shouldPoll: opID && opID >= 0 && (status === "QUEUED" || status === "QUEUING") });
+        
         // Only poll if we have an opID and are in a state that requires polling
-        if (!opID || (status !== "QUEUED" && status !== "QUEUING")) {
+        if (!opID || opID < 0 || (status !== "QUEUED" && status !== "QUEUING")) {
+            //console.log("Polling skipped - conditions not met");
             return;
         }
 
+        //console.log("Setting up polling interval for opStatus");
         const interval: NodeJS.Timeout = setInterval(() => {
+            //console.log("Interval tick - calling opStatus");
             opStatus();
         }, 5000);
-        return () => clearInterval(interval);
+        return () => {
+            //console.log("Clearing polling interval");
+            clearInterval(interval);
+        };
     }, [opStatus, opID, status]);
 
     const onHideModalAllowance = (): void => {
@@ -466,7 +500,7 @@ export default function ConfirmOperation(
     };
 
     const onQueued = (filteredEvents: ContractEvent[]): void => {
-        let operId: number = 0;
+        let operId: number = -1;
         filteredEvents.forEach(function (events: ContractEvent) {
             if (events.eventName === "OperationQueued") {
                 // Is the event operation queue
@@ -478,7 +512,7 @@ export default function ConfirmOperation(
             }
         });
 
-        if (operId > 0) {
+        if (operId >= 0) {
             console.warn("Setting operation ID:", operId);
             setOpID(operId);
             //setOpID(33)
