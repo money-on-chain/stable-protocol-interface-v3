@@ -371,7 +371,7 @@ export default function ConfirmOperation(
             caIndex
         );
 
-        if (radioSelectFee === 0 && tokenAllowance >= commissionFeeToken) {
+        if (radioSelectFee === 0 && tokenAllowance > commissionFeeToken) {
             // if we select not to pay with fee token, please disallow to use Fee token
             setDisAllowanceFeeToken(true);
             // show allowance window
@@ -599,6 +599,18 @@ export default function ConfirmOperation(
         onCloseModal();
     };
 
+    const onSlippageInteractionChange = useCallback(
+        (next: { hasPendingCustom: boolean; isValid: boolean }) => {
+          setSlippageUiState((prev) =>
+            prev.hasPendingCustom === next.hasPendingCustom && prev.isValid === next.isValid
+              ? prev
+              : next
+          );
+        },
+        []
+      );
+      
+
     // Commission Select Radio
 
     let commissionPAY: bigint = commission;
@@ -792,9 +804,7 @@ export default function ConfirmOperation(
                                 value: tolerance,
                             }}
                             onChange={(next) => changeTolerance(next.value)}
-                            onInteractionChange={(state) =>
-                                setSlippageUiState(state)
-                            }
+                            onInteractionChange={onSlippageInteractionChange}
                         />
                         <div className="cta-info-group">
                             <div className="cta-info-summary">
