@@ -1,5 +1,5 @@
 import { Layout } from "antd";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useChainId } from "wagmi";
 
@@ -7,7 +7,7 @@ import DappFooter from "../../../components/Footer/index";
 import SectionHeader from "../../../components/Header";
 import { NetworkGuard } from "../../../components/NetworkGuard";
 import NotConnected from "../../../components/NotConnected";
-// New notification system
+import RpcErrorAlert from "../../../components/Notification/RpcErrorAlert";
 import {
     AppNotification,
     GlobalNotificationCenter,
@@ -18,15 +18,12 @@ import { useWalletContext } from "../../../context/Wallet";
 import { CheckStatusGlobal } from "../../../helpers/checkStatus";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { isSomeTCLockedByVeto } from "../../../helpers/veto";
+import settings from "../../../settings/settings.json";
 import { ALLOWED_CHAIN } from "../../../wagmiConfig";
 
 const { Content, Footer } = Layout;
 
-/**
- * Inline notification shape derived from AppNotification props.
- * This avoids duplicating interfaces and keeps consistency
- * with the global Flipmoney notification implementation.
- */
+// Local notification state is based on AppNotification props to avoid duplicating types
 type InlineNotificationState = Pick<
     React.ComponentProps<typeof AppNotification>,
     "type" | "title" | "content" | "actions"
@@ -43,59 +40,113 @@ export default function Skeleton(): JSX.Element {
         contractStatusOmoc,
         userVeto,
         address,
+        rpcError,
+        retryConnection,
+        clearRpcError,
     } = useWalletContext();
+
+    // Hook preserved to keep room for potential RPC error logging in the future
+    useEffect(() => {}, [rpcError]);
 
     const chainId = useChainId();
     const isWrongNetwork = isConnected && chainId !== ALLOWED_CHAIN.id;
 
-    // Inline system notifications: protocol degradation + veto alerts
-    const [protocolNotification, setProtocolNotification] =
-        useState<InlineNotificationState | null>(null);
-
-    const [vetoNotification, setVetoNotification] =
-        useState<InlineNotificationState | null>(null);
-
     const { checkerStatus } = CheckStatusGlobal();
     const navigate = useNavigate();
 
-    /**
-     * Evaluates the global protocol health and displays a notification
-     * if the system is not in a fully healthy / operational state.
-     */
-    const readProtocolStatus = useCallback((): void => {
+    // 1) NOTIF STATUS (global protocol)
+    const protocolNotification: InlineNotificationState | null = React.useMemo(() => {
+        if (
+            !contractProtocolStatus.data ||
+            !userBalance.data ||
+            !userOmocBalance.data ||
+            isWrongNetwork
+        ) {
+            return null;
+        }
+
         const { globalStatus, statusLabel, statusText } = checkerStatus();
 
-        // >1 means degraded or risky state — same threshold used in Flipmoney
         if (globalStatus > 1) {
-            setProtocolNotification({
+            return {
                 type: "error",
                 title: `Warning, protocol status is ${statusLabel}`,
                 content: statusText,
-            });
-        } else {
-            // Clear the notification when the system returns to healthy state
-            setProtocolNotification(null);
+            };
         }
-    }, [checkerStatus]);
 
-    /**
-     * Detects whether the user has TC locked by the Veto mechanism.
-     * If so, an inline actionable warning notification is shown.
-     */
-    const readWithdrawStatus = useCallback((): void => {
-        if (!userVeto.data || !contractStatusOmoc.data || !address) return;
+        return null;
+    }, [
+        contractProtocolStatus.data,
+        userBalance.data,
+        userOmocBalance.data,
+        isWrongNetwork,
+        checkerStatus,
+    ]);
+
+    // 2) PRICE VALIDITY
+    const priceNotValidStatus: InlineNotificationState | null = React.useMemo(() => {
+        const data = contractProtocolStatus.data;
+        if (
+            !data ||
+            !data[0] ||
+            !data[0].PP_CA ||
+            !data[0].PP_FeeToken ||
+            !data[0].PP_TP
+        ) {
+            return null;
+        }
+
+        let valid = true;
+
+        for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+            if (!data[ca].PP_CA[1]) {
+                valid = false;
+                break;
+            }
+            if (!data[ca].PP_FeeToken[1]) {
+                valid = false;
+                break;
+            }
+            for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
+                if (!data[ca].PP_TP[tp][1]) {
+                    valid = false;
+                    break;
+                }
+            }
+            if (!valid) break;
+        }
+
+        // check PP_COINBASE
+        if (!data.PP_COINBASE?.[1]) {
+            valid = false;
+        }
+
+        if (!valid) {
+            return {
+                type: "warning",
+                title: "Warning, price is invalid or a bit old",
+                content: "Price is invalid or a bit old, operate at your own risk",
+            };
+        }
+
+        return null;
+    }, [contractProtocolStatus.data]);
+
+    // 3) VETO WITHDRAW
+    const vetoNotification: InlineNotificationState | null = React.useMemo(() => {
+        if (!userVeto.data || !contractStatusOmoc.data || !address) return null;
 
         const statusData = contractStatusOmoc.data;
 
-        // If voting machine data is not available, no veto logic can run
         if (
             !statusData.votingmachine ||
             !statusData.votingmachine.getVotingData
         ) {
-            return;
+            return null;
         }
 
-        const hasLockedTc = isSomeTCLockedByVeto(
+        const locked = isSomeTCLockedByVeto(
             userVeto.data as {
                 vetoMachine: {
                     getUserLockedAmount: Record<string, Record<string, bigint>>;
@@ -110,67 +161,45 @@ export default function Skeleton(): JSX.Element {
             address
         );
 
-        if (hasLockedTc) {
-            setVetoNotification({
-                type: "warning",
-                title: t("voting.veto.alert.title"),
-                content: t("voting.veto.alert.text"),
-                actions: [
-                    {
-                        key: "veto-withdraw",
-                        label: t("voting.veto.alert.cta"),
-                        type: "primary",
-                        onClick: () => navigate("/veto/withdraw"),
+        if (!locked) return null;
+
+        return {
+            type: "warning",
+            title: t("voting.veto.alert.title"),
+            content: t("voting.veto.alert.text"),
+            actions: [
+                {
+                    key: "veto-withdraw",
+                    label: t("voting.veto.alert.cta"),
+                    type: "primary",
+                    onClick: () => {
+                        navigate("/veto/withdraw");
                     },
-                ],
-            });
-        } else {
-            // Clear any previously active veto notification
-            setVetoNotification(null);
-        }
+                },
+            ],
+        };
     }, [userVeto.data, contractStatusOmoc.data, address, t, navigate]);
-
-    /**
-     * Reactively evaluate protocol and veto conditions
-     * whenever the underlying data changes.
-     */
-    useEffect(() => {
-        if (
-            contractProtocolStatus.data &&
-            userBalance.data &&
-            userOmocBalance.data &&
-            !isWrongNetwork
-        ) {
-            readProtocolStatus();
-        }
-
-        if (userVeto.data && contractStatusOmoc.data && address) {
-            readWithdrawStatus();
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [
-        contractProtocolStatus.data,
-        userBalance.data,
-        userOmocBalance.data,
-        contractStatusOmoc.data,
-        userVeto.data,
-        address,
-        isWrongNetwork,
-    ]);
 
     return (
         <NotificationProvider>
             <Layout>
                 <SectionHeader />
 
-                {/* Global notification center (persistent overlay notifications) */}
+                {/* Global notification center, always rendered below the header */}
                 <GlobalNotificationCenter />
 
                 <Content>
                     <NetworkGuard />
                     <UpdateToast />
 
-                    {/* Inline protocol health alert */}
+                    {rpcError.hasError && (
+                        <RpcErrorAlert
+                            error={rpcError}
+                            onRetry={() => void retryConnection()}
+                            onDismiss={clearRpcError}
+                        />
+                    )}
+                    {/* Protocol health notification (inline, non-dismissible on purpose) */}
                     {protocolNotification && (
                         <AppNotification
                             {...protocolNotification}
@@ -178,8 +207,14 @@ export default function Skeleton(): JSX.Element {
                             dismissible={false}
                         />
                     )}
-
-                    {/* Inline veto notification */}
+                    {priceNotValidStatus && (
+                        <AppNotification
+                            {...priceNotValidStatus}
+                            deliveryMode="center"
+                            dismissible={false}
+                        />
+                    )}
+                    {/* Veto withdrawal notification with primary CTA */}
                     {vetoNotification && (
                         <AppNotification
                             {...vetoNotification}
@@ -187,15 +222,12 @@ export default function Skeleton(): JSX.Element {
                             dismissible={false}
                         />
                     )}
-
-                    {/* Page content or connection warning */}
                     {isConnected && !isWrongNetwork ? (
                         <Outlet />
                     ) : (
                         <NotConnected />
                     )}
                 </Content>
-
                 <Footer>
                     <div className="footer-container">
                         <DappFooter />
