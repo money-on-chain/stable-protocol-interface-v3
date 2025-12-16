@@ -550,37 +550,6 @@ const Vesting: React.FC = () => {
 
     return (
         <div className="section vesting">
-            {/* {status === 'LOADED' && (
-                <Alert
-                    className="alert alert-info"
-                    message={t('vesting.alert.title')}
-                    description={
-                        <div>
-                            <div className="address desktop-only">
-                                Using VM:{space} {usingVestingAddress}
-                            </div>
-                            <div className="address mobile-only">
-                                Using VM:{space}
-                                {truncateAddress(usingVestingAddress)}
-                            </div>
-                            <div>{t('vesting.alert.explanation')}</div>
-                        </div>
-                    }
-                    type="error"
-                    showIcon
-                    // closable
-                    action={
-                        <Button
-                            size="small"
-                            type="custom"
-                            onClick={onDisplayAccount}
-                        >
-                            {t('vesting.alert.cta')}
-                        </Button>
-                    }
-                />
-            )} */}
-
             <VestingStatusAlert />
             {/*
 
@@ -960,8 +929,6 @@ const Vesting: React.FC = () => {
                         id="vesting-info"
                         className={"layout-card section__innerCard--small"}
                     >
-                        {/* <div className="layout-card-title"> */}
-                        {/* <div id="vesting-info" className="layout-card"> */}
                         <div className="layout-card-title">
                             <h1>{t("vesting.cardTitle")}</h1>
                             <div id="vesting-verification">

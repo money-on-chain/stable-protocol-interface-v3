@@ -287,10 +287,10 @@ icons.css contains all the css code for Icons across the Dapp
     background-repeat: no-repeat;
 }
 
-.icon-status-success {
+.icon-status-info {
     width: 24px;
     height: 24px;
-    background-image: url("../icons/SuccessOutline.svg");
+    background-image: url("../icons/notification-info.svg");
     background-size: 24px 24px;
     background-repeat: no-repeat;
     filter: var(--filter-semantic-positive);
@@ -299,10 +299,37 @@ icons.css contains all the css code for Icons across the Dapp
 .icon-status-warning {
     width: 24px;
     height: 24px;
-    background-image: url("../icons/WarningOutline.svg");
+    background-image: url("../icons/notification-warning.svg");
     background-size: 24px 24px;
     background-repeat: no-repeat;
     filter: var(--filter-semantic-negative);
+}
+
+.icon-status-success {
+    width: 24px;
+    height: 24px;
+    background-image: url("../icons/notification-success.svg");
+    background-size: 24px 24px;
+    background-repeat: no-repeat;
+    filter: var(--filter-semantic-positive);
+}
+
+.icon-status-neutral {
+    width: 24px;
+    height: 24px;
+    background-image: url("../icons/notification-neutral.svg");
+    background-size: 24px 24px;
+    background-repeat: no-repeat;
+    filter: var(--filter-semantic-positive);
+}
+
+.icon-status-error {
+    width: 24px;
+    height: 24px;
+    background-image: url("../icons/notification-error.svg");
+    background-size: 24px 24px;
+    background-repeat: no-repeat;
+    filter: var(--filter-semantic-positive);
 }
 
 .icon-status-alert {

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Icon/notification-warning</title>
+    <g id="Icon/notification-warning" stroke="none" fill="none" fill-rule="nonzero">
+        <rect id="Area" x="0" y="0" width="24" height="24"></rect>
+        <g id="Group" stroke-width="1" fill-rule="evenodd">
+            <circle id="Oval" fill="#000000" cx="12" cy="16.75" r="1.25"></circle>
+            <line x1="12" y1="13" x2="12" y2="9" id="Path" stroke="#000000" stroke-width="2"></line>
+            <path d="M10.171,4.06 L2.272,17.843 C1.466,19.249 2.481,21 4.101,21 L19.899,21 C21.519,21 22.534,19.249 21.728,17.843 L13.829,4.06 C13.019,2.647 10.98,2.647 10.17,4.06 L10.171,4.06 Z" id="Path" stroke="#000000" stroke-width="2"></path>
+        </g>
+    </g>
+</svg>

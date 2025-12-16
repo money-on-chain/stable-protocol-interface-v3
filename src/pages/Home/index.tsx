@@ -16,10 +16,10 @@ export default function Home(): React.ReactElement {
                     <HomeTabs />
                 </div>
             ) : (
-                <div className="section-container desktop-only">
+                <div className="section-container notification-container desktop-only ">
                     <Portfolio />
                     <div className="content-last-operations">
-                        <LastOperations token={"all"}></LastOperations>
+                        <LastOperations token={"all"} />
                     </div>
                 </div>
             )}

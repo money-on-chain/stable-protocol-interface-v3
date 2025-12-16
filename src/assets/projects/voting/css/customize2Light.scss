@@ -164,28 +164,38 @@
 
     // Notifications
 
-    --notification-success-background: var(--color-semantic-positive);
-    --notification-success-text: #0c0c08;
-    --notification-success-filter: invert(0%) sepia(8%) saturate(7469%)
-        hue-rotate(300deg) brightness(103%) contrast(110%);
-
-    --notification-error-background: var(--color-semantic-negative);
-    --notification-error-text: #0c0c08;
-    --notification-error-filter: invert(0%) sepia(8%) saturate(7469%)
-        hue-rotate(300deg) brightness(103%) contrast(110%);
-
-    --notification-warning-background: #0d0d0d;
-    --notification-error-text: #0c0c08;
-    --notification-error-filter: invert(0%) sepia(8%) saturate(7469%)
-        hue-rotate(300deg) brightness(103%) contrast(110%);
-
-    --notification-info-background: #b5b5b5;
-    --notification-info-text: #0c0c08;
+    --notification-info-border: none;
+    --notification-info-background: var(--surface-color-1);
+    --notification-info-text: #1a1a1d;
     --notification-info-filter: invert(0%) sepia(8%) saturate(7469%)
         hue-rotate(300deg) brightness(103%) contrast(110%);
 
-    --notification-permanent-background: var(--brand-color-base);
-    --notification-permanent-text: var(--brand-color-overbrand);
+    --notification-warning-border: none;
+    --notification-warning-background: #1b506a;
+    --notification-warning-text: #ffffff;
+    --notification-warning-filter: invert(99%) sepia(0%) saturate(6014%)
+        hue-rotate(357deg) brightness(124%) contrast(90%);
+
+    --notification-success-border: none;
+    --notification-success-background: var(--color-semantic-positive);
+    --notification-success-text: #ffffff;
+    --notification-success-filter: invert(99%) sepia(0%) saturate(6014%)
+        hue-rotate(357deg) brightness(124%) contrast(90%);
+
+    --notification-neutral-border: none;
+    --notification-neutral-background: #b5b5b5;
+    --notification-neutral-text: #0c0c08;
+    --notification-neutral-filter: invert(0%) sepia(8%) saturate(7469%)
+        hue-rotate(300deg) brightness(103%) contrast(110%);
+
+    --notification-error-border: none;
+    --notification-error-background: var(--color-semantic-negative);
+    --notification-error-text: #ffffff;
+    --notification-error-filter: invert(99%) sepia(0%) saturate(6014%)
+        hue-rotate(357deg) brightness(124%) contrast(90%);
+
+    --notification-permanent-background: #1b506a;
+    --notification-permanent-text: #ffffff;
     --notification-permanent-filter: invert(100%) sepia(91%) saturate(38%)
         hue-rotate(321deg) brightness(110%) contrast(110%);
 
