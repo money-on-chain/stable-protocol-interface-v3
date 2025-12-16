@@ -19,6 +19,8 @@ interface AllowanceDialogProps {
 
 type StatusType = "SUBMIT" | "SIGN" | "WAITING" | "ERROR";
 
+const MAX_UINT256 = (1n << 256n) - 1n;
+
 export default function AllowanceDialog(
     props: AllowanceDialogProps
 ): JSX.Element {
@@ -35,8 +37,8 @@ export default function AllowanceDialog(
     const { t } = useProjectTranslation();
     const { interfaceAllowanceAmount } = useWalletContext();
 
-    const [status, setStatus] = useState<StatusType>("SUBMIT");
-    let infinityAllowance: boolean = false;
+    const [status, setStatus] = useState<StatusType>("SUBMIT");    
+    const [infinityAllowance, setInfinityAllowance] = useState(false);
 
     let sentIcon: string = "";
     let statusLabel: string = "";
@@ -63,12 +65,12 @@ export default function AllowanceDialog(
     }
 
     const onChange = (e: { target: { checked: boolean } }): void => {
-        infinityAllowance = e.target.checked;
+        setInfinityAllowance(e.target.checked);
     };
 
     const reset = (): void => {
-        setStatus("SUBMIT");
-        infinityAllowance = false;
+        setStatus("SUBMIT");        
+        setInfinityAllowance(false);
     };
 
     const onClose = (): void => {
@@ -80,15 +82,12 @@ export default function AllowanceDialog(
         // First change status to sign tx
         //amountAllowance = new BigNumber(1000) //Number.MAX_SAFE_INTEGER.toString()
         let amountAllowance: bigint;
-        if (infinityAllowance) {
-            amountAllowance = 100000000n * DECIMALS_18; // very high value
+        if (disAllowance) {
+            amountAllowance = 0n;
+        } else if (infinityAllowance) {
+            amountAllowance = MAX_UINT256;
         } else {
             amountAllowance = amountYouExchangeLimit;
-        }
-
-        if (disAllowance) {
-            // Disallow to use the Token with amount 0
-            amountAllowance = 0n;
         }
 
         setStatus("SIGN");
@@ -154,6 +153,7 @@ export default function AllowanceDialog(
                             {!disAllowance && (
                                 <Checkbox
                                     className="check-unlimited"
+                                    checked={infinityAllowance}
                                     onChange={onChange}
                                 >
                                     {t("allowance.setUnlimited")}

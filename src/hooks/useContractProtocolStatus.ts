@@ -82,6 +82,7 @@ export function useContractProtocolStatus(
             parsedPrices = offChainPrices;
         } else if (onChainPrices) {
             parsedPrices = onChainPrices;
+            console.warn("Using onChainPrices ...")
         }
 
         if (isEmptyParsedPrices(parsedPrices)) return [];
