@@ -54,6 +54,7 @@ export default function Skeleton(): JSX.Element {
     const { checkerStatus } = CheckStatusGlobal();
     const navigate = useNavigate();
 
+    // 1) NOTIF STATUS (global protocol)
     const protocolNotification: InlineNotificationState | null = React.useMemo(() => {
         if (
             !contractProtocolStatus.data ||
@@ -84,7 +85,7 @@ export default function Skeleton(): JSX.Element {
     ]);
 
     // 2) PRICE VALIDITY
-    const priceNotValidStatus: NotificationStatus | null = React.useMemo(() => {
+    const priceNotValidStatus: InlineNotificationState | null = React.useMemo(() => {
         const data = contractProtocolStatus.data;
         if (
             !data ||
@@ -123,13 +124,9 @@ export default function Skeleton(): JSX.Element {
 
         if (!valid) {
             return {
-                id: -1,
-                title: `Warning, price is invalid or a bit old`,
-                textContent: `Price is invalid or a bit old, operate at your own risk`,
-                notifClass: "warning",
-                iconLeft: "warning-icon",
-                isDismisable: false,
-                dismissTime: 0,
+                type: "warning",
+                title: "Warning, price is invalid or a bit old",
+                content: "Price is invalid or a bit old, operate at your own risk",
             };
         }
 
@@ -206,6 +203,13 @@ export default function Skeleton(): JSX.Element {
                     {protocolNotification && (
                         <AppNotification
                             {...protocolNotification}
+                            deliveryMode="center"
+                            dismissible={false}
+                        />
+                    )}
+                    {priceNotValidStatus && (
+                        <AppNotification
+                            {...priceNotValidStatus}
                             deliveryMode="center"
                             dismissible={false}
                         />
