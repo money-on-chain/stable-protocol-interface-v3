@@ -209,7 +209,7 @@ export default function ConfirmOperation(
                 limitExchange = amountYouExchange;
                 limitReceive = calculateLimit(
                     amountYouReceive,
-                    newTolerance / 100
+                    -(newTolerance / 100)
                 );
             }
 
