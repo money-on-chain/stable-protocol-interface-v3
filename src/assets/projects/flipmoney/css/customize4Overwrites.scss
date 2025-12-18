@@ -46,3 +46,11 @@
     display: none;
 }
 /* #endregion HIDE VESTING ONBOARDING FOR Flipmoney  */
+
+/* #region HIDE VESTING SWITCH FOR Flipmoney  */
+.wallet__settings {
+    .switch__vesting {
+        display: none !important;
+    }
+}
+/* #rendegion HIDE VESTING SWITCH FOR Flipmoney  */
