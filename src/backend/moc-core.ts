@@ -13,7 +13,7 @@ import type {
     OnTransaction,
 } from "../types/wallets";
 import { config } from "../wagmiConfig";
-import { getExecutionFee, getNetworkFromProject } from "./utils";
+import { getExecutionFee } from "./utils";
 
 const mintTC = async (
     interfaceContext: InterfaceContext,
@@ -91,9 +91,7 @@ const mintTC = async (
             'Insufficient spendable balance... please make an allowance to the MoC contract'
         );
     */
-
-    // TODO: view functions returns baseFee == 0, if we use another value the estimateGas function will revert
-    const isRsk = getNetworkFromProject() === "rsk";
+    
     const configParams: {
         address: `0x${string}`;
         abi: Abi;
@@ -108,13 +106,17 @@ const mintTC = async (
         args: [qTC, limitAmount, address, vendorAddress] as const,
         account: address,
     };
-    if (isRsk) {
-        configParams.value = await getExecutionFee(
-            publicClient,
-            contractProtocolStatus.data[caIndex].tcMintExecCost,
-            2
-        );
+
+    const executionFee = await getExecutionFee(
+        publicClient,
+        contractProtocolStatus.data[caIndex].tcMintExecCost,
+        2
+    );
+
+    if (executionFee > 0n) {
+        configParams.value = executionFee
     }
+
     const { request } = await simulateContract(config, configParams);
 
     //console.log("request", request);
@@ -196,7 +198,6 @@ const redeemTC = async (
             `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} in the contract. Balance: ${caBalance} ${(settings.tokens.CA[caIndex] as TokenConfig).name}`
         );
 
-    const isRsk = getNetworkFromProject() === "rsk";
     const configParams: {
         address: `0x${string}`;
         abi: Abi;
@@ -211,13 +212,17 @@ const redeemTC = async (
         args: [qTC, limitAmount, address, vendorAddress] as const,
         account: address,
     };
-    if (isRsk) {
-        configParams.value = await getExecutionFee(
-            publicClient,
-            contractProtocolStatus.data[caIndex].tcRedeemExecCost,
-            2
-        );
+
+    const executionFee = await getExecutionFee(
+        publicClient,
+        contractProtocolStatus.data[caIndex].tcRedeemExecCost,
+        2
+    );
+
+    if (executionFee > 0n) {
+        configParams.value = executionFee
     }
+
     const { request } = await simulateContract(config, configParams);
 
     //console.log("request", request);
@@ -321,7 +326,6 @@ const mintTP = async (
             `Insufficient ${(settings.tokens.TP[tpIndex] as TokenConfig).name} available to mint`
         );
 
-    const isRsk = getNetworkFromProject() === "rsk";
     const configParams: {
         address: `0x${string}`;
         abi: Abi;
@@ -336,13 +340,17 @@ const mintTP = async (
         args: [tpAddress, qTP, limitAmount, address, vendorAddress] as const,
         account: address,
     };
-    if (isRsk) {
-        configParams.value = await getExecutionFee(
-            publicClient,
-            contractProtocolStatus.data[caIndex].tpMintExecCost,
-            2
-        );
+
+    const executionFee = await getExecutionFee(
+        publicClient,
+        contractProtocolStatus.data[caIndex].tpMintExecCost,
+        2
+    );
+
+    if (executionFee > 0n) {
+        configParams.value = executionFee
     }
+
     const { request } = await simulateContract(config, configParams);
 
     //console.log("request", request);
@@ -428,7 +436,6 @@ const redeemTP = async (
             `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} in the contract. Balance: ${caBalance} ${(settings.tokens.CA[caIndex] as TokenConfig).name}`
         );
 
-    const isRsk = getNetworkFromProject() === "rsk";
     const configParams: {
         address: `0x${string}`;
         abi: Abi;
@@ -443,13 +450,17 @@ const redeemTP = async (
         args: [tpAddress, qTP, limitAmount, address, vendorAddress] as const,
         account: address,
     };
-    if (isRsk) {
-        configParams.value = await getExecutionFee(
-            publicClient,
-            contractProtocolStatus.data[caIndex].tpRedeemExecCost,
-            4
-        );
+
+    const executionFee = await getExecutionFee(
+        publicClient,
+        contractProtocolStatus.data[caIndex].tpRedeemExecCost,
+        4
+    );
+
+    if (executionFee > 0n) {
+        configParams.value = executionFee
     }
+
     const { request } = await simulateContract(config, configParams);
 
     //console.log("request", request);
