@@ -10,6 +10,7 @@ import {
     mintTP as mintTP_,
     redeemTC as redeemTC_,
     redeemTP as redeemTP_,
+    swapTPforTP as swapTPforTP_,
 } from "./moc-core";
 
 const mintTC = async (
@@ -92,4 +93,27 @@ const redeemTP = async (
     );
 };
 
-export { mintTC, mintTP, redeemTC, redeemTP };
+const swapTPforTP = async (
+    interfaceContext: InterfaceContext,    
+    iFromTP: number,
+    iToTP: number,
+    qTP: bigint,
+    caIndex: number,
+    limitAmount: bigint,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    // Swap pegged token for another pegged token
+    return swapTPforTP_(
+        interfaceContext,
+        iFromTP,
+        iToTP,
+        qTP,
+        caIndex,
+        limitAmount,
+        onTransaction,
+        onReceipt
+    );
+};
+
+export { mintTC, mintTP, redeemTC, redeemTP, swapTPforTP };

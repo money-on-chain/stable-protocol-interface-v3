@@ -4,7 +4,7 @@ import {
     redeemTC as redeemTC_coinbase,
     redeemTP as redeemTP_coinbase,
 } from "../backend/moc-coinbase";
-import { mintTC, mintTP, redeemTC, redeemTP } from "../backend/moc-rc20";
+import { mintTC, mintTP, redeemTC, redeemTP, swapTPforTP } from "../backend/moc-rc20";
 import settings from "../settings/settings.json";
 import type { ContractInfo, DContracts } from "../types/hooks";
 import type {
@@ -75,12 +75,21 @@ function loadTokenMap(): TokenMap {
     }
 
     // Exchange TP
-    lReceive = [];
     for (let i = 0; i < settings.tokens.TP.length; i++) {
-        lReceive = [];
+        const lReceive: string[] = [];
+
+        // CA targets
         for (let a = 0; a < settings.tokens.CA.length; a++) {
             lReceive.push(`CA_${a}`);
         }
+
+        // TP cross targets (TP_i -> TP_j, j !== i)
+        for (let j = 0; j < settings.tokens.TP.length; j++) {
+            if (j !== i) {
+                lReceive.push(`TP_${j}`);
+            }
+        }
+
         tMap[`TP_${i}`] = lReceive;
     }
 
@@ -125,6 +134,7 @@ function isMintOperation(tokenExchange: string, tokenReceive: string): boolean {
             return true;
         case "TP,CA":
         case "TC,CA":
+        case "TP,TP":
             // Redeem
             return false;
         default:
@@ -224,6 +234,18 @@ function ApproveTokenContract(
                 contractAllow: contracts.Moc[parseInt(aTokenReceive[1])],
                 decimals: tokenExchangeSettings.decimals,
             };
+        case "TP,TP":
+            if (!contracts.TP) {
+                throw new Error("TP contract not available");
+            }
+            if (!contracts.Moc) {
+                throw new Error("Moc contract not available");
+            }
+            return {
+                token: contracts.TP[parseInt(aTokenExchange[1])],
+                contractAllow: contracts.Moc[0], // TODO: Change to the correct contract
+                decimals: tokenExchangeSettings.decimals,
+            };    
         case "TF,TF":
             if (!contracts.FeeToken) {
                 throw new Error("FeeToken contract not available");
@@ -334,6 +356,8 @@ function exchangeMethod(
 ): Promise<unknown> {
     let caIndex: number = 0;
     let tpIndex: number = 0;
+    let iFromTP: number = 0;
+    let iToTP: number = 0;
 
     const aTokenExchange: string[] = tokenExchange.split("_");
     const aTokenReceive: string[] = tokenReceive.split("_");
@@ -434,6 +458,20 @@ function exchangeMethod(
                     onReceipt
                 );
             }
+        case "TP,TP":
+            caIndex = 0; // TODO: Change to the correct index
+            iFromTP = parseInt(aTokenExchange[1]);
+            iToTP = parseInt(aTokenReceive[1]);
+            return swapTPforTP(
+                    interfaceContext,
+                    iFromTP,
+                    iToTP,
+                    tokenAmount,
+                    caIndex,
+                    limitAmount,
+                    onTransaction,
+                    onReceipt
+                );                
         default:
             throw new Error("Invalid Exchange Method map");
     }
@@ -460,12 +498,39 @@ function executionFeeMap(
         case "TC,CA":
             return contractProtocolStatus.data[parseInt(aTokenReceive[1])]
                 .tcRedeemExecCost;
+        case "TP,TP":
+            return contractProtocolStatus.data[0] // TODO: Change to the correct index
+                .swapTPforTPExecCost;        
         default:
             throw new Error("Invalid token name map");
     }
 }
 
+/**
+ * Calculates the limit as: amount + amount * percentage
+ * using only BigInt arithmetic by scaling the percentage.
+ *
+ * @param {bigint} amount - The base amount as BigInt.
+ * @param {number} percentage - A decimal like 0.7 (70%).
+ * @param {bigint} scale - Precision scale (default: 1_000_000n = 6 decimals).
+ * @returns {bigint} The resulting amount with the percentage added.
+ */
+function calculateLimit(
+    amount: bigint,
+    percentage: number,
+    scale = 1_000_000n
+): bigint {
+    // Convert the decimal percentage to a scaled integer
+    const scaledPercentage = BigInt(Math.floor(percentage * Number(scale)));
+
+    // Compute: amount * (1 + percentage) = amount * (scale + scaledPercentage) / scale
+    const limit = (amount * (scale + scaledPercentage)) / scale;
+
+    return limit;
+}
+
 export {
+    calculateLimit,
     ApproveTokenContract,
     exchangeMethod,
     executionFeeMap,

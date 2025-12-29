@@ -235,6 +235,22 @@ function ConvertAmount(
                 ) || 0n;
             cAmount = price === 0n ? 0n : divPrecision(amount, price);
             break;
+        case "TP,TP":
+            // Swap Operation
+            const price_from =
+                normalizeToBigInt(
+                    contractProtocolStatus.data?.[caIndex]?.PP_TP?.[
+                        parseInt(aTokenExchange[1])
+                    ]?.[0] || 0n
+                ) || 0n;
+            const price_to =
+                normalizeToBigInt(
+                    contractProtocolStatus.data?.[caIndex]?.PP_TP?.[
+                        parseInt(aTokenReceive[1])
+                    ]?.[0] || 0n
+                ) || 0n;    
+            cAmount = price_from === 0n || price_to === 0n ? 0n : divPrecision(mulPrecision(amount, price_to), price_from);
+            break;    
         case "CA,TP":
             // Mint Operation
             price =
@@ -314,6 +330,9 @@ const getCAIndex = (tokenExchange: string, tokenReceive: string): number => {
         case "TP,CA":
             index = parseInt(aTokenReceive[1]);
             break;
+        case "TP,TP":
+            index = 0; // TODO: Change to the correct index
+            break;
         case "CA,TP":
             index = parseInt(aTokenExchange[1]);
             break;
@@ -370,6 +389,11 @@ function CalcCommission(
             // Redeem TC
             feeParam = contractProtocolStatus.data?.[caIndex].tcRedeemFee || 0n;
             break;
+        case "TP,TP":
+            // Swap TP
+            feeParam =
+                contractProtocolStatus.data?.[caIndex].swapTPforTPFee || 0n;
+            break;    
         default:
             throw new Error("Invalid token name");
     }

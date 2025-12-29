@@ -8,7 +8,7 @@ import { decodeEvents } from "../../backend/transaction";
 import { SlippageTolerance } from "../../components/SlippageTolerance";
 import { useWalletContext } from "../../context/Wallet";
 import { TokenBalance, TokenSettings } from "../../helpers/currencies";
-import { isMintOperation, UserTokenAllowance } from "../../helpers/exchange";
+import { calculateLimit, isMintOperation, UserTokenAllowance } from "../../helpers/exchange";
 import { useProjectTranslation } from "../../helpers/translations";
 import CopyAddress from "../CopyAddress";
 import ModalAllowanceOperation from "../Modals/Allowance";
@@ -85,28 +85,6 @@ interface StatusLabels {
     [key: string]: string;
 }
 
-/**
- * Calculates the limit as: amount + amount * percentage
- * using only BigInt arithmetic by scaling the percentage.
- *
- * @param {bigint} amount - The base amount as BigInt.
- * @param {number} percentage - A decimal like 0.7 (70%).
- * @param {bigint} scale - Precision scale (default: 1_000_000n = 6 decimals).
- * @returns {bigint} The resulting amount with the percentage added.
- */
-function calculateLimit(
-    amount: bigint,
-    percentage: number,
-    scale = 1_000_000n
-): bigint {
-    // Convert the decimal percentage to a scaled integer
-    const scaledPercentage = BigInt(Math.floor(percentage * Number(scale)));
-
-    // Compute: amount * (1 + percentage) = amount * (scale + scaledPercentage) / scale
-    const limit = (amount * (scale + scaledPercentage)) / scale;
-
-    return limit;
-}
 
 export default function ConfirmOperation(
     props: ConfirmOperationProps

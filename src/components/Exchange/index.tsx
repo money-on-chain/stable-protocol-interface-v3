@@ -202,7 +202,7 @@ export default function Exchange(): JSX.Element {
 
         let tIndex: number | undefined;
         // 2. MINT TP. User receive available token in contract
-        if (arrCurrencyYouReceive[0] === "TP") {
+        if (arrCurrencyYouExchange[0] === "CA" && arrCurrencyYouReceive[0] === "TP") {
             if (!contractProtocolStatus.data) return;
             // There are sufficient PEGGED in the contracts to mint?
             tIndex = TokenSettings(currencyYouReceive).key;
@@ -262,7 +262,7 @@ export default function Exchange(): JSX.Element {
         }
 
         // 6. MINT TP. Flux capacitor maxQACToMintTP
-        if (arrCurrencyYouReceive[0] === "TP") {
+        if (arrCurrencyYouExchange[0] === "CA" && arrCurrencyYouReceive[0] === "TP") {
             tIndex = TokenSettings(currencyYouReceive).key;
             if (tIndex !== undefined) {
                 if (!contractProtocolStatus.data) return;
@@ -287,7 +287,7 @@ export default function Exchange(): JSX.Element {
 
         // Redeem TP
         //arrCurrencyYouExchange = currencyYouExchange.split("_");
-        if (arrCurrencyYouExchange[0] === "TP") {
+        if (arrCurrencyYouExchange[0] === "TP" && arrCurrencyYouReceive[0] === "CA") {
             // 7. Flux Capacitor
             tIndex = TokenSettings(currencyYouReceive).key;
             if (tIndex !== undefined) {
@@ -464,7 +464,22 @@ export default function Exchange(): JSX.Element {
             contractProtocolStatus.data[caIndex].PP_CA[0]
         );
         if (priceCA) {
-            convertAmountUSD = mulPrecision(convertAmountUSD, priceCA);
+            const aTokenExchange = currencyYouExchange.split("_");
+            const aTokenReceive = currencyYouReceive.split("_");
+            const aTokenMap = `${aTokenExchange[0]},${aTokenReceive[0]}`;
+            switch (aTokenMap) {
+                case "TP,TP":
+                    const priceTP = normalizeToBigInt(
+                        contractProtocolStatus.data[caIndex].PP_TP[parseInt(aTokenReceive[1])][0]
+                    );
+                    if (priceTP) {
+                        convertAmountUSD = mulPrecision(divPrecision(priceCA, priceTP), convertAmountUSD);
+                    }                    
+                    break;
+                default:
+                    convertAmountUSD = mulPrecision(convertAmountUSD, priceCA);
+                    break;
+            }
             setExchangingUSD(convertAmountUSD);
         }
 
