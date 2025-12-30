@@ -19,6 +19,7 @@ import {
     isMintOperation,
     tokenExchange,
     tokenReceive,
+    typeOperation,
 } from "../../helpers/exchange";
 import {
     divPrecision,
@@ -90,7 +91,7 @@ export default function Exchange(): JSX.Element {
     const [inputValidationError, setInputValidationError] =
         useState<boolean>(false);
 
-    const IS_MINT = isMintOperation(currencyYouExchange, currencyYouReceive);
+    const TYPE_OPERATION = typeOperation(currencyYouExchange, currencyYouReceive);
 
     const [radioSelectFee, setRadioSelectFee] = useState<number>(0);
     const [radioSelectFeeTokenDisabled, setRadioSelectFeeTokenDisabled] =
@@ -432,7 +433,7 @@ export default function Exchange(): JSX.Element {
 
         // Set exchanging total in USD
         let convertAmountUSD: bigint;
-        if (IS_MINT) {
+        if (TYPE_OPERATION === "MINT") {
             infoFee = CalcCommission(
                 contractProtocolStatus,
                 currencyYouExchange,
@@ -440,7 +441,7 @@ export default function Exchange(): JSX.Element {
                 amountExchange
             );
             convertAmountUSD = amountExchangeFee;
-        } else {
+        } else if (TYPE_OPERATION === "REDEEM") {
             infoFee = CalcCommission(
                 contractProtocolStatus,
                 currencyYouExchange,
@@ -448,6 +449,22 @@ export default function Exchange(): JSX.Element {
                 amountReceive
             );
             convertAmountUSD = amountReceiveFee;
+        } else if (TYPE_OPERATION === "SWAP") {
+            const amountInCA: bigint = ConvertAmount(
+                contractProtocolStatus,
+                currencyYouExchange,
+                `CA_${caIndex}`,
+                amountExchange
+            );
+            infoFee = CalcCommission(
+                contractProtocolStatus,
+                currencyYouExchange,
+                currencyYouReceive,
+                amountInCA
+            );
+            convertAmountUSD = amountInCA;
+        } else {
+            throw new Error("Invalid type operation");
         }
 
         // Commission
@@ -467,19 +484,7 @@ export default function Exchange(): JSX.Element {
             const aTokenExchange = currencyYouExchange.split("_");
             const aTokenReceive = currencyYouReceive.split("_");
             const aTokenMap = `${aTokenExchange[0]},${aTokenReceive[0]}`;
-            switch (aTokenMap) {
-                case "TP,TP":
-                    const priceTP = normalizeToBigInt(
-                        contractProtocolStatus.data[caIndex].PP_TP[parseInt(aTokenReceive[1])][0]
-                    );
-                    if (priceTP) {
-                        convertAmountUSD = mulPrecision(divPrecision(priceCA, priceTP), convertAmountUSD);
-                    }                    
-                    break;
-                default:
-                    convertAmountUSD = mulPrecision(convertAmountUSD, priceCA);
-                    break;
-            }
+            convertAmountUSD = mulPrecision(convertAmountUSD, priceCA);
             setExchangingUSD(convertAmountUSD);
         }
 
@@ -795,15 +800,10 @@ export default function Exchange(): JSX.Element {
                                                 </span>
                                                 <span className={""}>
                                                     {" "}
-                                                    {IS_MINT
-                                                        ? t(
-                                                              `exchange.tokens.${currencyYouExchange}.abbr`,
-                                                              { ns: ns }
-                                                          )
-                                                        : t(
-                                                              `exchange.tokens.${currencyYouReceive}.abbr`,
-                                                              { ns: ns }
-                                                          )}
+                                                    {t(
+                                                        `exchange.tokens.CA_${caIndex}.abbr`,
+                                                        { ns: ns }
+                                                    )}
                                                 </span>
                                                 <span className={""}> (</span>
                                                 <span>

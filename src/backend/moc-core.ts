@@ -520,8 +520,8 @@ const swapTPforTP = async (
         throw new Error("Contract protocol status not found");
 
     const MoCContract = contracts.Moc[caIndex];
-    //const tpAddressFrom = contracts.TP[iFromTP].address;
-    //const tpAddressTo = contracts.TP[iToTP].address;
+    const tpAddressFrom = contracts.TP[iFromTP].address;
+    const tpAddressTo = contracts.TP[iToTP].address;
 
     const tpPriceFrom = contractProtocolStatus.data[caIndex].PP_TP[iFromTP][0]
     const tpPriceTo = contractProtocolStatus.data[caIndex].PP_TP[iToTP][0]
@@ -594,7 +594,7 @@ const swapTPforTP = async (
         address: MoCContract.address,
         abi: MoCContract.abi as Abi,
         functionName: "swapTPforTP",
-        args: [iFromTP, iToTP, qTP, limitAmount, qAssetMaxFees, address, vendorAddress] as const,
+        args: [tpAddressFrom, tpAddressTo, qTP, limitAmount, qAssetMaxFees, address, vendorAddress] as const,
         account: address,
     };
 
@@ -607,6 +607,9 @@ const swapTPforTP = async (
     if (executionFee > 0n) {
         configParams.value = executionFee
     }
+
+    console.log("DEBUG>>>")
+    console.log(configParams)
 
     const { request } = await simulateContract(config, configParams);
 

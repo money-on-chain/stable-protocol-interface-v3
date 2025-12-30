@@ -83,10 +83,12 @@ function loadTokenMap(): TokenMap {
             lReceive.push(`CA_${a}`);
         }
 
-        // TP cross targets (TP_i -> TP_j, j !== i)
-        for (let j = 0; j < settings.tokens.TP.length; j++) {
-            if (j !== i) {
-                lReceive.push(`TP_${j}`);
+        // TP cross targets (TP_i -> TPCA_j, j !== i)
+        for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
+            for (let tp = 0; tp < settings.tokens.TP.length; tp++) {            
+                if (tp !== i) {
+                    lReceive.push(`TPCA_${tp}_${ca}`);
+                }
             }
         }
 
@@ -135,8 +137,33 @@ function isMintOperation(tokenExchange: string, tokenReceive: string): boolean {
         case "TP,CA":
         case "TC,CA":
         case "TP,TP":
+        case "TP,TPCA":
             // Redeem
             return false;
+        default:
+            throw new Error("Invalid token name");
+    }
+}
+
+function typeOperation(tokenExchange: string, tokenReceive: string): string {
+
+    const aTokenExchange: string[] = tokenExchange.split("_");
+    const aTokenReceive: string[] = tokenReceive.split("_");
+    const aTokenMap: string = `${aTokenExchange[0]},${aTokenReceive[0]}`;
+
+    switch (aTokenMap) {
+        case "CA,TC":
+        case "CA,TP":
+            // Mint
+            return "MINT";
+        case "TP,CA":
+        case "TC,CA":
+            // Redeem        
+            return "REDEEM";
+        case "TP,TP":
+        case "TP,TPCA":
+            // Swap
+            return "SWAP";
         default:
             throw new Error("Invalid token name");
     }
@@ -157,6 +184,7 @@ function TokenAllowance(
                 userBalance.data.CA[parseInt(aTokenExchange[1])].allowance;
             break;
         case "TP":
+        case "TPCA":
             allowance =
                 userBalance.data.TP[caIndex][parseInt(aTokenExchange[1])]
                     .allowance;
@@ -245,6 +273,18 @@ function ApproveTokenContract(
                 token: contracts.TP[parseInt(aTokenExchange[1])],
                 contractAllow: contracts.Moc[0], // TODO: Change to the correct contract
                 decimals: tokenExchangeSettings.decimals,
+            };
+        case "TP,TPCA":
+            if (!contracts.TP) {
+                throw new Error("TP contract not available");
+            }
+            if (!contracts.Moc) {
+                throw new Error("Moc contract not available");
+            }
+            return {
+                token: contracts.TP[parseInt(aTokenExchange[1])],
+                contractAllow: contracts.Moc[parseInt(aTokenReceive[2])],
+                decimals: tokenExchangeSettings.decimals,
             };    
         case "TF,TF":
             if (!contracts.FeeToken) {
@@ -309,6 +349,7 @@ function TokenContract(
                 decimals: tokenExchangeSettings.decimals,
             };
         case "TP":
+        case "TPCA":
             if (!contracts.TP) {
                 throw new Error("TP contract not available");
             }
@@ -472,6 +513,20 @@ function exchangeMethod(
                     onTransaction,
                     onReceipt
                 );                
+        case "TP,TPCA":
+            caIndex = parseInt(aTokenReceive[2]);
+            iFromTP = parseInt(aTokenExchange[1]);
+            iToTP = parseInt(aTokenReceive[1]);
+            return swapTPforTP(
+                    interfaceContext,
+                    iFromTP,
+                    iToTP,
+                    tokenAmount,
+                    caIndex,
+                    limitAmount,
+                    onTransaction,
+                    onReceipt
+                );                
         default:
             throw new Error("Invalid Exchange Method map");
     }
@@ -500,6 +555,9 @@ function executionFeeMap(
                 .tcRedeemExecCost;
         case "TP,TP":
             return contractProtocolStatus.data[0] // TODO: Change to the correct index
+                .swapTPforTPExecCost;        
+        case "TP,TPCA":
+            return contractProtocolStatus.data[parseInt(aTokenReceive[2])]
                 .swapTPforTPExecCost;        
         default:
             throw new Error("Invalid token name map");
@@ -539,6 +597,7 @@ export {
     tokenExchange,
     tokenReceive,
     UserTokenAllowance,
+    typeOperation,
 };
 
 // Export types for use in other files

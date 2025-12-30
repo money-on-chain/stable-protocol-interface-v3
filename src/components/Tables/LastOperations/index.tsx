@@ -570,6 +570,50 @@ export default function LastOperations(props: LastOperationsProps) {
                                 : t("operations.actions.receiving"),
                     },
                 };
+            } else if (row_operation["operation"] === "TPSwapForTP") {
+                const statusData =
+                    status === "executed"
+                        ? row_operation.executed
+                        : row_operation.params;
+                let tp_from_index =
+                    statusData?.tpFromIndex_ ||
+                    (statusData as { tpFromIndex?: number })?.tpFromIndex;
+                if (tp_from_index === undefined) tp_from_index = 0;
+                let tp_to_index =
+                    statusData?.tpToIndex_ ||
+                    (statusData as { tpToIndex?: number })?.tpToIndex;
+                if (tp_to_index === undefined) tp_to_index = 0;
+
+                return {
+                    exchange: {
+                        action: "TPSwapForTP",
+                        amount:
+                            status === "executed"
+                                ? row_operation.executed?.qTPfrom_ || 0
+                                : row_operation.params?.qTP || 0,
+                        name: settings.tokens.TP[tp_from_index].name,
+                        token: settings.tokens.TP[tp_from_index],
+                        icon: `TP_${tp_from_index}`,
+                        title:
+                            status === "executed"
+                                ? t("operations.actions.exchanged")
+                                : t("operations.actions.exchanging"),
+                    },
+                    receive: {
+                        action: "TPSwapForTP",
+                        amount:
+                            status === "executed"
+                                ? row_operation.executed?.qTPto_ || 0
+                                :  0,
+                        name: settings.tokens.TP[tp_to_index].name,
+                        token: settings.tokens.TP[tp_to_index],
+                        icon: `TP_${tp_to_index}`,
+                        title:
+                            status === "executed"
+                                ? t("operations.actions.received")
+                                : t("operations.actions.receiving"),
+                    },
+                };
             } else if (row_operation.operation === "Transfer") {
                 const tokenParam = row_operation.params?.token;
                 if (!tokenParam) return undefined;
