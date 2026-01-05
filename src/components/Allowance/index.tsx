@@ -37,7 +37,7 @@ export default function AllowanceDialog(
     const { t } = useProjectTranslation();
     const { interfaceAllowanceAmount } = useWalletContext();
 
-    const [status, setStatus] = useState<StatusType>("SUBMIT");    
+    const [status, setStatus] = useState<StatusType>("SUBMIT");
     const [infinityAllowance, setInfinityAllowance] = useState(false);
 
     let sentIcon: string = "";
@@ -69,7 +69,7 @@ export default function AllowanceDialog(
     };
 
     const reset = (): void => {
-        setStatus("SUBMIT");        
+        setStatus("SUBMIT");
         setInfinityAllowance(false);
     };
 
@@ -172,6 +172,7 @@ export default function AllowanceDialog(
                                 <button
                                     type="button"
                                     className="button"
+                                    data-testid="allowance-confirm-authorize"
                                     onClick={onAuthorize}
                                 >
                                     {t("allowance.confirm.authorize")}
