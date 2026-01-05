@@ -255,15 +255,15 @@ export default function ConfirmOperation(
     const opIDRef = useRef<number | null>(opID);
     const caIndexRef = useRef<number>(caIndex);
     const userBalanceRefetchRef = useRef(userBalance.refetch);
-    
+
     useEffect(() => {
         opIDRef.current = opID;
     }, [opID]);
-    
+
     useEffect(() => {
         caIndexRef.current = caIndex;
     }, [caIndex]);
-    
+
     useEffect(() => {
         userBalanceRefetchRef.current = userBalance.refetch;
     }, [userBalance.refetch]);
@@ -291,11 +291,7 @@ export default function ConfirmOperation(
                 timeout: 10000,
             })
             .then((response) => {
-                                
                 if (response.status === 200) {
-
-                    
-
                     if (response.data.status === 0) {
                         // Pending executed
                         console.warn("Operation Status: OK Pending execute.");
@@ -354,9 +350,13 @@ export default function ConfirmOperation(
 
     useEffect(() => {
         //console.log("Polling useEffect triggered:", { opID, status, shouldPoll: opID && opID >= 0 && (status === "QUEUED" || status === "QUEUING") });
-        
+
         // Only poll if we have an opID and are in a state that requires polling
-        if (!opID || opID < 0 || (status !== "QUEUED" && status !== "QUEUING")) {
+        if (
+            !opID ||
+            opID < 0 ||
+            (status !== "QUEUED" && status !== "QUEUING")
+        ) {
             //console.log("Polling skipped - conditions not met");
             return;
         }
@@ -635,15 +635,15 @@ export default function ConfirmOperation(
 
     const onSlippageInteractionChange = useCallback(
         (next: { hasPendingCustom: boolean; isValid: boolean }) => {
-          setSlippageUiState((prev) =>
-            prev.hasPendingCustom === next.hasPendingCustom && prev.isValid === next.isValid
-              ? prev
-              : next
-          );
+            setSlippageUiState((prev) =>
+                prev.hasPendingCustom === next.hasPendingCustom &&
+                prev.isValid === next.isValid
+                    ? prev
+                    : next
+            );
         },
         []
-      );
-      
+    );
 
     // Commission Select Radio
 
@@ -882,6 +882,7 @@ export default function ConfirmOperation(
                             <button
                                 type="button"
                                 className="button"
+                                data-testid="confirm-operation-submit"
                                 onClick={onSendTransactionAllowFeeToken}
                                 disabled={
                                     toleranceError !== "" ||
