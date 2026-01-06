@@ -274,16 +274,17 @@ export default function ConfirmOperation(
 
         //console.log("opStatus called with:", { currentOpID, currentCaIndex });
 
-        if (!currentOpID || currentOpID < 0) {
+        if (currentOpID === null || currentOpID < 0) {
             console.warn("Operation Status: Checking... NO.");
             return;
         }
+        const apiUrl = new URL(
+            import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS
+        );
+        apiUrl.pathname = "/v1/operations/oper_id";
 
-        const apiUrl: string =
-            `${import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS}` +
-            "operations/oper_id/";
         axios
-            .get<OperationStatusResponse>(apiUrl, {
+            .get<OperationStatusResponse>(apiUrl.toString(), {
                 params: {
                     oper_id: currentOpID,
                     bucket_index: currentCaIndex,
@@ -353,17 +354,17 @@ export default function ConfirmOperation(
 
         // Only poll if we have an opID and are in a state that requires polling
         if (
-            !opID ||
+            opID === null ||
             opID < 0 ||
             (status !== "QUEUED" && status !== "QUEUING")
         ) {
-            //console.log("Polling skipped - conditions not met");
+            //console.log("Polling skipped - conditions not met", opID, status);
             return;
         }
 
         //console.log("Setting up polling interval for opStatus");
         const interval: NodeJS.Timeout = setInterval(() => {
-            //console.log("Interval tick - calling opStatus");
+            //console.log("Interval tick - calling opStatus", opID, status);
             opStatus();
         }, 5000);
         return () => {

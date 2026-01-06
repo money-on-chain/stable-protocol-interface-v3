@@ -52,7 +52,7 @@ export default function ModalConfirmOperation(
             <Button
                 type="primary"
                 className="button"
-                data-test-id="confirm-operation-ok"
+                data-testid="confirm-operation-ok"
                 onClick={showModal}
                 disabled={inputValidationError || false}
             >
