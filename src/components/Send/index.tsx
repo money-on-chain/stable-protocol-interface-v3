@@ -169,7 +169,8 @@ export default function Send(): JSX.Element {
             contractProtocolStatus,
             currencyYouSend,
             `CA_${caIndex}`,
-            newAmountBig
+            newAmountBig,
+            caIndex
         );
 
         const priceCA: bigint =

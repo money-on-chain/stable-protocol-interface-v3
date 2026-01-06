@@ -201,14 +201,16 @@ function ConvertBalance(
     contractProtocolStatus: ContractProtocolStatusResult,
     userBalance: UserBalanceResult,
     tokenExchange: string,
-    tokenReceive: string
+    tokenReceive: string,
+    caIndex: number
 ): bigint {
     const rawAmount = TokenBalance(userBalance, tokenExchange);
     return ConvertAmount(
         contractProtocolStatus,
         tokenExchange,
         tokenReceive,
-        rawAmount
+        rawAmount,
+        caIndex
     );
 }
 
@@ -216,9 +218,10 @@ function ConvertAmount(
     contractProtocolStatus: ContractProtocolStatusResult,
     tokenExchange: string,
     tokenReceive: string,
-    amount: bigint
+    amount: bigint,
+    caIndex: number
 ): bigint {
-    const caIndex = getCAIndex(tokenExchange, tokenReceive);
+    //const caIndex = getCAIndex(tokenExchange, tokenReceive);
 
     let price = 0n;
     let cAmount = 0n;
@@ -345,7 +348,7 @@ const getCAIndex = (tokenExchange: string, tokenReceive: string): number => {
             index = parseInt(aTokenReceive[1]);
             break;
         case "TP,TP":
-            index = 0; // TODO: Change to the correct index
+            index = -1;
             break;
         case "TP,TPCA":
             // TP_i -> TPCA_i_j i=TP Index, j=CA Index
@@ -377,7 +380,8 @@ function CalcCommission(
     contractProtocolStatus: ContractProtocolStatusResult,
     tokenExchange: string,
     tokenReceive: string,
-    rawAmount: bigint
+    rawAmount: bigint,
+    caIndex: number
 ): FeeInfo {
     const amount: bigint = rawAmount;
 
@@ -386,7 +390,6 @@ function CalcCommission(
     const aTokenExchange = tokenExchange.split("_");
     const aTokenReceive = tokenReceive.split("_");
     const aTokenMap = `${aTokenExchange[0]},${aTokenReceive[0]}`;
-    const caIndex = getCAIndex(tokenExchange, tokenReceive);
 
     switch (aTokenMap) {
         case "CA,TC":

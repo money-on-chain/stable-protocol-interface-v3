@@ -1,5 +1,4 @@
 import type { RadioChangeEvent } from "antd";
-import { Radio, Space } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
 
 import { getExecutionFee } from "../../backend/utils";
@@ -30,10 +29,12 @@ import {
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings/settings.json";
 import type { Settings } from "../../types/hooks";
+import type { CommissionItem, CommissionsState } from "../../types/status";
 import CurrencyPopUp from "../CurrencyPopUp";
 import InputAmount from "../InputAmount/";
 import ModalConfirmOperation from "../Modals/ConfirmOperation";
 import { PrecisionNumbers } from "../PrecisionNumbers";
+import CommissionsSelector from "../CommissionsSelector";
 const { slippage } = settings as Settings;
 
 // Type definitions
@@ -67,19 +68,8 @@ export default function Exchange(): JSX.Element {
     const [slippageTolerance, setSlippageTolerance] = useState<number>(
         slippage.autoDefault
     );
-
-    //const [isDirtyYouExchange, setIsDirtyYouExchange] = useState(false);
-    //const [isDirtyYouReceive, setIsDirtyYouReceive] = useState(false);
-
-    const [commission, setCommission] = useState<bigint>(0n);
-    const [commissionUSD, setCommissionUSD] = useState<bigint>(0n);
-    const [commissionPercent, setCommissionPercent] = useState<bigint>(0n);
-
-    const [commissionFeeToken, setCommissionFeeToken] = useState<bigint>(0n);
-    const [commissionFeeTokenUSD, setCommissionFeeTokenUSD] =
-        useState<bigint>(0n);
-    const [commissionPercentFeeToken, setCommissionPercentFeeToken] =
-        useState<bigint>(0n);
+    
+    const [commissionsByKey, setCommissionsByKey] = useState<CommissionsState>({});
 
     const [executionFee, setExecutionFee] = useState<bigint>(0n);
     const [executionFeeUSD, setExecutionFeeUSD] = useState<bigint>(0n);
@@ -93,7 +83,7 @@ export default function Exchange(): JSX.Element {
 
     const TYPE_OPERATION = typeOperation(currencyYouExchange, currencyYouReceive);
 
-    const [radioSelectFee, setRadioSelectFee] = useState<number>(0);
+    const [radioSelectFee, setRadioSelectFee] = useState<number>(1);
     const [radioSelectFeeTokenDisabled, setRadioSelectFeeTokenDisabled] =
         useState<boolean>(true);
 
@@ -103,6 +93,23 @@ export default function Exchange(): JSX.Element {
 
     const { checkerStatus } = CheckStatusGlobal();
 
+    const setCommissionForKey = (
+        key: string,
+        partial: Partial<CommissionItem>
+      ) => {
+        setCommissionsByKey(prev => ({
+          ...prev,
+          [key]: {
+            ...(prev[key] ?? {
+              commission: 0n,
+              commissionUSD: 0n,
+              commissionPercent: 0n,
+            }),
+            ...partial,
+          },
+        }));
+      };
+
     const onChangeCurrencyYouExchange = (
         newCurrencyYouExchange: string
     ): void => {
@@ -110,7 +117,12 @@ export default function Exchange(): JSX.Element {
         setCurrencyYouExchange(newCurrencyYouExchange);
         const newCurrencyYouReceive = tokenReceive(newCurrencyYouExchange)[0];
         setCurrencyYouReceive(newCurrencyYouReceive);
-        setCAIndex(getCAIndex(newCurrencyYouExchange, newCurrencyYouReceive));
+        const caI = getCAIndex(newCurrencyYouExchange, newCurrencyYouReceive);
+        if (caI >= 0) {
+            setCAIndex(caI);
+        } else {
+            setCAIndex(0);
+        }
     };
 
     const onChangeCurrencyYouReceive = (
@@ -118,7 +130,12 @@ export default function Exchange(): JSX.Element {
     ): void => {
         onClear();
         setCurrencyYouReceive(newCurrencyYouReceive);
-        setCAIndex(getCAIndex(currencyYouExchange, newCurrencyYouReceive));
+        const caI = getCAIndex(currencyYouExchange, newCurrencyYouReceive);
+        if (caI >= 0) {
+            setCAIndex(caI);
+        } else {
+            setCAIndex(0);
+        }
     };
 
     const handleSwapCurrencies = (): void => {
@@ -255,7 +272,7 @@ export default function Exchange(): JSX.Element {
         // 5. HAVE TO PAY COMMISSIONS WITH FEE TOKEN?
         const feeTokenBalance = userBalance.data[caIndex].FeeToken.balance;
 
-        if (feeTokenBalance && feeTokenBalance > commissionFeeToken) {
+        if (feeTokenBalance && feeTokenBalance > commissionsByKey["FeeToken"].commission) {
             // Set as default to pay fee with token
             setRadioSelectFeeTokenDisabled(false);
         } else {
@@ -349,7 +366,7 @@ export default function Exchange(): JSX.Element {
         amountYouReceive,
         caIndex,
         checkerStatus,
-        commissionFeeToken,
+        commissionsByKey,
         contractProtocolStatus,
         currencyYouExchange,
         currencyYouReceive,
@@ -392,7 +409,8 @@ export default function Exchange(): JSX.Element {
                     contractProtocolStatus,
                     currencyYouExchange,
                     currencyYouReceive,
-                    amountReceive
+                    amountReceive,
+                    caIndex
                 );
                 amountExchangeFee = amountExchange;
                 amountReceiveFee = amountReceive - infoFee.fee;
@@ -412,7 +430,8 @@ export default function Exchange(): JSX.Element {
                     contractProtocolStatus,
                     currencyYouExchange,
                     currencyYouReceive,
-                    amountExchange
+                    amountExchange,
+                    caIndex
                 );
                 amountExchangeFee = amountExchange + infoFee.fee;
                 amountReceiveFee = amountReceive;
@@ -433,49 +452,68 @@ export default function Exchange(): JSX.Element {
 
         // Set exchanging total in USD
         let convertAmountUSD: bigint;
+        const infoFeeArray: CommissionInfo[] = [];
         if (TYPE_OPERATION === "MINT") {
             infoFee = CalcCommission(
                 contractProtocolStatus,
                 currencyYouExchange,
                 currencyYouReceive,
-                amountExchange
+                amountExchange,
+                caIndex
             );
+            infoFeeArray.push(infoFee);
             convertAmountUSD = amountExchangeFee;
         } else if (TYPE_OPERATION === "REDEEM") {
             infoFee = CalcCommission(
                 contractProtocolStatus,
                 currencyYouExchange,
                 currencyYouReceive,
-                amountReceive
+                amountReceive,
+                caIndex
             );
+            infoFeeArray.push(infoFee);
             convertAmountUSD = amountReceiveFee;
-        } else if (TYPE_OPERATION === "SWAP") {
-            const amountInCA: bigint = ConvertAmount(
-                contractProtocolStatus,
-                currencyYouExchange,
-                `CA_${caIndex}`,
-                amountExchange
-            );
-            infoFee = CalcCommission(
-                contractProtocolStatus,
-                currencyYouExchange,
-                currencyYouReceive,
-                amountInCA
-            );
-            convertAmountUSD = amountInCA;
+        } else if (TYPE_OPERATION === "SWAP_TPFORTP") {
+
+            for (let i = 0; i < settings.tokens.CA.length; i++) {
+                const amountInCA: bigint = ConvertAmount(
+                    contractProtocolStatus,
+                    currencyYouExchange,
+                    `CA_${i}`,
+                    amountExchange,
+                    i
+                );
+
+                infoFee = CalcCommission(
+                    contractProtocolStatus,
+                    currencyYouExchange,
+                    currencyYouReceive,
+                    amountInCA,
+                    i
+                );
+
+                infoFeeArray.push(infoFee);
+                convertAmountUSD = amountInCA;
+            }   
+            
         } else {
             throw new Error("Invalid type operation");
         }
 
-        // Commission
-        setCommission(infoFee.fee);
-        setCommissionUSD(infoFee.feeUSD);
-        setCommissionPercent(infoFee.percent);
+        for (let i = 0; i < infoFeeArray.length; i++) {
+            setCommissionForKey(`CA_${i}`, {
+                commission: infoFeeArray[i].fee,
+                commissionUSD: infoFeeArray[i].feeUSD,
+                commissionPercent: infoFeeArray[i].percent,
+            });
+        }
 
-        // Fee Token Commission
-        setCommissionFeeToken(infoFee.totalFeeToken);
-        setCommissionFeeTokenUSD(infoFee.totalFeeTokenUSD);
-        setCommissionPercentFeeToken(infoFee.feeTokenPercent);
+        // Fee Token Commission        
+        setCommissionForKey("FeeToken", {
+            commission: infoFeeArray[0].totalFeeToken,
+            commissionUSD: infoFeeArray[0].totalFeeTokenUSD,
+            commissionPercent: infoFeeArray[0].feeTokenPercent,
+        });
 
         const priceCA = normalizeToBigInt(
             contractProtocolStatus.data[caIndex].PP_CA[0]
@@ -521,7 +559,8 @@ export default function Exchange(): JSX.Element {
                 contractProtocolStatus,
                 currencyYouExchange,
                 currencyYouReceive,
-                newAmountBigInt
+                newAmountBigInt,
+                caIndex
             );
             console.warn("convertAmountReceive", convertAmountReceive);
             void onChangeAmounts(
@@ -545,7 +584,8 @@ export default function Exchange(): JSX.Element {
                 contractProtocolStatus,
                 currencyYouReceive,
                 currencyYouExchange,
-                newAmountBigInt
+                newAmountBigInt,
+                caIndex
             );
             void onChangeAmounts(
                 convertAmountExchange,
@@ -561,7 +601,8 @@ export default function Exchange(): JSX.Element {
             contractProtocolStatus,
             currencyYouExchange,
             currencyYouReceive,
-            totalbalance
+            totalbalance,
+            caIndex
         );
         setValueExchange(totalbalance.toString());
         setAmountYouExchange(totalbalance);
@@ -570,7 +611,11 @@ export default function Exchange(): JSX.Element {
 
     const onChangeFee = (e: RadioChangeEvent): void => {
         console.warn("radio checked", e.target.value);
-        setRadioSelectFee(Number(e.target.value));
+        const nValue = Number(e.target.value)
+        setRadioSelectFee(nValue);
+        if (TYPE_OPERATION === "SWAP_TPFORTP" && nValue > 1) {
+            setCAIndex(nValue - 1);
+        }
     };
 
     const calculateFinalAmountExchange = (): bigint => {
@@ -662,7 +707,8 @@ export default function Exchange(): JSX.Element {
                                               contractProtocolStatus,
                                               userBalance,
                                               currencyYouExchange,
-                                              currencyYouReceive
+                                              currencyYouReceive,
+                                              caIndex
                                           ),
                                           token: TokenSettings(
                                               currencyYouReceive
@@ -702,7 +748,8 @@ export default function Exchange(): JSX.Element {
                                                       contractProtocolStatus,
                                                       currencyYouExchange,
                                                       currencyYouReceive,
-                                                      1000000000000000000n
+                                                      1000000000000000000n,
+                                                      caIndex
                                                   ),
                                                   decimals:
                                                       TokenSettings(
@@ -743,7 +790,8 @@ export default function Exchange(): JSX.Element {
                                                       contractProtocolStatus,
                                                       currencyYouReceive,
                                                       currencyYouExchange,
-                                                      1000000000000000000n
+                                                      1000000000000000000n,
+                                                      caIndex
                                                   ),
                                                   decimals:
                                                       TokenSettings(
@@ -767,122 +815,15 @@ export default function Exchange(): JSX.Element {
                                 </div>
                             </div>
                             <div className="tx-fee-options">
-                                <div className={"radioButton"}>
-                                    <Radio.Group
-                                        onChange={onChangeFee}
-                                        value={radioSelectFee}
-                                    >
-                                        <Space direction="vertical">
-                                            <Radio value={0}>
-                                                <span
-                                                    className={"token_exchange"}
-                                                >
-                                                    {t("fees.labelFee")} (
-                                                    {PrecisionNumbers({
-                                                        amount: commissionPercent,
-                                                        token: TokenSettings(
-                                                            currencyYouExchange
-                                                        ),
-                                                        decimals: 2,
-                                                        i18n: i18n,
-                                                    })}
-                                                    %)
-                                                </span>
-                                                <span className={""}> ≈ </span>
-                                                <span className={""}>
-                                                    {PrecisionNumbers({
-                                                        amount: commission,
-                                                        token: TokenSettings(
-                                                            `CA_${caIndex}`
-                                                        ),
-                                                        i18n: i18n,
-                                                    })}
-                                                </span>
-                                                <span className={""}>
-                                                    {" "}
-                                                    {t(
-                                                        `exchange.tokens.CA_${caIndex}.abbr`,
-                                                        { ns: ns }
-                                                    )}
-                                                </span>
-                                                <span className={""}> (</span>
-                                                <span>
-                                                    {PrecisionNumbers({
-                                                        amount: commissionUSD,
-                                                        decimals: 2,
-                                                        token: TokenSettings(
-                                                            `CA_${caIndex}`
-                                                        ),
-                                                        i18n: i18n,
-                                                        isUSD: true,
-                                                    })}
-                                                </span>
-                                                <span className={""}>
-                                                    {" "}
-                                                    {t(
-                                                        "exchange.exchangingCurrency"
-                                                    )}
-                                                </span>
-                                                <span className={""}>) </span>
-                                            </Radio>
-                                            <Radio
-                                                value={1}
-                                                disabled={
-                                                    radioSelectFeeTokenDisabled
-                                                }
-                                            >
-                                                <span className={""}>
-                                                    {t("fees.labelFee")} (
-                                                    {PrecisionNumbers({
-                                                        amount: commissionPercentFeeToken,
-                                                        token: TokenSettings(
-                                                            currencyYouExchange
-                                                        ),
-                                                        decimals: 2,
-                                                        i18n: i18n,
-                                                    })}
-                                                    %)
-                                                </span>
-                                                <span className={""}> ≈ </span>
-                                                <span className={""}>
-                                                    {PrecisionNumbers({
-                                                        amount: commissionFeeToken,
-                                                        token: TokenSettings(
-                                                            `TF_${caIndex}`
-                                                        ),
-                                                        i18n: i18n,
-                                                    })}
-                                                </span>
-                                                <span className={""}>
-                                                    {" "}
-                                                    {t(
-                                                        `exchange.tokens.TF.abbr`,
-                                                        { ns: ns }
-                                                    )}
-                                                </span>
-                                                <span className={""}> (</span>
-                                                <span>
-                                                    {PrecisionNumbers({
-                                                        amount: commissionFeeTokenUSD,
-                                                        decimals: 2,
-                                                        token: TokenSettings(
-                                                            `CA_${caIndex}`
-                                                        ),
-                                                        i18n: i18n,
-                                                        isUSD: true,
-                                                    })}
-                                                </span>
-                                                <span className={""}>
-                                                    {" "}
-                                                    {t(
-                                                        "exchange.exchangingCurrency"
-                                                    )}
-                                                </span>
-                                                <span className={""}>) </span>
-                                            </Radio>
-                                        </Space>
-                                    </Radio.Group>
-                                </div>
+                                <CommissionsSelector 
+                                    onChangeFee={onChangeFee}
+                                    radioSelectFee={radioSelectFee}
+                                    currencyYouExchange={currencyYouExchange}
+                                    caIndex={caIndex}
+                                    radioSelectFeeTokenDisabled={radioSelectFeeTokenDisabled}
+                                    commissionsByKey={commissionsByKey}
+                                    TYPE_OPERATION={TYPE_OPERATION}
+                                />
                             </div>
                             <div className="tx-fees-info">
                                 {t("fees.disclaimer1")} <br />
@@ -936,17 +877,12 @@ export default function Exchange(): JSX.Element {
                         currencyYouExchange={currencyYouExchange}
                         currencyYouReceive={currencyYouReceive}
                         exchangingUSD={exchangingUSD}
-                        commission={commission}
-                        commissionUSD={commissionUSD}
-                        commissionPercent={commissionPercent}
+                        commissionsByKey={commissionsByKey}
                         inputAmountYouExchange={calculateFinalAmountExchange()}
                         amountYouReceive={amountYouReceive}
                         inputValidationError={inputValidationError}
                         executionFee={executionFee}
                         executionFeeUSD={executionFeeUSD}
-                        commissionFeeToken={commissionFeeToken}
-                        commissionFeeTokenUSD={commissionFeeTokenUSD}
-                        commissionPercentFeeToken={commissionPercentFeeToken}
                         radioSelectFee={radioSelectFee}
                         caIndex={caIndex}
                         slippageTolerance={slippageTolerance}

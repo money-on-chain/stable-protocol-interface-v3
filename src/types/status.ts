@@ -258,3 +258,11 @@ export interface UseBaseCoinBalanceResult {
 export type UseIncentiveV2Result = Omit<UseStorageResult<unknown>, "data"> & {
     data: IncentiveV2Info;
 };
+
+export type CommissionItem = {
+    commission: bigint;
+    commissionUSD: bigint;
+    commissionPercent: bigint;
+};
+
+export type CommissionsState = Record<string, CommissionItem>;

@@ -82,15 +82,13 @@ function loadTokenMap(): TokenMap {
         for (let a = 0; a < settings.tokens.CA.length; a++) {
             lReceive.push(`CA_${a}`);
         }
-
-        // TP cross targets (TP_i -> TPCA_j, j !== i)
-        for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
-            for (let tp = 0; tp < settings.tokens.TP.length; tp++) {            
-                if (tp !== i) {
-                    lReceive.push(`TPCA_${tp}_${ca}`);
-                }
+        
+        for (let tp = 0; tp < settings.tokens.TP.length; tp++) {            
+            if (tp !== i) {
+                lReceive.push(`TP_${tp}`);
             }
         }
+        
 
         tMap[`TP_${i}`] = lReceive;
     }
@@ -163,7 +161,7 @@ function typeOperation(tokenExchange: string, tokenReceive: string): string {
         case "TP,TP":
         case "TP,TPCA":
             // Swap
-            return "SWAP";
+            return "SWAP_TPFORTP";
         default:
             throw new Error("Invalid token name");
     }

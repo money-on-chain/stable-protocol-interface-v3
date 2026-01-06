@@ -4,22 +4,18 @@ import React, { useState } from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
 import ConfirmOperation from "../../ConfirmOperation";
+import type { CommissionsState } from "../../../types/status";
 
 interface ModalConfirmOperationProps {
     inputValidationError?: boolean;
     currencyYouExchange: string;
     currencyYouReceive: string;
     exchangingUSD: bigint;
-    commission: bigint;
-    commissionUSD: bigint;
-    commissionPercent: bigint;
+    commissionsByKey: CommissionsState;
     inputAmountYouExchange: bigint;
     amountYouReceive: bigint;
     executionFee: bigint;
     executionFeeUSD: bigint;
-    commissionFeeToken: bigint;
-    commissionFeeTokenUSD: bigint;
-    commissionPercentFeeToken: bigint;
     radioSelectFee: number;
     caIndex: number;
     slippageTolerance: number;

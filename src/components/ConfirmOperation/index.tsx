@@ -14,6 +14,7 @@ import CopyAddress from "../CopyAddress";
 import ModalAllowanceOperation from "../Modals/Allowance";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import TXStatus from "./TXStatus";
+import type { CommissionsState } from "../../types/status";
 
 const { Panel } = Collapse;
 
@@ -30,17 +31,12 @@ interface ConfirmOperationProps {
     currencyYouExchange: string;
     currencyYouReceive: string;
     exchangingUSD: bigint;
-    commission: bigint;
-    commissionUSD: bigint;
-    commissionPercent: bigint;
+    commissionsByKey: CommissionsState;
     inputAmountYouExchange: bigint;
     amountYouReceive: bigint;
     onCloseModal: () => void;
     executionFee: bigint;
     executionFeeUSD: bigint;
-    commissionFeeToken: bigint;
-    commissionFeeTokenUSD: bigint;
-    commissionPercentFeeToken: bigint;
     radioSelectFee: number;
     caIndex: number;
     slippageTolerance: number;
@@ -93,17 +89,12 @@ export default function ConfirmOperation(
         currencyYouExchange,
         currencyYouReceive,
         exchangingUSD,
-        commission,
-        commissionUSD,
-        commissionPercent,
+        commissionsByKey,
         inputAmountYouExchange,
         amountYouReceive,
         onCloseModal,
         executionFee,
         executionFeeUSD,
-        commissionFeeToken,
-        commissionFeeTokenUSD,
-        commissionPercentFeeToken,
         radioSelectFee,
         caIndex,
         slippageTolerance,
@@ -383,13 +374,13 @@ export default function ConfirmOperation(
             caIndex
         );
 
-        if (radioSelectFee === 0 && tokenAllowance > commissionFeeToken) {
+        if (radioSelectFee === 0 && tokenAllowance > commissionsByKey["FeeToken"].commission) {
             // if we select not to pay with fee token, please disallow to use Fee token
             setDisAllowanceFeeToken(true);
             // show allowance window
             return true;
         } else if (radioSelectFee > 0) {
-            return commissionFeeToken >= tokenAllowance;
+            return commissionsByKey["FeeToken"].commission >= tokenAllowance;
         }
 
         return false;
@@ -625,9 +616,9 @@ export default function ConfirmOperation(
 
     // Commission Select Radio
 
-    let commissionPAY: bigint = commission;
-    let commissionPAYUSD: bigint = commissionUSD;
-    let commissionPercentPAY: bigint = commissionPercent;
+    let commissionPAY: bigint = commissionsByKey[`CA_${caIndex}`].commission;
+    let commissionPAYUSD: bigint = commissionsByKey[`CA_${caIndex}`].commissionUSD;
+    let commissionPercentPAY: bigint = commissionsByKey[`CA_${caIndex}`].commissionPercent;
     let commissionSettings: ReturnType<typeof TokenSettings> = TokenSettings(
         `CA_${caIndex}`
     );
@@ -645,9 +636,9 @@ export default function ConfirmOperation(
 
     if (radioSelectFee > 0) {
         // Pay with Fee Token
-        commissionPAY = commissionFeeToken;
-        commissionPAYUSD = commissionFeeTokenUSD;
-        commissionPercentPAY = commissionPercentFeeToken;
+        commissionPAY = commissionsByKey["FeeToken"].commission;
+        commissionPAYUSD = commissionsByKey["FeeToken"].commissionUSD;
+        commissionPercentPAY = commissionsByKey["FeeToken"].commissionPercent;
         commissionSettings = TokenSettings(`TF_${caIndex}`);
         commissionTokenName = t(`exchange.tokens.TF.abbr`, {
             ns: ns,
@@ -949,7 +940,7 @@ export default function ConfirmOperation(
                 onHideModalAllowance={onHideModalAllowanceFeeToken}
                 currencyYouExchange={`TF_${caIndex}`}
                 currencyYouReceive={`TF_${caIndex}`}
-                amountYouExchangeLimit={commissionFeeToken}
+                amountYouExchangeLimit={commissionsByKey["FeeToken"].commission}
                 //amountYouReceiveLimit={commissionFeeToken}
                 onRealSendTransaction={onSendTransaction}
                 disAllowance={disAllowanceFeeToken}
