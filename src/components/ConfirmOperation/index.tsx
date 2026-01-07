@@ -8,7 +8,7 @@ import { decodeEvents } from "../../backend/transaction";
 import { SlippageTolerance } from "../../components/SlippageTolerance";
 import { useWalletContext } from "../../context/Wallet";
 import { TokenBalance, TokenSettings } from "../../helpers/currencies";
-import { calculateLimit, isMintOperation, UserTokenAllowance } from "../../helpers/exchange";
+import { calculateLimit, UserTokenAllowance } from "../../helpers/exchange";
 import { useProjectTranslation } from "../../helpers/translations";
 import CopyAddress from "../CopyAddress";
 import ModalAllowanceOperation from "../Modals/Allowance";
@@ -41,6 +41,7 @@ interface ConfirmOperationProps {
     caIndex: number;
     slippageTolerance: number;
     onChangeSlippageTolerance: (value: number) => void;
+    operationType: string;
 }
 
 type StatusType =
@@ -99,13 +100,14 @@ export default function ConfirmOperation(
         caIndex,
         slippageTolerance,
         onChangeSlippageTolerance,
+        operationType
     } = props;
 
     const { t, i18n, ns } = useProjectTranslation();
 
     const { contractProtocolStatus, userBalance, interfaceExchangeMethod } =
         useWalletContext();
-
+    
     const [status, setStatus] = useState<StatusType>("SUBMIT");
     const [amountYouExchange, setAmountYouExchange] = useState<bigint>(
         inputAmountYouExchange
@@ -123,11 +125,7 @@ export default function ConfirmOperation(
         hasPendingCustom: false,
         isValid: true,
     });
-    const IS_MINT: boolean = isMintOperation(
-        currencyYouExchange,
-        currencyYouReceive
-    );
-
+    
     useEffect(() => {
         setAmountYouExchange(inputAmountYouExchange);
     }, [inputAmountYouExchange]);
@@ -166,20 +164,23 @@ export default function ConfirmOperation(
 
     const toleranceLimits = useCallback(
         (newTolerance: number): ToleranceLimits => {
-            let limitExchange: bigint;
-            let limitReceive: bigint;
-            if (IS_MINT) {
+            let limitExchange: bigint = 0n;
+            let limitReceive: bigint = 0n;
+            if (operationType === "MINT") {
                 limitExchange = calculateLimit(
                     amountYouExchange,
                     newTolerance / 100
                 );
                 limitReceive = amountYouReceive;
-            } else {
+            } else if (operationType === "REDEEM") {
                 limitExchange = amountYouExchange;
                 limitReceive = calculateLimit(
                     amountYouReceive,
                     -(newTolerance / 100)
                 );
+            } else if (operationType === "SWAP_TPFORTP") {
+                limitExchange = amountYouExchange;
+                limitReceive = amountYouReceive;
             }
 
             const limits: ToleranceLimits = {
@@ -189,7 +190,7 @@ export default function ConfirmOperation(
 
             return limits;
         },
-        [IS_MINT, amountYouExchange, amountYouReceive]
+        [operationType, amountYouExchange, amountYouReceive]
     );
 
     const limits: ToleranceLimits = toleranceLimits(tolerance);
@@ -379,7 +380,7 @@ export default function ConfirmOperation(
             setDisAllowanceFeeToken(true);
             // show allowance window
             return true;
-        } else if (radioSelectFee > 0) {
+        } else if (radioSelectFee === 0) {
             return commissionsByKey["FeeToken"].commission >= tokenAllowance;
         }
 
@@ -414,12 +415,17 @@ export default function ConfirmOperation(
 
         let tokenAmount: bigint;
         let limitAmount: bigint;
-        if (IS_MINT) {
+        if (operationType === "MINT") {
+            tokenAmount = amountYouReceive;
+            limitAmount = amountYouExchangeLimit;
+        } else if (operationType === "REDEEM") {
+            tokenAmount = amountYouExchange;
+            limitAmount = amountYouReceiveLimit;
+        } else if (operationType === "SWAP_TPFORTP") {
             tokenAmount = amountYouReceive;
             limitAmount = amountYouExchangeLimit;
         } else {
-            tokenAmount = amountYouExchange;
-            limitAmount = amountYouReceiveLimit;
+            throw new Error("Invalid type operation");
         }
 
         void interfaceExchangeMethod(
@@ -624,17 +630,23 @@ export default function ConfirmOperation(
     );
     let commissionTokenName: string;
 
-    if (IS_MINT) {
+    if (operationType === "MINT")  {
         commissionTokenName = t(`exchange.tokens.${currencyYouExchange}.abbr`, {
             ns: ns,
         });
-    } else {
+    } else if (operationType === "REDEEM") {
         commissionTokenName = t(`exchange.tokens.${currencyYouReceive}.abbr`, {
             ns: ns,
         });
+    } else if (operationType === "SWAP_TPFORTP") {
+        commissionTokenName = t(`exchange.tokens.CA_${caIndex}.abbr`, {
+            ns: ns,
+        });
+    } else {
+        throw new Error("Invalid type operation");
     }
 
-    if (radioSelectFee > 0) {
+    if (radioSelectFee === 0) {
         // Pay with Fee Token
         commissionPAY = commissionsByKey["FeeToken"].commission;
         commissionPAYUSD = commissionsByKey["FeeToken"].commissionUSD;
@@ -664,7 +676,7 @@ export default function ConfirmOperation(
                             })}
                         </div>
                     </div>
-                    {!amountChanged && IS_MINT && (
+                    {!amountChanged && (operationType === "MINT") && (
                         <div className="tx-amount-info">
                             {t(`exchange.priceVariation.warning`, {
                                 ns: ns,
@@ -694,7 +706,7 @@ export default function ConfirmOperation(
                         </div>
                     </div>
                     <div className="tx-amount-info">
-                        {!IS_MINT && (
+                        {operationType !== "MINT" && (
                             <div className="tx-amount-info">
                                 {t("exchange.confirm.minimumWarning")}
                                 <div className="">

@@ -81,7 +81,7 @@ export default function Exchange(): JSX.Element {
     const [inputValidationError, setInputValidationError] =
         useState<boolean>(false);
 
-    const TYPE_OPERATION = typeOperation(currencyYouExchange, currencyYouReceive);
+    const operationType: string = typeOperation(currencyYouExchange, currencyYouReceive);
 
     const [radioSelectFee, setRadioSelectFee] = useState<number>(1);
     const [radioSelectFeeTokenDisabled, setRadioSelectFeeTokenDisabled] =
@@ -451,9 +451,10 @@ export default function Exchange(): JSX.Element {
         }
 
         // Set exchanging total in USD
-        let convertAmountUSD: bigint;
+        let convertAmountUSD: bigint = 0n;
+        let choosenCAIndex: number = caIndex;
         const infoFeeArray: CommissionInfo[] = [];
-        if (TYPE_OPERATION === "MINT") {
+        if (operationType === "MINT") {
             infoFee = CalcCommission(
                 contractProtocolStatus,
                 currencyYouExchange,
@@ -463,7 +464,7 @@ export default function Exchange(): JSX.Element {
             );
             infoFeeArray.push(infoFee);
             convertAmountUSD = amountExchangeFee;
-        } else if (TYPE_OPERATION === "REDEEM") {
+        } else if (operationType === "REDEEM") {
             infoFee = CalcCommission(
                 contractProtocolStatus,
                 currencyYouExchange,
@@ -473,7 +474,7 @@ export default function Exchange(): JSX.Element {
             );
             infoFeeArray.push(infoFee);
             convertAmountUSD = amountReceiveFee;
-        } else if (TYPE_OPERATION === "SWAP_TPFORTP") {
+        } else if (operationType === "SWAP_TPFORTP") {
 
             for (let i = 0; i < settings.tokens.CA.length; i++) {
                 const amountInCA: bigint = ConvertAmount(
@@ -494,6 +495,8 @@ export default function Exchange(): JSX.Element {
 
                 infoFeeArray.push(infoFee);
                 convertAmountUSD = amountInCA;
+                choosenCAIndex = i;
+                
             }   
             
         } else {
@@ -516,7 +519,7 @@ export default function Exchange(): JSX.Element {
         });
 
         const priceCA = normalizeToBigInt(
-            contractProtocolStatus.data[caIndex].PP_CA[0]
+            contractProtocolStatus.data[choosenCAIndex].PP_CA[0]
         );
         if (priceCA) {
             const aTokenExchange = currencyYouExchange.split("_");
@@ -613,7 +616,7 @@ export default function Exchange(): JSX.Element {
         console.warn("radio checked", e.target.value);
         const nValue = Number(e.target.value)
         setRadioSelectFee(nValue);
-        if (TYPE_OPERATION === "SWAP_TPFORTP" && nValue > 1) {
+        if (operationType === "SWAP_TPFORTP" && nValue > 0) {
             setCAIndex(nValue - 1);
         }
     };
@@ -822,7 +825,7 @@ export default function Exchange(): JSX.Element {
                                     caIndex={caIndex}
                                     radioSelectFeeTokenDisabled={radioSelectFeeTokenDisabled}
                                     commissionsByKey={commissionsByKey}
-                                    TYPE_OPERATION={TYPE_OPERATION}
+                                    operationType={operationType}
                                 />
                             </div>
                             <div className="tx-fees-info">
@@ -887,6 +890,7 @@ export default function Exchange(): JSX.Element {
                         caIndex={caIndex}
                         slippageTolerance={slippageTolerance}
                         onChangeSlippageTolerance={onChangeSlippageTolerance}
+                        operationType={operationType}
                         //amountYouExchangeFee={amountYouExchangeFee}
                         //amountYouReceiveFee={amountYouReceiveFee}
                     />

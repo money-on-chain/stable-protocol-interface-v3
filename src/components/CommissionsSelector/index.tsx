@@ -14,7 +14,7 @@ interface CommissionsSelectorProps {
     commissionsByKey: CommissionsState;
     caIndex: number;
     radioSelectFeeTokenDisabled: boolean;
-    TYPE_OPERATION: string;
+    operationType: string;
 }
 
 export default function CommissionsSelector(props: CommissionsSelectorProps): React.ReactElement {
@@ -26,13 +26,13 @@ export default function CommissionsSelector(props: CommissionsSelectorProps): Re
         commissionsByKey, 
         caIndex, 
         radioSelectFeeTokenDisabled,
-        TYPE_OPERATION
+        operationType
     } = props;
 
     const { t, i18n, ns } = useProjectTranslation();
     const collateralAvailable = [];
     
-    if (TYPE_OPERATION === "SWAP_TPFORTP") {
+    if (operationType === "SWAP_TPFORTP") {
         for (let i = 0; i < settings.tokens.CA.length; i++) {
             collateralAvailable.push(i);
         }        

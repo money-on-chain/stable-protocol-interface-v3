@@ -608,9 +608,6 @@ const swapTPforTP = async (
         configParams.value = executionFee
     }
 
-    console.log("DEBUG>>>")
-    console.log(configParams)
-
     const { request } = await simulateContract(config, configParams);
 
     //console.log("request", request);
