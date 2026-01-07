@@ -333,15 +333,17 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     };
 
     const readUserVesting = (): void => {
-        const baseUrl = `${import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS}omoc/vesting_created/`;
-        const queryParams = new URLSearchParams({
+        const url = new URL(
+            import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS
+        );
+        url.pathname = "/v1/omoc/vesting_created";
+        url.search = new URLSearchParams({
             holder: address || "",
             limit: "20",
             skip: "0",
         }).toString();
-        const url = `${baseUrl}?${queryParams}`;
 
-        api<VestingResponse>("get", url)
+        api<VestingResponse>("get", url.toString())
             .then((response) => {
                 saveUserVesting(response as VestingResponse);
             })
