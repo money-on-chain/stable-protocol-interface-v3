@@ -68,27 +68,32 @@ export function useOffchainPrices(
 
                         caParse.CA = [
                             parseUnits(
-                                responseData.values[map.CA].toFixed(18),
+                                (responseData.values[map.CA] || 0).toFixed(18),
                                 18
                             ),
                             true,
                         ];
 
                         caParse.TP = map.TP.map((tp: string) => [
-                            parseUnits(responseData.values[tp].toFixed(18), 18),
+                            parseUnits(
+                                (responseData.values[tp] || 0).toFixed(18),
+                                18
+                            ),
                             true,
                         ]);
 
                         caParse.TF = [
                             parseUnits(
-                                responseData.values[map.TF].toFixed(18),
+                                (responseData.values[map.TF] || 0).toFixed(18),
                                 18
                             ),
                             true,
                         ];
                         caParse.COINBASE = [
                             parseUnits(
-                                responseData.values[map.COINBASE].toFixed(18),
+                                (
+                                    responseData.values[map.COINBASE] || 0
+                                ).toFixed(18),
                                 18
                             ),
                             true,

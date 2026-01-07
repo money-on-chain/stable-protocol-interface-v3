@@ -45,7 +45,7 @@ export default function Portfolio(): JSX.Element {
             balance =
                 normalizeToBigInt(userBalance.data.CA[dataItem.key].balance) ||
                 0n;
-            price = contractProtocolStatus.data[dataItem.key].PP_CA[0] || 0n;
+            price = contractProtocolStatus.data[dataItem.key]?.PP_CA?.[0] || 0n;
 
             balanceUSD = mulPrecision(balance, price);
             totalUSD = totalUSD + balanceUSD;
@@ -59,12 +59,12 @@ export default function Portfolio(): JSX.Element {
             const priceTEC: bigint =
                 contractProtocolStatus.data[dataItem.key].getPTCac;
             const priceCA: bigint =
-                contractProtocolStatus.data[dataItem.key].PP_CA[0] || 0n;
+                contractProtocolStatus.data[dataItem.key]?.PP_CA?.[0] || 0n;
 
             price = mulPrecision(priceTEC, priceCA);
             balanceUSD = mulPrecision(balance, price);
             totalUSD = totalUSD + balanceUSD;
-        };
+        }
         ///////////////
         // Tokens TP
         //////////////
@@ -88,7 +88,7 @@ export default function Portfolio(): JSX.Element {
                 : contractProtocolStatus.data[0].PP_TP[dataItem.key][0] || 0n;
             balanceUSD = divPrecision(balance, price);
             totalUSD = totalUSD + balanceUSD;
-        };
+        }
 
         ///////////////
         // Coinbase
