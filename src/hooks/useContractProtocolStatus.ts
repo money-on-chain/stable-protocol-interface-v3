@@ -61,11 +61,11 @@ export function useContractProtocolStatus(
         if (parsedPrices && !isEmptyParsedPrices(parsedPrices)) {
             for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
                 data[ca] = {
-                    PP_CA: parsedPrices[ca].CA,
+                    PP_CA: parsedPrices[ca]?.CA,
                     PP_TP: {},
                 };
                 for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
-                    data[ca].PP_TP[tp] = parsedPrices[ca].TP[tp];
+                    data[ca].PP_TP[tp] = parsedPrices[ca]?.TP[tp];
                 }
             }
         }
@@ -82,7 +82,7 @@ export function useContractProtocolStatus(
             parsedPrices = offChainPrices;
         } else if (onChainPrices) {
             parsedPrices = onChainPrices;
-            console.warn("Using onChainPrices ...")
+            console.warn("Using onChainPrices ...");
         }
 
         if (isEmptyParsedPrices(parsedPrices)) return [];
@@ -144,7 +144,7 @@ export function useContractProtocolStatus(
         const tpAddresses: string[] = [];
         if (parsedPrices && !isEmptyParsedPrices(parsedPrices)) {
             for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
-                priceOfflineTPs = parsedPrices[ca].TP.map((tp) => tp[0]);
+                priceOfflineTPs = parsedPrices[ca]?.TP.map((tp) => tp?.[0]);
                 bucketsPACtps.push(priceOfflineTPs);
             }
 
@@ -169,7 +169,7 @@ export function useContractProtocolStatus(
                 contracts.FC_MAX_ABSOLUTE_OP_PROVIDER?.[ca];
             FC_MAX_OP_DIFFERENCE_PROVIDER =
                 contracts.FC_MAX_OP_DIFFERENCE_PROVIDER?.[ca];
-            priceOfflineTPs = parsedPrices?.[ca]?.TP.map((tp) => tp[0]);
+            priceOfflineTPs = parsedPrices?.[ca]?.TP.map((tp) => tp?.[0]);
 
             if (
                 !Moc ||

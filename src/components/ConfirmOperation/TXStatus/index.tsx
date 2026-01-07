@@ -71,22 +71,22 @@ export default function TXStatus({
                 /* Default case: Show step-by-step progress */
                 <div className="txSteps-container">
                     {steps.map((step: StepType, index: number) => {
-                        let stepClass: string = "stepRow txSteps--todo";
-                        let iconClass: string = "icon-tx-checkUnchecked"; // Default icon
                         const label: string = statusLabels[step] || step;
-
-                        if (index < stepIndex) {
-                            stepClass = "stepRow txSteps--done";
-                            iconClass = "icon-tx-checkChecked"; // Mark as completed
-                        } else if (index === stepIndex) {
-                            stepClass = "stepRow txSteps--doing";
-                            iconClass = "icon-tx-inProgress"; // Show in progress
-                        }
+                        const [done, checked] =
+                            index < stepIndex
+                                ? ["done", "checkChecked"]
+                                : index == stepIndex
+                                  ? ["doing", "inProgress"]
+                                  : ["todo", "checkUnchecked"];
 
                         return (
-                            <div key={step} className={stepClass}>
+                            <div
+                                key={step}
+                                className={`stepRow txSteps--${done}`}
+                                data-testid={`step-${step}-${index}-${done}`}
+                            >
                                 <div
-                                    className={`txSteps__icon ${iconClass}`}
+                                    className={`txSteps__icon icon-tx-${checked}`}
                                 ></div>
                                 {label}
                             </div>

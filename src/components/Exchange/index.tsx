@@ -648,7 +648,10 @@ export default function Exchange(): JSX.Element {
         <div>
             <div className="sectionExchange__Content">
                 <div className="inputFields">
-                    <div className="tokenSelector">
+                    <div
+                        className="tokenSelector"
+                        data-testid="exchange-input-from"
+                    >
                         <CurrencyPopUp
                             value={currencyYouExchange}
                             currencyOptions={tokenExchange()}
@@ -689,7 +692,10 @@ export default function Exchange(): JSX.Element {
                         <div className="icon-swap"></div>
                     </div>
 
-                    <div className="tokenSelector">
+                    <div
+                        className="tokenSelector"
+                        data-testid="exchange-input-to"
+                    >
                         <CurrencyPopUp
                             value={currencyYouReceive}
                             currencyOptions={tokenReceive(currencyYouExchange)}

@@ -225,16 +225,19 @@ export default function LastOperations(props: LastOperationsProps) {
             !isLoadingRef.current
         ) {
             isLoadingRef.current = true;
-            const baseUrl = `${import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS}operations/list/`;
             const skip = (currentRef.current - 1) * pageSizeRef.current;
-            const queryParams = new URLSearchParams({
+
+            const url = new URL(
+                import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS
+            );
+            url.pathname = "/v1/operations/list";
+            url.search = new URLSearchParams({
                 recipient: addressRef.current || "",
                 limit: String(pageSizeRef.current),
                 skip: String(skip),
             }).toString();
-            const url = `${baseUrl}?${queryParams}`;
 
-            api("get", url)
+            api("get", url.toString())
                 .then((response: unknown) => {
                     const typedResponse = response as ApiResponse;
                     setDataJson(typedResponse);
@@ -495,7 +498,7 @@ export default function LastOperations(props: LastOperationsProps) {
                     statusData?.tpIndex_ ||
                     (statusData as { tpIndex?: number })?.tpIndex;
                 if (tp_index === undefined) tp_index = 0;
-                
+
                 return {
                     exchange: {
                         action: "TPMint",
