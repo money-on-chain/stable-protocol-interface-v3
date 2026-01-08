@@ -622,7 +622,6 @@ export default function ConfirmOperation(
     );
 
     // Commission Select Radio
-
     let commissionPAY: bigint = commissionsByKey[`CA_${caIndex}`].commission;
     let commissionPAYUSD: bigint = commissionsByKey[`CA_${caIndex}`].commissionUSD;
     let commissionPercentPAY: bigint = commissionsByKey[`CA_${caIndex}`].commissionPercent;

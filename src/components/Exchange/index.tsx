@@ -450,32 +450,41 @@ export default function Exchange(): JSX.Element {
                 throw new Error("Invalid source name");
         }
 
-        // Set exchanging total in USD
+        type CommissionWithIndex = {
+            caIndex: number;
+            info: CommissionInfo;
+        };
+        
+        // Set exchanging total in USD and choosen CA index
         let convertAmountUSD: bigint = 0n;
         let choosenCAIndex: number = caIndex;
-        const infoFeeArray: CommissionInfo[] = [];
+        const infoFeeArray: CommissionWithIndex[] = [];
+        
         if (operationType === "MINT") {
-            infoFee = CalcCommission(
+            const infoFee = CalcCommission(
                 contractProtocolStatus,
                 currencyYouExchange,
                 currencyYouReceive,
                 amountExchange,
                 caIndex
             );
-            infoFeeArray.push(infoFee);
+        
+            infoFeeArray.push({ caIndex, info: infoFee });
             convertAmountUSD = amountExchangeFee;
+        
         } else if (operationType === "REDEEM") {
-            infoFee = CalcCommission(
+            const infoFee = CalcCommission(
                 contractProtocolStatus,
                 currencyYouExchange,
                 currencyYouReceive,
                 amountReceive,
                 caIndex
             );
-            infoFeeArray.push(infoFee);
+        
+            infoFeeArray.push({ caIndex, info: infoFee });
             convertAmountUSD = amountReceiveFee;
+        
         } else if (operationType === "SWAP_TPFORTP") {
-
             for (let i = 0; i < settings.tokens.CA.length; i++) {
                 const amountInCA: bigint = ConvertAmount(
                     contractProtocolStatus,
@@ -484,38 +493,48 @@ export default function Exchange(): JSX.Element {
                     amountExchange,
                     i
                 );
-
-                infoFee = CalcCommission(
+        
+                const infoFee = CalcCommission(
                     contractProtocolStatus,
                     currencyYouExchange,
                     currencyYouReceive,
                     amountInCA,
                     i
                 );
-
-                infoFeeArray.push(infoFee);
+        
+                infoFeeArray.push({ caIndex: i, info: infoFee });
+        
+                // if in the future you need the "best" CA, you could choose it here
+                // for now I leave the last one as chosen:
                 convertAmountUSD = amountInCA;
                 choosenCAIndex = i;
-                
-            }   
-            
+            }
         } else {
             throw new Error("Invalid type operation");
         }
-
-        for (let i = 0; i < infoFeeArray.length; i++) {
-            setCommissionForKey(`CA_${i}`, {
-                commission: infoFeeArray[i].fee,
-                commissionUSD: infoFeeArray[i].feeUSD,
-                commissionPercent: infoFeeArray[i].percent,
+        
+        // Set commissions for each CA using the REAL CA index
+        for (const { caIndex: caIdx, info } of infoFeeArray) {
+            setCommissionForKey(`CA_${caIdx}`, {
+                commission: info.fee,
+                commissionUSD: info.feeUSD,
+                commissionPercent: info.percent,
             });
         }
-
-        // Fee Token Commission        
+        
+        // Fee Token Commission: use the entry corresponding to choosenCAIndex
+        const baseForFeeToken =
+            infoFeeArray.find((x) => x.caIndex === choosenCAIndex)?.info ??
+            infoFeeArray[0]?.info; // fallback for security
+        
+        if (!baseForFeeToken) {
+            throw new Error("No commission info available for FeeToken");
+        }
+        
         setCommissionForKey("FeeToken", {
-            commission: infoFeeArray[0].totalFeeToken,
-            commissionUSD: infoFeeArray[0].totalFeeTokenUSD,
-            commissionPercent: infoFeeArray[0].feeTokenPercent,
+            commission: baseForFeeToken.totalFeeToken,
+            commissionUSD: baseForFeeToken.totalFeeTokenUSD,
+            commissionPercent: baseForFeeToken.feeTokenPercent,
         });
 
         const priceCA = normalizeToBigInt(
