@@ -336,7 +336,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         const url = new URL(
             import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS
         );
-        url.pathname = "/v1/omoc/vesting_created";
+        url.pathname = "/v1/omoc/vesting_created/";
         url.search = new URLSearchParams({
             holder: address || "",
             limit: "20",

@@ -230,7 +230,7 @@ export default function LastOperations(props: LastOperationsProps) {
             const url = new URL(
                 import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS
             );
-            url.pathname = "/v1/operations/list";
+            url.pathname = "/v1/operations/list/";
             url.search = new URLSearchParams({
                 recipient: addressRef.current || "",
                 limit: String(pageSizeRef.current),

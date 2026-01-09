@@ -237,7 +237,7 @@ const redeemTP = async (
         "redeemTP",
         [tpAddress, qTP, limitAmount, address, vendorAddress] as const,
         contractProtocolStatus.data[caIndex].tpRedeemExecCost,
-        4
+        1
     );
 };
 
@@ -479,11 +479,11 @@ const swapTPforTP = async (
         args: [tpAddressFrom, tpAddressTo, qTP, limitAmount, qAssetMaxFees, address, vendorAddress] as const,
         account: address,
     };
-
+    
     const executionFee = await getExecutionFee(
         publicClient,
         contractProtocolStatus.data[caIndex].swapTPforTPExecCost,
-        2
+        1
     );
 
     if (executionFee > 0n) {
