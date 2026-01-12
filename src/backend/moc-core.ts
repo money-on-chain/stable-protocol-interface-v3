@@ -241,6 +241,97 @@ const redeemTP = async (
     );
 };
 
+const swapTPforTP = async (
+    interfaceContext: InterfaceContext,
+    iFromTP: number,
+    iToTP: number,
+    qTP: bigint,
+    caIndex: number,
+    limitAmount: bigint,
+    qAssetMaxFees: bigint,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    const context = coreOpContext(caIndex, interfaceContext);
+
+    const {
+        contracts,
+        address,
+        contractProtocolStatus,
+        userBalance,
+        vendorAddress,
+    } = context;
+
+    if (!contracts.TP) throw new Error("TP not found");
+    if (!contracts.TP[iFromTP]) throw new Error(`TP not found for ${iFromTP}`);
+    if (!contracts.TP[iToTP]) throw new Error(`TP not found for ${iToTP}`);
+    if (!userBalance.data) throw new Error("User balance not found");
+    if (!userBalance.data.CA) throw new Error("CA not found");
+    
+    const tpAddressFrom = contracts.TP[iFromTP].address;
+    const tpAddressTo = contracts.TP[iToTP].address;
+
+    // Verifications
+    // User have sufficient reserve to pay?
+    /*console.log(
+        `To mint ${qTP} ${
+            (settings.tokens.TP[tpIndex] as TokenConfig).name
+        } you need > ${limitAmount.toString()} ${
+            (settings.tokens.CA[caIndex] as TokenConfig).name
+        } in your balance`
+    );*/
+
+    /*
+    const userReserveBalance = userBalance.data.CA[caIndex].balance;
+    if (limitAmount > userReserveBalance)
+        throw new Error(
+            `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} balance`
+        );
+
+    // Allowance
+    /*console.log(
+        `Allowance: To mint ${qTP} ${
+            (settings.tokens.TP[tpIndex] as TokenConfig).name
+        } you need > ${limitAmount.toString()} ${
+            (settings.tokens.CA[caIndex] as TokenConfig).name
+        } in your spendable balance`
+    );*/
+    /*
+    const userSpendableBalance = new BigNumber(
+        fromContractPrecisionDecimals(
+            userBalanceData.CA[caIndex].allowance,
+            settings.tokens.CA[caIndex].decimals
+        )
+    );
+    if (limitAmount.gt(userSpendableBalance))
+        throw new Error(
+            'Insufficient spendable balance... please make an allowance to the MoC contract'
+        );
+
+     */
+
+    // There are sufficient PEGGED in the contracts to mint?
+    /*const tpAvailableToMint =
+        contractProtocolStatus.data[caIndex].getTPAvailableToMint[tpIndex];
+
+    if (qTP > tpAvailableToMint)
+        throw new Error(
+            `Insufficient ${(settings.tokens.TP[tpIndex] as TokenConfig).name} available to mint`
+        );*/
+
+    return await sendWithExecFee(
+        context,
+        onTransaction,
+        onReceipt,
+        "swapTPforTP",
+        [tpAddressFrom, tpAddressTo, qTP, limitAmount, qAssetMaxFees, address, vendorAddress] as const,
+        contractProtocolStatus.data[caIndex].swapTPforTPExecCost,
+        1
+    );
+    
+};
+
+
 interface CoreOpContext
     extends Omit<InterfaceContext, "contracts" | "address"> {
     vendorAddress: string;
@@ -359,152 +450,5 @@ const sendWithExecFee = async (
 
     return receipt;
 };
-
-const swapTPforTP = async (
-    interfaceContext: InterfaceContext,
-    iFromTP: number,
-    iToTP: number,
-    qTP: bigint,
-    caIndex: number,
-    limitAmount: bigint,
-    qAssetMaxFees: bigint,
-    onTransaction: OnTransaction,
-    onReceipt: OnReceipt
-): Promise<TransactionReceipt | undefined> => {
-    // Mint pegged token with collateral CA
-
-    const {
-        address,
-        contracts,
-        contractProtocolStatus,
-        userBalance,
-        publicClient,
-    } = interfaceContext;
-
-    const vendorAddress = (import.meta.env
-        .REACT_APP_ENVIRONMENT_VENDOR_ADDRESS ||
-        "0x0000000000000000000000000000000000000000") as `0x${string}`;
-
-    // Verifications
-    if (!address) throw new Error("Address not found");
-    if (!publicClient) throw new Error("Public client not found");
-    if (!contracts) throw new Error("Contracts not found");
-    if (!contracts.Moc) throw new Error("Moc not found");
-    if (!contracts.Moc[caIndex])
-        throw new Error(`Moc not found for ${caIndex}`);
-    if (!contracts.TP) throw new Error("TP not found");
-    if (!contracts.TP[iFromTP]) throw new Error(`TP not found for ${iFromTP}`);
-    if (!contracts.TP[iToTP]) throw new Error(`TP not found for ${iToTP}`);
-    if (!userBalance.data) throw new Error("User balance not found");
-    if (!userBalance.data.CA) throw new Error("CA not found");
-    if (!contractProtocolStatus.data)
-        throw new Error("Contract protocol status not found");
-    if (!contractProtocolStatus.data[caIndex])
-        throw new Error("Contract protocol status not found");
-
-    const MoCContract = contracts.Moc[caIndex];
-    const tpAddressFrom = contracts.TP[iFromTP].address;
-    const tpAddressTo = contracts.TP[iToTP].address;
-
-    const tpPriceFrom = contractProtocolStatus.data[caIndex].PP_TP[iFromTP][0]
-    const tpPriceTo = contractProtocolStatus.data[caIndex].PP_TP[iToTP][0]
-    const SwapFees = contractProtocolStatus.data[caIndex].swapTPforTPFee
-
-    const qCAtp_From = divPrecision(qTP, tpPriceFrom)
-    const qCAtp_To = mulPrecision(qCAtp_From, tpPriceTo)
-
-    const feeOperation = mulPrecision(qCAtp_From, SwapFees)
-
-    //const qAssetMaxFees = calculateLimit(feeOperation, 0.1)
-    
-
-    // Verifications
-    // User have sufficient reserve to pay?
-    /*console.log(
-        `To mint ${qTP} ${
-            (settings.tokens.TP[tpIndex] as TokenConfig).name
-        } you need > ${limitAmount.toString()} ${
-            (settings.tokens.CA[caIndex] as TokenConfig).name
-        } in your balance`
-    );*/
-
-    /*
-    const userReserveBalance = userBalance.data.CA[caIndex].balance;
-    if (limitAmount > userReserveBalance)
-        throw new Error(
-            `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} balance`
-        );
-
-    // Allowance
-    /*console.log(
-        `Allowance: To mint ${qTP} ${
-            (settings.tokens.TP[tpIndex] as TokenConfig).name
-        } you need > ${limitAmount.toString()} ${
-            (settings.tokens.CA[caIndex] as TokenConfig).name
-        } in your spendable balance`
-    );*/
-    /*
-    const userSpendableBalance = new BigNumber(
-        fromContractPrecisionDecimals(
-            userBalanceData.CA[caIndex].allowance,
-            settings.tokens.CA[caIndex].decimals
-        )
-    );
-    if (limitAmount.gt(userSpendableBalance))
-        throw new Error(
-            'Insufficient spendable balance... please make an allowance to the MoC contract'
-        );
-
-     */
-
-    // There are sufficient PEGGED in the contracts to mint?
-    /*const tpAvailableToMint =
-        contractProtocolStatus.data[caIndex].getTPAvailableToMint[tpIndex];
-
-    if (qTP > tpAvailableToMint)
-        throw new Error(
-            `Insufficient ${(settings.tokens.TP[tpIndex] as TokenConfig).name} available to mint`
-        );*/
-
-    const configParams: {
-        address: `0x${string}`;
-        abi: Abi;
-        functionName: string;
-        args: readonly unknown[];
-        account: `0x${string}`;
-        value?: bigint;
-    } = {
-        address: MoCContract.address,
-        abi: MoCContract.abi as Abi,
-        functionName: "swapTPforTP",
-        args: [tpAddressFrom, tpAddressTo, qTP, limitAmount, qAssetMaxFees, address, vendorAddress] as const,
-        account: address,
-    };
-
-    const executionFee = await getExecutionFee(
-        publicClient,
-        contractProtocolStatus.data[caIndex].swapTPforTPExecCost,
-        1
-    );
-
-    if (executionFee > 0n) {
-        configParams.value = executionFee
-    }
-
-    const { request } = await simulateContract(config, configParams);
-
-    //console.log("request", request);
-    // Send transaction
-    const txHash = await writeContract(config, request);
-    //console.log("txHash", txHash);
-    if (onTransaction) onTransaction(txHash);
-
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
-
-    if (onReceipt) onReceipt(receipt);
-
-    return receipt;
-};
-
 
 export { mintTC, mintTP, redeemTC, redeemTP, swapTPforTP };

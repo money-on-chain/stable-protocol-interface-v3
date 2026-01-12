@@ -14,7 +14,9 @@ import CopyAddress from "../CopyAddress";
 import ModalAllowanceOperation from "../Modals/Allowance";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import TXStatus from "./TXStatus";
-import type { CommissionsState } from "../../types/status";
+import type { CommissionsState, AllowanceStep } from "../../types/status";
+import { ALLOWANCE_STEPS } from "../../types/status";
+
 
 const { Panel } = Collapse;
 
@@ -345,39 +347,19 @@ export default function ConfirmOperation(
         };
     }, [opStatus, opID, status]);
 
-    const onHideModalAllowance = (): void => {
+    const onHideModalAllowancePayCurrencyExchange = (): void => {
         setShowModalAllowance(false);
     };
 
-    const onShowModalAllowance = (): void => {
+    const onShowModalAllowancePayCurrencyExchange = (): void => {
         setShowModalAllowance(true);
     };
 
-    const showAllowance = (): boolean => {        
-        const tokenAllowance: bigint = UserTokenAllowance(
-            userBalance,
-            currencyYouExchange,
-            caIndex
-        );
-        return amountYouExchangeLimit > tokenAllowance;
-    };
-
-    const showAllowancePayCommission = (): boolean => {
-        const tokenAllowance: bigint = UserTokenAllowance(
-            userBalance,
-            `CA_${caIndex}`,
-            caIndex
-        );
-        const commissionLimit = calculateLimit(commissionsByKey[`CA_${caIndex}`].commission, tolerance / 100);
-
-        return commissionLimit > tokenAllowance;        
-    };
-
-    const onHideModalAllowanceFeeToken = (): void => {
+    const onHideModalAllowancePayCommissionFeeToken = (): void => {
         setShowModalAllowanceFeeToken(false);
     };
 
-    const onShowModalAllowanceFeeToken = (): void => {
+    const onShowModalAllowancePayCommissionFeeToken = (): void => {
         setShowModalAllowanceFeeToken(true);
     };
 
@@ -388,7 +370,27 @@ export default function ConfirmOperation(
         setShowModalAllowancePayCommission(false);
     };
 
-    const showAllowanceFeeToken = (): boolean => {
+    const showAllowancePayCurrencyExchange = (): boolean => {        
+        const tokenAllowance: bigint = UserTokenAllowance(
+            userBalance,
+            currencyYouExchange,
+            caIndex
+        );
+        return amountYouExchangeLimit > tokenAllowance;
+    };
+
+    const showAllowancePayCommissionCA = (): boolean => {
+        const tokenAllowance: bigint = UserTokenAllowance(
+            userBalance,
+            `CA_${caIndex}`,
+            caIndex
+        );
+        const commissionLimit = calculateLimit(commissionsByKey[`CA_${caIndex}`].commission, tolerance / 100);
+
+        return commissionLimit > tokenAllowance;        
+    };
+
+    const showAllowancePayCommissionFeeToken = (): boolean => {
         //const caIndex = getCAIndex(currencyYouExchange, currencyYouReceive);
         const tokenAllowance: bigint = UserTokenAllowance(
             userBalance,
@@ -407,43 +409,42 @@ export default function ConfirmOperation(
 
         return false;
     };
+        
+    const onSendTransaction = (startPoint: AllowanceStep = "AllowancePayCommissionCA"): void => {
+        const startIndex = ALLOWANCE_STEPS.indexOf(startPoint);
 
-    /*const onSendTransactionAllowFeeToken = (): void => {
-        // Show modal allowance
-        if (showAllowanceFeeToken()) {
-            onShowModalAllowanceFeeToken();
-            return;
-        }
+        for (let i = startIndex; i < ALLOWANCE_STEPS.length; i++) {
+            const step = ALLOWANCE_STEPS[i];
 
-        // If allowance is ok please send real operation transaction
-        onSendTransaction();
-    };*/
+            if (step === "AllowancePayCommissionCA") {
+                if (operationType === "SWAP_TPFORTP") {
+                    if (showAllowancePayCommissionCA()) {
+                    onShowModalAllowancePayCommission();
+                    return;
+                    }
+                }
+            }
 
-    const onSendTransaction = (): void => {
+            if (step === "AllowancePayCommissionFeeToken") {
+                if (showAllowancePayCommissionFeeToken()) {
+                    onShowModalAllowancePayCommissionFeeToken();
+                    return;
+                }
+            }
 
-        // Only on SWAP_TPFORTP operation type
-        if (operationType === "SWAP_TPFORTP") {
-            // Show allowance Fee Token modal
-            if (showAllowancePayCommission()) {
-                onShowModalAllowancePayCommission();
+            if (step === "AllowancePayCurrencyExchange") {
+                if (showAllowancePayCurrencyExchange()) {
+                    onShowModalAllowancePayCurrencyExchange();
+                    return;
+                }
+            }
+
+            if (step === "SubmitOperationTransaction") {
+                onRealSendTransaction();
                 return;
             }
         }
-
-        // Show allowance Fee Token modal
-        if (showAllowanceFeeToken()) {
-            onShowModalAllowanceFeeToken();
-            return;
-        }
-
-        // Show modal allowance token
-        if (showAllowance()) {
-            onShowModalAllowance();
-            return;
-        }
-
-        // If allowance is ok please send real operation transaction
-        onRealSendTransaction();
+        
     };
 
     const onRealSendTransaction = (): void => {
@@ -972,32 +973,35 @@ export default function ConfirmOperation(
                 </div>
             )}
             <ModalAllowanceOperation
+                name="AllowancePayCurrencyExchange"
                 title={`${t("allowance.cardTitle")}  ${t(`exchange.tokens.${currencyYouExchange}.label`, { ns: ns })}`}
                 visible={showModalAllowance}
-                onHideModalAllowance={onHideModalAllowance}
+                onHideModalAllowance={onHideModalAllowancePayCurrencyExchange}
                 currencyYouExchange={currencyYouExchange}
                 currencyYouReceive={currencyYouReceive}
                 amountYouExchangeLimit={amountYouExchangeLimit}
                 //amountYouReceiveLimit={amountYouReceiveLimit}
-                onRealSendTransaction={onRealSendTransaction}
+                onCallback={onSendTransaction}
                 disAllowance={false}
             />
             <ModalAllowanceOperation
+                name="AllowancePayCommissionFeeToken"
                 title={
                     disAllowanceFeeToken
                         ? `${t("allowance.disallowanceTitle")}  ${t(`exchange.tokens.TF.abbr`, { ns: ns })}`
                         : `${t("allowance.cardTitle")}  ${t(`exchange.tokens.TF.abbr`, { ns: ns })}`
                 }
                 visible={showModalAllowanceFeeToken}
-                onHideModalAllowance={onHideModalAllowanceFeeToken}
+                onHideModalAllowance={onHideModalAllowancePayCommissionFeeToken}
                 currencyYouExchange={`TF_${caIndex}`}
                 currencyYouReceive={`TF_${caIndex}`}
                 amountYouExchangeLimit={commissionsByKey["FeeToken"].commission}
                 //amountYouReceiveLimit={commissionFeeToken}
-                onRealSendTransaction={onSendTransaction}
+                onCallback={onSendTransaction}
                 disAllowance={disAllowanceFeeToken}
             />
             <ModalAllowanceOperation
+                name="AllowancePayCommissionCA"
                 title={
                     `${t("allowance.cardTitle")}  ${t(`exchange.tokens.CA_${caIndex}.abbr`, { ns: ns })}`
                 }
@@ -1007,7 +1011,7 @@ export default function ConfirmOperation(
                 currencyYouReceive={`CA_${caIndex}`}
                 amountYouExchangeLimit={calculateLimit(commissionsByKey[`CA_${caIndex}`].commission, tolerance / 100)}
                 //amountYouReceiveLimit={commissionFeeToken}
-                onRealSendTransaction={onSendTransaction}
+                onCallback={onSendTransaction}
                 disAllowance={false}
             />
         </div>

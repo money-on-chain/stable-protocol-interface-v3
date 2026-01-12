@@ -266,3 +266,12 @@ export type CommissionItem = {
 };
 
 export type CommissionsState = Record<string, CommissionItem>;
+
+export const ALLOWANCE_STEPS = [
+    "AllowancePayCommissionCA",
+    "AllowancePayCommissionFeeToken",
+    "AllowancePayCurrencyExchange",
+    "SubmitOperationTransaction",
+] as const;
+
+export type AllowanceStep = typeof ALLOWANCE_STEPS[number];

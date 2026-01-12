@@ -2,15 +2,17 @@ import Modal from "antd/lib/modal/Modal";
 import React from "react";
 
 import Allowance from "../../Allowance";
+import type { AllowanceStep } from "../../../types/status";
 
 interface ModalAllowanceOperationProps {
+    name?: string;
     visible?: boolean;
     onHideModalAllowance: () => void;
     title?: string;
     currencyYouExchange: string;
     currencyYouReceive: string;
     amountYouExchangeLimit: bigint;
-    onRealSendTransaction: () => void;
+    onCallback: (startPoint: AllowanceStep) => void;
     disAllowance?: boolean;
 }
 
