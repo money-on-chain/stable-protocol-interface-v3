@@ -427,6 +427,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         currencyYouReceive: string,
         tokenAmount: bigint,
         limitAmount: bigint,
+        qAssetMaxFees: bigint,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt
     ): Promise<unknown> => {
@@ -437,6 +438,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             currencyYouReceive,
             tokenAmount,
             limitAmount,
+            qAssetMaxFees,
             onTransaction,
             onReceipt
         );

@@ -367,6 +367,7 @@ const swapTPforTP = async (
     qTP: bigint,
     caIndex: number,
     limitAmount: bigint,
+    qAssetMaxFees: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
 ): Promise<TransactionReceipt | undefined> => {
@@ -414,7 +415,7 @@ const swapTPforTP = async (
 
     const feeOperation = mulPrecision(qCAtp_From, SwapFees)
 
-    const qAssetMaxFees = calculateLimit(feeOperation, 0.1)
+    //const qAssetMaxFees = calculateLimit(feeOperation, 0.1)
     
 
     // Verifications
@@ -479,7 +480,7 @@ const swapTPforTP = async (
         args: [tpAddressFrom, tpAddressTo, qTP, limitAmount, qAssetMaxFees, address, vendorAddress] as const,
         account: address,
     };
-    
+
     const executionFee = await getExecutionFee(
         publicClient,
         contractProtocolStatus.data[caIndex].swapTPforTPExecCost,

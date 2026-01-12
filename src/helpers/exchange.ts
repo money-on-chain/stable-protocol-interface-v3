@@ -224,6 +224,7 @@ function ApproveTokenContract(
 
     switch (aTokenMap) {
         case "CA,TC":
+        case "CA,CA":
         case "CA,TP":
             if (!contracts.CA) {
                 throw new Error("CA contract not available");
@@ -390,6 +391,7 @@ function exchangeMethod(
     tokenReceive: string,
     tokenAmount: bigint,
     limitAmount: bigint,
+    qAssetMaxFees: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
 ): Promise<unknown> {
@@ -508,6 +510,7 @@ function exchangeMethod(
                     tokenAmount,
                     caIndex,
                     limitAmount,
+                    qAssetMaxFees,
                     onTransaction,
                     onReceipt
                 );                
@@ -522,6 +525,7 @@ function exchangeMethod(
                     tokenAmount,
                     caIndex,
                     limitAmount,
+                    qAssetMaxFees,
                     onTransaction,
                     onReceipt
                 );                

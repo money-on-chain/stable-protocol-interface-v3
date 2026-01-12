@@ -204,6 +204,8 @@ export default function ConfirmOperation(
         useState<boolean>(false);
     const [showModalAllowanceFeeToken, setShowModalAllowanceFeeToken] =
         useState<boolean>(false);
+    const [showModalAllowancePayCommission, setShowModalAllowancePayCommission] =
+        useState<boolean>(false);
     const [disAllowanceFeeToken, setDisAllowanceFeeToken] =
         useState<boolean>(false);
 
@@ -351,7 +353,7 @@ export default function ConfirmOperation(
         setShowModalAllowance(true);
     };
 
-    const showAllowance = (): boolean => {
+    const showAllowance = (): boolean => {        
         const tokenAllowance: bigint = UserTokenAllowance(
             userBalance,
             currencyYouExchange,
@@ -360,12 +362,30 @@ export default function ConfirmOperation(
         return amountYouExchangeLimit > tokenAllowance;
     };
 
+    const showAllowancePayCommission = (): boolean => {
+        const tokenAllowance: bigint = UserTokenAllowance(
+            userBalance,
+            `CA_${caIndex}`,
+            caIndex
+        );
+        const commissionLimit = calculateLimit(commissionsByKey[`CA_${caIndex}`].commission, tolerance / 100);
+
+        return commissionLimit > tokenAllowance;        
+    };
+
     const onHideModalAllowanceFeeToken = (): void => {
         setShowModalAllowanceFeeToken(false);
     };
 
     const onShowModalAllowanceFeeToken = (): void => {
         setShowModalAllowanceFeeToken(true);
+    };
+
+    const onShowModalAllowancePayCommission = (): void => {
+        setShowModalAllowancePayCommission(true);
+    };
+    const onHideModalAllowancePayCommission = (): void => {
+        setShowModalAllowancePayCommission(false);
     };
 
     const showAllowanceFeeToken = (): boolean => {
@@ -388,7 +408,7 @@ export default function ConfirmOperation(
         return false;
     };
 
-    const onSendTransactionAllowFeeToken = (): void => {
+    /*const onSendTransactionAllowFeeToken = (): void => {
         // Show modal allowance
         if (showAllowanceFeeToken()) {
             onShowModalAllowanceFeeToken();
@@ -397,10 +417,26 @@ export default function ConfirmOperation(
 
         // If allowance is ok please send real operation transaction
         onSendTransaction();
-    };
+    };*/
 
     const onSendTransaction = (): void => {
-        // Show modal allowance
+
+        // Only on SWAP_TPFORTP operation type
+        if (operationType === "SWAP_TPFORTP") {
+            // Show allowance Fee Token modal
+            if (showAllowancePayCommission()) {
+                onShowModalAllowancePayCommission();
+                return;
+            }
+        }
+
+        // Show allowance Fee Token modal
+        if (showAllowanceFeeToken()) {
+            onShowModalAllowanceFeeToken();
+            return;
+        }
+
+        // Show modal allowance token
         if (showAllowance()) {
             onShowModalAllowance();
             return;
@@ -416,6 +452,7 @@ export default function ConfirmOperation(
 
         let tokenAmount: bigint;
         let limitAmount: bigint;
+        let qAssetMaxFees: bigint = 0n;
         if (operationType === "MINT") {
             tokenAmount = amountYouReceive;
             limitAmount = amountYouExchangeLimit;
@@ -423,8 +460,9 @@ export default function ConfirmOperation(
             tokenAmount = amountYouExchange;
             limitAmount = amountYouReceiveLimit;
         } else if (operationType === "SWAP_TPFORTP") {
-            tokenAmount = amountYouReceive;
+            tokenAmount = amountYouExchange;
             limitAmount = amountYouExchangeLimit;
+            qAssetMaxFees = calculateLimit(commissionsByKey[`CA_${caIndex}`].commission, tolerance / 100)
         } else {
             throw new Error("Invalid type operation");
         }
@@ -434,6 +472,7 @@ export default function ConfirmOperation(
             currencyYouReceive,
             tokenAmount,
             limitAmount,
+            qAssetMaxFees,
             onTransaction,
             onReceipt
         )
@@ -864,7 +903,7 @@ export default function ConfirmOperation(
                                 type="button"
                                 className="button"
                                 data-testid="confirm-operation-submit"
-                                onClick={onSendTransactionAllowFeeToken}
+                                onClick={onSendTransaction}
                                 disabled={
                                     toleranceError !== "" ||
                                     !slippageUiState.isValid
@@ -957,6 +996,19 @@ export default function ConfirmOperation(
                 //amountYouReceiveLimit={commissionFeeToken}
                 onRealSendTransaction={onSendTransaction}
                 disAllowance={disAllowanceFeeToken}
+            />
+            <ModalAllowanceOperation
+                title={
+                    `${t("allowance.cardTitle")}  ${t(`exchange.tokens.CA_${caIndex}.abbr`, { ns: ns })}`
+                }
+                visible={showModalAllowancePayCommission}
+                onHideModalAllowance={onHideModalAllowancePayCommission}
+                currencyYouExchange={`CA_${caIndex}`}
+                currencyYouReceive={`CA_${caIndex}`}
+                amountYouExchangeLimit={calculateLimit(commissionsByKey[`CA_${caIndex}`].commission, tolerance / 100)}
+                //amountYouReceiveLimit={commissionFeeToken}
+                onRealSendTransaction={onSendTransaction}
+                disAllowance={false}
             />
         </div>
     );

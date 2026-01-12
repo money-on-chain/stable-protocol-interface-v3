@@ -100,6 +100,7 @@ const swapTPforTP = async (
     qTP: bigint,
     caIndex: number,
     limitAmount: bigint,
+    qAssetMaxFees: bigint,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
 ): Promise<TransactionReceipt | undefined> => {
@@ -111,6 +112,7 @@ const swapTPforTP = async (
         qTP,
         caIndex,
         limitAmount,
+        qAssetMaxFees,
         onTransaction,
         onReceipt
     );
