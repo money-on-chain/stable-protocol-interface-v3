@@ -399,6 +399,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         currencyYouExchange: string,
         currencyYouReceive: string,
         amountAllowance: bigint,
+        caIndex: number,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt
     ): Promise<void> => {
@@ -407,7 +408,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         const approveInfo = ApproveTokenContract(
             contractsAddress,
             currencyYouExchange,
-            currencyYouReceive
+            currencyYouReceive,
+            caIndex
         );
         if (approveInfo.token) {
             const interfaceContext = buildInterfaceContext();
@@ -428,6 +430,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         tokenAmount: bigint,
         limitAmount: bigint,
         qAssetMaxFees: bigint,
+        caIndex: number,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt
     ): Promise<unknown> => {
@@ -439,6 +442,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             tokenAmount,
             limitAmount,
             qAssetMaxFees,
+            caIndex,
             onTransaction,
             onReceipt
         );

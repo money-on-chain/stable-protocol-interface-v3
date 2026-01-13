@@ -18,6 +18,7 @@ interface AllowanceDialogProps {
     onCallback: (startPoint: AllowanceStep) => void;
     disAllowance?: boolean;
     name?: string;
+    caIndex: number;
 }
 
 type StatusType = "SUBMIT" | "SIGN" | "WAITING" | "ERROR";
@@ -36,6 +37,7 @@ export default function AllowanceDialog(
         onCallback,
         disAllowance,
         name,
+        caIndex,
     } = props;
 
     const { t } = useProjectTranslation();
@@ -109,6 +111,7 @@ export default function AllowanceDialog(
             currencyYouExchange,
             currencyYouReceive,
             amountAllowance,
+            caIndex,
             onTransaction,
             onReceipt
         )

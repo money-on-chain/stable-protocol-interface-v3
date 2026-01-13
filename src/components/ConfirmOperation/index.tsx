@@ -474,6 +474,7 @@ export default function ConfirmOperation(
             tokenAmount,
             limitAmount,
             qAssetMaxFees,
+            caIndex,
             onTransaction,
             onReceipt
         )
@@ -983,6 +984,7 @@ export default function ConfirmOperation(
                 //amountYouReceiveLimit={amountYouReceiveLimit}
                 onCallback={onSendTransaction}
                 disAllowance={false}
+                caIndex={caIndex}
             />
             <ModalAllowanceOperation
                 name="AllowancePayCommissionFeeToken"
@@ -999,6 +1001,7 @@ export default function ConfirmOperation(
                 //amountYouReceiveLimit={commissionFeeToken}
                 onCallback={onSendTransaction}
                 disAllowance={disAllowanceFeeToken}
+                caIndex={caIndex}
             />
             <ModalAllowanceOperation
                 name="AllowancePayCommissionCA"
@@ -1013,6 +1016,7 @@ export default function ConfirmOperation(
                 //amountYouReceiveLimit={commissionFeeToken}
                 onCallback={onSendTransaction}
                 disAllowance={false}
+                caIndex={caIndex}
             />
         </div>
     );

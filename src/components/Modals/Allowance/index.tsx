@@ -14,6 +14,7 @@ interface ModalAllowanceOperationProps {
     amountYouExchangeLimit: bigint;
     onCallback: (startPoint: AllowanceStep) => void;
     disAllowance?: boolean;
+    caIndex: number;
 }
 
 export default function ModalAllowanceOperation(

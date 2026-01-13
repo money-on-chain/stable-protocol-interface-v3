@@ -252,6 +252,7 @@ const swapTPforTP = async (
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
 ): Promise<TransactionReceipt | undefined> => {
+    
     const context = coreOpContext(caIndex, interfaceContext);
 
     const {
@@ -430,7 +431,7 @@ const sendWithExecFee = async (
     } catch {
         // Any exception here means we're not dealing with a local hardhat node.
     }
-
+    
     const { request } = await simulateContract(config, configParams);
 
     // We may have simulated a request with a 0 execution fee

@@ -214,7 +214,8 @@ function UserTokenAllowance(
 function ApproveTokenContract(
     contracts: DContracts,
     tokenExchange: string,
-    tokenReceive: string
+    tokenReceive: string,
+    caIndex: number
 ): ApproveTokenContractResult {
     const tokenExchangeSettings = TokenSettings(tokenExchange);
 
@@ -270,7 +271,7 @@ function ApproveTokenContract(
             }
             return {
                 token: contracts.TP[parseInt(aTokenExchange[1])],
-                contractAllow: contracts.Moc[0], // TODO: Change to the correct contract
+                contractAllow: contracts.Moc[caIndex],
                 decimals: tokenExchangeSettings.decimals,
             };
         case "TP,TPCA":
@@ -392,10 +393,10 @@ function exchangeMethod(
     tokenAmount: bigint,
     limitAmount: bigint,
     qAssetMaxFees: bigint,
+    caIndex: number,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
 ): Promise<unknown> {
-    let caIndex: number = 0;
     let tpIndex: number = 0;
     let iFromTP: number = 0;
     let iToTP: number = 0;
@@ -500,7 +501,6 @@ function exchangeMethod(
                 );
             }
         case "TP,TP":
-            caIndex = 0; // TODO: Change to the correct index
             iFromTP = parseInt(aTokenExchange[1]);
             iToTP = parseInt(aTokenReceive[1]);
             return swapTPforTP(

@@ -85,6 +85,7 @@ export type WalletContextType = {
         currencyYouExchange: string,
         currencyYouReceive: string,
         amountAllowance: bigint,
+        caIndex: number,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt
     ) => Promise<void>;
@@ -95,6 +96,7 @@ export type WalletContextType = {
         tokenAmount: bigint,
         limitAmount: bigint,
         qAssetMaxFees: bigint,
+        caIndex: number,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt
     ) => Promise<unknown>;

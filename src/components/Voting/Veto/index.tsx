@@ -451,8 +451,9 @@ const Veto: React.FC = () => {
                                 currencyYouExchange={"TC_" + infoUserTC.index}
                                 currencyYouReceive={"VM"}
                                 amountYouExchangeLimit={infoUserTC.balance}
-                                onRealSendTransaction={onRealSendTransaction}
+                                onCallback={onRealSendTransaction}
                                 disAllowance={false}
+                                caIndex={infoUserTC.index}
                             />
                         )}
                     </div>
