@@ -231,7 +231,7 @@ function ConvertAmount(
     const aTokenExchange = tokenExchange.split("_");
     const aTokenReceive = tokenReceive.split("_");
     const aTokenMap = `${aTokenExchange[0]},${aTokenReceive[0]}`;
-
+    
     switch (aTokenMap) {
         case "CA,TC":
             price =
@@ -306,6 +306,34 @@ function ConvertAmount(
         case "CA,CA":
             cAmount = amount;
             break;
+        case "TC,TP":
+            // Swap Operation TC for TP
+            price_from =
+                normalizeToBigInt(
+                    contractProtocolStatus.data?.[caIndex]?.getPTCac || 0n
+                ) || 0n;
+            price_to =
+                normalizeToBigInt(
+                    contractProtocolStatus.data?.[caIndex]?.PP_TP?.[
+                        parseInt(aTokenReceive[1])
+                    ]?.[0] || 0n
+                ) || 0n;     
+            cAmount = price_from === 0n || price_to === 0n ? 0n : mulPrecision(mulPrecision(amount, price_to), price_from);
+            break;
+        case "TP,TC":
+                // Swap Operation TP for TC
+                price_from =
+                    normalizeToBigInt(
+                        contractProtocolStatus.data?.[caIndex]?.PP_TP?.[
+                            parseInt(aTokenExchange[1])
+                        ]?.[0] || 0n
+                    ) || 0n;
+                price_to =
+                    normalizeToBigInt(
+                        contractProtocolStatus.data?.[caIndex]?.getPTCac || 0n
+                    ) || 0n;     
+            cAmount = price_from === 0n || price_to === 0n ? 0n : divPrecision(divPrecision(amount, price_from), price_to);
+            break;        
         default:
             throw new Error("Invalid token name");
     }
@@ -339,7 +367,7 @@ const getCAIndex = (tokenExchange: string, tokenReceive: string): number => {
     const aTokenReceive = tokenReceive.split("_");
     const aTokenMap = `${aTokenExchange[0]},${aTokenReceive[0]}`;
     let index = 0;
-    
+
     switch (aTokenMap) {
         case "CA,TC":
             index = parseInt(aTokenExchange[1]);
@@ -369,6 +397,9 @@ const getCAIndex = (tokenExchange: string, tokenReceive: string): number => {
             break;
         case "CA,CA":
             index = parseInt(aTokenReceive[1]);
+            break;
+        case "TC,TP":
+            index = parseInt(aTokenExchange[1]);
             break;
         default:
             throw new Error("Invalid map getCAIndex");
@@ -419,6 +450,11 @@ function CalcCommission(
             // Swap TP
             feeParam =
                 contractProtocolStatus.data?.[caIndex].swapTPforTPFee || 0n;
+            break;    
+        case "TC,TP":
+            // Swap TC
+            feeParam =
+                contractProtocolStatus.data?.[caIndex].swapTCforTPFee || 0n;
             break;    
         default:
             throw new Error("Invalid token name");

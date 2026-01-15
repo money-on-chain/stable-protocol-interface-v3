@@ -509,6 +509,20 @@ export default function Exchange(): JSX.Element {
                 convertAmountUSD = amountInCA;
                 choosenCAIndex = i;
             }
+            
+        } else if (operationType === "SWAP_TCFORTP") {
+
+            const infoFee = CalcCommission(
+                contractProtocolStatus,
+                currencyYouExchange,
+                currencyYouReceive,
+                amountExchange,
+                caIndex
+            );
+        
+            infoFeeArray.push({ caIndex, info: infoFee });
+            convertAmountUSD = amountExchangeFee;
+
         } else {
             throw new Error("Invalid type operation");
         }
@@ -551,7 +565,8 @@ export default function Exchange(): JSX.Element {
         const execCost = executionFeeMap(
             currencyYouExchange,
             currencyYouReceive,
-            contractProtocolStatus
+            contractProtocolStatus,
+            caIndex
         );
 
         const execFee = await getExecutionFee(publicClient, execCost, 2);

@@ -333,6 +333,95 @@ const swapTPforTP = async (
 };
 
 
+const swapTCforTP = async (
+    interfaceContext: InterfaceContext,
+    tpIndex: number,
+    qTC: bigint,
+    caIndex: number,
+    limitAmount: bigint,
+    qAssetMaxFees: bigint,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    
+    const context = coreOpContext(caIndex, interfaceContext);
+
+    const {
+        contracts,
+        address,
+        contractProtocolStatus,
+        userBalance,
+        vendorAddress,
+    } = context;
+
+    if (!contracts.TP) throw new Error("TP not found");
+    if (!contracts.TP[tpIndex]) throw new Error(`TP not found for ${tpIndex}`);
+    if (!userBalance.data) throw new Error("User balance not found");
+    if (!userBalance.data.CA) throw new Error("CA not found");
+    
+    const tpAddress = contracts.TP[tpIndex].address;
+
+    // Verifications
+    // User have sufficient reserve to pay?
+    /*console.log(
+        `To mint ${qTP} ${
+            (settings.tokens.TP[tpIndex] as TokenConfig).name
+        } you need > ${limitAmount.toString()} ${
+            (settings.tokens.CA[caIndex] as TokenConfig).name
+        } in your balance`
+    );*/
+
+    /*
+    const userReserveBalance = userBalance.data.CA[caIndex].balance;
+    if (limitAmount > userReserveBalance)
+        throw new Error(
+            `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} balance`
+        );
+
+    // Allowance
+    /*console.log(
+        `Allowance: To mint ${qTP} ${
+            (settings.tokens.TP[tpIndex] as TokenConfig).name
+        } you need > ${limitAmount.toString()} ${
+            (settings.tokens.CA[caIndex] as TokenConfig).name
+        } in your spendable balance`
+    );*/
+    /*
+    const userSpendableBalance = new BigNumber(
+        fromContractPrecisionDecimals(
+            userBalanceData.CA[caIndex].allowance,
+            settings.tokens.CA[caIndex].decimals
+        )
+    );
+    if (limitAmount.gt(userSpendableBalance))
+        throw new Error(
+            'Insufficient spendable balance... please make an allowance to the MoC contract'
+        );
+
+     */
+
+    // There are sufficient PEGGED in the contracts to mint?
+    /*const tpAvailableToMint =
+        contractProtocolStatus.data[caIndex].getTPAvailableToMint[tpIndex];
+
+    if (qTP > tpAvailableToMint)
+        throw new Error(
+            `Insufficient ${(settings.tokens.TP[tpIndex] as TokenConfig).name} available to mint`
+        );*/
+
+    return await sendWithExecFee(
+        context,
+        onTransaction,
+        onReceipt,
+        "swapTCforTP",
+        [tpAddress, qTC, limitAmount, qAssetMaxFees, address, vendorAddress] as const,
+        contractProtocolStatus.data[caIndex].swapTCforTPExecCost,
+        1
+    );
+    
+};
+
+
 interface CoreOpContext
     extends Omit<InterfaceContext, "contracts" | "address"> {
     vendorAddress: string;
@@ -452,4 +541,4 @@ const sendWithExecFee = async (
     return receipt;
 };
 
-export { mintTC, mintTP, redeemTC, redeemTP, swapTPforTP };
+export { mintTC, mintTP, redeemTC, redeemTP, swapTPforTP, swapTCforTP };

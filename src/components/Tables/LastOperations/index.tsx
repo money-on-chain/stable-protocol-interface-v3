@@ -617,6 +617,46 @@ export default function LastOperations(props: LastOperationsProps) {
                                 : t("operations.actions.receiving"),
                     },
                 };
+            } else if (row_operation["operation"] === "TCSwapForTP") {
+                const statusData =
+                    status === "executed"
+                        ? row_operation.executed
+                        : row_operation.params;
+                let tp_index =
+                    statusData?.tpIndex_ ||
+                    (statusData as { tpIndex?: number })?.tpIndex;
+                if (tp_index === undefined) tp_index = 0;
+
+                return {
+                    exchange: {
+                        action: "TCSwapForTP",
+                        amount:
+                            status === "executed"
+                                ? row_operation.executed?.qTC_ || 0
+                                : row_operation.params?.qTC || 0,
+                        name: settings.tokens.TC[caIndex].name,
+                        token: settings.tokens.TC[caIndex],
+                        icon: `TC_${caIndex}`,
+                        title:
+                            status === "executed"
+                                ? t("operations.actions.exchanged")
+                                : t("operations.actions.exchanging"),
+                    },
+                    receive: {
+                        action: "TCSwapForTP",
+                        amount:
+                            status === "executed"
+                                ? row_operation.executed?.qTP_ || 0
+                                : row_operation.params?.qTP || 0,
+                        name: settings.tokens.TP[tp_index].name,
+                        token: settings.tokens.TP[tp_index],
+                        icon: `TP_${tp_index}`,
+                        title:
+                            status === "executed"
+                                ? t("operations.actions.received")
+                                : t("operations.actions.receiving"),
+                    },
+                };    
             } else if (row_operation.operation === "Transfer") {
                 const tokenParam = row_operation.params?.token;
                 if (!tokenParam) return undefined;
