@@ -647,7 +647,7 @@ export default function LastOperations(props: LastOperationsProps) {
                         amount:
                             status === "executed"
                                 ? row_operation.executed?.qTP_ || 0
-                                : row_operation.params?.qTP || 0,
+                                : row_operation.params?.qTPmin || 0,
                         name: settings.tokens.TP[tp_index].name,
                         token: settings.tokens.TP[tp_index],
                         icon: `TP_${tp_index}`,

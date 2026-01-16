@@ -184,11 +184,11 @@ export default function ConfirmOperation(
                 limitExchange = amountYouExchange;
                 limitReceive = amountYouReceive;
             } else if (operationType === "SWAP_TCFORTP") {
-                limitExchange = calculateLimit(
-                    amountYouExchange,
-                    newTolerance / 100
+                limitExchange = amountYouExchange;
+                limitReceive = calculateLimit(
+                    amountYouReceive,
+                    -(newTolerance / 100)
                 );
-                limitReceive = amountYouReceive;
             }
 
             const limits: ToleranceLimits = {
@@ -423,7 +423,7 @@ export default function ConfirmOperation(
             const step = ALLOWANCE_STEPS[i];
 
             if (step === "AllowancePayCommissionCA") {
-                if (operationType === "SWAP_TPFORTP") {
+                if (operationType === "SWAP_TPFORTP" || operationType === "SWAP_TCFORTP") {
                     if (showAllowancePayCommissionCA()) {
                     onShowModalAllowancePayCommission();
                     return;
@@ -472,7 +472,8 @@ export default function ConfirmOperation(
             qAssetMaxFees = calculateLimit(commissionsByKey[`CA_${caIndex}`].commission, tolerance / 100)
         } else if (operationType === "SWAP_TCFORTP") {
             tokenAmount = amountYouExchange;
-            limitAmount = amountYouExchangeLimit;            
+            limitAmount = amountYouReceiveLimit;
+            qAssetMaxFees = calculateLimit(commissionsByKey[`CA_${caIndex}`].commission, tolerance / 100)
         } else {
             throw new Error("Invalid type operation");
         }
