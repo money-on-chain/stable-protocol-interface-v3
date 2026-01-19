@@ -4,7 +4,7 @@ import {
     redeemTC as redeemTC_coinbase,
     redeemTP as redeemTP_coinbase,
 } from "../backend/moc-coinbase";
-import { mintTC, mintTP, redeemTC, redeemTP, swapTPforTP, swapTCforTP } from "../backend/moc-rc20";
+import { mintTC, mintTP, redeemTC, redeemTP, swapTPforTP, swapTCforTP, swapTPforTC } from "../backend/moc-rc20";
 import settings from "../settings/settings.json";
 import type { ContractInfo, DContracts } from "../types/hooks";
 import type {
@@ -91,6 +91,11 @@ function loadTokenMap(): TokenMap {
         for (let a = 0; a < settings.tokens.CA.length; a++) {
             lReceive.push(`CA_${a}`);
         }
+
+        // TC targets
+        for (let a = 0; a < settings.tokens.CA.length; a++) {
+            lReceive.push(`TC_${a}`);
+        }
         
         for (let tp = 0; tp < settings.tokens.TP.length; tp++) {            
             if (tp !== i) {
@@ -173,7 +178,10 @@ function typeOperation(tokenExchange: string, tokenReceive: string): string {
             return "SWAP_TPFORTP";
         case "TC,TP":
             // Swap TC for TP
-            return "SWAP_TCFORTP";    
+            return "SWAP_TCFORTP";
+        case "TP,TC":
+            // Swap TP for TC
+            return "SWAP_TPFORTC";    
         default:
             throw new Error("Invalid token name");
     }
@@ -274,6 +282,7 @@ function ApproveTokenContract(
                 contractAllow: contracts.Moc[parseInt(aTokenExchange[1])],
                 decimals: tokenExchangeSettings.decimals,
             };
+        case "TP,TC":
         case "TP,CA":
             if (!contracts.TP) {
                 throw new Error("TP contract not available");
@@ -566,6 +575,18 @@ function exchangeMethod(
                 onTransaction,
                 onReceipt
             );
+        case "TP,TC":
+            caIndex = parseInt(aTokenReceive[1]);
+            tpIndex = parseInt(aTokenExchange[1]);
+            return swapTPforTC(
+                interfaceContext,
+                tpIndex,
+                tokenAmount,
+                caIndex,                
+                limitAmount,
+                qAssetMaxFees,
+                onTransaction,
+                onReceipt);
         default:
             throw new Error("Invalid Exchange Method map");
     }
@@ -602,6 +623,9 @@ function executionFeeMap(
         case "TC,TP":
             return contractProtocolStatus.data[parseInt(aTokenExchange[1])]
                 .swapTCforTPExecCost;        
+        case "TP,TC":
+            return contractProtocolStatus.data[parseInt(aTokenReceive[1])]
+                .swapTPforTCExecCost;        
         default:
             throw new Error("Invalid token name map");
     }

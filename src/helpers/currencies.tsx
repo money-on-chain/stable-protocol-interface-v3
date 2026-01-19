@@ -401,6 +401,9 @@ const getCAIndex = (tokenExchange: string, tokenReceive: string): number => {
         case "TC,TP":
             index = parseInt(aTokenExchange[1]);
             break;
+        case "TP,TC":
+            index = parseInt(aTokenReceive[1]);
+            break;
         default:
             throw new Error("Invalid map getCAIndex");
     }
@@ -455,6 +458,11 @@ function CalcCommission(
             // Swap TC
             feeParam =
                 contractProtocolStatus.data?.[caIndex].swapTCforTPFee || 0n;
+            break;    
+        case "TP,TC":
+            // Swap TP for TC
+            feeParam =
+                contractProtocolStatus.data?.[caIndex].swapTPforTCFee || 0n;
             break;    
         default:
             throw new Error("Invalid token name");

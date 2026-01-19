@@ -12,6 +12,7 @@ import {
     redeemTP as redeemTP_,
     swapTPforTP as swapTPforTP_,
     swapTCforTP as swapTCforTP_,
+    swapTPforTC as swapTPforTC_,
 } from "./moc-core";
 
 const mintTC = async (
@@ -142,4 +143,28 @@ const swapTCforTP = async (
     );
 };
 
-export { mintTC, mintTP, redeemTC, redeemTP, swapTPforTP, swapTCforTP };
+
+const swapTPforTC = async (
+    interfaceContext: InterfaceContext,
+    tpIndex: number,
+    qTP: bigint,
+    caIndex: number,
+    limitAmount: bigint,
+    qAssetMaxFees: bigint,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    // Swap collateral token for pegged token
+    return swapTPforTC_(
+        interfaceContext,
+        tpIndex,
+        qTP,
+        caIndex,
+        limitAmount,
+        qAssetMaxFees,
+        onTransaction,
+        onReceipt
+    );
+};
+
+export { mintTC, mintTP, redeemTC, redeemTP, swapTPforTP, swapTCforTP, swapTPforTC };

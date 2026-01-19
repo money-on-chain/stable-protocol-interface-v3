@@ -523,6 +523,19 @@ export default function Exchange(): JSX.Element {
             infoFeeArray.push({ caIndex, info: infoFee });
             convertAmountUSD = amountExchangeFee;
 
+        } else if (operationType === "SWAP_TPFORTC") {
+
+            const infoFee = CalcCommission(
+                contractProtocolStatus,
+                currencyYouExchange,
+                currencyYouReceive,
+                amountReceive,
+                caIndex
+            );
+
+            infoFeeArray.push({ caIndex, info: infoFee });
+            convertAmountUSD = amountReceiveFee;
+
         } else {
             throw new Error("Invalid type operation");
         }

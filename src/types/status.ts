@@ -65,6 +65,7 @@ export type ProtocolStatusEntry = {
     tcRedeemFee: bigint;
     swapTPforTPFee: bigint;
     swapTCforTPFee: bigint;
+    swapTPforTCFee: bigint;
     tpCtarg: bigint[];
     tpEma: TpEma[];
     tpMintExecCost: bigint;

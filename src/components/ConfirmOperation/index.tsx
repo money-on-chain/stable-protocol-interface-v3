@@ -189,6 +189,12 @@ export default function ConfirmOperation(
                     amountYouReceive,
                     -(newTolerance / 100)
                 );
+            } else if (operationType === "SWAP_TPFORTC") {
+                limitExchange = amountYouExchange;
+                limitReceive = calculateLimit(
+                    amountYouReceive,
+                    -(newTolerance / 100)
+                );
             }
 
             const limits: ToleranceLimits = {
@@ -423,7 +429,7 @@ export default function ConfirmOperation(
             const step = ALLOWANCE_STEPS[i];
 
             if (step === "AllowancePayCommissionCA") {
-                if (operationType === "SWAP_TPFORTP" || operationType === "SWAP_TCFORTP") {
+                if (operationType === "SWAP_TPFORTP" || operationType === "SWAP_TCFORTP" || operationType === "SWAP_TPFORTC") {
                     if (showAllowancePayCommissionCA()) {
                     onShowModalAllowancePayCommission();
                     return;
@@ -471,6 +477,10 @@ export default function ConfirmOperation(
             limitAmount = amountYouExchangeLimit;
             qAssetMaxFees = calculateLimit(commissionsByKey[`CA_${caIndex}`].commission, tolerance / 100)
         } else if (operationType === "SWAP_TCFORTP") {
+            tokenAmount = amountYouExchange;
+            limitAmount = amountYouReceiveLimit;
+            qAssetMaxFees = calculateLimit(commissionsByKey[`CA_${caIndex}`].commission, tolerance / 100)
+        } else if (operationType === "SWAP_TPFORTC") {
             tokenAmount = amountYouExchange;
             limitAmount = amountYouReceiveLimit;
             qAssetMaxFees = calculateLimit(commissionsByKey[`CA_${caIndex}`].commission, tolerance / 100)
@@ -694,6 +704,10 @@ export default function ConfirmOperation(
             ns: ns,
         });
     } else if (operationType === "SWAP_TCFORTP") {
+        commissionTokenName = t(`exchange.tokens.CA_${caIndex}.abbr`, {
+            ns: ns,
+        });
+    } else if (operationType === "SWAP_TPFORTC") {
         commissionTokenName = t(`exchange.tokens.CA_${caIndex}.abbr`, {
             ns: ns,
         });

@@ -13,7 +13,7 @@ import type {
     OnTransaction,
 } from "../types/wallets";
 import { config } from "../wagmiConfig";
-import { redeemTC as redeemTC_, redeemTP as redeemTP_, swapTPforTP as swapTPforTP_, swapTCforTP as swapTCforTP_ } from "./moc-core";
+import { redeemTC as redeemTC_, redeemTP as redeemTP_, swapTPforTP as swapTPforTP_, swapTCforTP as swapTCforTP_, swapTPforTC as  swapTPforTC_} from "./moc-core";
 import { getExecutionFee } from "./utils";
 
 const mintTC = async (
@@ -344,5 +344,27 @@ const swapTCforTP = async (
     );
 };
 
+const swapTPforTC = async (
+    interfaceContext: InterfaceContext,    
+    tpIndex: number,
+    qTP: bigint,
+    caIndex: number,
+    limitAmount: bigint,
+    qAssetMaxFees: bigint,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    // Swap pegged token for collateral token
+    return swapTPforTC_(
+        interfaceContext,
+        tpIndex,
+        qTP,
+        caIndex,
+        limitAmount,
+        qAssetMaxFees,
+        onTransaction,
+        onReceipt
+    );
+};
 
-export { mintTC, mintTP, redeemTC, redeemTP, swapTPforTP, swapTCforTP };
+export { mintTC, mintTP, redeemTC, redeemTP, swapTPforTP, swapTCforTP, swapTPforTC };
