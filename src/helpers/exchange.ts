@@ -64,8 +64,7 @@ function loadTokenMap(): TokenMap {
             lReceive.push(`TP_${t}`);
         }
         tMap[`CA_${i}`] = lReceive;
-        
-        
+            
     }
 
     // Exchange TC

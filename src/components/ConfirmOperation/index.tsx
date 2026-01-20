@@ -183,13 +183,7 @@ export default function ConfirmOperation(
             } else if (operationType === "SWAP_TPFORTP") {
                 limitExchange = amountYouExchange;
                 limitReceive = amountYouReceive;
-            } else if (operationType === "SWAP_TCFORTP") {
-                limitExchange = amountYouExchange;
-                limitReceive = calculateLimit(
-                    amountYouReceive,
-                    -(newTolerance / 100)
-                );
-            } else if (operationType === "SWAP_TPFORTC") {
+            } else if (operationType === "SWAP_TCFORTP" || operationType === "SWAP_TPFORTC") {
                 limitExchange = amountYouExchange;
                 limitReceive = calculateLimit(
                     amountYouReceive,
@@ -472,17 +466,9 @@ export default function ConfirmOperation(
         } else if (operationType === "REDEEM") {
             tokenAmount = amountYouExchange;
             limitAmount = amountYouReceiveLimit;
-        } else if (operationType === "SWAP_TPFORTP") {
+        } else if (operationType === "SWAP_TPFORTP" || operationType === "SWAP_TPFORTC" || operationType === "SWAP_TCFORTP") {
             tokenAmount = amountYouExchange;
             limitAmount = amountYouExchangeLimit;
-            qAssetMaxFees = calculateLimit(commissionsByKey[`CA_${caIndex}`].commission, tolerance / 100)
-        } else if (operationType === "SWAP_TCFORTP") {
-            tokenAmount = amountYouExchange;
-            limitAmount = amountYouReceiveLimit;
-            qAssetMaxFees = calculateLimit(commissionsByKey[`CA_${caIndex}`].commission, tolerance / 100)
-        } else if (operationType === "SWAP_TPFORTC") {
-            tokenAmount = amountYouExchange;
-            limitAmount = amountYouReceiveLimit;
             qAssetMaxFees = calculateLimit(commissionsByKey[`CA_${caIndex}`].commission, tolerance / 100)
         } else {
             throw new Error("Invalid type operation");
@@ -699,15 +685,7 @@ export default function ConfirmOperation(
         commissionTokenName = t(`exchange.tokens.${currencyYouReceive}.abbr`, {
             ns: ns,
         });
-    } else if (operationType === "SWAP_TPFORTP") {
-        commissionTokenName = t(`exchange.tokens.CA_${caIndex}.abbr`, {
-            ns: ns,
-        });
-    } else if (operationType === "SWAP_TCFORTP") {
-        commissionTokenName = t(`exchange.tokens.CA_${caIndex}.abbr`, {
-            ns: ns,
-        });
-    } else if (operationType === "SWAP_TPFORTC") {
+    } else if (operationType === "SWAP_TPFORTP" || operationType === "SWAP_TPFORTC" || operationType === "SWAP_TCFORTP") {
         commissionTokenName = t(`exchange.tokens.CA_${caIndex}.abbr`, {
             ns: ns,
         });
