@@ -4,6 +4,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import { getExecutionFee } from "../../backend/utils";
 import { useWalletContext } from "../../context/Wallet";
 import { CheckStatusGlobal } from "../../helpers/checkStatus";
+import { calculateLimit } from "../../helpers/exchange";
+import { SlippageTolerance } from "../SlippageTolerance";
 import {
     bigIntToInputValue,
     CalcCommission,
@@ -91,6 +93,12 @@ export default function Exchange(): JSX.Element {
     const [valueReceive, setValueReceive] = useState<string>("");
     const [caIndex, setCAIndex] = useState<number>(0);
 
+    const lastEditedRef = React.useRef<"exchange" | "receive">("exchange");
+    const slippageFirstRunRef = React.useRef(true);
+
+    // For ignoring old async responses
+    const changeSeqRef = React.useRef(0);
+    
     const { checkerStatus } = CheckStatusGlobal();
 
     const setCommissionForKey = (
@@ -427,6 +435,69 @@ export default function Exchange(): JSX.Element {
         onValidate,
     ]);
 
+
+    useEffect(() => {
+        // avoid recalculating in the first render (optional)
+        if (slippageFirstRunRef.current) {
+          slippageFirstRunRef.current = false;
+          return;
+        }
+      
+        if (!publicClient) return;
+        if (!contractProtocolStatus.data) return;
+        if (!userBalance.data) return;
+      
+        // if there is no amount loaded, do nothing
+        if (amountYouExchange <= 0n && amountYouReceive <= 0n) return;
+      
+        // sequence to ignore old async responses
+        const seq = ++changeSeqRef.current;
+      
+        const run = async () => {
+          const source = lastEditedRef.current;
+      
+          if (source === "exchange") {
+            const convertAmountReceive = ConvertAmount(
+              contractProtocolStatus,
+              currencyYouExchange,
+              currencyYouReceive,
+              amountYouExchange,
+              caIndex
+            );
+      
+            await onChangeAmounts(amountYouExchange, convertAmountReceive, "exchange");
+          } else {
+            const convertAmountExchange = ConvertAmount(
+              contractProtocolStatus,
+              currencyYouReceive,
+              currencyYouExchange,
+              amountYouReceive,
+              caIndex
+            );
+      
+            await onChangeAmounts(convertAmountExchange, amountYouReceive, "receive");
+          }
+      
+          // if there was another change, do not "overwrite" with old results
+          if (seq !== changeSeqRef.current) return;
+        };
+      
+        void run();
+      }, [
+        slippageTolerance,
+        // depends on these because if they change and the user adjusts slippage, you want to recalculate properly
+        caIndex,
+        currencyYouExchange,
+        currencyYouReceive,
+        // if the user changes the amount and then slippage, it is already updated
+        amountYouExchange,
+        amountYouReceive,
+        contractProtocolStatus.data,
+        userBalance.data,
+        publicClient,
+      ]);
+      
+
     const onChangeAmounts = async (
         amountExchange: bigint,
         amountReceive: bigint,
@@ -449,7 +520,11 @@ export default function Exchange(): JSX.Element {
                     caIndex
                 );
                 amountExchangeFee = amountExchange;
-                amountReceiveFee = amountReceive - infoFee.fee;
+                amountReceiveFee = amountReceive - infoFee.fee;                
+                amountReceiveFee = calculateLimit(
+                    amountReceiveFee,
+                    -(slippageTolerance / 100)
+                ); 
                 amountFormattedReceive = bigIntToInputValue(
                     amountReceiveFee,
                     currencyYouReceive,
@@ -470,6 +545,10 @@ export default function Exchange(): JSX.Element {
                     caIndex
                 );
                 amountExchangeFee = amountExchange + infoFee.fee;
+                amountExchangeFee = calculateLimit(
+                    amountExchangeFee,
+                    slippageTolerance / 100
+                ); 
                 amountReceiveFee = amountReceive;
                 amountFormattedExchange = bigIntToInputValue(
                     amountExchangeFee,
@@ -582,7 +661,7 @@ export default function Exchange(): JSX.Element {
                 commission: info.fee,
                 commissionUSD: info.feeUSD,
                 commissionPercent: info.percent,
-                balance: userBalance.data.CA[caIndex].balance
+                balance: userBalance.data.CA[caIdx].balance
             });
         }
         
@@ -635,52 +714,51 @@ export default function Exchange(): JSX.Element {
     };
 
     const onChangeAmountYouExchange = (newAmount: string | number): void => {
+        lastEditedRef.current = "exchange";
+
         const newAmountBigInt = toBigIntPrecision(newAmount);
         if (newAmountBigInt < 0n) {
             setAmountYouExchange(0n);
             setAmountYouReceive(0n);
             setExchangingUSD(0n);
             setValueExchange("");
-        } else {
-            setValueExchange(newAmount.toString());
-            const convertAmountReceive = ConvertAmount(
-                contractProtocolStatus,
-                currencyYouExchange,
-                currencyYouReceive,
-                newAmountBigInt,
-                caIndex
-            );
-            console.warn("convertAmountReceive", convertAmountReceive);
-            void onChangeAmounts(
-                newAmountBigInt,
-                convertAmountReceive,
-                "exchange"
-            );
+            return;
         }
+
+        setValueExchange(newAmount.toString());
+        const convertAmountReceive = ConvertAmount(
+            contractProtocolStatus,
+            currencyYouExchange,
+            currencyYouReceive,
+            newAmountBigInt,
+            caIndex
+        );
+
+        void onChangeAmounts(newAmountBigInt, convertAmountReceive, "exchange");
     };
 
     const onChangeAmountYouReceive = (newAmount: string | number): void => {
+        lastEditedRef.current = "receive";
+
         const newAmountBigInt = toBigIntPrecision(newAmount);
         if (newAmountBigInt < 0n) {
-            setAmountYouExchange(0n);
-            setAmountYouReceive(0n);
-            setExchangingUSD(0n);
-            setValueReceive("");
-        } else {
-            setValueReceive(newAmount.toString());
-            const convertAmountExchange = ConvertAmount(
-                contractProtocolStatus,
-                currencyYouReceive,
-                currencyYouExchange,
-                newAmountBigInt,
-                caIndex
-            );
-            void onChangeAmounts(
-                convertAmountExchange,
-                newAmountBigInt,
-                "receive"
-            );
+          setAmountYouExchange(0n);
+          setAmountYouReceive(0n);
+          setExchangingUSD(0n);
+          setValueReceive("");
+          return;
         }
+      
+        setValueReceive(newAmount.toString());
+        const convertAmountExchange = ConvertAmount(
+          contractProtocolStatus,
+          currencyYouReceive,
+          currencyYouExchange,
+          newAmountBigInt,
+          caIndex
+        );
+      
+        void onChangeAmounts(convertAmountExchange, newAmountBigInt, "receive");
     };
 
     const setAddTotalAvailable = (): void => {
@@ -724,10 +802,17 @@ export default function Exchange(): JSX.Element {
         }
     };
 
-    const onChangeSlippageTolerance = (value: number): void => {
+    const onChangeSlippageTolerance = async (value: number): Promise<void> => {
         console.warn("slippage tolerance", value);
         setSlippageTolerance(value);
     };
+
+    const onSlippageInteractionChange = useCallback(
+        (next: { hasPendingCustom: boolean; isValid: boolean }) => {
+            return next;
+        },
+        []
+    );
 
     return (
         <div>
@@ -923,17 +1008,15 @@ export default function Exchange(): JSX.Element {
                                 {t("fees.disclaimer2")}
                             </div>
                             <div className="tx-slippage-container">
-                                {/* <div className="divider-horizontal"></div> */}
-                                <div className="tx-slippage-label">
-                                    Slippage tolerance: {space}
-                                    <div className="tx-slippage-value">
-                                        {slippageTolerance} %
-                                    </div>
-                                </div>
-                                <div className="tx-slippage-text">
-                                    Slippage tolerance can be adjusted during
-                                    the next confirmation step
-                                </div>
+                                <SlippageTolerance
+                                    pairId={`${currencyYouExchange}-${currencyYouReceive}`}
+                                    defaultState={{
+                                        mode: "auto",
+                                        value: slippageTolerance,
+                                    }}
+                                    onChange={(next) => onChangeSlippageTolerance(next.value)}
+                                    onInteractionChange={onSlippageInteractionChange}
+                                />
                             </div>
                         </div>
                     </div>
@@ -976,16 +1059,15 @@ export default function Exchange(): JSX.Element {
                         currencyYouReceive={currencyYouReceive}
                         exchangingUSD={exchangingUSD}
                         commissionsByKey={commissionsByKey}
-                        inputAmountYouExchange={calculateFinalAmountExchange()}
+                        amountYouExchange={amountYouExchange}
                         amountYouReceive={amountYouReceive}
                         inputValidationError={inputValidationError}
                         executionFee={executionFee}
                         executionFeeUSD={executionFeeUSD}
                         radioSelectFee={radioSelectFee}
-                        caIndex={caIndex}
-                        slippageTolerance={slippageTolerance}
-                        onChangeSlippageTolerance={onChangeSlippageTolerance}
+                        caIndex={caIndex}                        
                         operationType={operationType}
+                        slippageTolerance={slippageTolerance}
                         //amountYouExchangeFee={amountYouExchangeFee}
                         //amountYouReceiveFee={amountYouReceiveFee}
                     />

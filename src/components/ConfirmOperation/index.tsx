@@ -5,10 +5,9 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import type { TransactionReceipt } from "viem";
 
 import { decodeEvents } from "../../backend/transaction";
-import { SlippageTolerance } from "../../components/SlippageTolerance";
 import { useWalletContext } from "../../context/Wallet";
 import { TokenBalance, TokenSettings } from "../../helpers/currencies";
-import { calculateLimit, UserTokenAllowance } from "../../helpers/exchange";
+import { UserTokenAllowance } from "../../helpers/exchange";
 import { useProjectTranslation } from "../../helpers/translations";
 import CopyAddress from "../CopyAddress";
 import ModalAllowanceOperation from "../Modals/Allowance";
@@ -16,6 +15,7 @@ import { PrecisionNumbers } from "../PrecisionNumbers";
 import TXStatus from "./TXStatus";
 import type { CommissionsState, AllowanceStep } from "../../types/status";
 import { ALLOWANCE_STEPS } from "../../types/status";
+import { calculateLimit } from "../../helpers/exchange";
 
 
 const { Panel } = Collapse;
@@ -34,16 +34,15 @@ interface ConfirmOperationProps {
     currencyYouReceive: string;
     exchangingUSD: bigint;
     commissionsByKey: CommissionsState;
-    inputAmountYouExchange: bigint;
+    amountYouExchange: bigint;
     amountYouReceive: bigint;
     onCloseModal: () => void;
     executionFee: bigint;
     executionFeeUSD: bigint;
     radioSelectFee: number;
     caIndex: number;
-    slippageTolerance: number;
-    onChangeSlippageTolerance: (value: number) => void;
     operationType: string;
+    slippageTolerance: number;
 }
 
 type StatusType =
@@ -54,23 +53,6 @@ type StatusType =
     | "CONFIRMING"
     | "SUCCESS"
     | "ERROR";
-
-interface ToleranceLimits {
-    exchange: bigint;
-    receive: bigint;
-}
-
-interface MarkStyle {
-    style: {
-        color: string;
-        fontSize: number;
-    };
-}
-
-interface PriceVariationToleranceMarks {
-    [key: number]: MarkStyle & { label: string };
-    [key: string]: MarkStyle & { label: string };
-}
 
 interface StatusLabels {
     SUBMIT: string;
@@ -93,45 +75,27 @@ export default function ConfirmOperation(
         currencyYouReceive,
         exchangingUSD,
         commissionsByKey,
-        inputAmountYouExchange,
+        amountYouExchange,
         amountYouReceive,
         onCloseModal,
         executionFee,
         executionFeeUSD,
         radioSelectFee,
         caIndex,
-        slippageTolerance,
-        onChangeSlippageTolerance,
-        operationType
+        operationType,
+        slippageTolerance
     } = props;
 
     const { t, i18n, ns } = useProjectTranslation();
 
-    const { contractProtocolStatus, userBalance, interfaceExchangeMethod } =
+    const { userBalance, interfaceExchangeMethod } =
         useWalletContext();
     
     const [status, setStatus] = useState<StatusType>("SUBMIT");
-    const [amountYouExchange, setAmountYouExchange] = useState<bigint>(
-        inputAmountYouExchange
-    );
-    const [tolerance, setTolerance] = useState<number>(slippageTolerance);
+    
     const [txID, setTxID] = useState<string>("");
     const [opID, setOpID] = useState<number | null>(null);
-    const [toleranceError, setToleranceError] = useState<string>("");
-    const [amountChanged, setAmountChanged] = useState<boolean>(false);
-
-    const [slippageUiState, setSlippageUiState] = useState<{
-        hasPendingCustom: boolean;
-        isValid: boolean;
-    }>({
-        hasPendingCustom: false,
-        isValid: true,
-    });
     
-    useEffect(() => {
-        setAmountYouExchange(inputAmountYouExchange);
-    }, [inputAmountYouExchange]);
-
     useEffect(() => {
         let timerId: NodeJS.Timeout;
         if (status === "QUEUING") {
@@ -163,51 +127,7 @@ export default function ConfirmOperation(
 
         return () => clearTimeout(timerId);
     }, [status]);
-
-    const toleranceLimits = useCallback(
-        (newTolerance: number): ToleranceLimits => {
-            let limitExchange: bigint = 0n;
-            let limitReceive: bigint = 0n;
-            if (operationType === "MINT") {
-                limitExchange = calculateLimit(
-                    amountYouExchange,
-                    newTolerance / 100
-                );
-                limitReceive = amountYouReceive;
-            } else if (operationType === "REDEEM") {
-                limitExchange = amountYouExchange;
-                limitReceive = calculateLimit(
-                    amountYouReceive,
-                    -(newTolerance / 100)
-                );
-            } else if (operationType === "SWAP_TPFORTP") {
-                limitExchange = amountYouExchange;
-                limitReceive = amountYouReceive;
-            } else if (operationType === "SWAP_TCFORTP" || operationType === "SWAP_TPFORTC") {
-                limitExchange = amountYouExchange;
-                limitReceive = calculateLimit(
-                    amountYouReceive,
-                    -(newTolerance / 100)
-                );
-            }
-
-            const limits: ToleranceLimits = {
-                exchange: limitExchange,
-                receive: limitReceive,
-            };
-
-            return limits;
-        },
-        [operationType, amountYouExchange, amountYouReceive]
-    );
-
-    const limits: ToleranceLimits = toleranceLimits(tolerance);
-
-    const [amountYouExchangeLimit, setAmountYouExchangeLimit] =
-        useState<bigint>(limits.exchange);
-    const [amountYouReceiveLimit, setAmountYouReceiveLimit] = useState<bigint>(
-        limits.receive
-    );
+    
     const [showModalAllowance, setShowModalAllowance] =
         useState<boolean>(false);
     const [showModalAllowanceFeeToken, setShowModalAllowanceFeeToken] =
@@ -216,20 +136,6 @@ export default function ConfirmOperation(
         useState<boolean>(false);
     const [disAllowanceFeeToken, setDisAllowanceFeeToken] =
         useState<boolean>(false);
-
-    useEffect(() => {
-        if (amountYouExchange) {
-            const limits: ToleranceLimits = toleranceLimits(tolerance);
-            setAmountYouExchangeLimit(limits.exchange);
-        }
-    }, [amountYouExchange, tolerance, toleranceLimits]);
-
-    useEffect(() => {
-        if (amountYouReceive) {
-            const limits: ToleranceLimits = toleranceLimits(tolerance);
-            setAmountYouReceiveLimit(limits.receive);
-        }
-    }, [amountYouReceive, tolerance, toleranceLimits]);
 
     // Use refs to store latest values to avoid recreating the callback
     const opIDRef = useRef<number | null>(opID);
@@ -382,7 +288,7 @@ export default function ConfirmOperation(
             currencyYouExchange,
             caIndex
         );
-        return amountYouExchangeLimit > tokenAllowance;
+        return amountYouExchange > tokenAllowance;
     };
 
     const showAllowancePayCommissionCA = (): boolean => {
@@ -391,9 +297,8 @@ export default function ConfirmOperation(
             `CA_${caIndex}`,
             caIndex
         );
-        const commissionLimit = calculateLimit(commissionsByKey[`CA_${caIndex}`].commission, tolerance / 100);
 
-        return commissionLimit > tokenAllowance;        
+        return commissionsByKey[`CA_${caIndex}`].commission > tokenAllowance;        
     };
 
     const showAllowancePayCommissionFeeToken = (): boolean => {
@@ -462,14 +367,14 @@ export default function ConfirmOperation(
         let qAssetMaxFees: bigint = 0n;
         if (operationType === "MINT") {
             tokenAmount = amountYouReceive;
-            limitAmount = amountYouExchangeLimit;
+            limitAmount = amountYouExchange;
         } else if (operationType === "REDEEM") {
             tokenAmount = amountYouExchange;
-            limitAmount = amountYouReceiveLimit;
+            limitAmount = amountYouReceive;
         } else if (operationType === "SWAP_TPFORTP" || operationType === "SWAP_TPFORTC" || operationType === "SWAP_TCFORTP") {
             tokenAmount = amountYouExchange;
-            limitAmount = amountYouExchangeLimit;
-            qAssetMaxFees = calculateLimit(commissionsByKey[`CA_${caIndex}`].commission, tolerance / 100)
+            limitAmount = amountYouExchange;
+            qAssetMaxFees = calculateLimit(commissionsByKey[`CA_${caIndex}`].commission, slippageTolerance / 100)
         } else {
             throw new Error("Invalid type operation");
         }
@@ -579,94 +484,11 @@ export default function ConfirmOperation(
         ERROR: t("exchange.confirm.error"),
         DEFAULT: t("exchange.confirm.default"),
     };
-    /*let sentIcon = "";
-    let statusLabel = "";
-    switch (status) {
-        case "SUBMIT":
-            sentIcon = "icon-tx-waiting";
-            statusLabel = t("exchange.confirm.submit");
-            break;
-        case "SIGN":
-            sentIcon = "icon-tx-signWallet";
-            statusLabel = t("exchange.confirm.sign");
-            break;
-        case "QUEUING":
-            sentIcon = "icon-tx-waiting";
-            statusLabel = t("exchange.confirm.queuing");
-            break;
-        case "QUEUED":
-            sentIcon = "icon-tx-waiting";
-            statusLabel = t("exchange.confirm.queued");
-            break;
-        case "CONFIRMING":
-            sentIcon = "icon-operation-tx-confirming";
-            statusLabel = t("exchange.confirm.confirming");
-            break;
-        case "SUCCESS":
-            sentIcon = "icon-tx-success";
-            statusLabel = t("exchange.confirm.confirmed");
-            break;
-        case "ERROR":
-            sentIcon = "icon-tx-error";
-            statusLabel = t("exchange.confirm.error");
-            break;
-        default:
-            sentIcon = "icon-tx-waiting";
-            statusLabel = t("exchange.confirm.default");
-    }*/
-
-    const markStyle: MarkStyle = {
-        style: {
-            color: "#707070",
-            fontSize: 10,
-        },
-    };
-
-    const priceVariationToleranceMarks: PriceVariationToleranceMarks = {
-        0: { ...markStyle, label: "0.0%" },
-        1: { ...markStyle, label: "1%" },
-        2: { ...markStyle, label: "2%" },
-        5: { ...markStyle, label: "5%" },
-        10: { ...markStyle, label: "10%" },
-    };
-
-    const changeTolerance = (newTolerance: number): void => {
-        setAmountChanged(true);
-        setTolerance(newTolerance);
-        const limits: ToleranceLimits = toleranceLimits(newTolerance);
-        const totalBalance: bigint = TokenBalance(
-            userBalance,
-            currencyYouExchange
-        );
-        if (limits.exchange > totalBalance) {
-            console.warn("Insufficient balance");
-            setToleranceError("Tolerance exceeds user balance");
-            setAmountYouExchangeLimit(limits.exchange);
-            setAmountYouReceiveLimit(limits.receive);
-            return;
-        }
-        setToleranceError("");
-        setAmountYouExchangeLimit(limits.exchange);
-        setAmountYouReceiveLimit(limits.receive);
-        onChangeSlippageTolerance(newTolerance);
-    };
 
     const onClose = (): void => {
         setStatus("SUBMIT");
         onCloseModal();
     };
-
-    const onSlippageInteractionChange = useCallback(
-        (next: { hasPendingCustom: boolean; isValid: boolean }) => {
-            setSlippageUiState((prev) =>
-                prev.hasPendingCustom === next.hasPendingCustom &&
-                prev.isValid === next.isValid
-                    ? prev
-                    : next
-            );
-        },
-        []
-    );
 
     // Commission Select Radio
     let commissionPAY: bigint = commissionsByKey[`CA_${caIndex}`].commission;
@@ -711,9 +533,9 @@ export default function ConfirmOperation(
                     <div className="tx-amount-data">
                         <div className="tx-amount">
                             {PrecisionNumbers({
-                                amount: amountYouExchangeLimit,
+                                amount: amountYouExchange,
                                 token: TokenSettings(currencyYouExchange),
-                                decimals: amountYouExchangeLimit < 1n ? 12 : 8,
+                                decimals: amountYouExchange < 1n ? 12 : 8,
                                 i18n: i18n,
                             })}
                         </div>
@@ -722,14 +544,7 @@ export default function ConfirmOperation(
                                 ns: ns,
                             })}
                         </div>
-                    </div>
-                    {!amountChanged && (operationType === "MINT") && (
-                        <div className="tx-amount-info">
-                            {t(`exchange.priceVariation.warning`, {
-                                ns: ns,
-                            })}
-                        </div>
-                    )}
+                    </div>                    
                 </div>
                 <div className="tx-direction">
                     <div className="swapArrow">
@@ -758,7 +573,7 @@ export default function ConfirmOperation(
                                 {t("exchange.confirm.minimumWarning")}
                                 <div className="">
                                     {PrecisionNumbers({
-                                        amount: amountYouReceiveLimit,
+                                        amount: amountYouReceive,
                                         token: TokenSettings(
                                             currencyYouReceive
                                         ),
@@ -858,16 +673,7 @@ export default function ConfirmOperation(
             {/* <div className="divider-horizontal"></div> */}
             {status === "SUBMIT" && (
                 <div className="tx-submit">
-                    <div className="cta-container">
-                        <SlippageTolerance
-                            pairId={`${currencyYouExchange}-${currencyYouReceive}`}
-                            defaultState={{
-                                mode: "auto",
-                                value: tolerance,
-                            }}
-                            onChange={(next) => changeTolerance(next.value)}
-                            onInteractionChange={onSlippageInteractionChange}
-                        />
+                    <div className="cta-container">                        
                         <div className="cta-info-group">
                             <div className="cta-info-summary">
                                 <div className={"token_exchange"}>
@@ -892,13 +698,6 @@ export default function ConfirmOperation(
                                 </div>
                             </div>
                         </div>
-                        {toleranceError !== "" && (
-                            <div className="error-container">
-                                <span className="confirm-error">
-                                    {toleranceError}
-                                </span>
-                            </div>
-                        )}
                         <div className="cta-options-group">
                             <button
                                 type="button"
@@ -912,10 +711,6 @@ export default function ConfirmOperation(
                                 className="button"
                                 data-testid="confirm-operation-submit"
                                 onClick={onSendTransaction}
-                                disabled={
-                                    toleranceError !== "" ||
-                                    !slippageUiState.isValid
-                                }
                             >
                                 {t("exchange.buttonConfirm")}
                             </button>
@@ -986,7 +781,7 @@ export default function ConfirmOperation(
                 onHideModalAllowance={onHideModalAllowancePayCurrencyExchange}
                 currencyYouExchange={currencyYouExchange}
                 currencyYouReceive={currencyYouReceive}
-                amountYouExchangeLimit={amountYouExchangeLimit}
+                amountYouExchangeLimit={amountYouExchange}
                 //amountYouReceiveLimit={amountYouReceiveLimit}
                 onCallback={onSendTransaction}
                 disAllowance={false}
@@ -1018,7 +813,7 @@ export default function ConfirmOperation(
                 onHideModalAllowance={onHideModalAllowancePayCommission}
                 currencyYouExchange={`CA_${caIndex}`}
                 currencyYouReceive={`CA_${caIndex}`}
-                amountYouExchangeLimit={calculateLimit(commissionsByKey[`CA_${caIndex}`].commission, tolerance / 100)}
+                amountYouExchangeLimit={calculateLimit(commissionsByKey[`CA_${caIndex}`].commission, slippageTolerance / 100)}
                 //amountYouReceiveLimit={commissionFeeToken}
                 onCallback={onSendTransaction}
                 disAllowance={false}
