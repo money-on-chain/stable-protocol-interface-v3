@@ -80,12 +80,12 @@ export default function Exchange(): JSX.Element {
         useState<string>("");
     const [inputValidationError, setInputValidationError] =
         useState<boolean>(false);
+    const [globalValidationErrorText, setGlobalValidationErrorText] =
+        useState<string>("");      
 
     const operationType: string = typeOperation(currencyYouExchange, currencyYouReceive);
 
-    const [radioSelectFee, setRadioSelectFee] = useState<number>(1);
-    const [radioSelectFeeTokenDisabled, setRadioSelectFeeTokenDisabled] =
-        useState<boolean>(true);
+    const [radioSelectFee, setRadioSelectFee] = useState<number>(1);    
 
     const [valueExchange, setValueExchange] = useState<string>("");
     const [valueReceive, setValueReceive] = useState<string>("");
@@ -159,6 +159,7 @@ export default function Exchange(): JSX.Element {
         setValueReceive("");
         setInputValidationError(false);
         setInputValidationErrorText("");
+        setGlobalValidationErrorText("");
     };
 
     const onValidate = useCallback((): void => {
@@ -169,18 +170,18 @@ export default function Exchange(): JSX.Element {
         const arrCurrencyYouReceive = currencyYouReceive.split("_");
 
         if (statusCode[caIndex] >= 2) {
-            setInputValidationErrorText(t("exchange.errors.notOperational"));
+            setGlobalValidationErrorText(t("exchange.errors.notOperational"));
             setInputValidationError(true);
             return;
         }
 
         // 0. Not Wallet connected
         if (!userBalance.data) {
-            setInputValidationErrorText(t("exchange.errors.connectYourWallet"));
+            setGlobalValidationErrorText(t("exchange.errors.connectYourWallet"));
             setInputValidationError(true);
             return;
         }
-
+        
         // 0. Amount > 0
         if (amountYouExchange <= 0n || amountYouReceive <= 0n) {
             setInputValidationError(true);
@@ -218,34 +219,62 @@ export default function Exchange(): JSX.Element {
             return;
         }
 
+        // Coverage
+        if (!contractProtocolStatus.data) return;
+        const combinedCglb = contractProtocolStatus.data.getCombinedCglb;
+        const combinedCtargemaCA = contractProtocolStatus.data.getCombinedCtargemaCA;
+        const getCtargemaCA = contractProtocolStatus.data[caIndex].getCtargemaCA;
+        const globalCoverage = contractProtocolStatus.data[caIndex].getCglb;
+
         let tIndex: number | undefined;
-        // 2. MINT TP. User receive available token in contract
-        if (arrCurrencyYouExchange[0] === "CA" && arrCurrencyYouReceive[0] === "TP") {
-            if (!contractProtocolStatus.data) return;
+        // 2. MINT TP & SWAP TC FOR TP
+        if ((arrCurrencyYouExchange[0] === "CA" && arrCurrencyYouReceive[0] === "TP") ||
+            (arrCurrencyYouExchange[0] === "TC" && arrCurrencyYouReceive[0] === "TP")) {            
             // There are sufficient PEGGED in the contracts to mint?
             tIndex = TokenSettings(currencyYouReceive).key;
             if (tIndex !== undefined) {
+
+                // Tp available to mint
                 const tpAvailableToMint =
                     contractProtocolStatus.data[caIndex]
                         .getRealTPAvailableToMint[tIndex];
                 if (amountYouReceive > tpAvailableToMint) {
-                    setInputValidationErrorText(
+                    setGlobalValidationErrorText(
                         t("exchange.errors.noLiquidity")
                     );
                     setInputValidationError(true);
                     return;
                 }
+               
+                // Coverage not met
+                if ((combinedCglb < combinedCtargemaCA) || (globalCoverage < getCtargemaCA)) {
+                    setGlobalValidationErrorText(t("exchange.errors.coverageNotMet"));
+                    setInputValidationError(true);
+                    return;
+                }
+                
             }
         }
 
         // 3. REDEEM TC
-        if (arrCurrencyYouExchange[0] === "TC") {
+        if (arrCurrencyYouExchange[0] === "TC" && arrCurrencyYouReceive[0] === "CA") {            
+            // Coverage not met
+            if ((combinedCglb < combinedCtargemaCA) || (globalCoverage < getCtargemaCA)) {
+                setGlobalValidationErrorText(t("exchange.errors.coverageNotMet"));
+                setInputValidationError(true);
+                return;
+            }
+        }
+
+        // 3. REDEEM TC & SWAP TC FOR TP
+        if ((arrCurrencyYouExchange[0] === "TC" && arrCurrencyYouReceive[0] === "CA") ||
+            (arrCurrencyYouExchange[0] === "TC" && arrCurrencyYouReceive[0] === "TP")) {
             if (!contractProtocolStatus.data) return;
             // There are sufficient TC in the contracts to redeem?
             const tcAvailableToRedeem =
                 contractProtocolStatus.data[caIndex].getRealTCAvailableToRedeem;
             if (amountYouExchange > tcAvailableToRedeem) {
-                setInputValidationErrorText(t("exchange.errors.noLiquidity"));
+                setGlobalValidationErrorText(t("exchange.errors.noLiquidity"));
                 setInputValidationError(true);
                 return;
             }
@@ -260,7 +289,7 @@ export default function Exchange(): JSX.Element {
                 const caBalance =
                     contractProtocolStatus.data[tIndex].getACBalance;
                 if (amountYouReceive > caBalance) {
-                    setInputValidationErrorText(
+                    setGlobalValidationErrorText(
                         t("exchange.errors.noLiquidity")
                     );
                     setInputValidationError(true);
@@ -269,18 +298,9 @@ export default function Exchange(): JSX.Element {
             }
         }
 
-        // 5. HAVE TO PAY COMMISSIONS WITH FEE TOKEN?
-        const feeTokenBalance = userBalance.data[caIndex].FeeToken.balance;
-
-        if (feeTokenBalance && feeTokenBalance > commissionsByKey["FeeToken"].commission) {
-            // Set as default to pay fee with token
-            setRadioSelectFeeTokenDisabled(false);
-        } else {
-            setRadioSelectFeeTokenDisabled(true);
-        }
-
-        // 6. MINT TP. Flux capacitor maxQACToMintTP
-        if (arrCurrencyYouExchange[0] === "CA" && arrCurrencyYouReceive[0] === "TP") {
+        // 6. MINT TP & SWAP TC FOR TP. Flux capacitor maxQACToMintTP
+        if ((arrCurrencyYouExchange[0] === "CA" && arrCurrencyYouReceive[0] === "TP") || 
+            (arrCurrencyYouExchange[0] === "TC" && arrCurrencyYouReceive[0] === "TP")) {
             tIndex = TokenSettings(currencyYouReceive).key;
             if (tIndex !== undefined) {
                 if (!contractProtocolStatus.data) return;
@@ -294,7 +314,7 @@ export default function Exchange(): JSX.Element {
                     typeof maxQACToMintTP === "bigint" &&
                     amountYouExchange > maxQACToMintTP
                 ) {
-                    setInputValidationErrorText(
+                    setGlobalValidationErrorText(
                         t("exchange.errors.maxLimitedByProtocol")
                     );
                     setInputValidationError(true);
@@ -303,9 +323,9 @@ export default function Exchange(): JSX.Element {
             }
         }
 
-        // Redeem TP
-        //arrCurrencyYouExchange = currencyYouExchange.split("_");
-        if (arrCurrencyYouExchange[0] === "TP" && arrCurrencyYouReceive[0] === "CA") {
+        // Redeem TP & SWAP TP FOR TC        
+        if ((arrCurrencyYouExchange[0] === "TP" && arrCurrencyYouReceive[0] === "CA") || 
+            (arrCurrencyYouExchange[0] === "TP" && arrCurrencyYouReceive[0] === "TC")) {
             // 7. Flux Capacitor
             tIndex = TokenSettings(currencyYouReceive).key;
             if (tIndex !== undefined) {
@@ -327,7 +347,7 @@ export default function Exchange(): JSX.Element {
                     typeof maxQACToRedeemTP === "bigint" &&
                     amountYouReceive > maxQACToRedeemTP
                 ) {
-                    setInputValidationErrorText(
+                    setGlobalValidationErrorText(
                         t("exchange.errors.maxLimitedByProtocol")
                     );
                     setInputValidationError(true);
@@ -358,8 +378,24 @@ export default function Exchange(): JSX.Element {
             }
         }
 
+        // SWAP TP FOR TP
+        if (arrCurrencyYouExchange[0] === "TP" && arrCurrencyYouReceive[0] === "TP") {
+
+        }
+
+        // Not enough balance to pay fees
+        const notEnoughBalanceToPayFees =
+            Object.values(commissionsByKey).length > 0 &&
+            Object.values(commissionsByKey).every(item => item.commission > item.balance);        
+        if (notEnoughBalanceToPayFees) {
+            setGlobalValidationErrorText("Not enough balance to pay fees");
+            setInputValidationError(true);
+            return;
+        }
+        
         // No Validations Errors
         setInputValidationErrorText("");
+        setGlobalValidationErrorText("");
         setInputValidationError(false);
     }, [
         amountYouExchange,
@@ -546,6 +582,7 @@ export default function Exchange(): JSX.Element {
                 commission: info.fee,
                 commissionUSD: info.feeUSD,
                 commissionPercent: info.percent,
+                balance: userBalance.data.CA[caIndex].balance
             });
         }
         
@@ -562,6 +599,7 @@ export default function Exchange(): JSX.Element {
             commission: baseForFeeToken.totalFeeToken,
             commissionUSD: baseForFeeToken.totalFeeTokenUSD,
             commissionPercent: baseForFeeToken.feeTokenPercent,
+            balance: userBalance.data[caIndex].FeeToken.balance
         });
 
         const priceCA = normalizeToBigInt(
@@ -876,7 +914,6 @@ export default function Exchange(): JSX.Element {
                                     radioSelectFee={radioSelectFee}
                                     currencyYouExchange={currencyYouExchange}
                                     caIndex={caIndex}
-                                    radioSelectFeeTokenDisabled={radioSelectFeeTokenDisabled}
                                     commissionsByKey={commissionsByKey}
                                     operationType={operationType}
                                 />
@@ -926,6 +963,11 @@ export default function Exchange(): JSX.Element {
                         <span className={""}>
                             {t("exchange.exchangingCurrency")}
                         </span>
+                    </div>
+                </div>
+                <div className="cta-info-global-error">
+                    <div className="amountInput__feedback amountInput__feedback--error">
+                        {globalValidationErrorText}
                     </div>
                 </div>
                 <div className="cta-options-group">

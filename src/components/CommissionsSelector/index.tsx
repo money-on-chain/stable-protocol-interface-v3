@@ -13,7 +13,6 @@ interface CommissionsSelectorProps {
     currencyYouExchange: string;
     commissionsByKey: CommissionsState;
     caIndex: number;
-    radioSelectFeeTokenDisabled: boolean;
     operationType: string;
 }
 
@@ -24,8 +23,7 @@ export default function CommissionsSelector(props: CommissionsSelectorProps): Re
         radioSelectFee,         
         currencyYouExchange, 
         commissionsByKey, 
-        caIndex, 
-        radioSelectFeeTokenDisabled,
+        caIndex,
         operationType
     } = props;
 
@@ -51,7 +49,7 @@ export default function CommissionsSelector(props: CommissionsSelectorProps): Re
                     <Radio
                             value={0}
                             disabled={
-                                radioSelectFeeTokenDisabled
+                                commissionsByKey["FeeToken"]?.commission > commissionsByKey["FeeToken"]?.balance
                             }
                         >
                             <span className={""}>
@@ -104,7 +102,13 @@ export default function CommissionsSelector(props: CommissionsSelectorProps): Re
                             <span className={""}>) </span>
                         </Radio>
                         {collateralAvailable.map((ca, index) => (
-                            <Radio value={index + 1} key={index + 1}>
+                            <Radio 
+                            value={index + 1} 
+                            key={index + 1}
+                            disabled={
+                                commissionsByKey[`CA_${ca}`]?.commission > commissionsByKey[`CA_${ca}`]?.balance
+                            }
+                            >
                             <span
                                 className={"token_exchange"}
                             >

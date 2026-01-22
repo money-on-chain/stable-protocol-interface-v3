@@ -265,6 +265,7 @@ export type CommissionItem = {
     commission: bigint;
     commissionUSD: bigint;
     commissionPercent: bigint;
+    balance: bigint;
 };
 
 export type CommissionsState = Record<string, CommissionItem>;
