@@ -8,7 +8,7 @@ import LastOperations from "../../components/Tables/LastOperations";
 import { useWalletContext } from "../../context/Wallet";
 import { useProjectTranslation } from "../../helpers/translations";
 
-export default function SectionExchange(): React.ReactElement {
+export default function SectionCombinedOperations(): React.ReactElement {
     const { t } = useProjectTranslation();
 
     const { contractProtocolStatus, userBalance } = useWalletContext();
@@ -31,7 +31,7 @@ export default function SectionExchange(): React.ReactElement {
                     </div>
 
                     <div className={"content-body layout-card-content"}>
-                        {ready ? <Exchange isCombinedOperation={false} /> : <Skeleton active />}
+                        {ready ? <Exchange isCombinedOperation={true} /> : <Skeleton active />}
                     </div>
                 </div>
 

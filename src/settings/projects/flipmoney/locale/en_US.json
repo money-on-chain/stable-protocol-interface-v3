@@ -148,22 +148,6 @@
                 "label": "COP",
                 "abbr": "CopFlip"
             },            
-            "TPCA_0_0": {
-                "label": "ARS BPRO",
-                "abbr": "ArsBPRO"
-            },
-            "TPCA_0_1": {
-                "label": "ARS DOC",
-                "abbr": "ArsDOC"
-            },
-            "TPCA_1_0": {
-                "label": "COP BPRO",
-                "abbr": "CopBPRO"
-            },
-            "TPCA_1_1": {
-                "label": "COP DOC",
-                "abbr": "CopDOC"
-            },
             "COINBASE": {
                 "label": "Smart Bitcoin",
                 "abbr": "RBTC"

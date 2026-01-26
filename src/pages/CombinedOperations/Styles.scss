@@ -1,0 +1,47 @@
+/*
+section_exchange.scss contains all the css code for Exchange section cards not contained in global.scss
+*/
+
+/* #region EXCHANGE & SEND SECTION */
+.content-body {
+    margin-right: auto;
+    margin-left: auto;
+    padding-right: 32px;
+    padding-left: 32px;
+    width: 733px;
+}
+.sectionExchange__Content {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 32px;
+    width: 736px;
+}
+.info {
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    align-items: flex-start;
+    gap: 32px;
+    border-left: 1px solid var(--dividers);
+    padding-left: 30px;
+    width: 100%;
+    font-family: var(--main-font);
+}
+/* #endregion EXCHANGE & SEND SECTION */
+
+@media (max-width: 768px) {
+    .content-body {
+    }
+
+    .sectionExchange__Content {
+        width: 100%;
+        flex-direction: column;
+        border-left: none;
+        .info {
+            border-left: none;
+            padding-left: 0;
+        }
+    }
+}

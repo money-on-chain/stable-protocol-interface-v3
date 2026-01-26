@@ -8,10 +8,6 @@ import LogoIconTC_1 from "../assets/tokens/tc_1.svg?react";
 import LogoIconTG_0 from "../assets/tokens/tg_0.svg?react";
 import LogoIconTP_0 from "../assets/tokens/tp_0.svg?react";
 import LogoIconTP_1 from "../assets/tokens/tp_1.svg?react";
-import LogoIconTPCA_0_0 from "../assets/tokens/tpca_0_0.svg?react";
-import LogoIconTPCA_0_1 from "../assets/tokens/tpca_0_1.svg?react";
-import LogoIconTPCA_1_0 from "../assets/tokens/tpca_1_0.svg?react";
-import LogoIconTPCA_1_1 from "../assets/tokens/tpca_1_1.svg?react";
 import settings from "../settings/settings.json";
 import type { TokenConfig } from "../types/hooks";
 import type {
@@ -55,10 +51,6 @@ const currencies: Currency[] = [
     { value: "TC_1", image: <LogoIconTC_1 className="token__icon" /> },
     { value: "TP_0", image: <LogoIconTP_0 className="token__icon" /> },
     { value: "TP_1", image: <LogoIconTP_1 className="token__icon" /> },
-    { value: "TPCA_0_0", image: <LogoIconTPCA_0_0 className="token__icon" /> },
-    { value: "TPCA_0_1", image: <LogoIconTPCA_0_1 className="token__icon" /> },
-    { value: "TPCA_1_0", image: <LogoIconTPCA_1_0 className="token__icon" /> },
-    { value: "TPCA_1_1", image: <LogoIconTPCA_1_1 className="token__icon" /> },
     { value: "TF", image: <LogoIconTG_0 className="token__icon" /> },
     { value: "TG", image: <LogoIconTG_0 className="token__icon" /> },
 ].map((it) => ({
@@ -96,8 +88,7 @@ function TokenSettings(tokenName: string): TokenConfig {
         case "CA":
             token = settings.tokens.CA[parseInt(aTokenName[1])];
             break;
-        case "TP":
-        case "TPCA":
+        case "TP":        
             token = settings.tokens.TP[parseInt(aTokenName[1])];
             break;
         case "TC":
@@ -125,7 +116,7 @@ function TokenBalance(
     userBaseCoinBalance: { balance: bigint } | undefined = undefined,
     userOmocBalance: UserOmocBalanceResult | undefined = undefined
 ): bigint {
-    // Ex. tokenName = CA_0, CA_1, TP_0, TP_1, TPCA_0_0, TPCA_0_1, TC_0, TC_1, COINBASE, TF_0, TF_1
+    // Ex. tokenName = CA_0, CA_1, TP_0, TP_1, TC_0, TC_1, COINBASE, TF_0, TF_1
     let balance = 0n;
 
     if (!userBalance || !userBalance.data) return 0n;
@@ -136,8 +127,7 @@ function TokenBalance(
             balance =
                 userBalance.data?.CA?.[parseInt(aTokenName[1])]?.balance || 0n;
             break;
-        case "TP":
-        case "TPCA":
+        case "TP":        
             balance =
                 userBalance.data?.TP?.[0]?.[parseInt(aTokenName[1])]?.balance ||
                 0n;
@@ -250,9 +240,7 @@ function ConvertAmount(
                 ) || 0n;
             cAmount = price === 0n ? 0n : divPrecision(amount, price);
             break;
-        case "TP,TP":
-        case "TP,TPCA":    
-        case "TPCA,TP":
+        case "TP,TP":        
             // Swap Operation
             price_from =
                 normalizeToBigInt(
@@ -377,15 +365,7 @@ const getCAIndex = (tokenExchange: string, tokenReceive: string): number => {
             break;
         case "TP,TP":
             index = -1;
-            break;
-        case "TP,TPCA":
-            // TP_i -> TPCA_i_j i=TP Index, j=CA Index
-            index = parseInt(aTokenReceive[2]);
-            break;    
-        case "TPCA,TP":
-            // TPCA_i_j -> TP_i i=TP Index, j=CA Index
-            index = parseInt(aTokenExchange[2]);
-            break;    
+            break;        
         case "CA,TP":
             index = parseInt(aTokenExchange[1]);
             break;
@@ -448,8 +428,7 @@ function CalcCommission(
             // Redeem TC
             feeParam = contractProtocolStatus.data?.[caIndex].tcRedeemFee || 0n;
             break;
-        case "TP,TP":
-        case "TP,TPCA":
+        case "TP,TP":        
             // Swap TP
             feeParam =
                 contractProtocolStatus.data?.[caIndex].swapTPforTPFee || 0n;

@@ -148,7 +148,6 @@ function isMintOperation(tokenExchange: string, tokenReceive: string): boolean {
         case "TP,CA":
         case "TC,CA":
         case "TP,TP":
-        case "TP,TPCA":
             // Redeem
             return false;
         default:
@@ -172,7 +171,6 @@ function typeOperation(tokenExchange: string, tokenReceive: string): string {
             // Redeem        
             return "REDEEM";
         case "TP,TP":
-        case "TP,TPCA":
             // Swap TP for TP
             return "SWAP_TPFORTP";
         case "TC,TP":
@@ -201,7 +199,6 @@ function TokenAllowance(
                 userBalance.data.CA[parseInt(aTokenExchange[1])].allowance;
             break;
         case "TP":
-        case "TPCA":
             allowance =
                 userBalance.data.TP[caIndex][parseInt(aTokenExchange[1])]
                     .allowance;
@@ -305,19 +302,7 @@ function ApproveTokenContract(
                 token: contracts.TP[parseInt(aTokenExchange[1])],
                 contractAllow: contracts.Moc[caIndex],
                 decimals: tokenExchangeSettings.decimals,
-            };
-        case "TP,TPCA":
-            if (!contracts.TP) {
-                throw new Error("TP contract not available");
-            }
-            if (!contracts.Moc) {
-                throw new Error("Moc contract not available");
-            }
-            return {
-                token: contracts.TP[parseInt(aTokenExchange[1])],
-                contractAllow: contracts.Moc[parseInt(aTokenReceive[2])],
-                decimals: tokenExchangeSettings.decimals,
-            };    
+            };        
         case "TF,TF":
             if (!contracts.FeeToken) {
                 throw new Error("FeeToken contract not available");
@@ -381,7 +366,6 @@ function TokenContract(
                 decimals: tokenExchangeSettings.decimals,
             };
         case "TP":
-        case "TPCA":
             if (!contracts.TP) {
                 throw new Error("TP contract not available");
             }
@@ -546,21 +530,6 @@ function exchangeMethod(
                     onTransaction,
                     onReceipt
                 );                
-        case "TP,TPCA":
-            caIndex = parseInt(aTokenReceive[2]);
-            iFromTP = parseInt(aTokenExchange[1]);
-            iToTP = parseInt(aTokenReceive[1]);
-            return swapTPforTP(
-                    interfaceContext,
-                    iFromTP,
-                    iToTP,
-                    tokenAmount,
-                    caIndex,
-                    limitAmount,
-                    qAssetMaxFees,
-                    onTransaction,
-                    onReceipt
-                );
         case "TC,TP":
             caIndex = parseInt(aTokenExchange[1]);
             tpIndex = parseInt(aTokenReceive[1]);
@@ -615,9 +584,6 @@ function executionFeeMap(
                 .tcRedeemExecCost;
         case "TP,TP":
             return contractProtocolStatus.data[caIndex]
-                .swapTPforTPExecCost;        
-        case "TP,TPCA":
-            return contractProtocolStatus.data[parseInt(aTokenReceive[2])]
                 .swapTPforTPExecCost;        
         case "TC,TP":
             return contractProtocolStatus.data[parseInt(aTokenExchange[1])]

@@ -49,7 +49,12 @@ interface CommissionInfo {
     feeTokenPercent: bigint;
 }
 
-export default function Exchange(): JSX.Element {
+interface ExchangeProps {
+    isCombinedOperation: boolean;
+}
+
+export default function Exchange(props: ExchangeProps): JSX.Element {
+    const { isCombinedOperation } = props;
     const { t, i18n, ns } = useProjectTranslation();
     const space: string = "\u00A0";
 
