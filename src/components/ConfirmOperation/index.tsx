@@ -281,7 +281,7 @@ export default function ConfirmOperation(
         const apiUrl = new URL(
             import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS
         );
-        apiUrl.pathname = "/v1/operations/oper_id";
+        apiUrl.pathname = "/v1/operations/oper_id/";
 
         axios
             .get<OperationStatusResponse>(apiUrl.toString(), {
