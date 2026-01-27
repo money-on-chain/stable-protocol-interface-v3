@@ -53,67 +53,80 @@ const tokenMap = {
 
 function loadTokenMap(): TokenMap {
     const tMap: TokenMap = {};
-    let lReceive: string[] = [];
-
-    // Exchange CA
-    for (let i = 0; i < settings.tokens.CA.length; i++) {
-        lReceive = [];
-        lReceive.push(`TC_${i}`);
-        // TP
-        for (let t = 0; t < settings.tokens.TP.length; t++) {
-            lReceive.push(`TP_${t}`);
-        }
-        tMap[`CA_${i}`] = lReceive;
-            
+  
+    const caLen = settings.tokens.CA.length;
+    const tpLen = settings.tokens.TP.length;
+  
+    // Helpers de ids
+    const CA = (i: number) => `CA_${i}`;
+    const TC = (i: number) => `TC_${i}`;
+    const TP = (i: number) => `TP_${i}`;
+      
+    const allTP: string[] = Array.from({ length: tpLen }, (_, i) => TP(i));
+    const allCA: string[] = Array.from({ length: caLen }, (_, i) => CA(i));
+    const allTC: string[] = Array.from({ length: caLen }, (_, i) => TC(i));
+  
+    // Exchange CA -> (TC_i + all TP)
+    for (let i = 0; i < caLen; i++) {
+      tMap[CA(i)] = [TC(i), ...allTP];
     }
-
-    // Exchange TC
-    for (let i = 0; i < settings.tokens.CA.length; i++) {        
-        lReceive = [];
-        // TP
-        for (let t = 0; t < settings.tokens.TP.length; t++) {
-            lReceive.push(`TP_${t}`);
-        }
-
-        // Exchange TC -> CA
-        lReceive.push(`CA_${i}`);
-
-        // Exchange TC -> TP
-        tMap[`TC_${i}`] = lReceive;
+  
+    // Exchange TC -> (all TP + CA_i)
+    for (let i = 0; i < caLen; i++) {
+      tMap[TC(i)] = [...allTP, CA(i)];
     }
-
-    // Exchange TP
-    for (let i = 0; i < settings.tokens.TP.length; i++) {
-        const lReceive: string[] = [];
-
-        // CA targets
-        for (let a = 0; a < settings.tokens.CA.length; a++) {
-            lReceive.push(`CA_${a}`);
-        }
-
-        // TC targets
-        for (let a = 0; a < settings.tokens.CA.length; a++) {
-            lReceive.push(`TC_${a}`);
-        }
-        
-        for (let tp = 0; tp < settings.tokens.TP.length; tp++) {            
-            if (tp !== i) {
-                lReceive.push(`TP_${tp}`);
-            }
-        }
-        
-
-        tMap[`TP_${i}`] = lReceive;
+  
+    // Exchange TP_i -> (all CA + all TC + all TP except self)
+    for (let i = 0; i < tpLen; i++) {
+      // avoid creating the list with filter (more GC) and keep order
+      const otherTP: string[] = [];
+      for (let j = 0; j < tpLen; j++) if (j !== i) otherTP.push(TP(j));
+  
+      tMap[TP(i)] = [...allCA, ...allTC, ...otherTP];
     }
-    
+  
     return tMap;
-}
+  }
+
+  
+  function loadTokenMapCombined(): TokenMap {
+    const tMap: TokenMap = {};
+  
+    const caLen = settings.tokens.CA.length;
+    const tpLen = settings.tokens.TP.length;
+  
+    // Helpers de ids
+    const CA = (i: number) => `CA_${i}`;
+    const TC = (i: number) => `TC_${i}`;
+    const TP = (i: number) => `TP_${i}`;
+      
+    const allTP: string[] = Array.from({ length: tpLen }, (_, i) => TP(i));    
+  
+    // Exchange CA -> all TP
+    for (let i = 0; i < caLen; i++) {
+      tMap[CA(i)] = [...allTP];
+    }
+  
+    // Exchange TC -> CA_i
+    for (let i = 0; i < caLen; i++) {
+      tMap[TC(i)] = [CA(i)];
+    }  
+    return tMap;
+  }
+ 
 
 //const VERY_HIGH_NUMBER = 100000000000;
 
+// Basic Operations
 const tokenMap: TokenMap = loadTokenMap();
 const tokenExchange = (): string[] => Object.keys(tokenMap);
 const tokenReceive = (tExchange: string): string[] => tokenMap[tExchange];
+
+//Combined Operations
+const tokenMapCombined: TokenMap = loadTokenMapCombined();
+const tokenExchangeCombined = (): string[] => Object.keys(tokenMapCombined);
+const tokenReceiveCombined = (tExchange: string): string[] => tokenMapCombined[tExchange];
+
 
 function isMintOperation(tokenExchange: string, tokenReceive: string): boolean {
     /*
@@ -630,6 +643,8 @@ export {
     tokenReceive,
     UserTokenAllowance,
     typeOperation,
+    tokenExchangeCombined,
+    tokenReceiveCombined,
 };
 
 // Export types for use in other files

@@ -48,7 +48,7 @@
         "allowedProjects": ["flipmoney", "moc", "voting"]
     },
     {
-        "nameKey": "menuOptions.exchange",
+        "nameKey": "menuOptions.combinedOperations",
         "className": "logo-exchange",
         "path": "/combined-operations",
         "allowedProjects": ["flipmoney"]

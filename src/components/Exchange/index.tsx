@@ -20,6 +20,8 @@ import {
     isMintOperation,
     tokenExchange,
     tokenReceive,
+    tokenExchangeCombined,
+    tokenReceiveCombined,
     typeOperation,
 } from "../../helpers/exchange";
 import {
@@ -61,8 +63,8 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
     const { contractProtocolStatus, userBalance, publicClient } =
         useWalletContext();
 
-    const defaultTokenExchange = tokenExchange()[0];
-    const defaultTokenReceive = tokenReceive(defaultTokenExchange)[0];
+    const defaultTokenExchange = isCombinedOperation ? tokenExchangeCombined()[0] : tokenExchange()[0];
+    const defaultTokenReceive = isCombinedOperation ? tokenReceiveCombined(defaultTokenExchange)[0] : tokenReceive(defaultTokenExchange)[0];
 
     const [currencyYouExchange, setCurrencyYouExchange] =
         useState<string>(defaultTokenExchange);
@@ -90,7 +92,12 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
     const [globalValidationErrorText, setGlobalValidationErrorText] =
         useState<string>("");      
 
-    const operationType: string = typeOperation(currencyYouExchange, currencyYouReceive);
+    let operationType: string = typeOperation(currencyYouExchange, currencyYouReceive);
+    if (isCombinedOperation && operationType === "MINT") {
+        operationType = "COMBINED_MINT";
+    } else if (isCombinedOperation && operationType === "REDEEM") {
+        operationType = "COMBINED_REDEEM";
+    }
 
     const [radioSelectFee, setRadioSelectFee] = useState<number>(1);    
 
@@ -128,7 +135,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
     ): void => {
         onClear();
         setCurrencyYouExchange(newCurrencyYouExchange);
-        const newCurrencyYouReceive = tokenReceive(newCurrencyYouExchange)[0];
+        const newCurrencyYouReceive = isCombinedOperation ? tokenReceiveCombined(newCurrencyYouExchange)[0] : tokenReceive(newCurrencyYouExchange)[0];
         setCurrencyYouReceive(newCurrencyYouReceive);
         const caI = getCAIndex(newCurrencyYouExchange, newCurrencyYouReceive);
         if (caI >= 0) {
@@ -580,7 +587,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         let choosenCAIndex: number = caIndex;
         const infoFeeArray: CommissionWithIndex[] = [];
         
-        if (operationType === "MINT") {
+        if (operationType === "MINT" || operationType === "SWAP_TCFORTP" || operationType === "COMBINED_MINT") {
             const infoFee = CalcCommission(
                 contractProtocolStatus,
                 currencyYouExchange,
@@ -592,7 +599,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             infoFeeArray.push({ caIndex, info: infoFee });
             convertAmountUSD = amountExchangeFee;
         
-        } else if (operationType === "REDEEM") {
+        } else if (operationType === "REDEEM" || operationType === "SWAP_TPFORTC" || operationType === "COMBINED_REDEEM") {
             const infoFee = CalcCommission(
                 contractProtocolStatus,
                 currencyYouExchange,
@@ -629,32 +636,6 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                 convertAmountUSD = amountInCA;
                 choosenCAIndex = i;
             }
-            
-        } else if (operationType === "SWAP_TCFORTP") {
-
-            const infoFee = CalcCommission(
-                contractProtocolStatus,
-                currencyYouExchange,
-                currencyYouReceive,
-                amountExchange,
-                caIndex
-            );
-        
-            infoFeeArray.push({ caIndex, info: infoFee });
-            convertAmountUSD = amountExchangeFee;
-
-        } else if (operationType === "SWAP_TPFORTC") {
-
-            const infoFee = CalcCommission(
-                contractProtocolStatus,
-                currencyYouExchange,
-                currencyYouReceive,
-                amountReceive,
-                caIndex
-            );
-
-            infoFeeArray.push({ caIndex, info: infoFee });
-            convertAmountUSD = amountReceiveFee;
 
         } else {
             throw new Error("Invalid type operation");
@@ -829,7 +810,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                     >
                         <CurrencyPopUp
                             value={currencyYouExchange}
-                            currencyOptions={tokenExchange()}
+                            currencyOptions={isCombinedOperation ? tokenExchangeCombined() : tokenExchange()}
                             onChange={onChangeCurrencyYouExchange}
                             action={"exchange"}
                         />
@@ -863,6 +844,23 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                         </div>
                     </div>
 
+                    {isCombinedOperation && operationType === "REDEEM" && (
+                        <div className="combined-operations-info">
+                            <div className="combined-operations-info-item">
+                                <CurrencyPopUp
+                                    value={'TP_0'}
+                                    currencyOptions={['TP_0', 'TP_1']}
+                                    onChange={() => {}}
+                                    action={"exchange"}
+                                />
+                            </div>
+                            <div>Sending</div>
+                            <div className="combined-operations-info-sending-value">0.0</div>
+                            <div className="combined-operations-info-sending-value-usd">$0.0 <span>USD</span></div>
+                            <div className="combined-operations-info-sending-value-name">Balance: 0.0 </div>
+                        </div>
+                    )}
+
                     <div className="buttonSwap" onClick={handleSwapCurrencies}>
                         <div className="icon-swap"></div>
                     </div>
@@ -873,7 +871,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                     >
                         <CurrencyPopUp
                             value={currencyYouReceive}
-                            currencyOptions={tokenReceive(currencyYouExchange)}
+                            currencyOptions={isCombinedOperation ? tokenReceiveCombined(currencyYouExchange) : tokenReceive(currencyYouExchange)}
                             onChange={onChangeCurrencyYouReceive}
                             action={"exchange"}
                         />
@@ -906,6 +904,41 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                             balanceText={t("exchange.labelUpTo")}
                         />
                     </div>
+                    {isCombinedOperation && operationType === "MINT" && (
+                        <div className="combined-operations-info">
+                            <div className="combined-operations-info-item">
+                                <span className="combined-operations-info-item-label">
+
+                                {t(
+                                    `exchange.tokens.TC_${caIndex}.label`,
+                                    {
+                                        ns: ns,
+                                    }
+                                )} (
+                                {t(
+                                    `exchange.tokens.TC_${caIndex}.abbr`,
+                                    {
+                                        ns: ns,
+                                    }
+                                )} )
+                                </span>
+                            </div>
+                            <div className="combined-operations-info-receiving">
+                                <span className="combined-operations-info-receiving-label">
+                                    Receiving
+                                </span>
+                                <span className="combined-operations-info-receiving-value">
+                                    0.0
+                                </span>
+                                <span className="combined-operations-info-receiving-value-usd">
+                                    $0.0
+                                </span>
+                                <span className="combined-operations-info-receiving-value-name">
+                                    Balance: 0.0
+                                </span>
+                            </div>
+                        </div>
+                    )}
                 </div>
                 <div className="info">
                     <div className="tx-amount-container">

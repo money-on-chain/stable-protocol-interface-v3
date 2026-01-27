@@ -13,7 +13,14 @@ import type {
     OnTransaction,
 } from "../types/wallets";
 import { config } from "../wagmiConfig";
-import { redeemTC as redeemTC_, redeemTP as redeemTP_, swapTPforTP as swapTPforTP_, swapTCforTP as swapTCforTP_, swapTPforTC as  swapTPforTC_} from "./moc-core";
+import { 
+    redeemTC as redeemTC_, 
+    redeemTP as redeemTP_, 
+    swapTPforTP as swapTPforTP_, 
+    swapTCforTP as swapTCforTP_, 
+    swapTPforTC as  swapTPforTC_, 
+    mintTCandTP as mintTCandTP_, 
+    redeemTCandTP as redeemTCandTP_ } from "./moc-core";
 import { getExecutionFee } from "./utils";
 
 const mintTC = async (
@@ -367,4 +374,50 @@ const swapTPforTC = async (
     );
 };
 
-export { mintTC, mintTP, redeemTC, redeemTP, swapTPforTP, swapTCforTP, swapTPforTC };
+
+const mintTCandTP = async (
+    interfaceContext: InterfaceContext,
+    caIndex: number,
+    tpIndex: number,
+    qTP: bigint,
+    limitAmount: bigint,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    // Mint collateral token and pegged token
+    return mintTCandTP_(
+        interfaceContext,
+        caIndex,
+        tpIndex,
+        qTP,
+        limitAmount,
+        onTransaction,
+        onReceipt
+    );
+};
+
+
+const redeemTCandTP = async (
+    interfaceContext: InterfaceContext,
+    caIndex: number,
+    tpIndex: number,
+    qTC: bigint,
+    qTP: bigint,
+    limitAmount: bigint,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    // Redeem collateral token and pegged token
+    return redeemTCandTP_(
+        interfaceContext,
+        caIndex,
+        tpIndex,
+        qTC,
+        qTP,
+        limitAmount,
+        onTransaction,
+        onReceipt
+    );
+};
+
+export { mintTC, mintTP, redeemTC, redeemTP, swapTPforTP, swapTCforTP, swapTPforTC, mintTCandTP, redeemTCandTP, mintTCandTP, redeemTCandTP };
