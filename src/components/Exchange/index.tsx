@@ -4,8 +4,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import { getExecutionFee } from "../../backend/utils";
 import { useWalletContext } from "../../context/Wallet";
 import { CheckStatusGlobal } from "../../helpers/checkStatus";
-import { calculateLimit } from "../../helpers/exchange";
-import { SlippageTolerance } from "../SlippageTolerance";
 import {
     bigIntToInputValue,
     CalcCommission,
@@ -15,9 +13,9 @@ import {
     TokenBalance,
     TokenSettings,
 } from "../../helpers/currencies";
+import { calculateLimit } from "../../helpers/exchange";
 import {
     executionFeeMap,
-    isMintOperation,
     tokenExchange,
     tokenReceive,
     typeOperation,
@@ -32,11 +30,12 @@ import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings/settings.json";
 import type { Settings } from "../../types/hooks";
 import type { CommissionItem, CommissionsState } from "../../types/status";
+import CommissionsSelector from "../CommissionsSelector";
 import CurrencyPopUp from "../CurrencyPopUp";
 import InputAmount from "../InputAmount/";
 import ModalConfirmOperation from "../Modals/ConfirmOperation";
 import { PrecisionNumbers } from "../PrecisionNumbers";
-import CommissionsSelector from "../CommissionsSelector";
+import { SlippageTolerance } from "../SlippageTolerance";
 const { slippage } = settings as Settings;
 
 // Type definitions
@@ -70,8 +69,10 @@ export default function Exchange(): JSX.Element {
     const [slippageTolerance, setSlippageTolerance] = useState<number>(
         slippage.autoDefault
     );
-    
-    const [commissionsByKey, setCommissionsByKey] = useState<CommissionsState>({});
+
+    const [commissionsByKey, setCommissionsByKey] = useState<CommissionsState>(
+        {}
+    );
 
     const [executionFee, setExecutionFee] = useState<bigint>(0n);
     const [executionFeeUSD, setExecutionFeeUSD] = useState<bigint>(0n);
@@ -83,11 +84,14 @@ export default function Exchange(): JSX.Element {
     const [inputValidationError, setInputValidationError] =
         useState<boolean>(false);
     const [globalValidationErrorText, setGlobalValidationErrorText] =
-        useState<string>("");      
+        useState<string>("");
 
-    const operationType: string = typeOperation(currencyYouExchange, currencyYouReceive);
+    const operationType: string = typeOperation(
+        currencyYouExchange,
+        currencyYouReceive
+    );
 
-    const [radioSelectFee, setRadioSelectFee] = useState<number>(1);    
+    const [radioSelectFee, setRadioSelectFee] = useState<number>(1);
 
     const [valueExchange, setValueExchange] = useState<string>("");
     const [valueReceive, setValueReceive] = useState<string>("");
@@ -98,25 +102,25 @@ export default function Exchange(): JSX.Element {
 
     // For ignoring old async responses
     const changeSeqRef = React.useRef(0);
-    
+
     const { checkerStatus } = CheckStatusGlobal();
 
     const setCommissionForKey = (
         key: string,
         partial: Partial<CommissionItem>
-      ) => {
-        setCommissionsByKey(prev => ({
-          ...prev,
-          [key]: {
-            ...(prev[key] ?? {
-              commission: 0n,
-              commissionUSD: 0n,
-              commissionPercent: 0n,
-            }),
-            ...partial,
-          },
+    ) => {
+        setCommissionsByKey((prev) => ({
+            ...prev,
+            [key]: {
+                ...(prev[key] ?? {
+                    commission: 0n,
+                    commissionUSD: 0n,
+                    commissionPercent: 0n,
+                }),
+                ...partial,
+            },
         }));
-      };
+    };
 
     const onChangeCurrencyYouExchange = (
         newCurrencyYouExchange: string
@@ -185,11 +189,13 @@ export default function Exchange(): JSX.Element {
 
         // 0. Not Wallet connected
         if (!userBalance.data) {
-            setGlobalValidationErrorText(t("exchange.errors.connectYourWallet"));
+            setGlobalValidationErrorText(
+                t("exchange.errors.connectYourWallet")
+            );
             setInputValidationError(true);
             return;
         }
-        
+
         // 0. Amount > 0
         if (amountYouExchange <= 0n || amountYouReceive <= 0n) {
             setInputValidationError(true);
@@ -230,18 +236,23 @@ export default function Exchange(): JSX.Element {
         // Coverage
         if (!contractProtocolStatus.data) return;
         const combinedCglb = contractProtocolStatus.data.getCombinedCglb;
-        const combinedCtargemaCA = contractProtocolStatus.data.getCombinedCtargemaCA;
-        const getCtargemaCA = contractProtocolStatus.data[caIndex].getCtargemaCA;
+        const combinedCtargemaCA =
+            contractProtocolStatus.data.getCombinedCtargemaCA;
+        const getCtargemaCA =
+            contractProtocolStatus.data[caIndex].getCtargemaCA;
         const globalCoverage = contractProtocolStatus.data[caIndex].getCglb;
 
         let tIndex: number | undefined;
         // 2. MINT TP & SWAP TC FOR TP
-        if ((arrCurrencyYouExchange[0] === "CA" && arrCurrencyYouReceive[0] === "TP") ||
-            (arrCurrencyYouExchange[0] === "TC" && arrCurrencyYouReceive[0] === "TP")) {            
+        if (
+            (arrCurrencyYouExchange[0] === "CA" &&
+                arrCurrencyYouReceive[0] === "TP") ||
+            (arrCurrencyYouExchange[0] === "TC" &&
+                arrCurrencyYouReceive[0] === "TP")
+        ) {
             // There are sufficient PEGGED in the contracts to mint?
             tIndex = TokenSettings(currencyYouReceive).key;
             if (tIndex !== undefined) {
-
                 // Tp available to mint
                 const tpAvailableToMint =
                     contractProtocolStatus.data[caIndex]
@@ -253,30 +264,46 @@ export default function Exchange(): JSX.Element {
                     setInputValidationError(true);
                     return;
                 }
-               
+
                 // Coverage not met
-                if ((combinedCglb < combinedCtargemaCA) || (globalCoverage < getCtargemaCA)) {
-                    setGlobalValidationErrorText(t("exchange.errors.coverageNotMet"));
+                if (
+                    combinedCglb < combinedCtargemaCA ||
+                    globalCoverage < getCtargemaCA
+                ) {
+                    setGlobalValidationErrorText(
+                        t("exchange.errors.coverageNotMet")
+                    );
                     setInputValidationError(true);
                     return;
                 }
-                
             }
         }
 
         // 3. REDEEM TC
-        if (arrCurrencyYouExchange[0] === "TC" && arrCurrencyYouReceive[0] === "CA") {            
+        if (
+            arrCurrencyYouExchange[0] === "TC" &&
+            arrCurrencyYouReceive[0] === "CA"
+        ) {
             // Coverage not met
-            if ((combinedCglb < combinedCtargemaCA) || (globalCoverage < getCtargemaCA)) {
-                setGlobalValidationErrorText(t("exchange.errors.coverageNotMet"));
+            if (
+                combinedCglb < combinedCtargemaCA ||
+                globalCoverage < getCtargemaCA
+            ) {
+                setGlobalValidationErrorText(
+                    t("exchange.errors.coverageNotMet")
+                );
                 setInputValidationError(true);
                 return;
             }
         }
 
         // 3. REDEEM TC & SWAP TC FOR TP
-        if ((arrCurrencyYouExchange[0] === "TC" && arrCurrencyYouReceive[0] === "CA") ||
-            (arrCurrencyYouExchange[0] === "TC" && arrCurrencyYouReceive[0] === "TP")) {
+        if (
+            (arrCurrencyYouExchange[0] === "TC" &&
+                arrCurrencyYouReceive[0] === "CA") ||
+            (arrCurrencyYouExchange[0] === "TC" &&
+                arrCurrencyYouReceive[0] === "TP")
+        ) {
             if (!contractProtocolStatus.data) return;
             // There are sufficient TC in the contracts to redeem?
             const tcAvailableToRedeem =
@@ -307,8 +334,12 @@ export default function Exchange(): JSX.Element {
         }
 
         // 6. MINT TP & SWAP TC FOR TP. Flux capacitor maxQACToMintTP
-        if ((arrCurrencyYouExchange[0] === "CA" && arrCurrencyYouReceive[0] === "TP") || 
-            (arrCurrencyYouExchange[0] === "TC" && arrCurrencyYouReceive[0] === "TP")) {
+        if (
+            (arrCurrencyYouExchange[0] === "CA" &&
+                arrCurrencyYouReceive[0] === "TP") ||
+            (arrCurrencyYouExchange[0] === "TC" &&
+                arrCurrencyYouReceive[0] === "TP")
+        ) {
             tIndex = TokenSettings(currencyYouReceive).key;
             if (tIndex !== undefined) {
                 if (!contractProtocolStatus.data) return;
@@ -331,9 +362,13 @@ export default function Exchange(): JSX.Element {
             }
         }
 
-        // Redeem TP & SWAP TP FOR TC        
-        if ((arrCurrencyYouExchange[0] === "TP" && arrCurrencyYouReceive[0] === "CA") || 
-            (arrCurrencyYouExchange[0] === "TP" && arrCurrencyYouReceive[0] === "TC")) {
+        // Redeem TP & SWAP TP FOR TC
+        if (
+            (arrCurrencyYouExchange[0] === "TP" &&
+                arrCurrencyYouReceive[0] === "CA") ||
+            (arrCurrencyYouExchange[0] === "TP" &&
+                arrCurrencyYouReceive[0] === "TC")
+        ) {
             // 7. Flux Capacitor
             tIndex = TokenSettings(currencyYouReceive).key;
             if (tIndex !== undefined) {
@@ -387,20 +422,24 @@ export default function Exchange(): JSX.Element {
         }
 
         // SWAP TP FOR TP
-        if (arrCurrencyYouExchange[0] === "TP" && arrCurrencyYouReceive[0] === "TP") {
-
+        if (
+            arrCurrencyYouExchange[0] === "TP" &&
+            arrCurrencyYouReceive[0] === "TP"
+        ) {
         }
 
         // Not enough balance to pay fees
         const notEnoughBalanceToPayFees =
             Object.values(commissionsByKey).length > 0 &&
-            Object.values(commissionsByKey).every(item => item.commission > item.balance);        
+            Object.values(commissionsByKey).every(
+                (item) => item.commission > item.balance
+            );
         if (notEnoughBalanceToPayFees) {
             setGlobalValidationErrorText("Not enough balance to pay fees");
             setInputValidationError(true);
             return;
         }
-        
+
         // No Validations Errors
         setInputValidationErrorText("");
         setGlobalValidationErrorText("");
@@ -435,55 +474,62 @@ export default function Exchange(): JSX.Element {
         onValidate,
     ]);
 
-
     useEffect(() => {
         // avoid recalculating in the first render (optional)
         if (slippageFirstRunRef.current) {
-          slippageFirstRunRef.current = false;
-          return;
+            slippageFirstRunRef.current = false;
+            return;
         }
-      
+
         if (!publicClient) return;
         if (!contractProtocolStatus.data) return;
         if (!userBalance.data) return;
-      
+
         // if there is no amount loaded, do nothing
         if (amountYouExchange <= 0n && amountYouReceive <= 0n) return;
-      
+
         // sequence to ignore old async responses
         const seq = ++changeSeqRef.current;
-      
+
         const run = async () => {
-          const source = lastEditedRef.current;
-      
-          if (source === "exchange") {
-            const convertAmountReceive = ConvertAmount(
-              contractProtocolStatus,
-              currencyYouExchange,
-              currencyYouReceive,
-              amountYouExchange,
-              caIndex
-            );
-      
-            await onChangeAmounts(amountYouExchange, convertAmountReceive, "exchange");
-          } else {
-            const convertAmountExchange = ConvertAmount(
-              contractProtocolStatus,
-              currencyYouReceive,
-              currencyYouExchange,
-              amountYouReceive,
-              caIndex
-            );
-      
-            await onChangeAmounts(convertAmountExchange, amountYouReceive, "receive");
-          }
-      
-          // if there was another change, do not "overwrite" with old results
-          if (seq !== changeSeqRef.current) return;
+            const source = lastEditedRef.current;
+
+            if (source === "exchange") {
+                const convertAmountReceive = ConvertAmount(
+                    contractProtocolStatus,
+                    currencyYouExchange,
+                    currencyYouReceive,
+                    amountYouExchange,
+                    caIndex
+                );
+
+                await onChangeAmounts(
+                    amountYouExchange,
+                    convertAmountReceive,
+                    "exchange"
+                );
+            } else {
+                const convertAmountExchange = ConvertAmount(
+                    contractProtocolStatus,
+                    currencyYouReceive,
+                    currencyYouExchange,
+                    amountYouReceive,
+                    caIndex
+                );
+
+                await onChangeAmounts(
+                    convertAmountExchange,
+                    amountYouReceive,
+                    "receive"
+                );
+            }
+
+            // if there was another change, do not "overwrite" with old results
+            if (seq !== changeSeqRef.current) return;
         };
-      
+
         void run();
-      }, [
+    }, [
         slippageTolerance,
         // depends on these because if they change and the user adjusts slippage, you want to recalculate properly
         caIndex,
@@ -495,8 +541,7 @@ export default function Exchange(): JSX.Element {
         contractProtocolStatus.data,
         userBalance.data,
         publicClient,
-      ]);
-      
+    ]);
 
     const onChangeAmounts = async (
         amountExchange: bigint,
@@ -520,11 +565,11 @@ export default function Exchange(): JSX.Element {
                     caIndex
                 );
                 amountExchangeFee = amountExchange;
-                amountReceiveFee = amountReceive - infoFee.fee;                
+                amountReceiveFee = amountReceive - infoFee.fee;
                 amountReceiveFee = calculateLimit(
                     amountReceiveFee,
                     -(slippageTolerance / 100)
-                ); 
+                );
                 amountFormattedReceive = bigIntToInputValue(
                     amountReceiveFee,
                     currencyYouReceive,
@@ -548,7 +593,7 @@ export default function Exchange(): JSX.Element {
                 amountExchangeFee = calculateLimit(
                     amountExchangeFee,
                     slippageTolerance / 100
-                ); 
+                );
                 amountReceiveFee = amountReceive;
                 amountFormattedExchange = bigIntToInputValue(
                     amountExchangeFee,
@@ -569,12 +614,12 @@ export default function Exchange(): JSX.Element {
             caIndex: number;
             info: CommissionInfo;
         };
-        
+
         // Set exchanging total in USD and choosen CA index
         let convertAmountUSD: bigint = 0n;
         let choosenCAIndex: number = caIndex;
         const infoFeeArray: CommissionWithIndex[] = [];
-        
+
         if (operationType === "MINT") {
             const infoFee = CalcCommission(
                 contractProtocolStatus,
@@ -583,10 +628,9 @@ export default function Exchange(): JSX.Element {
                 amountExchange,
                 caIndex
             );
-        
+
             infoFeeArray.push({ caIndex, info: infoFee });
             convertAmountUSD = amountExchangeFee;
-        
         } else if (operationType === "REDEEM") {
             const infoFee = CalcCommission(
                 contractProtocolStatus,
@@ -595,10 +639,9 @@ export default function Exchange(): JSX.Element {
                 amountReceive,
                 caIndex
             );
-        
+
             infoFeeArray.push({ caIndex, info: infoFee });
             convertAmountUSD = amountReceiveFee;
-        
         } else if (operationType === "SWAP_TPFORTP") {
             for (let i = 0; i < settings.tokens.CA.length; i++) {
                 const amountInCA: bigint = ConvertAmount(
@@ -608,7 +651,7 @@ export default function Exchange(): JSX.Element {
                     amountExchange,
                     i
                 );
-        
+
                 const infoFee = CalcCommission(
                     contractProtocolStatus,
                     currencyYouExchange,
@@ -616,17 +659,15 @@ export default function Exchange(): JSX.Element {
                     amountInCA,
                     i
                 );
-        
+
                 infoFeeArray.push({ caIndex: i, info: infoFee });
-        
+
                 // if in the future you need the "best" CA, you could choose it here
                 // for now I leave the last one as chosen:
                 convertAmountUSD = amountInCA;
                 choosenCAIndex = i;
             }
-            
         } else if (operationType === "SWAP_TCFORTP") {
-
             const infoFee = CalcCommission(
                 contractProtocolStatus,
                 currencyYouExchange,
@@ -634,12 +675,10 @@ export default function Exchange(): JSX.Element {
                 amountExchange,
                 caIndex
             );
-        
+
             infoFeeArray.push({ caIndex, info: infoFee });
             convertAmountUSD = amountExchangeFee;
-
         } else if (operationType === "SWAP_TPFORTC") {
-
             const infoFee = CalcCommission(
                 contractProtocolStatus,
                 currencyYouExchange,
@@ -650,35 +689,34 @@ export default function Exchange(): JSX.Element {
 
             infoFeeArray.push({ caIndex, info: infoFee });
             convertAmountUSD = amountReceiveFee;
-
         } else {
             throw new Error("Invalid type operation");
         }
-        
+
         // Set commissions for each CA using the REAL CA index
         for (const { caIndex: caIdx, info } of infoFeeArray) {
             setCommissionForKey(`CA_${caIdx}`, {
                 commission: info.fee,
                 commissionUSD: info.feeUSD,
                 commissionPercent: info.percent,
-                balance: userBalance.data.CA[caIdx].balance
+                balance: userBalance.data.CA[caIdx].balance,
             });
         }
-        
+
         // Fee Token Commission: use the entry corresponding to choosenCAIndex
         const baseForFeeToken =
             infoFeeArray.find((x) => x.caIndex === choosenCAIndex)?.info ??
             infoFeeArray[0]?.info; // fallback for security
-        
+
         if (!baseForFeeToken) {
             throw new Error("No commission info available for FeeToken");
         }
-        
+
         setCommissionForKey("FeeToken", {
             commission: baseForFeeToken.totalFeeToken,
             commissionUSD: baseForFeeToken.totalFeeTokenUSD,
             commissionPercent: baseForFeeToken.feeTokenPercent,
-            balance: userBalance.data[caIndex].FeeToken.balance
+            balance: userBalance.data[caIndex].FeeToken.balance,
         });
 
         const priceCA = normalizeToBigInt(
@@ -742,22 +780,22 @@ export default function Exchange(): JSX.Element {
 
         const newAmountBigInt = toBigIntPrecision(newAmount);
         if (newAmountBigInt < 0n) {
-          setAmountYouExchange(0n);
-          setAmountYouReceive(0n);
-          setExchangingUSD(0n);
-          setValueReceive("");
-          return;
+            setAmountYouExchange(0n);
+            setAmountYouReceive(0n);
+            setExchangingUSD(0n);
+            setValueReceive("");
+            return;
         }
-      
+
         setValueReceive(newAmount.toString());
         const convertAmountExchange = ConvertAmount(
-          contractProtocolStatus,
-          currencyYouReceive,
-          currencyYouExchange,
-          newAmountBigInt,
-          caIndex
+            contractProtocolStatus,
+            currencyYouReceive,
+            currencyYouExchange,
+            newAmountBigInt,
+            caIndex
         );
-      
+
         void onChangeAmounts(convertAmountExchange, newAmountBigInt, "receive");
     };
 
@@ -777,7 +815,7 @@ export default function Exchange(): JSX.Element {
 
     const onChangeFee = (e: RadioChangeEvent): void => {
         console.warn("radio checked", e.target.value);
-        const nValue = Number(e.target.value)
+        const nValue = Number(e.target.value);
         setRadioSelectFee(nValue);
         if (operationType === "SWAP_TPFORTP" && nValue > 0) {
             setCAIndex(nValue - 1);
@@ -994,7 +1032,7 @@ export default function Exchange(): JSX.Element {
                                 </div>
                             </div>
                             <div className="tx-fee-options">
-                                <CommissionsSelector 
+                                <CommissionsSelector
                                     onChangeFee={onChangeFee}
                                     radioSelectFee={radioSelectFee}
                                     currencyYouExchange={currencyYouExchange}
@@ -1014,8 +1052,12 @@ export default function Exchange(): JSX.Element {
                                         mode: "auto",
                                         value: slippageTolerance,
                                     }}
-                                    onChange={(next) => onChangeSlippageTolerance(next.value)}
-                                    onInteractionChange={onSlippageInteractionChange}
+                                    onChange={(next) =>
+                                        onChangeSlippageTolerance(next.value)
+                                    }
+                                    onInteractionChange={
+                                        onSlippageInteractionChange
+                                    }
                                 />
                             </div>
                         </div>
@@ -1065,7 +1107,7 @@ export default function Exchange(): JSX.Element {
                         executionFee={executionFee}
                         executionFeeUSD={executionFeeUSD}
                         radioSelectFee={radioSelectFee}
-                        caIndex={caIndex}                        
+                        caIndex={caIndex}
                         operationType={operationType}
                         slippageTolerance={slippageTolerance}
                         //amountYouExchangeFee={amountYouExchangeFee}

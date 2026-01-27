@@ -308,37 +308,36 @@ export const SlippageTolerance: React.FC<SlippageToleranceProps> = ({
                                 </button>
                             );
                         })}
-
-                        <div className="slippage-tolerance__custom">
-                            <div className="slippage-tolerance__input-group">
-                                <input
-                                    type="number"
-                                    min={0}
-                                    step={0.01}
-                                    className="slippage-tolerance__input"
-                                    value={customInput}
-                                    onChange={handleCustomInputChange}
-                                    onKeyDown={handleCustomKeyDown}
-                                    placeholder="Custom"
-                                    disabled={disabled}
-                                />
-                                <div className="slippage-tolerance__input-suffix">
-                                    %
-                                </div>
-                                <button
-                                    type="button"
-                                    className="slippage-tolerance__confirm"
-                                    onClick={handleConfirmCustom}
-                                    disabled={
-                                        disabled ||
-                                        customInput.trim() === "" ||
-                                        Boolean(validationError)
-                                    }
-                                    aria-label="Set custom slippage"
-                                >
-                                    <div className="icon-accept slippage-tolerance__accept"></div>
-                                </button>
+                    </div>
+                    <div className="slippage-tolerance__custom">
+                        <div className="slippage-tolerance__input-group">
+                            <input
+                                type="number"
+                                min={0}
+                                step={0.01}
+                                className="slippage-tolerance__input"
+                                value={customInput}
+                                onChange={handleCustomInputChange}
+                                onKeyDown={handleCustomKeyDown}
+                                placeholder="Custom"
+                                disabled={disabled}
+                            />
+                            <div className="slippage-tolerance__input-suffix">
+                                %
                             </div>
+                            <button
+                                type="button"
+                                className="slippage-tolerance__confirm"
+                                onClick={handleConfirmCustom}
+                                disabled={
+                                    disabled ||
+                                    customInput.trim() === "" ||
+                                    Boolean(validationError)
+                                }
+                                aria-label="Set custom slippage"
+                            >
+                                <div className="icon-accept slippage-tolerance__accept"></div>
+                            </button>
                         </div>
                     </div>
                     {validationError && (
