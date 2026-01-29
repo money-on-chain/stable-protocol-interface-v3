@@ -420,4 +420,4 @@ const redeemTCandTP = async (
     );
 };
 
-export { mintTC, mintTP, redeemTC, redeemTP, swapTPforTP, swapTCforTP, swapTPforTC, mintTCandTP, redeemTCandTP, mintTCandTP, redeemTCandTP };
+export { mintTC, mintTP, redeemTC, redeemTP, swapTPforTP, swapTCforTP, swapTPforTC, mintTCandTP, redeemTCandTP};

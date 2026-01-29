@@ -43,6 +43,8 @@ interface ConfirmOperationProps {
     caIndex: number;
     operationType: string;
     slippageTolerance: number;
+    amountAnotherToken: bigint;
+    tpIndex: number;
 }
 
 type StatusType =
@@ -83,7 +85,9 @@ export default function ConfirmOperation(
         radioSelectFee,
         caIndex,
         operationType,
-        slippageTolerance
+        slippageTolerance,
+        amountAnotherToken,
+        tpIndex
     } = props;
 
     const { t, i18n, ns } = useProjectTranslation();
@@ -136,11 +140,15 @@ export default function ConfirmOperation(
         useState<boolean>(false);
     const [disAllowanceFeeToken, setDisAllowanceFeeToken] =
         useState<boolean>(false);
+    const [showModalAllowancePayAnotherToken, setShowModalAllowancePayAnotherToken] =
+        useState<boolean>(false);
 
     // Use refs to store latest values to avoid recreating the callback
     const opIDRef = useRef<number | null>(opID);
     const caIndexRef = useRef<number>(caIndex);
     const userBalanceRefetchRef = useRef(userBalance.refetch);
+
+    const anotherTokenName: string = operationType === "COMBINED_MINT" ? `TC_${caIndex}` : `TP_${tpIndex}`;
 
     useEffect(() => {
         opIDRef.current = opID;
@@ -282,6 +290,13 @@ export default function ConfirmOperation(
         setShowModalAllowancePayCommission(false);
     };
 
+    const onShowModalAllowancePayAnotherToken = (): void => {
+        setShowModalAllowancePayAnotherToken(true);
+    };
+    const onHideModalAllowancePayAnotherToken = (): void => {
+        setShowModalAllowancePayAnotherToken(false);
+    };
+
     const showAllowancePayCurrencyExchange = (): boolean => {        
         const tokenAllowance: bigint = UserTokenAllowance(
             userBalance,
@@ -300,6 +315,24 @@ export default function ConfirmOperation(
 
         return commissionsByKey[`CA_${caIndex}`].commission > tokenAllowance;        
     };
+
+    const showAllowancePayAnotherToken = (): boolean => {
+        if (operationType !== "COMBINED_MINT" && operationType !== "COMBINED_REDEEM") return false;
+        let tokenName: string = "";
+        if (operationType === "COMBINED_MINT") {
+            tokenName = `TC_${caIndex}`            
+        } else if (operationType === "COMBINED_REDEEM") {
+            tokenName = `TP_${tpIndex}`
+        }
+
+        const tokenAllowance: bigint = UserTokenAllowance(
+            userBalance,
+            tokenName,
+            caIndex
+        );
+
+        return amountAnotherToken > tokenAllowance;        
+    };        
 
     const showAllowancePayCommissionFeeToken = (): boolean => {
         //const caIndex = getCAIndex(currencyYouExchange, currencyYouReceive);
@@ -350,6 +383,13 @@ export default function ConfirmOperation(
                 }
             }
 
+            if (step === "AllowancePayAnotherToken") {
+                if (showAllowancePayAnotherToken()) {
+                    onShowModalAllowancePayAnotherToken();
+                    return;
+                }
+            }
+
             if (step === "SubmitOperationTransaction") {
                 onRealSendTransaction();
                 return;
@@ -365,10 +405,10 @@ export default function ConfirmOperation(
         let tokenAmount: bigint;
         let limitAmount: bigint;
         let qAssetMaxFees: bigint = 0n;
-        if (operationType === "MINT") {
+        if (operationType === "MINT" || operationType === "COMBINED_MINT") {
             tokenAmount = amountYouReceive;
             limitAmount = amountYouExchange;
-        } else if (operationType === "REDEEM") {
+        } else if (operationType === "REDEEM" || operationType === "COMBINED_REDEEM") {
             tokenAmount = amountYouExchange;
             limitAmount = amountYouReceive;
         } else if (operationType === "SWAP_TPFORTP" || operationType === "SWAP_TPFORTC" || operationType === "SWAP_TCFORTP") {
@@ -386,6 +426,9 @@ export default function ConfirmOperation(
             limitAmount,
             qAssetMaxFees,
             caIndex,
+            tpIndex,
+            operationType,
+            amountAnotherToken,
             onTransaction,
             onReceipt
         )
@@ -499,11 +542,11 @@ export default function ConfirmOperation(
     );
     let commissionTokenName: string;
 
-    if (operationType === "MINT")  {
+    if (operationType === "MINT" || operationType === "COMBINED_MINT")  {
         commissionTokenName = t(`exchange.tokens.${currencyYouExchange}.abbr`, {
             ns: ns,
         });
-    } else if (operationType === "REDEEM") {
+    } else if (operationType === "REDEEM" || operationType === "COMBINED_REDEEM") {
         commissionTokenName = t(`exchange.tokens.${currencyYouReceive}.abbr`, {
             ns: ns,
         });
@@ -818,6 +861,20 @@ export default function ConfirmOperation(
                 onCallback={onSendTransaction}
                 disAllowance={false}
                 caIndex={caIndex}
+            />
+            <ModalAllowanceOperation
+                name="AllowancePayAnotherToken"
+                title={
+                    `${t("allowance.cardTitle")}  ${t(`exchange.tokens.${anotherTokenName}.abbr`, { ns: ns })}`
+                }
+                visible={showModalAllowancePayAnotherToken}
+                onHideModalAllowance={onHideModalAllowancePayAnotherToken}
+                currencyYouExchange={anotherTokenName}
+                currencyYouReceive={anotherTokenName}
+                amountYouExchangeLimit={amountAnotherToken}
+                onCallback={onSendTransaction}
+                disAllowance={false}
+                caIndex={caIndex}  
             />
         </div>
     );

@@ -406,7 +406,8 @@
         "liquidityMining": "Liquidity Mining",
         "vesting": "Vesting",
         "voting": "Voting",
-        "more": "More"
+        "more": "More",
+        "combinedOperations": "Combined Ops."
     },
 
     "language": {

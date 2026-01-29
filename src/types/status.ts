@@ -274,6 +274,7 @@ export const ALLOWANCE_STEPS = [
     "AllowancePayCommissionCA",
     "AllowancePayCommissionFeeToken",
     "AllowancePayCurrencyExchange",
+    "AllowancePayAnotherToken",
     "SubmitOperationTransaction",
 ] as const;
 

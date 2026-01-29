@@ -20,6 +20,8 @@ interface ModalConfirmOperationProps {
     caIndex: number;
     operationType: string;
     slippageTolerance: number;
+    amountAnotherToken: bigint;
+    tpIndex: number;
 }
 
 export default function ModalConfirmOperation(

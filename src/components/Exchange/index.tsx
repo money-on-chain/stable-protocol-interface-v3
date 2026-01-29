@@ -23,6 +23,7 @@ import {
     tokenExchangeCombined,
     tokenReceiveCombined,
     typeOperation,
+    onlyTPs,
 } from "../../helpers/exchange";
 import {
     divPrecision,
@@ -55,6 +56,8 @@ interface ExchangeProps {
     isCombinedOperation: boolean;
 }
 
+const allTPs = onlyTPs() as string[];
+
 export default function Exchange(props: ExchangeProps): JSX.Element {
     const { isCombinedOperation } = props;
     const { t, i18n, ns } = useProjectTranslation();
@@ -73,6 +76,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
 
     const [amountYouExchange, setAmountYouExchange] = useState<bigint>(0n);
     const [amountYouReceive, setAmountYouReceive] = useState<bigint>(0n);
+    const [amountAnotherToken, setAmountAnotherToken] = useState<bigint>(0n);
 
     const [slippageTolerance, setSlippageTolerance] = useState<number>(
         slippage.autoDefault
@@ -104,6 +108,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
     const [valueExchange, setValueExchange] = useState<string>("");
     const [valueReceive, setValueReceive] = useState<string>("");
     const [caIndex, setCAIndex] = useState<number>(0);
+    const [tpIndex, setTPIndex] = useState<number>(0);
 
     const lastEditedRef = React.useRef<"exchange" | "receive">("exchange");
     const slippageFirstRunRef = React.useRef(true);
@@ -697,6 +702,12 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
 
         // Execution fee load
         setExecutionFee(execFee);
+
+        // Combined Operations
+        if (operationType === "COMBINED_MINT") {
+            const amountAnotherToken = calculateAmountAnotherTokenMint(amountReceive);
+            setAmountAnotherToken(amountAnotherToken);
+        }
     };
 
     const onChangeAmountYouExchange = (newAmount: string | number): void => {
@@ -799,6 +810,47 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         },
         []
     );
+    
+    const onChangeTPIndex = (
+        newTPValue: string
+    ): void => {
+        const index = allTPs.indexOf(newTPValue);
+        if (index >= 0) {
+            setTPIndex(index);
+        }
+    };
+
+    const calculateAmountAnotherTokenMint = (
+        amount: bigint
+    ): bigint => {
+        /** 
+             * 
+        redeemTCandTP :
+            aux = ((combinedCglb - 1) * (ctargemaTP - 1) / (combinedCtargemaCA -1))
+            el TP que el usuario indica para redimir tiene que ser mayor a
+
+            qTP = qTC * pACtp * pTCac / aux
+            (qACmin amount you receive has to be less than the amount you expect to receive)
+
+            qACRedeemed = ((qTP / pACtp) + (qTC * pTCac)) - fee
+
+        mintTCandTP:
+
+            qACtpMintTC = (qTP * (ctargemaTP - 1)) / pACtp)
+
+            qACtoMintTP = qTP / pACtp
+            (qACmax amount you are willing to spend has to be greater than the amount you need to spend)
+
+            qACNeeded = (qACtpMintTC + qACtoMintTP) + fee
+        **/
+        if (operationType !== "COMBINED_MINT") return 0n;
+        const ctargemaTP = toBigIntPrecision(1.5);
+        const pACtp = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_TP[tpIndex][0]) || 0n;
+        const pTCac = normalizeToBigInt(contractProtocolStatus.data[caIndex].getPTCac) || 0n;
+        const qACtpMintTC = divPrecision(mulPrecision(amount, ctargemaTP - toBigIntPrecision(1)), pACtp);
+        return mulPrecision(qACtpMintTC, pTCac);        
+        
+    };
 
     return (
         <div>
@@ -844,20 +896,50 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                         </div>
                     </div>
 
-                    {isCombinedOperation && operationType === "REDEEM" && (
+                    {isCombinedOperation && operationType === "COMBINED_REDEEM" && (
                         <div className="combined-operations-info">
                             <div className="combined-operations-info-item">
                                 <CurrencyPopUp
-                                    value={'TP_0'}
-                                    currencyOptions={['TP_0', 'TP_1']}
-                                    onChange={() => {}}
+                                    value={allTPs[tpIndex]}
+                                    currencyOptions={allTPs}
+                                    onChange={onChangeTPIndex}
                                     action={"exchange"}
                                 />
                             </div>
                             <div>Sending</div>
-                            <div className="combined-operations-info-sending-value">0.0</div>
-                            <div className="combined-operations-info-sending-value-usd">$0.0 <span>USD</span></div>
-                            <div className="combined-operations-info-sending-value-name">Balance: 0.0 </div>
+                            <div className="combined-operations-info-sending-value">
+                            {" "}
+                            {!contractProtocolStatus.data
+                                ? "--"
+                                : PrecisionNumbers({
+                                        amount: amountAnotherToken,
+                                        decimals:
+                                            TokenSettings(
+                                                `TP_${tpIndex}`
+                                            ).visibleDecimals || 2,
+                                        token: TokenSettings(
+                                            `TP_${tpIndex}`
+                                        ),
+                                        i18n: i18n,
+                                    })}
+                            </div>
+                            <div className="combined-operations-info-sending-value-usd">
+                                $0.0 
+                                <span>USD</span>
+                            </div>
+                            <div className="combined-operations-info-sending-value-name">
+                                Balance: 
+                                {
+                                    !userBalance
+                                    ? "--"
+                                    : PrecisionNumbers({
+                                          amount: TokenBalance(userBalance, `TP_${tpIndex}`),
+                                          token: TokenSettings(`TP_${tpIndex}`),
+                                          decimals: 8,
+                                          i18n: i18n,
+                                      })
+                                }
+                            </div>
                         </div>
                     )}
 
@@ -904,7 +986,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                             balanceText={t("exchange.labelUpTo")}
                         />
                     </div>
-                    {isCombinedOperation && operationType === "MINT" && (
+                    {isCombinedOperation && operationType === "COMBINED_MINT" && (
                         <div className="combined-operations-info">
                             <div className="combined-operations-info-item">
                                 <span className="combined-operations-info-item-label">
@@ -928,13 +1010,37 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                     Receiving
                                 </span>
                                 <span className="combined-operations-info-receiving-value">
-                                    0.0
+                                {" "}
+                                {!contractProtocolStatus.data
+                                    ? "--"
+                                    : PrecisionNumbers({
+                                            amount: amountAnotherToken,
+                                            decimals:
+                                                TokenSettings(
+                                                    `TC_${caIndex}`
+                                                ).visibleDecimals || 2,
+                                            token: TokenSettings(
+                                                `TC_${caIndex}`
+                                            ),
+                                            i18n: i18n,
+                                        })}
                                 </span>
                                 <span className="combined-operations-info-receiving-value-usd">
                                     $0.0
                                 </span>
                                 <span className="combined-operations-info-receiving-value-name">
-                                    Balance: 0.0
+                                {" "}
+                                    Balance:
+                                    {
+                                        !userBalance
+                                        ? "--"
+                                        : PrecisionNumbers({
+                                              amount: TokenBalance(userBalance, `TC_${caIndex}`),
+                                              token: TokenSettings(`TC_${caIndex}`),
+                                              decimals: 8,
+                                              i18n: i18n,
+                                          })
+                                    }
                                 </span>
                             </div>
                         </div>
@@ -1106,6 +1212,8 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                         caIndex={caIndex}                        
                         operationType={operationType}
                         slippageTolerance={slippageTolerance}
+                        amountAnotherToken={amountAnotherToken}
+                        tpIndex={tpIndex}
                         //amountYouExchangeFee={amountYouExchangeFee}
                         //amountYouReceiveFee={amountYouReceiveFee}
                     />
