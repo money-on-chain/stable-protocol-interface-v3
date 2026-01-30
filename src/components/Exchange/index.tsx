@@ -76,7 +76,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
 
     const [amountYouExchange, setAmountYouExchange] = useState<bigint>(0n);
     const [amountYouReceive, setAmountYouReceive] = useState<bigint>(0n);
-    const [amountAnotherToken, setAmountAnotherToken] = useState<bigint>(0n);
+    const [amountAnotherToken, setAmountAnotherToken] = useState<{ qAC: bigint, amount: bigint }>({ qAC: 0n, amount: 0n });
 
     const [slippageTolerance, setSlippageTolerance] = useState<number>(
         slippage.autoDefault
@@ -554,6 +554,16 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                 setAmountYouExchange(amountExchangeFee);
                 break;
             case "receive":
+
+                let amountAnotherToken: { qAC: bigint, amount: bigint } = { qAC: 0n, amount: 0n };
+                if (operationType === "COMBINED_MINT") {                    
+                    amountAnotherToken = calculateAmountAnotherTokenMintTP(amountReceive, caIndex, tpIndex);
+                    amountExchange = amountExchange + amountAnotherToken.qAC;                    
+                    setAmountAnotherToken(amountAnotherToken);
+                } else if (operationType === "COMBINED_REDEEM") {
+                    //const amountAnotherToken = calculateAmountAnotherTokenRedeem(amountReceive);
+                    //setAmountAnotherToken(amountAnotherToken);
+                }
                 infoFee = CalcCommission(
                     contractProtocolStatus,
                     currencyYouExchange,
@@ -704,10 +714,10 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         setExecutionFee(execFee);
 
         // Combined Operations
-        if (operationType === "COMBINED_MINT") {
+        /*if (operationType === "COMBINED_MINT") {
             const amountAnotherToken = calculateAmountAnotherTokenMint(amountReceive);
             setAmountAnotherToken(amountAnotherToken);
-        }
+        }*/
     };
 
     const onChangeAmountYouExchange = (newAmount: string | number): void => {
@@ -730,7 +740,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             newAmountBigInt,
             caIndex
         );
-
+        
         void onChangeAmounts(newAmountBigInt, convertAmountReceive, "exchange");
     };
 
@@ -747,14 +757,14 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         }
       
         setValueReceive(newAmount.toString());
-        const convertAmountExchange = ConvertAmount(
+        let convertAmountExchange = ConvertAmount(
           contractProtocolStatus,
           currencyYouReceive,
           currencyYouExchange,
           newAmountBigInt,
           caIndex
         );
-      
+              
         void onChangeAmounts(convertAmountExchange, newAmountBigInt, "receive");
     };
 
@@ -820,9 +830,11 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         }
     };
 
-    const calculateAmountAnotherTokenMint = (
-        amount: bigint
-    ): bigint => {
+    const calculateAmountAnotherTokenMintTP = (
+        qTP: bigint,
+        caIndex: number,
+        tpIndex: number
+    ): { qAC: bigint, amount: bigint } => {
         /** 
              * 
         redeemTCandTP :
@@ -843,13 +855,13 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
 
             qACNeeded = (qACtpMintTC + qACtoMintTP) + fee
         **/
-        if (operationType !== "COMBINED_MINT") return 0n;
-        const ctargemaTP = toBigIntPrecision(1.5);
+        if (operationType !== "COMBINED_MINT") return { qAC: 0n, amount: 0n };
+        const ctargemaTP = toBigIntPrecision(10.0);
         const pACtp = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_TP[tpIndex][0]) || 0n;
         const pTCac = normalizeToBigInt(contractProtocolStatus.data[caIndex].getPTCac) || 0n;
-        const qACtpMintTC = divPrecision(mulPrecision(amount, ctargemaTP - toBigIntPrecision(1)), pACtp);
-        return mulPrecision(qACtpMintTC, pTCac);        
-        
+        const qACtpMintTC = divPrecision(mulPrecision(qTP, ctargemaTP - toBigIntPrecision(1)), pACtp);        
+        const amount = mulPrecision(qACtpMintTC, pTCac);
+        return { qAC: qACtpMintTC, amount: amount };
     };
 
     return (
@@ -912,7 +924,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                             {!contractProtocolStatus.data
                                 ? "--"
                                 : PrecisionNumbers({
-                                        amount: amountAnotherToken,
+                                        amount: amountAnotherToken.amount,
                                         decimals:
                                             TokenSettings(
                                                 `TP_${tpIndex}`
@@ -1014,7 +1026,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                 {!contractProtocolStatus.data
                                     ? "--"
                                     : PrecisionNumbers({
-                                            amount: amountAnotherToken,
+                                            amount: amountAnotherToken.amount,
                                             decimals:
                                                 TokenSettings(
                                                     `TC_${caIndex}`

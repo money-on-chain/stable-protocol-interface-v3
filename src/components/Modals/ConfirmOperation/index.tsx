@@ -20,7 +20,7 @@ interface ModalConfirmOperationProps {
     caIndex: number;
     operationType: string;
     slippageTolerance: number;
-    amountAnotherToken: bigint;
+    amountAnotherToken: { qAC: bigint, amount: bigint };
     tpIndex: number;
 }
 

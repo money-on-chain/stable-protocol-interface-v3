@@ -579,7 +579,7 @@ const mintTCandTP = async (
         throw new Error(
             `Insufficient ${(settings.tokens.TP[tpIndex] as TokenConfig).name} available to mint`
         );
-
+        
     return await sendWithExecFee(
         context,
         onTransaction,

@@ -43,7 +43,7 @@ interface ConfirmOperationProps {
     caIndex: number;
     operationType: string;
     slippageTolerance: number;
-    amountAnotherToken: bigint;
+    amountAnotherToken: { qAC: bigint, amount: bigint };
     tpIndex: number;
 }
 
@@ -331,7 +331,7 @@ export default function ConfirmOperation(
             caIndex
         );
 
-        return amountAnotherToken > tokenAllowance;        
+        return amountAnotherToken.amount > tokenAllowance;        
     };        
 
     const showAllowancePayCommissionFeeToken = (): boolean => {
@@ -428,7 +428,7 @@ export default function ConfirmOperation(
             caIndex,
             tpIndex,
             operationType,
-            amountAnotherToken,
+            amountAnotherToken.amount, // Pass amount of qTC
             onTransaction,
             onReceipt
         )
@@ -871,7 +871,7 @@ export default function ConfirmOperation(
                 onHideModalAllowance={onHideModalAllowancePayAnotherToken}
                 currencyYouExchange={anotherTokenName}
                 currencyYouReceive={anotherTokenName}
-                amountYouExchangeLimit={amountAnotherToken}
+                amountYouExchangeLimit={amountAnotherToken.amount}
                 onCallback={onSendTransaction}
                 disAllowance={false}
                 caIndex={caIndex}  
