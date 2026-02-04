@@ -527,8 +527,17 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         let amountReceiveFee: bigint;
         let amountFormattedReceive: string;
         let amountFormattedExchange: string;
+        let amountAnotherToken: { qAC: bigint, amount: bigint } = { qAC: 0n, amount: 0n };
         switch (source) {
             case "exchange":
+                if (operationType === "COMBINED_MINT") {                    
+                    amountAnotherToken = calculateAmountAnotherTokenMintTP(amountExchange, caIndex, tpIndex);                    
+                    setAmountAnotherToken(amountAnotherToken);
+                } else if (operationType === "COMBINED_REDEEM") {
+                    amountAnotherToken = calculateAmountAnotherTokenRedeemTC(amountExchange, caIndex, tpIndex);
+                    amountReceive = amountReceive                    
+                    setAmountAnotherToken(amountAnotherToken);                    
+                }
                 infoFee = CalcCommission(
                     contractProtocolStatus,
                     currencyYouExchange,
@@ -553,16 +562,14 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                 setAmountYouReceive(amountReceiveFee);
                 setAmountYouExchange(amountExchangeFee);
                 break;
-            case "receive":
-
-                let amountAnotherToken: { qAC: bigint, amount: bigint } = { qAC: 0n, amount: 0n };
+            case "receive":                
                 if (operationType === "COMBINED_MINT") {                    
                     amountAnotherToken = calculateAmountAnotherTokenMintTP(amountReceive, caIndex, tpIndex);
                     amountExchange = amountExchange + amountAnotherToken.qAC;                    
                     setAmountAnotherToken(amountAnotherToken);
                 } else if (operationType === "COMBINED_REDEEM") {
-                    //const amountAnotherToken = calculateAmountAnotherTokenRedeem(amountReceive);
-                    //setAmountAnotherToken(amountAnotherToken);
+                    amountAnotherToken = calculateAmountAnotherTokenRedeemTC(amountExchange, caIndex, tpIndex);
+                    setAmountAnotherToken(amountAnotherToken);                    
                 }
                 infoFee = CalcCommission(
                     contractProtocolStatus,
@@ -835,17 +842,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         caIndex: number,
         tpIndex: number
     ): { qAC: bigint, amount: bigint } => {
-        /** 
-             * 
-        redeemTCandTP :
-            aux = ((combinedCglb - 1) * (ctargemaTP - 1) / (combinedCtargemaCA -1))
-            el TP que el usuario indica para redimir tiene que ser mayor a
-
-            qTP = qTC * pACtp * pTCac / aux
-            (qACmin amount you receive has to be less than the amount you expect to receive)
-
-            qACRedeemed = ((qTP / pACtp) + (qTC * pTCac)) - fee
-
+        /**             
         mintTCandTP:
 
             qACtpMintTC = (qTP * (ctargemaTP - 1)) / pACtp)
@@ -856,12 +853,43 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             qACNeeded = (qACtpMintTC + qACtoMintTP) + fee
         **/
         if (operationType !== "COMBINED_MINT") return { qAC: 0n, amount: 0n };
-        const ctargemaTP = toBigIntPrecision(10.0);
+        const ctargemaTP = toBigIntPrecision(5.0);
         const pACtp = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_TP[tpIndex][0]) || 0n;
         const pTCac = normalizeToBigInt(contractProtocolStatus.data[caIndex].getPTCac) || 0n;
         const qACtpMintTC = divPrecision(mulPrecision(qTP, ctargemaTP - toBigIntPrecision(1)), pACtp);        
         const amount = mulPrecision(qACtpMintTC, pTCac);
         return { qAC: qACtpMintTC, amount: amount };
+    };
+
+    const calculateAmountAnotherTokenRedeemTC = (
+        qTC: bigint,
+        caIndex: number,
+        tpIndex: number
+    ): { qAC: bigint, amount: bigint } => {
+        /** 
+             * 
+        redeemTCandTP :
+            aux = ((combinedCglb - 1) * (ctargemaTP - 1) / (combinedCtargemaCA -1))
+            el TP que el usuario indica para redimir tiene que ser mayor a
+
+            qTP = qTC * pACtp * pTCac / aux
+            (qACmin amount you receive has to be less than the amount you expect to receive)
+
+            qACRedeemed = ((qTP / pACtp) + (qTC * pTCac)) - fee
+        
+        **/
+        if (operationType !== "COMBINED_REDEEM") return { qAC: 0n, amount: 0n };
+        const ctargemaTP = toBigIntPrecision(7.0);
+        const combinedCglb = contractProtocolStatus.data.getCombinedCglb;
+        const combinedCtargemaCA = contractProtocolStatus.data.getCombinedCtargemaCA;
+        const pACtp = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_TP[tpIndex][0]) || 0n;
+        const pTCac = normalizeToBigInt(contractProtocolStatus.data[caIndex].getPTCac) || 0n;
+        const upAux = mulPrecision((combinedCglb - toBigIntPrecision(1)), (ctargemaTP - toBigIntPrecision(1)))
+        const downAux = (combinedCtargemaCA - toBigIntPrecision(1))
+        const aux = divPrecision(upAux, downAux)
+        const qTP = divPrecision(mulPrecision(mulPrecision(qTC, pACtp), pTCac), aux)
+        const qTPinAC = mulPrecision(qTP, pACtp)
+        return { qAC: qTPinAC, amount: qTP };
     };
 
     return (

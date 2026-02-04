@@ -16,6 +16,7 @@ import { config } from "../wagmiConfig";
 import { getExecutionFee } from "./utils";
 import { divPrecision, mulPrecision } from "../helpers/precision";
 import { calculateLimit } from "../helpers/exchange";
+import { fromWei, toBigIntPrecision } from "../helpers/precision";
 
 const mintTC = async (
     interfaceContext: InterfaceContext,
@@ -634,6 +635,16 @@ const redeemTCandTP = async (
         throw new Error(
             `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} in the contract. Balance: ${caBalance} ${(settings.tokens.CA[caIndex] as TokenConfig).name}`
         );
+
+    qTP = toBigIntPrecision(2000, 18);    
+    limitAmount = toBigIntPrecision(0.0001, 18);    
+    
+    console.log("DEBUG>>>")        
+    console.log("tpAddress", tpAddress);
+    console.log("qTC", fromWei(qTC));
+    console.log("qTP", fromWei(qTP));
+    console.log("limitAmount", fromWei(limitAmount));    
+    console.log("DEBUG<<<");
 
     return await sendWithExecFee(
         context,

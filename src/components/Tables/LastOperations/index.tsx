@@ -762,6 +762,66 @@ export default function LastOperations(props: LastOperationsProps) {
                         title: t("operations.actions.received"),
                     },
                 };
+            } else if (row_operation["operation"] === "TCandTPRedeem") {
+
+                const statusData =
+                    status === "executed"
+                        ? row_operation.executed
+                        : row_operation.params;
+                let tp_index =
+                    statusData?.tpIndex_ ||
+                    (statusData as { tpIndex?: number })?.tpIndex;
+                if (tp_index === undefined) tp_index = 0;
+
+                return {
+                    exchange: {
+                        action: "TCandTPRedeem",
+                        amount:
+                            status === "executed"
+                                ? row_operation.executed?.qTC_ || 0
+                                : row_operation.params?.qTC || 0,
+                        name:
+                            (settings.tokens.TC as TokenConfig[])[caIndex]
+                                ?.name || "",
+                        token: (settings.tokens.TC as TokenConfig[])[caIndex],
+                        icon: `TC_${caIndex}`,
+                        title:
+                            status === "executed"
+                                ? t("operations.actions.exchanged")
+                                : t("operations.actions.exchanging"),
+                    },
+                    receive: {
+                        action: "TCandTPRedeem",
+                        amount:
+                            status === "executed"
+                                ? row_operation.executed?.qAC_ || 0
+                                : row_operation.params?.qACmin || 0,
+                        name:
+                            (settings.tokens.CA as TokenConfig[])[caIndex]
+                                ?.name || "",
+                        token: (settings.tokens.CA as TokenConfig[])[caIndex],
+                        icon: `CA_${caIndex}`,
+                        title:
+                            status === "executed"
+                                ? t("operations.actions.received")
+                                : t("operations.actions.receiving"),
+                    },
+                    another: {
+                        action: "TCandTPRedeem",
+                        amount:
+                            status === "executed"
+                                ? row_operation.executed?.qTP_ || 0
+                                : row_operation.params?.qTP || 0,
+                        name: settings.tokens.TP[tp_index].name,
+                        token: settings.tokens.TP[tp_index],
+                        icon: `TP_${tp_index}`,
+                        title:
+                            status === "executed"
+                                ? t("operations.actions.exchanged")
+                                : t("operations.actions.exchanging"),
+                    },
+                };
+
             } else if (row_operation["operation"] === "TCandTPMint") {
                 const statusData =
                     status === "executed"
@@ -1485,6 +1545,14 @@ export default function LastOperations(props: LastOperationsProps) {
                             <div className="LastOp__origin">
                                 {element.exchange}
                             </div>
+                            {element.detail.event === "TCandTPRedeem" && (
+                            <>
+                                <div className="LastOp__divider"></div>
+                                <div className="LastOp__origin">
+                                    {element.another}
+                                </div>
+                            </>
+                            )}
                             <div className="LastOp__divider"></div>
                             <div className="LastOp__destination">
                                 {element.receive}
