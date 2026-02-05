@@ -410,8 +410,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
 
         // Not enough balance to pay fees
         const notEnoughBalanceToPayFees =
-            Object.values(commissionsByKey).length > 0 &&
-            Object.values(commissionsByKey).every(item => item.commission > item.balance);        
+            Object.values(commissionsByKey).some(item => item.commission > item.balance);      
         if (notEnoughBalanceToPayFees) {
             setGlobalValidationErrorText("Not enough balance to pay fees");
             setInputValidationError(true);
@@ -533,12 +532,12 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
 
         const feeBaseForCombined = (baseCA: bigint): bigint => {
             if (operationType === "COMBINED_MINT") {
-              const other = calculateAmountAnotherTokenMintTP(baseCA, caIndex, tpIndex);
-              return baseCA + ConvertAmount(contractProtocolStatus, `CA_${caIndex}`, `TP_${caIndex}`, other.qAC, caIndex);
+                const other = calculateAmountAnotherTokenMintTP(baseCA, caIndex, tpIndex);
+                return baseCA + other.qAC;
             }
             if (operationType === "COMBINED_REDEEM") {
-              const other = calculateAmountAnotherTokenRedeemTC(baseCA, caIndex, tpIndex);
-              return baseCA + ConvertAmount(contractProtocolStatus, `TP_${caIndex}`, `CA_${caIndex}`, other.qAC, caIndex);
+                const other = calculateAmountAnotherTokenRedeemTC(baseCA, caIndex, tpIndex);
+                return baseCA + other.qAC; // CA + CA
             }
             return baseCA;
         };
@@ -616,39 +615,23 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         } else {
             throw new Error("Invalid operation type: " + operationType);
         }
-
-
-        let combinedFee: bigint = 0n;
-        let convertAmountAnotherToken: bigint = 0n;
-        let amountAnotherToken: { qAC: bigint, amount: bigint } = { qAC: 0n, amount: 0n };
-
+        
+        let combinedFeeCA: bigint = amountInCA; 
         if (operationType === "COMBINED_MINT") {                    
-            amountAnotherToken = calculateAmountAnotherTokenMintTP(amountInCA, caIndex, tpIndex);
-            setAmountAnotherToken(amountAnotherToken);
-            convertAmountAnotherToken = ConvertAmount(
-                contractProtocolStatus,
-                `CA_${caIndex}`,
-                `TP_${caIndex}`,
-                amountAnotherToken.qAC,
-                caIndex
-            );                    
+            const other = calculateAmountAnotherTokenMintTP(amountInCA, caIndex, tpIndex);
+            setAmountAnotherToken(other);
+            combinedFeeCA = amountInCA + other.qAC;                     
         } else if (operationType === "COMBINED_REDEEM") {
-            amountAnotherToken = calculateAmountAnotherTokenRedeemTC(amountInCA, caIndex, tpIndex);                    
-            setAmountAnotherToken(amountAnotherToken);
-            convertAmountAnotherToken = ConvertAmount(
-                contractProtocolStatus,
-                `TP_${caIndex}`,
-                `CA_${caIndex}`,
-                amountAnotherToken.qAC,
-                caIndex
-            );                    
-        }                
-        combinedFee = amountInCA + convertAmountAnotherToken;
+            const other = calculateAmountAnotherTokenRedeemTC(amountInCA, caIndex, tpIndex);
+            setAmountAnotherToken(other);
+            combinedFeeCA = amountInCA + other.qAC;                   
+        }
+
         infoFee = CalcCommission(
             contractProtocolStatus,
             currencyYouExchange,
             currencyYouReceive,
-            combinedFee,
+            combinedFeeCA,
             caIndex
         );
 
@@ -682,6 +665,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                   amountExchangeFee,
                   caIndex
                 );
+                amountInCA = grossCA;
           
                 // fee base for redeem is grossCA (principal CA equivalent)
                 const feeInfoRedeem = CalcCommission(
@@ -757,6 +741,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                 const desiredNetCA = amountReceiveFee; // receive is CA net
           
                 const grossCA = solveGrossCAForNet(desiredNetCA);
+                amountInCA = grossCA;
                 const grossSlip = calculateLimit(grossCA, +(slippageTolerance / 100)); // max pay
           
                 const exchangeIn = ConvertAmount(
@@ -907,12 +892,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
 
         // Execution fee load
         setExecutionFee(execFee);
-
-        // Combined Operations
-        /*if (operationType === "COMBINED_MINT") {
-            const amountAnotherToken = calculateAmountAnotherTokenMint(amountReceive);
-            setAmountAnotherToken(amountAnotherToken);
-        }*/
+        
     };
 
     const onChangeAmountYouExchange = (newAmount: string | number): void => {
