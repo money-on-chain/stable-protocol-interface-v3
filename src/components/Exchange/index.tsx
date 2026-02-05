@@ -416,6 +416,17 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             setInputValidationError(true);
             return;
         }
+
+        if (currencyYouExchange.startsWith("CA_") && radioSelectFee > 0) {
+            const feeCA = commissionsByKey[`CA_${caIndex}`]?.commission ?? 0n;
+            const needed = amountYouExchange + feeCA;
+            const bal = TokenBalance(userBalance, currencyYouExchange);
+            if (needed > bal) {
+                setInputValidationErrorText(t("exchange.errors.notBalance"));
+                setInputValidationError(true);
+                return;
+            }
+        }
         
         // No Validations Errors
         setInputValidationErrorText("");
@@ -530,32 +541,46 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
 
         const payFeeInCA = radioSelectFee > 0;
 
-        const feeBaseForCombined = (baseCA: bigint): bigint => {
+        const feeBaseForCombined = (baseCA: bigint, ctx?: { qTC?: bigint; qTP?: bigint }): bigint => {
             if (operationType === "COMBINED_MINT") {
-                const other = calculateAmountAnotherTokenMintTP(baseCA, caIndex, tpIndex);
+                const other = calculateAmountAnotherTokenMintTP(baseCA, caIndex, tpIndex); // baseCA = qTP (CA principal)
                 return baseCA + other.qAC;
             }
             if (operationType === "COMBINED_REDEEM") {
-                const other = calculateAmountAnotherTokenRedeemTC(baseCA, caIndex, tpIndex);
-                return baseCA + other.qAC; // CA + CA
+                const qTC = ctx?.qTC ?? 0n;
+                const other = calculateAmountAnotherTokenRedeemTC(qTC, caIndex, tpIndex);
+                return baseCA + other.qAC;
             }
             return baseCA;
         };
-          
-
-        const solveGrossCAForNet = (netCA: bigint): bigint => {
-            if (!payFeeInCA) return netCA; // FeeToken mode => net=gross
-            let gross = netCA;
-            for (let i = 0; i < 8; i++) {
-              // fee based on gross
-              const feeInfoTmp = CalcCommission(contractProtocolStatus, currencyYouExchange, currencyYouReceive, feeBaseForCombined(gross), caIndex);
-              const next = netCA + feeInfoTmp.fee;
-              if (next === gross) break;
-              gross = next;
+        
+        const solveGrossCAForNetRedeem = (netCA: bigint): { grossCA: bigint; qTC: bigint } => {
+            if (!payFeeInCA) {                
+                const qTC0 = ConvertAmount(contractProtocolStatus, `CA_${caIndex}`, currencyYouExchange, netCA, caIndex);
+                return { grossCA: netCA, qTC: qTC0 };
             }
-            return gross;
-        };
 
+            let grossCA = netCA;
+            let qTC = 0n;
+
+            for (let i = 0; i < 8; i++) {
+                qTC = ConvertAmount(contractProtocolStatus, `CA_${caIndex}`, currencyYouExchange, grossCA, caIndex);
+
+                const feeInfoTmp = CalcCommission(
+                contractProtocolStatus,
+                currencyYouExchange,
+                currencyYouReceive,
+                feeBaseForCombined(grossCA, { qTC }),
+                caIndex
+                );
+
+                const nextGross = netCA + feeInfoTmp.fee;
+                if (nextGross === grossCA) break;
+                grossCA = nextGross;
+            }
+
+            return { grossCA, qTC };
+        };
 
         let infoFee: CommissionInfo;
         let amountExchangeFee: bigint;
@@ -622,9 +647,9 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             setAmountAnotherToken(other);
             combinedFeeCA = amountInCA + other.qAC;                     
         } else if (operationType === "COMBINED_REDEEM") {
-            const other = calculateAmountAnotherTokenRedeemTC(amountInCA, caIndex, tpIndex);
+            const other = calculateAmountAnotherTokenRedeemTC(amountExchange, caIndex, tpIndex);
             setAmountAnotherToken(other);
-            combinedFeeCA = amountInCA + other.qAC;                   
+            combinedFeeCA = amountInCA + other.qAC;                  
         }
 
         infoFee = CalcCommission(
@@ -672,7 +697,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                   contractProtocolStatus,
                   currencyYouExchange,
                   currencyYouReceive,
-                  feeBaseForCombined(grossCA),
+                  feeBaseForCombined(grossCA, { qTC: amountExchangeFee }),
                   caIndex
                 );
           
@@ -740,29 +765,29 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
               if (isRedeem) {
                 const desiredNetCA = amountReceiveFee; // receive is CA net
           
-                const grossCA = solveGrossCAForNet(desiredNetCA);
+                const { grossCA, qTC } = solveGrossCAForNetRedeem(desiredNetCA);
                 amountInCA = grossCA;
-                const grossSlip = calculateLimit(grossCA, +(slippageTolerance / 100)); // max pay
-          
+
+                const grossSlip = calculateLimit(grossCA, +(slippageTolerance / 100));
+
                 const exchangeIn = ConvertAmount(
-                  contractProtocolStatus,
-                  `CA_${caIndex}`,
-                  currencyYouExchange,
-                  grossSlip,
-                  caIndex
+                    contractProtocolStatus,
+                    `CA_${caIndex}`,
+                    currencyYouExchange,
+                    grossSlip,
+                    caIndex
                 );
-          
+
                 setAmountYouReceive(desiredNetCA);
                 setAmountYouExchange(exchangeIn);
                 setValueExchange(exchangeIn === 0n ? "" : bigIntToInputValue(exchangeIn, currencyYouExchange, exchangeIn < 10n ** 17n ? 12 : 8));
-          
-                // compute fee info on grossCA (principal CA equivalent)
+
                 const feeInfoRedeem = CalcCommission(
-                  contractProtocolStatus,
-                  currencyYouExchange,
-                  currencyYouReceive,
-                  feeBaseForCombined(grossCA),
-                  caIndex
+                    contractProtocolStatus,
+                    currencyYouExchange,
+                    currencyYouReceive,
+                    feeBaseForCombined(grossCA, { qTC }),
+                    caIndex
                 );
                 infoFee = feeInfoRedeem;
                 break;
@@ -859,7 +884,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             commission: baseForFeeToken.totalFeeToken,
             commissionUSD: baseForFeeToken.totalFeeTokenUSD,
             commissionPercent: baseForFeeToken.feeTokenPercent,
-            balance: userBalance.data[caIndex].FeeToken.balance
+            balance: userBalance.data[choosenCAIndex].FeeToken.balance
         });
 
         const priceCA = normalizeToBigInt(
