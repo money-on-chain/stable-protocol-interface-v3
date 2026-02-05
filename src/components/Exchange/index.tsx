@@ -527,26 +527,78 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         let amountReceiveFee: bigint;
         let amountFormattedReceive: string;
         let amountFormattedExchange: string;
+
+        let amountInCA: bigint = 0n;
+        if (operationType === "COMBINED_MINT" || operationType === "MINT") {
+            amountInCA = amountExchange;
+        } else if (operationType === "COMBINED_REDEEM" || operationType === "REDEEM") {
+            amountInCA = amountReceive;
+        } else if (operationType === "SWAP_TPFORTP") {
+            amountInCA = amountExchange;
+        } else if (operationType === "SWAP_TCFORTP") {
+            amountInCA = ConvertAmount(
+                contractProtocolStatus,
+                `TC_${caIndex}`,
+                `CA_${caIndex}`,
+                amountExchange,
+                caIndex
+            );
+        } else if (operationType === "SWAP_TPFORTC") {
+            amountInCA = ConvertAmount(
+                contractProtocolStatus,
+                `TP_${caIndex}`,
+                `CA_${caIndex}`,
+                amountExchange,
+                caIndex
+            );
+        } else {
+            throw new Error("Invalid operation type: " + operationType);
+        }
+
+        let combinedFee: bigint = 0n;
+        let convertAmountAnotherToken: bigint = 0n;
         let amountAnotherToken: { qAC: bigint, amount: bigint } = { qAC: 0n, amount: 0n };
+
+        if (operationType === "COMBINED_MINT") {                    
+            amountAnotherToken = calculateAmountAnotherTokenMintTP(amountInCA, caIndex, tpIndex);
+            setAmountAnotherToken(amountAnotherToken);
+            convertAmountAnotherToken = ConvertAmount(
+                contractProtocolStatus,
+                `CA_${caIndex}`,
+                `TP_${caIndex}`,
+                amountAnotherToken.qAC,
+                caIndex
+            );                    
+        } else if (operationType === "COMBINED_REDEEM") {
+            amountAnotherToken = calculateAmountAnotherTokenRedeemTC(amountInCA, caIndex, tpIndex);                    
+            setAmountAnotherToken(amountAnotherToken);
+            convertAmountAnotherToken = ConvertAmount(
+                contractProtocolStatus,
+                `TP_${caIndex}`,
+                `CA_${caIndex}`,
+                amountAnotherToken.qAC,
+                caIndex
+            );                    
+        }                
+        combinedFee = amountInCA + convertAmountAnotherToken;
+        infoFee = CalcCommission(
+            contractProtocolStatus,
+            currencyYouExchange,
+            currencyYouReceive,
+            combinedFee,
+            caIndex
+        );
+
         switch (source) {
-            case "exchange":
-                if (operationType === "COMBINED_MINT") {                    
-                    amountAnotherToken = calculateAmountAnotherTokenMintTP(amountExchange, caIndex, tpIndex);                    
-                    setAmountAnotherToken(amountAnotherToken);
-                } else if (operationType === "COMBINED_REDEEM") {
-                    amountAnotherToken = calculateAmountAnotherTokenRedeemTC(amountExchange, caIndex, tpIndex);
-                    amountReceive = amountReceive                    
-                    setAmountAnotherToken(amountAnotherToken);                    
-                }
-                infoFee = CalcCommission(
+            case "exchange":                                
+                amountExchangeFee = amountExchange;
+                amountReceiveFee = ConvertAmount(
                     contractProtocolStatus,
                     currencyYouExchange,
-                    currencyYouReceive,
+                    `CA_${caIndex}`,
                     amountReceive,
                     caIndex
-                );
-                amountExchangeFee = amountExchange;
-                amountReceiveFee = amountReceive - infoFee.fee;                
+                ) //- infoFee.fee;                
                 amountReceiveFee = calculateLimit(
                     amountReceiveFee,
                     -(slippageTolerance / 100)
@@ -563,22 +615,13 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                 setAmountYouExchange(amountExchangeFee);
                 break;
             case "receive":                
-                if (operationType === "COMBINED_MINT") {                    
-                    amountAnotherToken = calculateAmountAnotherTokenMintTP(amountReceive, caIndex, tpIndex);
-                    amountExchange = amountExchange + amountAnotherToken.qAC;                    
-                    setAmountAnotherToken(amountAnotherToken);
-                } else if (operationType === "COMBINED_REDEEM") {
-                    amountAnotherToken = calculateAmountAnotherTokenRedeemTC(amountExchange, caIndex, tpIndex);
-                    setAmountAnotherToken(amountAnotherToken);                    
-                }
-                infoFee = CalcCommission(
+                amountExchangeFee = ConvertAmount(
                     contractProtocolStatus,
                     currencyYouExchange,
-                    currencyYouReceive,
+                    `CA_${caIndex}`,
                     amountExchange,
                     caIndex
-                );
-                amountExchangeFee = amountExchange + infoFee.fee;
+                ) //+ infoFee.fee;
                 amountExchangeFee = calculateLimit(
                     amountExchangeFee,
                     slippageTolerance / 100
@@ -609,27 +652,10 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         let choosenCAIndex: number = caIndex;
         const infoFeeArray: CommissionWithIndex[] = [];
         
-        if (operationType === "MINT" || operationType === "SWAP_TCFORTP" || operationType === "COMBINED_MINT") {
-            const infoFee = CalcCommission(
-                contractProtocolStatus,
-                currencyYouExchange,
-                currencyYouReceive,
-                amountExchange,
-                caIndex
-            );
-        
+        if (operationType === "MINT" || operationType === "SWAP_TCFORTP" || operationType === "COMBINED_MINT") {                    
             infoFeeArray.push({ caIndex, info: infoFee });
-            convertAmountUSD = amountExchangeFee;
-        
+            convertAmountUSD = amountExchangeFee;        
         } else if (operationType === "REDEEM" || operationType === "SWAP_TPFORTC" || operationType === "COMBINED_REDEEM") {
-            const infoFee = CalcCommission(
-                contractProtocolStatus,
-                currencyYouExchange,
-                currencyYouReceive,
-                amountReceive,
-                caIndex
-            );
-        
             infoFeeArray.push({ caIndex, info: infoFee });
             convertAmountUSD = amountReceiveFee;
         
@@ -888,7 +914,9 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         const downAux = (combinedCtargemaCA - toBigIntPrecision(1))
         const aux = divPrecision(upAux, downAux)
         const qTP = divPrecision(mulPrecision(mulPrecision(qTC, pACtp), pTCac), aux)
-        const qTPinAC = mulPrecision(qTP, pACtp)
+        //const qTPinAC = mulPrecision(qTP, pACtp)
+        const qTPinAC = divPrecision(qTP, pACtp)
+
         return { qAC: qTPinAC, amount: qTP };
     };
 
