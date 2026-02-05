@@ -2,6 +2,40 @@ import { formatUnits, hexToBigInt, isHex, parseUnits } from "viem";
 
 const PRECISION_DECIMALS = 18n;
 const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
+export const WAD = 10n ** PRECISION_DECIMALS;
+
+export type Rounding = "down" | "halfUp" | "up";
+
+/**
+ * (a * b) / denom with rounding control.
+ * Note overflow: BigInt does not overflow, but it can grow very much.
+ */
+export function mulDiv(a: bigint, b: bigint, denom: bigint, rounding: Rounding = "down"): bigint {
+  if (denom === 0n) return 0n;
+
+  const prod = a * b;
+
+  if (rounding === "down") return prod / denom;
+
+  const q = prod / denom;
+  const r = prod % denom;
+
+  if (r === 0n) return q;
+
+  if (rounding === "up") return q + 1n;
+
+  // halfUp
+  // if r*2 >= denom => +1
+  return (r * 2n >= denom) ? (q + 1n) : q;
+}
+
+// Versions “wad”
+export const wadMul = (a: bigint, b: bigint, rounding: Rounding = "down") =>
+  mulDiv(a, b, WAD, rounding);
+
+export const wadDiv = (a: bigint, b: bigint, rounding: Rounding = "down") =>
+  mulDiv(a, WAD, b, rounding);
+
 
 /**
  * Converts a float or string value to bigint with 18 decimal precision.

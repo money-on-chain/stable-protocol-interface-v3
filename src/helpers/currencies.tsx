@@ -20,7 +20,12 @@ import {
     fromWei,
     mulPrecision,
     normalizeToBigInt,
+    mulDiv,
+    WAD,
+    wadDiv,
+    wadMul,
 } from "./precision";
+import type { Rounding } from "./precision";
 
 interface Currency {
     value: string;
@@ -228,7 +233,7 @@ function ConvertAmount(
                 normalizeToBigInt(
                     contractProtocolStatus.data?.[caIndex]?.getPTCac || 0n
                 ) || 0n;
-            cAmount = price === 0n ? 0n : divPrecision(amount, price);
+                cAmount = price === 0n ? 0n : wadDiv(amount, price, "halfUp"); // or "halfUp"
             break;
         case "TP,CA":
             // Redeem Operation
@@ -238,7 +243,7 @@ function ConvertAmount(
                         parseInt(aTokenExchange[1])
                     ]?.[0] || 0n
                 ) || 0n;
-            cAmount = price === 0n ? 0n : divPrecision(amount, price);
+            cAmount = price === 0n ? 0n : wadDiv(amount, price, "halfUp"); // "halfUp" if you want UI-friendly
             break;
         case "TP,TP":        
             // Swap Operation
@@ -254,7 +259,10 @@ function ConvertAmount(
                         parseInt(aTokenReceive[1])
                     ]?.[0] || 0n
                 ) || 0n;    
-            cAmount = price_from === 0n || price_to === 0n ? 0n : divPrecision(mulPrecision(amount, price_to), price_from);
+            cAmount =
+                (price_from === 0n || price_to === 0n)
+                    ? 0n
+                    : mulDiv(amount, price_to, price_from, "halfUp"); // "halfUp" if you want UI-friendly
             break;
         case "CA,TP":
             // Mint Operation
@@ -264,7 +272,7 @@ function ConvertAmount(
                         parseInt(aTokenReceive[1])
                     ]?.[0] || 0n
                 ) || 0n;
-            cAmount = mulPrecision(amount, price);
+            cAmount = wadMul(amount, price, "halfUp"); // "halfUp" if you want UI-friendly
             break;
         case "TC,CA":
             // Redeem Operation
@@ -272,7 +280,7 @@ function ConvertAmount(
                 normalizeToBigInt(
                     contractProtocolStatus.data?.[caIndex]?.getPTCac || 0n
                 ) || 0n;
-            cAmount = mulPrecision(amount, price);
+            cAmount = wadMul(amount, price, "halfUp"); // "down" if you want UI-friendly
             break;
         case "TG,CA":
             // TG
@@ -281,7 +289,7 @@ function ConvertAmount(
                     contractProtocolStatus.data?.[caIndex]?.PP_FeeToken?.[0] ||
                         0n
                 ) || 0n;
-            cAmount = mulPrecision(amount, price);
+            cAmount = wadMul(amount, price, "halfUp");
             break;
         case "COINBASE,CA":
             // COINBASE
@@ -289,24 +297,24 @@ function ConvertAmount(
                 normalizeToBigInt(
                     contractProtocolStatus.data?.PP_COINBASE[0] || 0n
                 ) || 0n;
-            cAmount = mulPrecision(amount, price);
+            cAmount = wadMul(amount, price, "halfUp");
             break;
         case "CA,CA":
             cAmount = amount;
             break;
         case "TC,TP":
-            // Swap Operation TC for TP
             price_from =
-                normalizeToBigInt(
-                    contractProtocolStatus.data?.[caIndex]?.getPTCac || 0n
-                ) || 0n;
+                normalizeToBigInt(contractProtocolStatus.data?.[caIndex]?.getPTCac || 0n) || 0n;
+
             price_to =
                 normalizeToBigInt(
-                    contractProtocolStatus.data?.[caIndex]?.PP_TP?.[
-                        parseInt(aTokenReceive[1])
-                    ]?.[0] || 0n
-                ) || 0n;     
-            cAmount = price_from === 0n || price_to === 0n ? 0n : mulPrecision(mulPrecision(amount, price_to), price_from);
+                contractProtocolStatus.data?.[caIndex]?.PP_TP?.[parseInt(aTokenReceive[1])]?.[0] || 0n
+                ) || 0n;
+
+            cAmount =
+                (price_from === 0n || price_to === 0n)
+                ? 0n
+                : mulDiv(amount, price_from, price_to, "halfUp"); // "halfUp" if you want UI-friendly
             break;
         case "TP,TC":
                 // Swap Operation TP for TC
@@ -320,7 +328,11 @@ function ConvertAmount(
                     normalizeToBigInt(
                         contractProtocolStatus.data?.[caIndex]?.getPTCac || 0n
                     ) || 0n;     
-            cAmount = price_from === 0n || price_to === 0n ? 0n : divPrecision(divPrecision(amount, price_from), price_to);
+                // TC = amount * WAD^2 / (price_from * price_to)
+                cAmount =
+                    (price_from === 0n || price_to === 0n)
+                    ? 0n
+                    : mulDiv(amount, WAD * WAD, price_from * price_to, "halfUp"); // "halfUp" if you want UI-friendly
             break;        
         default:
             throw new Error("Invalid token name");
@@ -396,101 +408,119 @@ function CalcCommission(
     tokenReceive: string,
     rawAmount: bigint,
     caIndex: number
-): FeeInfo {
-    const amount: bigint = rawAmount;
-
+  ): FeeInfo {
+    // Amount is expressed in CA units
+    const amount = rawAmount;
+  
     let feeParam: bigint;
-
+  
     const aTokenExchange = tokenExchange.split("_");
     const aTokenReceive = tokenReceive.split("_");
     const aTokenMap = `${aTokenExchange[0]},${aTokenReceive[0]}`;
-
+  
+    // Select fee parameter depending on the operation
     switch (aTokenMap) {
-        case "CA,TC":
-            // Mint TC
-            feeParam = contractProtocolStatus.data?.[caIndex].tcMintFee || 0n;
-            break;
-        case "TP,CA":
-            // Redeem TP
-            feeParam =
-                contractProtocolStatus.data?.[caIndex].tpRedeemFees[
-                    parseInt(aTokenExchange[1])
-                ] || 0n;
-            break;
-        case "CA,TP":
-            // Mint TP
-            feeParam =
-                contractProtocolStatus.data?.[caIndex].tpMintFees[
-                    parseInt(aTokenReceive[1])
-                ] || 0n;
-            break;
-        case "TC,CA":
-            // Redeem TC
-            feeParam = contractProtocolStatus.data?.[caIndex].tcRedeemFee || 0n;
-            break;
-        case "TP,TP":        
-            // Swap TP
-            feeParam =
-                contractProtocolStatus.data?.[caIndex].swapTPforTPFee || 0n;
-            break;    
-        case "TC,TP":
-            // Swap TC
-            feeParam =
-                contractProtocolStatus.data?.[caIndex].swapTCforTPFee || 0n;
-            break;    
-        case "TP,TC":
-            // Swap TP for TC
-            feeParam =
-                contractProtocolStatus.data?.[caIndex].swapTPforTCFee || 0n;
-            break;    
-        default:
-            throw new Error("Invalid token name");
+      case "CA,TC": // Mint TC
+        feeParam = contractProtocolStatus.data?.[caIndex].tcMintFee || 0n;
+        break;
+  
+      case "TP,CA": // Redeem TP
+        feeParam =
+          contractProtocolStatus.data?.[caIndex].tpRedeemFees[
+            parseInt(aTokenExchange[1])
+          ] || 0n;
+        break;
+  
+      case "CA,TP": // Mint TP
+        feeParam =
+          contractProtocolStatus.data?.[caIndex].tpMintFees[
+            parseInt(aTokenReceive[1])
+          ] || 0n;
+        break;
+  
+      case "TC,CA": // Redeem TC
+        feeParam = contractProtocolStatus.data?.[caIndex].tcRedeemFee || 0n;
+        break;
+  
+      case "TP,TP": // Swap TP → TP
+        feeParam =
+          contractProtocolStatus.data?.[caIndex].swapTPforTPFee || 0n;
+        break;
+  
+      case "TC,TP": // Swap TC → TP
+        feeParam =
+          contractProtocolStatus.data?.[caIndex].swapTCforTPFee || 0n;
+        break;
+  
+      case "TP,TC": // Swap TP → TC
+        feeParam =
+          contractProtocolStatus.data?.[caIndex].swapTPforTCFee || 0n;
+        break;
+  
+      default:
+        throw new Error("Invalid token pair");
     }
-
-    // Fee Paying with Token
+  
+    const rounding: Rounding = "down"; // safe / conservative rounding
+  
+    // Prices and parameters (all in WAD)
     const feeTokenPrice =
-        normalizeToBigInt(
-            contractProtocolStatus.data?.[caIndex]?.PP_FeeToken?.[0] || 0n
-        ) || 0n;
+      normalizeToBigInt(
+        contractProtocolStatus.data?.[caIndex]?.PP_FeeToken?.[0] || 0n
+      ) || 0n;
+  
     const feeTokenPct =
-        contractProtocolStatus.data?.[caIndex]?.feeTokenPct || 0n;
+      contractProtocolStatus.data?.[caIndex]?.feeTokenPct || 0n;
+  
     const priceCA =
-        normalizeToBigInt(
-            contractProtocolStatus.data?.[caIndex]?.PP_CA?.[0] || 0n
-        ) || 0n;
-    const qFeeToken = mulPrecision(amount, mulPrecision(feeParam, feeTokenPct));
-
-    // Markup Vendors
+      normalizeToBigInt(
+        contractProtocolStatus.data?.[caIndex]?.PP_CA?.[0] || 0n
+      ) || 0n;
+  
     const vendorMarkup =
-        contractProtocolStatus.data?.[caIndex].vendorMarkup || 0n;
-    const markOperation = mulPrecision(amount, vendorMarkup);
-
-    // Total fee token
-    const totalFeeToken = qFeeToken + markOperation;
-
+      contractProtocolStatus.data?.[caIndex].vendorMarkup || 0n;
+  
+    // Base fee for the operation (in CA)
+    const baseFee = wadMul(amount, feeParam, rounding);
+  
+    // Vendor markup (in CA)
+    const markupFee = wadMul(amount, vendorMarkup, rounding);
+  
+    // Total fee charged in CA
+    const totalFeeCA = baseFee + markupFee;
+  
+    // Fee value in USD (CA → USD)
+    const feeUSD = wadMul(totalFeeCA, priceCA, rounding);
+  
+    // Portion of the fee paid using the fee token (percentage applied to base fee)
+    const feeTokenPortionCA = wadMul(baseFee, feeTokenPct, rounding);
+  
+    // Total amount paid via fee token (includes vendor markup)
+    const totalFeeTokenCA = feeTokenPortionCA + markupFee;
+  
+    // Convert CA fee to fee token units
+    const totalFeeToken =
+      feeTokenPrice === 0n
+        ? 0n
+        : wadDiv(totalFeeTokenCA, feeTokenPrice, rounding);
+  
     const feeInfo: FeeInfo = {
-        fee: mulPrecision(amount, feeParam) + markOperation,
-        feeUSD: mulPrecision(
-            mulPrecision(amount, feeParam) + markOperation,
-            priceCA || 0n
-        ),
-        percent: (feeParam + vendorMarkup) * 100n,
-        markup: vendorMarkup,
-        markOperation: markOperation,
-        feeTokenPrice: feeTokenPrice,
-        feeTokenPct: feeTokenPct,
-        totalFeeToken:
-            feeTokenPrice === 0n
-                ? 0n
-                : divPrecision(totalFeeToken, feeTokenPrice),
-        totalFeeTokenUSD: mulPrecision(totalFeeToken, priceCA),
-        feeTokenPercent:
-            (mulPrecision(feeParam, feeTokenPct) + vendorMarkup) * 100n,
+      fee: totalFeeCA,
+      feeUSD,
+      percent: (feeParam + vendorMarkup) * 100n,
+      markup: vendorMarkup,
+      markOperation: markupFee,
+      feeTokenPrice,
+      feeTokenPct,
+      totalFeeToken,
+      totalFeeTokenUSD: wadMul(totalFeeTokenCA, priceCA, rounding),
+      feeTokenPercent:
+        (wadMul(feeParam, feeTokenPct, rounding) + vendorMarkup) * 100n,
     };
-
+  
     return feeInfo;
 }
-
+  
 export {
     bigIntToInputValue,
     CalcCommission,
