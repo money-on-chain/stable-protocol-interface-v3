@@ -912,8 +912,8 @@ export default function LastOperations(props: LastOperationsProps) {
                     another: {
                         amount: 0,
                         name: "",
-                        token: (settings.tokens.TC as TokenConfig[])[caIndex],
-                        icon: `TC_${caIndex}`,
+                        token: (settings.tokens.TC as TokenConfig[])[0],
+                        icon: `TC_${0}`,
                         title: t("operations.actions.received"),
                     },
                 };
@@ -1435,7 +1435,7 @@ export default function LastOperations(props: LastOperationsProps) {
                                                 {(() => {
                                                     const receiveToken = token
                                                         .another
-                                                        .token as TokenConfig;
+                                                        .token as TokenConfig;                                                    
                                                     return PrecisionNumbers({
                                                         amount: BigInt(
                                                             token.another.amount
