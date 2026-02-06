@@ -303,18 +303,16 @@ function ConvertAmount(
             cAmount = amount;
             break;
         case "TC,TP":
-            price_from =
-                normalizeToBigInt(contractProtocolStatus.data?.[caIndex]?.getPTCac || 0n) || 0n;
-
-            price_to =
-                normalizeToBigInt(
+            price_from = normalizeToBigInt(contractProtocolStatus.data?.[caIndex]?.getPTCac || 0n) || 0n; // CA/TC
+            price_to = normalizeToBigInt(
                 contractProtocolStatus.data?.[caIndex]?.PP_TP?.[parseInt(aTokenReceive[1])]?.[0] || 0n
-                ) || 0n;
+            ) || 0n; // TP/CA
 
             cAmount =
                 (price_from === 0n || price_to === 0n)
                 ? 0n
-                : mulDiv(amount, price_from, price_to, "halfUp"); // "halfUp" if you want UI-friendly
+                // TC * (CA/TC) * (TP/CA) / WAD^2
+                : mulDiv(amount, price_from * price_to, WAD * WAD, "halfUp");
             break;
         case "TP,TC":
                 // Swap Operation TP for TC
