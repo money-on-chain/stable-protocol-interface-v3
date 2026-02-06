@@ -407,10 +407,11 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         if (arrCurrencyYouExchange[0] === "TP" && arrCurrencyYouReceive[0] === "TP") {
 
         }
-
+        
         // Not enough balance to pay fees
         const notEnoughBalanceToPayFees =
-            Object.values(commissionsByKey).some(item => item.commission > item.balance);      
+            Object.values(commissionsByKey).length > 0 &&
+            Object.values(commissionsByKey).every(item => item.commission > item.balance);        
         if (notEnoughBalanceToPayFees) {
             setGlobalValidationErrorText("Not enough balance to pay fees");
             setInputValidationError(true);
