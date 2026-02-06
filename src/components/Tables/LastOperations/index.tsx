@@ -360,47 +360,32 @@ export default function LastOperations(props: LastOperationsProps) {
     };
 
     const getTokenInfo = useCallback((token: string) => {
-        switch (token) {
-            case "CA_0":
-                return {
-                    name: (settings.tokens.CA as TokenConfig[])[0]?.name || "",
-                    token: (settings.tokens.CA as TokenConfig[])[0],
-                };
-            case "CA_1":
-                return {
-                    name: (settings.tokens.CA as TokenConfig[])[1]?.name || "",
-                    token: (settings.tokens.CA as TokenConfig[])[1],
-                };
-            case "TC_0":
-                return {
-                    name: settings.tokens.TC[0].name,
-                    token: settings.tokens.TC[0],
-                };
-            case "TC_1":
-                return {
-                    name: settings.tokens.TC[1].name,
-                    token: settings.tokens.TC[1],
-                };
-            case "TP_0":
-                return {
-                    name: settings.tokens.TP[0].name,
-                    token: settings.tokens.TP[0],
-                };
-            case "TP_1":
-                return {
-                    name: settings.tokens.TP[1].name,
-                    token: settings.tokens.TP[1],
-                };
-            case "FeeToken":
-                return {
-                    name: settings.tokens.TF[0].name,
-                    token: settings.tokens.TF[0],
-                };
-            default:
-                console.warn("UNRECOGNIZED TOKEN: " + token);
-                return undefined;
+        if (token === "FeeToken") {
+            return {
+                name: settings.tokens.TF[0].name,
+                token: settings.tokens.TF[0],
+            };
         }
-    }, []);
+        const match = token.match(/^(CA|TC|TP)_(\d+)$/);
+        if (match) {
+            const [, prefix, indexStr] = match;
+            const index = parseInt(indexStr, 10);
+            const arr =
+                prefix === "CA"
+                    ? (settings.tokens.CA as TokenConfig[])
+                    : prefix === "TC"
+                      ? settings.tokens.TC
+                      : settings.tokens.TP;
+            const tokenConfig = arr[index];
+            if (!tokenConfig) return undefined;
+            return {
+                name: tokenConfig?.name || "",
+                token: tokenConfig,
+            };
+        }
+        console.warn("UNRECOGNIZED TOKEN: " + token);
+        return undefined;
+    }, [settings]);
 
     const tokenExchange = useCallback(
         (row_operation: OperationData): TokenExchangeResult | undefined => {
@@ -1148,62 +1133,41 @@ export default function LastOperations(props: LastOperationsProps) {
         [t]
     );
     const getAsset = useCallback((name: string) => {
-        switch (name) {
-            case "CA_0":
-                return {
-                    image: <div className="icon-token-ca_0 icon-token-modif" />,
-                    color: "color-token-tp",
-                    txt: "CA",
-                };
-            case "CA_1":
-                return {
-                    image: <div className="icon-token-ca_1 icon-token-modif" />,
-                    color: "color-token-tp",
-                    txt: "CA",
-                };
-            case "TC_0":
-                return {
-                    image: <div className="icon-token-tc_0 icon-token-modif" />,
-                    color: "color-token-tc",
-                    txt: "TC",
-                };
-            case "TC_1":
-                return {
-                    image: <div className="icon-token-tc_1 icon-token-modif" />,
-                    color: "color-token-tc",
-                    txt: "TC",
-                };
-            case "TP_0":
-                return {
-                    image: <div className="icon-token-tp_0 icon-token-modif" />,
-                    color: "color-token-tc",
-                    txt: "TP",
-                };
-            case "TP_1":
-                return {
-                    image: <div className="icon-token-tp_1 icon-token-modif" />,
-                    color: "color-token-tc",
-                    txt: "TP",
-                };
-            case "FeeToken":
-                return {
-                    image: <div className="icon-token-tf icon-token-modif" />,
-                    color: "color-token-tf",
-                    txt: "TF",
-                };
-            default:
-                console.warn("UNRECOGNIZED TOKEN: " + name);
-                return {
-                    image: (
-                        <div
-                            className="icon-token-MOC"
-                            style={{ display: "block", margin: "auto" }}
-                        />
-                    ),
-                    color: "color-token-tp",
-                    txt: "TP",
-                };
+        if (name === "FeeToken") {
+            return {
+                image: <div className="icon-token-tf icon-token-modif" />,
+                color: "color-token-tf",
+                txt: "TF",
+            };
         }
+        const match = name.match(/^(CA|TC|TP)_(\d+)$/);
+        if (match) {
+            const [, prefix, index] = match;
+            const prefixLower = prefix.toLowerCase();
+            const iconClass = `icon-token-${prefixLower}_${index} icon-token-modif`;
+            const color =
+                prefix === "CA"
+                    ? "color-token-tp"
+                    : prefix === "TC"
+                      ? "color-token-tc"
+                      : "color-token-tc";
+            return {
+                image: <div className={iconClass} />,
+                color,
+                txt: prefix,
+            };
+        }
+        console.warn("UNRECOGNIZED TOKEN: " + name);
+        return {
+            image: (
+                <div
+                    className="icon-token-MOC"
+                    style={{ display: "block", margin: "auto" }}
+                />
+            ),
+            color: "color-token-tp",
+            txt: "TP",
+        };
     }, []);
     // Memoize the processed table data to avoid recalculating on every render
     const processedData = useMemo(() => {
