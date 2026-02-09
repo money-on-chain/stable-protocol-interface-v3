@@ -1533,7 +1533,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                             }
                                         )}
                                     </span>
-                                </div>
+                                </div>                                
                                 <div className="tx-fees-item">
                                     <span className={"token_exchange"}>
                                         1{" "}
@@ -1576,6 +1576,98 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                         )}
                                     </span>
                                 </div>
+
+                                {isCombinedOperation && (<div className="tx-fees-item">
+                                    <span className={""}>
+                                        {" "}
+                                        1{" "}
+                                        {t(
+                                            `exchange.tokens.${operationType === "COMBINED_MINT" ? `TC_${caIndex}` : `TP_${tpIndex}`}.abbr`,
+                                            {
+                                                ns: ns,
+                                            }
+                                        )}
+                                    </span>
+                                    <span className={"symbol"}> ≈ </span>
+                                    <span className={"token_receive"}>
+                                        {" "}
+                                        {!contractProtocolStatus.data
+                                            ? "--"
+                                            : PrecisionNumbers({
+                                                  amount: ConvertAmount(
+                                                      contractProtocolStatus,
+                                                      operationType === "COMBINED_MINT" ? `TC_${caIndex}` : `TP_${tpIndex}`,
+                                                      `CA_${caIndex}`,
+                                                      1000000000000000000n,
+                                                      caIndex
+                                                  ),
+                                                  decimals:
+                                                      TokenSettings(
+                                                          `CA_${caIndex}`
+                                                      ).visibleDecimals || 2,
+                                                  token: TokenSettings(
+                                                      `CA_${caIndex}`
+                                                  ),
+                                                  i18n: i18n,
+                                              })}
+                                    </span>
+                                    <span className={"token_receive_name"}>
+                                        {" "}
+                                        {t(
+                                            `exchange.tokens.CA_${caIndex}.abbr`,
+                                            {
+                                                ns: ns,
+                                            }
+                                        )}
+                                    </span>
+                                </div> )}
+
+                                {isCombinedOperation && (<div className="tx-fees-item">
+                                    <span className={"token_exchange"}>
+                                        1{" "}
+                                        {t(
+                                            `exchange.tokens.CA_${caIndex}.abbr`,
+                                            {
+                                                ns: ns,
+                                            }
+                                        )}
+                                    </span>
+                                    <span className={"symbol"}> ≈ </span>
+                                    <span className={"token_receive"}>
+                                        {!contractProtocolStatus.data
+                                            ? "--"
+                                            : PrecisionNumbers({
+                                                  amount: ConvertAmount(
+                                                      contractProtocolStatus,
+                                                      `CA_${caIndex}`,
+                                                      operationType === "COMBINED_MINT" ? `TC_${caIndex}` : `TP_${tpIndex}`,
+                                                      1000000000000000000n,
+                                                      caIndex
+                                                  ),
+                                                  decimals:
+                                                      TokenSettings(
+                                                          operationType === "COMBINED_MINT" ? `TC_${caIndex}` : `TP_${tpIndex}`
+                                                      ).visibleDecimals || 2,
+                                                  token: TokenSettings(
+                                                      operationType === "COMBINED_MINT" ? `TC_${caIndex}` : `TP_${tpIndex}`
+                                                  ),
+                                                  i18n: i18n,
+                                              })}
+                                    </span>
+                                    <span className={"token_receive_name"}>
+                                        {" "}
+                                        {t(
+                                            `exchange.tokens.${operationType === "COMBINED_MINT" ? `TC_${caIndex}` : `TP_${tpIndex}`}.abbr`,
+                                            {
+                                                ns: ns,
+                                            }
+                                        )}
+                                    </span>
+                                </div>)}
+
+                                
+
+                                
                             </div>
                             <div className="tx-fee-options">
                                 <CommissionsSelector
