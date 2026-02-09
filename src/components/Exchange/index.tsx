@@ -992,7 +992,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         }
     };
 
-    const calculateFinalAmountExchange = (): bigint => {
+    /*const calculateFinalAmountExchange = (): bigint => {
         const arrCurrencyYouExchange = currencyYouExchange.split("_");
         if (arrCurrencyYouExchange[0] === "CA") {
             const totalbalance = TokenBalance(userBalance, currencyYouExchange);
@@ -1008,7 +1008,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         } else {
             return amountYouExchange;
         }
-    };
+    };*/
 
     const onChangeSlippageTolerance = async (value: number): Promise<void> => {
         console.warn("slippage tolerance", value);
@@ -1194,6 +1194,15 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                         </div>
                     )}
 
+                    {isCombinedOperation && (<div className="total-amount-usd">
+                        <div className="total-amount-usd-label">Total amount in USD:</div><span>{PrecisionNumbers({
+                            amount: exchangingUSD,
+                            token: TokenSettings("CA_0"),
+                            decimals: 8,
+                            i18n: i18n,
+                        })}</span>
+                    </div>)}
+
                     <div className="buttonSwap" onClick={handleSwapCurrencies}>
                         <div className="icon-swap"></div>
                     </div>
@@ -1297,6 +1306,15 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                             </div>
                         </div>
                     )}
+
+                    {isCombinedOperation && (<div className="total-amount-usd">
+                        <div className="total-amount-usd-label">Total amount in USD:</div><span>{PrecisionNumbers({
+                            amount: exchangingUSD,
+                            token: TokenSettings("CA_0"),
+                            decimals: 8,
+                            i18n: i18n,
+                        })}</span>
+                    </div>)}
                 </div>
                 <div className="info">
                     <div className="tx-amount-container">
