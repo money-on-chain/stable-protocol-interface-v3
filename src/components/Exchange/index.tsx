@@ -1088,6 +1088,20 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         return { qAC: qTPinAC, amount: qTP };
     };
 
+    const onConvertUSDYouExchange = (amount: string): bigint => {        
+        const amountBigInt = toBigIntPrecision(amount);
+        if (amountBigInt < 0n) return 0n;
+        const amountUSD = ConvertAmount(contractProtocolStatus, currencyYouExchange, "USD", amountBigInt, caIndex);
+        return amountUSD;
+    };
+
+    const onConvertUSDYouReceive = (amount: string): bigint => {        
+        const amountBigInt = toBigIntPrecision(amount);
+        if (amountBigInt < 0n) return 0n;
+        const amountUSD = ConvertAmount(contractProtocolStatus, currencyYouReceive, "USD", amountBigInt, caIndex);
+        return amountUSD;
+    };
+
     return (
         <div>
             <div className="sectionExchange__Content">
@@ -1126,6 +1140,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                             setAddTotalAvailable={setAddTotalAvailable}
                             action={t("exchange.labelSending")}
                             balanceText={t("exchange.labelBalance")}
+                            onConvertUSD={onConvertUSDYouExchange}
                         />
                         <div className="amountInput__feedback amountInput__feedback--error">
                             {inputValidationErrorText}
@@ -1220,6 +1235,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                             setAddTotalAvailable={setAddTotalAvailable}
                             action={t("exchange.labelReceiving")}
                             balanceText={t("exchange.labelUpTo")}
+                            onConvertUSD={onConvertUSDYouReceive}
                         />
                     </div>
                     {isCombinedOperation && operationType === "COMBINED_MINT" && (

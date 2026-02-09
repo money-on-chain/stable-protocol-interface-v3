@@ -64,6 +64,197 @@ const currencies: Currency[] = [
 
 const getCurrenciesDetail = (): Currency[] => currencies;
 
+
+export type Rounding = "down" | "halfUp" | "up";
+type CoreToken = "CA" | "TC" | "TP" | "TG" | "COINBASE";
+type AnyToken = CoreToken | "USD";
+
+function priceCAUSD(
+  contractProtocolStatus: ContractProtocolStatusResult,
+  caIndex: number
+): bigint {
+  return (
+    normalizeToBigInt(contractProtocolStatus.data?.[caIndex]?.PP_CA?.[0] || 0n) ||
+    0n
+  );
+}
+
+function convertCore(
+  contractProtocolStatus: ContractProtocolStatusResult,
+  tokenExchange: string, // core only
+  tokenReceive: string,  // core only
+  amount: bigint,
+  caIndex: number,
+  rounding: Rounding
+): bigint {
+  let price = 0n;
+  let price_from = 0n;
+  let price_to = 0n;
+
+  const aEx = tokenExchange.split("_");
+  const aRe = tokenReceive.split("_");
+  const map = `${aEx[0]},${aRe[0]}`;
+
+  switch (map) {
+    case "CA,CA":
+      return amount;
+
+    case "CA,TC": {
+      price = normalizeToBigInt(contractProtocolStatus.data?.[caIndex]?.getPTCac || 0n) || 0n; // CA/TC
+      return price === 0n ? 0n : wadDiv(amount, price, rounding);
+    }
+
+    case "TC,CA": {
+      price = normalizeToBigInt(contractProtocolStatus.data?.[caIndex]?.getPTCac || 0n) || 0n; // CA/TC
+      return wadMul(amount, price, rounding);
+    }
+
+    case "CA,TP": {
+      price =
+        normalizeToBigInt(
+          contractProtocolStatus.data?.[caIndex]?.PP_TP?.[parseInt(aRe[1])]?.[0] || 0n
+        ) || 0n; // TP/CA
+      return wadMul(amount, price, rounding);
+    }
+
+    case "TP,CA": {
+      price =
+        normalizeToBigInt(
+          contractProtocolStatus.data?.[caIndex]?.PP_TP?.[parseInt(aEx[1])]?.[0] || 0n
+        ) || 0n; // TP/CA
+      return price === 0n ? 0n : wadDiv(amount, price, rounding);
+    }
+
+    case "TP,TP": {
+      price_from =
+        normalizeToBigInt(
+          contractProtocolStatus.data?.[caIndex]?.PP_TP?.[parseInt(aEx[1])]?.[0] || 0n
+        ) || 0n;
+      price_to =
+        normalizeToBigInt(
+          contractProtocolStatus.data?.[caIndex]?.PP_TP?.[parseInt(aRe[1])]?.[0] || 0n
+        ) || 0n;
+
+      return (price_from === 0n || price_to === 0n)
+        ? 0n
+        : mulDiv(amount, price_to, price_from, rounding);
+    }
+
+    case "TF,CA":
+    case "TG,CA": {
+      price = normalizeToBigInt(contractProtocolStatus.data?.[caIndex]?.PP_FeeToken?.[0] || 0n) || 0n; // CA/TG
+      return wadMul(amount, price, rounding);
+    }
+
+    case "CA,TF":
+    case "CA,TG": {
+      price = normalizeToBigInt(contractProtocolStatus.data?.[caIndex]?.PP_FeeToken?.[0] || 0n) || 0n; // CA/TG
+      return price === 0n ? 0n : wadDiv(amount, price, rounding);
+    }
+
+    case "COINBASE,CA": {
+      price = normalizeToBigInt(contractProtocolStatus.data?.PP_COINBASE?.[0] || 0n) || 0n; // CA/COINBASE
+      return wadMul(amount, price, rounding);
+    }
+
+    case "CA,COINBASE": {
+      price = normalizeToBigInt(contractProtocolStatus.data?.PP_COINBASE?.[0] || 0n) || 0n; // CA/COINBASE
+      return price === 0n ? 0n : wadDiv(amount, price, rounding);
+    }
+
+    case "TC,TP": {
+      const ca = convertCore(contractProtocolStatus, tokenExchange, `CA_${caIndex}`, amount, caIndex, rounding);
+      return convertCore(contractProtocolStatus, `CA_${caIndex}`, tokenReceive, ca, caIndex, rounding);
+    }
+
+    case "TP,TC": {
+      const ca = convertCore(contractProtocolStatus, tokenExchange, `CA_${caIndex}`, amount, caIndex, rounding);
+      return convertCore(contractProtocolStatus, `CA_${caIndex}`, tokenReceive, ca, caIndex, rounding);
+    }
+
+    default:
+      throw new Error("Invalid token name (core): " + map);
+  }
+}
+
+function ConvertAmount(
+    contractProtocolStatus: ContractProtocolStatusResult,
+    tokenExchange: string,
+    tokenReceive: string,
+    amount: bigint,
+    caIndex: number,
+    rounding: Rounding = "halfUp"
+  ): bigint {
+    const ex0 = tokenExchange.split("_")[0] as AnyToken;
+    const re0 = tokenReceive.split("_")[0] as AnyToken;
+  
+    // =========================
+    // COINBASE <-> USD ONLY
+    // =========================
+    if (ex0 === "COINBASE" && re0 === "USD") {
+      const p = normalizeToBigInt(
+        contractProtocolStatus.data?.PP_COINBASE?.[0] || 0n
+      ) || 0n; // USD / COINBASE
+  
+      return wadMul(amount, p, rounding);
+    }
+  
+    if (ex0 === "USD" && re0 === "COINBASE") {
+      const p = normalizeToBigInt(
+        contractProtocolStatus.data?.PP_COINBASE?.[0] || 0n
+      ) || 0n;
+  
+      return p === 0n ? 0n : wadDiv(amount, p, rounding);
+    }
+  
+    // =========================
+    // Core tokens (CA / TC / TP / TG)
+    // =========================
+    if (ex0 !== "USD" && re0 !== "USD") {
+      return convertCore(
+        contractProtocolStatus,
+        tokenExchange,
+        tokenReceive,
+        amount,
+        caIndex,
+        rounding
+      );
+    }
+  
+    const pCAUSD = priceCAUSD(contractProtocolStatus, caIndex);
+    if (pCAUSD === 0n) return 0n;
+  
+    // X -> USD (X = CA / TC / TP / TG)
+    if (re0 === "USD") {
+      const ca = convertCore(
+        contractProtocolStatus,
+        tokenExchange,
+        `CA_${caIndex}`,
+        amount,
+        caIndex,
+        rounding
+      );
+      return wadMul(ca, pCAUSD, rounding);
+    }
+  
+    // USD -> X
+    if (ex0 === "USD") {
+      const ca = wadDiv(amount, pCAUSD, rounding);
+      return convertCore(
+        contractProtocolStatus,
+        `CA_${caIndex}`,
+        tokenReceive,
+        ca,
+        caIndex,
+        rounding
+      );
+    }
+  
+    // USD -> USD
+    return amount;
+  }
+  
+
 const getCurrencyByValue = (value: string): Currency => {
     const currency = currencies.find((currency) => currency.value === value);
     if (!currency) throw new Error("Currency not found");
@@ -209,7 +400,7 @@ function ConvertBalance(
     );
 }
 
-function ConvertAmount(
+/*function ConvertAmount(
     contractProtocolStatus: ContractProtocolStatusResult,
     tokenExchange: string,
     tokenReceive: string,
@@ -331,13 +522,22 @@ function ConvertAmount(
                     (price_from === 0n || price_to === 0n)
                     ? 0n
                     : mulDiv(amount, WAD * WAD, price_from * price_to, "halfUp"); // "halfUp" if you want UI-friendly
-            break;        
+            break;
+        case "CA,USD":
+                // CA to USD
+                price =
+                    normalizeToBigInt(
+                        contractProtocolStatus.data?.[caIndex]?.PP_CA?.[0] || 0n
+                    ) || 0n;
+                cAmount = wadMul(amount, price, "halfUp");
+                break;    
         default:
             throw new Error("Invalid token name");
     }
 
     return cAmount;
 }
+*/
 
 const bigIntToInputValue = (
     rawAmount: bigint,
