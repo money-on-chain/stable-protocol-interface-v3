@@ -61,36 +61,12 @@ export const toBigIntPrecision = (
 /**
  * Multiplies two values with a given precision
  */
-export const mulPrecision = (
-    a: bigint | number | string,
-    b: bigint | number | string
-) => {
-    // Handle NaN and ensure both parameters are BigInt
-    const bigIntA =
-        typeof a === "bigint" ? a : isNaN(Number(a)) ? 0n : BigInt(a || 0);
-    const bigIntB =
-        typeof b === "bigint" ? b : isNaN(Number(b)) ? 0n : BigInt(b || 0);
-    return (bigIntA * bigIntB) / DECIMALS_18;
-};
+export const mulPrecision = (a: bigint, b: bigint) => (a * b) / WAD;
 
 /**
  * Divides two values with a given precision
  */
-export const divPrecision = (
-    a: bigint | number | string,
-    b: bigint | number | string
-) => {
-    // Handle NaN and ensure both parameters are BigInt
-    const bigIntA =
-        typeof a === "bigint" ? a : isNaN(Number(a)) ? 0n : BigInt(a || 0);
-    const bigIntB =
-        typeof b === "bigint" ? b : isNaN(Number(b)) ? 0n : BigInt(b || 0);
-
-    // Prevent division by zero
-    if (bigIntB === 0n) return 0n;
-
-    return (bigIntA * DECIMALS_18) / bigIntB;
-};
+export const divPrecision = (a: bigint, b: bigint) => (b === 0n ? 0n : (a * WAD) / b);
 
 export const isZeroLike = (v: unknown): boolean =>
     [0, 0n, undefined].includes(v as number | bigint | undefined) ||

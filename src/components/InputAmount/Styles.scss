@@ -128,4 +128,14 @@ input[type="number"] {
     border-color: var(--color-btn-secondary-txt-hover);
     color: var(--color-btn-secondary-txt-hover);
 }
+
+.amountInput {
+    &__usdValue {
+      font-size: 12px;
+      opacity: 0.75;
+      margin-top: 4px;
+      line-height: 1.2;
+    }
+  }
+  
 /* #endregion AMOUNT INPUT */
