@@ -13,13 +13,21 @@ interface InputAmountProps {
     onValueChange: (value: string) => void;
     setAddTotalAvailable: () => void;
     validateError?: boolean;
+
+    /** Optional fiat equivalent calculation */
+    getFiatEquivalent?: (value: number) => number;
+
+    /** Fiat label (defaults to USD) */
+    fiatLabel?: string;
+
+    /** Show ≈ symbol before fiat value (defaults to true) */
+    showApproxSymbol?: boolean;
 }
 
 const InputAmount: React.FC<InputAmountProps> = (props) => {
     const { t } = useProjectTranslation();
-
     const inputRef = useRef<HTMLInputElement>(null);
-    //const [value, setValue] = useState("");
+
     const {
         balanceText,
         action,
@@ -29,11 +37,13 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
         onValueChange,
         setAddTotalAvailable,
         validateError,
+        getFiatEquivalent,
+        fiatLabel = "USD",
+        showApproxSymbol = true,
     } = props;
 
     useEffect(() => {
         const handleWheel = (event: WheelEvent) => {
-            console.warn("Wheel event triggered");
             event.preventDefault();
         };
 
@@ -58,9 +68,11 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
 
     const handleValueChange = (value: string): void => {
         let formattedValue = value;
+
         if (value.length > 20) {
             return;
         }
+
         if (value.startsWith(".")) {
             formattedValue = `0${value}`;
         }
@@ -79,14 +91,22 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
         }
     };
 
+    const numericValue = Number(inputValue);
+
+    const fiatValue = getFiatEquivalent
+        ? getFiatEquivalent(isNaN(numericValue) ? 0 : numericValue)
+        : null;
+
     return (
         <div className="amountInput">
             <div className="amountInput__infoBar">
-                <div className="amountInput__label">{action}</div>
-                <span className="amountInput__available">
-                    {`${balanceText}: `}
-                    {balance}
-                </span>
+                <div className="amountInput__label">{action}</div>{" "}
+                <button
+                    className="amountInput__maxButton"
+                    onClick={setAddTotalAvailable}
+                >
+                    {t("button.inputMaxValue")}
+                </button>
             </div>
             <div className="amountInput__inputBar">
                 <div className="amountInput__amount">
@@ -98,15 +118,25 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
                         onChange={(event) => {
                             handleValueChange(event.target.value);
                         }}
-                        className={`amountInput__value ${validateError ? "amountInput__feedback--error" : ""}`}
+                        className={`amountInput__value ${
+                            validateError ? "amountInput__feedback--error" : ""
+                        }`}
                     />
                 </div>
-                <button
-                    className="amountInput__maxButton"
-                    onClick={setAddTotalAvailable}
-                >
-                    {t("button.inputMaxValue")}
-                </button>
+            </div>
+            <div className="amountInput__infoBar">
+                <div className="amountInput__fiatEquivalent">
+                    {getFiatEquivalent && fiatValue !== null && (
+                        <>
+                            {showApproxSymbol && "≈ "}
+                            {fiatValue.toFixed(2)} {fiatLabel}
+                        </>
+                    )}
+                </div>
+                <span className="amountInput__available">
+                    {`${balanceText}: `}
+                    {balance}
+                </span>
             </div>
         </div>
     );
