@@ -45,6 +45,7 @@ export type ProtocolStatusEntry = {
     getTCAvailableToRedeem: bigint;
     getTPAvailableToMint: bigint[];
     getTotalACavailable: bigint;
+    getCtargemaTP: bigint[];
     liqThrld: bigint;
     liquidated: boolean;
     maxQACToMintTP: bigint;
