@@ -30,6 +30,7 @@ import {
     mulPrecision,
     normalizeToBigInt,
     toBigIntPrecision,
+    fromWei,
 } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings/settings.json";
@@ -544,7 +545,8 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
 
         const feeBaseForCombined = (baseCA: bigint, ctx?: { qTC?: bigint; qTP?: bigint }): bigint => {
             if (operationType === "COMBINED_MINT") {
-                const other = calculateAmountAnotherTokenMintTP(baseCA, caIndex, tpIndex); // baseCA = qTP (CA principal)
+                const qTP = ctx?.qTP ?? 0n;
+                const other = calculateAmountAnotherTokenMintTP(qTP, caIndex, tpIndex); // baseCA = qTP (CA principal)
                 return baseCA + other.qAC;
             }
             if (operationType === "COMBINED_REDEEM") {
@@ -644,7 +646,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         
         let combinedFeeCA: bigint = amountInCA; 
         if (operationType === "COMBINED_MINT") {                    
-            const other = calculateAmountAnotherTokenMintTP(amountInCA, caIndex, tpIndex);
+            const other = calculateAmountAnotherTokenMintTP(amountReceive, caIndex, tpIndex);
             setAmountAnotherToken(other);
             combinedFeeCA = amountInCA + other.qAC;                     
         } else if (operationType === "COMBINED_REDEEM") {
@@ -756,7 +758,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                   contractProtocolStatus,
                   currencyYouExchange,
                   currencyYouReceive,
-                  feeBaseForCombined(principalCA),
+                  feeBaseForCombined(principalCA, { qTP: amountReceiveFee }),
                   caIndex
                 );
                 infoFee = feeInfoMint;
@@ -1047,11 +1049,19 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             qACNeeded = (qACtpMintTC + qACtoMintTP) + fee
         **/
         if (operationType !== "COMBINED_MINT") return { qAC: 0n, amount: 0n };
-        const ctargemaTP = toBigIntPrecision(5.0);
+        const ctargemaTP = normalizeToBigInt(contractProtocolStatus.data[caIndex].getCtargemaTP[tpIndex]) || 0n;
         const pACtp = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_TP[tpIndex][0]) || 0n;
         const pTCac = normalizeToBigInt(contractProtocolStatus.data[caIndex].getPTCac) || 0n;
         const qACtpMintTC = divPrecision(mulPrecision(qTP, ctargemaTP - toBigIntPrecision(1)), pACtp);        
         const amount = mulPrecision(qACtpMintTC, pTCac);
+        console.log("DEBUG>>>")
+        console.log("qTP", fromWei(qTP));
+        console.log("ctargemaTP", fromWei(ctargemaTP));
+        console.log("pACtp", fromWei(pACtp));
+        console.log("pTCac", fromWei(pTCac));
+        console.log("qACtpMintTC", fromWei(qACtpMintTC));
+        console.log("amount", fromWei(amount));
+        console.log("DEBUG<<<");
         return { qAC: qACtpMintTC, amount: amount };
     };
 
@@ -1073,7 +1083,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         
         **/
         if (operationType !== "COMBINED_REDEEM") return { qAC: 0n, amount: 0n };
-        const ctargemaTP = toBigIntPrecision(7.0);
+        const ctargemaTP = normalizeToBigInt(contractProtocolStatus.data[caIndex].getCtargemaTP[tpIndex]) || 0n;
         const combinedCglb = contractProtocolStatus.data.getCombinedCglb;
         const combinedCtargemaCA = contractProtocolStatus.data.getCombinedCtargemaCA;
         const pACtp = normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_TP[tpIndex][0]) || 0n;

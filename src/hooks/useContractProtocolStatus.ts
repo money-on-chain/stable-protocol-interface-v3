@@ -581,6 +581,18 @@ export function useContractProtocolStatus(
 
                 callRequest.push({
                     contract: Moc,
+                    functionName: parsedPrices
+                        ? "calcCtargemaTP"
+                        : "getCtargemaTP",
+                    args: parsedPrices
+                        ? [tpAddresses[tp], priceOfflineTPs[tp]]
+                        : [tpAddress],
+                    resultType: "uint256",
+                    keys: [ca, "getCtargemaTP", tp],
+                });
+
+                callRequest.push({
+                    contract: Moc,
                     functionName: "tpEma",
                     args: [tp],
                     resultType: "uint256",
