@@ -432,9 +432,20 @@ export default function LastOperations(props: LastOperationsProps) {
                     another: {
                         amount: 0,
                         name: "",
-                        token: row_operation["operation"] === "TCandTPMint" ?(settings.tokens.TC as TokenConfig[])[caIndex] : (settings.tokens.TP as TokenConfig[])[caIndex],
-                        icon: row_operation["operation"] === "TCandTPMint" ? `TC_${caIndex}` : `TP_${caIndex}`,
-                        title: row_operation["operation"] === "TCandTPMint" ? t("operations.actions.received") : t("operations.actions.exchanged"),
+                        token:
+                            row_operation["operation"] === "TCandTPMint"
+                                ? (settings.tokens.TC as TokenConfig[])[caIndex]
+                                : (settings.tokens.TP as TokenConfig[])[
+                                      caIndex
+                                  ],
+                        icon:
+                            row_operation["operation"] === "TCandTPMint"
+                                ? `TC_${caIndex}`
+                                : `TP_${caIndex}`,
+                        title:
+                            row_operation["operation"] === "TCandTPMint"
+                                ? t("operations.actions.received")
+                                : t("operations.actions.exchanged"),
                     },
                 };
             }
@@ -651,7 +662,7 @@ export default function LastOperations(props: LastOperationsProps) {
                         amount:
                             status === "executed"
                                 ? row_operation.executed?.qTPto_ || 0
-                                :  0,
+                                : 0,
                         name: settings.tokens.TP[tp_to_index].name,
                         token: settings.tokens.TP[tp_to_index],
                         icon: `TP_${tp_to_index}`,
@@ -714,7 +725,7 @@ export default function LastOperations(props: LastOperationsProps) {
                         icon: `TC_${caIndex}`,
                         title: t("operations.actions.received"),
                     },
-                };  
+                };
             } else if (row_operation["operation"] === "TPSwapForTC") {
                 const statusData =
                     status === "executed"
@@ -763,7 +774,6 @@ export default function LastOperations(props: LastOperationsProps) {
                     },
                 };
             } else if (row_operation["operation"] === "TCandTPRedeem") {
-
                 const statusData =
                     status === "executed"
                         ? row_operation.executed
@@ -821,7 +831,6 @@ export default function LastOperations(props: LastOperationsProps) {
                                 : t("operations.actions.exchanging"),
                     },
                 };
-
             } else if (row_operation["operation"] === "TCandTPMint") {
                 const statusData =
                     status === "executed"
@@ -878,7 +887,6 @@ export default function LastOperations(props: LastOperationsProps) {
                                 : t("operations.actions.receiving"),
                     },
                 };
-
             } else if (row_operation.operation === "Transfer") {
                 const tokenParam = row_operation.params?.token;
                 if (!tokenParam) return undefined;
@@ -1435,7 +1443,7 @@ export default function LastOperations(props: LastOperationsProps) {
                                                 {(() => {
                                                     const receiveToken = token
                                                         .another
-                                                        .token as TokenConfig;                                                    
+                                                        .token as TokenConfig;
                                                     return PrecisionNumbers({
                                                         amount: BigInt(
                                                             token.another.amount
@@ -1542,27 +1550,18 @@ export default function LastOperations(props: LastOperationsProps) {
                             <div className="LastOp__divider"></div>
                             <div className="LastOp__origin">
                                 {element.exchange}
+                                {element.detail.event === "TCandTPRedeem" && (
+                                    <>{element.another}</>
+                                )}
                             </div>
-                            {element.detail.event === "TCandTPRedeem" && (
-                            <>
-                                <div className="LastOp__divider"></div>
-                                <div className="LastOp__origin">
-                                    {element.another}
-                                </div>
-                            </>
-                            )}
+
                             <div className="LastOp__divider"></div>
                             <div className="LastOp__destination">
                                 {element.receive}
+                                {element.detail.event === "TCandTPMint" && (
+                                    <>{element.another}</>
+                                )}
                             </div>
-                            {element.detail.event === "TCandTPMint" && (
-                            <>
-                                <div className="LastOp__divider"></div>
-                                <div className="LastOp__origin">
-                                    {element.another}
-                                </div>
-                            </>
-                            )}
                         </div>
                         <div className="LastOp__group__dateStatus">
                             <div className="LastOp__divider"></div>
