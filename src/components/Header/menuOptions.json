@@ -49,7 +49,7 @@
     },
     {
         "nameKey": "menuOptions.combinedOperations",
-        "className": "logo-exchange",
+        "className": "logo-exchange-combined",
         "path": "/combined-operations",
         "allowedProjects": ["flipmoney"]
     }
