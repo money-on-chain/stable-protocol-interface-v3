@@ -3,6 +3,9 @@ import "./Styles.scss";
 import React, { useEffect, useRef } from "react";
 
 import { useProjectTranslation } from "../../helpers/translations";
+import { TokenSettings } from "../../helpers/currencies";
+import { PrecisionNumbers } from "../PrecisionNumbers";
+
 
 interface InputAmountProps {
     balanceText?: string;
@@ -15,7 +18,7 @@ interface InputAmountProps {
     validateError?: boolean;
 
     /** Optional fiat equivalent calculation */
-    getFiatEquivalent?: (value: number) => number;
+    getFiatEquivalent?: (value: number) => bigint;
 
     /** Fiat label (defaults to USD) */
     fiatLabel?: string;
@@ -25,7 +28,7 @@ interface InputAmountProps {
 }
 
 const InputAmount: React.FC<InputAmountProps> = (props) => {
-    const { t } = useProjectTranslation();
+    const { t, i18n } = useProjectTranslation();
     const inputRef = useRef<HTMLInputElement>(null);
 
     const {
@@ -129,7 +132,18 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
                     {getFiatEquivalent && fiatValue !== null && (
                         <>
                             {showApproxSymbol && "≈ "}
-                            {fiatValue.toFixed(2)} {fiatLabel}
+                            
+                            {PrecisionNumbers({
+                                amount: fiatValue || 0n,
+                                token: TokenSettings("CA_0"),
+                                decimals: 2,
+                                i18n: i18n,
+                                isUSD: true,
+                            }) } 
+
+                            { }          
+                            
+                            {fiatLabel}
                         </>
                     )}
                 </div>
