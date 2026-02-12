@@ -2,10 +2,9 @@ import "./Styles.scss";
 
 import React, { useEffect, useRef } from "react";
 
-import { useProjectTranslation } from "../../helpers/translations";
 import { TokenSettings } from "../../helpers/currencies";
+import { useProjectTranslation } from "../../helpers/translations";
 import { PrecisionNumbers } from "../PrecisionNumbers";
-
 
 interface InputAmountProps {
     balanceText?: string;
@@ -26,6 +25,7 @@ interface InputAmountProps {
     /** Show ≈ symbol before fiat value (defaults to true) */
     showApproxSymbol?: boolean;
 }
+const space: string = "\u00A0";
 
 const InputAmount: React.FC<InputAmountProps> = (props) => {
     const { t, i18n } = useProjectTranslation();
@@ -103,7 +103,7 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
     return (
         <div className="amountInput">
             <div className="amountInput__infoBar">
-                <div className="amountInput__label">{action}</div>{" "}
+                <div className="amountInput__label">{action}</div>
                 <button
                     className="amountInput__maxButton"
                     onClick={setAddTotalAvailable}
@@ -132,23 +132,22 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
                     {getFiatEquivalent && fiatValue !== null && (
                         <>
                             {showApproxSymbol && "≈ "}
-                            
+
                             {PrecisionNumbers({
                                 amount: fiatValue || 0n,
                                 token: TokenSettings("CA_0"),
                                 decimals: 2,
                                 i18n: i18n,
                                 isUSD: true,
-                            }) } 
-
-                            { }          
-                            
+                            })}
+                            {space}
                             {fiatLabel}
                         </>
                     )}
                 </div>
                 <span className="amountInput__available">
                     {`${balanceText}: `}
+                    {space}
                     {balance}
                 </span>
             </div>

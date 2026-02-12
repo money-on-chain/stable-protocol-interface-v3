@@ -1,8 +1,11 @@
 /*
-section_exchange.scss contains all the css code for Exchange section cards not contained in global.scss
+section_exchange.scss contains all the css code for Exchange & Combined Operations sections cards not contained in global.scss
 */
 
 /* #region EXCHANGE & SEND SECTION */
+.tokenSelector {
+    height: auto;
+}
 .content-body {
     margin-right: auto;
     margin-left: auto;
@@ -29,6 +32,55 @@ section_exchange.scss contains all the css code for Exchange section cards not c
     width: 100%;
     font-family: var(--main-font);
 }
+.group-wrapper {
+    border: 1px solid var(--dividers);
+    border-radius: 4px;
+    padding: 8px 8px;
+    height: auto;
+}
+
+.total-amount-usd {
+    margin: -8px;
+    margin-top: 12px;
+    background-color: var(--dividers);
+    color: var(--color-txt-primary);
+    font-weight: 600;
+    text-align: center;
+}
+.combined-operations-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    &-wrapper {
+        border: 1px solid var(--dividers);
+        border-radius: 4px;
+        padding: 4px 8px 2px 8px;
+        color: var(--color-txt-secondary);
+        line-height: 1.4;
+    }
+    &-label {
+        font-size: 8px;
+        text-transform: uppercase;
+    }
+
+    &-value {
+        color: var(--color-txt-primary);
+        font-size: 18px;
+        font-weight: 600;
+    }
+    &-fiat {
+        font-weight: 600;
+        font-size: 10px;
+    }
+    &-balance {
+        position: relative;
+        left: 4px;
+        font-size: 10px;
+        padding-right: 4px;
+    }
+}
+
 /* #endregion EXCHANGE & SEND SECTION */
 
 @media (max-width: 768px) {
@@ -36,9 +88,9 @@ section_exchange.scss contains all the css code for Exchange section cards not c
     }
 
     .sectionExchange__Content {
-        width: 100%;
         flex-direction: column;
         border-left: none;
+        width: 100%;
         .info {
             border-left: none;
             padding-left: 0;
