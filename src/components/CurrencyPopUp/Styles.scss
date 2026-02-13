@@ -7,6 +7,12 @@
         opacity: 0.5;
         cursor: not-allowed;
     }
+
+    .token__icon {
+        margin-right: 0px;
+        width: 24px;
+        height: 24px;
+    }
 }
 
 /* Selected token display */
@@ -39,6 +45,14 @@
     max-height: 60vh; /* Keeps the list scrollable */
     overflow-y: auto;
     // padding-right: 5px;
+
+    .token__icon {
+        margin-right: 0px;
+        width: 24px;
+        height: 24px;
+    }
+    .token__name {
+    }
 }
 
 /* Individual token item inside modal */
@@ -64,14 +78,6 @@
         // font-weight: bold;
         // background-color: var(--surface-color-1);
     }
-}
-
-.token__icon {
-    margin-right: 0px;
-    width: 24px;
-    height: 24px;
-}
-.token__name {
 }
 
 /* Checkmark icon */
