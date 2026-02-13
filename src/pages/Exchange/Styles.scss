@@ -38,6 +38,9 @@ section_exchange.scss contains all the css code for Exchange & Combined Operatio
     padding: 8px 8px;
     height: auto;
 }
+.second-token {
+    margin-top: 16px;
+}
 
 .total-amount-usd {
     margin: -8px;
@@ -66,8 +69,8 @@ section_exchange.scss contains all the css code for Exchange & Combined Operatio
 
     &-value {
         color: var(--color-txt-primary);
-        font-size: 18px;
         font-weight: 600;
+        font-size: 18px;
     }
     &-fiat {
         font-weight: 600;
@@ -76,8 +79,8 @@ section_exchange.scss contains all the css code for Exchange & Combined Operatio
     &-balance {
         position: relative;
         left: 4px;
-        font-size: 10px;
         padding-right: 4px;
+        font-size: 10px;
     }
 }
 

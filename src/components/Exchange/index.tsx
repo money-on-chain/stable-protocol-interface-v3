@@ -1486,22 +1486,15 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                         </div>
                         {isCombinedOperation &&
                             operationType === "COMBINED_MINT" && (
-                                <div className="combined-operations-info">
+                                <div className="combined-operations-info second-token">
                                     <div className="combined-operations-info-item">
-                                        {t(
-                                            `exchange.tokens.TC_${caIndex}.label`,
-                                            {
-                                                ns: ns,
-                                            }
-                                        )}
-                                        (
-                                        {t(
-                                            `exchange.tokens.TC_${caIndex}.abbr`,
-                                            {
-                                                ns: ns,
-                                            }
-                                        )}
-                                        )
+                                        <CurrencyPopUp
+                                            value={`TC_${caIndex}`}
+                                            currencyOptions={[`TC_${caIndex}`]}
+                                            onChange={() => {}}
+                                            action="exchange"
+                                            displayOnly={true}
+                                        />
                                     </div>
                                     <div className="combined-operations-info-wrapper">
                                         <div className="combined-operations-info-label">
