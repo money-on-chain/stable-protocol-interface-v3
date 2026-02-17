@@ -902,11 +902,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                 }
 
                 if (isRedeem) {
-                    let desiredNetCA = amountReceiveFee; // receive is CA net
-
-                    if (operationType === "COMBINED_REDEEM") {
-                        desiredNetCA = desiredNetCA > otherTokenAmount.qAC ? desiredNetCA - otherTokenAmount.qAC : 0n;
-                    }
+                    const desiredNetCA = amountReceiveFee; // receive is CA net
 
                     let { grossCA, qTC } =
                         solveGrossCAForNetRedeem(desiredNetCA);
