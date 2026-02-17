@@ -723,22 +723,23 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         }
 
         let combinedFeeCA: bigint = amountInCA;
+        let otherTokenAmount: { qAC: bigint; amount: bigint } = { qAC: 0n, amount: 0n };
         if (operationType === "COMBINED_MINT") {
-            const other = calculateAmountAnotherTokenMintTP(
+            otherTokenAmount = calculateAmountAnotherTokenMintTP(
                 amountReceive,
                 caIndex,
                 tpIndex
             );
-            setAmountAnotherToken(other);
-            combinedFeeCA = amountInCA + other.qAC;
+            setAmountAnotherToken(otherTokenAmount);
+            combinedFeeCA = amountInCA + otherTokenAmount.qAC;
         } else if (operationType === "COMBINED_REDEEM") {
-            const other = calculateAmountAnotherTokenRedeemTC(
+            otherTokenAmount = calculateAmountAnotherTokenRedeemTC(
                 amountExchange,
                 caIndex,
                 tpIndex
             );
-            setAmountAnotherToken(other);
-            combinedFeeCA = amountInCA + other.qAC;
+            setAmountAnotherToken(otherTokenAmount);
+            combinedFeeCA = amountInCA + otherTokenAmount.qAC;
         }
 
         infoFee = CalcCommission(
@@ -754,14 +755,15 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                 amountExchangeFee = amountExchange;
 
                 if (isMint) {
+                    
                     // CA principal => output from principal (fee does NOT reduce receive)
                     const receiveOut = ConvertAmount(
                         contractProtocolStatus,
                         currencyYouExchange,
                         currencyYouReceive,
-                        amountExchangeFee,
+                        operationType === "COMBINED_MINT" ? amountExchangeFee - otherTokenAmount.qAC : amountExchangeFee,
                         caIndex
-                    );
+                    );                    
 
                     const receiveSlip = calculateLimit(
                         receiveOut,
@@ -783,15 +785,18 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                 }
 
                 if (isRedeem) {
-                    const grossCA = ConvertAmount(
+                    let grossCA = ConvertAmount(
                         contractProtocolStatus,
                         currencyYouExchange,
                         `CA_${caIndex}`,
                         amountExchangeFee,
                         caIndex
                     );
+                    if (operationType === "COMBINED_REDEEM") {
+                        grossCA += otherTokenAmount.qAC;
+                    }
                     amountInCA = grossCA;
-
+                    
                     // fee base for redeem is grossCA (principal CA equivalent)
                     const feeInfoRedeem = CalcCommission(
                         contractProtocolStatus,
@@ -854,14 +859,16 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
 
                 if (isMint) {
                     // receive typed => solve CA principal (no fee in inputs)
-                    const principalCA = ConvertAmount(
+                    let principalCA = ConvertAmount(
                         contractProtocolStatus,
                         currencyYouReceive,
                         `CA_${caIndex}`,
                         amountReceiveFee,
                         caIndex
                     );
-
+                    if (operationType === "COMBINED_MINT") {
+                        principalCA += otherTokenAmount.qAC;                        
+                    }
                     // apply max pay slippage on principal? usually you'd apply on receive, but keep your convention:
                     const principalSlip = calculateLimit(
                         principalCA,
@@ -895,11 +902,16 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                 }
 
                 if (isRedeem) {
-                    const desiredNetCA = amountReceiveFee; // receive is CA net
+                    let desiredNetCA = amountReceiveFee; // receive is CA net
 
-                    const { grossCA, qTC } =
+                    if (operationType === "COMBINED_REDEEM") {
+                        desiredNetCA = desiredNetCA > otherTokenAmount.qAC ? desiredNetCA - otherTokenAmount.qAC : 0n;
+                    }
+
+                    let { grossCA, qTC } =
                         solveGrossCAForNetRedeem(desiredNetCA);
-                    amountInCA = grossCA;
+                    
+                    amountInCA = grossCA;                    
 
                     const grossSlip = calculateLimit(
                         grossCA,
