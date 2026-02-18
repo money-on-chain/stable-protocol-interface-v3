@@ -1393,7 +1393,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                                             amount: ConvertAmount(
                                                                 contractProtocolStatus,
                                                                 `TP_${tpIndex}`,
-                                                                `CA_${caIndex}`,
+                                                                "USD",
                                                                 amountAnotherToken.amount,                                                                
                                                                 caIndex
                                                             ),
@@ -1435,13 +1435,13 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                             amount: ConvertAmount(
                                                 contractProtocolStatus,
                                                 currencyYouExchange,
-                                                `CA_${caIndex}`,
+                                                "USD",
                                                 amountYouExchange,                                                                
                                                 caIndex
                                             ) + ConvertAmount(
                                                 contractProtocolStatus,
                                                 `TP_${tpIndex}`,
-                                                `CA_${caIndex}`,
+                                                "USD",
                                                 amountAnotherToken.amount,                                                                
                                                 caIndex
                                             ),
@@ -1453,7 +1453,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                             amount: ConvertAmount(
                                                 contractProtocolStatus,
                                                 currencyYouExchange,
-                                                `CA_${caIndex}`,
+                                                "USD",
                                                 amountYouExchange,                                                                
                                                 caIndex
                                             ),
@@ -1569,7 +1569,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                                             amount: ConvertAmount(
                                                                 contractProtocolStatus,
                                                                 `TC_${caIndex}`,
-                                                                `CA_${caIndex}`,
+                                                                "USD",
                                                                 amountAnotherToken.amount,                                                                
                                                                 caIndex
                                                             ),
@@ -1611,13 +1611,13 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                             amount: ConvertAmount(
                                                 contractProtocolStatus,
                                                 currencyYouReceive,
-                                                `CA_${caIndex}`,
+                                                "USD",
                                                 amountYouReceive,                                                                
                                                 caIndex
                                             ) + ConvertAmount(
                                                 contractProtocolStatus,
                                                 `TC_${caIndex}`,
-                                                `CA_${caIndex}`,
+                                                "USD",
                                                 amountAnotherToken.amount,                                                                
                                                 caIndex
                                             ),
@@ -1629,7 +1629,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                             amount: ConvertAmount(
                                                 contractProtocolStatus,
                                                 currencyYouReceive,
-                                                `CA_${caIndex}`,
+                                                "USD",
                                                 amountYouReceive,                                                                
                                                 caIndex
                                             ),
