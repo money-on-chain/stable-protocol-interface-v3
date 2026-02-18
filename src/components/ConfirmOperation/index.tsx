@@ -316,12 +316,10 @@ export default function ConfirmOperation(
         return commissionsByKey[`CA_${caIndex}`].commission > tokenAllowance;        
     };
 
-    const showAllowancePayAnotherToken = (): boolean => {
-        if (operationType !== "COMBINED_MINT" && operationType !== "COMBINED_REDEEM") return false;
+    const showAllowancePayAnotherToken = (): boolean => {        
+        if (operationType !== "COMBINED_REDEEM") return false;
         let tokenName: string = "";
-        if (operationType === "COMBINED_MINT") {
-            tokenName = `TC_${caIndex}`            
-        } else if (operationType === "COMBINED_REDEEM") {
+        if (operationType === "COMBINED_REDEEM") {
             tokenName = `TP_${tpIndex}`
         }
 

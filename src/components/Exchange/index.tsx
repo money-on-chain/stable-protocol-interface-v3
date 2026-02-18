@@ -1227,14 +1227,14 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             pACtp
         );
         const amount = mulPrecision(qACtpMintTC, pTCac);
-        console.log("DEBUG>>>");
+        /*console.log("DEBUG>>>");
         console.log("qTP", fromWei(qTP));
         console.log("ctargemaTP", fromWei(ctargemaTP));
         console.log("pACtp", fromWei(pACtp));
         console.log("pTCac", fromWei(pTCac));
         console.log("qACtpMintTC", fromWei(qACtpMintTC));
         console.log("amount", fromWei(amount));
-        console.log("DEBUG<<<");
+        console.log("DEBUG<<<");*/
         return { qAC: qACtpMintTC, amount: amount };
     };
 
@@ -1400,7 +1400,24 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                         </div>
                                         <div className="amountInput__infoBar">
                                             <div className="combined-operations-info-fiat">
-                                                ≈{space}0.0{space}USD
+                                                ≈{space}
+                                                {
+                                                    !contractProtocolStatus.data
+                                                        ? "--"
+                                                        : PrecisionNumbers({
+                                                            amount: ConvertAmount(
+                                                                contractProtocolStatus,
+                                                                `TP_${tpIndex}`,
+                                                                `CA_${caIndex}`,
+                                                                amountAnotherToken.amount,                                                                
+                                                                caIndex
+                                                            ),
+                                                            token: TokenSettings(`CA_${caIndex}`),
+                                                            decimals: 2,
+                                                            i18n: i18n,
+                                                        })
+                                                }
+                                                {space}USD
                                             </div>
                                             <div className="combined-operations-info-balance">
                                                 Balance:{space}
@@ -1490,6 +1507,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                 action={t("exchange.labelReceiving")}
                                 balanceText={t("exchange.labelUpTo")}
                                 getFiatEquivalent={onFiatEquivalentYouReceive}
+                                readOnly={operationType === "COMBINED_REDEEM"}
                             />
                         </div>
                         {isCombinedOperation &&
@@ -1526,7 +1544,26 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                         </span>
                                         <div className="amountInput__infoBar">
                                             <div className="combined-operations-info-fiat">
-                                                ≈{space}0.0{space}USD
+                                                ≈{space}
+                                                
+                                                {
+                                                    !contractProtocolStatus.data
+                                                        ? "--"
+                                                        : PrecisionNumbers({
+                                                            amount: ConvertAmount(
+                                                                contractProtocolStatus,
+                                                                `TC_${caIndex}`,
+                                                                `CA_${caIndex}`,
+                                                                amountAnotherToken.amount,                                                                
+                                                                caIndex
+                                                            ),
+                                                            token: TokenSettings(`CA_${caIndex}`),
+                                                            decimals: 2,
+                                                            i18n: i18n,
+                                                        })
+                                                }
+                                                
+                                                {space}USD
                                             </div>
                                             <div className="combined-operations-info-balance">
                                                 Balance:{space}

@@ -24,7 +24,11 @@ interface InputAmountProps {
 
     /** Show ≈ symbol before fiat value (defaults to true) */
     showApproxSymbol?: boolean;
+
+    /** Makes input read-only */
+    readOnly?: boolean;
 }
+
 const space: string = "\u00A0";
 
 const InputAmount: React.FC<InputAmountProps> = (props) => {
@@ -43,6 +47,7 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
         getFiatEquivalent,
         fiatLabel = "USD",
         showApproxSymbol = true,
+        readOnly = false,
     } = props;
 
     useEffect(() => {
@@ -70,6 +75,8 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
     };
 
     const handleValueChange = (value: string): void => {
+        if (readOnly) return;
+
         let formattedValue = value;
 
         if (value.length > 20) {
@@ -101,7 +108,7 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
         : null;
 
     return (
-        <div className="amountInput">
+        <div className={`amountInput ${readOnly ? "amountInput--readonly" : ""}`}>
             <div className="amountInput__infoBar">
                 <div className="amountInput__label">{action}</div>
                 <button
@@ -118,6 +125,7 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
                         placeholder={placeholder}
                         value={inputValue}
                         inputMode="decimal"
+                        readOnly={readOnly}
                         onChange={(event) => {
                             handleValueChange(event.target.value);
                         }}

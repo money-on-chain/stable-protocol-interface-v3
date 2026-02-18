@@ -137,5 +137,9 @@ input[type="number"] {
       line-height: 1.2;
     }
   }
+.amountInput--readonly .amountInput__value {
+    cursor: default;
+    /*background: #fafafa;*/
+}
   
 /* #endregion AMOUNT INPUT */
