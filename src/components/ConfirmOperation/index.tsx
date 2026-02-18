@@ -91,6 +91,7 @@ export default function ConfirmOperation(
     } = props;
 
     const { t, i18n, ns } = useProjectTranslation();
+    const space: string = "\u00A0";
 
     const { userBalance, interfaceExchangeMethod } =
         useWalletContext();
@@ -316,12 +317,10 @@ export default function ConfirmOperation(
         return commissionsByKey[`CA_${caIndex}`].commission > tokenAllowance;        
     };
 
-    const showAllowancePayAnotherToken = (): boolean => {
-        if (operationType !== "COMBINED_MINT" && operationType !== "COMBINED_REDEEM") return false;
+    const showAllowancePayAnotherToken = (): boolean => {        
+        if (operationType !== "COMBINED_REDEEM") return false;
         let tokenName: string = "";
-        if (operationType === "COMBINED_MINT") {
-            tokenName = `TC_${caIndex}`            
-        } else if (operationType === "COMBINED_REDEEM") {
+        if (operationType === "COMBINED_REDEEM") {
             tokenName = `TP_${tpIndex}`
         }
 
@@ -587,7 +586,24 @@ export default function ConfirmOperation(
                                 ns: ns,
                             })}
                         </div>
-                    </div>                    
+                    </div>                   
+
+                    {operationType === "COMBINED_REDEEM" && (<div className="tx-amount-data">
+                        <div className="tx-amount">
+                            {PrecisionNumbers({
+                                amount: amountAnotherToken.amount,
+                                token: TokenSettings(`TP_${tpIndex}`),
+                                decimals: amountYouExchange < 1n ? 12 : 8,
+                                i18n: i18n,
+                            })}
+                        </div>
+                        <div className="tx-token">
+                            {t(`exchange.tokens.TP_${tpIndex}.abbr`, {
+                                ns: ns,
+                            })}
+                        </div>
+                    </div>)}
+
                 </div>
                 <div className="tx-direction">
                     <div className="swapArrow">
@@ -613,7 +629,7 @@ export default function ConfirmOperation(
                     <div className="tx-amount-info">
                         {operationType !== "MINT" && (
                             <div className="tx-amount-info">
-                                {t("exchange.confirm.minimumWarning")}
+                                {t("exchange.confirm.minimumWarning")}{space}
                                 <div className="">
                                     {PrecisionNumbers({
                                         amount: amountYouReceive,
@@ -624,10 +640,29 @@ export default function ConfirmOperation(
                                         i18n: i18n,
                                     })}
                                 </div>
-                                {t("exchange.confirm.minimumExplanation")}
+                                {space}{t("exchange.confirm.minimumExplanation")}
                             </div>
                         )}
                     </div>
+
+                    
+                    {operationType === "COMBINED_MINT" && (<div className="tx-amount-data">
+                        <div className="tx-amount">
+                            {PrecisionNumbers({
+                                amount: amountAnotherToken.amount,
+                                token: TokenSettings(`TC_${caIndex}`),
+                                decimals: amountAnotherToken.amount < 1n ? 12 : 8,
+                                i18n: i18n,
+                            })}
+                        </div>
+                        <div className="tx-token">
+                            {t(`exchange.tokens.TC_${caIndex}.abbr`, {
+                                ns: ns,
+                            })}
+                        </div>
+                    </div>)}
+
+
                 </div>
             </div>
             <div className="divider-horizontal"></div>

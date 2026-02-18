@@ -1,5 +1,3 @@
-import "./Styles.scss";
-
 import { Skeleton } from "antd";
 import React, { Fragment, useEffect, useState } from "react";
 
