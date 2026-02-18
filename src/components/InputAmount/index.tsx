@@ -111,12 +111,12 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
         <div className={`amountInput ${readOnly ? "amountInput--readonly" : ""}`}>
             <div className="amountInput__infoBar">
                 <div className="amountInput__label">{action}</div>
-                <button
+                {!readOnly && (<button
                     className="amountInput__maxButton"
                     onClick={setAddTotalAvailable}
                 >
                     {t("button.inputMaxValue")}
-                </button>
+                </button>)}
             </div>
             <div className="amountInput__inputBar">
                 <div className="amountInput__amount">
