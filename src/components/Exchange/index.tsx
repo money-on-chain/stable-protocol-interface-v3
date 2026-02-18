@@ -200,6 +200,8 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         setInputValidationError(false);
         setInputValidationErrorText("");
         setGlobalValidationErrorText("");
+        setAmountAnotherToken({ qAC: 0n, amount: 0n });
+        setExchangingUSD(0n);
     };
 
     const onValidate = useCallback((): void => {
@@ -1158,25 +1160,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             setCAIndex(nValue - 1);
         }
     };
-
-    /*const calculateFinalAmountExchange = (): bigint => {
-        const arrCurrencyYouExchange = currencyYouExchange.split("_");
-        if (arrCurrencyYouExchange[0] === "CA") {
-            const totalbalance = TokenBalance(userBalance, currencyYouExchange);
-            const tolerance = 7n / 10n;
-            if (amountYouExchange > totalbalance) {
-                const upperLimit =
-                    divPrecision(mulPrecision(totalbalance, tolerance), 100n) +
-                    amountYouExchange;
-                return totalbalance - (upperLimit - totalbalance);
-            } else {
-                return amountYouExchange;
-            }
-        } else {
-            return amountYouExchange;
-        }
-    };*/
-
+    
     const onChangeSlippageTolerance = async (value: number): Promise<void> => {
         console.warn("slippage tolerance", value);
         setSlippageTolerance(value);
