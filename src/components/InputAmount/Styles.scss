@@ -48,6 +48,7 @@
     font-family: var(--main-font);
     letter-spacing: 0px;
     text-align: left;
+    margin-bottom: 8px;
 }
 .amountInput__feedback--error {
     color: var(--color-semantic-negative);
@@ -131,15 +132,15 @@ input[type="number"] {
 
 .amountInput {
     &__usdValue {
-      font-size: 12px;
-      opacity: 0.75;
-      margin-top: 4px;
-      line-height: 1.2;
+        font-size: 12px;
+        opacity: 0.75;
+        margin-top: 4px;
+        line-height: 1.2;
     }
-  }
+}
 .amountInput--readonly .amountInput__value {
     cursor: default;
     /*background: #fafafa;*/
 }
-  
+
 /* #endregion AMOUNT INPUT */

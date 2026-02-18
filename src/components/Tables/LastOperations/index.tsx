@@ -359,33 +359,36 @@ export default function LastOperations(props: LastOperationsProps) {
         }
     };
 
-    const getTokenInfo = useCallback((token: string) => {
-        if (token === "FeeToken") {
-            return {
-                name: settings.tokens.TF[0].name,
-                token: settings.tokens.TF[0],
-            };
-        }
-        const match = token.match(/^(CA|TC|TP)_(\d+)$/);
-        if (match) {
-            const [, prefix, indexStr] = match;
-            const index = parseInt(indexStr, 10);
-            const arr =
-                prefix === "CA"
-                    ? (settings.tokens.CA as TokenConfig[])
-                    : prefix === "TC"
-                      ? settings.tokens.TC
-                      : settings.tokens.TP;
-            const tokenConfig = arr[index];
-            if (!tokenConfig) return undefined;
-            return {
-                name: tokenConfig?.name || "",
-                token: tokenConfig,
-            };
-        }
-        console.warn("UNRECOGNIZED TOKEN: " + token);
-        return undefined;
-    }, [settings]);
+    const getTokenInfo = useCallback(
+        (token: string) => {
+            if (token === "FeeToken") {
+                return {
+                    name: settings.tokens.TF[0].name,
+                    token: settings.tokens.TF[0],
+                };
+            }
+            const match = token.match(/^(CA|TC|TP)_(\d+)$/);
+            if (match) {
+                const [, prefix, indexStr] = match;
+                const index = parseInt(indexStr, 10);
+                const arr =
+                    prefix === "CA"
+                        ? (settings.tokens.CA as TokenConfig[])
+                        : prefix === "TC"
+                          ? settings.tokens.TC
+                          : settings.tokens.TP;
+                const tokenConfig = arr[index];
+                if (!tokenConfig) return undefined;
+                return {
+                    name: tokenConfig?.name || "",
+                    token: tokenConfig,
+                };
+            }
+            console.warn("UNRECOGNIZED TOKEN: " + token);
+            return undefined;
+        },
+        [settings]
+    );
 
     const tokenExchange = useCallback(
         (row_operation: OperationData): TokenExchangeResult | undefined => {
@@ -947,9 +950,9 @@ export default function LastOperations(props: LastOperationsProps) {
         (error: string | number | null | undefined): string => {
             switch (error) {
                 case "qAC below minimum required":
-                    return `${(settings.tokens.CA as TokenConfig[])[0]?.name || ""} ${t("operations.errors.qACBelow")} `;
+                    return `${t("operations.errors.qACBelow1")} ${token} ${t("operations.errors.qACBelow2")}`;
                 case "Insufficient qac sent":
-                    return `${(settings.tokens.CA as TokenConfig[])[0]?.name || ""} ${t("operations.errors.insufficientQAC1")} ${(settings.tokens.CA as TokenConfig[])[0]?.name || ""} ${t("operations.errors.insufficientQAC2")}`;
+                    return ` ${t("operations.errors.insufficientQAC1")} ${(settings.tokens.CA as TokenConfig[])[0]?.name || ""} ${t("operations.errors.insufficientQAC2")}`;
                 case "Low coverage":
                     return t("operations.errors.lowCoverage");
                 case "Invalid Flux Capacitor Operation":
