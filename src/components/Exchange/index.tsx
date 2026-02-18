@@ -1426,13 +1426,44 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                             )}
                         {isCombinedOperation && (
                             <div className="total-amount-usd">
-                                ≈ {space}
-                                {PrecisionNumbers({
-                                    amount: exchangingUSD,
-                                    token: TokenSettings("CA_0"),
-                                    decimals: 8,
-                                    i18n: i18n,
-                                })}
+                                ≈ {space}                               
+
+                               {
+                                    !contractProtocolStatus.data
+                                        ? "--"
+                                        : operationType === "COMBINED_REDEEM" ? PrecisionNumbers({ /* Redeem */
+                                            amount: ConvertAmount(
+                                                contractProtocolStatus,
+                                                currencyYouExchange,
+                                                `CA_${caIndex}`,
+                                                amountYouExchange,                                                                
+                                                caIndex
+                                            ) + ConvertAmount(
+                                                contractProtocolStatus,
+                                                `TP_${tpIndex}`,
+                                                `CA_${caIndex}`,
+                                                amountAnotherToken.amount,                                                                
+                                                caIndex
+                                            ),
+                                            token: TokenSettings(`CA_${caIndex}`),
+                                            decimals: 2,
+                                            i18n: i18n,
+                                        }) :
+                                        PrecisionNumbers({ /* Mint */
+                                            amount: ConvertAmount(
+                                                contractProtocolStatus,
+                                                currencyYouExchange,
+                                                `CA_${caIndex}`,
+                                                amountYouExchange,                                                                
+                                                caIndex
+                                            ),
+                                            token: TokenSettings(`CA_${caIndex}`),
+                                            decimals: 2,
+                                            i18n: i18n,
+                                        })
+                                }
+
+
                                 {space}
                                 USD
                             </div>
@@ -1572,13 +1603,41 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                             )}
                         {isCombinedOperation && (
                             <div className="total-amount-usd">
-                                ≈ {space}
-                                {PrecisionNumbers({
-                                    amount: exchangingUSD,
-                                    token: TokenSettings("CA_0"),
-                                    decimals: 8,
-                                    i18n: i18n,
-                                })}
+                                ≈ {space}                                
+                                {
+                                    !contractProtocolStatus.data
+                                        ? "--"
+                                        : operationType === "COMBINED_MINT" ? PrecisionNumbers({ /* Mint */
+                                            amount: ConvertAmount(
+                                                contractProtocolStatus,
+                                                currencyYouReceive,
+                                                `CA_${caIndex}`,
+                                                amountYouReceive,                                                                
+                                                caIndex
+                                            ) + ConvertAmount(
+                                                contractProtocolStatus,
+                                                `TC_${caIndex}`,
+                                                `CA_${caIndex}`,
+                                                amountAnotherToken.amount,                                                                
+                                                caIndex
+                                            ),
+                                            token: TokenSettings(`CA_${caIndex}`),
+                                            decimals: 2,
+                                            i18n: i18n,
+                                        }) :
+                                        PrecisionNumbers({ /* Redeem */
+                                            amount: ConvertAmount(
+                                                contractProtocolStatus,
+                                                currencyYouReceive,
+                                                `CA_${caIndex}`,
+                                                amountYouReceive,                                                                
+                                                caIndex
+                                            ),
+                                            token: TokenSettings(`CA_${caIndex}`),
+                                            decimals: 2,
+                                            i18n: i18n,
+                                        })
+                                }
                                 {space}USD
                             </div>
                         )}
