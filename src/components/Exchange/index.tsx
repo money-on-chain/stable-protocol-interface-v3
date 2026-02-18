@@ -41,6 +41,7 @@ import ModalConfirmOperation from "../Modals/ConfirmOperation";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import { SlippageTolerance } from "../SlippageTolerance";
 const { slippage } = settings as Settings;
+import "./Styles.scss";
 
 // Type definitions
 interface CommissionInfo {
