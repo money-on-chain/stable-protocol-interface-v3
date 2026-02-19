@@ -275,10 +275,10 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         let tIndex: number | undefined;
         // 2. MINT TP & SWAP TC FOR TP
         if (
-            (arrCurrencyYouExchange[0] === "CA" &&
+            ((arrCurrencyYouExchange[0] === "CA" &&
                 arrCurrencyYouReceive[0] === "TP") ||
             (arrCurrencyYouExchange[0] === "TC" &&
-                arrCurrencyYouReceive[0] === "TP")
+                arrCurrencyYouReceive[0] === "TP")) && operationType !== "COMBINED_MINT"
         ) {
             // There are sufficient PEGGED in the contracts to mint?
             tIndex = TokenSettings(currencyYouReceive).key;
@@ -329,10 +329,10 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
 
         // 3. REDEEM TC & SWAP TC FOR TP
         if (
-            (arrCurrencyYouExchange[0] === "TC" &&
+            ((arrCurrencyYouExchange[0] === "TC" &&
                 arrCurrencyYouReceive[0] === "CA") ||
             (arrCurrencyYouExchange[0] === "TC" &&
-                arrCurrencyYouReceive[0] === "TP")
+                arrCurrencyYouReceive[0] === "TP")) && operationType !== "COMBINED_REDEEM"
         ) {
             if (!contractProtocolStatus.data) return;
             // There are sufficient TC in the contracts to redeem?

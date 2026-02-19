@@ -573,13 +573,13 @@ const mintTCandTP = async (
      */
 
     // There are sufficient PEGGED in the contracts to mint?
-    const tpAvailableToMint =
+    /*const tpAvailableToMint =
         contractProtocolStatus.data[caIndex].getTPAvailableToMint[tpIndex];
 
     if (qTP > tpAvailableToMint)
         throw new Error(
             `Insufficient ${(settings.tokens.TP[tpIndex] as TokenConfig).name} available to mint`
-        );
+        );*/
         
     return await sendWithExecFee(
         context,
@@ -622,12 +622,12 @@ const redeemTCandTP = async (
         );
 
     // There are sufficient TC in the contracts to redeem?
-    const tcAvailableToRedeem =
+    /*const tcAvailableToRedeem =
         contractProtocolStatus.data[caIndex].getTCAvailableToRedeem;
     if (qTC > tcAvailableToRedeem)
         throw new Error(
             `Insufficient ${(settings.tokens.TC[caIndex] as TokenConfig).name}available to redeem in contract`
-        );
+        );*/
 
     // There are sufficient CA in the contract
     const caBalance = contractProtocolStatus.data[caIndex].getACBalance;
