@@ -1416,7 +1416,7 @@ export default function LastOperations(props: LastOperationsProps) {
                                                             token.another.amount
                                                         ),
                                                         token: receiveToken,
-                                                        decimals: 2,
+                                                        decimals: receiveToken.visibleDecimals ?? 2,
                                                         i18n: i18n,
                                                     });
                                                 })()}
