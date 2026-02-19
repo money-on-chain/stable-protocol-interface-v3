@@ -140,7 +140,17 @@ input[type="number"] {
 }
 .amountInput--readonly .amountInput__value {
     cursor: default;
-    /*background: #fafafa;*/
+    /*background: transparent;*/
+}
+
+.amountInput--readonly {
+    cursor: default;
+    background: transparent;
+    border: 1px solid #26272f;
+    color: var(--color-txt-secondary);
+    line-height: 1.4;
+;
+
 }
 
 /* #endregion AMOUNT INPUT */

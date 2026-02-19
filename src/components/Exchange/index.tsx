@@ -1347,6 +1347,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                 action={operationType === "COMBINED_MINT" || operationType === "MINT" ? t("exchange.labelSendingMint") : t("exchange.labelSending")}
                                 balanceText={t("exchange.labelBalance")}
                                 getFiatEquivalent={onFiatEquivalentYouExchange}
+                                readOnly={operationType === "COMBINED_MINT"}
                             />
                             <div className="amountInput__feedback amountInput__feedback--error">
                                 {inputValidationErrorText}
