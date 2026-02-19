@@ -1344,7 +1344,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                           })
                                 }
                                 setAddTotalAvailable={setAddTotalAvailable}
-                                action={t("exchange.labelSending")}
+                                action={operationType === "COMBINED_MINT" || operationType === "MINT" ? t("exchange.labelSendingMint") : t("exchange.labelSending")}
                                 balanceText={t("exchange.labelBalance")}
                                 getFiatEquivalent={onFiatEquivalentYouExchange}
                             />
@@ -1520,7 +1520,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                           })
                                 }
                                 setAddTotalAvailable={setAddTotalAvailable}
-                                action={t("exchange.labelReceiving")}
+                                action={operationType === "COMBINED_REDEEM" || operationType === "REDEEM" || operationType === "SWAP_TPFORTP" || operationType === "SWAP_TPFORTC" || operationType === "SWAP_TCFORTP" ? t("exchange.labelReceivingRedeem") : t("exchange.labelReceiving")}
                                 balanceText={t("exchange.labelUpTo")}
                                 getFiatEquivalent={onFiatEquivalentYouReceive}
                                 readOnly={operationType === "COMBINED_REDEEM"}

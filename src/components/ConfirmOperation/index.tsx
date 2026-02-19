@@ -572,7 +572,12 @@ export default function ConfirmOperation(
         <div className="confirm-operation">
             <div className="tx-amount-group">
                 <div className="tx-amount-container">
-                    <div className="tx-amount-data">
+                    <div className="tx-amount-info-container">                            
+                        <div className="tx-amount-info">
+                            {operationType === "COMBINED_MINT" || operationType === "MINT" ? t("exchange.labelSendingMint") : t("exchange.labelSending")}{space}                                    
+                        </div>                            
+                    </div>
+                    <div className="tx-amount-data">                        
                         <div className="tx-amount">
                             {PrecisionNumbers({
                                 amount: amountYouExchange,
@@ -611,6 +616,11 @@ export default function ConfirmOperation(
                     </div>
                 </div>
                 <div className="tx-amount-container">
+                    <div className="tx-amount-info-container">                            
+                        <div className="tx-amount-info">
+                            {operationType === "COMBINED_REDEEM" || operationType === "REDEEM" || operationType === "SWAP_TPFORTP" || operationType === "SWAP_TPFORTC" || operationType === "SWAP_TCFORTP" ? t("exchange.labelReceivingRedeem") : t("exchange.labelReceiving")}{space}                                    
+                        </div>                            
+                    </div>
                     <div className="tx-amount-data">
                         <div className="tx-amount">
                             {PrecisionNumbers({
@@ -626,26 +636,7 @@ export default function ConfirmOperation(
                             })}
                         </div>
                     </div>
-                    <div className="tx-amount-info">
-                        {operationType !== "MINT" && (
-                            <div className="tx-amount-info">
-                                {t("exchange.confirm.minimumWarning")}{space}
-                                <div className="">
-                                    {PrecisionNumbers({
-                                        amount: amountYouReceive,
-                                        token: TokenSettings(
-                                            currencyYouReceive
-                                        ),
-                                        decimals: 4,
-                                        i18n: i18n,
-                                    })}
-                                </div>
-                                {space}{t("exchange.confirm.minimumExplanation")}
-                            </div>
-                        )}
-                    </div>
-
-                    
+                                        
                     {operationType === "COMBINED_MINT" && (<div className="tx-amount-data">
                         <div className="tx-amount">
                             {PrecisionNumbers({
