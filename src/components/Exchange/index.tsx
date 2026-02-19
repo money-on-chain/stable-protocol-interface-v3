@@ -991,18 +991,20 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
 
         if (
             operationType === "MINT" ||
-            operationType === "SWAP_TCFORTP" ||
-            operationType === "COMBINED_MINT"
-        ) {
-            infoFeeArray.push({ caIndex, info: infoFee });
-            //convertAmountUSD = amountExchangeFee;
-        } else if (
+            operationType === "COMBINED_MINT" ||
             operationType === "REDEEM" ||
-            operationType === "SWAP_TPFORTC" ||
             operationType === "COMBINED_REDEEM"
         ) {
             infoFeeArray.push({ caIndex, info: infoFee });
-            //convertAmountUSD = amountReceiveFee;
+        } else if (
+            operationType === "SWAP_TCFORTP"  ||
+            operationType === "SWAP_TPFORTC" 
+        ) {
+            // Because the fee is applied to the amount in CA, we need to apply the slippage tolerance to the fee
+            infoFee.fee = calculateLimit(infoFee.fee, +(slippageTolerance / 100));
+            infoFee.feeUSD = calculateLimit(infoFee.feeUSD, +(slippageTolerance / 100));
+            infoFee.percent = calculateLimit(infoFee.percent, +(slippageTolerance / 100));            
+            infoFeeArray.push({ caIndex, info: infoFee });
         } else if (operationType === "SWAP_TPFORTP") {
             for (let i = 0; i < settings.tokens.CA.length; i++) {
                 const amountInCA: bigint = ConvertAmount(
@@ -1020,6 +1022,10 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                     amountInCA,
                     i
                 );
+
+                infoFee.fee = calculateLimit(infoFee.fee, +(slippageTolerance / 100));
+                infoFee.feeUSD = calculateLimit(infoFee.feeUSD, +(slippageTolerance / 100));
+                infoFee.percent = calculateLimit(infoFee.percent, +(slippageTolerance / 100));            
 
                 infoFeeArray.push({ caIndex: i, info: infoFee });
 

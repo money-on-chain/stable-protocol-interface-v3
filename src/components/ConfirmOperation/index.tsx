@@ -756,7 +756,7 @@ export default function ConfirmOperation(
                                     {PrecisionNumbers({
                                         amount: exchangingUSD,
                                         token: TokenSettings(`CA_${caIndex}`),
-                                        decimals: 4,
+                                        decimals: 2,
                                         i18n: i18n,
                                         isUSD: true,
                                     })}
