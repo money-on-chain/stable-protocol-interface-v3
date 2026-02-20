@@ -94,8 +94,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         {}
     );
 
-    const [executionFee, setExecutionFee] = useState<bigint>(0n);
-    const [executionFeeUSD, setExecutionFeeUSD] = useState<bigint>(0n);
+    const [executionFee, setExecutionFee] = useState<bigint>(0n);    
 
     const [inputValidationErrorText, setInputValidationErrorText] =
         useState<string>("");
@@ -1068,20 +1067,11 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             caIndex
         );
 
-        const execFee = await getExecutionFee(publicClient, execCost, 2);
-
-        const priceCoinbase = normalizeToBigInt(
-            contractProtocolStatus.data.PP_COINBASE[0]
-        );
-        if (priceCoinbase) {
-            const execFeeUSD = mulPrecision(execFee, priceCoinbase);
-            setExecutionFeeUSD(execFeeUSD);
-        }
-
+        const execFee = await getExecutionFee(publicClient, execCost, 2);        
         // Execution fee load
         setExecutionFee(execFee);
     };
-
+    
     const onChangeAmountYouExchange = (newAmount: string | number): void => {
         lastEditedRef.current = "exchange";
 
@@ -1343,9 +1333,21 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         }
     };
 
+    const executionFeeInFiat= (): bigint => {
+        if (!contractProtocolStatus.data || executionFee === 0n) return 0n;
+        const priceCoinbase = normalizeToBigInt(
+            contractProtocolStatus.data.PP_COINBASE[0]
+        );
+        if (priceCoinbase) {
+            return mulPrecision(executionFee, priceCoinbase);            
+        }
+        return 0n;
+    };
+
     const totalAmountExchangeInFiat = amountExchangeInFiat();
     const totalAmountReceiveInFiat = amountReceiveInFiat();
     const totalExchangingInFiat = totalAmountExchangeInFiat > totalAmountReceiveInFiat ? totalAmountExchangeInFiat : totalAmountReceiveInFiat;
+    const executionFeeUSD = executionFeeInFiat();
 
     return (
         <div>
