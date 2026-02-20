@@ -97,8 +97,6 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
     const [executionFee, setExecutionFee] = useState<bigint>(0n);
     const [executionFeeUSD, setExecutionFeeUSD] = useState<bigint>(0n);
 
-    const [exchangingUSD, setExchangingUSD] = useState<bigint>(0n);
-
     const [inputValidationErrorText, setInputValidationErrorText] =
         useState<string>("");
     const [inputValidationError, setInputValidationError] =
@@ -200,8 +198,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         setInputValidationError(false);
         setInputValidationErrorText("");
         setGlobalValidationErrorText("");
-        setAmountAnotherToken({ qAC: 0n, amount: 0n });
-        setExchangingUSD(0n);
+        setAmountAnotherToken({ qAC: 0n, amount: 0n });        
     };
 
     const onValidate = useCallback((): void => {
@@ -985,7 +982,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         };
 
         // Set exchanging total in USD and choosen CA index
-        let convertAmountUSD: bigint = amountInCA;
+        //let convertAmountUSD: bigint = amountInCA;
         let choosenCAIndex: number = caIndex;
         const infoFeeArray: CommissionWithIndex[] = [];
 
@@ -1031,7 +1028,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
 
                 // if in the future you need the "best" CA, you could choose it here
                 // for now I leave the last one as chosen:
-                convertAmountUSD = amountInCA;
+                //convertAmountUSD = amountInCA;
                 choosenCAIndex = i;
             }
         } else {
@@ -1063,18 +1060,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             commissionPercent: baseForFeeToken.feeTokenPercent,
             balance: userBalance.data[choosenCAIndex].FeeToken.balance,
         });
-
-        const priceCA = normalizeToBigInt(
-            contractProtocolStatus.data[choosenCAIndex].PP_CA[0]
-        );
-        if (priceCA) {
-            const aTokenExchange = currencyYouExchange.split("_");
-            const aTokenReceive = currencyYouReceive.split("_");
-            const aTokenMap = `${aTokenExchange[0]},${aTokenReceive[0]}`;
-            convertAmountUSD = mulPrecision(convertAmountUSD, priceCA);
-            setExchangingUSD(convertAmountUSD);
-        }
-
+        
         const execCost = executionFeeMap(
             currencyYouExchange,
             currencyYouReceive,
@@ -1102,8 +1088,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         const newAmountBigInt = toBigIntPrecision(newAmount);
         if (newAmountBigInt < 0n) {
             setAmountYouExchange(0n);
-            setAmountYouReceive(0n);
-            setExchangingUSD(0n);
+            setAmountYouReceive(0n);            
             setValueExchange("");
             return;
         }
@@ -1126,8 +1111,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         const newAmountBigInt = toBigIntPrecision(newAmount);
         if (newAmountBigInt < 0n) {
             setAmountYouExchange(0n);
-            setAmountYouReceive(0n);
-            setExchangingUSD(0n);
+            setAmountYouReceive(0n);            
             setValueReceive("");
             return;
         }
@@ -1302,6 +1286,66 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         );
         return amountUSD;
     };
+    
+    const amountExchangeInFiat = (): bigint => {
+        if (operationType === "COMBINED_MINT" || operationType === "MINT"  || operationType === "REDEEM" || operationType === "SWAP_TCFORTP" || operationType === "SWAP_TPFORTC" || operationType === "SWAP_TPFORTP") {
+            return ConvertAmount(
+                contractProtocolStatus,
+                currencyYouExchange,
+                "USD",
+                amountYouExchange,
+                caIndex
+            );
+        } else if (operationType === "COMBINED_REDEEM") {
+            return ConvertAmount(
+                contractProtocolStatus,
+                currencyYouExchange,
+                "USD",
+                amountYouExchange,                                                                
+                caIndex
+            ) + ConvertAmount(
+                contractProtocolStatus,
+                `TP_${tpIndex}`,
+                "USD",
+                amountAnotherToken.amount,                                                                
+                caIndex
+            );
+        } else {
+            return 0n;
+        }
+    };
+
+    const amountReceiveInFiat = (): bigint => {
+        if (operationType === "COMBINED_MINT") {
+            return ConvertAmount(
+                contractProtocolStatus,
+                currencyYouReceive,
+                "USD",
+                amountYouReceive,                                                                
+                caIndex
+            ) + ConvertAmount(
+                contractProtocolStatus,
+                `TC_${caIndex}`,
+                "USD",
+                amountAnotherToken.amount,                                                                
+                caIndex
+            );
+        } else if (operationType === "COMBINED_REDEEM" || operationType === "MINT"  || operationType === "REDEEM" || operationType === "SWAP_TCFORTP" || operationType === "SWAP_TPFORTC" || operationType === "SWAP_TPFORTP") {
+            return ConvertAmount(
+                contractProtocolStatus,
+                currencyYouReceive,
+                "USD",
+                amountYouReceive,                                                                
+                caIndex
+            );
+        } else {
+            return 0n;
+        }
+    };
+
+    const totalAmountExchangeInFiat = amountExchangeInFiat();
+    const totalAmountReceiveInFiat = amountReceiveInFiat();
+    const totalExchangingInFiat = totalAmountExchangeInFiat > totalAmountReceiveInFiat ? totalAmountExchangeInFiat : totalAmountReceiveInFiat;
 
     return (
         <div>
@@ -1439,19 +1483,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                     !contractProtocolStatus.data
                                         ? "--"
                                         : operationType === "COMBINED_REDEEM" ? PrecisionNumbers({ /* Redeem */
-                                            amount: ConvertAmount(
-                                                contractProtocolStatus,
-                                                currencyYouExchange,
-                                                "USD",
-                                                amountYouExchange,                                                                
-                                                caIndex
-                                            ) + ConvertAmount(
-                                                contractProtocolStatus,
-                                                `TP_${tpIndex}`,
-                                                "USD",
-                                                amountAnotherToken.amount,                                                                
-                                                caIndex
-                                            ),
+                                            amount: totalAmountExchangeInFiat,
                                             token: TokenSettings(`CA_${caIndex}`),
                                             decimals: 2,
                                             i18n: i18n,
@@ -1615,19 +1647,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                     !contractProtocolStatus.data
                                         ? "--"
                                         : operationType === "COMBINED_MINT" ? PrecisionNumbers({ /* Mint */
-                                            amount: ConvertAmount(
-                                                contractProtocolStatus,
-                                                currencyYouReceive,
-                                                "USD",
-                                                amountYouReceive,                                                                
-                                                caIndex
-                                            ) + ConvertAmount(
-                                                contractProtocolStatus,
-                                                `TC_${caIndex}`,
-                                                "USD",
-                                                amountAnotherToken.amount,                                                                
-                                                caIndex
-                                            ),
+                                            amount: totalAmountReceiveInFiat,
                                             token: TokenSettings(`CA_${caIndex}`),
                                             decimals: 2,
                                             i18n: i18n,
@@ -1886,12 +1906,12 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                         {t("exchange.exchangingSummary")}
 
                         <div className={""}> ≈ </div>
-                        {exchangingUSD.toString() !== "NaN" ? (
+                        {totalExchangingInFiat.toString() !== "NaN" ? (
                             <div className={""}>
-                                {!exchangingUSD
+                                {!totalExchangingInFiat
                                     ? "--"
                                     : PrecisionNumbers({
-                                          amount: exchangingUSD,
+                                          amount: totalExchangingInFiat,
                                           token: TokenSettings(`CA_${caIndex}`),
                                           decimals: 2,
                                           i18n: i18n,
@@ -1915,7 +1935,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                     <ModalConfirmOperation
                         currencyYouExchange={currencyYouExchange}
                         currencyYouReceive={currencyYouReceive}
-                        exchangingUSD={exchangingUSD}
+                        exchangingUSD={totalExchangingInFiat}
                         commissionsByKey={commissionsByKey}
                         amountYouExchange={amountYouExchange}
                         amountYouReceive={amountYouReceive}
@@ -1928,6 +1948,8 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                         slippageTolerance={slippageTolerance}
                         amountAnotherToken={amountAnotherToken}
                         tpIndex={tpIndex}
+                        totalAmountExchangeInFiat={totalAmountExchangeInFiat}
+                        totalAmountReceiveInFiat={totalAmountReceiveInFiat}
                         //amountYouExchangeFee={amountYouExchangeFee}
                         //amountYouReceiveFee={amountYouReceiveFee}
                     />

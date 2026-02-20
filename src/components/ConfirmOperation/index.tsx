@@ -45,6 +45,8 @@ interface ConfirmOperationProps {
     slippageTolerance: number;
     amountAnotherToken: { qAC: bigint, amount: bigint };
     tpIndex: number;
+    totalAmountExchangeInFiat: bigint;
+    totalAmountReceiveInFiat: bigint;
 }
 
 type StatusType =
@@ -87,13 +89,15 @@ export default function ConfirmOperation(
         operationType,
         slippageTolerance,
         amountAnotherToken,
-        tpIndex
+        tpIndex,
+        totalAmountExchangeInFiat,
+        totalAmountReceiveInFiat
     } = props;
 
     const { t, i18n, ns } = useProjectTranslation();
     const space: string = "\u00A0";
 
-    const { userBalance, interfaceExchangeMethod } =
+    const { userBalance, interfaceExchangeMethod, contractProtocolStatus } =
         useWalletContext();
     
     const [status, setStatus] = useState<StatusType>("SUBMIT");
@@ -591,6 +595,20 @@ export default function ConfirmOperation(
                                 ns: ns,
                             })}
                         </div>
+                        {/*<div className="tx-in-fiat"> ≈ {space}
+                            {PrecisionNumbers({
+                                amount: ConvertAmount(
+                                    contractProtocolStatus,
+                                    currencyYouExchange,
+                                    "USD",
+                                    amountYouExchange,                                                                
+                                    caIndex
+                                ),
+                                token: TokenSettings(`CA_${caIndex}`),
+                                decimals: 2,
+                                i18n: i18n,
+                            })}
+                        </div>*/}
                     </div>                   
 
                     {operationType === "COMBINED_REDEEM" && (<div className="tx-amount-data">
