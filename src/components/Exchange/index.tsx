@@ -591,107 +591,24 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         const ex = currencyYouExchange.split("_")[0];
         const re = currencyYouReceive.split("_")[0];
 
-        const isMint = ex === "CA" && re !== "CA"; // CA -> (TC/TP)
-        const isRedeem = ex !== "CA" && re === "CA"; // (TC/TP) -> CA
-        const isSwapNoCA = ex !== "CA" && re !== "CA"; // (TC/TP) -> (TC/TP)
-
-        const payFeeInCA = radioSelectFee > 0;
-
-        const feeBaseForCombined = (
-            baseCA: bigint,
-            ctx?: { qTC?: bigint; qTP?: bigint }
-        ): bigint => {
-            if (operationType === "COMBINED_MINT") {
-                const qTP = ctx?.qTP ?? 0n;
-                const other = calculateAmountAnotherTokenMintTP(
-                    qTP,
-                    caIndex,
-                    tpIndex
-                ); // baseCA = qTP (CA principal)
-                return baseCA + other.qAC;
-            }
-            if (operationType === "COMBINED_REDEEM") {
-                const qTC = ctx?.qTC ?? 0n;
-                const other = calculateAmountAnotherTokenRedeemTC(
-                    qTC,
-                    caIndex,
-                    tpIndex
-                );
-                return baseCA + other.qAC;
-            }
-            return baseCA;
-        };
-
-        const solveGrossCAForNetRedeem = (
-            netCA: bigint
-        ): { grossCA: bigint; qTC: bigint } => {
-            if (!payFeeInCA) {
-                const qTC0 = ConvertAmount(
-                    contractProtocolStatus,
-                    `CA_${caIndex}`,
-                    currencyYouExchange,
-                    netCA,
-                    caIndex
-                );
-                return { grossCA: netCA, qTC: qTC0 };
-            }
-
-            let grossCA = netCA;
-            let qTC = 0n;
-
-            for (let i = 0; i < 8; i++) {
-                qTC = ConvertAmount(
-                    contractProtocolStatus,
-                    `CA_${caIndex}`,
-                    currencyYouExchange,
-                    grossCA,
-                    caIndex
-                );
-
-                const feeInfoTmp = CalcCommission(
-                    contractProtocolStatus,
-                    currencyYouExchange,
-                    currencyYouReceive,
-                    feeBaseForCombined(grossCA, { qTC }),
-                    caIndex
-                );
-
-                const nextGross = netCA + feeInfoTmp.fee;
-                if (nextGross === grossCA) break;
-                grossCA = nextGross;
-            }
-
-            return { grossCA, qTC };
-        };
+        //const isMint = ex === "CA" && re !== "CA"; // CA -> (TC/TP)
+        //const isRedeem = ex !== "CA" && re === "CA"; // (TC/TP) -> CA
+        //const isSwapNoCA = ex !== "CA" && re !== "CA"; // (TC/TP) -> (TC/TP)
+        //const payFeeInCA = radioSelectFee > 0;
 
         let infoFee: CommissionInfo;
-        let amountExchangeFee: bigint;
-        let amountReceiveFee: bigint;
         let amountInCA: bigint = 0n;
 
-        if (operationType === "COMBINED_MINT" || operationType === "MINT") {
-            // MINT: exchange is CA principal
+        if (
+            operationType === "COMBINED_MINT" || 
+            operationType === "MINT"
+        ) {            
             amountInCA = amountExchange;
         } else if (
             operationType === "COMBINED_REDEEM" ||
             operationType === "REDEEM"
         ) {
-            // REDEEM: fee base must be gross CA equivalent
-            if (source === "exchange") {
-                // user typed TC/TP => gross CA comes from exchange amount
-                amountInCA = ConvertAmount(
-                    contractProtocolStatus,
-                    currencyYouExchange, // TC_x or TP_x
-                    `CA_${caIndex}`,
-                    amountExchange,
-                    caIndex
-                );
-            } else {
-                // source === "receive": amountReceive is CA NET (your preference).
-                // The correct gross CA is solved later (net = gross - fee(gross)),
-                // so set placeholder here and recompute amountInCA after solving gross.
-                amountInCA = 0n;
-            }
+            amountInCA = amountReceive            
         } else if (operationType === "SWAP_TPFORTP") {
             // TP -> TP: fee base is CA equivalent of TP input
             amountInCA = ConvertAmount(
@@ -748,27 +665,35 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             combinedFeeCA,
             caIndex
         );
-
+        
         switch (source) {
             case "exchange": {
-                amountExchangeFee = amountExchange;
 
-                if (isMint) {
-                    
-                    // CA principal => output from principal (fee does NOT reduce receive)
-                    const receiveOut = ConvertAmount(
+                if (operationType === "MINT") {
+
+                    let receiveOut = ConvertAmount(
                         contractProtocolStatus,
                         currencyYouExchange,
                         currencyYouReceive,
-                        operationType === "COMBINED_MINT" ? amountExchangeFee - otherTokenAmount.qAC : amountExchangeFee,
+                        amountExchange,
                         caIndex
-                    );                    
+                    ); 
+
+                    const fee = ConvertAmount(
+                        contractProtocolStatus,
+                        currencyYouExchange,
+                        currencyYouReceive,
+                        infoFee.fee,
+                        caIndex
+                    );
+                    // receive is in CA on Mint
+                    if (receiveOut > fee) receiveOut -= fee
 
                     const receiveSlip = calculateLimit(
                         receiveOut,
                         -(slippageTolerance / 100)
                     );
-                    setAmountYouExchange(amountExchangeFee);
+                    setAmountYouExchange(amountExchange);
                     setAmountYouReceive(receiveSlip);
                     setValueReceive(
                         receiveSlip === 0n
@@ -778,197 +703,246 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                   currencyYouReceive,
                                   receiveSlip < 10n ** 17n ? 12 : 8
                               )
-                    );
-                    // You should also store/display totalPayCA = principal + fee when payFeeInCA
-                    break;
+                    );                    
+                    break;                    
                 }
 
-                if (isRedeem) {
-                    let grossCA = ConvertAmount(
-                        contractProtocolStatus,
-                        currencyYouExchange,
-                        `CA_${caIndex}`,
-                        amountExchangeFee,
-                        caIndex
-                    );
-                    if (operationType === "COMBINED_REDEEM") {
-                        grossCA += otherTokenAmount.qAC;
-                    }
-                    amountInCA = grossCA;
-                    
-                    // fee base for redeem is grossCA (principal CA equivalent)
-                    const feeInfoRedeem = CalcCommission(
+                if (operationType === "REDEEM") {
+
+                    let receiveOut = ConvertAmount(
                         contractProtocolStatus,
                         currencyYouExchange,
                         currencyYouReceive,
-                        feeBaseForCombined(grossCA, { qTC: amountExchangeFee }),
+                        amountExchange,
                         caIndex
+                    ); 
+
+                    if (receiveOut > infoFee.fee) receiveOut -= infoFee.fee;
+
+                    const receiveSlip = calculateLimit(
+                        receiveOut,
+                        -(slippageTolerance / 100)
                     );
-
-                    let netCA = grossCA;
-                    if (payFeeInCA) netCA = netCA - feeInfoRedeem.fee;
-
-                    netCA = calculateLimit(netCA, -(slippageTolerance / 100));
-                    setAmountYouExchange(amountExchangeFee);
-                    setAmountYouReceive(netCA);
+                    setAmountYouExchange(amountExchange);
+                    setAmountYouReceive(receiveSlip);
                     setValueReceive(
-                        netCA === 0n
+                        receiveSlip === 0n
                             ? ""
                             : bigIntToInputValue(
-                                  netCA,
+                                  receiveSlip,
                                   currencyYouReceive,
-                                  netCA < 10n ** 17n ? 12 : 8
+                                  receiveSlip < 10n ** 17n ? 12 : 8
                               )
-                    );
-
-                    // IMPORTANT: overwrite infoFee with the correct one for this branch
-                    infoFee = feeInfoRedeem;
-                    break;
+                    );                    
+                    break; 
                 }
 
-                // swap no CA
-                const receiveOut = ConvertAmount(
-                    contractProtocolStatus,
-                    currencyYouExchange,
-                    currencyYouReceive,
-                    amountExchangeFee,
-                    caIndex
-                );
+                if (operationType === "SWAP_TPFORTP" || 
+                    operationType === "SWAP_TCFORTP" || 
+                    operationType === "SWAP_TPFORTC") {
 
-                const receiveSlip = calculateLimit(
-                    receiveOut,
-                    -(slippageTolerance / 100)
-                );
-                setAmountYouExchange(amountExchangeFee);
-                setAmountYouReceive(receiveSlip);
-                setValueReceive(
-                    receiveSlip === 0n
-                        ? ""
-                        : bigIntToInputValue(
-                              receiveSlip,
-                              currencyYouReceive,
-                              receiveSlip < 10n ** 17n ? 12 : 8
-                          )
-                );
-                break;
+                    // The fee is payed with CA that not implied in exchange inputs, we don't calculate it
+
+                    let receiveOut = ConvertAmount(
+                        contractProtocolStatus,
+                        currencyYouExchange,
+                        currencyYouReceive,
+                        amountExchange,
+                        caIndex
+                    ); 
+
+                    const receiveSlip = calculateLimit(
+                        receiveOut,
+                        -(slippageTolerance / 100)
+                    );
+                    setAmountYouExchange(amountExchange);
+                    setAmountYouReceive(receiveSlip);
+                    setValueReceive(
+                        receiveSlip === 0n
+                            ? ""
+                            : bigIntToInputValue(
+                                  receiveSlip,
+                                  currencyYouReceive,
+                                  receiveSlip < 10n ** 17n ? 12 : 8
+                              )
+                    );                    
+                    break;                    
+                }
+                
+                if (operationType === "COMBINED_REDEEM") {
+
+                    let receiveOut = ConvertAmount(
+                        contractProtocolStatus,
+                        currencyYouExchange,
+                        currencyYouReceive,
+                        amountExchange,
+                        caIndex
+                    ); 
+
+                    receiveOut += otherTokenAmount.qAC;
+                    if (receiveOut > infoFee.fee) receiveOut -= infoFee.fee;
+
+                    const receiveSlip = calculateLimit(
+                        receiveOut,
+                        -(slippageTolerance / 100)
+                    );
+                    setAmountYouExchange(amountExchange);
+                    setAmountYouReceive(receiveSlip);
+                    setValueReceive(
+                        receiveSlip === 0n
+                            ? ""
+                            : bigIntToInputValue(
+                                  receiveSlip,
+                                  currencyYouReceive,
+                                  receiveSlip < 10n ** 17n ? 12 : 8
+                              )
+                    );                    
+                    break;                    
+                }
+
+                throw new Error("Not implemented input Exchange: Invalid operation type: " + operationType);
+                
             }
 
             case "receive": {
-                amountReceiveFee = amountReceive;
-
-                if (isMint) {
-                    // receive typed => solve CA principal (no fee in inputs)
-                    let principalCA = ConvertAmount(
-                        contractProtocolStatus,
-                        currencyYouReceive,
-                        `CA_${caIndex}`,
-                        amountReceiveFee,
-                        caIndex
-                    );
-                    if (operationType === "COMBINED_MINT") {
-                        principalCA += otherTokenAmount.qAC;                        
-                    }
-                    // apply max pay slippage on principal? usually you'd apply on receive, but keep your convention:
-                    const principalSlip = calculateLimit(
-                        principalCA,
-                        +(slippageTolerance / 100)
-                    );
-
-                    setAmountYouReceive(amountReceiveFee);
-                    setAmountYouExchange(principalSlip);
-                    setValueExchange(
-                        principalSlip === 0n
-                            ? ""
-                            : bigIntToInputValue(
-                                  principalSlip,
-                                  currencyYouExchange,
-                                  principalSlip < 10n ** 17n ? 12 : 8
-                              )
-                    );
-
-                    // fee should be computed from principalCA (and totalPayCA = principal + fee if payFeeInCA)
-                    const feeInfoMint = CalcCommission(
-                        contractProtocolStatus,
-                        currencyYouExchange,
-                        currencyYouReceive,
-                        feeBaseForCombined(principalCA, {
-                            qTP: amountReceiveFee,
-                        }),
-                        caIndex
-                    );
-                    infoFee = feeInfoMint;
-                    break;
-                }
-
-                if (isRedeem) {
-                    const desiredNetCA = amountReceiveFee; // receive is CA net
-
-                    let { grossCA, qTC } =
-                        solveGrossCAForNetRedeem(desiredNetCA);
+                
+                if (operationType === "MINT") {
                     
-                    amountInCA = grossCA;                    
+                    let exchangeOut = ConvertAmount(
+                        contractProtocolStatus,
+                        currencyYouReceive,
+                        `CA_${caIndex}`,
+                        amountReceive,
+                        caIndex
+                    );
 
-                    const grossSlip = calculateLimit(
-                        grossCA,
+                    // 
+                    if (exchangeOut > infoFee.fee) exchangeOut += infoFee.fee
+                                        
+                    const exchangeSlip = calculateLimit(
+                        exchangeOut,
                         +(slippageTolerance / 100)
                     );
 
-                    const exchangeIn = ConvertAmount(
-                        contractProtocolStatus,
-                        `CA_${caIndex}`,
-                        currencyYouExchange,
-                        grossSlip,
-                        caIndex
-                    );
-
-                    setAmountYouReceive(desiredNetCA);
-                    setAmountYouExchange(exchangeIn);
+                    setAmountYouReceive(amountReceive);
+                    setAmountYouExchange(exchangeSlip);
                     setValueExchange(
-                        exchangeIn === 0n
+                        exchangeSlip === 0n
                             ? ""
                             : bigIntToInputValue(
-                                  exchangeIn,
+                                exchangeSlip,
                                   currencyYouExchange,
-                                  exchangeIn < 10n ** 17n ? 12 : 8
+                                  exchangeSlip < 10n ** 17n ? 12 : 8
                               )
-                    );
-
-                    const feeInfoRedeem = CalcCommission(
-                        contractProtocolStatus,
-                        currencyYouExchange,
-                        currencyYouReceive,
-                        feeBaseForCombined(grossCA, { qTC }),
-                        caIndex
-                    );
-                    infoFee = feeInfoRedeem;
+                    );                    
                     break;
                 }
 
-                // swap no CA
-                const exchangeIn = ConvertAmount(
-                    contractProtocolStatus,
-                    currencyYouReceive,
-                    currencyYouExchange,
-                    amountReceiveFee,
-                    caIndex
-                );
+                if (operationType === "REDEEM") {
 
-                const exchangeSlip = calculateLimit(
-                    exchangeIn,
-                    +(slippageTolerance / 100)
-                );
-                setAmountYouReceive(amountReceiveFee);
-                setAmountYouExchange(exchangeSlip);
-                setValueExchange(
-                    exchangeSlip === 0n
-                        ? ""
-                        : bigIntToInputValue(
-                              exchangeSlip,
-                              currencyYouExchange,
-                              exchangeSlip < 10n ** 17n ? 12 : 8
-                          )
-                );
-                break;
+                    let exchangeOut = ConvertAmount(
+                        contractProtocolStatus,
+                        currencyYouReceive,
+                        currencyYouExchange,
+                        amountReceive,
+                        caIndex
+                    );
+
+                    const fee = ConvertAmount(
+                        contractProtocolStatus,
+                        currencyYouExchange,
+                        currencyYouReceive,
+                        infoFee.fee,
+                        caIndex
+                    );
+
+                    if (exchangeOut > fee) exchangeOut += fee
+                                        
+                    const exchangeSlip = calculateLimit(
+                        exchangeOut,
+                        +(slippageTolerance / 100)
+                    );
+
+                    setAmountYouReceive(amountReceive);
+                    setAmountYouExchange(exchangeSlip);
+                    setValueExchange(
+                        exchangeSlip === 0n
+                            ? ""
+                            : bigIntToInputValue(
+                                exchangeSlip,
+                                  currencyYouExchange,
+                                  exchangeSlip < 10n ** 17n ? 12 : 8
+                              )
+                    );                    
+                    break;
+                }
+
+                if (operationType === "SWAP_TPFORTP" || 
+                    operationType === "SWAP_TCFORTP" || 
+                    operationType === "SWAP_TPFORTC") {
+                    
+                    let exchangeOut = ConvertAmount(
+                        contractProtocolStatus,
+                        currencyYouReceive,
+                        currencyYouExchange,
+                        amountReceive,
+                        caIndex
+                    );                    
+                                        
+                    const exchangeSlip = calculateLimit(
+                        exchangeOut,
+                        +(slippageTolerance / 100)
+                    );
+
+                    setAmountYouReceive(amountReceive);
+                    setAmountYouExchange(exchangeSlip);
+                    setValueExchange(
+                        exchangeSlip === 0n
+                            ? ""
+                            : bigIntToInputValue(
+                                exchangeSlip,
+                                  currencyYouExchange,
+                                  exchangeSlip < 10n ** 17n ? 12 : 8
+                              )
+                    );                    
+                    break;
+                }
+
+                if (operationType === "COMBINED_MINT") {
+
+                    let exchangeOut = ConvertAmount(
+                        contractProtocolStatus,
+                        currencyYouReceive,
+                        `CA_${caIndex}`,
+                        amountReceive,
+                        caIndex
+                    );
+
+                    // 
+                    exchangeOut += otherTokenAmount.qAC;
+                    if (exchangeOut > infoFee.fee) exchangeOut += infoFee.fee
+                                        
+                    const exchangeSlip = calculateLimit(
+                        exchangeOut,
+                        +(slippageTolerance / 100)
+                    );
+
+                    setAmountYouReceive(amountReceive);
+                    setAmountYouExchange(exchangeSlip);
+                    setValueExchange(
+                        exchangeSlip === 0n
+                            ? ""
+                            : bigIntToInputValue(
+                                exchangeSlip,
+                                  currencyYouExchange,
+                                  exchangeSlip < 10n ** 17n ? 12 : 8
+                              )
+                    );                    
+                    break;
+                }
+                
+                throw new Error("Not implemented input Receive: Invalid operation type: " + operationType);
+                
             }
 
             default:
