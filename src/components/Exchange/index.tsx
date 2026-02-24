@@ -472,6 +472,12 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                     normalizeToBigInt(
                         contractProtocolStatus.data[caIndex].getCtargemaTP[tIndexTo]
                     ) || 0n; 
+
+                /*console.log("DEBUG>>>")    
+                console.log("tIndexFrom: ", tIndexFrom);
+                console.log("tIndexTo: ", tIndexTo);
+                console.log("ctargemaTPFrom: ", ctargemaTPFrom);
+                console.log("ctargemaTPTo: ", ctargemaTPTo);*/
                 if (ctargemaTPTo > ctargemaTPFrom ) {
                     // Tp available to mint
                     const tpAvailableToMint =
