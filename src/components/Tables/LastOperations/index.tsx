@@ -649,8 +649,8 @@ export default function LastOperations(props: LastOperationsProps) {
                         action: "TPSwapForTP",
                         amount:
                             status === "executed"
-                                ? row_operation.executed?.qTPto_ || 0
-                                : 0,
+                                ? row_operation.executed?.qTPto_ || undefined
+                                : undefined,
                         name: settings.tokens.TP[tp_to_index].name,
                         token: settings.tokens.TP[tp_to_index],
                         icon: `TP_${tp_to_index}`,
@@ -1346,7 +1346,7 @@ export default function LastOperations(props: LastOperationsProps) {
                                                     const receiveToken = token
                                                         .receive
                                                         .token as TokenConfig;
-                                                    return PrecisionNumbers({
+                                                    return token.receive.amount === undefined ? "--" : PrecisionNumbers({
                                                         amount: BigInt(
                                                             token.receive.amount
                                                         ),
