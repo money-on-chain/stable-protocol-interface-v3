@@ -133,6 +133,14 @@ interface TokenExchangeResult {
         icon: string;
         title: string;
     };
+    another: {
+        action?: string;
+        amount: string | number;
+        name: string;
+        token: unknown;
+        icon: string;
+        title: string;
+    };
 }
 
 interface TableRowData {
@@ -140,6 +148,7 @@ interface TableRowData {
     info: string;
     exchange: React.ReactNode;
     receive: React.ReactNode;
+    another: React.ReactNode;
     date: React.ReactNode;
     status: React.ReactNode;
     detail: DetailData;
@@ -350,48 +359,36 @@ export default function LastOperations(props: LastOperationsProps) {
         }
     };
 
-    const getTokenInfo = useCallback((token: string) => {
-        switch (token) {
-            case "CA_0":
-                return {
-                    name: (settings.tokens.CA as TokenConfig[])[0]?.name || "",
-                    token: (settings.tokens.CA as TokenConfig[])[0],
-                };
-            case "CA_1":
-                return {
-                    name: (settings.tokens.CA as TokenConfig[])[1]?.name || "",
-                    token: (settings.tokens.CA as TokenConfig[])[1],
-                };
-            case "TC_0":
-                return {
-                    name: settings.tokens.TC[0].name,
-                    token: settings.tokens.TC[0],
-                };
-            case "TC_1":
-                return {
-                    name: settings.tokens.TC[1].name,
-                    token: settings.tokens.TC[1],
-                };
-            case "TP_0":
-                return {
-                    name: settings.tokens.TP[0].name,
-                    token: settings.tokens.TP[0],
-                };
-            case "TP_1":
-                return {
-                    name: settings.tokens.TP[1].name,
-                    token: settings.tokens.TP[1],
-                };
-            case "FeeToken":
+    const getTokenInfo = useCallback(
+        (token: string) => {
+            if (token === "FeeToken") {
                 return {
                     name: settings.tokens.TF[0].name,
                     token: settings.tokens.TF[0],
                 };
-            default:
-                console.warn("UNRECOGNIZED TOKEN: " + token);
-                return undefined;
-        }
-    }, []);
+            }
+            const match = token.match(/^(CA|TC|TP)_(\d+)$/);
+            if (match) {
+                const [, prefix, indexStr] = match;
+                const index = parseInt(indexStr, 10);
+                const arr =
+                    prefix === "CA"
+                        ? (settings.tokens.CA as TokenConfig[])
+                        : prefix === "TC"
+                          ? settings.tokens.TC
+                          : settings.tokens.TP;
+                const tokenConfig = arr[index];
+                if (!tokenConfig) return undefined;
+                return {
+                    name: tokenConfig?.name || "",
+                    token: tokenConfig,
+                };
+            }
+            console.warn("UNRECOGNIZED TOKEN: " + token);
+            return undefined;
+        },
+        [settings]
+    );
 
     const tokenExchange = useCallback(
         (row_operation: OperationData): TokenExchangeResult | undefined => {
@@ -419,6 +416,24 @@ export default function LastOperations(props: LastOperationsProps) {
                         token: (settings.tokens.CA as TokenConfig[])[caIndex],
                         icon: `CA_${caIndex}`,
                         title: t("operations.actions.received"),
+                    },
+                    another: {
+                        amount: 0,
+                        name: "",
+                        token:
+                            row_operation["operation"] === "TCandTPMint"
+                                ? (settings.tokens.TC as TokenConfig[])[caIndex]
+                                : (settings.tokens.TP as TokenConfig[])[
+                                      caIndex
+                                  ],
+                        icon:
+                            row_operation["operation"] === "TCandTPMint"
+                                ? `TC_${caIndex}`
+                                : `TP_${caIndex}`,
+                        title:
+                            row_operation["operation"] === "TCandTPMint"
+                                ? t("operations.actions.received")
+                                : t("operations.actions.exchanged"),
                     },
                 };
             }
@@ -455,6 +470,13 @@ export default function LastOperations(props: LastOperationsProps) {
                                 ? t("operations.actions.received")
                                 : t("operations.actions.receiving"),
                     },
+                    another: {
+                        amount: 0,
+                        name: "",
+                        token: (settings.tokens.TC as TokenConfig[])[caIndex],
+                        icon: `TC_${caIndex}`,
+                        title: t("operations.actions.received"),
+                    },
                 };
             } else if (row_operation.operation === "TCRedeem") {
                 return {
@@ -487,6 +509,13 @@ export default function LastOperations(props: LastOperationsProps) {
                             status === "executed"
                                 ? t("operations.actions.received")
                                 : t("operations.actions.receiving"),
+                    },
+                    another: {
+                        amount: 0,
+                        name: "",
+                        token: (settings.tokens.TP as TokenConfig[])[caIndex],
+                        icon: `TP_${caIndex}`,
+                        title: t("operations.actions.received"),
                     },
                 };
             } else if (row_operation["operation"] === "TPMint") {
@@ -530,6 +559,13 @@ export default function LastOperations(props: LastOperationsProps) {
                                 ? t("operations.actions.received")
                                 : t("operations.actions.receiving"),
                     },
+                    another: {
+                        amount: 0,
+                        name: "",
+                        token: (settings.tokens.TC as TokenConfig[])[caIndex],
+                        icon: `TC_${caIndex}`,
+                        title: t("operations.actions.received"),
+                    },
                 };
             } else if (row_operation["operation"] === "TPRedeem") {
                 const statusData =
@@ -572,6 +608,13 @@ export default function LastOperations(props: LastOperationsProps) {
                                 ? t("operations.actions.received")
                                 : t("operations.actions.receiving"),
                     },
+                    another: {
+                        amount: 0,
+                        name: "",
+                        token: (settings.tokens.TC as TokenConfig[])[caIndex],
+                        icon: `TC_${caIndex}`,
+                        title: t("operations.actions.received"),
+                    },
                 };
             } else if (row_operation["operation"] === "TPSwapForTP") {
                 const statusData =
@@ -606,8 +649,8 @@ export default function LastOperations(props: LastOperationsProps) {
                         action: "TPSwapForTP",
                         amount:
                             status === "executed"
-                                ? row_operation.executed?.qTPto_ || 0
-                                :  0,
+                                ? row_operation.executed?.qTPto_ || undefined
+                                : undefined,
                         name: settings.tokens.TP[tp_to_index].name,
                         token: settings.tokens.TP[tp_to_index],
                         icon: `TP_${tp_to_index}`,
@@ -615,6 +658,13 @@ export default function LastOperations(props: LastOperationsProps) {
                             status === "executed"
                                 ? t("operations.actions.received")
                                 : t("operations.actions.receiving"),
+                    },
+                    another: {
+                        amount: 0,
+                        name: "",
+                        token: (settings.tokens.TC as TokenConfig[])[caIndex],
+                        icon: `TC_${caIndex}`,
+                        title: t("operations.actions.received"),
                     },
                 };
             } else if (row_operation["operation"] === "TCSwapForTP") {
@@ -656,7 +706,14 @@ export default function LastOperations(props: LastOperationsProps) {
                                 ? t("operations.actions.received")
                                 : t("operations.actions.receiving"),
                     },
-                };  
+                    another: {
+                        amount: 0,
+                        name: "",
+                        token: (settings.tokens.TC as TokenConfig[])[caIndex],
+                        icon: `TC_${caIndex}`,
+                        title: t("operations.actions.received"),
+                    },
+                };
             } else if (row_operation["operation"] === "TPSwapForTC") {
                 const statusData =
                     status === "executed"
@@ -696,6 +753,127 @@ export default function LastOperations(props: LastOperationsProps) {
                                 ? t("operations.actions.received")
                                 : t("operations.actions.receiving"),
                     },
+                    another: {
+                        amount: 0,
+                        name: "",
+                        token: (settings.tokens.TP as TokenConfig[])[caIndex],
+                        icon: `TP_${caIndex}`,
+                        title: t("operations.actions.received"),
+                    },
+                };
+            } else if (row_operation["operation"] === "TCandTPRedeem") {
+                const statusData =
+                    status === "executed"
+                        ? row_operation.executed
+                        : row_operation.params;
+                let tp_index =
+                    statusData?.tpIndex_ ||
+                    (statusData as { tpIndex?: number })?.tpIndex;
+                if (tp_index === undefined) tp_index = 0;
+
+                return {
+                    exchange: {
+                        action: "TCandTPRedeem",
+                        amount:
+                            status === "executed"
+                                ? row_operation.executed?.qTC_ || 0
+                                : row_operation.params?.qTC || 0,
+                        name:
+                            (settings.tokens.TC as TokenConfig[])[caIndex]
+                                ?.name || "",
+                        token: (settings.tokens.TC as TokenConfig[])[caIndex],
+                        icon: `TC_${caIndex}`,
+                        title:
+                            status === "executed"
+                                ? t("operations.actions.exchanged")
+                                : t("operations.actions.exchanging"),
+                    },
+                    receive: {
+                        action: "TCandTPRedeem",
+                        amount:
+                            status === "executed"
+                                ? row_operation.executed?.qAC_ || 0
+                                : row_operation.params?.qACmin || 0,
+                        name:
+                            (settings.tokens.CA as TokenConfig[])[caIndex]
+                                ?.name || "",
+                        token: (settings.tokens.CA as TokenConfig[])[caIndex],
+                        icon: `CA_${caIndex}`,
+                        title:
+                            status === "executed"
+                                ? t("operations.actions.received")
+                                : t("operations.actions.receiving"),
+                    },
+                    another: {
+                        action: "TCandTPRedeem",
+                        amount:
+                            status === "executed"
+                                ? row_operation.executed?.qTP_ || 0
+                                : row_operation.params?.qTP || 0,
+                        name: settings.tokens.TP[tp_index].name,
+                        token: settings.tokens.TP[tp_index],
+                        icon: `TP_${tp_index}`,
+                        title:
+                            status === "executed"
+                                ? t("operations.actions.exchanged")
+                                : t("operations.actions.exchanging"),
+                    },
+                };
+            } else if (row_operation["operation"] === "TCandTPMint") {
+                const statusData =
+                    status === "executed"
+                        ? row_operation.executed
+                        : row_operation.params;
+                let tp_index =
+                    statusData?.tpIndex_ ||
+                    (statusData as { tpIndex?: number })?.tpIndex;
+                if (tp_index === undefined) tp_index = 0;
+
+                return {
+                    exchange: {
+                        action: "TCandTPMint",
+                        amount:
+                            status === "executed"
+                                ? row_operation.executed?.qAC_ || 0
+                                : row_operation.params?.qACmax || 0,
+                        name:
+                            (settings.tokens.CA as TokenConfig[])[caIndex]
+                                ?.name || "",
+                        token: (settings.tokens.CA as TokenConfig[])[caIndex],
+                        icon: `CA_${caIndex}`,
+                        title:
+                            status === "executed"
+                                ? t("operations.actions.exchanged")
+                                : t("operations.actions.exchanging"),
+                    },
+                    receive: {
+                        action: "TCandTPMint",
+                        amount:
+                            status === "executed"
+                                ? row_operation.executed?.qTP_ || 0
+                                : row_operation.params?.qTP || 0,
+                        name: settings.tokens.TP[tp_index].name,
+                        token: settings.tokens.TP[tp_index],
+                        icon: `TP_${tp_index}`,
+                        title:
+                            status === "executed"
+                                ? t("operations.actions.received")
+                                : t("operations.actions.receiving"),
+                    },
+                    another: {
+                        action: "TCandTPMint",
+                        amount:
+                            status === "executed"
+                                ? row_operation.executed?.qTC_ || undefined
+                                : row_operation.params?.qTC || undefined,
+                        name: settings.tokens.TC[caIndex].name,
+                        token: settings.tokens.TC[caIndex],
+                        icon: `TC_${caIndex}`,
+                        title:
+                            status === "executed"
+                                ? t("operations.actions.received")
+                                : t("operations.actions.receiving"),
+                    },
                 };
             } else if (row_operation.operation === "Transfer") {
                 const tokenParam = row_operation.params?.token;
@@ -727,6 +905,13 @@ export default function LastOperations(props: LastOperationsProps) {
                                 ? "TRANSFERRED"
                                 : t("operations.actions.transfer"),
                     },
+                    another: {
+                        amount: 0,
+                        name: "",
+                        token: (settings.tokens.TC as TokenConfig[])[0],
+                        icon: `TC_${0}`,
+                        title: t("operations.actions.received"),
+                    },
                 };
             } else if (row_operation.operation === "ERROR") {
                 return {
@@ -746,6 +931,13 @@ export default function LastOperations(props: LastOperationsProps) {
                         icon: `CA_${caIndex}`,
                         title: "Revert",
                     },
+                    another: {
+                        amount: 0,
+                        name: "",
+                        token: (settings.tokens.CA as TokenConfig[])[caIndex],
+                        icon: `CA_${caIndex}`,
+                        title: "Revert",
+                    },
                 };
             } else {
                 console.warn("CAN'T OPERATE: " + row_operation.operation);
@@ -758,9 +950,9 @@ export default function LastOperations(props: LastOperationsProps) {
         (error: string | number | null | undefined): string => {
             switch (error) {
                 case "qAC below minimum required":
-                    return `${(settings.tokens.CA as TokenConfig[])[0]?.name || ""} ${t("operations.errors.qACBelow")} `;
+                    return `${t("operations.errors.qACBelow1")} ${token} ${t("operations.errors.qACBelow2")}`;
                 case "Insufficient qac sent":
-                    return `${(settings.tokens.CA as TokenConfig[])[0]?.name || ""} ${t("operations.errors.insufficientQAC1")} ${(settings.tokens.CA as TokenConfig[])[0]?.name || ""} ${t("operations.errors.insufficientQAC2")}`;
+                    return ` ${t("operations.errors.insufficientQAC1")} ${(settings.tokens.CA as TokenConfig[])[0]?.name || ""} ${t("operations.errors.insufficientQAC2")}`;
                 case "Low coverage":
                     return t("operations.errors.lowCoverage");
                 case "Invalid Flux Capacitor Operation":
@@ -952,62 +1144,41 @@ export default function LastOperations(props: LastOperationsProps) {
         [t]
     );
     const getAsset = useCallback((name: string) => {
-        switch (name) {
-            case "CA_0":
-                return {
-                    image: <div className="icon-token-ca_0 icon-token-modif" />,
-                    color: "color-token-tp",
-                    txt: "CA",
-                };
-            case "CA_1":
-                return {
-                    image: <div className="icon-token-ca_1 icon-token-modif" />,
-                    color: "color-token-tp",
-                    txt: "CA",
-                };
-            case "TC_0":
-                return {
-                    image: <div className="icon-token-tc_0 icon-token-modif" />,
-                    color: "color-token-tc",
-                    txt: "TC",
-                };
-            case "TC_1":
-                return {
-                    image: <div className="icon-token-tc_1 icon-token-modif" />,
-                    color: "color-token-tc",
-                    txt: "TC",
-                };
-            case "TP_0":
-                return {
-                    image: <div className="icon-token-tp_0 icon-token-modif" />,
-                    color: "color-token-tc",
-                    txt: "TP",
-                };
-            case "TP_1":
-                return {
-                    image: <div className="icon-token-tp_1 icon-token-modif" />,
-                    color: "color-token-tc",
-                    txt: "TP",
-                };
-            case "FeeToken":
-                return {
-                    image: <div className="icon-token-tf icon-token-modif" />,
-                    color: "color-token-tf",
-                    txt: "TF",
-                };
-            default:
-                console.warn("UNRECOGNIZED TOKEN: " + name);
-                return {
-                    image: (
-                        <div
-                            className="icon-token-MOC"
-                            style={{ display: "block", margin: "auto" }}
-                        />
-                    ),
-                    color: "color-token-tp",
-                    txt: "TP",
-                };
+        if (name === "FeeToken") {
+            return {
+                image: <div className="icon-token-tf icon-token-modif" />,
+                color: "color-token-tf",
+                txt: "TF",
+            };
         }
+        const match = name.match(/^(CA|TC|TP)_(\d+)$/);
+        if (match) {
+            const [, prefix, index] = match;
+            const prefixLower = prefix.toLowerCase();
+            const iconClass = `icon-token-${prefixLower}_${index} icon-token-modif`;
+            const color =
+                prefix === "CA"
+                    ? "color-token-tp"
+                    : prefix === "TC"
+                      ? "color-token-tc"
+                      : "color-token-tc";
+            return {
+                image: <div className={iconClass} />,
+                color,
+                txt: prefix,
+            };
+        }
+        console.warn("UNRECOGNIZED TOKEN: " + name);
+        return {
+            image: (
+                <div
+                    className="icon-token-MOC"
+                    style={{ display: "block", margin: "auto" }}
+                />
+            ),
+            color: "color-token-tp",
+            txt: "TP",
+        };
     }, []);
     // Memoize the processed table data to avoid recalculating on every render
     const processedData = useMemo(() => {
@@ -1175,7 +1346,7 @@ export default function LastOperations(props: LastOperationsProps) {
                                                     const receiveToken = token
                                                         .receive
                                                         .token as TokenConfig;
-                                                    return PrecisionNumbers({
+                                                    return token.receive.amount === undefined ? "--" : PrecisionNumbers({
                                                         amount: BigInt(
                                                             token.receive.amount
                                                         ),
@@ -1216,6 +1387,69 @@ export default function LastOperations(props: LastOperationsProps) {
                                 <div>
                                     <div className="lastOp__detail__label">
                                         {token.receive.title}
+                                    </div>
+                                    <br></br>
+                                    <div className="table-amount"> -- </div>
+                                </div>
+                                <div className="table-icon-name"></div>
+                            </Fragment>
+                        )}
+                    </>
+                ),
+                another: (
+                    <>
+                        {token.another.action !== "Transfer" &&
+                            token.another.action !== "Error" && (
+                                <Fragment>
+                                    <div className="lastOp__detail__item">
+                                        <div className="lastOpe_from_container">
+                                            <div className="lastOp__detail__label">
+                                                {token.another.title}
+                                            </div>
+                                            <div className="lastOp__detail__amount">
+                                                {(() => {
+                                                    const receiveToken = token
+                                                        .another
+                                                        .token as TokenConfig;
+                                                    return token.another.amount === undefined ? "--" : PrecisionNumbers({
+                                                        amount: BigInt(
+                                                            token.another.amount
+                                                        ),
+                                                        token: receiveToken,
+                                                        decimals: receiveToken.visibleDecimals ?? 2,
+                                                        i18n: i18n,
+                                                    });
+                                                })()}
+                                            </div>
+                                        </div>
+                                        <div className="lastOp__detail__token__container">
+                                            {getAsset(token.another.icon).image}
+                                            <div className="lastOp__detail__token__ticker">
+                                                {token.another.name}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Fragment>
+                            )}
+                        {token.another.action === "Transfer" && (
+                            <Fragment>
+                                <div className="lastOp__detail__item--double">
+                                    <div className="lastOp__detail__transfer">
+                                        <div className="lastOp__detail__label">
+                                            {getTransferAction(data)}
+                                        </div>
+                                        <div className="lastOp__detail__address">
+                                            {getTransferAddress(data)}
+                                        </div>
+                                    </div>
+                                </div>
+                            </Fragment>
+                        )}
+                        {token.another.action === "Error" && (
+                            <Fragment>
+                                <div>
+                                    <div className="lastOp__detail__label">
+                                        {token.another.title}
                                     </div>
                                     <br></br>
                                     <div className="table-amount"> -- </div>
@@ -1283,10 +1517,17 @@ export default function LastOperations(props: LastOperationsProps) {
                             <div className="LastOp__divider"></div>
                             <div className="LastOp__origin">
                                 {element.exchange}
+                                {element.detail.event === "TCandTPRedeem" && (
+                                    <>{element.another}</>
+                                )}
                             </div>
+
                             <div className="LastOp__divider"></div>
                             <div className="LastOp__destination">
                                 {element.receive}
+                                {element.detail.event === "TCandTPMint" && (
+                                    <>{element.another}</>
+                                )}
                             </div>
                         </div>
                         <div className="LastOp__group__dateStatus">

@@ -51,8 +51,7 @@ import {
 } from "../backend/omoc/voting";
 import ModalAccount from "../components/Modals/Account";
 import ModalProviders from "../components/Modals/Providers";
-import { ApproveTokenContract, TokenContract } from "../helpers/exchange";
-import { exchangeMethod } from "../helpers/exchange";
+import { ApproveTokenContract, TokenContract, exchangeMethod, exchangeMethodCombined } from "../helpers/exchange";
 import {
     loadVestingAddressesFromLocalStorage,
     saveVestingAddressesToLocalStorage,
@@ -409,7 +408,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             contractsAddress,
             currencyYouExchange,
             currencyYouReceive,
-            caIndex
+            caIndex            
         );
         if (approveInfo.token) {
             const interfaceContext = buildInterfaceContext();
@@ -431,21 +430,38 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         limitAmount: bigint,
         qAssetMaxFees: bigint,
         caIndex: number,
+        tpIndex: number,
+        operationType: string,
+        anotherTokenAmount: bigint,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt
     ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
-        return exchangeMethod(
-            interfaceContext,
-            currencyYouExchange,
-            currencyYouReceive,
-            tokenAmount,
-            limitAmount,
-            qAssetMaxFees,
-            caIndex,
-            onTransaction,
-            onReceipt
-        );
+        if (operationType === "COMBINED_MINT" || operationType === "COMBINED_REDEEM") {
+            return exchangeMethodCombined(
+                interfaceContext,
+                tokenAmount,
+                limitAmount,
+                caIndex,
+                tpIndex,
+                operationType,
+                anotherTokenAmount,
+                onTransaction,
+                onReceipt
+            );
+        } else {    
+            return exchangeMethod(
+                interfaceContext,
+                currencyYouExchange,
+                currencyYouReceive,
+                tokenAmount,
+                limitAmount,
+                qAssetMaxFees,
+                caIndex,                
+                onTransaction,
+                onReceipt
+            );
+        }
     };
 
     const interfaceAllowUseTokenMigrator = async (

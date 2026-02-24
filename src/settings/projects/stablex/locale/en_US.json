@@ -63,12 +63,13 @@
             "reason": "Reason"
         },
         "errors": {
-            "qACBelow": "price went up, amount below minimum required.",
-            "insufficientQAC1": "price went down, insufficient",
-            "insufficientQAC2": "sent",
-            "lowCoverage": "System below protected global coverage",
-            "fluxCapacitor": "Error in flux capacitor",
-            "noMessage": "No message"
+            "qACBelow1": "Price variation for",
+            "qACBelow2": "resulted in an amount received below the minimum required.",
+            "insufficientQAC1": "Price variation for",
+            "insufficientQAC2": "exceeded your slippage tolerance. Try increasing tolerance or retry.",
+            "lowCoverage": "Operation failed due to low system coverage.",
+            "fluxCapacitor": "Operation rejected: system limit reached.",
+            "noMessage": "Transaction failed."
         },
         "table": {
             "itemsPerPage": "Page"

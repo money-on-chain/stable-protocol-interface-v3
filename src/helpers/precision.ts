@@ -2,6 +2,40 @@ import { formatUnits, hexToBigInt, isHex, parseUnits } from "viem";
 
 const PRECISION_DECIMALS = 18n;
 const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
+export const WAD = 10n ** PRECISION_DECIMALS;
+
+export type Rounding = "down" | "halfUp" | "up";
+
+/**
+ * (a * b) / denom with rounding control.
+ * Note overflow: BigInt does not overflow, but it can grow very much.
+ */
+export function mulDiv(a: bigint, b: bigint, denom: bigint, rounding: Rounding = "down"): bigint {
+  if (denom === 0n) return 0n;
+
+  const prod = a * b;
+
+  if (rounding === "down") return prod / denom;
+
+  const q = prod / denom;
+  const r = prod % denom;
+
+  if (r === 0n) return q;
+
+  if (rounding === "up") return q + 1n;
+
+  // halfUp
+  // if r*2 >= denom => +1
+  return (r * 2n >= denom) ? (q + 1n) : q;
+}
+
+// Versions “wad”
+export const wadMul = (a: bigint, b: bigint, rounding: Rounding = "down") =>
+  mulDiv(a, b, WAD, rounding);
+
+export const wadDiv = (a: bigint, b: bigint, rounding: Rounding = "down") =>
+  mulDiv(a, WAD, b, rounding);
+
 
 /**
  * Converts a float or string value to bigint with 18 decimal precision.
@@ -27,36 +61,12 @@ export const toBigIntPrecision = (
 /**
  * Multiplies two values with a given precision
  */
-export const mulPrecision = (
-    a: bigint | number | string,
-    b: bigint | number | string
-) => {
-    // Handle NaN and ensure both parameters are BigInt
-    const bigIntA =
-        typeof a === "bigint" ? a : isNaN(Number(a)) ? 0n : BigInt(a || 0);
-    const bigIntB =
-        typeof b === "bigint" ? b : isNaN(Number(b)) ? 0n : BigInt(b || 0);
-    return (bigIntA * bigIntB) / DECIMALS_18;
-};
+export const mulPrecision = (a: bigint, b: bigint) => (a * b) / WAD;
 
 /**
  * Divides two values with a given precision
  */
-export const divPrecision = (
-    a: bigint | number | string,
-    b: bigint | number | string
-) => {
-    // Handle NaN and ensure both parameters are BigInt
-    const bigIntA =
-        typeof a === "bigint" ? a : isNaN(Number(a)) ? 0n : BigInt(a || 0);
-    const bigIntB =
-        typeof b === "bigint" ? b : isNaN(Number(b)) ? 0n : BigInt(b || 0);
-
-    // Prevent division by zero
-    if (bigIntB === 0n) return 0n;
-
-    return (bigIntA * DECIMALS_18) / bigIntB;
-};
+export const divPrecision = (a: bigint, b: bigint) => (b === 0n ? 0n : (a * WAD) / b);
 
 export const isZeroLike = (v: unknown): boolean =>
     [0, 0n, undefined].includes(v as number | bigint | undefined) ||

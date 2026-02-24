@@ -324,6 +324,13 @@ $breakpoint-mobile: 600px;
         width: 32px;
         height: 32px;
     }
+    .logo-exchange-combined {
+        filter: var(--color-nav-icon-filter-hover);
+        background-size: 32px 32px;
+        background-repeat: no-repeat;
+        width: 32px;
+        height: 32px;
+    }
 }
 .menu-nav-item-more:hover {
     color: var(--color-nav-txt-hover);
@@ -436,7 +443,6 @@ $breakpoint-mobile: 600px;
 .logo-portfolio-selected {
     filter: var(--color-nav-icon-filter-active);
     background-image: url("../../assets/icons/PortfolioOutline.svg");
-    // background-image: url('../../assets/icons/PortfolioFilled.svg');
     background-size: 32px 32px;
     background-repeat: no-repeat;
     width: 32px;
@@ -455,7 +461,6 @@ $breakpoint-mobile: 600px;
 .logo-send-selected {
     filter: var(--color-nav-icon-filter-active);
     background-image: url("../../assets/icons/SendOutline.svg");
-    // background-image: url('../../assets/icons/SendFilled.svg');
     background-size: 32px 32px;
     background-repeat: no-repeat;
     width: 32px;
@@ -473,7 +478,6 @@ $breakpoint-mobile: 600px;
 .logo-exchange-selected {
     filter: var(--color-nav-icon-filter-active);
     background-image: url("../../assets/icons/ExchangeOutline.svg");
-    // background-image: url('../../assets/icons/ExchangeFilled.svg');
     background-size: 32px 32px;
     background-repeat: no-repeat;
     width: 32px;
@@ -491,7 +495,6 @@ $breakpoint-mobile: 600px;
 .logo-performance-selected {
     filter: var(--color-nav-icon-filter-active);
     background-image: url("../../assets/icons/PerformanceOutline.svg");
-    // background-image: url('../../assets/icons/PerformanceFilled.svg');
     background-size: 32px 32px;
     background-repeat: no-repeat;
     width: 32px;
@@ -509,7 +512,6 @@ $breakpoint-mobile: 600px;
 .logo-staking-selected {
     filter: var(--color-nav-icon-filter-active);
     background-image: url("../../assets/icons/StakeOutline.svg");
-    // background-image: url('../../assets/icons/StakeFilled.svg');
     background-size: 32px 32px;
     background-repeat: no-repeat;
     width: 32px;
@@ -527,7 +529,6 @@ $breakpoint-mobile: 600px;
 .logo-liquidity-mining-selected {
     filter: var(--color-nav-icon-filter-active);
     background-image: url("../../assets/icons/LiquidityMiningOutline.svg");
-    // background-image: url('../../assets/icons/LiquidityMiningFilled.svg');
     background-size: 32px 32px;
     background-repeat: no-repeat;
     width: 32px;
@@ -545,7 +546,6 @@ $breakpoint-mobile: 600px;
 .logo-vesting-selected {
     filter: var(--color-nav-icon-filter-active);
     background-image: url("../../assets/icons/VestingFilled.svg");
-    // background-image: url('../../assets/icons/VestingOutline.svg');
     background-size: 32px 32px;
     background-repeat: no-repeat;
     width: 32px;
@@ -562,7 +562,22 @@ $breakpoint-mobile: 600px;
 .logo-voting-selected {
     filter: var(--color-nav-icon-filter-active);
     background-image: url("../../assets/icons/VotingOutline.svg");
-    // background-image: url('../../assets/icons/VotingFilled.svg');
+    background-size: 32px 32px;
+    background-repeat: no-repeat;
+    width: 32px;
+    height: 32px;
+}
+.logo-exchange-combined {
+    filter: var(--color-nav-icon-filter-default);
+    background-image: url("../../assets/icons/ExchangeCombined.svg");
+    background-size: 32px 32px;
+    background-repeat: no-repeat;
+    width: 32px;
+    height: 32px;
+}
+.logo-exchange-combined-selected {
+    filter: var(--color-nav-icon-filter-active);
+    background-image: url("../../assets/icons/ExchangeCombined.svg");
     background-size: 32px 32px;
     background-repeat: no-repeat;
     width: 32px;

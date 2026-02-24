@@ -2,7 +2,9 @@ import "./Styles.scss";
 
 import React, { useEffect, useRef } from "react";
 
+import { TokenSettings } from "../../helpers/currencies";
 import { useProjectTranslation } from "../../helpers/translations";
+import { PrecisionNumbers } from "../PrecisionNumbers";
 
 interface InputAmountProps {
     balanceText?: string;
@@ -13,13 +15,26 @@ interface InputAmountProps {
     onValueChange: (value: string) => void;
     setAddTotalAvailable: () => void;
     validateError?: boolean;
+
+    /** Optional fiat equivalent calculation */
+    getFiatEquivalent?: (value: number) => bigint;
+
+    /** Fiat label (defaults to USD) */
+    fiatLabel?: string;
+
+    /** Show ≈ symbol before fiat value (defaults to true) */
+    showApproxSymbol?: boolean;
+
+    /** Makes input read-only */
+    readOnly?: boolean;
 }
 
-const InputAmount: React.FC<InputAmountProps> = (props) => {
-    const { t } = useProjectTranslation();
+const space: string = "\u00A0";
 
+const InputAmount: React.FC<InputAmountProps> = (props) => {
+    const { t, i18n } = useProjectTranslation();
     const inputRef = useRef<HTMLInputElement>(null);
-    //const [value, setValue] = useState("");
+
     const {
         balanceText,
         action,
@@ -29,11 +44,14 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
         onValueChange,
         setAddTotalAvailable,
         validateError,
+        getFiatEquivalent,
+        fiatLabel = "USD",
+        showApproxSymbol = true,
+        readOnly = false,
     } = props;
 
     useEffect(() => {
         const handleWheel = (event: WheelEvent) => {
-            console.warn("Wheel event triggered");
             event.preventDefault();
         };
 
@@ -57,10 +75,14 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
     };
 
     const handleValueChange = (value: string): void => {
+        if (readOnly) return;
+
         let formattedValue = value;
+
         if (value.length > 20) {
             return;
         }
+
         if (value.startsWith(".")) {
             formattedValue = `0${value}`;
         }
@@ -79,14 +101,22 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
         }
     };
 
+    const numericValue = Number(inputValue);
+
+    const fiatValue = getFiatEquivalent
+        ? getFiatEquivalent(isNaN(numericValue) ? 0 : numericValue)
+        : null;
+
     return (
-        <div className="amountInput">
+        <div className={`amountInput ${readOnly ? "amountInput--readonly" : ""}`}>
             <div className="amountInput__infoBar">
                 <div className="amountInput__label">{action}</div>
-                <span className="amountInput__available">
-                    {`${balanceText}: `}
-                    {balance}
-                </span>
+                {!readOnly && (<button
+                    className="amountInput__maxButton"
+                    onClick={setAddTotalAvailable}
+                >
+                    {t("button.inputMaxValue")}
+                </button>)}
             </div>
             <div className="amountInput__inputBar">
                 <div className="amountInput__amount">
@@ -95,18 +125,39 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
                         placeholder={placeholder}
                         value={inputValue}
                         inputMode="decimal"
+                        readOnly={readOnly}
                         onChange={(event) => {
                             handleValueChange(event.target.value);
                         }}
-                        className={`amountInput__value ${validateError ? "amountInput__feedback--error" : ""}`}
+                        className={`amountInput__value ${
+                            validateError ? "amountInput__feedback--error" : ""
+                        }`}
                     />
                 </div>
-                <button
-                    className="amountInput__maxButton"
-                    onClick={setAddTotalAvailable}
-                >
-                    {t("button.inputMaxValue")}
-                </button>
+            </div>
+            <div className="amountInput__infoBar">
+                <div className="amountInput__fiatEquivalent">
+                    {getFiatEquivalent && fiatValue !== null && (
+                        <>
+                            {showApproxSymbol && "≈ "}
+
+                            {PrecisionNumbers({
+                                amount: fiatValue || 0n,
+                                token: TokenSettings("CA_0"),
+                                decimals: 2,
+                                i18n: i18n,
+                                isUSD: true,
+                            })}
+                            {space}
+                            {fiatLabel}
+                        </>
+                    )}
+                </div>
+                <span className="amountInput__available">
+                    {`${balanceText}: `}
+                    {space}
+                    {balance}
+                </span>
             </div>
         </div>
     );

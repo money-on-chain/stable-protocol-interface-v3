@@ -63,12 +63,13 @@
             "reason": "Motivo"
         },
         "errors": {
-            "qACBelow": "${this.ex} precio subió, la cantidad está debajo del mínimo requerido",
-            "insufficientQAC1": "token bajó, insuficiente",
-            "insufficientQAC2": "enviado",
-            "lowCoverage": "El sistema está bajo cobertura global protegida",
-            "fluxCapacitor": "Error en el Flux Capacitor",
-            "noMessage": "Sin mensaje"
+            "qACBelow1": "La variación de precio para",
+            "qACBelow2": "resultó en un monto recibido inferior al mínimo requerido.",
+            "insufficientQAC1": "La variación de precio para",
+            "insufficientQAC2": "excedió el Slippage Tolerance. Intenta aumentar la tolerancia o reintentar.",
+            "lowCoverage": "La operación falló debido a baja cobertura del sistema.",
+            "fluxCapacitor": "Operación rechazada: se alcanzó el límite del sistema.",
+            "noMessage": "La transacción falló."
         },
         "table": {
             "itemsPerPage": "Página"

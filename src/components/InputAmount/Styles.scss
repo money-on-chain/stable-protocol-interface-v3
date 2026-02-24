@@ -16,8 +16,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 5px;
+    // margin-bottom: 5px;
     color: var(--color-txt-secondary);
+    // outline: 1px dashed red;
 }
 .amountInput__label {
     font-weight: 600;
@@ -25,15 +26,18 @@
     font-family: var(--main-font);
     text-transform: uppercase;
 }
-.amountInput__available {
+.amountInput__available,
+.amountInput__fiatEquivalent {
     font-weight: 600;
     font-size: 10px;
-    line-height: 14px;
+    line-height: 10px;
     font-family: var(--main-font);
     letter-spacing: 0px;
     text-align: right;
 }
-
+.amountInput__fiatEquivalent {
+    // color: red;
+}
 .amountInput__feedback {
     width: 100%;
     color: var(--color-semantic-neutral);
@@ -44,6 +48,7 @@
     font-family: var(--main-font);
     letter-spacing: 0px;
     text-align: left;
+    margin-bottom: 8px;
 }
 .amountInput__feedback--error {
     color: var(--color-semantic-negative);
@@ -60,6 +65,8 @@
     gap: 8px;
     width: 100%;
     max-width: 100%;
+    line-height: 0;
+    padding-bottom: 4px;
 }
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
@@ -74,11 +81,10 @@ input[type="number"] {
     flex-grow: 1;
     align-items: center;
     width: 100%;
-    height: 29px;
+    // height: 29px;
     font-style: normal;
     font-weight: 700;
-    font-size: 20px;
-    line-height: 25.2px;
+    font-size: 18px;
     font-family: var(--brand-font);
     text-align: left;
 }
@@ -102,7 +108,7 @@ input[type="number"] {
 .amountInput__maxButton {
     flex-shrink: 0;
     cursor: pointer;
-    margin-top: 8px;
+    // margin-top: 8px;
     border: 1px solid var(--color-btn-secondary-txt-default);
     border-radius: 4px;
     background-color: var(--color-btn-secondary-background-default);
@@ -123,4 +129,28 @@ input[type="number"] {
     border-color: var(--color-btn-secondary-txt-hover);
     color: var(--color-btn-secondary-txt-hover);
 }
+
+.amountInput {
+    &__usdValue {
+        font-size: 12px;
+        opacity: 0.75;
+        margin-top: 4px;
+        line-height: 1.2;
+    }
+}
+.amountInput--readonly .amountInput__value {
+    cursor: default;
+    /*background: transparent;*/
+}
+
+.amountInput--readonly {
+    cursor: default;
+    background: transparent;
+    border: 1px solid #26272f;
+    color: var(--color-txt-secondary);
+    line-height: 1.4;
+;
+
+}
+
 /* #endregion AMOUNT INPUT */

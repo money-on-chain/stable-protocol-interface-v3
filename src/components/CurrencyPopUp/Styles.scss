@@ -7,6 +7,12 @@
         opacity: 0.5;
         cursor: not-allowed;
     }
+
+    .token__icon {
+        margin-right: 0px;
+        width: 24px;
+        height: 24px;
+    }
 }
 
 /* Selected token display */
@@ -18,23 +24,35 @@
     cursor: pointer;
     // border: 1px solid #ccc;
     border-radius: 6px;
-    padding: 10px;
-
+    padding: 2px 0px;
     &:hover {
         background: rgba(0, 0, 0, 0.05);
     }
 }
 .icon__toggle__expand {
+    margin-right: 0px;
     margin-left: auto;
+    background-size: 20px;
+    background-size: 20px;
+    width: 20px;
+    height: 20px;
 }
 /* Token list inside modal */
 .token-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 4px;
     max-height: 60vh; /* Keeps the list scrollable */
     overflow-y: auto;
     // padding-right: 5px;
+
+    .token__icon {
+        margin-right: 0px;
+        width: 24px;
+        height: 24px;
+    }
+    .token__name {
+    }
 }
 
 /* Individual token item inside modal */
@@ -45,8 +63,6 @@
     gap: 8px;
     transition: background 0.2s ease-in-out;
     cursor: pointer;
-    // box-shadow: var(--surface-shadow-3);
-    // border: 1px solid var(--dividers);
     border-radius: 4px;
     background-color: var(--surface-color-3);
     padding: 10px;
@@ -66,11 +82,7 @@
 
 /* Checkmark icon */
 .selected-icon {
-    // font-size: 18px;
-    // color: white;
-    // font-weight: bold;
     margin-left: auto; /* Pushes the icon to the right */
-    // padding-left: 10px;
 }
 
 // A smaller modal than default since this list doesn't need a wider one

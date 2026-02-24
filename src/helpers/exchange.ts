@@ -4,7 +4,7 @@ import {
     redeemTC as redeemTC_coinbase,
     redeemTP as redeemTP_coinbase,
 } from "../backend/moc-coinbase";
-import { mintTC, mintTP, redeemTC, redeemTP, swapTPforTP, swapTCforTP, swapTPforTC } from "../backend/moc-rc20";
+import { mintTC, mintTP, redeemTC, redeemTP, swapTPforTP, swapTCforTP, swapTPforTC, mintTCandTP, redeemTCandTP } from "../backend/moc-rc20";
 import settings from "../settings/settings.json";
 import type { ContractInfo, DContracts } from "../types/hooks";
 import type {
@@ -13,6 +13,7 @@ import type {
 } from "../types/status";
 import type { InterfaceContext } from "../types/wallets";
 import { TokenSettings } from "./currencies";
+import { divPrecision, toBigIntPrecision, mulPrecision } from "./precision";
 
 // Type definitions
 
@@ -53,67 +54,125 @@ const tokenMap = {
 
 function loadTokenMap(): TokenMap {
     const tMap: TokenMap = {};
-    let lReceive: string[] = [];
-
-    // Exchange CA
-    for (let i = 0; i < settings.tokens.CA.length; i++) {
-        lReceive = [];
-        lReceive.push(`TC_${i}`);
-        // TP
-        for (let t = 0; t < settings.tokens.TP.length; t++) {
-            lReceive.push(`TP_${t}`);
-        }
-        tMap[`CA_${i}`] = lReceive;
-            
+  
+    const caLen = settings.tokens.CA.length;
+    const tpLen = settings.tokens.TP.length;
+  
+    // Helpers de ids
+    const CA = (i: number) => `CA_${i}`;
+    const TC = (i: number) => `TC_${i}`;
+    const TP = (i: number) => `TP_${i}`;
+      
+    const allTP: string[] = Array.from({ length: tpLen }, (_, i) => TP(i));
+    const allCA: string[] = Array.from({ length: caLen }, (_, i) => CA(i));
+    const allTC: string[] = Array.from({ length: caLen }, (_, i) => TC(i));
+  
+    // Exchange CA -> (TC_i + all TP)
+    for (let i = 0; i < caLen; i++) {
+      tMap[CA(i)] = [TC(i), ...allTP];
     }
-
-    // Exchange TC
-    for (let i = 0; i < settings.tokens.CA.length; i++) {        
-        lReceive = [];
-        // TP
-        for (let t = 0; t < settings.tokens.TP.length; t++) {
-            lReceive.push(`TP_${t}`);
-        }
-
-        // Exchange TC -> CA
-        lReceive.push(`CA_${i}`);
-
-        // Exchange TC -> TP
-        tMap[`TC_${i}`] = lReceive;
+  
+    // Exchange TC -> (all TP + CA_i)
+    for (let i = 0; i < caLen; i++) {
+      tMap[TC(i)] = [...allTP, CA(i)];
     }
+  
+    // Exchange TP_i -> (all CA + all TC + all TP except self)
+    for (let i = 0; i < tpLen; i++) {
+      // avoid creating the list with filter (more GC) and keep order
+      const otherTP: string[] = [];
+      for (let j = 0; j < tpLen; j++) if (j !== i) otherTP.push(TP(j));
+  
+      tMap[TP(i)] = [...allCA, ...allTC, ...otherTP];
+    }
+  
+    return tMap;
+  }
 
-    // Exchange TP
-    for (let i = 0; i < settings.tokens.TP.length; i++) {
-        const lReceive: string[] = [];
+  
+function loadTokenMapCombined(): TokenMap {
+    const tMap: TokenMap = {};
 
-        // CA targets
-        for (let a = 0; a < settings.tokens.CA.length; a++) {
-            lReceive.push(`CA_${a}`);
-        }
+    const caLen = settings.tokens.CA.length;
+    const tpLen = settings.tokens.TP.length;
 
-        // TC targets
-        for (let a = 0; a < settings.tokens.CA.length; a++) {
-            lReceive.push(`TC_${a}`);
-        }
+    // Helpers de ids
+    const CA = (i: number) => `CA_${i}`;
+    const TC = (i: number) => `TC_${i}`;
+    const TP = (i: number) => `TP_${i}`;
         
-        for (let tp = 0; tp < settings.tokens.TP.length; tp++) {            
-            if (tp !== i) {
-                lReceive.push(`TP_${tp}`);
-            }
-        }
-        
+    const allTP: string[] = Array.from({ length: tpLen }, (_, i) => TP(i));    
 
-        tMap[`TP_${i}`] = lReceive;
+    // Exchange CA -> all TP
+    for (let i = 0; i < caLen; i++) {
+        tMap[CA(i)] = [...allTP];
     }
-    
+
+    // Exchange TC -> CA_i
+    for (let i = 0; i < caLen; i++) {
+        tMap[TC(i)] = [CA(i)];
+    }  
     return tMap;
 }
+ 
 
-//const VERY_HIGH_NUMBER = 100000000000;
+function onlyTPs(): string[] {
+    return settings.tokens.TP.map((tp, index) => `TP_${index}`);
+}
 
+function calculateAmountAnotherToken(contractProtocolStatus: ContractProtocolStatusResult, operationType: string, amount: bigint, caIndex: number, tpIndex: number ): bigint {
+    /** 
+     * 
+redeemTCandTP :
+    aux = ((combinedCglb - 1) * (ctargemaTP - 1) / (combinedCtargemaCA -1))
+    el TP que el usuario indica para redimir tiene que ser mayor a
+
+    qTP = qTC * pACtp * pTCac / aux
+    (qACmin amount you receive has to be less than the amount you expect to receive)
+
+    qACRedeemed = ((qTP / pACtp) + (qTC * pTCac)) - fee
+
+mintTCandTP:
+
+    qACtpMintTC = (qTP * (ctargemaTP - 1)) / pACtp)
+
+    qACtoMintTP = qTP / pACtp
+    (qACmax amount you are willing to spend has to be greater than the amount you need to spend)
+
+    qACNeeded = (qACtpMintTC + qACtoMintTP) + fee
+    **/
+
+    if (operationType !== "COMBINED_MINT" && operationType !== "COMBINED_REDEEM") {
+        return 0n;
+    } 
+
+    const ctargemaTP = toBigIntPrecision(1.5);
+    const pACtp = contractProtocolStatus.data[caIndex].PP_TP[tpIndex][0] || 0n;
+    divPrecision(mulPrecision(amount, ctargemaTP - toBigIntPrecision(1)), pACtp)
+
+    contractProtocolStatus.data[caIndex].getCtargemaCA
+
+    if (operationType === "COMBINED_MINT") {
+        return amount;
+    } else if (operationType === "COMBINED_REDEEM") {
+        return amount;
+    } else {
+        throw new Error("Invalid operation type: " + operationType);
+    }
+}
+
+
+
+// Basic Operations
 const tokenMap: TokenMap = loadTokenMap();
 const tokenExchange = (): string[] => Object.keys(tokenMap);
 const tokenReceive = (tExchange: string): string[] => tokenMap[tExchange];
+
+//Combined Operations
+const tokenMapCombined: TokenMap = loadTokenMapCombined();
+const tokenExchangeCombined = (): string[] => Object.keys(tokenMapCombined);
+const tokenReceiveCombined = (tExchange: string): string[] => tokenMapCombined[tExchange];
+
 
 function isMintOperation(tokenExchange: string, tokenReceive: string): boolean {
     /*
@@ -148,7 +207,6 @@ function isMintOperation(tokenExchange: string, tokenReceive: string): boolean {
         case "TP,CA":
         case "TC,CA":
         case "TP,TP":
-        case "TP,TPCA":
             // Redeem
             return false;
         default:
@@ -172,7 +230,6 @@ function typeOperation(tokenExchange: string, tokenReceive: string): string {
             // Redeem        
             return "REDEEM";
         case "TP,TP":
-        case "TP,TPCA":
             // Swap TP for TP
             return "SWAP_TPFORTP";
         case "TC,TP":
@@ -201,7 +258,6 @@ function TokenAllowance(
                 userBalance.data.CA[parseInt(aTokenExchange[1])].allowance;
             break;
         case "TP":
-        case "TPCA":
             allowance =
                 userBalance.data.TP[caIndex][parseInt(aTokenExchange[1])]
                     .allowance;
@@ -234,14 +290,14 @@ function ApproveTokenContract(
     contracts: DContracts,
     tokenExchange: string,
     tokenReceive: string,
-    caIndex: number
+    caIndex: number    
 ): ApproveTokenContractResult {
     const tokenExchangeSettings = TokenSettings(tokenExchange);
 
     const aTokenExchange: string[] = tokenExchange.split("_");
     const aTokenReceive: string[] = tokenReceive.split("_");
     const aTokenMap: string = `${aTokenExchange[0]},${aTokenReceive[0]}`;
-
+    
     switch (aTokenMap) {
         case "CA,TC":
         case "CA,CA":
@@ -258,6 +314,7 @@ function ApproveTokenContract(
                 decimals: tokenExchangeSettings.decimals,
             };
         case "TC,CA":
+        case "TC,TC":
             if (!contracts.CollateralToken) {
                 throw new Error("CollateralToken contract not available");
             }
@@ -305,19 +362,7 @@ function ApproveTokenContract(
                 token: contracts.TP[parseInt(aTokenExchange[1])],
                 contractAllow: contracts.Moc[caIndex],
                 decimals: tokenExchangeSettings.decimals,
-            };
-        case "TP,TPCA":
-            if (!contracts.TP) {
-                throw new Error("TP contract not available");
-            }
-            if (!contracts.Moc) {
-                throw new Error("Moc contract not available");
-            }
-            return {
-                token: contracts.TP[parseInt(aTokenExchange[1])],
-                contractAllow: contracts.Moc[parseInt(aTokenReceive[2])],
-                decimals: tokenExchangeSettings.decimals,
-            };    
+            };        
         case "TF,TF":
             if (!contracts.FeeToken) {
                 throw new Error("FeeToken contract not available");
@@ -381,7 +426,6 @@ function TokenContract(
                 decimals: tokenExchangeSettings.decimals,
             };
         case "TP":
-        case "TPCA":
             if (!contracts.TP) {
                 throw new Error("TP contract not available");
             }
@@ -546,21 +590,6 @@ function exchangeMethod(
                     onTransaction,
                     onReceipt
                 );                
-        case "TP,TPCA":
-            caIndex = parseInt(aTokenReceive[2]);
-            iFromTP = parseInt(aTokenExchange[1]);
-            iToTP = parseInt(aTokenReceive[1]);
-            return swapTPforTP(
-                    interfaceContext,
-                    iFromTP,
-                    iToTP,
-                    tokenAmount,
-                    caIndex,
-                    limitAmount,
-                    qAssetMaxFees,
-                    onTransaction,
-                    onReceipt
-                );
         case "TC,TP":
             caIndex = parseInt(aTokenExchange[1]);
             tpIndex = parseInt(aTokenReceive[1]);
@@ -591,6 +620,47 @@ function exchangeMethod(
     }
 }
 
+function exchangeMethodCombined(
+    interfaceContext: InterfaceContext,    
+    tokenAmount: bigint,
+    limitAmount: bigint,    
+    caIndex: number,
+    tpIndex: number,
+    operationType: string,
+    anotherTokenAmount: bigint,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<unknown> {
+    
+    if (operationType === "COMBINED_MINT") {
+        return mintTCandTP(
+            interfaceContext,
+            caIndex,
+            tpIndex,
+            tokenAmount,
+            limitAmount,
+            onTransaction,
+            onReceipt
+        );
+    } else if (operationType === "COMBINED_REDEEM") {
+        
+        return redeemTCandTP(
+            interfaceContext,
+            caIndex,
+            tpIndex,
+            tokenAmount,
+            anotherTokenAmount,
+            limitAmount,            
+            onTransaction,
+            onReceipt
+        );
+    } else {
+        throw new Error("Invalid operation type: " + operationType);
+    }
+
+    
+}
+
 function executionFeeMap(
     tokenExchange: string,
     tokenReceive: string,
@@ -615,9 +685,6 @@ function executionFeeMap(
                 .tcRedeemExecCost;
         case "TP,TP":
             return contractProtocolStatus.data[caIndex]
-                .swapTPforTPExecCost;        
-        case "TP,TPCA":
-            return contractProtocolStatus.data[parseInt(aTokenReceive[2])]
                 .swapTPforTPExecCost;        
         case "TC,TP":
             return contractProtocolStatus.data[parseInt(aTokenExchange[1])]
@@ -664,6 +731,10 @@ export {
     tokenReceive,
     UserTokenAllowance,
     typeOperation,
+    tokenExchangeCombined,
+    tokenReceiveCombined,
+    onlyTPs,
+    exchangeMethodCombined
 };
 
 // Export types for use in other files

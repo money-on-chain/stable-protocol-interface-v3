@@ -45,6 +45,7 @@ export type ProtocolStatusEntry = {
     getTCAvailableToRedeem: bigint;
     getTPAvailableToMint: bigint[];
     getTotalACavailable: bigint;
+    getCtargemaTP: bigint[];
     liqThrld: bigint;
     liquidated: boolean;
     maxQACToMintTP: bigint;
@@ -65,7 +66,7 @@ export type ProtocolStatusEntry = {
     tcRedeemFee: bigint;
     swapTPforTPFee: bigint;
     swapTCforTPFee: bigint;
-    swapTPforTCFee: bigint;
+    swapTPforTCFee: bigint;    
     tpCtarg: bigint[];
     tpEma: TpEma[];
     tpMintExecCost: bigint;
@@ -274,6 +275,7 @@ export const ALLOWANCE_STEPS = [
     "AllowancePayCommissionCA",
     "AllowancePayCommissionFeeToken",
     "AllowancePayCurrencyExchange",
+    "AllowancePayAnotherToken",
     "SubmitOperationTransaction",
 ] as const;
 

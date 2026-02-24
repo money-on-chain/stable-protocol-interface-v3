@@ -69,12 +69,13 @@
             "reason": "Reason"
         },
         "errors": {
-            "qACBelow": "price went up, amount below minimum required.",
-            "insufficientQAC1": "price went down, insufficient",
-            "insufficientQAC2": "sent",
-            "lowCoverage": "System below protected global coverage",
-            "fluxCapacitor": "Error in flux capacitor",
-            "noMessage": "No message"
+            "qACBelow1": "Price variation for",
+            "qACBelow2": "resulted in an amount received below the minimum required.",
+            "insufficientQAC1": "Price variation for",
+            "insufficientQAC2": "exceeded your slippage tolerance. Try increasing tolerance or retry.",
+            "lowCoverage": "Operation failed due to low system coverage.",
+            "fluxCapacitor": "Operation rejected: system limit reached.",
+            "noMessage": "Transaction failed."
         },
         "table": {
             "itemsPerPage": "Page"
@@ -147,22 +148,6 @@
             "TP_1": {
                 "label": "COP",
                 "abbr": "CopFlip"
-            },            
-            "TPCA_0_0": {
-                "label": "ARS BPRO",
-                "abbr": "ArsBPRO"
-            },
-            "TPCA_0_1": {
-                "label": "ARS DOC",
-                "abbr": "ArsDOC"
-            },
-            "TPCA_1_0": {
-                "label": "COP BPRO",
-                "abbr": "CopBPRO"
-            },
-            "TPCA_1_1": {
-                "label": "COP DOC",
-                "abbr": "CopDOC"
             },
             "COINBASE": {
                 "label": "Smart Bitcoin",
@@ -200,9 +185,11 @@
         },
         "cardTitle": "Exchange",
         "labelSending": "Exchanging",
+        "labelSendingMint": "Exchanging up to",        
         "labelBalance": "Balance",
         "labelUpTo": "Up to",
         "labelReceiving": "Receiving",
+        "labelReceivingRedeem": "Minimum to receive",        
         "labelTransactionID": "Transaction ID",
         "placeholder": "Address",
         "exchangingSummary": "Exchanging",
@@ -422,7 +409,8 @@
         "liquidityMining": "Liquidity Mining",
         "vesting": "Vesting",
         "voting": "Voting",
-        "more": "More"
+        "more": "More",
+        "combinedOperations": "Combined Ops."
     },
 
     "language": {
