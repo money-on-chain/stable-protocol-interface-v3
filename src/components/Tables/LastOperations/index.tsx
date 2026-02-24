@@ -864,8 +864,8 @@ export default function LastOperations(props: LastOperationsProps) {
                         action: "TCandTPMint",
                         amount:
                             status === "executed"
-                                ? row_operation.executed?.qTC_ || 0
-                                : row_operation.params?.qTC || 0,
+                                ? row_operation.executed?.qTC_ || undefined
+                                : row_operation.params?.qTC || undefined,
                         name: settings.tokens.TC[caIndex].name,
                         token: settings.tokens.TC[caIndex],
                         icon: `TC_${caIndex}`,
@@ -1411,7 +1411,7 @@ export default function LastOperations(props: LastOperationsProps) {
                                                     const receiveToken = token
                                                         .another
                                                         .token as TokenConfig;
-                                                    return PrecisionNumbers({
+                                                    return token.another.amount === undefined ? "--" : PrecisionNumbers({
                                                         amount: BigInt(
                                                             token.another.amount
                                                         ),
