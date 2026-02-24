@@ -176,17 +176,25 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
     };
 
     const handleSwapCurrencies = (): void => {
-        const tempCurrency = currencyYouExchange;
-        setCurrencyYouExchange(currencyYouReceive);
-        setCurrencyYouReceive(tempCurrency);
 
-        const tempAmount = amountYouExchange;
-        setAmountYouExchange(amountYouReceive);
-        setAmountYouReceive(tempAmount);
+        if (operationType === "COMBINED_MINT")   {
+            // Swap to TC -> CA
+            setCurrencyYouExchange(`TC_${caIndex}`);
+            setCurrencyYouReceive(`CA_${caIndex}`);
+            
+        } else if (operationType === "COMBINED_REDEEM") {
+            // Swap to CA -> TP
+            setCurrencyYouExchange(`CA_${caIndex}`);
+            setCurrencyYouReceive(`TP_${tpIndex}`);
 
-        const tempInputExchange = valueExchange;
-        setValueExchange(valueReceive);
-        setValueReceive(tempInputExchange);
+        } else {
+            const tempCurrency = currencyYouExchange;
+            setCurrencyYouExchange(currencyYouReceive);
+            setCurrencyYouReceive(tempCurrency);            
+        }
+
+        onClear();
+        
     };
 
     const onClear = (): void => {
@@ -452,6 +460,47 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             arrCurrencyYouExchange[0] === "TP" &&
             arrCurrencyYouReceive[0] === "TP"
         ) {
+            const tIndexFrom = TokenSettings(currencyYouExchange).key;
+            const tIndexTo = TokenSettings(currencyYouReceive).key;
+            if (tIndexFrom !== undefined && tIndexTo !== undefined) {
+
+                const ctargemaTPFrom =
+                    normalizeToBigInt(
+                        contractProtocolStatus.data[caIndex].getCtargemaTP[tIndexFrom]
+                    ) || 0n;
+                const ctargemaTPTo =
+                    normalizeToBigInt(
+                        contractProtocolStatus.data[caIndex].getCtargemaTP[tIndexTo]
+                    ) || 0n; 
+                if (ctargemaTPTo > ctargemaTPFrom ) {
+                    // Tp available to mint
+                    const tpAvailableToMint =
+                        contractProtocolStatus.data[caIndex]
+                            .getRealTPAvailableToMint[tIndexTo];
+                    if (amountYouReceive > tpAvailableToMint) {
+                        setGlobalValidationErrorText(
+                            t("exchange.errors.noLiquidity")
+                        );
+                        setInputValidationError(true);
+                        return;
+                    }
+
+                    // Coverage not met
+                    if (
+                        combinedCglb < combinedCtargemaCA ||
+                        globalCoverage < getCtargemaCA
+                    ) {
+                        setGlobalValidationErrorText(
+                            t("exchange.errors.coverageNotMet")
+                        );
+                        setInputValidationError(true);
+                        return;
+                    }
+                }
+
+            }
+            
+            
         }
 
         // Not enough balance to pay fees

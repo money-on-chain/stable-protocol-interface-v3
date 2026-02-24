@@ -1,5 +1,7 @@
 import type { PublicClient } from "viem";
 
+const SLIPPAGE_EXECUTION = 2; // 2%
+
 function toBigIntOrZero(v: unknown): bigint {
     if (typeof v === "bigint") return v;
     if (typeof v === "string") {
@@ -45,4 +47,4 @@ const getExecutionFee = async (
     return (execCost * gasBase * multiplierBigInt) / 1_000_000n;
 };
 
-export { getExecutionFee };
+export { getExecutionFee, SLIPPAGE_EXECUTION };

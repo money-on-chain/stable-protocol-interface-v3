@@ -13,7 +13,7 @@ import type {
     OnTransaction,
 } from "../types/wallets";
 import { config } from "../wagmiConfig";
-import { getExecutionFee } from "./utils";
+import { getExecutionFee, SLIPPAGE_EXECUTION } from "./utils";
 import { divPrecision, mulPrecision } from "../helpers/precision";
 import { calculateLimit } from "../helpers/exchange";
 import { fromWei, toBigIntPrecision } from "../helpers/precision";
@@ -46,7 +46,7 @@ const mintTC = async (
         "mintTC",
         [qTC, limitAmount, address, vendorAddress] as const,
         contractProtocolStatus.data[caIndex].tcMintExecCost,
-        2
+        SLIPPAGE_EXECUTION
     );
 };
 
@@ -93,7 +93,7 @@ const redeemTC = async (
         "redeemTC",
         [qTC, limitAmount, address, vendorAddress] as const,
         contractProtocolStatus.data[caIndex].tcRedeemExecCost,
-        2
+        SLIPPAGE_EXECUTION
     );
 };
 
@@ -174,7 +174,7 @@ const mintTP = async (
         "mintTP",
         [tpAddress, qTP, limitAmount, address, vendorAddress] as const,
         contractProtocolStatus.data[caIndex].tpMintExecCost,
-        2
+        SLIPPAGE_EXECUTION
     );
 };
 
@@ -238,7 +238,7 @@ const redeemTP = async (
         "redeemTP",
         [tpAddress, qTP, limitAmount, address, vendorAddress] as const,
         contractProtocolStatus.data[caIndex].tpRedeemExecCost,
-        1
+        SLIPPAGE_EXECUTION
     );
 };
 
@@ -328,7 +328,7 @@ const swapTPforTP = async (
         "swapTPforTP",
         [tpAddressFrom, tpAddressTo, qTP, limitAmount, qAssetMaxFees, address, vendorAddress] as const,
         contractProtocolStatus.data[caIndex].swapTPforTPExecCost,
-        1
+        SLIPPAGE_EXECUTION
     );
     
 };
@@ -417,7 +417,7 @@ const swapTCforTP = async (
         "swapTCforTP",
         [tpAddress, qTC, limitAmount, qAssetMaxFees, address, vendorAddress] as const,
         contractProtocolStatus.data[caIndex].swapTCforTPExecCost,
-        1
+        SLIPPAGE_EXECUTION
     );
     
 };
@@ -506,7 +506,7 @@ const swapTPforTC = async (
         "swapTPforTC",
         [tpAddress, qTP, limitAmount, qAssetMaxFees, address, vendorAddress] as const,
         contractProtocolStatus.data[caIndex].swapTPforTCExecCost,
-        1
+        SLIPPAGE_EXECUTION
     );
     
 };
@@ -588,7 +588,7 @@ const mintTCandTP = async (
         "mintTCandTP",
         [tpAddress, qTP, limitAmount, address, vendorAddress] as const,
         contractProtocolStatus.data[caIndex].mintTCandTPExecCost,
-        2
+        SLIPPAGE_EXECUTION
     );
 };
 
@@ -643,7 +643,7 @@ const redeemTCandTP = async (
         "redeemTCandTP",
         [tpAddress,qTC, qTP, limitAmount, address, vendorAddress] as const,
         contractProtocolStatus.data[caIndex].redeemTCandTPExecCost,
-        2
+        SLIPPAGE_EXECUTION
     );
 };
 
