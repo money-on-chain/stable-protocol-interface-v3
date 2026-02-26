@@ -1,5 +1,6 @@
 import type { RadioChangeEvent } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 import { getExecutionFee } from "../../backend/utils";
 import { useWalletContext } from "../../context/Wallet";
@@ -102,6 +103,8 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         useState<boolean>(false);
     const [globalValidationErrorText, setGlobalValidationErrorText] =
         useState<string>("");
+    const [showLinkOpCombined, setShowLinkOpCombined] =
+        useState<boolean>(false);    
 
     let operationType: string = typeOperation(
         currencyYouExchange,
@@ -205,6 +208,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         setInputValidationError(false);
         setInputValidationErrorText("");
         setGlobalValidationErrorText("");
+        setShowLinkOpCombined(false);
         setAmountAnotherToken({ qAC: 0n, amount: 0n });        
     };
 
@@ -296,7 +300,10 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                         t("exchange.errors.noLiquidity")
                     );
                     setInputValidationError(true);
+                    setShowLinkOpCombined(true);
                     return;
+                } else {
+                    setShowLinkOpCombined(false);
                 }
 
                 // Coverage not met
@@ -345,7 +352,10 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             if (amountYouExchange > tcAvailableToRedeem) {
                 setGlobalValidationErrorText(t("exchange.errors.noLiquidity"));
                 setInputValidationError(true);
+                setShowLinkOpCombined(true);
                 return;
+            } else {
+                setShowLinkOpCombined(false);
             }
         }
 
@@ -708,6 +718,14 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                 amountExchange,
                 caIndex,
                 tpIndex
+            );
+            otherTokenAmount.qAC = calculateLimit(
+                otherTokenAmount.qAC,
+                +(slippageTolerance / 100)
+            );
+            otherTokenAmount.amount = calculateLimit(
+                otherTokenAmount.amount,
+                +(slippageTolerance / 100)
             );
             setAmountAnotherToken(otherTokenAmount);
             combinedFeeCA = amountInCA + otherTokenAmount.qAC;
@@ -1447,7 +1465,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                     </div>
                                     <div className="combined-operations-info-wrapper">
                                         <div className="combined-operations-info-label">
-                                            Sending
+                                            Sending up to
                                         </div>
                                         <div className="combined-operations-info-value">
                                             {!contractProtocolStatus.data
@@ -1960,6 +1978,13 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                 <div className="cta-info-global-error">
                     <div className="amountInput__feedback amountInput__feedback--error">
                         {globalValidationErrorText}
+
+                        {showLinkOpCombined && (                                    
+                                <> <br/> <Link to="/combined-operations">
+                                            You can try Combined Operations
+                                        </Link>                                    
+                                </>
+                                )}
                     </div>
                 </div>
                 <div className="cta-options-group">
