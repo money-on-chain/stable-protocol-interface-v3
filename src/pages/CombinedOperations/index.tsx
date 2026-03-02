@@ -25,11 +25,15 @@ export default function SectionCombinedOperations(): React.ReactElement {
                 {/* Exchange */}
                 <div className={"layout-card"}>
                     <div className={"layout-card-title"}>
-                        <h1>Combined Operations</h1>
+                        <h1>{t("exchange.cardTitle.balancedOps")}</h1>
                     </div>
 
                     <div className={"content-body layout-card-content"}>
-                        {ready ? <Exchange isCombinedOperation={true} /> : <Skeleton active />}
+                        {ready ? (
+                            <Exchange isCombinedOperation={true} />
+                        ) : (
+                            <Skeleton active />
+                        )}
                     </div>
                 </div>
 

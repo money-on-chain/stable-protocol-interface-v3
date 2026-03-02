@@ -28,8 +28,8 @@ html::-webkit-scrollbar {
 }
 
 html::-webkit-scrollbar-thumb {
-    background-color: var(--color-controls-foreground-on); /* Thumb color */
     border-radius: 4px; /* Optional: make the scrollbar thumb rounded */
+    background-color: var(--color-controls-foreground-on); /* Thumb color */
 }
 
 html::-webkit-scrollbar-track {
@@ -582,12 +582,12 @@ h2 {
     font-family: var(--main-font);
 }
 .section__innerCard--small {
-    width: 576px;
     border: var(--card-border);
+    width: 576px;
 }
 .section__innerCard--big {
-    width: 100%;
     border: var(--card-border);
+    width: 100%;
 }
 .layout__group {
     width: 100%;
@@ -660,10 +660,10 @@ h2 {
     }
 
     .ant-checkbox-inner:after {
-        stroke-linecap: round;
         position: absolute;
         top: -1px;
         transform: rotateZ(40deg);
+        stroke-linecap: round;
         margin: 0 auto;
         margin-top: 2px;
         margin-left: 3px;
@@ -717,13 +717,13 @@ h2 {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        text-align: left;
         width: 100%;
         max-width: 368px;
         font-weight: 600;
         font-size: 24px;
         line-height: 1;
         font-family: var(--brand-font);
+        text-align: left;
         .amount {
             color: var(--color-txt-primary);
         }
@@ -842,7 +842,19 @@ h2 {
         gap: 16px;
         width: 100%;
     }
+    .cta-info-global-error {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        .error-details {
+            color: var(--color-txt-primary);
+            margin-top: 16px;
+            margin-bottom: 4px;
+        }
+    }
 }
+
 /* #endregion CTA - CALL TO ACTION */
 
 /* #region UI ELEMENTS */
@@ -877,15 +889,15 @@ h2 {
     height: auto !important;
 }
 .ant-notification {
+    margin-right: 56px;
     width: 332px;
     max-width: 100%;
     height: 300px;
-    margin-right: 56px;
 
     .ant-notification-notice-content {
-        max-width: 100% !important;
         margin-right: 32px;
         padding: 8px;
+        max-width: 100% !important;
     }
     .ant-notification-notice-closable {
         // padding-right: 60px !important;
@@ -898,9 +910,9 @@ h2 {
         border: none;
         border-radius: var(--card-border-radius);
         padding: 8px 16px;
+        width: 100%;
         height: 58px;
         color: var(--notification-permanent-text);
-        width: 100%;
 
         @media (max-width: $breakpoint-mobile) {
             .vesting {
@@ -923,36 +935,36 @@ h2 {
         background-color: var(--notification-success-background);
     }
     .ant-notification-notice {
-        width: 100%;
         border-radius: var(--card-border-radius);
+        width: 100%;
     }
     .ant-notification-notice-content {
         max-width: 100%;
     }
     .ant-notification-notice-message {
+        color: var(--notification-permanent-text);
         font-weight: 600;
         font-size: 16px;
         line-height: 1;
         font-family: var(--brand-font);
-        color: var(--notification-permanent-text);
     }
     .ant-notification-notice-description {
+        width: 100%;
         font-size: 14px;
         line-height: 1.2;
         font-family: var(--main-font);
-        width: 100%;
         text-wrap: wrap;
         word-break: break-all;
     }
     .ant-notification-notice-close {
+        top: 8px;
+        right: 8px;
         filter: var(--notification-permanent-filter);
         // margin-right: 16px;
         background-size: cover;
         background-repeat: none;
         width: 24px;
         height: 24px;
-        top: 8px;
-        right: 8px;
     }
 }
 
@@ -967,29 +979,29 @@ h2 {
     color: var(--notification-permanent-text);
 
     .anticon {
+        margin: 16px;
         width: 24px;
         height: 24px;
-        margin: 16px;
     }
     .ant-alert-message {
+        padding-left: 8px;
         color: var(--notification-permanent-text);
         font-weight: 600;
         font-size: 16px;
         font-family: var(--brand-font);
-        padding-left: 8px;
     }
     .ant-alert-content {
         max-width: 100%;
     }
     .alert__message {
-        line-height: 1.2;
         display: flex;
         flex-direction: column;
         gap: 8px;
+        line-height: 1.2;
 
         .alert__title {
-            font-weight: 600;
             margin-bottom: 8px;
+            font-weight: 600;
         }
         .alert__text {
             font-weight: 400;
@@ -1010,10 +1022,10 @@ h2 {
         }
     }
     button {
-        border: none;
-        background-color: transparent;
         margin-top: 16px;
         margin-bottom: 16px;
+        border: none;
+        background-color: transparent;
         span {
             font-weight: 600;
             font-size: 14px;
@@ -1024,21 +1036,21 @@ h2 {
         box-shadow: none;
         border: 1px solid var(--color-btn-primary-txt-default);
         border-radius: var(--btn-radius-tiny);
-        // background-color: var(--color-btn-primary-txt-default);
-        color: var(--color-btn-primary-txt-default);
         padding-right: 16px;
         padding-left: 16px;
         width: auto;
         height: 22px;
+        // background-color: var(--color-btn-primary-txt-default);
+        color: var(--color-btn-primary-txt-default);
         font-size: 12px;
         line-height: 1;
     }
     button:hover,
     button:focus,
     button:active {
-        color: var(--color-btn-primary-txt-default);
-        background-color: var(--color-btn-primary-background-default);
         outline: 2px solid;
+        background-color: var(--color-btn-primary-background-default);
+        color: var(--color-btn-primary-txt-default);
     }
     .address {
         margin-bottom: 16px;
@@ -1053,8 +1065,8 @@ h2 {
     button {
         @extend .button;
         background-color: var(--notification-warning-text) !important;
-        color: var(--notification-warning-background) !important;
         width: 250px !important;
+        color: var(--notification-warning-background) !important;
     }
 }
 .alert-success {
@@ -1369,8 +1381,8 @@ h2 {
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    border-radius: var(--card-border-radius);
     gap: 2px;
+    border-radius: var(--card-border-radius);
     width: 100%;
     // padding: 32px;
 }
@@ -1412,8 +1424,8 @@ h2 {
 .tx-slippage-container {
     display: flex;
     flex-direction: column;
-    color: var(--color-txt-primary);
     margin-top: 16px;
+    color: var(--color-txt-primary);
     // gap: 8px;
     font-weight: 600;
     .tx-slippage-label {
@@ -1439,10 +1451,10 @@ h2 {
         align-items: center;
         // width: 100%;
         .tx-id-label {
+            margin-right: 16px;
             // width: 100%;
             // Transaction ID text/label
             color: (var(--color-txt-primary));
-            margin-right: 16px;
         }
         .tx-id-address {
             // Container that uses CopyAddress address + copy icon
@@ -1637,10 +1649,10 @@ h2 {
 }
 
 .TEST {
+    border: 1px dashed red;
     // border: var(--debugBorder);
     // border-color: aqua;
     background-color: rgba(226, 43, 198, 0.251) !important;
-    border: 1px dashed red;
 }
 
 .wallet__settings {
@@ -1652,8 +1664,8 @@ h2 {
     /* Auto layout */
     margin-top: 24px;
     box-shadow: var(--surface-shadow-1);
-    border-radius: var(--card-border-radius);
     border: var(--card-border);
+    border-radius: var(--card-border-radius);
     background: var(--surface-color-1);
     padding: var(--card-padding);
     width: 100%;
