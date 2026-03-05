@@ -1,3 +1,4 @@
+// /mnt/data/index.tsx
 import "./Styles.scss";
 
 import React, { useEffect, useRef } from "react";
@@ -27,6 +28,9 @@ interface InputAmountProps {
 
     /** Makes input read-only */
     readOnly?: boolean;
+
+    /** Displays value but prevents any direct editing */
+    displayOnly?: boolean;
 }
 
 const space: string = "\u00A0";
@@ -48,7 +52,10 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
         fiatLabel = "USD",
         showApproxSymbol = true,
         readOnly = false,
+        displayOnly = false,
     } = props;
+
+    const isNonEditable = readOnly || displayOnly;
 
     useEffect(() => {
         const handleWheel = (event: WheelEvent) => {
@@ -75,7 +82,7 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
     };
 
     const handleValueChange = (value: string): void => {
-        if (readOnly) return;
+        if (isNonEditable) return;
 
         let formattedValue = value;
 
@@ -108,15 +115,21 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
         : null;
 
     return (
-        <div className={`amountInput ${readOnly ? "amountInput--readonly" : ""}`}>
+        <div
+            className={`amountInput ${readOnly ? "amountInput--readonly" : ""} ${
+                displayOnly ? "display-only-background" : ""
+            }`}
+        >
             <div className="amountInput__infoBar">
                 <div className="amountInput__label">{action}</div>
-                {!readOnly && (<button
-                    className="amountInput__maxButton"
-                    onClick={setAddTotalAvailable}
-                >
-                    {t("button.inputMaxValue")}
-                </button>)}
+                {!readOnly && !displayOnly && (
+                    <button
+                        className="amountInput__maxButton"
+                        onClick={setAddTotalAvailable}
+                    >
+                        {t("button.inputMaxValue")}
+                    </button>
+                )}
             </div>
             <div className="amountInput__inputBar">
                 <div className="amountInput__amount">
@@ -125,13 +138,53 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
                         placeholder={placeholder}
                         value={inputValue}
                         inputMode="decimal"
-                        readOnly={readOnly}
+                        readOnly={isNonEditable}
                         onChange={(event) => {
                             handleValueChange(event.target.value);
                         }}
+                        onKeyDown={(event) => {
+                            if (!displayOnly) return;
+
+                            const allowedKeys = new Set([
+                                "Tab",
+                                "ArrowLeft",
+                                "ArrowRight",
+                                "ArrowUp",
+                                "ArrowDown",
+                                "Home",
+                                "End",
+                                "Shift",
+                            ]);
+
+                            const isCopyOrSelectAll =
+                                (event.ctrlKey || event.metaKey) &&
+                                (event.key.toLowerCase() === "c" ||
+                                    event.key.toLowerCase() === "a");
+
+                            if (
+                                isCopyOrSelectAll ||
+                                allowedKeys.has(event.key)
+                            ) {
+                                return;
+                            }
+
+                            event.preventDefault();
+                        }}
+                        onPaste={(event) => {
+                            if (!displayOnly) return;
+                            event.preventDefault();
+                        }}
+                        onDrop={(event) => {
+                            if (!displayOnly) return;
+                            event.preventDefault();
+                        }}
+                        onBeforeInput={(event) => {
+                            if (!displayOnly) return;
+                            event.preventDefault();
+                        }}
                         className={`amountInput__value ${
                             validateError ? "amountInput__feedback--error" : ""
-                        }`}
+                        } ${displayOnly ? "display-only-data" : ""}`}
                     />
                 </div>
             </div>
