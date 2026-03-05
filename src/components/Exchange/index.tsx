@@ -1489,7 +1489,8 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                 }
                                 balanceText={t("exchange.labelBalance")}
                                 getFiatEquivalent={onFiatEquivalentYouExchange}
-                                readOnly={operationType === "COMBINED_MINT"}
+                                // readOnly={operationType === "COMBINED_MINT"}
+                                displayOnly={operationType === "COMBINED_MINT"}
                             />
                             <div className="amountInput__feedback amountInput__feedback--error">
                                 {inputValidationErrorText}
@@ -1497,60 +1498,40 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                         </div>
                         {isCombinedOperation &&
                             operationType === "COMBINED_REDEEM" && (
-                                <div className="combined-operations-info">
-                                    <div className="combined-operations-info-item">
-                                        <CurrencyPopUp
-                                            value={allTPs[tpIndex]}
-                                            currencyOptions={allTPs}
-                                            onChange={onChangeTPIndex}
-                                            action={"exchange"}
-                                        />
-                                    </div>
-                                    <div className="combined-operations-info-wrapper">
-                                        <div className="combined-operations-info-label">
-                                            {t("exchange.LabelSendingUpTo")}
+                                <>
+                                    <div className="combined-operations-info">
+                                        <div className="combined-operations-info-item">
+                                            <CurrencyPopUp
+                                                value={allTPs[tpIndex]}
+                                                currencyOptions={allTPs}
+                                                onChange={onChangeTPIndex}
+                                                action={"exchange"}
+                                            />
                                         </div>
-                                        <div className="combined-operations-info-value">
-                                            {!contractProtocolStatus.data
-                                                ? "--"
-                                                : PrecisionNumbers({
-                                                      amount: amountAnotherToken.amount,
-                                                      decimals:
+                                        <InputAmount
+                                            displayOnly
+                                            action={t(
+                                                "exchange.LabelSendingUpTo"
+                                            )}
+                                            placeholder="--"
+                                            inputValue={
+                                                !contractProtocolStatus.data
+                                                    ? ""
+                                                    : bigIntToInputValue(
+                                                          amountAnotherToken.amount,
+                                                          `TP_${tpIndex}`,
                                                           TokenSettings(
                                                               `TP_${tpIndex}`
-                                                          ).visibleDecimals ||
-                                                          2,
-                                                      token: TokenSettings(
-                                                          `TP_${tpIndex}`
-                                                      ),
-                                                      i18n: i18n,
-                                                  })}
-                                        </div>
-                                        <div className="amountInput__infoBar">
-                                            <div className="combined-operations-info-fiat">
-                                                ≈{space}
-                                                {!contractProtocolStatus.data
-                                                    ? "--"
-                                                    : PrecisionNumbers({
-                                                          amount: ConvertAmount(
-                                                              contractProtocolStatus,
-                                                              `TP_${tpIndex}`,
-                                                              "USD",
-                                                              amountAnotherToken.amount,
-                                                              caIndex
-                                                          ),
-                                                          token: TokenSettings(
-                                                              `CA_${caIndex}`
-                                                          ),
-                                                          decimals: 2,
-                                                          i18n: i18n,
-                                                      })}
-                                                {space}USD
-                                            </div>
-                                            <div className="combined-operations-info-balance">
-                                                {t("exchange.labelBalance")}:
-                                                {space}
-                                                {!userBalance
+                                                          ).visibleDecimals || 2
+                                                      )
+                                            }
+                                            onValueChange={() => {}}
+                                            setAddTotalAvailable={() => {}}
+                                            balanceText={t(
+                                                "exchange.labelBalance"
+                                            )}
+                                            balance={
+                                                !userBalance
                                                     ? "--"
                                                     : PrecisionNumbers({
                                                           amount: TokenBalance(
@@ -1562,11 +1543,88 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                                           ),
                                                           decimals: 8,
                                                           i18n: i18n,
+                                                      })
+                                            }
+                                            getFiatEquivalent={() => {
+                                                if (
+                                                    !contractProtocolStatus.data
+                                                )
+                                                    return 0n;
+
+                                                return ConvertAmount(
+                                                    contractProtocolStatus,
+                                                    `TP_${tpIndex}`,
+                                                    "USD",
+                                                    amountAnotherToken.amount,
+                                                    caIndex
+                                                );
+                                            }}
+                                            fiatLabel="USD"
+                                        />
+                                        {/* 
+                                        <div className="combined-operations-info-wrapper">
+                                            <div className="combined-operations-info-label">
+                                                {t("exchange.LabelSendingUpTo")}
+                                            </div>
+                                            <div className="combined-operations-info-value">
+                                                {!contractProtocolStatus.data
+                                                    ? "--"
+                                                    : PrecisionNumbers({
+                                                          amount: amountAnotherToken.amount,
+                                                          decimals:
+                                                              TokenSettings(
+                                                                  `TP_${tpIndex}`
+                                                              )
+                                                                  .visibleDecimals ||
+                                                              2,
+                                                          token: TokenSettings(
+                                                              `TP_${tpIndex}`
+                                                          ),
+                                                          i18n: i18n,
                                                       })}
                                             </div>
-                                        </div>
+                                            <div className="amountInput__infoBar">
+                                                <div className="combined-operations-info-fiat">
+                                                    ≈{space}
+                                                    {!contractProtocolStatus.data
+                                                        ? "--"
+                                                        : PrecisionNumbers({
+                                                              amount: ConvertAmount(
+                                                                  contractProtocolStatus,
+                                                                  `TP_${tpIndex}`,
+                                                                  "USD",
+                                                                  amountAnotherToken.amount,
+                                                                  caIndex
+                                                              ),
+                                                              token: TokenSettings(
+                                                                  `CA_${caIndex}`
+                                                              ),
+                                                              decimals: 2,
+                                                              i18n: i18n,
+                                                          })}
+                                                    {space}USD
+                                                </div>
+                                                <div className="combined-operations-info-balance">
+                                                    {t("exchange.labelBalance")}
+                                                    :{space}
+                                                    {!userBalance
+                                                        ? "--"
+                                                        : PrecisionNumbers({
+                                                              amount: TokenBalance(
+                                                                  userBalance,
+                                                                  `TP_${tpIndex}`
+                                                              ),
+                                                              token: TokenSettings(
+                                                                  `TP_${tpIndex}`
+                                                              ),
+                                                              decimals: 8,
+                                                              i18n: i18n,
+                                                          })}
+                                                </div>
+                                            </div>
+                                        </div> */}
                                     </div>
-                                </div>
+                                </>
                             )}
                         {isCombinedOperation && (
                             <div className="total-amount-usd">
@@ -1680,7 +1738,60 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                             displayOnly={true}
                                         />
                                     </div>
-                                    <div className="combined-operations-info-wrapper">
+
+                                    <InputAmount
+                                        displayOnly
+                                        action={t("exchange.labelReceiving")}
+                                        placeholder="--"
+                                        inputValue={
+                                            !contractProtocolStatus.data
+                                                ? ""
+                                                : bigIntToInputValue(
+                                                      amountAnotherToken.amount,
+                                                      `TC_${caIndex}`,
+                                                      TokenSettings(
+                                                          `TC_${caIndex}`
+                                                      ).visibleDecimals || 2
+                                                  )
+                                        }
+                                        onValueChange={() => {
+                                            /* displayOnly: no-op */
+                                        }}
+                                        setAddTotalAvailable={() => {
+                                            /* displayOnly: MAX hidden */
+                                        }}
+                                        balanceText={t("exchange.labelBalance")}
+                                        balance={
+                                            !userBalance
+                                                ? "--"
+                                                : PrecisionNumbers({
+                                                      amount: TokenBalance(
+                                                          userBalance,
+                                                          `TC_${caIndex}`
+                                                      ),
+                                                      token: TokenSettings(
+                                                          `TC_${caIndex}`
+                                                      ),
+                                                      decimals: 8,
+                                                      i18n: i18n,
+                                                  })
+                                        }
+                                        getFiatEquivalent={(value: number) => {
+                                            if (!contractProtocolStatus.data)
+                                                return 0n;
+
+                                            return ConvertAmount(
+                                                contractProtocolStatus,
+                                                `TC_${caIndex}`,
+                                                "USD",
+                                                amountAnotherToken.amount,
+                                                caIndex
+                                            );
+                                        }}
+                                        fiatLabel="USD"
+                                    />
+
+                                    {/* <div className="combined-operations-info-wrapper">
                                         <div className="combined-operations-info-label">
                                             {t("exchange.labelReceiving")}
                                         </div>
@@ -1739,7 +1850,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                                       })}
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> */}
                                 </div>
                             )}
                         {isCombinedOperation && (
