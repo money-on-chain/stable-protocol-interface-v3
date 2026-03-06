@@ -17,6 +17,8 @@ import {
 import { useProjectTranslation } from "../../helpers/translations";
 import CurrencyPopUp from "../CurrencyPopUp";
 import InputAmount from "../InputAmount";
+import DisplayAmount from "../DisplayAmount";
+
 import ModalConfirmSend from "../Modals/ConfirmSend";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 
@@ -227,7 +229,6 @@ export default function Send(): JSX.Element {
                             onChange={onChangeCurrencyYouSend}
                             action={"send"}
                         />
-
                         <InputAmount
                             inputValue={amountYouSend.toString()}
                             placeholder={"0.0"}
