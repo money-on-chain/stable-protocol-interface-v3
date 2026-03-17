@@ -183,11 +183,17 @@
             "sliderLabel": "Tolerancia de Variación de Precio",
             "warning": "Cantidad actualizada debido a tolerancia de variación de precio"
         },
-        "cardTitle": "Cambiar",
+        "cardTitle": {
+            "simpleExchange": "Cambiar",
+            "balancedOps": "Operaciones Balanceadas"
+        },
         "labelSending": "cambiando",
+        "LabelSendingUpTo": "Enviando hasta",
+        "labelSendingMint": "Cambiando hasta",
         "labelBalance": "balance",
         "labelUpTo": "Hasta",
         "labelReceiving": "Recibiendo",
+        "labelReceivingRedeem": "Mínimo a recibir",
         "labelTransactionID": "ID de transacción",
         "placeholder": "Dirección",
         "exchangingSummary": "Cambiando",
@@ -210,7 +216,11 @@
             "amountInvalid": "La cantidad debe ser válida",
             "notBalance": "No hay balance suficiente en tu wallet",
             "noLiquidity": "No hay suficiente liquidez en el protocolo",
-            "maxLimitedByProtocol": "Maximos limitados temporalmente por el protocolo"
+            "maxLimitedByProtocol": "Maximos limitados temporalmente por el protocolo",
+            "insufficientTPinCA": "Tokens insuficientes en este bucket",
+            "useBalancedOps": "Podés usar Operaciones Balanceadas para intercambiar tokens sin afectar la cobertura actual.",
+            "balancedOpsCTA": "Ir a la sección de Operaciones Balanceadas",
+            "noBalanceForFees": "Saldo insuficiente para pagar las comisiones"
         }
     },
     "portfolio": {

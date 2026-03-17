@@ -135,5 +135,5 @@ export const fromWei = (amount: bigint, decimals: number = 18) => {
 
 export const divToFixed = (n: bigint, d: bigint, decimals: number) => {
     const scale = 10n ** BigInt(decimals);
-    return (n * scale) / d; // entero que representa el número en "decimals" decimales
+    return (n * scale) / d; // integer representing the number in "decimals" decimals
 };

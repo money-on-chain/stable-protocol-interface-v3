@@ -183,13 +183,17 @@
             "sliderLabel": "Price Variation Tolerance",
             "warning": "This amount was updated according to variation tolerance"
         },
-        "cardTitle": "Exchange",
+        "cardTitle": {
+            "simpleExchange": "Exchange",
+            "balancedOps": "Balanced Operations"
+        },
         "labelSending": "Exchanging",
-        "labelSendingMint": "Exchanging up to",        
+        "LabelSendingUpTo": "Sending up to",
+        "labelSendingMint": "Exchanging up to",
         "labelBalance": "Balance",
         "labelUpTo": "Up to",
         "labelReceiving": "Receiving",
-        "labelReceivingRedeem": "Minimum to receive",        
+        "labelReceivingRedeem": "Minimum to receive",
         "labelTransactionID": "Transaction ID",
         "placeholder": "Address",
         "exchangingSummary": "Exchanging",
@@ -213,7 +217,10 @@
             "notBalance": "Not enough balance in your wallet",
             "noLiquidity": "Not enough liquidity in the protocol",
             "maxLimitedByProtocol": "Maximum temporarily limited by the protocol",
-            "insufficientTPinCA": "Insufficient tokens in this bucket"
+            "insufficientTPinCA": "Insufficient tokens in this bucket",
+            "useBalancedOps": "You can use Balanced Operations instead to exchange tokens without affecting actual coverage.",
+            "balancedOpsCTA": "Go to Balanced Operations section",
+            "noBalanceForFees": "Not enough balance to pay fees"
         }
     },
     "portfolio": {

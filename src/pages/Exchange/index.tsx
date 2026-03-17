@@ -25,11 +25,15 @@ export default function SectionExchange(): React.ReactElement {
                 {/* Exchange */}
                 <div className={"layout-card"}>
                     <div className={"layout-card-title"}>
-                        <h1>{t("exchange.cardTitle")}</h1>
+                        <h1>{t("exchange.cardTitle.simpleExchange")}</h1>
                     </div>
 
                     <div className={"content-body layout-card-content"}>
-                        {ready ? <Exchange isCombinedOperation={false} /> : <Skeleton active />}
+                        {ready ? (
+                            <Exchange isCombinedOperation={false} />
+                        ) : (
+                            <Skeleton active />
+                        )}
                     </div>
                 </div>
 

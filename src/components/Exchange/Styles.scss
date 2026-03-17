@@ -83,6 +83,31 @@ section_exchange.scss contains all the css code for Exchange & Combined Operatio
         font-size: 10px;
     }
 }
+.suggestion {
+}
+.amountInput__feedback {
+    link {
+        color: var(--color-txt-primary);
+    }
+}
+.aboutShowModal__button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    background-color: transparent;
+    .buttonArrow {
+        filter: var(--color-icon-link-filter);
+    }
+    .buttonText {
+        color: var(--color-txt-link);
+    }
+    @media (max-width: 768px) {
+        border-left: none;
+        padding-left: 0px;
+    }
+}
 
 /* #endregion EXCHANGE & SEND SECTION */
 

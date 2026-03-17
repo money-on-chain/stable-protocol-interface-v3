@@ -1,3 +1,4 @@
+// /mnt/data/Styles.scss
 .amountInput:focus-within {
     outline: 2px solid var(--brand-color-base);
 }
@@ -11,6 +12,8 @@
     box-shadow: var(--data-shadows-inset);
     padding: 4px 7px;
     width: 318px;
+    // outline: 1px dashed red;
+    border: 1px solid var(--data-background-color);
 }
 .amountInput__infoBar {
     display: flex;
@@ -149,8 +152,15 @@ input[type="number"] {
     border: 1px solid #26272f;
     color: var(--color-txt-secondary);
     line-height: 1.4;
-;
-
 }
 
 /* #endregion AMOUNT INPUT */
+
+/* Display-only mode hooks (no visual changes by default) */
+.amountInput.display-only-background {
+    background-color: transparent;
+}
+
+.amountInput__value.display-only-data {
+    color: var(--color-txt-primary);
+}
