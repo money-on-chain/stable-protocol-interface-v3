@@ -16,6 +16,7 @@ import TXStatus from "./TXStatus";
 import type { CommissionsState, AllowanceStep } from "../../types/status";
 import { ALLOWANCE_STEPS } from "../../types/status";
 import { calculateLimit } from "../../helpers/exchange";
+import DisplayAmount from "../DisplayAmount";
 
 
 const { Panel } = Collapse;
@@ -97,7 +98,7 @@ export default function ConfirmOperation(
     const { t, i18n, ns } = useProjectTranslation();
     const space: string = "\u00A0";
 
-    const { userBalance, interfaceExchangeMethod, contractProtocolStatus } =
+    const { userBalance, interfaceExchangeMethod } =
         useWalletContext();
     
     const [status, setStatus] = useState<StatusType>("SUBMIT");
@@ -575,56 +576,45 @@ export default function ConfirmOperation(
     return (
         <div className="confirm-operation">
             <div className="tx-amount-group">
-                <div className="tx-amount-container">
-                    <div className="tx-amount-info-container">                            
-                        <div className="tx-amount-info">
-                            {operationType === "COMBINED_MINT" || operationType === "MINT" ? t("exchange.labelSendingMint") : t("exchange.labelSending")}{space}                                    
-                        </div>                            
-                    </div>
-                    <div className="tx-amount-data">                        
-                        <div className="tx-amount">
-                            {PrecisionNumbers({
-                                amount: amountYouExchange,
-                                token: TokenSettings(currencyYouExchange),
-                                decimals: amountYouExchange < 1n ? 12 : 8,
-                                i18n: i18n,
-                            })}
-                        </div>
-                        <div className="tx-token">
-                            {t(`exchange.tokens.${currencyYouExchange}.abbr`, {
+                <div className="tx-amount-container">                    
+                    <div className="tx-amount-data">  
+                        <DisplayAmount
+                            label={operationType === "COMBINED_MINT" || operationType === "MINT" ? t("exchange.labelSendingMint") : t("exchange.labelSending")}
+                            value={amountYouExchange}
+                            token={t(`exchange.tokens.${currencyYouExchange}.abbr`, {
                                 ns: ns,
                             })}
-                        </div>
-                        {/*<div className="tx-in-fiat"> ≈ {space}
-                            {PrecisionNumbers({
-                                amount: ConvertAmount(
+                            decimals={amountYouExchange < 1n ? 12 : 8}
+                            /* equivalentValue={!contractProtocolStatus.data
+                                ? 0n
+                                : ConvertAmount(
                                     contractProtocolStatus,
                                     currencyYouExchange,
                                     "USD",
-                                    amountYouExchange,                                                                
+                                    amountYouExchange,
                                     caIndex
-                                ),
-                                token: TokenSettings(`CA_${caIndex}`),
-                                decimals: 2,
-                                i18n: i18n,
-                            })}
-                        </div>*/}
+                                )} */
+                        /> 
                     </div>                   
 
                     {operationType === "COMBINED_REDEEM" && (<div className="tx-amount-data">
-                        <div className="tx-amount">
-                            {PrecisionNumbers({
-                                amount: amountAnotherToken.amount,
-                                token: TokenSettings(`TP_${tpIndex}`),
-                                decimals: amountYouExchange < 1n ? 12 : 8,
-                                i18n: i18n,
-                            })}
-                        </div>
-                        <div className="tx-token">
-                            {t(`exchange.tokens.TP_${tpIndex}.abbr`, {
+                        <DisplayAmount
+                            label={t("exchange.labelSendingMint")}
+                            value={amountAnotherToken.amount}
+                            token={t(`exchange.tokens.TP_${tpIndex}.abbr`, {
                                 ns: ns,
                             })}
-                        </div>
+                            decimals={amountAnotherToken.amount < 1n ? 12 : 8}
+                            /* equivalentValue={!contractProtocolStatus.data
+                                ? 0n
+                                : ConvertAmount(
+                                    contractProtocolStatus,
+                                    `TP_${tpIndex}`,
+                                    "USD",
+                                    amountAnotherToken.amount,
+                                    caIndex
+                                )} */
+                        />
                     </div>)}
 
                 </div>
@@ -633,45 +623,45 @@ export default function ConfirmOperation(
                         <div className="icon-arrow-down"></div>
                     </div>
                 </div>
-                <div className="tx-amount-container">
-                    <div className="tx-amount-info-container">                            
-                        <div className="tx-amount-info">
-                            {operationType === "COMBINED_REDEEM" || operationType === "REDEEM" || operationType === "SWAP_TPFORTP" || operationType === "SWAP_TPFORTC" || operationType === "SWAP_TCFORTP" ? t("exchange.labelReceivingRedeem") : t("exchange.labelReceiving")}{space}                                    
-                        </div>                            
-                    </div>
+                <div className="tx-amount-container">                    
                     <div className="tx-amount-data">
-                        <div className="tx-amount">
-                            {PrecisionNumbers({
-                                amount: amountYouReceive,
-                                token: TokenSettings(currencyYouReceive),
-                                decimals: amountYouReceive < 1n ? 12 : 8,
-                                i18n: i18n,
-                            })}
-                        </div>
-                        <div className="tx-token">
-                            {t(`exchange.tokens.${currencyYouReceive}.abbr`, {
+                        <DisplayAmount
+                            label={operationType === "COMBINED_REDEEM" || operationType === "REDEEM" || operationType === "SWAP_TPFORTP" || operationType === "SWAP_TPFORTC" || operationType === "SWAP_TCFORTP" ? t("exchange.labelReceivingRedeem") : t("exchange.labelReceiving")}
+                            value={amountYouReceive}
+                            token={t(`exchange.tokens.${currencyYouReceive}.abbr`, {
                                 ns: ns,
                             })}
-                        </div>
-                    </div>
-                                        
+                            decimals={amountYouReceive < 1n ? 12 : 8}
+                            /* equivalentValue={!contractProtocolStatus.data
+                                ? 0n
+                                : ConvertAmount(
+                                    contractProtocolStatus,
+                                    currencyYouReceive,
+                                    "USD",
+                                    amountYouReceive,
+                                    caIndex
+                                )} */
+                        />
+                    </div>                                        
                     {operationType === "COMBINED_MINT" && (<div className="tx-amount-data">
-                        <div className="tx-amount">
-                            {PrecisionNumbers({
-                                amount: amountAnotherToken.amount,
-                                token: TokenSettings(`TC_${caIndex}`),
-                                decimals: amountAnotherToken.amount < 1n ? 12 : 8,
-                                i18n: i18n,
-                            })}
-                        </div>
-                        <div className="tx-token">
-                            {t(`exchange.tokens.TC_${caIndex}.abbr`, {
+                        <DisplayAmount
+                            label={t("exchange.labelReceiving")}
+                            value={amountAnotherToken.amount}
+                            token={t(`exchange.tokens.TC_${caIndex}.abbr`, {
                                 ns: ns,
                             })}
-                        </div>
+                            decimals={amountAnotherToken.amount < 1n ? 12 : 8}
+                            /* equivalentValue={!contractProtocolStatus.data
+                                ? 0n
+                                : ConvertAmount(
+                                    contractProtocolStatus,
+                                    `TC_${caIndex}`,
+                                    "USD",
+                                    amountAnotherToken.amount,
+                                    caIndex
+                                )} */
+                        />                        
                     </div>)}
-
-
                 </div>
             </div>
             <div className="divider-horizontal"></div>

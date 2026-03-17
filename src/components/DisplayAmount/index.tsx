@@ -7,14 +7,15 @@ import { useProjectTranslation } from "../../helpers/translations";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 
 interface DisplayAmountProps {
-    value?: string | number;
+    value?: bigint;
     token: string;
     label?: string;
-    placeholder?: string;
     equivalentValue?: bigint;
     equivalentLabel?: string;
     showApproxSymbol?: boolean;
     className?: string;
+    decimals?: number;
+    equivalentDecimals?: number;
 }
 
 const space = "\u00A0";
@@ -22,20 +23,16 @@ const space = "\u00A0";
 const DisplayAmount: React.FC<DisplayAmountProps> = ({
     value,
     token,
-    label,
-    placeholder = "0.00",
+    label,    
     equivalentValue,
     equivalentLabel = "USD",
     showApproxSymbol = true,
     className = "",
+    decimals = 2,
+    equivalentDecimals = 2,
 }) => {
     const { i18n } = useProjectTranslation();
-
-    const resolvedValue =
-        value === undefined || value === null || value === ""
-            ? placeholder
-            : String(value);
-
+    
     return (
         <div className={`displayAmount ${className}`.trim()}>
             {label && (
@@ -47,7 +44,12 @@ const DisplayAmount: React.FC<DisplayAmountProps> = ({
             <div className="displayAmount__mainRow">
                 <div className="displayAmount__valueBlock">
                     <span className="displayAmount__value">
-                        {resolvedValue}
+                        {PrecisionNumbers({
+                            amount: value || 0n,
+                            token: TokenSettings("CA_0"),
+                            decimals: decimals,
+                            i18n: i18n,
+                        })}
                     </span>
                 </div>
 
@@ -61,7 +63,7 @@ const DisplayAmount: React.FC<DisplayAmountProps> = ({
                         {PrecisionNumbers({
                             amount: equivalentValue,
                             token: TokenSettings("CA_0"),
-                            decimals: 2,
+                            decimals: equivalentDecimals,
                             i18n,
                             isUSD: true,
                         })}

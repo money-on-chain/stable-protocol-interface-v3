@@ -10,17 +10,15 @@ import {
 import { tokenExchange } from "../../helpers/exchange";
 import {
     fromWei,
-    mulPrecision,
-    normalizeToBigInt,
     toBigIntPrecision,
 } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import CurrencyPopUp from "../CurrencyPopUp";
 import InputAmount from "../InputAmount";
-import DisplayAmount from "../DisplayAmount";
 
 import ModalConfirmSend from "../Modals/ConfirmSend";
 import { PrecisionNumbers } from "../PrecisionNumbers";
+
 
 export default function Send(): JSX.Element {
     const { t, i18n } = useProjectTranslation();
@@ -40,10 +38,7 @@ export default function Send(): JSX.Element {
 
     const [amountYouSend, setAmountYouSend] = useState<string>("");
     const [destinationAddress, setDestinationAddress] = useState<string>("");
-
-    const [sendingUSD, setSendingUSD] = useState<bigint>(0n);
-
-    //const [isDirtyYouSend, setIsDirtyYouSend] = useState(false);
+    const [caIndex, setCAIndex] = useState<number>(0);
 
     const [inputValidationErrorText, setInputValidationErrorText] =
         useState<string>("");
@@ -55,12 +50,28 @@ export default function Send(): JSX.Element {
         useState<boolean>(false);
 
     const onChangeCurrencyYouSend = (newCurrencyYouExchange: string): void => {
-        onClear();
+        
+        onClear();        
+
+        let caIndex: number = 0;
+        const aCurrencyYouSend: string[] = newCurrencyYouExchange.split("_");
+        switch (aCurrencyYouSend[0]) {
+            case "CA":
+                caIndex = parseInt(aCurrencyYouSend[1]);
+                break;
+            case "TC":
+                caIndex = parseInt(aCurrencyYouSend[1]);
+                break;
+            case "TP":
+                caIndex = 0;
+                break;
+        }
+
+        setCAIndex(caIndex);
         setCurrencyYouSend(newCurrencyYouExchange);
     };
 
     const onClear = (): void => {
-        //setIsDirtyYouSend(false);
         setAmountYouSend("");
     };
 
@@ -146,10 +157,7 @@ export default function Send(): JSX.Element {
         newAmount: string | number,
         isPriceOnly: boolean = false
     ): void => {
-        const newAmountBig: bigint = toBigIntPrecision(newAmount);
-
         if (!isPriceOnly) {
-            //setIsDirtyYouSend(true);
             setAmountYouSend(newAmount.toString());
         }
 
@@ -167,26 +175,7 @@ export default function Send(): JSX.Element {
                 break;
         }
 
-        const convertAmount: bigint = ConvertAmount(
-            contractProtocolStatus,
-            currencyYouSend,
-            `CA_${caIndex}`,
-            newAmountBig,
-            caIndex
-        );
-
-        const priceCA: bigint =
-            normalizeToBigInt(contractProtocolStatus.data[caIndex].PP_CA[0]) ||
-            0n;
-
-        let convertAmountUSD: bigint;
-        if (currencyYouSend === "COINBASE") {
-            convertAmountUSD = convertAmount;
-        } else {
-            convertAmountUSD = mulPrecision(convertAmount, priceCA);
-        }
-
-        setSendingUSD(convertAmountUSD);
+        setCAIndex(caIndex);
     };
 
     const onChangeDestinationAddress = (
@@ -199,9 +188,7 @@ export default function Send(): JSX.Element {
         setDestinationAddress(event.target.value);
     };
 
-    const setAddTotalAvailable = (): void => {
-        //setIsDirtyYouSend(false);
-
+    const setAddTotalAvailable = (): void => {        
         const totalYouSendWei: bigint = TokenBalance(
             userBalance,
             currencyYouSend,
@@ -217,6 +204,14 @@ export default function Send(): JSX.Element {
 
         onChangeAmountYouSend(totalYouSend, true);
     };
+
+    const sendingUSD = ConvertAmount(
+        contractProtocolStatus,
+        currencyYouSend,
+        "USD",
+        toBigIntPrecision(amountYouSend),
+        caIndex
+    );
 
     return (
         <div>
@@ -318,6 +313,7 @@ export default function Send(): JSX.Element {
                         destinationAddress={destinationAddress}
                         onClear={onClear}
                         inputValidationError={inputValidationError}
+                        caIndex={caIndex}
                     />
                 </div>
             </div>
