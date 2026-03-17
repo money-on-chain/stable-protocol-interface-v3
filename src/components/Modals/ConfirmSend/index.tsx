@@ -12,6 +12,7 @@ interface ModalConfirmSendProps {
     amountYouExchange: string;
     destinationAddress: string;
     onClear: () => void;
+    caIndex: number;
 }
 
 export default function ModalConfirmSend(
