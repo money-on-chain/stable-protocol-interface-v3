@@ -10,6 +10,11 @@ import {
     mintTP as mintTP_,
     redeemTC as redeemTC_,
     redeemTP as redeemTP_,
+    swapTPforTP as swapTPforTP_,
+    swapTCforTP as swapTCforTP_,
+    swapTPforTC as swapTPforTC_,
+    redeemTCandTP as redeemTCandTP_,
+    mintTCandTP as mintTCandTP_,
 } from "./moc-core";
 
 const mintTC = async (
@@ -92,4 +97,120 @@ const redeemTP = async (
     );
 };
 
-export { mintTC, mintTP, redeemTC, redeemTP };
+const swapTPforTP = async (
+    interfaceContext: InterfaceContext,    
+    iFromTP: number,
+    iToTP: number,
+    qTP: bigint,
+    caIndex: number,
+    limitAmount: bigint,
+    qAssetMaxFees: bigint,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    // Swap pegged token for another pegged token
+    return swapTPforTP_(
+        interfaceContext,
+        iFromTP,
+        iToTP,
+        qTP,
+        caIndex,
+        limitAmount,
+        qAssetMaxFees,
+        onTransaction,
+        onReceipt
+    );
+};
+
+const swapTCforTP = async (
+    interfaceContext: InterfaceContext,
+    tpIndex: number,
+    qTC: bigint,
+    caIndex: number,
+    limitAmount: bigint,
+    qAssetMaxFees: bigint,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    // Swap collateral token for pegged token
+    return swapTCforTP_(
+        interfaceContext,
+        tpIndex,
+        qTC,
+        caIndex,
+        limitAmount,
+        qAssetMaxFees,
+        onTransaction,
+        onReceipt
+    );
+};
+
+
+const swapTPforTC = async (
+    interfaceContext: InterfaceContext,
+    tpIndex: number,
+    qTP: bigint,
+    caIndex: number,
+    limitAmount: bigint,
+    qAssetMaxFees: bigint,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    // Swap collateral token for pegged token
+    return swapTPforTC_(
+        interfaceContext,
+        tpIndex,
+        qTP,
+        caIndex,
+        limitAmount,
+        qAssetMaxFees,
+        onTransaction,
+        onReceipt
+    );
+};
+
+const mintTCandTP = async (
+    interfaceContext: InterfaceContext,
+    caIndex: number,
+    tpIndex: number,
+    qTP: bigint,
+    limitAmount: bigint,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    // Mint collateral token and pegged token
+    return mintTCandTP_(
+        interfaceContext,
+        caIndex,
+        tpIndex,
+        qTP,
+        limitAmount,
+        onTransaction,
+        onReceipt
+    );
+};
+
+const redeemTCandTP = async (
+    interfaceContext: InterfaceContext,
+    caIndex: number,
+    tpIndex: number,
+    qTC: bigint,
+    qTP: bigint,
+    limitAmount: bigint,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    // Redeem collateral token and pegged token
+    return redeemTCandTP_(
+        interfaceContext,
+        caIndex,
+        tpIndex,
+        qTC,
+        qTP,
+        limitAmount,
+        onTransaction,
+        onReceipt
+    );
+};
+
+export { mintTC, mintTP, redeemTC, redeemTP, swapTPforTP, swapTCforTP, swapTPforTC, mintTCandTP, redeemTCandTP };

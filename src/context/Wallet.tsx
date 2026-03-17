@@ -51,8 +51,7 @@ import {
 } from "../backend/omoc/voting";
 import ModalAccount from "../components/Modals/Account";
 import ModalProviders from "../components/Modals/Providers";
-import { ApproveTokenContract, TokenContract } from "../helpers/exchange";
-import { exchangeMethod } from "../helpers/exchange";
+import { ApproveTokenContract, TokenContract, exchangeMethod, exchangeMethodCombined } from "../helpers/exchange";
 import {
     loadVestingAddressesFromLocalStorage,
     saveVestingAddressesToLocalStorage,
@@ -336,7 +335,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         const url = new URL(
             import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS
         );
-        url.pathname = "/v1/omoc/vesting_created";
+        url.pathname = "/v1/omoc/vesting_created/";
         url.search = new URLSearchParams({
             holder: address || "",
             limit: "20",
@@ -399,6 +398,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         currencyYouExchange: string,
         currencyYouReceive: string,
         amountAllowance: bigint,
+        caIndex: number,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt
     ): Promise<void> => {
@@ -407,7 +407,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         const approveInfo = ApproveTokenContract(
             contractsAddress,
             currencyYouExchange,
-            currencyYouReceive
+            currencyYouReceive,
+            caIndex            
         );
         if (approveInfo.token) {
             const interfaceContext = buildInterfaceContext();
@@ -427,19 +428,40 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         currencyYouReceive: string,
         tokenAmount: bigint,
         limitAmount: bigint,
+        qAssetMaxFees: bigint,
+        caIndex: number,
+        tpIndex: number,
+        operationType: string,
+        anotherTokenAmount: bigint,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt
     ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
-        return exchangeMethod(
-            interfaceContext,
-            currencyYouExchange,
-            currencyYouReceive,
-            tokenAmount,
-            limitAmount,
-            onTransaction,
-            onReceipt
-        );
+        if (operationType === "COMBINED_MINT" || operationType === "COMBINED_REDEEM") {
+            return exchangeMethodCombined(
+                interfaceContext,
+                tokenAmount,
+                limitAmount,
+                caIndex,
+                tpIndex,
+                operationType,
+                anotherTokenAmount,
+                onTransaction,
+                onReceipt
+            );
+        } else {    
+            return exchangeMethod(
+                interfaceContext,
+                currencyYouExchange,
+                currencyYouReceive,
+                tokenAmount,
+                limitAmount,
+                qAssetMaxFees,
+                caIndex,                
+                onTransaction,
+                onReceipt
+            );
+        }
     };
 
     const interfaceAllowUseTokenMigrator = async (

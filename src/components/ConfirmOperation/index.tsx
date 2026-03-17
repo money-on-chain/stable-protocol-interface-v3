@@ -5,15 +5,19 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import type { TransactionReceipt } from "viem";
 
 import { decodeEvents } from "../../backend/transaction";
-import { SlippageTolerance } from "../../components/SlippageTolerance";
 import { useWalletContext } from "../../context/Wallet";
 import { TokenBalance, TokenSettings } from "../../helpers/currencies";
-import { isMintOperation, UserTokenAllowance } from "../../helpers/exchange";
+import { UserTokenAllowance } from "../../helpers/exchange";
 import { useProjectTranslation } from "../../helpers/translations";
 import CopyAddress from "../CopyAddress";
 import ModalAllowanceOperation from "../Modals/Allowance";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import TXStatus from "./TXStatus";
+import type { CommissionsState, AllowanceStep } from "../../types/status";
+import { ALLOWANCE_STEPS } from "../../types/status";
+import { calculateLimit } from "../../helpers/exchange";
+import DisplayAmount from "../DisplayAmount";
+
 
 const { Panel } = Collapse;
 
@@ -30,21 +34,20 @@ interface ConfirmOperationProps {
     currencyYouExchange: string;
     currencyYouReceive: string;
     exchangingUSD: bigint;
-    commission: bigint;
-    commissionUSD: bigint;
-    commissionPercent: bigint;
-    inputAmountYouExchange: bigint;
+    commissionsByKey: CommissionsState;
+    amountYouExchange: bigint;
     amountYouReceive: bigint;
     onCloseModal: () => void;
     executionFee: bigint;
     executionFeeUSD: bigint;
-    commissionFeeToken: bigint;
-    commissionFeeTokenUSD: bigint;
-    commissionPercentFeeToken: bigint;
     radioSelectFee: number;
     caIndex: number;
+    operationType: string;
     slippageTolerance: number;
-    onChangeSlippageTolerance: (value: number) => void;
+    amountAnotherToken: { qAC: bigint, amount: bigint };
+    tpIndex: number;
+    totalAmountExchangeInFiat: bigint;
+    totalAmountReceiveInFiat: bigint;
 }
 
 type StatusType =
@@ -55,23 +58,6 @@ type StatusType =
     | "CONFIRMING"
     | "SUCCESS"
     | "ERROR";
-
-interface ToleranceLimits {
-    exchange: bigint;
-    receive: bigint;
-}
-
-interface MarkStyle {
-    style: {
-        color: string;
-        fontSize: number;
-    };
-}
-
-interface PriceVariationToleranceMarks {
-    [key: number]: MarkStyle & { label: string };
-    [key: string]: MarkStyle & { label: string };
-}
 
 interface StatusLabels {
     SUBMIT: string;
@@ -85,28 +71,6 @@ interface StatusLabels {
     [key: string]: string;
 }
 
-/**
- * Calculates the limit as: amount + amount * percentage
- * using only BigInt arithmetic by scaling the percentage.
- *
- * @param {bigint} amount - The base amount as BigInt.
- * @param {number} percentage - A decimal like 0.7 (70%).
- * @param {bigint} scale - Precision scale (default: 1_000_000n = 6 decimals).
- * @returns {bigint} The resulting amount with the percentage added.
- */
-function calculateLimit(
-    amount: bigint,
-    percentage: number,
-    scale = 1_000_000n
-): bigint {
-    // Convert the decimal percentage to a scaled integer
-    const scaledPercentage = BigInt(Math.floor(percentage * Number(scale)));
-
-    // Compute: amount * (1 + percentage) = amount * (scale + scaledPercentage) / scale
-    const limit = (amount * (scale + scaledPercentage)) / scale;
-
-    return limit;
-}
 
 export default function ConfirmOperation(
     props: ConfirmOperationProps
@@ -115,54 +79,33 @@ export default function ConfirmOperation(
         currencyYouExchange,
         currencyYouReceive,
         exchangingUSD,
-        commission,
-        commissionUSD,
-        commissionPercent,
-        inputAmountYouExchange,
+        commissionsByKey,
+        amountYouExchange,
         amountYouReceive,
         onCloseModal,
         executionFee,
         executionFeeUSD,
-        commissionFeeToken,
-        commissionFeeTokenUSD,
-        commissionPercentFeeToken,
         radioSelectFee,
         caIndex,
+        operationType,
         slippageTolerance,
-        onChangeSlippageTolerance,
+        amountAnotherToken,
+        tpIndex,
+        totalAmountExchangeInFiat,
+        totalAmountReceiveInFiat
     } = props;
 
     const { t, i18n, ns } = useProjectTranslation();
+    const space: string = "\u00A0";
 
-    const { contractProtocolStatus, userBalance, interfaceExchangeMethod } =
+    const { userBalance, interfaceExchangeMethod } =
         useWalletContext();
-
+    
     const [status, setStatus] = useState<StatusType>("SUBMIT");
-    const [amountYouExchange, setAmountYouExchange] = useState<bigint>(
-        inputAmountYouExchange
-    );
-    const [tolerance, setTolerance] = useState<number>(slippageTolerance);
+    
     const [txID, setTxID] = useState<string>("");
     const [opID, setOpID] = useState<number | null>(null);
-    const [toleranceError, setToleranceError] = useState<string>("");
-    const [amountChanged, setAmountChanged] = useState<boolean>(false);
-
-    const [slippageUiState, setSlippageUiState] = useState<{
-        hasPendingCustom: boolean;
-        isValid: boolean;
-    }>({
-        hasPendingCustom: false,
-        isValid: true,
-    });
-    const IS_MINT: boolean = isMintOperation(
-        currencyYouExchange,
-        currencyYouReceive
-    );
-
-    useEffect(() => {
-        setAmountYouExchange(inputAmountYouExchange);
-    }, [inputAmountYouExchange]);
-
+    
     useEffect(() => {
         let timerId: NodeJS.Timeout;
         if (status === "QUEUING") {
@@ -194,67 +137,24 @@ export default function ConfirmOperation(
 
         return () => clearTimeout(timerId);
     }, [status]);
-
-    const toleranceLimits = useCallback(
-        (newTolerance: number): ToleranceLimits => {
-            let limitExchange: bigint;
-            let limitReceive: bigint;
-            if (IS_MINT) {
-                limitExchange = calculateLimit(
-                    amountYouExchange,
-                    newTolerance / 100
-                );
-                limitReceive = amountYouReceive;
-            } else {
-                limitExchange = amountYouExchange;
-                limitReceive = calculateLimit(
-                    amountYouReceive,
-                    -(newTolerance / 100)
-                );
-            }
-
-            const limits: ToleranceLimits = {
-                exchange: limitExchange,
-                receive: limitReceive,
-            };
-
-            return limits;
-        },
-        [IS_MINT, amountYouExchange, amountYouReceive]
-    );
-
-    const limits: ToleranceLimits = toleranceLimits(tolerance);
-
-    const [amountYouExchangeLimit, setAmountYouExchangeLimit] =
-        useState<bigint>(limits.exchange);
-    const [amountYouReceiveLimit, setAmountYouReceiveLimit] = useState<bigint>(
-        limits.receive
-    );
+    
     const [showModalAllowance, setShowModalAllowance] =
         useState<boolean>(false);
     const [showModalAllowanceFeeToken, setShowModalAllowanceFeeToken] =
         useState<boolean>(false);
+    const [showModalAllowancePayCommission, setShowModalAllowancePayCommission] =
+        useState<boolean>(false);
     const [disAllowanceFeeToken, setDisAllowanceFeeToken] =
         useState<boolean>(false);
-
-    useEffect(() => {
-        if (amountYouExchange) {
-            const limits: ToleranceLimits = toleranceLimits(tolerance);
-            setAmountYouExchangeLimit(limits.exchange);
-        }
-    }, [amountYouExchange, tolerance, toleranceLimits]);
-
-    useEffect(() => {
-        if (amountYouReceive) {
-            const limits: ToleranceLimits = toleranceLimits(tolerance);
-            setAmountYouReceiveLimit(limits.receive);
-        }
-    }, [amountYouReceive, tolerance, toleranceLimits]);
+    const [showModalAllowancePayAnotherToken, setShowModalAllowancePayAnotherToken] =
+        useState<boolean>(false);
 
     // Use refs to store latest values to avoid recreating the callback
     const opIDRef = useRef<number | null>(opID);
     const caIndexRef = useRef<number>(caIndex);
     const userBalanceRefetchRef = useRef(userBalance.refetch);
+
+    const anotherTokenName: string = operationType === "COMBINED_MINT" ? `TC_${caIndex}` : `TP_${tpIndex}`;
 
     useEffect(() => {
         opIDRef.current = opID;
@@ -281,7 +181,7 @@ export default function ConfirmOperation(
         const apiUrl = new URL(
             import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS
         );
-        apiUrl.pathname = "/v1/operations/oper_id";
+        apiUrl.pathname = "/v1/operations/oper_id/";
 
         axios
             .get<OperationStatusResponse>(apiUrl.toString(), {
@@ -373,32 +273,72 @@ export default function ConfirmOperation(
         };
     }, [opStatus, opID, status]);
 
-    const onHideModalAllowance = (): void => {
+    const onHideModalAllowancePayCurrencyExchange = (): void => {
         setShowModalAllowance(false);
     };
 
-    const onShowModalAllowance = (): void => {
+    const onShowModalAllowancePayCurrencyExchange = (): void => {
         setShowModalAllowance(true);
     };
 
-    const showAllowance = (): boolean => {
+    const onHideModalAllowancePayCommissionFeeToken = (): void => {
+        setShowModalAllowanceFeeToken(false);
+    };
+
+    const onShowModalAllowancePayCommissionFeeToken = (): void => {
+        setShowModalAllowanceFeeToken(true);
+    };
+
+    const onShowModalAllowancePayCommission = (): void => {
+        setShowModalAllowancePayCommission(true);
+    };
+    const onHideModalAllowancePayCommission = (): void => {
+        setShowModalAllowancePayCommission(false);
+    };
+
+    const onShowModalAllowancePayAnotherToken = (): void => {
+        setShowModalAllowancePayAnotherToken(true);
+    };
+    const onHideModalAllowancePayAnotherToken = (): void => {
+        setShowModalAllowancePayAnotherToken(false);
+    };
+
+    const showAllowancePayCurrencyExchange = (): boolean => {        
         const tokenAllowance: bigint = UserTokenAllowance(
             userBalance,
             currencyYouExchange,
             caIndex
         );
-        return amountYouExchangeLimit > tokenAllowance;
+        return amountYouExchange > tokenAllowance;
     };
 
-    const onHideModalAllowanceFeeToken = (): void => {
-        setShowModalAllowanceFeeToken(false);
+    const showAllowancePayCommissionCA = (): boolean => {
+        const tokenAllowance: bigint = UserTokenAllowance(
+            userBalance,
+            `CA_${caIndex}`,
+            caIndex
+        );
+
+        return commissionsByKey[`CA_${caIndex}`].commission > tokenAllowance;        
     };
 
-    const onShowModalAllowanceFeeToken = (): void => {
-        setShowModalAllowanceFeeToken(true);
-    };
+    const showAllowancePayAnotherToken = (): boolean => {        
+        if (operationType !== "COMBINED_REDEEM") return false;
+        let tokenName: string = "";
+        if (operationType === "COMBINED_REDEEM") {
+            tokenName = `TP_${tpIndex}`
+        }
 
-    const showAllowanceFeeToken = (): boolean => {
+        const tokenAllowance: bigint = UserTokenAllowance(
+            userBalance,
+            tokenName,
+            caIndex
+        );
+
+        return amountAnotherToken.amount > tokenAllowance;        
+    };        
+
+    const showAllowancePayCommissionFeeToken = (): boolean => {
         //const caIndex = getCAIndex(currencyYouExchange, currencyYouReceive);
         const tokenAllowance: bigint = UserTokenAllowance(
             userBalance,
@@ -406,38 +346,60 @@ export default function ConfirmOperation(
             caIndex
         );
 
-        if (radioSelectFee === 0 && tokenAllowance > commissionFeeToken) {
+        if (radioSelectFee === 0 && tokenAllowance > commissionsByKey["FeeToken"].commission) {
             // if we select not to pay with fee token, please disallow to use Fee token
             setDisAllowanceFeeToken(true);
             // show allowance window
             return true;
-        } else if (radioSelectFee > 0) {
-            return commissionFeeToken >= tokenAllowance;
+        } else if (radioSelectFee === 0) {
+            return commissionsByKey["FeeToken"].commission >= tokenAllowance;
         }
 
         return false;
     };
+        
+    const onSendTransaction = (startPoint: AllowanceStep = "AllowancePayCommissionCA"): void => {
+        const startIndex = ALLOWANCE_STEPS.indexOf(startPoint);
 
-    const onSendTransactionAllowFeeToken = (): void => {
-        // Show modal allowance
-        if (showAllowanceFeeToken()) {
-            onShowModalAllowanceFeeToken();
-            return;
+        for (let i = startIndex; i < ALLOWANCE_STEPS.length; i++) {
+            const step = ALLOWANCE_STEPS[i];
+
+            if (step === "AllowancePayCommissionCA") {
+                if (operationType === "SWAP_TPFORTP" || operationType === "SWAP_TCFORTP" || operationType === "SWAP_TPFORTC") {
+                    if (showAllowancePayCommissionCA()) {
+                    onShowModalAllowancePayCommission();
+                    return;
+                    }
+                }
+            }
+
+            if (step === "AllowancePayCommissionFeeToken") {
+                if (showAllowancePayCommissionFeeToken()) {
+                    onShowModalAllowancePayCommissionFeeToken();
+                    return;
+                }
+            }
+
+            if (step === "AllowancePayCurrencyExchange") {
+                if (showAllowancePayCurrencyExchange()) {
+                    onShowModalAllowancePayCurrencyExchange();
+                    return;
+                }
+            }
+
+            if (step === "AllowancePayAnotherToken") {
+                if (showAllowancePayAnotherToken()) {
+                    onShowModalAllowancePayAnotherToken();
+                    return;
+                }
+            }
+
+            if (step === "SubmitOperationTransaction") {
+                onRealSendTransaction();
+                return;
+            }
         }
-
-        // If allowance is ok please send real operation transaction
-        onSendTransaction();
-    };
-
-    const onSendTransaction = (): void => {
-        // Show modal allowance
-        if (showAllowance()) {
-            onShowModalAllowance();
-            return;
-        }
-
-        // If allowance is ok please send real operation transaction
-        onRealSendTransaction();
+        
     };
 
     const onRealSendTransaction = (): void => {
@@ -446,12 +408,19 @@ export default function ConfirmOperation(
 
         let tokenAmount: bigint;
         let limitAmount: bigint;
-        if (IS_MINT) {
+        let qAssetMaxFees: bigint = 0n;
+        if (operationType === "MINT" || operationType === "COMBINED_MINT") {
             tokenAmount = amountYouReceive;
-            limitAmount = amountYouExchangeLimit;
-        } else {
+            limitAmount = amountYouExchange;
+        } else if (operationType === "REDEEM" || operationType === "COMBINED_REDEEM") {
             tokenAmount = amountYouExchange;
-            limitAmount = amountYouReceiveLimit;
+            limitAmount = amountYouReceive;
+        } else if (operationType === "SWAP_TPFORTP" || operationType === "SWAP_TPFORTC" || operationType === "SWAP_TCFORTP") {
+            tokenAmount = amountYouExchange;
+            limitAmount = amountYouExchange;
+            qAssetMaxFees = calculateLimit(commissionsByKey[`CA_${caIndex}`].commission, slippageTolerance / 100)
+        } else {
+            throw new Error("Invalid type operation");
         }
 
         void interfaceExchangeMethod(
@@ -459,6 +428,11 @@ export default function ConfirmOperation(
             currencyYouReceive,
             tokenAmount,
             limitAmount,
+            qAssetMaxFees,
+            caIndex,
+            tpIndex,
+            operationType,
+            amountAnotherToken.amount, // Pass amount of qTC
             onTransaction,
             onReceipt
         )
@@ -557,120 +531,42 @@ export default function ConfirmOperation(
         ERROR: t("exchange.confirm.error"),
         DEFAULT: t("exchange.confirm.default"),
     };
-    /*let sentIcon = "";
-    let statusLabel = "";
-    switch (status) {
-        case "SUBMIT":
-            sentIcon = "icon-tx-waiting";
-            statusLabel = t("exchange.confirm.submit");
-            break;
-        case "SIGN":
-            sentIcon = "icon-tx-signWallet";
-            statusLabel = t("exchange.confirm.sign");
-            break;
-        case "QUEUING":
-            sentIcon = "icon-tx-waiting";
-            statusLabel = t("exchange.confirm.queuing");
-            break;
-        case "QUEUED":
-            sentIcon = "icon-tx-waiting";
-            statusLabel = t("exchange.confirm.queued");
-            break;
-        case "CONFIRMING":
-            sentIcon = "icon-operation-tx-confirming";
-            statusLabel = t("exchange.confirm.confirming");
-            break;
-        case "SUCCESS":
-            sentIcon = "icon-tx-success";
-            statusLabel = t("exchange.confirm.confirmed");
-            break;
-        case "ERROR":
-            sentIcon = "icon-tx-error";
-            statusLabel = t("exchange.confirm.error");
-            break;
-        default:
-            sentIcon = "icon-tx-waiting";
-            statusLabel = t("exchange.confirm.default");
-    }*/
-
-    const markStyle: MarkStyle = {
-        style: {
-            color: "#707070",
-            fontSize: 10,
-        },
-    };
-
-    const priceVariationToleranceMarks: PriceVariationToleranceMarks = {
-        0: { ...markStyle, label: "0.0%" },
-        1: { ...markStyle, label: "1%" },
-        2: { ...markStyle, label: "2%" },
-        5: { ...markStyle, label: "5%" },
-        10: { ...markStyle, label: "10%" },
-    };
-
-    const changeTolerance = (newTolerance: number): void => {
-        setAmountChanged(true);
-        setTolerance(newTolerance);
-        const limits: ToleranceLimits = toleranceLimits(newTolerance);
-        const totalBalance: bigint = TokenBalance(
-            userBalance,
-            currencyYouExchange
-        );
-        if (limits.exchange > totalBalance) {
-            console.warn("Insufficient balance");
-            setToleranceError("Tolerance exceeds user balance");
-            setAmountYouExchangeLimit(limits.exchange);
-            setAmountYouReceiveLimit(limits.receive);
-            return;
-        }
-        setToleranceError("");
-        setAmountYouExchangeLimit(limits.exchange);
-        setAmountYouReceiveLimit(limits.receive);
-        onChangeSlippageTolerance(newTolerance);
-    };
 
     const onClose = (): void => {
         setStatus("SUBMIT");
         onCloseModal();
     };
 
-    const onSlippageInteractionChange = useCallback(
-        (next: { hasPendingCustom: boolean; isValid: boolean }) => {
-            setSlippageUiState((prev) =>
-                prev.hasPendingCustom === next.hasPendingCustom &&
-                prev.isValid === next.isValid
-                    ? prev
-                    : next
-            );
-        },
-        []
-    );
-
     // Commission Select Radio
-
-    let commissionPAY: bigint = commission;
-    let commissionPAYUSD: bigint = commissionUSD;
-    let commissionPercentPAY: bigint = commissionPercent;
+    let commissionPAY: bigint = commissionsByKey[`CA_${caIndex}`].commission;
+    let commissionPAYUSD: bigint = commissionsByKey[`CA_${caIndex}`].commissionUSD;
+    let commissionPercentPAY: bigint = commissionsByKey[`CA_${caIndex}`].commissionPercent;
     let commissionSettings: ReturnType<typeof TokenSettings> = TokenSettings(
         `CA_${caIndex}`
     );
     let commissionTokenName: string;
 
-    if (IS_MINT) {
+    if (operationType === "MINT" || operationType === "COMBINED_MINT")  {
         commissionTokenName = t(`exchange.tokens.${currencyYouExchange}.abbr`, {
             ns: ns,
         });
-    } else {
+    } else if (operationType === "REDEEM" || operationType === "COMBINED_REDEEM") {
         commissionTokenName = t(`exchange.tokens.${currencyYouReceive}.abbr`, {
             ns: ns,
         });
+    } else if (operationType === "SWAP_TPFORTP" || operationType === "SWAP_TPFORTC" || operationType === "SWAP_TCFORTP") {
+        commissionTokenName = t(`exchange.tokens.CA_${caIndex}.abbr`, {
+            ns: ns,
+        });
+    } else {
+        throw new Error("Invalid type operation");
     }
 
-    if (radioSelectFee > 0) {
+    if (radioSelectFee === 0) {
         // Pay with Fee Token
-        commissionPAY = commissionFeeToken;
-        commissionPAYUSD = commissionFeeTokenUSD;
-        commissionPercentPAY = commissionPercentFeeToken;
+        commissionPAY = commissionsByKey["FeeToken"].commission;
+        commissionPAYUSD = commissionsByKey["FeeToken"].commissionUSD;
+        commissionPercentPAY = commissionsByKey["FeeToken"].commissionPercent;
         commissionSettings = TokenSettings(`TF_${caIndex}`);
         commissionTokenName = t(`exchange.tokens.TF.abbr`, {
             ns: ns,
@@ -680,69 +576,92 @@ export default function ConfirmOperation(
     return (
         <div className="confirm-operation">
             <div className="tx-amount-group">
-                <div className="tx-amount-container">
-                    <div className="tx-amount-data">
-                        <div className="tx-amount">
-                            {PrecisionNumbers({
-                                amount: amountYouExchangeLimit,
-                                token: TokenSettings(currencyYouExchange),
-                                decimals: amountYouExchangeLimit < 1n ? 12 : 8,
-                                i18n: i18n,
-                            })}
-                        </div>
-                        <div className="tx-token">
-                            {t(`exchange.tokens.${currencyYouExchange}.abbr`, {
+                <div className="tx-amount-container">                    
+                    <div className="tx-amount-data">  
+                        <DisplayAmount
+                            label={operationType === "COMBINED_MINT" || operationType === "MINT" ? t("exchange.labelSendingMint") : t("exchange.labelSending")}
+                            value={amountYouExchange}
+                            token={t(`exchange.tokens.${currencyYouExchange}.abbr`, {
                                 ns: ns,
                             })}
-                        </div>
-                    </div>
-                    {!amountChanged && IS_MINT && (
-                        <div className="tx-amount-info">
-                            {t(`exchange.priceVariation.warning`, {
+                            decimals={amountYouExchange < 1n ? 12 : 8}
+                            /* equivalentValue={!contractProtocolStatus.data
+                                ? 0n
+                                : ConvertAmount(
+                                    contractProtocolStatus,
+                                    currencyYouExchange,
+                                    "USD",
+                                    amountYouExchange,
+                                    caIndex
+                                )} */
+                        /> 
+                    </div>                   
+
+                    {operationType === "COMBINED_REDEEM" && (<div className="tx-amount-data">
+                        <DisplayAmount
+                            label={t("exchange.labelSendingMint")}
+                            value={amountAnotherToken.amount}
+                            token={t(`exchange.tokens.TP_${tpIndex}.abbr`, {
                                 ns: ns,
                             })}
-                        </div>
-                    )}
+                            decimals={amountAnotherToken.amount < 1n ? 12 : 8}
+                            /* equivalentValue={!contractProtocolStatus.data
+                                ? 0n
+                                : ConvertAmount(
+                                    contractProtocolStatus,
+                                    `TP_${tpIndex}`,
+                                    "USD",
+                                    amountAnotherToken.amount,
+                                    caIndex
+                                )} */
+                        />
+                    </div>)}
+
                 </div>
                 <div className="tx-direction">
                     <div className="swapArrow">
                         <div className="icon-arrow-down"></div>
                     </div>
                 </div>
-                <div className="tx-amount-container">
+                <div className="tx-amount-container">                    
                     <div className="tx-amount-data">
-                        <div className="tx-amount">
-                            {PrecisionNumbers({
-                                amount: amountYouReceive,
-                                token: TokenSettings(currencyYouReceive),
-                                decimals: amountYouReceive < 1n ? 12 : 8,
-                                i18n: i18n,
-                            })}
-                        </div>
-                        <div className="tx-token">
-                            {t(`exchange.tokens.${currencyYouReceive}.abbr`, {
+                        <DisplayAmount
+                            label={operationType === "COMBINED_REDEEM" || operationType === "REDEEM" || operationType === "SWAP_TPFORTP" || operationType === "SWAP_TPFORTC" || operationType === "SWAP_TCFORTP" ? t("exchange.labelReceivingRedeem") : t("exchange.labelReceiving")}
+                            value={amountYouReceive}
+                            token={t(`exchange.tokens.${currencyYouReceive}.abbr`, {
                                 ns: ns,
                             })}
-                        </div>
-                    </div>
-                    <div className="tx-amount-info">
-                        {!IS_MINT && (
-                            <div className="tx-amount-info">
-                                {t("exchange.confirm.minimumWarning")}
-                                <div className="">
-                                    {PrecisionNumbers({
-                                        amount: amountYouReceiveLimit,
-                                        token: TokenSettings(
-                                            currencyYouReceive
-                                        ),
-                                        decimals: 4,
-                                        i18n: i18n,
-                                    })}
-                                </div>
-                                {t("exchange.confirm.minimumExplanation")}
-                            </div>
-                        )}
-                    </div>
+                            decimals={amountYouReceive < 1n ? 12 : 8}
+                            /* equivalentValue={!contractProtocolStatus.data
+                                ? 0n
+                                : ConvertAmount(
+                                    contractProtocolStatus,
+                                    currencyYouReceive,
+                                    "USD",
+                                    amountYouReceive,
+                                    caIndex
+                                )} */
+                        />
+                    </div>                                        
+                    {operationType === "COMBINED_MINT" && (<div className="tx-amount-data">
+                        <DisplayAmount
+                            label={t("exchange.labelReceiving")}
+                            value={amountAnotherToken.amount}
+                            token={t(`exchange.tokens.TC_${caIndex}.abbr`, {
+                                ns: ns,
+                            })}
+                            decimals={amountAnotherToken.amount < 1n ? 12 : 8}
+                            /* equivalentValue={!contractProtocolStatus.data
+                                ? 0n
+                                : ConvertAmount(
+                                    contractProtocolStatus,
+                                    `TC_${caIndex}`,
+                                    "USD",
+                                    amountAnotherToken.amount,
+                                    caIndex
+                                )} */
+                        />                        
+                    </div>)}
                 </div>
             </div>
             <div className="divider-horizontal"></div>
@@ -831,16 +750,7 @@ export default function ConfirmOperation(
             {/* <div className="divider-horizontal"></div> */}
             {status === "SUBMIT" && (
                 <div className="tx-submit">
-                    <div className="cta-container">
-                        <SlippageTolerance
-                            pairId={`${currencyYouExchange}-${currencyYouReceive}`}
-                            defaultState={{
-                                mode: "auto",
-                                value: tolerance,
-                            }}
-                            onChange={(next) => changeTolerance(next.value)}
-                            onInteractionChange={onSlippageInteractionChange}
-                        />
+                    <div className="cta-container">                        
                         <div className="cta-info-group">
                             <div className="cta-info-summary">
                                 <div className={"token_exchange"}>
@@ -854,7 +764,7 @@ export default function ConfirmOperation(
                                     {PrecisionNumbers({
                                         amount: exchangingUSD,
                                         token: TokenSettings(`CA_${caIndex}`),
-                                        decimals: 4,
+                                        decimals: 2,
                                         i18n: i18n,
                                         isUSD: true,
                                     })}
@@ -865,13 +775,6 @@ export default function ConfirmOperation(
                                 </div>
                             </div>
                         </div>
-                        {toleranceError !== "" && (
-                            <div className="error-container">
-                                <span className="confirm-error">
-                                    {toleranceError}
-                                </span>
-                            </div>
-                        )}
                         <div className="cta-options-group">
                             <button
                                 type="button"
@@ -884,11 +787,7 @@ export default function ConfirmOperation(
                                 type="button"
                                 className="button"
                                 data-testid="confirm-operation-submit"
-                                onClick={onSendTransactionAllowFeeToken}
-                                disabled={
-                                    toleranceError !== "" ||
-                                    !slippageUiState.isValid
-                                }
+                                onClick={onSendTransaction}
                             >
                                 {t("exchange.buttonConfirm")}
                             </button>
@@ -953,30 +852,63 @@ export default function ConfirmOperation(
                 </div>
             )}
             <ModalAllowanceOperation
+                name="AllowancePayCurrencyExchange"
                 title={`${t("allowance.cardTitle")}  ${t(`exchange.tokens.${currencyYouExchange}.label`, { ns: ns })}`}
                 visible={showModalAllowance}
-                onHideModalAllowance={onHideModalAllowance}
+                onHideModalAllowance={onHideModalAllowancePayCurrencyExchange}
                 currencyYouExchange={currencyYouExchange}
                 currencyYouReceive={currencyYouReceive}
-                amountYouExchangeLimit={amountYouExchangeLimit}
+                amountYouExchangeLimit={amountYouExchange}
                 //amountYouReceiveLimit={amountYouReceiveLimit}
-                onRealSendTransaction={onRealSendTransaction}
+                onCallback={onSendTransaction}
                 disAllowance={false}
+                caIndex={caIndex}
             />
             <ModalAllowanceOperation
+                name="AllowancePayCommissionFeeToken"
                 title={
                     disAllowanceFeeToken
                         ? `${t("allowance.disallowanceTitle")}  ${t(`exchange.tokens.TF.abbr`, { ns: ns })}`
                         : `${t("allowance.cardTitle")}  ${t(`exchange.tokens.TF.abbr`, { ns: ns })}`
                 }
                 visible={showModalAllowanceFeeToken}
-                onHideModalAllowance={onHideModalAllowanceFeeToken}
+                onHideModalAllowance={onHideModalAllowancePayCommissionFeeToken}
                 currencyYouExchange={`TF_${caIndex}`}
                 currencyYouReceive={`TF_${caIndex}`}
-                amountYouExchangeLimit={commissionFeeToken}
+                amountYouExchangeLimit={commissionsByKey["FeeToken"].commission}
                 //amountYouReceiveLimit={commissionFeeToken}
-                onRealSendTransaction={onSendTransaction}
+                onCallback={onSendTransaction}
                 disAllowance={disAllowanceFeeToken}
+                caIndex={caIndex}
+            />
+            <ModalAllowanceOperation
+                name="AllowancePayCommissionCA"
+                title={
+                    `${t("allowance.cardTitle")}  ${t(`exchange.tokens.CA_${caIndex}.abbr`, { ns: ns })}`
+                }
+                visible={showModalAllowancePayCommission}
+                onHideModalAllowance={onHideModalAllowancePayCommission}
+                currencyYouExchange={`CA_${caIndex}`}
+                currencyYouReceive={`CA_${caIndex}`}
+                amountYouExchangeLimit={calculateLimit(commissionsByKey[`CA_${caIndex}`].commission, slippageTolerance / 100)}
+                //amountYouReceiveLimit={commissionFeeToken}
+                onCallback={onSendTransaction}
+                disAllowance={false}
+                caIndex={caIndex}
+            />
+            <ModalAllowanceOperation
+                name="AllowancePayAnotherToken"
+                title={
+                    `${t("allowance.cardTitle")}  ${t(`exchange.tokens.${anotherTokenName}.abbr`, { ns: ns })}`
+                }
+                visible={showModalAllowancePayAnotherToken}
+                onHideModalAllowance={onHideModalAllowancePayAnotherToken}
+                currencyYouExchange={anotherTokenName}
+                currencyYouReceive={anotherTokenName}
+                amountYouExchangeLimit={amountAnotherToken.amount}
+                onCallback={onSendTransaction}
+                disAllowance={false}
+                caIndex={caIndex}  
             />
         </div>
     );

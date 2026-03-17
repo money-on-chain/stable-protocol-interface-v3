@@ -69,12 +69,13 @@
             "reason": "Reason"
         },
         "errors": {
-            "qACBelow": "price went up, amount below minimum required.",
-            "insufficientQAC1": "price went down, insufficient",
-            "insufficientQAC2": "sent",
-            "lowCoverage": "System below protected global coverage",
-            "fluxCapacitor": "Error in flux capacitor",
-            "noMessage": "No message"
+            "qACBelow1": "Price variation for",
+            "qACBelow2": "resulted in an amount received below the minimum required.",
+            "insufficientQAC1": "Price variation for",
+            "insufficientQAC2": "exceeded your slippage tolerance. Try increasing tolerance or retry.",
+            "lowCoverage": "Operation failed due to low system coverage.",
+            "fluxCapacitor": "Operation rejected: system limit reached.",
+            "noMessage": "Transaction failed."
         },
         "table": {
             "itemsPerPage": "Page"
@@ -182,11 +183,17 @@
             "sliderLabel": "Price Variation Tolerance",
             "warning": "This amount was updated according to variation tolerance"
         },
-        "cardTitle": "Exchange",
+        "cardTitle": {
+            "simpleExchange": "Exchange",
+            "balancedOps": "Balanced Operations"
+        },
         "labelSending": "Exchanging",
+        "LabelSendingUpTo": "Sending up to",
+        "labelSendingMint": "Exchanging up to",
         "labelBalance": "Balance",
         "labelUpTo": "Up to",
         "labelReceiving": "Receiving",
+        "labelReceivingRedeem": "Minimum to receive",
         "labelTransactionID": "Transaction ID",
         "placeholder": "Address",
         "exchangingSummary": "Exchanging",
@@ -210,7 +217,10 @@
             "notBalance": "Not enough balance in your wallet",
             "noLiquidity": "Not enough liquidity in the protocol",
             "maxLimitedByProtocol": "Maximum temporarily limited by the protocol",
-            "insufficientTPinCA": "Insufficient tokens in this bucket"
+            "insufficientTPinCA": "Insufficient tokens in this bucket",
+            "useBalancedOps": "You can use Balanced Operations instead to exchange tokens without affecting actual coverage.",
+            "balancedOpsCTA": "Go to Balanced Operations section",
+            "noBalanceForFees": "Not enough balance to pay fees"
         }
     },
     "portfolio": {
@@ -406,7 +416,8 @@
         "liquidityMining": "Liquidity Mining",
         "vesting": "Vesting",
         "voting": "Voting",
-        "more": "More"
+        "more": "More",
+        "combinedOperations": "Combined Ops."
     },
 
     "language": {

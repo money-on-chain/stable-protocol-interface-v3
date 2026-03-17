@@ -46,5 +46,11 @@
         "className": "logo-voting",
         "path": "/voting",
         "allowedProjects": ["flipmoney", "moc", "voting"]
+    },
+    {
+        "nameKey": "menuOptions.combinedOperations",
+        "className": "logo-exchange-combined",
+        "path": "/combined-operations",
+        "allowedProjects": ["flipmoney"]
     }
 ]

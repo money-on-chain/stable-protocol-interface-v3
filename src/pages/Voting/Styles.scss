@@ -299,6 +299,7 @@ $breakpoint-mobile: 600px;
     display: flex;
     width: 600px;
     .inputFields {
+        gap: 3px;
     }
 
     @media (max-width: 600px) {

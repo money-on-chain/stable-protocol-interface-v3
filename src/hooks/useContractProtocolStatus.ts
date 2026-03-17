@@ -249,6 +249,46 @@ export function useContractProtocolStatus(
 
             callRequest.push({
                 contract: Moc,
+                functionName: "swapTPforTPFee",
+                args: [],
+                resultType: "uint256",
+                keys: [ca, "swapTPforTPFee"],
+            });
+
+            callRequest.push({
+                contract: Moc,
+                functionName: "swapTPforTCFee",
+                args: [],
+                resultType: "uint256",
+                keys: [ca, "swapTPforTCFee"],
+            });
+
+            callRequest.push({
+                contract: Moc,
+                functionName: "swapTCforTPFee",
+                args: [],
+                resultType: "uint256",
+                keys: [ca, "swapTCforTPFee"],
+            });
+
+            callRequest.push({
+                contract: Moc,
+                functionName: "redeemTCandTPFee",
+                args: [],
+                resultType: "uint256",
+                keys: [ca, "redeemTCandTPFee"],
+            });
+
+            callRequest.push({
+                contract: Moc,
+                functionName: "mintTCandTPFee",
+                args: [],
+                resultType: "uint256",
+                keys: [ca, "mintTCandTPFee"],
+            });
+
+            callRequest.push({
+                contract: Moc,
                 functionName: parsedPrices ? "calcPTCac" : "getPTCac",
                 args: parsedPrices ? [priceOfflineTPs] : [],
                 resultType: "int256",
@@ -537,6 +577,18 @@ export function useContractProtocolStatus(
                         : [tpAddress],
                     resultType: "int256",
                     keys: [ca, "getTPAvailableToMint", tp],
+                });
+
+                callRequest.push({
+                    contract: Moc,
+                    functionName: parsedPrices
+                        ? "calcCtargemaTP"
+                        : "getCtargemaTP",
+                    args: parsedPrices
+                        ? [tpAddresses[tp], priceOfflineTPs[tp]]
+                        : [tpAddress],
+                    resultType: "uint256",
+                    keys: [ca, "getCtargemaTP", tp],
                 });
 
                 callRequest.push({

@@ -1,0 +1,127 @@
+/*
+section_exchange.scss contains all the css code for Exchange & Combined Operations sections cards not contained in global.scss
+*/
+
+/* #region EXCHANGE & SEND SECTION */
+.tokenSelector {
+    height: auto;
+}
+.content-body {
+    margin-right: auto;
+    margin-left: auto;
+    padding-right: 32px;
+    padding-left: 32px;
+    width: 733px;
+}
+.sectionExchange__Content {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 32px;
+    width: 736px;
+}
+.info {
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    align-items: flex-start;
+    gap: 32px;
+    border-left: 1px solid var(--dividers);
+    padding-left: 30px;
+    width: 100%;
+    font-family: var(--main-font);
+}
+.group-wrapper {
+    border: 1px solid var(--dividers);
+    border-radius: 4px;
+    padding: 8px 8px;
+    height: auto;
+}
+.second-token {
+    margin-top: 16px;
+}
+
+.total-amount-usd {
+    margin: -8px;
+    margin-top: 12px;
+    background-color: var(--dividers);
+    color: var(--color-txt-primary);
+    font-weight: 600;
+    text-align: center;
+}
+.combined-operations-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    &-wrapper {
+        border: 1px solid var(--dividers);
+        border-radius: 4px;
+        padding: 4px 8px 2px 8px;
+        color: var(--color-txt-secondary);
+        line-height: 1.4;
+    }
+    &-label {
+        font-size: 8px;
+        text-transform: uppercase;
+    }
+
+    &-value {
+        color: var(--color-txt-primary);
+        font-weight: 600;
+        font-size: 18px;
+    }
+    &-fiat {
+        font-weight: 600;
+        font-size: 10px;
+    }
+    &-balance {
+        position: relative;
+        left: 4px;
+        padding-right: 4px;
+        font-size: 10px;
+    }
+}
+.suggestion {
+}
+.amountInput__feedback {
+    link {
+        color: var(--color-txt-primary);
+    }
+}
+.aboutShowModal__button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    background-color: transparent;
+    .buttonArrow {
+        filter: var(--color-icon-link-filter);
+    }
+    .buttonText {
+        color: var(--color-txt-link);
+    }
+    @media (max-width: 768px) {
+        border-left: none;
+        padding-left: 0px;
+    }
+}
+
+/* #endregion EXCHANGE & SEND SECTION */
+
+@media (max-width: 768px) {
+    .content-body {
+    }
+
+    .sectionExchange__Content {
+        flex-direction: column;
+        border-left: none;
+        width: 100%;
+        .info {
+            border-left: none;
+            padding-left: 0;
+        }
+    }
+}

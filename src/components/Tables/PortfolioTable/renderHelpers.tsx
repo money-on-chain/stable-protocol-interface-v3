@@ -1,7 +1,5 @@
 import React from "react";
 
-import { absBigInt } from "../../../helpers/precision";
-import settings from "../../../settings/settings.json";
 import type { ContractProtocolStatusResult } from "../../../types/status";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 
@@ -19,9 +17,7 @@ interface TokenRowProps {
     tokenTicker: string;
     price: bigint;
     balance: bigint;
-    balanceUSD: bigint;
-    priceDelta: bigint;
-    variation: bigint;
+    balanceUSD: bigint;    
     visiblePriceDecimals: number;
     visibleBalanceDecimals: number;
     visibleBalanceUSDDecimals: number;
@@ -42,20 +38,13 @@ export const generateTokenRow = ({
     tokenTicker,
     price,
     balance,
-    balanceUSD,
-    priceDelta,
-    variation,
+    balanceUSD,    
     visiblePriceDecimals,
     visibleBalanceDecimals,
     visibleBalanceUSDDecimals,
     contractProtocolStatus,
     i18n,
 }: TokenRowProps): TokenRow => {
-    const getSign = (): string => {
-        if (priceDelta === 0n) return "";
-        return priceDelta > 0n ? "+" : "-";
-    };
-
     return {
         key,
         renderRow: (
@@ -85,45 +74,7 @@ export const generateTokenRow = ({
                         <>--</>
                     )}
                     <div className="table__cell__label">{label.price}</div>
-                </div>
-
-                {/* Token 24h variation */}
-                {settings.showPriceVariation && (
-                    <div className="table__cell">
-                        {variation !== 0n ? (
-                            <div className="table__cell__variation">
-                                {`${getSign()} `}
-                                <PrecisionNumbers
-                                    amount={absBigInt(variation)}
-                                    token={{
-                                        name: "",
-                                        decimals: 18,
-                                        visibleDecimals: 2,
-                                    }}
-                                    decimals={2}
-                                    i18n={i18n}
-                                />
-                                {" %"}
-                                <span
-                                    className={`variation-indicator ${
-                                        getSign() === "+"
-                                            ? "positive-indicator"
-                                            : getSign() === "-"
-                                              ? "negative-indicator"
-                                              : "neutral-indicator"
-                                    }`}
-                                ></span>
-                            </div>
-                        ) : (
-                            <>
-                                <div className="table__cell__variation">--</div>
-                                <div className="table__cell__label">
-                                    {label.variation}
-                                </div>
-                            </>
-                        )}
-                    </div>
-                )}
+                </div>                
                 {/* Token balance */}
                 <div className="table__cell table__cell__amount">
                     <PrecisionNumbers

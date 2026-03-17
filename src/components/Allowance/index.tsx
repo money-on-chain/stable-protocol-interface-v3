@@ -3,6 +3,8 @@ import React, { useState } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
 import { useProjectTranslation } from "../../helpers/translations";
+import type { AllowanceStep} from "../../types/status";
+import { ALLOWANCE_STEPS } from "../../types/status";
 
 const PRECISION_DECIMALS = 18n;
 const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
@@ -13,8 +15,10 @@ interface AllowanceDialogProps {
     currencyYouReceive: string;
     amountYouExchangeLimit: bigint;
     //amountYouReceiveLimit: BigNumber;
-    onRealSendTransaction: () => void;
+    onCallback: (startPoint: AllowanceStep) => void;
     disAllowance?: boolean;
+    name?: string;
+    caIndex: number;
 }
 
 type StatusType = "SUBMIT" | "SIGN" | "WAITING" | "ERROR";
@@ -30,8 +34,10 @@ export default function AllowanceDialog(
         currencyYouReceive,
         amountYouExchangeLimit,
         //amountYouReceiveLimit,
-        onRealSendTransaction,
+        onCallback,
         disAllowance,
+        name,
+        caIndex,
     } = props;
 
     const { t } = useProjectTranslation();
@@ -77,6 +83,16 @@ export default function AllowanceDialog(
         reset();
         onCloseModal();
     };
+    
+    const nextStep = (
+        steps: readonly AllowanceStep[],
+        current: AllowanceStep
+      ): AllowanceStep | undefined => {
+        const index = steps.indexOf(current);
+        return index >= 0 && index < steps.length - 1
+          ? steps[index + 1]
+          : undefined;
+      };
 
     const onAuthorize = (): void => {
         // First change status to sign tx
@@ -95,11 +111,16 @@ export default function AllowanceDialog(
             currencyYouExchange,
             currencyYouReceive,
             amountAllowance,
+            caIndex,
             onTransaction,
             onReceipt
         )
             .then((/*value*/) => {
-                onClose();
+                onClose();   
+                const step = nextStep(ALLOWANCE_STEPS, name as AllowanceStep);                
+                if (step) {
+                    onCallback(step);
+                }
             })
             .catch((error: unknown) => {
                 console.error("Allowance error:", error);
@@ -129,8 +150,7 @@ export default function AllowanceDialog(
             receipt.transactionHash
         );
         const filteredEvents = decodeEvents(txRcp, contractName, filter);
-         */
-        onRealSendTransaction();
+         */        
     };
 
     return (

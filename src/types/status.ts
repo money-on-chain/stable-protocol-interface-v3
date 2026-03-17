@@ -45,6 +45,7 @@ export type ProtocolStatusEntry = {
     getTCAvailableToRedeem: bigint;
     getTPAvailableToMint: bigint[];
     getTotalACavailable: bigint;
+    getCtargemaTP: bigint[];
     liqThrld: bigint;
     liquidated: boolean;
     maxQACToMintTP: bigint;
@@ -63,6 +64,9 @@ export type ProtocolStatusEntry = {
     tcMintFee: bigint;
     tcRedeemExecCost: bigint;
     tcRedeemFee: bigint;
+    swapTPforTPFee: bigint;
+    swapTCforTPFee: bigint;
+    swapTPforTCFee: bigint;    
     tpCtarg: bigint[];
     tpEma: TpEma[];
     tpMintExecCost: bigint;
@@ -257,3 +261,22 @@ export interface UseBaseCoinBalanceResult {
 export type UseIncentiveV2Result = Omit<UseStorageResult<unknown>, "data"> & {
     data: IncentiveV2Info;
 };
+
+export type CommissionItem = {
+    commission: bigint;
+    commissionUSD: bigint;
+    commissionPercent: bigint;
+    balance: bigint;
+};
+
+export type CommissionsState = Record<string, CommissionItem>;
+
+export const ALLOWANCE_STEPS = [
+    "AllowancePayCommissionCA",
+    "AllowancePayCommissionFeeToken",
+    "AllowancePayCurrencyExchange",
+    "AllowancePayAnotherToken",
+    "SubmitOperationTransaction",
+] as const;
+
+export type AllowanceStep = typeof ALLOWANCE_STEPS[number];
