@@ -1,77 +1,142 @@
-{
-    "collateral": "rc20",
+{    
     "project": "roc",
     "dapp": {
         "name": "ROC UI",
         "description": "ROC UI"
     },
-    "showPriceVariation": true,
+    "showPriceVariation": false,
     "slippage": {
         "autoDefault": 1.0,
         "presets": [0.3, 1.0, 2.0]
     },
     "tokens": {
+        "COINBASE": [
+            {
+                "key": 0,
+                "name": "RBTC",
+                "fullName": "Smart Bitcoin",
+                "decimals": 18,
+                "visibleDecimals": 6,
+                "visiblePriceDecimals": 2,
+                "visiblePriceUSD": 8,
+                "visibleBalanceDecimals": 8,
+                "visibleBalanceUSDDecimals": 2,
+                "peggedUSD": false
+            }
+        ],
         "CA": [
             {
                 "key": 0,
+                "collateralType": "rc20",
                 "name": "RIF",
+                "fullName": "RIF",
                 "decimals": 18,
-                "visiblePriceDecimals": 4,
+                "visibleDecimals": 4,
+                "visiblePriceDecimals": 2,
+                "visiblePriceUSD": 8,
                 "visibleBalanceDecimals": 4,
-                "visibleBalanceUSDDecimals": 2
-            }
-        ],
-        "TC": [
+                "visibleBalanceUSDDecimals": 2,
+                "peggedUSD": false
+            },
             {
-                "name": "RIFP",
-                "fullName": "RIFPro",
+                "key": 1,
+                "collateralType": "rc20",
+                "name": "DOC",
+                "fullName": "Dollar on Chain",
                 "decimals": 18,
-                "visiblePriceDecimals": 4,
-                "visibleBalanceDecimals": 4,
-                "visibleBalanceUSDDecimals": 2
+                "visibleDecimals": 2,
+                "visiblePriceDecimals": 2,
+                "visiblePriceUSD": 8,
+                "visibleBalanceDecimals": 2,
+                "visibleBalanceUSDDecimals": 2,
+                "peggedUSD": false
             }
         ],
         "TP": [
             {
                 "key": 0,
-                "name": "USDRIF",
-                "fullName": "RIF USD Dollar",
+                "name": "ArsFlip",
                 "decimals": 18,
+                "visibleDecimals": 2,
                 "visiblePriceDecimals": 2,
+                "visiblePriceUSD": 8,
                 "visibleBalanceDecimals": 2,
                 "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": true
+                "peggedUSD": false
+            },
+            {
+                "key": 1,
+                "name": "CopFlip",
+                "decimals": 18,
+                "visibleDecimals": 2,
+                "visiblePriceDecimals": 2,
+                "visiblePriceUSD": 8,
+                "visibleBalanceDecimals": 2,
+                "visibleBalanceUSDDecimals": 2,
+                "peggedUSD": false
             }
         ],
-        "TF": [
+        "TC": [
             {
-                "name": "MOC",
+                "key": 0,
+                "name": "RIFPRO",
                 "decimals": 18,
                 "visibleDecimals": 6,
                 "visiblePriceDecimals": 2,
-                "visibleBalanceDecimals": 2,
-                "visibleBalanceUSDDecimals": 2
+                "visiblePriceUSD": 8,
+                "visibleBalanceDecimals": 8,
+                "visibleBalanceUSDDecimals": 2,
+                "peggedUSD": false
+            },
+            {
+                "key": 1,
+                "name": "DOCX",
+                "decimals": 18,
+                "visibleDecimals": 2,
+                "visiblePriceDecimals": 2,
+                "visiblePriceUSD": 8,
+                "visibleBalanceDecimals": 8,
+                "visibleBalanceUSDDecimals": 2,
+                "peggedUSD": false
+            }
+        ],
+        
+        "TF": [
+            {
+                "key": 0,
+                "name": "MOC",
+                "decimals": 18,
+                "visibleDecimals": 8,
+                "visiblePriceDecimals": 2,
+                "visiblePriceUSD": 8,
+                "visibleBalanceDecimals": 4,
+                "visibleBalanceUSDDecimals": 2,
+                "peggedUSD": false
+            },
+            {
+                "key": 1,
+                "name": "MOC",
+                "decimals": 18,
+                "visibleDecimals": 8,
+                "visiblePriceDecimals": 2,
+                "visiblePriceUSD": 8,
+                "visibleBalanceDecimals": 4,
+                "visibleBalanceUSDDecimals": 2,
+                "peggedUSD": false
             }
         ],
         "TG": [
             {
+                "key": 0,
                 "name": "MOC",
                 "decimals": 18,
-                "visibleDecimals": 2,
+                "visibleDecimals": 8,
                 "visiblePriceDecimals": 2,
-                "visibleBalanceDecimals": 2,
-                "visibleBalanceUSDDecimals": 2
+                "visiblePriceUSD": 8,
+                "visibleBalanceDecimals": 4,
+                "visibleBalanceUSDDecimals": 2,
+                "peggedUSD": false
             }
-        ],
-        "COINBASE": [
-            {
-                "name": "RBTC",
-                "fullName": "Smart Bitcoin",
-                "decimals": 18,
-                "visiblePriceDecimals": 2,
-                "visibleBalanceDecimals": 8,
-                "visibleBalanceUSDDecimals": 2
-            }
-        ]
+        ]       
     }
 }

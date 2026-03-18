@@ -9,6 +9,8 @@ const Home = React.lazy(() => import("../../../pages/Home/index"));
 const Veto = React.lazy(() => import("../../../pages/Veto/index"));
 const VetoWithdraw = React.lazy(() => import("../../../pages/Veto/Withdraw"));
 const Exchange = React.lazy(() => import("../../../pages/Exchange/index"));
+const CombinedOperations = React.lazy(() => import("../../../pages/CombinedOperations/index"));
+
 const Send = React.lazy(() => import("../../../pages/Send/index"));
 const Performance = React.lazy(
     () => import("../../../pages/Performance/index")
@@ -65,6 +67,10 @@ export default function Router(): React.ReactElement | null {
                 {
                     path: "veto/withdraw",
                     element: <VetoWithdraw />,
+                },
+                {
+                    path: "combined-operations",
+                    element: <CombinedOperations />,
                 },
                 { path: "404", element: <NotFound /> },
                 { path: "*", element: <Navigate to="/404" /> },
