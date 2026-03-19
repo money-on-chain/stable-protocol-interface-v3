@@ -30,7 +30,7 @@ function CheckStatusCA(
 
     const caData = contractProtocolStatus.data[caIndex];
 
-    if (!caData || !caData.getCglb || !caData.getCtargemaCA || !caData.liqThrld || !caData.protThrld) return statusCode;
+    if (!caData) return statusCode;
 
     const globalCoverage = caData.getCglb;
     const getCtargemaCA = caData.getCtargemaCA;
@@ -65,7 +65,7 @@ function CheckStatusGlobal() {
     const checkerStatus = (): StatusResult => {
         // When the multicall query has failed or data is unavailable,
         // don't infer status from stale/zeroed data
-        if (!contractProtocolStatus.data || contractProtocolStatus.error) {
+        if (!contractProtocolStatus.data || contractProtocolStatus.error || !contractProtocolStatus.data.getNormalizationFactors) {
             return {
                 globalStatus: -1,
                 statusLabel: "--",
