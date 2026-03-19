@@ -30,7 +30,7 @@ function CheckStatusCA(
 
     const caData = contractProtocolStatus.data[caIndex];
 
-    if (!caData) return statusCode;
+    if (!caData || !caData.getCglb || !caData.getCtargemaCA || !caData.liqThrld || !caData.protThrld) return statusCode;
 
     const globalCoverage = caData.getCglb;
     const getCtargemaCA = caData.getCtargemaCA;
@@ -74,7 +74,7 @@ function CheckStatusGlobal() {
                 statusCode: [],
             };
         }
-
+        
         let statusLabel: string = "--";
         let statusLabelClass: string = "status-neutral";
         let statusText: string = "--";
