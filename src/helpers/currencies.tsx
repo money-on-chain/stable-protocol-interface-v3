@@ -321,27 +321,25 @@ function TokenBalance(
     switch (aTokenName[0]) {
         case "CA":
             balance =
-                userBalance.data?.CA?.[parseInt(aTokenName[1])]?.balance || 0n;
+                normalizeToBigInt(userBalance.data?.CA?.[parseInt(aTokenName[1])]?.balance) ?? 0n;
             break;
-        case "TP":        
+        case "TP":
             balance =
-                userBalance.data?.TP?.[0]?.[parseInt(aTokenName[1])]?.balance ||
-                0n;
+                normalizeToBigInt(userBalance.data?.TP?.[0]?.[parseInt(aTokenName[1])]?.balance) ?? 0n;
             break;
         case "TC":
             balance =
-                userBalance.data?.[parseInt(aTokenName[1])]?.TC?.balance || 0n;
+                normalizeToBigInt(userBalance.data?.[parseInt(aTokenName[1])]?.TC?.balance) ?? 0n;
             break;
         case "COINBASE":
-            balance = userBaseCoinBalance?.balance || 0n;
+            balance = normalizeToBigInt(userBaseCoinBalance?.balance) ?? 0n;
             break;
         case "TF":
             balance =
-                userBalance.data?.[parseInt(aTokenName[1])]?.FeeToken
-                    ?.balance || 0n;
+                normalizeToBigInt(userBalance.data?.[parseInt(aTokenName[1])]?.FeeToken?.balance) ?? 0n;
             break;
         case "TG":
-            balance = (userOmocBalance?.data?.TG?.balance as bigint) || 0n;
+            balance = normalizeToBigInt(userOmocBalance?.data?.TG?.balance) ?? 0n;
             break;
         default:
             throw new Error("Invalid token name");
