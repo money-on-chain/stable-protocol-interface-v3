@@ -12,8 +12,8 @@
     --brand-color-light: #737cd3;
     --brand-color-lighter: #b2b7ec;
     --brand-color-overbrand: #ffffff;
-    --brand-color-base-filter: invert(60%) sepia(10%) saturate(2010%)
-        hue-rotate(124deg) brightness(98%) contrast(95%);
+    --brand-color-base-filter: invert(74%) sepia(47%) saturate(3118%)
+        hue-rotate(197deg) brightness(96%) contrast(100%);
     --brand-color-overbrand-filter: invert(100%) sepia(100%) saturate(0%)
         hue-rotate(288deg) brightness(102%) contrast(102%);
 
@@ -75,7 +75,7 @@
     --color-controls-foreground-off: #8c8c89;
     --color-controls-foreground-on: #7f8a99;
     --color-controls-active: #edeef7;
-    --dividers: #cbd4da;
+    --dividers: #3b3d4d;
 
     // Buttons - common
 
@@ -154,6 +154,7 @@
 
     --color-semantic-negative: #e54a49;
     --color-semantic-neutral: #b5b5b5;
+    --color-semantic-neutral-alt: #a8abb8;
     --color-semantic-positive: #2cbf12;
     --filter-semantic-negative: invert(33%) sepia(83%) saturate(710%)
         hue-rotate(320deg) brightness(106%) contrast(97%);
@@ -255,9 +256,10 @@
     --color-txt-primary: #c3ccd9;
     --color-txt-secondary: #8f9bac;
     --color-txt-highlight: #ebecfc;
-    --color-txt-link: #d6d9f5;
+    --color-txt-link: #969ff5;
     --color-txt-notification: #ffffff;
     --link-txt-style: underline;
+    --color-txt-inverted: #1c1b21;
 
     --color-icon-primary: invert(93%) sepia(5%) saturate(859%)
         hue-rotate(185deg) brightness(85%) contrast(99%);
