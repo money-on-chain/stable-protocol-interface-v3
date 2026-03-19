@@ -76,8 +76,6 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
                 errorMessage.includes(pattern) || errorString.includes(pattern)
         );
 
-        console.warn("🔍 Error check:", { errorMessage, errorString, isMatch });
-
         return isMatch;
     }, []);
 
@@ -111,14 +109,9 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
 
     const handleRpcError = useCallback(
         (error: unknown) => {
-            console.warn("🔍 handleRpcError called with:", error);
-
             if (!isRpcError(error)) {
-                console.warn("❌ Not an RPC error, ignoring");
                 return;
             }
-
-            console.warn("🚨 RPC Error detected:", error);
 
             // Check if this is a test error (don't auto-retry)
             const errorMessage =
@@ -135,7 +128,6 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
             }));
 
             setIsRpcHealthy(false);
-            console.warn("✅ RPC error state updated", { isTestError });
         },
         [isRpcError, getErrorMessage]
     );
@@ -184,7 +176,6 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
     }, [publicClient, rpcError.isRetrying, getErrorMessage]);
 
     const clearError = useCallback(() => {
-        console.warn("🧹 clearError called - clearing RPC error state");
         setRpcError({
             hasError: false,
             errorMessage: "",
@@ -197,9 +188,6 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
     // Immediate connectivity check function
     const checkConnectivityNow = useCallback(() => {
         if (!navigator.onLine && !rpcError.hasError) {
-            console.warn(
-                "🌐 Immediate check: Network appears offline, triggering error"
-            );
             handleRpcError(new Error("No internet connection detected"));
         }
     }, [handleRpcError, rpcError.hasError]);
@@ -230,7 +218,6 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
     // Listen for online/offline events
     useEffect(() => {
         const handleOnline = () => {
-            console.warn("🌐 Internet connection restored");
             if (rpcError.hasError) {
                 // Try to reconnect when internet comes back
                 setTimeout(() => {
@@ -240,7 +227,6 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
         };
 
         const handleOffline = () => {
-            console.warn("📴 Internet connection lost");
             // Immediately surface an RPC error so the alert is shown while offline
             handleRpcError(new Error("No internet connection detected"));
         };
@@ -273,18 +259,10 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
                         .toLowerCase()
                         .includes("forced error");
                     if (!isTestError) {
-                        console.warn(
-                            "🏥 Health check succeeded - clearing error"
-                        );
                         clearError();
-                    } else {
-                        console.warn(
-                            "🏥 Health check succeeded - but keeping test error"
-                        );
                     }
                 }
             } catch (error) {
-                console.warn("🏥 Health check failed:", error);
                 handleRpcError(error);
             }
         };
@@ -297,9 +275,6 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
                 void (async () => {
                     try {
                         await publicClient.getBlockNumber();
-                        console.warn(
-                            "🏥 Periodic health check succeeded - clearing error"
-                        );
                         clearError();
                         clearInterval(healthCheckInterval);
                     } catch (error) {
@@ -329,10 +304,6 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
                         await publicClient.getBlockNumber();
                         // stays healthy
                     } catch (error) {
-                        console.warn(
-                            "🫀 RPC heartbeat failed while healthy:",
-                            error
-                        );
                         handleRpcError(error);
                     }
                 })();
@@ -344,9 +315,6 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
     // Network connectivity monitoring
     useEffect(() => {
         const handleOnline = () => {
-            console.warn(
-                "🌐 Network came online - attempting to clear RPC errors"
-            );
             // Try to clear error immediately
             clearError();
 
@@ -356,14 +324,8 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
                     if (publicClient && rpcError.hasError) {
                         try {
                             await publicClient.getBlockNumber();
-                            console.warn(
-                                "🌐 RPC connection restored after network came online"
-                            );
                             clearError();
                         } catch (error) {
-                            console.warn(
-                                "🌐 RPC still not available after network came online"
-                            );
                         }
                     }
                 })();
@@ -371,7 +333,6 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
         };
 
         const handleOffline = () => {
-            console.warn("🌐 Network went offline - triggering RPC error");
             handleRpcError(new Error("No internet connection detected"));
         };
 
@@ -381,7 +342,6 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
 
         // Also check navigator.onLine status on mount
         if (!navigator.onLine && !rpcError.hasError) {
-            console.warn("🌐 Page loaded while offline - triggering RPC error");
             handleRpcError(new Error("No internet connection detected"));
         }
 
@@ -422,16 +382,10 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
 
                 if (connected) {
                     if (rpcError.hasError) {
-                        console.warn(
-                            "🌐 Connectivity check: Internet is available, clearing error"
-                        );
                         clearError();
                     }
                 } else {
                     if (!rpcError.hasError) {
-                        console.warn(
-                            "🌐 Connectivity check: All probes failed, triggering offline error"
-                        );
                         handleRpcError(
                             new Error("No internet connection detected")
                         );
@@ -452,9 +406,6 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
         const handleUserInteraction = () => {
             // Check connectivity when user interacts with the page
             if (!navigator.onLine && !rpcError.hasError) {
-                console.warn(
-                    "🌐 User interaction detected while offline - triggering error"
-                );
                 handleRpcError(new Error("No internet connection detected"));
             }
         };
