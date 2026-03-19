@@ -1417,9 +1417,9 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
 
     const executionFeeInFiat = (): bigint => {
         if (!contractProtocolStatus.data || executionFee === 0n) return 0n;
-        const priceCoinbase = normalizeToBigInt(
-            contractProtocolStatus.data.PP_COINBASE[0]
-        );
+        const coinbaseEntry = contractProtocolStatus.data.PP_COINBASE?.[0];
+        if (!coinbaseEntry) return 0n;
+        const priceCoinbase = normalizeToBigInt(coinbaseEntry);
         if (priceCoinbase) {
             return mulPrecision(executionFee, priceCoinbase);
         }
