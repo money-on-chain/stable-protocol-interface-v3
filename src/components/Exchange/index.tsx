@@ -26,7 +26,6 @@ import {
 } from "../../helpers/exchange";
 import {
     divPrecision,
-    fromWei,
     mulPrecision,
     normalizeToBigInt,
     toBigIntPrecision,
@@ -813,7 +812,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                 ) {
                     // The fee is payed with CA that not implied in exchange inputs, we don't calculate it
 
-                    let receiveOut = ConvertAmount(
+                    const receiveOut = ConvertAmount(
                         contractProtocolStatus,
                         currencyYouExchange,
                         currencyYouReceive,
@@ -950,7 +949,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                     operationType === "SWAP_TCFORTP" ||
                     operationType === "SWAP_TPFORTC"
                 ) {
-                    let exchangeOut = ConvertAmount(
+                    const exchangeOut = ConvertAmount(
                         contractProtocolStatus,
                         currencyYouReceive,
                         currencyYouExchange,

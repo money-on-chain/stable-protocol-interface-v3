@@ -1,8 +1,6 @@
 import { useWalletContext } from "../../../context/Wallet";
-import {
-    normalizeToBigInt,
-} from "../../../helpers/precision";
 import { ConvertAmount } from "../../../helpers/currencies";
+import { normalizeToBigInt } from "../../../helpers/precision";
 import { useProjectTranslation } from "../../../helpers/translations";
 import settings from "../../../settings/settings.json";
 import type { TokenConfig } from "../../../types/hooks";
@@ -42,8 +40,14 @@ export default function Portfolio(): JSX.Element {
 
             balance =
                 normalizeToBigInt(userBalance.data.CA[dataItem.key].balance) ||
-                0n;            
-            balanceUSD = ConvertAmount(contractProtocolStatus, "CA", "USD", balance, dataItem.key);                
+                0n;
+            balanceUSD = ConvertAmount(
+                contractProtocolStatus,
+                "CA",
+                "USD",
+                balance,
+                dataItem.key
+            );
             totalUSD = totalUSD + balanceUSD;
 
             /////////////
@@ -52,7 +56,13 @@ export default function Portfolio(): JSX.Element {
             balance =
                 normalizeToBigInt(userBalance.data[dataItem.key].TC.balance) ||
                 0n;
-            balanceUSD = ConvertAmount(contractProtocolStatus, "TC", "USD", balance, dataItem.key);
+            balanceUSD = ConvertAmount(
+                contractProtocolStatus,
+                "TC",
+                "USD",
+                balance,
+                dataItem.key
+            );
             totalUSD = totalUSD + balanceUSD;
         }
         ///////////////
@@ -72,8 +82,14 @@ export default function Portfolio(): JSX.Element {
             balance =
                 normalizeToBigInt(
                     userBalance.data.TP[0][dataItem.key].balance
-                ) || 0n;            
-            balanceUSD = ConvertAmount(contractProtocolStatus, "TP", "USD", balance, dataItem.key);
+                ) || 0n;
+            balanceUSD = ConvertAmount(
+                contractProtocolStatus,
+                "TP",
+                "USD",
+                balance,
+                dataItem.key
+            );
             totalUSD = totalUSD + balanceUSD;
         }
 
@@ -81,7 +97,13 @@ export default function Portfolio(): JSX.Element {
         // Coinbase
         //////////////
         balance = BigInt(userBaseCoinBalance.balance || 0);
-        balanceUSD = ConvertAmount(contractProtocolStatus, "COINBASE", "USD", balance, 0);
+        balanceUSD = ConvertAmount(
+            contractProtocolStatus,
+            "COINBASE",
+            "USD",
+            balance,
+            0
+        );
         totalUSD = totalUSD + balanceUSD;
 
         /////////////////
@@ -94,8 +116,14 @@ export default function Portfolio(): JSX.Element {
             contractProtocolStatus.data?.[0]?.PP_FeeToken
         ) {
             balance =
-                normalizeToBigInt(userBalance.data[0].FeeToken.balance) || 0n;            
-            balanceUSD = ConvertAmount(contractProtocolStatus, "TF", "USD", balance, 0);
+                normalizeToBigInt(userBalance.data[0].FeeToken.balance) || 0n;
+            balanceUSD = ConvertAmount(
+                contractProtocolStatus,
+                "TF",
+                "USD",
+                balance,
+                0
+            );
             totalUSD = totalUSD + balanceUSD;
         }
     }

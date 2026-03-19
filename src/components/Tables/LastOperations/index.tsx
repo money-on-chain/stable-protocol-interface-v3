@@ -1346,16 +1346,20 @@ export default function LastOperations(props: LastOperationsProps) {
                                                     const receiveToken = token
                                                         .receive
                                                         .token as TokenConfig;
-                                                    return token.receive.amount === undefined ? "--" : PrecisionNumbers({
-                                                        amount: BigInt(
-                                                            token.receive.amount
-                                                        ),
-                                                        token: receiveToken,
-                                                        decimals:
-                                                            receiveToken.visibleDecimals ??
-                                                            2,
-                                                        i18n: i18n,
-                                                    });
+                                                    return token.receive
+                                                        .amount === undefined
+                                                        ? "--"
+                                                        : PrecisionNumbers({
+                                                              amount: BigInt(
+                                                                  token.receive
+                                                                      .amount
+                                                              ),
+                                                              token: receiveToken,
+                                                              decimals:
+                                                                  receiveToken.visibleDecimals ??
+                                                                  2,
+                                                              i18n: i18n,
+                                                          });
                                                 })()}
                                             </div>
                                         </div>
@@ -1411,14 +1415,20 @@ export default function LastOperations(props: LastOperationsProps) {
                                                     const receiveToken = token
                                                         .another
                                                         .token as TokenConfig;
-                                                    return token.another.amount === undefined ? "--" : PrecisionNumbers({
-                                                        amount: BigInt(
-                                                            token.another.amount
-                                                        ),
-                                                        token: receiveToken,
-                                                        decimals: receiveToken.visibleDecimals ?? 2,
-                                                        i18n: i18n,
-                                                    });
+                                                    return token.another
+                                                        .amount === undefined
+                                                        ? "--"
+                                                        : PrecisionNumbers({
+                                                              amount: BigInt(
+                                                                  token.another
+                                                                      .amount
+                                                              ),
+                                                              token: receiveToken,
+                                                              decimals:
+                                                                  receiveToken.visibleDecimals ??
+                                                                  2,
+                                                              i18n: i18n,
+                                                          });
                                                 })()}
                                             </div>
                                         </div>

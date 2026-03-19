@@ -6,18 +6,17 @@ import type { TransactionReceipt } from "viem";
 
 import { decodeEvents } from "../../backend/transaction";
 import { useWalletContext } from "../../context/Wallet";
-import { TokenBalance, TokenSettings } from "../../helpers/currencies";
+import { TokenSettings } from "../../helpers/currencies";
 import { UserTokenAllowance } from "../../helpers/exchange";
+import { calculateLimit } from "../../helpers/exchange";
 import { useProjectTranslation } from "../../helpers/translations";
+import type { AllowanceStep, CommissionsState } from "../../types/status";
+import { ALLOWANCE_STEPS } from "../../types/status";
 import CopyAddress from "../CopyAddress";
+import DisplayAmount from "../DisplayAmount";
 import ModalAllowanceOperation from "../Modals/Allowance";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import TXStatus from "./TXStatus";
-import type { CommissionsState, AllowanceStep } from "../../types/status";
-import { ALLOWANCE_STEPS } from "../../types/status";
-import { calculateLimit } from "../../helpers/exchange";
-import DisplayAmount from "../DisplayAmount";
-
 
 const { Panel } = Collapse;
 
@@ -44,7 +43,7 @@ interface ConfirmOperationProps {
     caIndex: number;
     operationType: string;
     slippageTolerance: number;
-    amountAnotherToken: { qAC: bigint, amount: bigint };
+    amountAnotherToken: { qAC: bigint; amount: bigint };
     tpIndex: number;
     totalAmountExchangeInFiat: bigint;
     totalAmountReceiveInFiat: bigint;
@@ -71,7 +70,6 @@ interface StatusLabels {
     [key: string]: string;
 }
 
-
 export default function ConfirmOperation(
     props: ConfirmOperationProps
 ): JSX.Element {
@@ -92,20 +90,19 @@ export default function ConfirmOperation(
         amountAnotherToken,
         tpIndex,
         totalAmountExchangeInFiat,
-        totalAmountReceiveInFiat
+        totalAmountReceiveInFiat,
     } = props;
 
     const { t, i18n, ns } = useProjectTranslation();
     const space: string = "\u00A0";
 
-    const { userBalance, interfaceExchangeMethod } =
-        useWalletContext();
-    
+    const { userBalance, interfaceExchangeMethod } = useWalletContext();
+
     const [status, setStatus] = useState<StatusType>("SUBMIT");
-    
+
     const [txID, setTxID] = useState<string>("");
     const [opID, setOpID] = useState<number | null>(null);
-    
+
     useEffect(() => {
         let timerId: NodeJS.Timeout;
         if (status === "QUEUING") {
@@ -137,24 +134,29 @@ export default function ConfirmOperation(
 
         return () => clearTimeout(timerId);
     }, [status]);
-    
+
     const [showModalAllowance, setShowModalAllowance] =
         useState<boolean>(false);
     const [showModalAllowanceFeeToken, setShowModalAllowanceFeeToken] =
         useState<boolean>(false);
-    const [showModalAllowancePayCommission, setShowModalAllowancePayCommission] =
-        useState<boolean>(false);
+    const [
+        showModalAllowancePayCommission,
+        setShowModalAllowancePayCommission,
+    ] = useState<boolean>(false);
     const [disAllowanceFeeToken, setDisAllowanceFeeToken] =
         useState<boolean>(false);
-    const [showModalAllowancePayAnotherToken, setShowModalAllowancePayAnotherToken] =
-        useState<boolean>(false);
+    const [
+        showModalAllowancePayAnotherToken,
+        setShowModalAllowancePayAnotherToken,
+    ] = useState<boolean>(false);
 
     // Use refs to store latest values to avoid recreating the callback
     const opIDRef = useRef<number | null>(opID);
     const caIndexRef = useRef<number>(caIndex);
     const userBalanceRefetchRef = useRef(userBalance.refetch);
 
-    const anotherTokenName: string = operationType === "COMBINED_MINT" ? `TC_${caIndex}` : `TP_${tpIndex}`;
+    const anotherTokenName: string =
+        operationType === "COMBINED_MINT" ? `TC_${caIndex}` : `TP_${tpIndex}`;
 
     useEffect(() => {
         opIDRef.current = opID;
@@ -303,7 +305,7 @@ export default function ConfirmOperation(
         setShowModalAllowancePayAnotherToken(false);
     };
 
-    const showAllowancePayCurrencyExchange = (): boolean => {        
+    const showAllowancePayCurrencyExchange = (): boolean => {
         const tokenAllowance: bigint = UserTokenAllowance(
             userBalance,
             currencyYouExchange,
@@ -319,14 +321,14 @@ export default function ConfirmOperation(
             caIndex
         );
 
-        return commissionsByKey[`CA_${caIndex}`].commission > tokenAllowance;        
+        return commissionsByKey[`CA_${caIndex}`].commission > tokenAllowance;
     };
 
-    const showAllowancePayAnotherToken = (): boolean => {        
+    const showAllowancePayAnotherToken = (): boolean => {
         if (operationType !== "COMBINED_REDEEM") return false;
         let tokenName: string = "";
         if (operationType === "COMBINED_REDEEM") {
-            tokenName = `TP_${tpIndex}`
+            tokenName = `TP_${tpIndex}`;
         }
 
         const tokenAllowance: bigint = UserTokenAllowance(
@@ -335,8 +337,8 @@ export default function ConfirmOperation(
             caIndex
         );
 
-        return amountAnotherToken.amount > tokenAllowance;        
-    };        
+        return amountAnotherToken.amount > tokenAllowance;
+    };
 
     const showAllowancePayCommissionFeeToken = (): boolean => {
         //const caIndex = getCAIndex(currencyYouExchange, currencyYouReceive);
@@ -346,7 +348,10 @@ export default function ConfirmOperation(
             caIndex
         );
 
-        if (radioSelectFee === 0 && tokenAllowance > commissionsByKey["FeeToken"].commission) {
+        if (
+            radioSelectFee === 0 &&
+            tokenAllowance > commissionsByKey["FeeToken"].commission
+        ) {
             // if we select not to pay with fee token, please disallow to use Fee token
             setDisAllowanceFeeToken(true);
             // show allowance window
@@ -357,18 +362,24 @@ export default function ConfirmOperation(
 
         return false;
     };
-        
-    const onSendTransaction = (startPoint: AllowanceStep = "AllowancePayCommissionCA"): void => {
+
+    const onSendTransaction = (
+        startPoint: AllowanceStep = "AllowancePayCommissionCA"
+    ): void => {
         const startIndex = ALLOWANCE_STEPS.indexOf(startPoint);
 
         for (let i = startIndex; i < ALLOWANCE_STEPS.length; i++) {
             const step = ALLOWANCE_STEPS[i];
 
             if (step === "AllowancePayCommissionCA") {
-                if (operationType === "SWAP_TPFORTP" || operationType === "SWAP_TCFORTP" || operationType === "SWAP_TPFORTC") {
+                if (
+                    operationType === "SWAP_TPFORTP" ||
+                    operationType === "SWAP_TCFORTP" ||
+                    operationType === "SWAP_TPFORTC"
+                ) {
                     if (showAllowancePayCommissionCA()) {
-                    onShowModalAllowancePayCommission();
-                    return;
+                        onShowModalAllowancePayCommission();
+                        return;
                     }
                 }
             }
@@ -399,7 +410,6 @@ export default function ConfirmOperation(
                 return;
             }
         }
-        
     };
 
     const onRealSendTransaction = (): void => {
@@ -412,13 +422,23 @@ export default function ConfirmOperation(
         if (operationType === "MINT" || operationType === "COMBINED_MINT") {
             tokenAmount = amountYouReceive;
             limitAmount = amountYouExchange;
-        } else if (operationType === "REDEEM" || operationType === "COMBINED_REDEEM") {
+        } else if (
+            operationType === "REDEEM" ||
+            operationType === "COMBINED_REDEEM"
+        ) {
             tokenAmount = amountYouExchange;
             limitAmount = amountYouReceive;
-        } else if (operationType === "SWAP_TPFORTP" || operationType === "SWAP_TPFORTC" || operationType === "SWAP_TCFORTP") {
+        } else if (
+            operationType === "SWAP_TPFORTP" ||
+            operationType === "SWAP_TPFORTC" ||
+            operationType === "SWAP_TCFORTP"
+        ) {
             tokenAmount = amountYouExchange;
             limitAmount = amountYouExchange;
-            qAssetMaxFees = calculateLimit(commissionsByKey[`CA_${caIndex}`].commission, slippageTolerance / 100)
+            qAssetMaxFees = calculateLimit(
+                commissionsByKey[`CA_${caIndex}`].commission,
+                slippageTolerance / 100
+            );
         } else {
             throw new Error("Invalid type operation");
         }
@@ -539,22 +559,31 @@ export default function ConfirmOperation(
 
     // Commission Select Radio
     let commissionPAY: bigint = commissionsByKey[`CA_${caIndex}`].commission;
-    let commissionPAYUSD: bigint = commissionsByKey[`CA_${caIndex}`].commissionUSD;
-    let commissionPercentPAY: bigint = commissionsByKey[`CA_${caIndex}`].commissionPercent;
+    let commissionPAYUSD: bigint =
+        commissionsByKey[`CA_${caIndex}`].commissionUSD;
+    let commissionPercentPAY: bigint =
+        commissionsByKey[`CA_${caIndex}`].commissionPercent;
     let commissionSettings: ReturnType<typeof TokenSettings> = TokenSettings(
         `CA_${caIndex}`
     );
     let commissionTokenName: string;
 
-    if (operationType === "MINT" || operationType === "COMBINED_MINT")  {
+    if (operationType === "MINT" || operationType === "COMBINED_MINT") {
         commissionTokenName = t(`exchange.tokens.${currencyYouExchange}.abbr`, {
             ns: ns,
         });
-    } else if (operationType === "REDEEM" || operationType === "COMBINED_REDEEM") {
+    } else if (
+        operationType === "REDEEM" ||
+        operationType === "COMBINED_REDEEM"
+    ) {
         commissionTokenName = t(`exchange.tokens.${currencyYouReceive}.abbr`, {
             ns: ns,
         });
-    } else if (operationType === "SWAP_TPFORTP" || operationType === "SWAP_TPFORTC" || operationType === "SWAP_TCFORTP") {
+    } else if (
+        operationType === "SWAP_TPFORTP" ||
+        operationType === "SWAP_TPFORTC" ||
+        operationType === "SWAP_TCFORTP"
+    ) {
         commissionTokenName = t(`exchange.tokens.CA_${caIndex}.abbr`, {
             ns: ns,
         });
@@ -576,14 +605,22 @@ export default function ConfirmOperation(
     return (
         <div className="confirm-operation">
             <div className="tx-amount-group">
-                <div className="tx-amount-container">                    
-                    <div className="tx-amount-data">  
+                <div className="tx-amount-container">
+                    <div className="tx-amount-data">
                         <DisplayAmount
-                            label={operationType === "COMBINED_MINT" || operationType === "MINT" ? t("exchange.labelSendingMint") : t("exchange.labelSending")}
+                            label={
+                                operationType === "COMBINED_MINT" ||
+                                operationType === "MINT"
+                                    ? t("exchange.labelSendingMint")
+                                    : t("exchange.labelSending")
+                            }
                             value={amountYouExchange}
-                            token={t(`exchange.tokens.${currencyYouExchange}.abbr`, {
-                                ns: ns,
-                            })}
+                            token={t(
+                                `exchange.tokens.${currencyYouExchange}.abbr`,
+                                {
+                                    ns: ns,
+                                }
+                            )}
                             decimals={amountYouExchange < 1n ? 12 : 8}
                             /* equivalentValue={!contractProtocolStatus.data
                                 ? 0n
@@ -594,18 +631,21 @@ export default function ConfirmOperation(
                                     amountYouExchange,
                                     caIndex
                                 )} */
-                        /> 
-                    </div>                   
+                        />
+                    </div>
 
-                    {operationType === "COMBINED_REDEEM" && (<div className="tx-amount-data">
-                        <DisplayAmount
-                            label={t("exchange.labelSendingMint")}
-                            value={amountAnotherToken.amount}
-                            token={t(`exchange.tokens.TP_${tpIndex}.abbr`, {
-                                ns: ns,
-                            })}
-                            decimals={amountAnotherToken.amount < 1n ? 12 : 8}
-                            /* equivalentValue={!contractProtocolStatus.data
+                    {operationType === "COMBINED_REDEEM" && (
+                        <div className="tx-amount-data">
+                            <DisplayAmount
+                                label={t("exchange.labelSendingMint")}
+                                value={amountAnotherToken.amount}
+                                token={t(`exchange.tokens.TP_${tpIndex}.abbr`, {
+                                    ns: ns,
+                                })}
+                                decimals={
+                                    amountAnotherToken.amount < 1n ? 12 : 8
+                                }
+                                /* equivalentValue={!contractProtocolStatus.data
                                 ? 0n
                                 : ConvertAmount(
                                     contractProtocolStatus,
@@ -614,23 +654,34 @@ export default function ConfirmOperation(
                                     amountAnotherToken.amount,
                                     caIndex
                                 )} */
-                        />
-                    </div>)}
-
+                            />
+                        </div>
+                    )}
                 </div>
                 <div className="tx-direction">
                     <div className="swapArrow">
                         <div className="icon-arrow-down"></div>
                     </div>
                 </div>
-                <div className="tx-amount-container">                    
+                <div className="tx-amount-container">
                     <div className="tx-amount-data">
                         <DisplayAmount
-                            label={operationType === "COMBINED_REDEEM" || operationType === "REDEEM" || operationType === "SWAP_TPFORTP" || operationType === "SWAP_TPFORTC" || operationType === "SWAP_TCFORTP" ? t("exchange.labelReceivingRedeem") : t("exchange.labelReceiving")}
+                            label={
+                                operationType === "COMBINED_REDEEM" ||
+                                operationType === "REDEEM" ||
+                                operationType === "SWAP_TPFORTP" ||
+                                operationType === "SWAP_TPFORTC" ||
+                                operationType === "SWAP_TCFORTP"
+                                    ? t("exchange.labelReceivingRedeem")
+                                    : t("exchange.labelReceiving")
+                            }
                             value={amountYouReceive}
-                            token={t(`exchange.tokens.${currencyYouReceive}.abbr`, {
-                                ns: ns,
-                            })}
+                            token={t(
+                                `exchange.tokens.${currencyYouReceive}.abbr`,
+                                {
+                                    ns: ns,
+                                }
+                            )}
                             decimals={amountYouReceive < 1n ? 12 : 8}
                             /* equivalentValue={!contractProtocolStatus.data
                                 ? 0n
@@ -642,16 +693,19 @@ export default function ConfirmOperation(
                                     caIndex
                                 )} */
                         />
-                    </div>                                        
-                    {operationType === "COMBINED_MINT" && (<div className="tx-amount-data">
-                        <DisplayAmount
-                            label={t("exchange.labelReceiving")}
-                            value={amountAnotherToken.amount}
-                            token={t(`exchange.tokens.TC_${caIndex}.abbr`, {
-                                ns: ns,
-                            })}
-                            decimals={amountAnotherToken.amount < 1n ? 12 : 8}
-                            /* equivalentValue={!contractProtocolStatus.data
+                    </div>
+                    {operationType === "COMBINED_MINT" && (
+                        <div className="tx-amount-data">
+                            <DisplayAmount
+                                label={t("exchange.labelReceiving")}
+                                value={amountAnotherToken.amount}
+                                token={t(`exchange.tokens.TC_${caIndex}.abbr`, {
+                                    ns: ns,
+                                })}
+                                decimals={
+                                    amountAnotherToken.amount < 1n ? 12 : 8
+                                }
+                                /* equivalentValue={!contractProtocolStatus.data
                                 ? 0n
                                 : ConvertAmount(
                                     contractProtocolStatus,
@@ -660,8 +714,9 @@ export default function ConfirmOperation(
                                     amountAnotherToken.amount,
                                     caIndex
                                 )} */
-                        />                        
-                    </div>)}
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
             <div className="divider-horizontal"></div>
@@ -750,7 +805,7 @@ export default function ConfirmOperation(
             {/* <div className="divider-horizontal"></div> */}
             {status === "SUBMIT" && (
                 <div className="tx-submit">
-                    <div className="cta-container">                        
+                    <div className="cta-container">
                         <div className="cta-info-group">
                             <div className="cta-info-summary">
                                 <div className={"token_exchange"}>
@@ -883,14 +938,15 @@ export default function ConfirmOperation(
             />
             <ModalAllowanceOperation
                 name="AllowancePayCommissionCA"
-                title={
-                    `${t("allowance.cardTitle")}  ${t(`exchange.tokens.CA_${caIndex}.abbr`, { ns: ns })}`
-                }
+                title={`${t("allowance.cardTitle")}  ${t(`exchange.tokens.CA_${caIndex}.abbr`, { ns: ns })}`}
                 visible={showModalAllowancePayCommission}
                 onHideModalAllowance={onHideModalAllowancePayCommission}
                 currencyYouExchange={`CA_${caIndex}`}
                 currencyYouReceive={`CA_${caIndex}`}
-                amountYouExchangeLimit={calculateLimit(commissionsByKey[`CA_${caIndex}`].commission, slippageTolerance / 100)}
+                amountYouExchangeLimit={calculateLimit(
+                    commissionsByKey[`CA_${caIndex}`].commission,
+                    slippageTolerance / 100
+                )}
                 //amountYouReceiveLimit={commissionFeeToken}
                 onCallback={onSendTransaction}
                 disAllowance={false}
@@ -898,9 +954,7 @@ export default function ConfirmOperation(
             />
             <ModalAllowanceOperation
                 name="AllowancePayAnotherToken"
-                title={
-                    `${t("allowance.cardTitle")}  ${t(`exchange.tokens.${anotherTokenName}.abbr`, { ns: ns })}`
-                }
+                title={`${t("allowance.cardTitle")}  ${t(`exchange.tokens.${anotherTokenName}.abbr`, { ns: ns })}`}
                 visible={showModalAllowancePayAnotherToken}
                 onHideModalAllowance={onHideModalAllowancePayAnotherToken}
                 currencyYouExchange={anotherTokenName}
@@ -908,7 +962,7 @@ export default function ConfirmOperation(
                 amountYouExchangeLimit={amountAnotherToken.amount}
                 onCallback={onSendTransaction}
                 disAllowance={false}
-                caIndex={caIndex}  
+                caIndex={caIndex}
             />
         </div>
     );

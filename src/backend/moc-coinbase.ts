@@ -13,14 +13,15 @@ import type {
     OnTransaction,
 } from "../types/wallets";
 import { config } from "../wagmiConfig";
-import { 
-    redeemTC as redeemTC_, 
-    redeemTP as redeemTP_, 
-    swapTPforTP as swapTPforTP_, 
-    swapTCforTP as swapTCforTP_, 
-    swapTPforTC as  swapTPforTC_, 
-    mintTCandTP as mintTCandTP_, 
-    redeemTCandTP as redeemTCandTP_ } from "./moc-core";
+import {
+    mintTCandTP as mintTCandTP_,
+    redeemTC as redeemTC_,
+    redeemTCandTP as redeemTCandTP_,
+    redeemTP as redeemTP_,
+    swapTCforTP as swapTCforTP_,
+    swapTPforTC as swapTPforTC_,
+    swapTPforTP as swapTPforTP_,
+} from "./moc-core";
 import { getExecutionFee } from "./utils";
 
 const mintTC = async (
@@ -118,7 +119,7 @@ const mintTC = async (
     );
 
     if (executionFee > 0n) {
-        configParams.value = executionFee
+        configParams.value = executionFee;
     }
 
     const { request } = await simulateContract(config, configParams);
@@ -264,7 +265,7 @@ const mintTP = async (
     );
 
     if (executionFee > 0n) {
-        configParams.value = executionFee + limitAmount
+        configParams.value = executionFee + limitAmount;
     }
 
     const { request } = await simulateContract(config, configParams);
@@ -303,7 +304,7 @@ const redeemTP = async (
 };
 
 const swapTPforTP = async (
-    interfaceContext: InterfaceContext,    
+    interfaceContext: InterfaceContext,
     iFromTP: number,
     iToTP: number,
     qTP: bigint,
@@ -327,9 +328,8 @@ const swapTPforTP = async (
     );
 };
 
-
 const swapTCforTP = async (
-    interfaceContext: InterfaceContext,    
+    interfaceContext: InterfaceContext,
     tpIndex: number,
     qTC: bigint,
     caIndex: number,
@@ -352,7 +352,7 @@ const swapTCforTP = async (
 };
 
 const swapTPforTC = async (
-    interfaceContext: InterfaceContext,    
+    interfaceContext: InterfaceContext,
     tpIndex: number,
     qTP: bigint,
     caIndex: number,
@@ -374,7 +374,6 @@ const swapTPforTC = async (
     );
 };
 
-
 const mintTCandTP = async (
     interfaceContext: InterfaceContext,
     caIndex: number,
@@ -395,7 +394,6 @@ const mintTCandTP = async (
         onReceipt
     );
 };
-
 
 const redeemTCandTP = async (
     interfaceContext: InterfaceContext,
@@ -420,4 +418,14 @@ const redeemTCandTP = async (
     );
 };
 
-export { mintTC, mintTP, redeemTC, redeemTP, swapTPforTP, swapTCforTP, swapTPforTC, mintTCandTP, redeemTCandTP};
+export {
+    mintTC,
+    mintTCandTP,
+    mintTP,
+    redeemTC,
+    redeemTCandTP,
+    redeemTP,
+    swapTCforTP,
+    swapTPforTC,
+    swapTPforTP,
+};

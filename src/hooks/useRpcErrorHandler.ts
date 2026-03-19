@@ -293,7 +293,9 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
             };
         }
 
-        return () => { aborted = true; };
+        return () => {
+            aborted = true;
+        };
     }, [
         publicClient,
         rpcError.hasError,
@@ -340,8 +342,7 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
                     try {
                         await publicClient.getBlockNumber();
                         if (!aborted) clearError();
-                    } catch (error) {
-                    }
+                    } catch (error) {}
                 })();
             }, 1000);
         };

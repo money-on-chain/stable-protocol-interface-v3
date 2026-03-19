@@ -17,7 +17,7 @@ interface TokenRowProps {
     tokenTicker: string;
     price: bigint;
     balance: bigint;
-    balanceUSD: bigint;    
+    balanceUSD: bigint;
     visiblePriceDecimals: number;
     visibleBalanceDecimals: number;
     visibleBalanceUSDDecimals: number;
@@ -38,7 +38,7 @@ export const generateTokenRow = ({
     tokenTicker,
     price,
     balance,
-    balanceUSD,    
+    balanceUSD,
     visiblePriceDecimals,
     visibleBalanceDecimals,
     visibleBalanceUSDDecimals,
@@ -74,7 +74,7 @@ export const generateTokenRow = ({
                         <>--</>
                     )}
                     <div className="table__cell__label">{label.price}</div>
-                </div>                
+                </div>
                 {/* Token balance */}
                 <div className="table__cell table__cell__amount">
                     <PrecisionNumbers

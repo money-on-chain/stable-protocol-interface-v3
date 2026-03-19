@@ -14,9 +14,6 @@ import type {
 } from "../types/wallets";
 import { config } from "../wagmiConfig";
 import { getExecutionFee, SLIPPAGE_EXECUTION } from "./utils";
-import { divPrecision, mulPrecision } from "../helpers/precision";
-import { calculateLimit } from "../helpers/exchange";
-import { fromWei, toBigIntPrecision } from "../helpers/precision";
 
 const mintTC = async (
     interfaceContext: InterfaceContext,
@@ -253,7 +250,6 @@ const swapTPforTP = async (
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
 ): Promise<TransactionReceipt | undefined> => {
-    
     const context = coreOpContext(caIndex, interfaceContext);
 
     const {
@@ -269,7 +265,7 @@ const swapTPforTP = async (
     if (!contracts.TP[iToTP]) throw new Error(`TP not found for ${iToTP}`);
     if (!userBalance.data) throw new Error("User balance not found");
     if (!userBalance.data.CA) throw new Error("CA not found");
-    
+
     const tpAddressFrom = contracts.TP[iFromTP].address;
     const tpAddressTo = contracts.TP[iToTP].address;
 
@@ -326,13 +322,19 @@ const swapTPforTP = async (
         onTransaction,
         onReceipt,
         "swapTPforTP",
-        [tpAddressFrom, tpAddressTo, qTP, limitAmount, qAssetMaxFees, address, vendorAddress] as const,
+        [
+            tpAddressFrom,
+            tpAddressTo,
+            qTP,
+            limitAmount,
+            qAssetMaxFees,
+            address,
+            vendorAddress,
+        ] as const,
         contractProtocolStatus.data[caIndex].swapTPforTPExecCost,
         SLIPPAGE_EXECUTION
     );
-    
 };
-
 
 const swapTCforTP = async (
     interfaceContext: InterfaceContext,
@@ -344,7 +346,6 @@ const swapTCforTP = async (
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
 ): Promise<TransactionReceipt | undefined> => {
-    
     const context = coreOpContext(caIndex, interfaceContext);
 
     const {
@@ -359,7 +360,7 @@ const swapTCforTP = async (
     if (!contracts.TP[tpIndex]) throw new Error(`TP not found for ${tpIndex}`);
     if (!userBalance.data) throw new Error("User balance not found");
     if (!userBalance.data.CA) throw new Error("CA not found");
-    
+
     const tpAddress = contracts.TP[tpIndex].address;
 
     // Verifications
@@ -415,13 +416,18 @@ const swapTCforTP = async (
         onTransaction,
         onReceipt,
         "swapTCforTP",
-        [tpAddress, qTC, limitAmount, qAssetMaxFees, address, vendorAddress] as const,
+        [
+            tpAddress,
+            qTC,
+            limitAmount,
+            qAssetMaxFees,
+            address,
+            vendorAddress,
+        ] as const,
         contractProtocolStatus.data[caIndex].swapTCforTPExecCost,
         SLIPPAGE_EXECUTION
     );
-    
 };
-
 
 const swapTPforTC = async (
     interfaceContext: InterfaceContext,
@@ -433,7 +439,6 @@ const swapTPforTC = async (
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
 ): Promise<TransactionReceipt | undefined> => {
-    
     const context = coreOpContext(caIndex, interfaceContext);
 
     const {
@@ -448,7 +453,7 @@ const swapTPforTC = async (
     if (!contracts.TP[tpIndex]) throw new Error(`TP not found for ${tpIndex}`);
     if (!userBalance.data) throw new Error("User balance not found");
     if (!userBalance.data.CA) throw new Error("CA not found");
-    
+
     const tpAddress = contracts.TP[tpIndex].address;
 
     // Verifications
@@ -504,11 +509,17 @@ const swapTPforTC = async (
         onTransaction,
         onReceipt,
         "swapTPforTC",
-        [tpAddress, qTP, limitAmount, qAssetMaxFees, address, vendorAddress] as const,
+        [
+            tpAddress,
+            qTP,
+            limitAmount,
+            qAssetMaxFees,
+            address,
+            vendorAddress,
+        ] as const,
         contractProtocolStatus.data[caIndex].swapTPforTCExecCost,
         SLIPPAGE_EXECUTION
     );
-    
 };
 
 const mintTCandTP = async (
@@ -580,7 +591,7 @@ const mintTCandTP = async (
         throw new Error(
             `Insufficient ${(settings.tokens.TP[tpIndex] as TokenConfig).name} available to mint`
         );*/
-        
+
     return await sendWithExecFee(
         context,
         onTransaction,
@@ -603,14 +614,19 @@ const redeemTCandTP = async (
     onReceipt: OnReceipt
 ): Promise<TransactionReceipt | undefined> => {
     const context = coreOpContext(caIndex, interfaceContext);
-    const { contracts, address, contractProtocolStatus, userBalance, vendorAddress } =
-        context;
+    const {
+        contracts,
+        address,
+        contractProtocolStatus,
+        userBalance,
+        vendorAddress,
+    } = context;
 
     if (!contracts.TP) throw new Error("TP not found");
     if (!contracts.TP[tpIndex]) throw new Error(`TP not found for ${tpIndex}`);
     if (!userBalance.data.CA) throw new Error("CA not found");
 
-    const tpAddress = contracts.TP[tpIndex].address;    
+    const tpAddress = contracts.TP[tpIndex].address;
 
     if (!userBalance.data[caIndex])
         throw new Error(`Bucket index not found for ${caIndex}`);
@@ -635,18 +651,17 @@ const redeemTCandTP = async (
         throw new Error(
             `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} in the contract. Balance: ${caBalance} ${(settings.tokens.CA[caIndex] as TokenConfig).name}`
         );
-    
+
     return await sendWithExecFee(
         context,
         onTransaction,
         onReceipt,
         "redeemTCandTP",
-        [tpAddress,qTC, qTP, limitAmount, address, vendorAddress] as const,
+        [tpAddress, qTC, qTP, limitAmount, address, vendorAddress] as const,
         contractProtocolStatus.data[caIndex].redeemTCandTPExecCost,
         SLIPPAGE_EXECUTION
     );
 };
-
 
 interface CoreOpContext
     extends Omit<InterfaceContext, "contracts" | "address"> {
@@ -746,7 +761,7 @@ const sendWithExecFee = async (
     } catch {
         // Any exception here means we're not dealing with a local hardhat node.
     }
-    
+
     const { request } = await simulateContract(config, configParams);
 
     // We may have simulated a request with a 0 execution fee
@@ -767,4 +782,14 @@ const sendWithExecFee = async (
     return receipt;
 };
 
-export { mintTC, mintTP, redeemTC, redeemTP, swapTPforTP, swapTCforTP, swapTPforTC, mintTCandTP, redeemTCandTP };
+export {
+    mintTC,
+    mintTCandTP,
+    mintTP,
+    redeemTC,
+    redeemTCandTP,
+    redeemTP,
+    swapTCforTP,
+    swapTPforTC,
+    swapTPforTP,
+};

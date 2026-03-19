@@ -52,7 +52,12 @@ import {
 } from "../backend/omoc/voting";
 import ModalAccount from "../components/Modals/Account";
 import ModalProviders from "../components/Modals/Providers";
-import { ApproveTokenContract, TokenContract, exchangeMethod, exchangeMethodCombined } from "../helpers/exchange";
+import {
+    ApproveTokenContract,
+    exchangeMethod,
+    exchangeMethodCombined,
+    TokenContract,
+} from "../helpers/exchange";
 import {
     loadVestingAddressesFromLocalStorage,
     saveVestingAddressesToLocalStorage,
@@ -149,7 +154,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     useRpcErrorIntegration();
 
     // Hooks for contract data
-    const { blockNumber } = useLatestBlockNumber(publicClient ?? undefined, REFRESH_INTERVAL_BLOCKS_NUMBER);
+    const { blockNumber } = useLatestBlockNumber(
+        publicClient ?? undefined,
+        REFRESH_INTERVAL_BLOCKS_NUMBER
+    );
 
     const offChainPricesAPI = useOffchainPrices(
         REFRESH_INTERVAL_OFFCHAIN_PRICES
@@ -242,7 +250,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 }, delay);
             }
         }
-    }, [isConnected, contractsAddressLoaded, publicClient, handleRpcError, contractsLoadRetryCount]);
+    }, [
+        isConnected,
+        contractsAddressLoaded,
+        publicClient,
+        handleRpcError,
+        contractsLoadRetryCount,
+    ]);
 
     useEffect(() => {
         if (!contractsAddressLoaded) {
@@ -338,9 +352,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             response.transactions !== undefined &&
             response.transactions.length > 0
         ) {
-            const vFromStorage = loadVestingAddressesFromLocalStorage(
-                address as `0x${string}`
-            );
+            const vFromStorage = loadVestingAddressesFromLocalStorage(address);
             const vLowerFromStorage = vFromStorage.map((v: string) =>
                 v.toLowerCase()
             );
@@ -354,10 +366,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
             if (newVesting.length > 0) {
                 vLowerFromStorage.push(...newVesting);
-                saveVestingAddressesToLocalStorage(
-                    address as `0x${string}`,
-                    vLowerFromStorage
-                );
+                saveVestingAddressesToLocalStorage(address, vLowerFromStorage);
             }
         }
     };
@@ -439,7 +448,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             contractsAddress,
             currencyYouExchange,
             currencyYouReceive,
-            caIndex            
+            caIndex
         );
         if (approveInfo.token) {
             const interfaceContext = buildInterfaceContext();
@@ -468,7 +477,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         onReceipt: OnReceipt
     ): Promise<unknown> => {
         const interfaceContext = buildInterfaceContext();
-        if (operationType === "COMBINED_MINT" || operationType === "COMBINED_REDEEM") {
+        if (
+            operationType === "COMBINED_MINT" ||
+            operationType === "COMBINED_REDEEM"
+        ) {
             return exchangeMethodCombined(
                 interfaceContext,
                 tokenAmount,
@@ -480,7 +492,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 onTransaction,
                 onReceipt
             );
-        } else {    
+        } else {
             return exchangeMethod(
                 interfaceContext,
                 currencyYouExchange,
@@ -488,7 +500,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 tokenAmount,
                 limitAmount,
                 qAssetMaxFees,
-                caIndex,                
+                caIndex,
                 onTransaction,
                 onReceipt
             );
@@ -677,7 +689,12 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                     onReceipt
                 );
             } else {
-                return await unStake(interfaceContext, amount, onTransaction, onReceipt);
+                return await unStake(
+                    interfaceContext,
+                    amount,
+                    onTransaction,
+                    onReceipt
+                );
             }
         } catch (error) {
             onError(error);
@@ -786,7 +803,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     ): Promise<unknown> => {
         try {
             const interfaceContext = buildInterfaceContext();
-            return await preVoteStep(interfaceContext, onTransaction, onReceipt);
+            return await preVoteStep(
+                interfaceContext,
+                onTransaction,
+                onReceipt
+            );
         } catch (error) {
             onError(error);
         }
@@ -812,7 +833,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     ): Promise<unknown> => {
         try {
             const interfaceContext = buildInterfaceContext();
-            return await acceptedStep(interfaceContext, onTransaction, onReceipt);
+            return await acceptedStep(
+                interfaceContext,
+                onTransaction,
+                onReceipt
+            );
         } catch (error) {
             onError(error);
         }
