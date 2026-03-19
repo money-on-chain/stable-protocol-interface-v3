@@ -63,6 +63,18 @@ function CheckStatusGlobal() {
     const { contractProtocolStatus } = useWalletContext();
 
     const checkerStatus = (): StatusResult => {
+        // When the multicall query has failed or data is unavailable,
+        // don't infer status from stale/zeroed data
+        if (!contractProtocolStatus.data || contractProtocolStatus.error) {
+            return {
+                globalStatus: -1,
+                statusLabel: "--",
+                statusLabelClass: "status-neutral",
+                statusText: "--",
+                statusCode: [],
+            };
+        }
+
         let statusLabel: string = "--";
         let statusLabelClass: string = "status-neutral";
         let statusText: string = "--";
