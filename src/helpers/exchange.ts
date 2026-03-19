@@ -120,47 +120,6 @@ function onlyTPs(): string[] {
     return settings.tokens.TP.map((tp, index) => `TP_${index}`);
 }
 
-function calculateAmountAnotherToken(contractProtocolStatus: ContractProtocolStatusResult, operationType: string, amount: bigint, caIndex: number, tpIndex: number ): bigint {
-    /** 
-     * 
-redeemTCandTP :
-    aux = ((combinedCglb - 1) * (ctargemaTP - 1) / (combinedCtargemaCA -1))
-    el TP que el usuario indica para redimir tiene que ser mayor a
-
-    qTP = qTC * pACtp * pTCac / aux
-    (qACmin amount you receive has to be less than the amount you expect to receive)
-
-    qACRedeemed = ((qTP / pACtp) + (qTC * pTCac)) - fee
-
-mintTCandTP:
-
-    qACtpMintTC = (qTP * (ctargemaTP - 1)) / pACtp)
-
-    qACtoMintTP = qTP / pACtp
-    (qACmax amount you are willing to spend has to be greater than the amount you need to spend)
-
-    qACNeeded = (qACtpMintTC + qACtoMintTP) + fee
-    **/
-
-    if (operationType !== "COMBINED_MINT" && operationType !== "COMBINED_REDEEM") {
-        return 0n;
-    } 
-
-    const ctargemaTP = toBigIntPrecision(1.5);
-    const pACtp = contractProtocolStatus.data[caIndex].PP_TP[tpIndex][0] || 0n;
-    divPrecision(mulPrecision(amount, ctargemaTP - toBigIntPrecision(1)), pACtp)
-
-    contractProtocolStatus.data[caIndex].getCtargemaCA
-
-    if (operationType === "COMBINED_MINT") {
-        return amount;
-    } else if (operationType === "COMBINED_REDEEM") {
-        return amount;
-    } else {
-        throw new Error("Invalid operation type: " + operationType);
-    }
-}
-
 
 
 // Basic Operations
