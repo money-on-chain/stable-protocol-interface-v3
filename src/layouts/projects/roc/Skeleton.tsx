@@ -1,5 +1,5 @@
 import { Layout } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useChainId } from "wagmi";
 
@@ -51,8 +51,6 @@ export default function Skeleton(): JSX.Element {
 
     // Hook preserved to keep room for potential RPC error logging in the future
     useEffect(() => {}, [rpcError]);
-
-    const [canSwap, setCanSwap] = useState<boolean>(false);
 
     const chainId = useChainId();
     const isWrongNetwork = isConnected && chainId !== ALLOWED_CHAIN.id;
@@ -186,18 +184,24 @@ export default function Skeleton(): JSX.Element {
         };
     }, [userVeto.data, contractStatusOmoc.data, address, t, navigate]);
 
-    const readTpLegacyBalance = (): void => {
-        if (!userBalance.data) return;
-        if (!userBalance.data.tpLegacy) return;
-        const tpLegacyBalance = userBalance.data.tpLegacy?.balance;
-        if (!tpLegacyBalance) return;
-        if (tpLegacyBalance > 0n) {
-            setCanSwap(true);
-        } else {
-            setCanSwap(false);
+    const legacyTpAvailable: boolean = React.useMemo(() => {
+        if (
+            !userBalance.data ||
+            !userBalance.data.tpLegacy
+        ) {
+            return false;
         }
-    };
 
+        const tpLegacyBalance = userBalance.data.tpLegacy?.balance;
+        if (!tpLegacyBalance) return false;
+        if (tpLegacyBalance > 0n) {
+            return true;
+        } else {
+            return false;
+        }
+    }, [userBalance.data]);
+
+    
     return (
         <NotificationProvider>
             <Layout>
@@ -240,7 +244,8 @@ export default function Skeleton(): JSX.Element {
                             dismissible={false}
                         />
                     )}
-                    {canSwap && <ModalTokenMigration />}
+                    {/* Token migration modal */}
+                    {legacyTpAvailable && <ModalTokenMigration />}
                     {isConnected && !isWrongNetwork ? (
                         <Outlet />
                     ) : (

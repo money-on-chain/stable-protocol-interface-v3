@@ -478,6 +478,10 @@ const readContracts = async (
 
     // ---- Token migrator & legacy TP ----
     if (import.meta.env.REACT_APP_CONTRACT_LEGACY_TP) {
+        console.warn(
+            "Legacy TP Contract... address: ",
+            import.meta.env.REACT_APP_CONTRACT_LEGACY_TP
+        );
         contracts.tp_legacy = {
             address: import.meta.env.REACT_APP_CONTRACT_LEGACY_TP as Address,
             abi: ABI_TokenPegged,
@@ -488,6 +492,10 @@ const readContracts = async (
         if (!import.meta.env.REACT_APP_CONTRACT_TOKEN_MIGRATOR) {
             console.warn("Error: Please set token migrator address!");
         } else {
+            console.warn(
+                "Token Migrator Contract... address: ",
+                import.meta.env.REACT_APP_CONTRACT_TOKEN_MIGRATOR
+            );
             contracts.token_migrator = {
                 address: import.meta.env
                     .REACT_APP_CONTRACT_TOKEN_MIGRATOR as Address,
