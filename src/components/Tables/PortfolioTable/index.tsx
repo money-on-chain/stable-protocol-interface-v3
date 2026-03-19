@@ -150,7 +150,7 @@ export default function PortfolioTable() {
 
                     balance = BigInt(userBaseCoinBalance.balance || 0);
 
-                    price = contractProtocolStatus.data.PP_COINBASE?.[0] || 0n;
+                    price = normalizeToBigInt(contractProtocolStatus.data.PP_COINBASE?.[0]) ?? 0n;
 
                     balanceUSD = ConvertAmount(contractProtocolStatus, "COINBASE", "USD", balance, 0);
                     
@@ -175,8 +175,7 @@ export default function PortfolioTable() {
                                 userBalance.data?.CA?.[token.key || 0]?.balance
                             ) || 0n;
                         price =
-                            contractProtocolStatus.data?.[token.key || 0]
-                                ?.PP_CA?.[0] || 0n;
+                            normalizeToBigInt(contractProtocolStatus.data?.[token.key || 0]?.PP_CA?.[0]) ?? 0n;
 
                         balanceUSD = ConvertAmount(contractProtocolStatus, "CA", "USD", balance, token.key || 0);
                     }
@@ -211,9 +210,7 @@ export default function PortfolioTable() {
                                     ?.balance
                             ) || 0n;
                         price =
-                            contractProtocolStatus.data[0]?.PP_TP?.[
-                                token.key || 0
-                            ]?.[0] || 0n;                        
+                            normalizeToBigInt(contractProtocolStatus.data[0]?.PP_TP?.[token.key || 0]?.[0]) ?? 0n;                        
 
                             price = ConvertPeggedTokenPrice(
                                 contractProtocolStatus,
@@ -248,8 +245,7 @@ export default function PortfolioTable() {
                                 ?.getPTCac
                         ) || 0n;
                     priceCA =
-                        contractProtocolStatus.data?.[token.key || 0]
-                            ?.PP_CA?.[0] || 0n;
+                        normalizeToBigInt(contractProtocolStatus.data?.[token.key || 0]?.PP_CA?.[0]) ?? 0n;
                     price = mulPrecision(priceTEC, priceCA);
                     balanceUSD = ConvertAmount(contractProtocolStatus, "TC", "USD", balance, token.key || 0);
 
@@ -266,11 +262,10 @@ export default function PortfolioTable() {
 
                     // RAW price for balance and variation calculation
                     price =
-                        contractProtocolStatus.data[0]?.PP_FeeToken?.[0] || 0n;
+                        normalizeToBigInt(contractProtocolStatus.data[0]?.PP_FeeToken?.[0]) ?? 0n;
 
                     priceCA =
-                        contractProtocolStatus.data[token.key || 0]
-                            ?.PP_CA?.[0] || 0n;
+                        normalizeToBigInt(contractProtocolStatus.data[token.key || 0]?.PP_CA?.[0]) ?? 0n;
                     balanceUSD = ConvertAmount(contractProtocolStatus, "TF", "USD", balance, token.key || 0);
                     
                     // Now that balance and variation is calculated, is multiplied for priceCA for price final value

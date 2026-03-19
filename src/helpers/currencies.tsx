@@ -478,40 +478,40 @@ function CalcCommission(
     // Select fee parameter depending on the operation
     switch (aTokenMap) {
       case "CA,TC": // Mint TC
-        feeParam = contractProtocolStatus.data?.[caIndex].tcMintFee || 0n;
+        feeParam = normalizeToBigInt(contractProtocolStatus.data?.[caIndex].tcMintFee) ?? 0n;
         break;
-  
+
       case "TP,CA": // Redeem TP
         feeParam =
-          contractProtocolStatus.data?.[caIndex].tpRedeemFees[
+          normalizeToBigInt(contractProtocolStatus.data?.[caIndex].tpRedeemFees[
             parseInt(aTokenExchange[1])
-          ] || 0n;
+          ]) ?? 0n;
         break;
-  
+
       case "CA,TP": // Mint TP
         feeParam =
-          contractProtocolStatus.data?.[caIndex].tpMintFees[
+          normalizeToBigInt(contractProtocolStatus.data?.[caIndex].tpMintFees[
             parseInt(aTokenReceive[1])
-          ] || 0n;
+          ]) ?? 0n;
         break;
-  
+
       case "TC,CA": // Redeem TC
-        feeParam = contractProtocolStatus.data?.[caIndex].tcRedeemFee || 0n;
+        feeParam = normalizeToBigInt(contractProtocolStatus.data?.[caIndex].tcRedeemFee) ?? 0n;
         break;
-  
+
       case "TP,TP": // Swap TP → TP
         feeParam =
-          contractProtocolStatus.data?.[caIndex].swapTPforTPFee || 0n;
+          normalizeToBigInt(contractProtocolStatus.data?.[caIndex].swapTPforTPFee) ?? 0n;
         break;
-  
+
       case "TC,TP": // Swap TC → TP
         feeParam =
-          contractProtocolStatus.data?.[caIndex].swapTCforTPFee || 0n;
+          normalizeToBigInt(contractProtocolStatus.data?.[caIndex].swapTCforTPFee) ?? 0n;
         break;
-  
+
       case "TP,TC": // Swap TP → TC
         feeParam =
-          contractProtocolStatus.data?.[caIndex].swapTPforTCFee || 0n;
+          normalizeToBigInt(contractProtocolStatus.data?.[caIndex].swapTPforTCFee) ?? 0n;
         break;
   
       default:
@@ -527,15 +527,13 @@ function CalcCommission(
       ) || 0n;
   
     const feeTokenPct =
-      contractProtocolStatus.data?.[caIndex]?.feeTokenPct || 0n;
-  
+      normalizeToBigInt(contractProtocolStatus.data?.[caIndex]?.feeTokenPct) ?? 0n;
+
     const priceCA =
-      normalizeToBigInt(
-        contractProtocolStatus.data?.[caIndex]?.PP_CA?.[0] || 0n
-      ) || 0n;
-  
+      normalizeToBigInt(contractProtocolStatus.data?.[caIndex]?.PP_CA?.[0]) ?? 0n;
+
     const vendorMarkup =
-      contractProtocolStatus.data?.[caIndex].vendorMarkup || 0n;
+      normalizeToBigInt(contractProtocolStatus.data?.[caIndex].vendorMarkup) ?? 0n;
   
     // Base fee for the operation (in CA)
     const baseFee = wadMul(amount, feeParam, rounding);
