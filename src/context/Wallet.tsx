@@ -119,6 +119,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         null
     );
     const [contractsAddressLoaded, setContractsAddressLoaded] = useState(false);
+    const [contractsLoadRetryCount, setContractsLoadRetryCount] = useState(0);
+    const MAX_CONTRACTS_LOAD_RETRIES = 3;
     const [vestingAddress, setVestingAddress] = useState<string | undefined>(
         undefined
     );
@@ -233,8 +235,14 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         } catch (e) {
             console.error("Error loading contracts:", e);
             handleRpcError(e);
+            if (contractsLoadRetryCount < MAX_CONTRACTS_LOAD_RETRIES) {
+                const delay = 2000 * (contractsLoadRetryCount + 1);
+                setTimeout(() => {
+                    setContractsLoadRetryCount((c) => c + 1);
+                }, delay);
+            }
         }
-    }, [isConnected, contractsAddressLoaded, publicClient, handleRpcError]);
+    }, [isConnected, contractsAddressLoaded, publicClient, handleRpcError, contractsLoadRetryCount]);
 
     useEffect(() => {
         if (!contractsAddressLoaded) {
