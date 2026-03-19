@@ -2,7 +2,7 @@ import React from "react";
 
 import { useWalletContext } from "../../context/Wallet";
 import { TokenSettings } from "../../helpers/currencies";
-import { divPrecision } from "../../helpers/precision";
+import { divPrecision, normalizeToBigInt } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings/settings.json";
 import type { TokenConfig } from "../../types/hooks";
@@ -30,8 +30,8 @@ export default function Buckets(props: BucketsProps): JSX.Element {
         contractProtocolStatus.data[caIndex].getLckAC &&
         contractProtocolStatus.data[caIndex].nACcb
     ) {
-        lckAC = contractProtocolStatus.data[caIndex].getLckAC;
-        nACcb = contractProtocolStatus.data[caIndex].nACcb;
+        lckAC = normalizeToBigInt(contractProtocolStatus.data[caIndex].getLckAC) ?? 0n;
+        nACcb = normalizeToBigInt(contractProtocolStatus.data[caIndex].nACcb) ?? 0n;
         // Prevent division by zero
         if (nACcb - lckAC !== 0n) {
             leverage = divPrecision(nACcb, nACcb - lckAC);
@@ -65,9 +65,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                             {contractProtocolStatus.data?.[caIndex]
                                 ?.getACBalance
                                 ? PrecisionNumbers({
-                                      amount: contractProtocolStatus.data[
-                                          caIndex
-                                      ].getACBalance,
+                                      amount: normalizeToBigInt(contractProtocolStatus.data[caIndex].getACBalance) ?? 0n,
                                       token: TokenSettings(`CA_${caIndex}`),
                                       decimals:
                                           (settings.tokens.CA as TokenConfig[])[
@@ -88,9 +86,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                         <div className="amount">
                             {contractProtocolStatus.data?.[caIndex]?.getCglb
                                 ? PrecisionNumbers({
-                                      amount: contractProtocolStatus.data[
-                                          caIndex
-                                      ].getCglb,
+                                      amount: normalizeToBigInt(contractProtocolStatus.data[caIndex].getCglb) ?? 0n,
                                       token: settings.tokens.CA[caIndex],
                                       decimals: 4,
                                       i18n: i18n,
@@ -109,9 +105,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                             {contractProtocolStatus.data?.[caIndex]
                                 ?.getCtargemaCA
                                 ? PrecisionNumbers({
-                                      amount: contractProtocolStatus.data[
-                                          caIndex
-                                      ].getCtargemaCA,
+                                      amount: normalizeToBigInt(contractProtocolStatus.data[caIndex].getCtargemaCA) ?? 0n,
                                       token: TokenSettings(`CA_${caIndex}`),
                                       decimals: 4,
                                       i18n: i18n,
