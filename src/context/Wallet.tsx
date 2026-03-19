@@ -149,9 +149,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     useRpcErrorIntegration();
 
     // Hooks for contract data
-    const { blockNumber } = useLatestBlockNumber(
-        REFRESH_INTERVAL_BLOCKS_NUMBER
-    );
+    const { blockNumber } = useLatestBlockNumber(publicClient ?? undefined, REFRESH_INTERVAL_BLOCKS_NUMBER);
 
     const offChainPricesAPI = useOffchainPrices(
         REFRESH_INTERVAL_OFFCHAIN_PRICES
