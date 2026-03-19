@@ -319,13 +319,25 @@
                 "label": "RIF",
                 "abbr": "RIF"
             },
-            "TC": {
+            "CA_1": {
+                "label": "Dollar on Chain",
+                "abbr": "DOC"
+            },
+            "TC_0": {
                 "label": "RIFPro",
                 "abbr": "RIFP"
+            },
+            "TC_1": {
+                "label": "DOC Max",
+                "abbr": "DOCX"
             },
             "TP_0": {
                 "label": "RIF US Dollar",
                 "abbr": "USDRIF"
+            },
+            "TP_1": {
+                "label": "COP",
+                "abbr": "CopFlip"
             },
             "COINBASE": {
                 "label": "Smart Bitcoin",
