@@ -249,9 +249,12 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
     useEffect(() => {
         if (!publicClient) return;
 
+        let aborted = false;
+
         const healthCheck = async () => {
             try {
                 await publicClient.getBlockNumber();
+                if (aborted) return;
                 setIsRpcHealthy(true);
                 if (rpcError.hasError) {
                     // Don't clear test errors
@@ -263,7 +266,7 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
                     }
                 }
             } catch (error) {
-                handleRpcError(error);
+                if (!aborted) handleRpcError(error);
             }
         };
 
@@ -275,6 +278,7 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
                 void (async () => {
                     try {
                         await publicClient.getBlockNumber();
+                        if (aborted) return;
                         clearError();
                         clearInterval(healthCheckInterval);
                     } catch (error) {
@@ -283,8 +287,13 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
                 })();
             }, 3000); // Check every 3 seconds when there's an error
 
-            return () => clearInterval(healthCheckInterval);
+            return () => {
+                aborted = true;
+                clearInterval(healthCheckInterval);
+            };
         }
+
+        return () => { aborted = true; };
     }, [
         publicClient,
         rpcError.hasError,
@@ -298,22 +307,28 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
         if (!publicClient) return;
         // When healthy, probe the RPC at a low frequency to catch targeted blocking
         if (!rpcError.hasError) {
+            let aborted = false;
             const interval = setInterval(() => {
                 void (async () => {
                     try {
                         await publicClient.getBlockNumber();
                         // stays healthy
                     } catch (error) {
-                        handleRpcError(error);
+                        if (!aborted) handleRpcError(error);
                     }
                 })();
             }, 15000); // every 15s when healthy
-            return () => clearInterval(interval);
+            return () => {
+                aborted = true;
+                clearInterval(interval);
+            };
         }
     }, [publicClient, rpcError.hasError, handleRpcError]);
 
     // Network connectivity monitoring
     useEffect(() => {
+        let aborted = false;
+
         const handleOnline = () => {
             // Try to clear error immediately
             clearError();
@@ -321,12 +336,11 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
             // Also try to test RPC connection after a short delay
             setTimeout(() => {
                 void (async () => {
-                    if (publicClient && rpcError.hasError) {
-                        try {
-                            await publicClient.getBlockNumber();
-                            clearError();
-                        } catch (error) {
-                        }
+                    if (aborted || !publicClient || !rpcError.hasError) return;
+                    try {
+                        await publicClient.getBlockNumber();
+                        if (!aborted) clearError();
+                    } catch (error) {
                     }
                 })();
             }, 1000);
@@ -346,6 +360,7 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
         }
 
         return () => {
+            aborted = true;
             window.removeEventListener("online", handleOnline);
             window.removeEventListener("offline", handleOffline);
         };
@@ -354,6 +369,8 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
     // Periodic connectivity check (fallback for unreliable navigator.onLine)
     useEffect(() => {
         if (!publicClient) return;
+
+        const controller = new AbortController();
 
         const checkConnectivity = () => {
             void (async () => {
@@ -371,14 +388,20 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
                             method: "HEAD",
                             mode: "no-cors",
                             cache: "no-cache",
-                            signal: AbortSignal.timeout(3000),
+                            signal: AbortSignal.any([
+                                controller.signal,
+                                AbortSignal.timeout(3000),
+                            ]),
                         });
                         connected = true;
                         break;
                     } catch (e) {
+                        if (controller.signal.aborted) return;
                         // continue trying other endpoints
                     }
                 }
+
+                if (controller.signal.aborted) return;
 
                 if (connected) {
                     if (rpcError.hasError) {
@@ -398,7 +421,10 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
         const checkInterval = rpcError.hasError ? 5000 : 10000; // 5s when error, 10s when healthy
         const interval = setInterval(checkConnectivity, checkInterval);
 
-        return () => clearInterval(interval);
+        return () => {
+            controller.abort();
+            clearInterval(interval);
+        };
     }, [publicClient, handleRpcError, clearError, rpcError.hasError]);
 
     // User interaction connectivity check

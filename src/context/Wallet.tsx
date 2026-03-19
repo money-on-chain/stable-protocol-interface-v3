@@ -3,6 +3,7 @@ import React, {
     useCallback,
     useContext,
     useEffect,
+    useRef,
     useState,
 } from "react";
 import type { TransactionReceipt } from "viem";
@@ -256,21 +257,27 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         }
     }, [isConnected, showModalProviders]);
 
-    const refetchBaseCoinBalance = userBaseCoinBalance?.refetch;
-    const refetchUserBalance = userBalance?.refetch;
-    const refetchOmocBalance = userOmocBalance?.refetch;
-    const refetchVesting = userVesting?.refetch;
-    const refetchIncentiveV2 = userIncentiveV2?.refetch;
+    // Use refs so the effect always calls the latest refetch without re-running on every render
+    const refetchBaseCoinBalanceRef = useRef(userBaseCoinBalance?.refetch);
+    refetchBaseCoinBalanceRef.current = userBaseCoinBalance?.refetch;
+    const refetchUserBalanceRef = useRef(userBalance?.refetch);
+    refetchUserBalanceRef.current = userBalance?.refetch;
+    const refetchOmocBalanceRef = useRef(userOmocBalance?.refetch);
+    refetchOmocBalanceRef.current = userOmocBalance?.refetch;
+    const refetchVestingRef = useRef(userVesting?.refetch);
+    refetchVestingRef.current = userVesting?.refetch;
+    const refetchIncentiveV2Ref = useRef(userIncentiveV2?.refetch);
+    refetchIncentiveV2Ref.current = userIncentiveV2?.refetch;
 
     useEffect(() => {
         // Refetch user data when address changes
         if (!address) return;
-        void refetchBaseCoinBalance?.();
-        void refetchUserBalance?.();
-        void refetchOmocBalance?.();
-        void refetchVesting?.();
-        void refetchIncentiveV2?.();
-    }, [address, refetchBaseCoinBalance, refetchUserBalance, refetchOmocBalance, refetchVesting, refetchIncentiveV2]);
+        void refetchBaseCoinBalanceRef.current?.();
+        void refetchUserBalanceRef.current?.();
+        void refetchOmocBalanceRef.current?.();
+        void refetchVestingRef.current?.();
+        void refetchIncentiveV2Ref.current?.();
+    }, [address]); // refs are intentionally omitted — they never change identity
 
     const onDisconnect = (): void => {
         disconnect();
