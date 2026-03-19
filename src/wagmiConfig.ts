@@ -1,5 +1,5 @@
 // wagmiConfig.ts
-import { createConfig, fallback, http } from "wagmi";
+import { createConfig, fallback, http, unstable_connector } from "wagmi";
 import { localhost, rootstock, rootstockTestnet } from "wagmi/chains";
 import {
     coinbaseWallet,
@@ -96,40 +96,29 @@ const getRpcEndpoints = (chainId: number) => {
     }
 };
 
+const httpTransports = (chainId: number) =>
+    getRpcEndpoints(chainId).map((url) =>
+        http(url as string, { retryCount: 3, retryDelay: 1000 })
+    );
+
 export const config = createConfig({
     chains: CHAINS,
-    connectors, // <-- no dynamic filtering here
+    connectors,
     transports: {
-        [rootstock.id]:
-            getRpcEndpoints(rootstock.id).length > 0
-                ? fallback(
-                      getRpcEndpoints(rootstock.id).map((url) =>
-                          http(url, {
-                              retryCount: 3,
-                              retryDelay: 1000,
-                          })
-                      )
-                  )
-                : http(), // Let wallet connectors provide RPC
-        [rootstockTestnet.id]:
-            getRpcEndpoints(rootstockTestnet.id).length > 0
-                ? fallback(
-                      getRpcEndpoints(rootstockTestnet.id).map((url) =>
-                          http(url, {
-                              retryCount: 3,
-                              retryDelay: 1000,
-                          })
-                      )
-                  )
-                : http(), // Let wallet connectors provide RPC
-        [localhost.id]: fallback(
-            getRpcEndpoints(localhost.id).map((url) =>
-                http(url, {
-                    retryCount: 3,
-                    retryDelay: 1000,
-                })
-            )
-        ),
+        // Wallet's own RPC is always tried first (uses MetaMask/WalletConnect configured RPC).
+        // Configured env-var URLs serve as fallback for unauthenticated users.
+        [rootstock.id]: fallback([
+            unstable_connector(injected),
+            ...httpTransports(rootstock.id),
+        ]),
+        [rootstockTestnet.id]: fallback([
+            unstable_connector(injected),
+            ...httpTransports(rootstockTestnet.id),
+        ]),
+        [localhost.id]: fallback([
+            unstable_connector(injected),
+            ...httpTransports(localhost.id),
+        ]),
     },
     ssr: false,
 });

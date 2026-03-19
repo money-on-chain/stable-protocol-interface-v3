@@ -67,13 +67,7 @@ export default function Skeleton(): JSX.Element {
         }
 
         const { globalStatus, statusLabel, statusText } = checkerStatus();
-
-        console.log("DEBUG>>>")
-        console.log(contractProtocolStatus.data)
-        console.log(globalStatus)
-        console.log(statusLabel)
-        console.log(statusText)
-
+        
         if (globalStatus > 1) {
             return {
                 type: "error",
