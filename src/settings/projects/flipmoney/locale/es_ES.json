@@ -416,7 +416,8 @@
         "liquidityMining": "Liquidity Mining",
         "vesting": "Bloqueo",
         "voting": "Votación",
-        "more": "Más"
+        "more": "Más",
+        "combinedOperations": "Op. Combinadas"
     },
 
     "language": {

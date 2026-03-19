@@ -1,11 +1,17 @@
 {
     "CustomizePrize_VariationToleranceTitle": "Tolerancia a la variación de precio",
-    "NoConnection_alertTitle": "¡Billetera no conectada!",
+    "NoConnection_alertTitle": "¡Wallet no conectada!",
     "NoConnection_alertPleaseConnect": "or favor, conecta tu billetera utilizando el botón “conectar” en la sección superior derecha de la plataforma.",
     "invalidValueDescription": "No hay ningún valor para mostrar",
     "invalidValuePlaceholder": "--",
     "notification": {
-        "dismiss": "Descartar"
+        "dismiss": "Descartar",
+        "rpcError": {
+            "title": "Error de Conexión de Red",
+            "description": "No se puede conectar a la red blockchain. Esto puede deberse a congestión de red o problemas del servidor RPC. El sistema reintentará automáticamente, o puedes intentar nuevamente manualmente.",
+            "retry": "Reintentar Conexión",
+            "dismiss": "Descartar"
+        }
     },
     "txFeedback": { "txIdLabel": "ID de transacción" },
     "button": { "inputMaxValue": "max" },
@@ -81,7 +87,7 @@
     },
 
     "wallet": {
-        "modalTitle": "Dirección de tu Billetera",
+        "modalTitle": "Dirección de tu Wallet",
         "userAddress": "Dirección",
         "useVesting": "Usar dirección de vesting",
         "inputLabel": "Selecciona una Máquina Vesting",
@@ -92,6 +98,28 @@
         "cta": {
             "disconnect": "Desconectar",
             "close": "Cerrar"
+        },
+        "vestingFeedback": {
+            "empty": "You must specify a Vesting Machine address",
+            "notValid": "Vesting Machine Address not valid",
+            "alreadyLoaded": "Vesting Machine already loaded",
+            "incorrect": "Vesting Machine Address format appears to be incorrect"
+        }
+    },
+    "walletProviders": {
+        "connectWalletButton": "Connectar Wallet",
+        "connectYourWallet": "Connecta tu Wallet",
+        "noBrowserWallets": "Sin wallets de navegador detectadas",
+        "providers": {
+            "injected": "Browser Wallet / MetaMask",
+            "metamask": "MetaMask Wallet",
+            "multisig": "Safe (multi-sig)",
+            "walletconnect": "WalletConnect (QR / móbil)"
+        },
+        "toolTip": {
+            "walletConnected": "Para wallets de hardware como Ledger Live, Keystone o GridPlus: 1) Abre la app de tu wallet 2) Selecciona 'Conectar con WalletConnect' 3) Escanea el código QR mostrado aquí.",
+            "injected": "Para usar Ledger o Trezor: 1) Abre MetaMask o Rabby 2) Conecta tu wallet de hardware desde Configuración 3) Selecciona la cuenta aquí.",
+            "metamask": "Para usar Ledger o Trezor: 1) Abre MetaMask o Rabby 2) Conecta tu wallet de hardware desde Configuración 3) Selecciona la cuenta aquí."
         }
     },
 
@@ -101,16 +129,28 @@
                 "label": "RIF",
                 "abbr": "RIF"
             },
-            "TC": {
+            "CA_1": {
+                "label": "Dollar on Chain",
+                "abbr": "DOC"
+            },
+            "TC_0": {
                 "label": "RIF Pro",
                 "abbr": "RIFP"
+            },
+            "TC_1": {
+                "label": "DOC Max",
+                "abbr": "DOCX"
             },
             "TP_0": {
                 "label": "RIF Dollar",
                 "abbr": "USDRIF"
             },
+            "TP_1": {
+                "label": "COP",
+                "abbr": "CopFlip"
+            },
             "COINBASE": {
-                "label": "rBTC",
+                "label": "Smart Bitcoin",
                 "abbr": "RBTC"
             },
             "TF": {
@@ -126,7 +166,7 @@
 
         "confirm": {
             "submit": "Espera la confirmación de la transacción",
-            "sign": "Firma la transacción en tu billetera",
+            "sign": "Firma la transacción en tu wallet",
             "queuing": "Encolando la transacción…",
             "queued": "Operación encolada. La ejecución puede tomar unos minutos.",
             "confirming": "Operación en confirmación",
@@ -143,11 +183,17 @@
             "sliderLabel": "Tolerancia de Variación de Precio",
             "warning": "Cantidad actualizada debido a tolerancia de variación de precio"
         },
-        "cardTitle": "Cambiar",
+        "cardTitle": {
+            "simpleExchange": "Cambiar",
+            "balancedOps": "Operaciones Balanceadas"
+        },
         "labelSending": "cambiando",
+        "LabelSendingUpTo": "Enviando hasta",
+        "labelSendingMint": "Cambiando hasta",
         "labelBalance": "balance",
         "labelUpTo": "Hasta",
         "labelReceiving": "Recibiendo",
+        "labelReceivingRedeem": "Mínimo a recibir",
         "labelTransactionID": "ID de transacción",
         "placeholder": "Dirección",
         "exchangingSummary": "Cambiando",
@@ -165,12 +211,16 @@
             "notOperational": "No operacional debido a bajo Global Coverage ratio",
             "cantOperate": "No se puede operar con el estado actual",
             "requestTimeout": "Mucho tiempo procesando",
-            "connectYourWallet": "Please connect your wallet Por favor conectar billetera",
+            "connectYourWallet": "Please connect your wallet Por favor conectar wallet",
             "amountTooLow": "La cantidad debe ser mayor a cero",
             "amountInvalid": "La cantidad debe ser válida",
-            "notBalance": "No hay balance suficiente en tu billetera",
+            "notBalance": "No hay balance suficiente en tu wallet",
             "noLiquidity": "No hay suficiente liquidez en el protocolo",
-            "maxLimitedByProtocol": "Maximos limitados temporalmente por el protocolo"
+            "maxLimitedByProtocol": "Maximos limitados temporalmente por el protocolo",
+            "insufficientTPinCA": "Tokens insuficientes en este bucket",
+            "useBalancedOps": "Podés usar Operaciones Balanceadas para intercambiar tokens sin afectar la cobertura actual.",
+            "balancedOpsCTA": "Ir a la sección de Operaciones Balanceadas",
+            "noBalanceForFees": "Saldo insuficiente para pagar las comisiones"
         }
     },
     "portfolio": {
@@ -198,6 +248,9 @@
             "statusTitleFull": "Totalmente Operativo",
             "statusDescriptionFull": "Sistema en condiciones óptimas",
 
+            "statusTitleGood": "Buena Condición",
+            "statusDescriptionGood": "Vea el Estado por Colateral usando el botón de abajo:",
+
             "stuatusTitleWarning": "Parcialmente Operativo",
             "statusDescriptionWarning": "El Token Colateral no se puede redimir. El token anclado no se puede mintear",
 
@@ -213,7 +266,22 @@
             "statusTitleUnavailable": "No puede operar",
             "statusDescreiptionUnavailable": "Uno o más contratos se encuentran temporalmente no disponibles. Intenta nuevamente más tarde.",
 
-            "showingBlock": "Mostrando bloque"
+            "showingBlock": "Mostrando bloque",
+            "buttonDetails": "Ver Estado por Colateral"
+        },
+        "detailedStatus": {
+            "modalTitle": "Estado del Sitema por Colateral",
+            "collateralStatus": {
+                "fullyOperational": "Totalmente Operativo",
+                "partiallyOperational": "Parcialmente Operativo",
+                "protectedMode": "Modo Protegido",
+                "liquidated": "Liquidado"
+            },
+            "headerOperations": {
+                "token": "Token",
+                "mint": "Mintear",
+                "redeem": "Redimir"
+            }
         },
         "tvl": {
             "cardTitle": "Valor Total Bloqueado",
@@ -234,7 +302,7 @@
         },
 
         "pegged": {
-            "cardTitle": "Rendimiento del USDRIF",
+            "cardTitle": "Rendimiento de los Tokens-Pegged",
             "colName": "Nombre",
             "colTokensPer": "Tokens por USD",
             "colMinted": "Minteados",
@@ -251,13 +319,25 @@
                 "label": "RIF",
                 "abbr": "RIF"
             },
-            "TC": {
+            "CA_1": {
+                "label": "Dollar on Chain",
+                "abbr": "DOC"
+            },
+            "TC_0": {
                 "label": "RIFPro",
                 "abbr": "RIFP"
+            },
+            "TC_1": {
+                "label": "DOC Max",
+                "abbr": "DOCX"
             },
             "TP_0": {
                 "label": "RIF US Dollar",
                 "abbr": "USDRIF"
+            },
+            "TP_1": {
+                "label": "COP",
+                "abbr": "CopFlip"
             },
             "COINBASE": {
                 "label": "Smart Bitcoin",
@@ -289,7 +369,7 @@
         "infoAddressInvalid": "Dirección de destino inválida",
         "feedback": {
             "submit": "Espera la confirmación de la transacción",
-            "sign": "Firma la transacción en tu billetera",
+            "sign": "Firma la transacción en tu wallet",
             "waiting": "Espera la confirmación de la transacción",
             "success": "Operación exitosa",
             "error": "La operación falló",
@@ -310,8 +390,8 @@
         },
         "feedback": {
             "submit": "",
-            "sign": "Por favor, firma la transacción de autorización utilizando tu billetera.",
-            "waiting": "Por favor, espera mientras se mina la autorización. Una vez que esté minada, se enviará la transacción a tu billetera.",
+            "sign": "Por favor, firma la transacción de autorización utilizando tu wallet.",
+            "waiting": "Por favor, espera mientras se mina la autorización. Una vez que esté minada, se enviará la transacción a tu wallet.",
             "error": "¡Transacción fallada!",
             "default": "Espera a la confirmación de la transacción"
         }
@@ -336,10 +416,12 @@
         "liquidityMining": "Liquidity Mining",
         "vesting": "Bloqueo",
         "voting": "Votación",
-        "more": "Más"
+        "more": "Más",
+        "combinedOperations": "Op. Combinadas"
     },
 
     "language": {
+        "languageCTA": "Seleccione Idioma:",
         "en": "🇬🇧 English",
         "es": "🇪🇸 Español"
     },
@@ -364,16 +446,16 @@
         "modalTitle2": "Confirmar Migración",
         "explanation1": "RIF Dollar on Chain (RDOC) cambia a RIF US Dollar (USDRIF). Necesitas cambiar tus RIF Dollar on Chain (RDOC) para operar con la nueva dApp. No podrás ver más tu balance de RDOC en la dApp.",
         "explanation2": "El tipo de cambio es de 1 RDOC = 1 USDRIF. No se te cobrará ninguna tasa por la transacción. Solo pagarás el gas por el uso de la red.",
-        "explanation3": "Al hacer click en el botón 'Confirmar' tu billetera te pedirá firmar la transacción. Todo tu balance de RDOC será convertido a USDRIF",
+        "explanation3": "Al hacer click en el botón 'Confirmar' tu wallet te pedirá firmar la transacción. Todo tu balance de RDOC será convertido a USDRIF",
         "buttonCancel": "Cancelar",
         "buttonConfirm": "Confirmar",
         "exchanging": "Cambiando",
         "receiving": "Recibiendo",
         "authorizing": "AUTORIZACIÓN DE TOKEN",
         "migrating": "MIGRACIÓN DE TOKEN",
-        "allowanceSignText": "Por favor, firma la autorización utilizando tu billetera.",
-        "migrationTransactionSignText": "Por favor, firma la transacción de migración utilizando tu billetera.",
-        "allowanceWaiting": "Por favor, espera mientras se mina la autorización. Una vez que esté minada, se enviará la transacción a tu billetera.",
+        "allowanceSignText": "Por favor, firma la autorización utilizando tu wallet.",
+        "migrationTransactionSignText": "Por favor, firma la transacción de migración utilizando tu wallet.",
+        "allowanceWaiting": "Por favor, espera mientras se mina la autorización. Una vez que esté minada, se enviará la transacción a tu wallet.",
         "transactionHash": "Hash de la transacción",
         "operationFailed": "La operación falló !.",
         "tokenMigrationWaitingText": "Por favor, espera mientras la transacción de minado del token de migración se completa.",
@@ -440,13 +522,25 @@
             },
             "status": {
                 "PENDING": "Procesando Unstake",
-                "AVAILABLE": "Unstaking"
+                "AVAILABLE": "Disponible para Withdraw"
             },
             "table": {
                 "expiration": "Expiración",
                 "amount": "Cantidad",
                 "status": "Estado",
-                "actions": "Acciones disponibles"
+                "actions": "Opciones"
+            }
+        },
+        "history": {
+            "title": "Staking - Últimas Operaciones",
+            "columnDate": "Fecha",
+            "columnAmount": "Cantidad",
+            "columnOperation": "Operación",
+            "operatons": {
+                "stake": "Stake",
+                "unstake": "Unstake",
+                "restake": "Restake",
+                "withdraw": "Withdraw"
             }
         },
         "tokens": {
@@ -458,28 +552,26 @@
         "modal": {
             "StakingOptions_AvailableToWithdraw": "Listo para hacer Withdraw",
             "options": {
-                "availableToWithdraw": "Ready to Withdraw",
-                "unstaking": "Processing unstake",
-                "withdrawAll": "Withdraw all available",
+                "availableToWithdraw": "Listo para Withdraw",
+                "unstaking": "Procesando unstake",
+                "withdrawAll": "Retirar todo",
                 "restake": "Restake",
                 "withdraw": "Withdraw"
             },
-            "StakingOptions_AvailableToWithdraw": "Ready to Withdraw",
             "StakingOptions_PendingExpiration": "Procesando unstake",
             "StakingOptions_WithdrawAll": "Hacer Withdraw del total",
             "StakingOptions_Restake": "Restake",
             "StakingOptions_Withdraw": "Withdraw",
             "allowance": {
-                "title": "Set the allowance",
-                "description": "Before continuing with the staking you must set the allowance so that the staking system can access the tokens. This has to be done only once and it doesn't lock any tokens from your wallet.",
-                "setUnlimited": "Set unlimited allowance. Don't ask me again.",
-                "cta": "Authorize"
+                "title": "Elegir Allowance",
+                "description": "Antes de continuar con el staking, debes establecer la autorización para que el sistema de staking pueda acceder a los tokens. Esto solo se tiene que hacer una vez y no bloquea ningún token de tu wallet.",
+                "setUnlimited": "Autoriza allowance ilimitado. No preguntarme nuevamente.",
+                "cta": "Autorizar"
             },
             "StakingOptionsModal_SetAllowance": "Autorizar Allowance",
             "StakingOptionsModal_Authorize": "Autorizar",
-            "StakingOptionsModal_ReviewYourWalletDescription": "Por favor revise su billetera",
-            "StakingOptionsModal_Authorize": "Authorize",
-            "StakingOptionsModal_AllowanceDescription": "Antes de continuar con el staking deberás permitir el \"allowance\" para que el sistema pueda acceder a los tokens. Esto solo debe hacerse la primera vez y no bloquea ningún token de tu billetera.",
+            "StakingOptionsModal_ReviewYourWalletDescription": "Por favor revise su wallet",
+            "StakingOptionsModal_AllowanceDescription": "Antes de continuar con el staking deberás permitir el \"allowance\" para que el sistema pueda acceder a los tokens. Esto solo debe hacerse la primera vez y no bloquea ningún token de tu wallet.",
             "StakingOptionsModal_ProccessingAllowance": "Procesando Allowance, por favor espera",
             "StakingOptionsModal_StakingDescription": "Los MoCs stakeados recibirán recompensas del Programa de Recompensas de Staking de MoC. Puedes retirar tus MoC's cuando quieras, el proceso de retiro tomará 30 días",
             "StakingOptionsModal_AmountToStake": "Cantidad para Stake",
@@ -489,11 +581,11 @@
 
             "StakingOptionsModal_UnstakeTitle": "Unstake",
             "StakingOptionsModal_AmountToUnstake": "Cantidad para Unstake",
-            "StakingOptionsModal_UnstakingDescription": "Puedes retirar tus MoC's a tu billetera en 30 días. Puedes restakearlos en cualquier momento durante este período.",
+            "StakingOptionsModal_UnstakingDescription": "Puedes retirar tus MoC's a tu wallet en 30 días. Puedes restakearlos en cualquier momento durante este período.",
 
             "StakingOptionsModal_WithdrawTitle": "Retiro",
             "StakingOptionsModal_AmountToWithdraw": "Cantidad a Retirar",
-            "StakingOptionsModal_WithdrawDescription": "Luego del retiro tus MoC tokens estarán disponibles en tu billetera.",
+            "StakingOptionsModal_WithdrawDescription": "Luego del retiro tus MoC tokens estarán disponibles en tu wallet.",
 
             "StakingOptionsModal_RestakeTitle": "Restake",
             "StakingOptionsModal_AmountToRestake": "Monto para Restake",
@@ -527,7 +619,7 @@
                 "label": "Ingresa tu Claim Code abajo",
                 "placeholder": "Puedes pegar tu Claim Code aquí o seleccionar el botón 'cargar desde archivo'",
                 "loadButton": "Cargar Claim Code desde archivo",
-                "explanation1": "Después de pegar tu Claim Code, selecciona el botón a continuación para continuar con la creación de la Vesting Machine. Deberás firmar una transacción con tu billetera. Solo pagarás el gas por el uso de red.",
+                "explanation1": "Después de pegar tu Claim Code, selecciona el botón a continuación para continuar con la creación de la Vesting Machine. Deberás firmar una transacción con tu wallet. Solo pagarás el gas por el uso de red.",
                 "ctaPrimary": "Crear VM",
                 "ctaSecondary": "Atrás",
                 "feedback": {
@@ -539,7 +631,7 @@
                 "amountLabel": "Cantidad de tokens para el claim",
                 "ownerLabel": "Puede cargar cualquier dirección de Vesting Machine (VM) existente o crear una nueva si tienes un Claim Code.",
                 "transactionId": "ID de transacción",
-                "ctaInfo": "Los tokens serán bloqueados en la Vesting Machine vinculada a la billetera a la que estás conectado en este momento. Por favor, verifica la información de arriba antes de confirmar. Una vez que la transaccíon haya sido firmada no será posible revertirla",
+                "ctaInfo": "Los tokens serán bloqueados en la Vesting Machine vinculada a la wallet a la que estás conectado en este momento. Por favor, verifica la información de arriba antes de confirmar. Una vez que la transaccíon haya sido firmada no será posible revertirla",
                 "ctaSecondary": "Atrás",
                 "ctaPrimary": "Confirmar",
                 "modalTitle": "Confirmar Vesting Machine"
@@ -575,7 +667,7 @@
             "notFromThisUser": "Esta Vesting Machine no pertenece a esta cuenta"
         },
         "tokensAvailableToWithdraw": "Balance de MOC disponibles",
-        "withdrawToWallet": "Enviar a mi billetera",
+        "withdrawToWallet": "Enviar a mi wallet",
         "dashDistribution": {
             "vested": "MOC para retirar",
             "released": "MOC Bloqueados",
@@ -669,7 +761,7 @@
         }
     },
     "alert": {
-        "walletNotConnected": "¡Billetera no conectada!"
+        "walletNotConnected": "¡Wallet no conectada!"
     },
     "settings": {
         "protocolName": "Rif On Chain",

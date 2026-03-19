@@ -51,6 +51,6 @@
         "nameKey": "menuOptions.combinedOperations",
         "className": "logo-exchange-combined",
         "path": "/combined-operations",
-        "allowedProjects": ["flipmoney"]
+        "allowedProjects": ["flipmoney", "roc"]
     }
 ]

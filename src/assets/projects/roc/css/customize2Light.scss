@@ -129,13 +129,13 @@
     // Buttons - Tertiary
 
     --color-btn-tertiary-background-default: transparent;
-    --color-btn-tertiary-txt-default: #fff383;
+    --color-btn-tertiary-txt-default: #4b5cf0;
 
     --color-btn-tertiary-background-hover: transparent;
     --color-btn-tertiary-txt-hover: var(--color-btn-primary-txt-hover);
 
     --color-btn-tertiary-background-active: transparent;
-    --color-btn-tertiary-txt-active: #c1bc3f;
+    --color-btn-tertiary-txt-active: #4b5cf0;
     --color-btn-tertiary-background-disabled: #000000;
     --color-btn-tertiary-txt-disabled: #000000;
 
@@ -150,6 +150,7 @@
 
     --color-semantic-negative: #e54a49;
     --color-semantic-neutral: #b5b5b5;
+    --color-semantic-neutral-alt: #4b5cf0;
     --color-semantic-positive: #2cbf12;
     --filter-semantic-negative: invert(33%) sepia(83%) saturate(710%)
         hue-rotate(320deg) brightness(106%) contrast(97%);
@@ -256,6 +257,7 @@
     --color-txt-link: var(--brand-color-base);
     --color-txt-notification: #ffffff;
     --link-txt-style: underline;
+    --color-txt-inverted: #ffffff;
 
     --color-icon-primary: invert(11%) sepia(8%) saturate(478%)
         hue-rotate(114deg) brightness(101%) contrast(94%);
