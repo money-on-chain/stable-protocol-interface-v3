@@ -256,15 +256,21 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         }
     }, [isConnected, showModalProviders]);
 
+    const refetchBaseCoinBalance = userBaseCoinBalance?.refetch;
+    const refetchUserBalance = userBalance?.refetch;
+    const refetchOmocBalance = userOmocBalance?.refetch;
+    const refetchVesting = userVesting?.refetch;
+    const refetchIncentiveV2 = userIncentiveV2?.refetch;
+
     useEffect(() => {
         // Refetch user data when address changes
         if (!address) return;
-        void userBaseCoinBalance?.refetch?.();
-        void userBalance?.refetch?.();
-        void userOmocBalance?.refetch?.();
-        void userVesting?.refetch?.();
-        void userIncentiveV2?.refetch?.();
-    }, [address]); // eslint-disable-line react-hooks/exhaustive-deps
+        void refetchBaseCoinBalance?.();
+        void refetchUserBalance?.();
+        void refetchOmocBalance?.();
+        void refetchVesting?.();
+        void refetchIncentiveV2?.();
+    }, [address, refetchBaseCoinBalance, refetchUserBalance, refetchOmocBalance, refetchVesting, refetchIncentiveV2]);
 
     const onDisconnect = (): void => {
         disconnect();
