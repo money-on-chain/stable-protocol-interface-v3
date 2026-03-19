@@ -36,3 +36,19 @@
     width: 100%;
 }
 /* #endregion WITHDRAW CARD WIDE  */
+
+/* #region HIDE VESTING ONBOARDING */
+#vestingOnboardingPagination,
+#vestingOnboardingUseClaimCode,
+#vestingOnboardingClaimCodeExplanation {
+    display: none;
+}
+/* #endregion HIDE VESTING ONBOARDING  */
+
+/* #region HIDE VESTING SWITCH */
+.wallet__settings {
+    .switch__vesting {
+        display: none !important;
+    }
+}
+/* #rendegion HIDE VESTING SWITCH */

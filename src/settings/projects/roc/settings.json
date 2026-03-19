@@ -1,4 +1,4 @@
-{    
+{
     "project": "roc",
     "dapp": {
         "name": "ROC UI",
@@ -55,7 +55,8 @@
         "TP": [
             {
                 "key": 0,
-                "name": "ArsFlip",
+                "name": "USDRIF",
+                "fullName": "RIF US Dollar",
                 "decimals": 18,
                 "visibleDecimals": 2,
                 "visiblePriceDecimals": 2,
@@ -100,7 +101,7 @@
                 "peggedUSD": false
             }
         ],
-        
+
         "TF": [
             {
                 "key": 0,
@@ -137,6 +138,6 @@
                 "visibleBalanceUSDDecimals": 2,
                 "peggedUSD": false
             }
-        ]       
+        ]
     }
 }
