@@ -103,6 +103,7 @@ const httpTransports = (chainId: number) =>
 
 export const config = createConfig({
     chains: CHAINS,
+    multiInjectedProviderDiscovery: true,
     connectors,
     transports: {
         // Wallet's own RPC is always tried first (uses MetaMask/WalletConnect configured RPC).
