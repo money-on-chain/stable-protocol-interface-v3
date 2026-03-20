@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { usePublicClient, useWalletClient } from "wagmi";
+import { usePublicClient } from "wagmi";
 
 interface RpcErrorState {
     hasError: boolean;
@@ -22,7 +22,6 @@ const RETRY_DELAY = 2000;
 
 export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
     const publicClient = usePublicClient();
-    const walletClient = useWalletClient();
 
     const [rpcError, setRpcError] = useState<RpcErrorState>({
         hasError: false,
@@ -68,7 +67,6 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
             "dns resolution failed",
             "no internet connection",
             "network unreachable",
-            "forced error", // Add this for testing
         ];
 
         const isMatch = rpcErrorPatterns.some(
@@ -113,18 +111,11 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
                 return;
             }
 
-            // Check if this is a test error (don't auto-retry)
-            const errorMessage =
-                error instanceof Error ? error.message : String(error);
-            const isTestError = errorMessage
-                .toLowerCase()
-                .includes("forced error");
-
             setRpcError((prev) => ({
                 hasError: true,
                 errorMessage: getErrorMessage(error),
                 isRetrying: false,
-                retryCount: isTestError ? 999 : prev.retryCount, // Set high retry count for test errors
+                retryCount: prev.retryCount,
             }));
 
             setIsRpcHealthy(false);
@@ -154,7 +145,6 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
 
             setIsRpcHealthy(true);
         } catch (error) {
-            console.warn("Retry attempt failed:", error);
 
             // Check if it's a network error (no internet)
             const errorMessage =
@@ -257,13 +247,7 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
                 if (aborted) return;
                 setIsRpcHealthy(true);
                 if (rpcError.hasError) {
-                    // Don't clear test errors
-                    const isTestError = rpcError.errorMessage
-                        .toLowerCase()
-                        .includes("forced error");
-                    if (!isTestError) {
-                        clearError();
-                    }
+                    clearError();
                 }
             } catch (error) {
                 if (!aborted) handleRpcError(error);
@@ -296,13 +280,7 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
         return () => {
             aborted = true;
         };
-    }, [
-        publicClient,
-        rpcError.hasError,
-        rpcError.errorMessage,
-        handleRpcError,
-        clearError,
-    ]);
+    }, [publicClient, rpcError.hasError, handleRpcError, clearError]);
 
     // Lightweight periodic RPC heartbeat even when healthy
     useEffect(() => {
@@ -369,63 +347,32 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
         };
     }, [publicClient, handleRpcError, clearError, rpcError.hasError]);
 
-    // Periodic connectivity check (fallback for unreliable navigator.onLine)
+    // Periodic connectivity check — uses the configured RPC (publicClient.getBlockNumber)
+    // instead of third-party endpoints to avoid leaking user IPs to external services.
     useEffect(() => {
         if (!publicClient) return;
 
-        const controller = new AbortController();
+        let aborted = false;
 
         const checkConnectivity = () => {
             void (async () => {
-                // Try multiple reliable endpoints
-                const endpoints = [
-                    "https://www.google.com/favicon.ico",
-                    "https://httpbin.org/status/200",
-                    "https://jsonplaceholder.typicode.com/posts/1",
-                ];
-
-                let connected = false;
-                for (const endpoint of endpoints) {
-                    try {
-                        await fetch(endpoint, {
-                            method: "HEAD",
-                            mode: "no-cors",
-                            cache: "no-cache",
-                            signal: AbortSignal.any([
-                                controller.signal,
-                                AbortSignal.timeout(3000),
-                            ]),
-                        });
-                        connected = true;
-                        break;
-                    } catch (e) {
-                        if (controller.signal.aborted) return;
-                        // continue trying other endpoints
-                    }
-                }
-
-                if (controller.signal.aborted) return;
-
-                if (connected) {
-                    if (rpcError.hasError) {
-                        clearError();
-                    }
-                } else {
-                    if (!rpcError.hasError) {
-                        handleRpcError(
-                            new Error("No internet connection detected")
-                        );
-                    }
+                try {
+                    await publicClient.getBlockNumber();
+                    if (aborted) return;
+                    if (rpcError.hasError) clearError();
+                } catch (error) {
+                    if (aborted) return;
+                    if (!rpcError.hasError) handleRpcError(error);
                 }
             })();
         };
 
-        // Check connectivity more frequently when there's an error
-        const checkInterval = rpcError.hasError ? 5000 : 10000; // 5s when error, 10s when healthy
+        // Check more frequently when there's an error
+        const checkInterval = rpcError.hasError ? 5000 : 10000;
         const interval = setInterval(checkConnectivity, checkInterval);
 
         return () => {
-            controller.abort();
+            aborted = true;
             clearInterval(interval);
         };
     }, [publicClient, handleRpcError, clearError, rpcError.hasError]);
