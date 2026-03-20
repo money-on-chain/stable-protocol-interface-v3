@@ -126,7 +126,6 @@ const mintTC = async (
 
     // Send transaction
     const txHash = await writeContract(config, request);
-    console.warn("txHash", txHash);
     if (onTransaction) onTransaction(txHash);
 
     const receipt = await waitForTransactionReceipt(config, { hash: txHash });
@@ -272,7 +271,6 @@ const mintTP = async (
 
     // Send transaction
     const txHash = await writeContract(config, request);
-    console.warn("txHash", txHash);
     if (onTransaction) onTransaction(txHash);
 
     const receipt = await waitForTransactionReceipt(config, { hash: txHash });

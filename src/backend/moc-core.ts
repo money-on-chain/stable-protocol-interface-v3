@@ -59,6 +59,9 @@ const redeemTC = async (
     const { address, contractProtocolStatus, userBalance, vendorAddress } =
         context;
 
+    if (limitAmount === 0n)
+        throw new Error("limitAmount must be > 0 — a zero minimum would accept receiving nothing");
+
     if (!userBalance.data[caIndex])
         throw new Error(`Bucket index not found for ${caIndex}`);
 
@@ -193,14 +196,15 @@ const redeemTP = async (
         vendorAddress,
     } = context;
 
+    if (limitAmount === 0n)
+        throw new Error("limitAmount must be > 0 — a zero minimum would accept receiving nothing");
+
     // Verifications
     if (!contracts.TP) throw new Error("TP not found");
     if (!contracts.TP[tpIndex]) throw new Error(`TP not found for ${tpIndex}`);
     if (!userBalance.data.TP) throw new Error("TP not found");
 
     const tpAddress = contracts.TP[tpIndex].address;
-
-    // Verifications
 
     // User have sufficient PEGGED Token in balance?
     /*console.log(
@@ -621,6 +625,9 @@ const redeemTCandTP = async (
         userBalance,
         vendorAddress,
     } = context;
+
+    if (limitAmount === 0n)
+        throw new Error("limitAmount must be > 0 — a zero minimum would accept receiving nothing");
 
     if (!contracts.TP) throw new Error("TP not found");
     if (!contracts.TP[tpIndex]) throw new Error(`TP not found for ${tpIndex}`);
