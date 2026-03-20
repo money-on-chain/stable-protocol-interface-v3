@@ -8,6 +8,7 @@
         "@ant-design/icons": "^4.8.3",
         "@tanstack/react-query": "^5.83.0",
         "@vitejs/plugin-react-swc": "^3.10.0",
+        "@wagmi/core": "2.22.1",
         "antd": "^4.24.16",
         "axios": "^1.9.0",
         "env-cmd": "^10.1.0",
@@ -24,8 +25,7 @@
         "sass": "^1.89.0",
         "viem": "^2.32.0",
         "vite": "^6.3.5",
-        "wagmi": "^2.15.7",
-        "@wagmi/core": "2.22.1"
+        "wagmi": "^2.15.7"
     },
     "scripts": {
         "lint": "eslint . --max-warnings 0",
@@ -82,7 +82,7 @@
         "prettier": "3.4.2",
         "typescript": "^5.8.3",
         "typescript-eslint": "^8.44.0",
-        "vite-plugin-pwa": "^1.0.3",
+        "vite-plugin-pwa": "^1.2.0",
         "vite-plugin-svgr": "^4.3.0"
     },
     "packageManager": "pnpm@10.19.0+sha512.c9fc7236e92adf5c8af42fd5bf1612df99c2ceb62f27047032f4720b33f8eacdde311865e91c411f2774f618d82f320808ecb51718bfa82c060c4ba7c76a32b8"
