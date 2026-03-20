@@ -40,6 +40,7 @@ export type OnReceipt = (receipt: unknown) => void;
 export type OnError = (error: unknown) => void;
 export type WalletContextType = {
     isConnected: boolean;
+    isOnCorrectChain: boolean;
     address?: Address;
     connect: ReturnType<typeof useConnect>["connect"];
     disconnect: () => void;

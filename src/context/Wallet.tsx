@@ -928,6 +928,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 vestingOn,
                 toggleVesting,
                 isConnected,
+                isOnCorrectChain,
                 address,
                 contractsAddress,
                 contractsAddressLoaded,

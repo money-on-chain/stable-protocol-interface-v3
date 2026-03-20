@@ -14,13 +14,6 @@ import settings from "./settings/settings.json";
 // Re-export so existing consumers of wagmiConfig still work
 export { ALLOWED_CHAIN, CHAINS };
 
-// Override localhost with the correct contracts configuration
-localhost.contracts = {
-    multicall3: {
-        address: "0xcA11bde05977b3631167028862bE2a173976CA11",
-    },
-};
-
 // Safe env getter (Vite/CRA/Node)
 const env = (k: string): string | undefined => {
     const importMetaEnv =
