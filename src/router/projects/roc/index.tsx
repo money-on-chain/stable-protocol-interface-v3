@@ -9,7 +9,9 @@ const Home = React.lazy(() => import("../../../pages/Home/index"));
 const Veto = React.lazy(() => import("../../../pages/Veto/index"));
 const VetoWithdraw = React.lazy(() => import("../../../pages/Veto/Withdraw"));
 const Exchange = React.lazy(() => import("../../../pages/Exchange/index"));
-const CombinedOperations = React.lazy(() => import("../../../pages/CombinedOperations/index"));
+const CombinedOperations = React.lazy(
+    () => import("../../../pages/CombinedOperations/index")
+);
 
 const Send = React.lazy(() => import("../../../pages/Send/index"));
 const Performance = React.lazy(

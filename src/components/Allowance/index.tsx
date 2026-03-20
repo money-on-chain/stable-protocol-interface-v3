@@ -3,7 +3,7 @@ import React, { useState } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
 import { useProjectTranslation } from "../../helpers/translations";
-import type { AllowanceStep} from "../../types/status";
+import type { AllowanceStep } from "../../types/status";
 import { ALLOWANCE_STEPS } from "../../types/status";
 
 const PRECISION_DECIMALS = 18n;
@@ -83,16 +83,16 @@ export default function AllowanceDialog(
         reset();
         onCloseModal();
     };
-    
+
     const nextStep = (
         steps: readonly AllowanceStep[],
         current: AllowanceStep
-      ): AllowanceStep | undefined => {
+    ): AllowanceStep | undefined => {
         const index = steps.indexOf(current);
         return index >= 0 && index < steps.length - 1
-          ? steps[index + 1]
-          : undefined;
-      };
+            ? steps[index + 1]
+            : undefined;
+    };
 
     const onAuthorize = (): void => {
         // First change status to sign tx
@@ -116,8 +116,8 @@ export default function AllowanceDialog(
             onReceipt
         )
             .then((/*value*/) => {
-                onClose();   
-                const step = nextStep(ALLOWANCE_STEPS, name as AllowanceStep);                
+                onClose();
+                const step = nextStep(ALLOWANCE_STEPS, name as AllowanceStep);
                 if (step) {
                     onCallback(step);
                 }
@@ -150,7 +150,7 @@ export default function AllowanceDialog(
             receipt.transactionHash
         );
         const filteredEvents = decodeEvents(txRcp, contractName, filter);
-         */        
+         */
     };
 
     return (

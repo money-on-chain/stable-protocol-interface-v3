@@ -94,13 +94,12 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
             formattedValue = `0${value}`;
         }
 
+        if (formattedValue.includes(",")) {
+            formattedValue = formattedValue.replace(/,/g, "");
+        }
+
         if (formattedValue === "") {
-            if (formattedValue.includes(",")) {
-                formattedValue = formattedValue.replace(/,/g, "");
-                onValueChange(formattedValue);
-            } else {
-                onValueChange("");
-            }
+            onValueChange("");
         } else if (isValidNumber(formattedValue)) {
             onValueChange(formattedValue.replace(",", "."));
         } else {

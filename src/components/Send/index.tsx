@@ -8,17 +8,12 @@ import {
     TokenSettings,
 } from "../../helpers/currencies";
 import { tokenExchange } from "../../helpers/exchange";
-import {
-    fromWei,
-    toBigIntPrecision,
-} from "../../helpers/precision";
+import { fromWei, toBigIntPrecision } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import CurrencyPopUp from "../CurrencyPopUp";
 import InputAmount from "../InputAmount";
-
 import ModalConfirmSend from "../Modals/ConfirmSend";
 import { PrecisionNumbers } from "../PrecisionNumbers";
-
 
 export default function Send(): JSX.Element {
     const { t, i18n } = useProjectTranslation();
@@ -50,8 +45,7 @@ export default function Send(): JSX.Element {
         useState<boolean>(false);
 
     const onChangeCurrencyYouSend = (newCurrencyYouExchange: string): void => {
-        
-        onClear();        
+        onClear();
 
         let caIndex: number = 0;
         const aCurrencyYouSend: string[] = newCurrencyYouExchange.split("_");
@@ -107,10 +101,7 @@ export default function Send(): JSX.Element {
         // 2. Input address valid
         if (destinationAddress === "") {
             addressInputError = true;
-        } else if (
-            destinationAddress.length < 42 ||
-            destinationAddress.length > 42
-        ) {
+        } else if (!/^0x[0-9a-fA-F]{40}$/.test(destinationAddress)) {
             setInputValidationAddressErrorText(t("send.infoAddressInvalid"));
             addressInputError = true;
         }
@@ -188,7 +179,7 @@ export default function Send(): JSX.Element {
         setDestinationAddress(event.target.value);
     };
 
-    const setAddTotalAvailable = (): void => {        
+    const setAddTotalAvailable = (): void => {
         const totalYouSendWei: bigint = TokenBalance(
             userBalance,
             currencyYouSend,

@@ -26,7 +26,6 @@ import {
 } from "../../helpers/exchange";
 import {
     divPrecision,
-    fromWei,
     mulPrecision,
     normalizeToBigInt,
     toBigIntPrecision,
@@ -554,6 +553,8 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         contractProtocolStatus,
         currencyYouExchange,
         currencyYouReceive,
+        operationType,
+        radioSelectFee,
         t,
         userBalance,
         valueExchange,
@@ -630,6 +631,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         };
 
         void run();
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- onChangeAmounts is intentionally excluded: it is redeclared every render but its behaviour only changes when its captured state changes, which is already covered by the explicit deps below
     }, [
         slippageTolerance,
         // depends on these because if they change and the user adjusts slippage, you want to recalculate properly
@@ -639,7 +641,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         // if the user changes the amount and then slippage, it is already updated
         amountYouExchange,
         amountYouReceive,
-        contractProtocolStatus.data,
+        contractProtocolStatus,
         userBalance.data,
         publicClient,
     ]);
@@ -660,7 +662,6 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         //const isSwapNoCA = ex !== "CA" && re !== "CA"; // (TC/TP) -> (TC/TP)
         //const payFeeInCA = radioSelectFee > 0;
 
-        let infoFee: CommissionInfo;
         let amountInCA: bigint = 0n;
 
         if (operationType === "COMBINED_MINT" || operationType === "MINT") {
@@ -730,7 +731,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             combinedFeeCA = amountInCA + otherTokenAmount.qAC;
         }
 
-        infoFee = CalcCommission(
+        const infoFee = CalcCommission(
             contractProtocolStatus,
             currencyYouExchange,
             currencyYouReceive,
@@ -813,7 +814,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                 ) {
                     // The fee is payed with CA that not implied in exchange inputs, we don't calculate it
 
-                    let receiveOut = ConvertAmount(
+                    const receiveOut = ConvertAmount(
                         contractProtocolStatus,
                         currencyYouExchange,
                         currencyYouReceive,
@@ -950,7 +951,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                     operationType === "SWAP_TCFORTP" ||
                     operationType === "SWAP_TPFORTC"
                 ) {
-                    let exchangeOut = ConvertAmount(
+                    const exchangeOut = ConvertAmount(
                         contractProtocolStatus,
                         currencyYouReceive,
                         currencyYouExchange,
@@ -1203,7 +1204,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         }
     };
 
-    const onChangeSlippageTolerance = async (value: number): Promise<void> => {
+    const onChangeSlippageTolerance = (value: number): void => {
         console.warn("slippage tolerance", value);
         setSlippageTolerance(value);
     };
@@ -1417,9 +1418,9 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
 
     const executionFeeInFiat = (): bigint => {
         if (!contractProtocolStatus.data || executionFee === 0n) return 0n;
-        const priceCoinbase = normalizeToBigInt(
-            contractProtocolStatus.data.PP_COINBASE[0]
-        );
+        const coinbaseEntry = contractProtocolStatus.data.PP_COINBASE?.[0];
+        if (!coinbaseEntry) return 0n;
+        const priceCoinbase = normalizeToBigInt(coinbaseEntry);
         if (priceCoinbase) {
             return mulPrecision(executionFee, priceCoinbase);
         }

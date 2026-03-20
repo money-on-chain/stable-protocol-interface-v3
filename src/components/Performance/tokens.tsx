@@ -79,11 +79,13 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
         contractProtocolStatus.data[caIndex].getPTCac
     ) {
         // TC row
-        const priceTEC = contractProtocolStatus.data[caIndex].getPTCac || 0n;
+        const priceTEC =
+            normalizeToBigInt(contractProtocolStatus.data[caIndex].getPTCac) ??
+            0n;
         const priceCA =
             normalizeToBigInt(
                 contractProtocolStatus.data[caIndex].PP_CA?.[0]
-            ) || 0n;
+            ) ?? 0n;
         const price = mulPrecision(priceTEC, priceCA);
 
         tokensData.push({

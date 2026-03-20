@@ -23,8 +23,8 @@ export default function TVL(): JSX.Element {
             const entry = contractProtocolStatus.data[dataItem.key];
             if (!entry || !entry.PP_CA || entry.nACcb == null) continue;
 
-            const priceCA = normalizeToBigInt(entry.PP_CA[0]) || 0n;
-            const nACcb = entry.nACcb ?? 0n;
+            const priceCA = normalizeToBigInt(entry.PP_CA[0]) ?? 0n;
+            const nACcb = normalizeToBigInt(entry.nACcb) ?? 0n;
 
             total += mulPrecision(nACcb, priceCA);
         }

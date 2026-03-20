@@ -3,8 +3,8 @@ import Modal from "antd/lib/modal/Modal";
 import React, { useState } from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
-import ConfirmOperation from "../../ConfirmOperation";
 import type { CommissionsState } from "../../../types/status";
+import ConfirmOperation from "../../ConfirmOperation";
 
 interface ModalConfirmOperationProps {
     inputValidationError?: boolean;
@@ -20,7 +20,7 @@ interface ModalConfirmOperationProps {
     caIndex: number;
     operationType: string;
     slippageTolerance: number;
-    amountAnotherToken: { qAC: bigint, amount: bigint };
+    amountAnotherToken: { qAC: bigint; amount: bigint };
     tpIndex: number;
 }
 

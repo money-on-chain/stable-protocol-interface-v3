@@ -7,14 +7,14 @@ import type {
 } from "../types/wallets";
 import {
     mintTC as mintTC_,
+    mintTCandTP as mintTCandTP_,
     mintTP as mintTP_,
     redeemTC as redeemTC_,
+    redeemTCandTP as redeemTCandTP_,
     redeemTP as redeemTP_,
-    swapTPforTP as swapTPforTP_,
     swapTCforTP as swapTCforTP_,
     swapTPforTC as swapTPforTC_,
-    redeemTCandTP as redeemTCandTP_,
-    mintTCandTP as mintTCandTP_,
+    swapTPforTP as swapTPforTP_,
 } from "./moc-core";
 
 const mintTC = async (
@@ -98,7 +98,7 @@ const redeemTP = async (
 };
 
 const swapTPforTP = async (
-    interfaceContext: InterfaceContext,    
+    interfaceContext: InterfaceContext,
     iFromTP: number,
     iToTP: number,
     qTP: bigint,
@@ -144,7 +144,6 @@ const swapTCforTP = async (
         onReceipt
     );
 };
-
 
 const swapTPforTC = async (
     interfaceContext: InterfaceContext,
@@ -213,4 +212,14 @@ const redeemTCandTP = async (
     );
 };
 
-export { mintTC, mintTP, redeemTC, redeemTP, swapTPforTP, swapTCforTP, swapTPforTC, mintTCandTP, redeemTCandTP };
+export {
+    mintTC,
+    mintTCandTP,
+    mintTP,
+    redeemTC,
+    redeemTCandTP,
+    redeemTP,
+    swapTCforTP,
+    swapTPforTC,
+    swapTPforTP,
+};

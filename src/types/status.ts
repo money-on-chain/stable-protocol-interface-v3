@@ -66,7 +66,7 @@ export type ProtocolStatusEntry = {
     tcRedeemFee: bigint;
     swapTPforTPFee: bigint;
     swapTCforTPFee: bigint;
-    swapTPforTCFee: bigint;    
+    swapTPforTCFee: bigint;
     tpCtarg: bigint[];
     tpEma: TpEma[];
     tpMintExecCost: bigint;
@@ -279,4 +279,4 @@ export const ALLOWANCE_STEPS = [
     "SubmitOperationTransaction",
 ] as const;
 
-export type AllowanceStep = typeof ALLOWANCE_STEPS[number];
+export type AllowanceStep = (typeof ALLOWANCE_STEPS)[number];
