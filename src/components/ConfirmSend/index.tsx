@@ -54,13 +54,9 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
                 onTransaction,
                 onReceipt
             )
-                .then((/*value*/) => {
-                    console.warn("DONE!");
-                })
                 .catch((error: unknown) => {
-                    console.error("ERROR");
+                    console.error("ConfirmSend transfer error:", error);
                     setStatus("ERROR");
-                    console.error(error);
                 });
         } else {
             void interfaceTransferToken(
@@ -70,27 +66,19 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
                 onTransaction,
                 onReceipt
             )
-                .then((/*value*/) => {
-                    console.warn("DONE!");
-                })
                 .catch((error: unknown) => {
-                    console.error("ERROR");
+                    console.error("ConfirmSend transfer error:", error);
                     setStatus("ERROR");
-                    console.error(error);
                 });
         }
     };
 
     const onTransaction = (transactionHash: string): void => {
-        // Tx receipt detected change status to waiting
         setStatus("WAITING");
-        console.warn("On transaction: ", transactionHash);
         setTxID(transactionHash);
     };
 
-    const onReceipt = (receipt: unknown): void => {
-        // Tx is mined ok
-        console.warn("On receipt: ", receipt);
+    const onReceipt = (_receipt: unknown): void => {
 
         /*
         // Events name list

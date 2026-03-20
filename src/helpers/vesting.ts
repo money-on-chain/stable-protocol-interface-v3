@@ -86,9 +86,9 @@ const onValidateVestingAddress = async (
     addVestingAddress: `0x${string}`
 ): Promise<boolean> => {
     // 1. Input address valid
-    if (addVestingAddress === undefined || addVestingAddress === null) {
+    if (!addVestingAddress) {
         return false;
-    } else if (addVestingAddress.length < 42 || addVestingAddress.length > 42) {
+    } else if (!/^0x[0-9a-fA-F]{40}$/.test(addVestingAddress)) {
         return false;
     }
 

@@ -101,10 +101,7 @@ export default function Send(): JSX.Element {
         // 2. Input address valid
         if (destinationAddress === "") {
             addressInputError = true;
-        } else if (
-            destinationAddress.length < 42 ||
-            destinationAddress.length > 42
-        ) {
+        } else if (!/^0x[0-9a-fA-F]{40}$/.test(destinationAddress)) {
             setInputValidationAddressErrorText(t("send.infoAddressInvalid"));
             addressInputError = true;
         }
