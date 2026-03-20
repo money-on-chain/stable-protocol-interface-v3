@@ -373,10 +373,12 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 v.toLowerCase()
             );
 
+            const EVM_ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
             const newVesting: string[] = [];
             response.transactions.forEach((data) => {
-                if (!vLowerFromStorage.includes(data.vesting.toLowerCase())) {
-                    newVesting.push(data.vesting.toLowerCase());
+                const addr = data.vesting.toLowerCase();
+                if (EVM_ADDRESS_RE.test(data.vesting) && !vLowerFromStorage.includes(addr)) {
+                    newVesting.push(addr);
                 }
             });
 

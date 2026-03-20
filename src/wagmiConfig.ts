@@ -35,7 +35,14 @@ const APP_URL =
 
 const WC_PROJECT_ID =
     env("REACT_APP_WALLET_CONNECT_PROJECT_ID") ||
-    env("VITE_WALLET_CONNECT_PROJECT_ID")!;
+    env("VITE_WALLET_CONNECT_PROJECT_ID") ||
+    "";
+
+if (!WC_PROJECT_ID) {
+    console.error(
+        "[wagmiConfig] REACT_APP_WALLET_CONNECT_PROJECT_ID / VITE_WALLET_CONNECT_PROJECT_ID is not set — WalletConnect will not work"
+    );
+}
 
 // IMPORTANT: do NOT add metaMask() here — with multiInjectedProviderDiscovery:true,
 // MetaMask is auto-discovered via EIP-6963. Adding metaMask() creates a duplicate.

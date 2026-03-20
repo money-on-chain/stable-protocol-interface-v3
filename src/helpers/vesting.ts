@@ -16,11 +16,13 @@ const loadVestingAddressesFromLocalStorage = (
     const storageVestingAddresses = localStorage.getItem(
         `vesting-addresses-${accountAddress.toLowerCase()}`
     );
-    let vestingAddresses: string[] = [];
-    if (storageVestingAddresses !== null) {
-        vestingAddresses = JSON.parse(storageVestingAddresses) as string[];
+    if (storageVestingAddresses === null) return [];
+    try {
+        const parsed = JSON.parse(storageVestingAddresses) as unknown;
+        return Array.isArray(parsed) ? (parsed as string[]) : [];
+    } catch {
+        return [];
     }
-    return vestingAddresses;
 };
 
 const saveVestingAddressesToLocalStorage = (
@@ -70,7 +72,7 @@ const loadVesting = async (
             args: [],
         })) as string;
 
-        console.warn(`Loaded Vesting Machine: ${vAddress} Holder: ${holder} `);
+        void holder; // confirm the contract call succeeded
         loaded = true;
     } catch (error) {
         console.error(`Invalid Vesting address: ${String(error)}`);
@@ -98,8 +100,7 @@ const onValidateVestingAddress = async (
             args: [],
         })) as string;
 
-        console.warn("Holder: ", holder);
-
+        void holder;
         return true;
     } catch (error) {
         console.error(`Invalid Vesting address: ${String(error)}`);
