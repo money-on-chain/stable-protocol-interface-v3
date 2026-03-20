@@ -3,7 +3,7 @@ import "./Styles.scss";
 import { notification } from "antd";
 import React from "react";
 import type { Connector } from "wagmi";
-import { useAccount, useConnect } from "wagmi";
+import { useConnect } from "wagmi";
 
 import { useProjectTranslation } from "../../helpers/translations";
 
@@ -14,7 +14,6 @@ interface ProvidersProps {
 export default function WalletProviders({ onCloseModal }: ProvidersProps) {
     const { t } = useProjectTranslation();
     const { connectors, connectAsync } = useConnect();
-    const { isConnected } = useAccount();
     const [loadingId, setLoadingId] = React.useState<string | null>(null);
 
     // Detect mobile UA (phones/tablets without an in-app wallet browser)

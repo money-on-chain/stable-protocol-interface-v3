@@ -388,9 +388,12 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     };
 
     const readUserVesting = (): void => {
-        const url = new URL(
-            String(import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS)
-        );
+        const apiBase = import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS as string | undefined;
+        if (!apiBase) {
+            console.warn("readUserVesting: REACT_APP_ENVIRONMENT_API_OPERATIONS is not set");
+            return;
+        }
+        const url = new URL(apiBase);
         url.pathname = "/v1/omoc/vesting_created/";
         url.search = new URLSearchParams({
             holder: address || "",
@@ -585,11 +588,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
     const interfaceStakingAddStake = async (
         amount: bigint,
-        address: `0x${string}`,
+        from: `0x${string}`,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt
     ): Promise<TransactionReceipt | undefined> => {
-        const from = address;
         const interfaceContext = buildInterfaceContext();
         if (isVestingLoaded() && vestingAddress) {
             return addStakeVesting(
