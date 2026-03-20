@@ -666,7 +666,7 @@ const redeemTCandTP = async (
 interface CoreOpContext
     extends Omit<InterfaceContext, "contracts" | "address"> {
     vendorAddress: string;
-    mocContract: any;
+    mocContract: { address: `0x${string}`; abi: Abi };
     contracts: NonNullable<InterfaceContext["contracts"]>;
     address: NonNullable<InterfaceContext["address"]>;
     publicClient: NonNullable<InterfaceContext["publicClient"]>;
@@ -729,7 +729,7 @@ const sendWithExecFee = async (
         value?: bigint;
     } = {
         address: mocContract.address,
-        abi: mocContract.abi as Abi,
+        abi: mocContract.abi,
         functionName,
         args,
         account: address,
@@ -748,7 +748,7 @@ const sendWithExecFee = async (
     // We assume all transports in 127.0.0.1 or localhost to be hardhat, and we
     // simulate with a 0 executionFee. Hopefully we can remove this check in the future.
     try {
-        const host = new URL(publicClient.transport.transports[0].value.url)
+        const host = new URL(String((publicClient.transport.transports as Array<{ value?: { url?: string } }>)[0]?.value?.url ?? ""))
             .hostname;
         if (host == "localhost" || host == "127.0.0.1") {
             const clientVersion = await publicClient.request({

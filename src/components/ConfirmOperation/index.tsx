@@ -181,7 +181,7 @@ export default function ConfirmOperation(
             return;
         }
         const apiUrl = new URL(
-            import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS
+            String(import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS)
         );
         apiUrl.pathname = "/v1/operations/oper_id/";
 

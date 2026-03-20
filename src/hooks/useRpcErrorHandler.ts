@@ -342,7 +342,9 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
                     try {
                         await publicClient.getBlockNumber();
                         if (!aborted) clearError();
-                    } catch (error) {}
+                    } catch (_) {
+                        // getBlockNumber failed; skip clearError
+                    }
                 })();
             }, 1000);
         };
