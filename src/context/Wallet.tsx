@@ -52,6 +52,7 @@ import {
 } from "../backend/omoc/voting";
 import ModalAccount from "../components/Modals/Account";
 import ModalProviders from "../components/Modals/Providers";
+import { ALLOWED_CHAIN } from "../constants/chain";
 import {
     ApproveTokenContract,
     exchangeMethod,
@@ -115,10 +116,14 @@ const REFRESH_INTERVAL_CONTRACT_STATUS_OMOC = 30_000;
 const REFRESH_INTERVAL_USER_BALANCE = 30_000;
 
 export function WalletProvider({ children }: { children: React.ReactNode }) {
-    const { address, isConnected } = useAccount();
+    const { address, isConnected, chainId } = useAccount();
+    const isOnCorrectChain = isConnected && chainId === ALLOWED_CHAIN.id;
     const { connect } = useConnect();
     const { disconnect } = useDisconnect();
-    const publicClient = usePublicClient();
+    // Always use the public client for ALLOWED_CHAIN regardless of what chain the
+    // wallet is currently on. This prevents ChainDisconnectedError when the wallet
+    // is on a different chain (e.g. Ethereum mainnet) while reads target RSK.
+    const publicClient = usePublicClient({ chainId: ALLOWED_CHAIN.id });
     const walletClient = useWalletClient();
 
     const [contractsAddress, setContractsAddress] = useState<DContracts | null>(
@@ -234,7 +239,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     );
 
     const readContractsAddresses = useCallback(async (): Promise<void> => {
-        if (!isConnected || contractsAddressLoaded || !publicClient) return;
+        if (!isConnected || !isOnCorrectChain || contractsAddressLoaded || !publicClient) return;
 
         try {
             const contractsAddresses = await readContracts(publicClient);
@@ -252,6 +257,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         }
     }, [
         isConnected,
+        isOnCorrectChain,
         contractsAddressLoaded,
         publicClient,
         handleRpcError,
@@ -263,6 +269,16 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             void readContractsAddresses();
         }
     }, [contractsAddressLoaded, readContractsAddresses]);
+
+    // Reset loaded contracts when the wallet switches to a different chain so that
+    // they are re-fetched when the user switches back to the correct chain.
+    useEffect(() => {
+        if (isConnected && !isOnCorrectChain) {
+            setContractsAddress(null);
+            setContractsAddressLoaded(false);
+            setContractsLoadRetryCount(0);
+        }
+    }, [isConnected, isOnCorrectChain]);
 
     useEffect(() => {
         return () => {

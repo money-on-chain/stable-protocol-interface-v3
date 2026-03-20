@@ -51,6 +51,11 @@ h2 {
     background-size: 32px 32px;
     background-repeat: no-repeat;
     display: block;
+    flex-shrink: 0;
+}
+.walletIcon--eip6963 {
+    border-radius: 6px;
+    object-fit: contain;
 }
 .walletIcon-MetaMask {
     background-image: url("../../assets/icons/walletIcon_MetaMask_Fox.svg");

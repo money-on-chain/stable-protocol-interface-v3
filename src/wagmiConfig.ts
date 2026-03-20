@@ -1,14 +1,18 @@
 // wagmiConfig.ts
-import { createConfig, fallback, http, unstable_connector } from "wagmi";
+import { custom } from "viem";
+import { createConfig, fallback, http } from "wagmi";
 import { localhost, rootstock, rootstockTestnet } from "wagmi/chains";
 import {
     coinbaseWallet,
     injected,
-    metaMask,
     walletConnect,
 } from "wagmi/connectors";
 
+import { ALLOWED_CHAIN, CHAINS } from "./constants/chain";
 import settings from "./settings/settings.json";
+
+// Re-export so existing consumers of wagmiConfig still work
+export { ALLOWED_CHAIN, CHAINS };
 
 // Override localhost with the correct contracts configuration
 localhost.contracts = {
@@ -30,21 +34,6 @@ const env = (k: string): string | undefined => {
     return importMetaEnv || processEnv;
 };
 
-// Chain selection
-const ENV_CHAIN_ID = Number(
-    env("REACT_APP_ENVIRONMENT_CHAIN_ID") ??
-        env("VITE_ENVIRONMENT_CHAIN_ID") ??
-        31
-);
-
-export const CHAINS = [rootstock, rootstockTestnet, localhost] as const;
-export const ALLOWED_CHAIN =
-    ENV_CHAIN_ID === rootstock.id
-        ? rootstock
-        : ENV_CHAIN_ID === rootstockTestnet.id
-          ? rootstockTestnet
-          : localhost; // fallback sensible
-
 // Runtime URL for connector metadata (must match the page origin)
 const APP_URL =
     typeof window !== "undefined"
@@ -55,11 +44,12 @@ const WC_PROJECT_ID =
     env("REACT_APP_WALLET_CONNECT_PROJECT_ID") ||
     env("VITE_WALLET_CONNECT_PROJECT_ID")!;
 
-// ⬇️ ⬇️ IMPORTANT: do NOT filter here. Keep all connectors.
-// We will gate/limit them in the UI (providers.tsx) based on mobile/in-app conditions.
+// IMPORTANT: do NOT add metaMask() here — with multiInjectedProviderDiscovery:true,
+// MetaMask is auto-discovered via EIP-6963. Adding metaMask() creates a duplicate.
+// injected() is kept as a fallback for wallets that set window.ethereum but do NOT
+// announce themselves via EIP-6963 (older extensions).
 const connectors = [
     injected({ shimDisconnect: true }),
-    metaMask({ dappMetadata: { name: settings.dapp.name, url: APP_URL } }),
     coinbaseWallet({ appName: settings.dapp.name }),
     walletConnect({
         projectId: WC_PROJECT_ID,
@@ -96,30 +86,98 @@ const getRpcEndpoints = (chainId: number) => {
     }
 };
 
-const httpTransports = (chainId: number) =>
-    getRpcEndpoints(chainId).map((url) =>
+// ─── Active-connector transport ───────────────────────────────────────────────
+//
+// Why not unstable_connector(injected)?
+// unstable_connector resolves its connector via  connectors.find(c => c.type === type).
+// With multiInjectedProviderDiscovery:true, both MetaMask AND Rabby (and any other
+// EIP-6963 wallet) share type:"injected". .find() returns whichever is first in the
+// store — which may be the wallet on the wrong chain — causing ChainDisconnectedError
+// and falling through to HTTP even when MetaMask is connected to the correct chain.
+//
+// This transport reads config.state.current / .connections instead to get the wallet
+// the user actually authenticated with, regardless of type or discovery order.
+//
+// Behaviour:
+//  - Wallet connected on correct chain → requests go through that wallet's RPC.
+//  - Not connected / wrong chain / any error → throws plain Error → viem's fallback()
+//    retries the next transport (the configured env-var HTTP endpoints).
+//
+// Circular-dep note: config is defined after this transport; we store the reference
+// in _wagmiConfig immediately after createConfig() and read it lazily at request time.
+// eslint-disable-next-line prefer-const
+let _wagmiConfig: ReturnType<typeof createConfig> | undefined;
+
+type EIP1193Provider = {
+    request: (args: { method: string; params?: unknown }) => Promise<unknown>;
+};
+
+type WagmiConnection = {
+    connector: {
+        getProvider: (opts?: {
+            chainId?: number;
+        }) => Promise<EIP1193Provider | undefined>;
+    };
+};
+
+const activeConnectorTransport = (
+    params: Parameters<ReturnType<typeof http>>[0]
+) => {
+    const { chain } = params ?? {};
+    return custom({
+        request: async ({ method, params: rpcParams }) => {
+            const cfg = _wagmiConfig;
+            if (!cfg) throw new Error("transport: wagmi config not ready");
+
+            const { current, connections } = cfg.state as {
+                current: string | null;
+                connections: Map<string, WagmiConnection>;
+            };
+
+            if (!current) throw new Error("transport: no active connection");
+            const connection = connections.get(current);
+            if (!connection)
+                throw new Error("transport: active connection not found");
+
+            const provider = await connection.connector.getProvider({
+                chainId: chain?.id,
+            });
+            if (!provider) throw new Error("transport: provider unavailable");
+
+            // rpcParams comes from viem's custom() callback which types it as any
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            return provider.request({ method, params: rpcParams as unknown }) as unknown;
+        },
+    })(params);
+};
+
+// Build an ordered list of transports for a given chain:
+//   1. activeConnectorTransport — the wallet the user connected with
+//   2. env-var HTTP endpoints — explicitly configured RPCs
+//   3. http() with no URL — chain's built-in default RPC (last-resort safety net so
+//      fallback() always receives at least one transport and createConfig never throws)
+const chainTransports = (chainId: number) => {
+    const envTransports = getRpcEndpoints(chainId).map((url) =>
         http(url as string, { retryCount: 3, retryDelay: 1000 })
     );
+    return [
+        activeConnectorTransport,
+        ...envTransports,
+        http(undefined, { retryCount: 1, retryDelay: 500 }),
+    ] as Parameters<typeof fallback>[0];
+};
 
 export const config = createConfig({
     chains: CHAINS,
     multiInjectedProviderDiscovery: true,
     connectors,
     transports: {
-        // Wallet's own RPC is always tried first (uses MetaMask/WalletConnect configured RPC).
-        // Configured env-var URLs serve as fallback for unauthenticated users.
-        [rootstock.id]: fallback([
-            unstable_connector(injected),
-            ...httpTransports(rootstock.id),
-        ]),
-        [rootstockTestnet.id]: fallback([
-            unstable_connector(injected),
-            ...httpTransports(rootstockTestnet.id),
-        ]),
-        [localhost.id]: fallback([
-            unstable_connector(injected),
-            ...httpTransports(localhost.id),
-        ]),
+        [rootstock.id]: fallback(chainTransports(rootstock.id)),
+        [rootstockTestnet.id]: fallback(chainTransports(rootstockTestnet.id)),
+        [localhost.id]: fallback(chainTransports(localhost.id)),
     },
     ssr: false,
 });
+
+// Wire up the lazy reference so activeConnectorTransport can read config.state
+_wagmiConfig = config;
