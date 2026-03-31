@@ -34,6 +34,12 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
     const { contractProtocolStatus } = useWalletContext();
     const tokensData: TokenData[] = [];
 
+    const {
+        visiblePriceDecimals: defaultVisiblePriceDecimals,
+        visibleDecimals: defaultVisibleDecimals,
+        visibleBalanceDecimals: defaultVisibleBalanceDecimals,
+    } = settings.defaults.tokens;
+
     const columns: Column[] = [
         {
             key: "name",
@@ -93,10 +99,10 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                 <div className="token">
                     <div className={`icon-token-tc_${caIndex} token__icon`} />
                     <span className="token__name">
-                        {t(`exchange.tokens.TC_${caIndex}.label`, { ns })}
+                        {settings.tokens.TC[caIndex].fullName}
                     </span>
                     <span className="token__ticker">
-                        {t(`exchange.tokens.TC_${caIndex}.abbr`, { ns })}
+                        {settings.tokens.TC[caIndex].name}
                     </span>
                 </div>
             ),
@@ -105,7 +111,9 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                 : PrecisionNumbers({
                       amount: price,
                       token: settings.tokens.TC[caIndex],
-                      decimals: 3,
+                      decimals:
+                          settings.tokens.TC[caIndex]?.visiblePriceDecimals ??
+                          defaultVisiblePriceDecimals,
                       i18n,
                   }),
             ema: "--",
@@ -190,14 +198,10 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                             className={`icon-token-tp_${dataItem.key} token__icon`}
                         />
                         <span className="token__name">
-                            {t(`exchange.tokens.TP_${dataItem.key}.label`, {
-                                ns,
-                            })}
+                            {settings.tokens.TP[dataItem.key].fullName}
                         </span>
                         <span className="token__ticker">
-                            {t(`exchange.tokens.TP_${dataItem.key}.abbr`, {
-                                ns,
-                            })}
+                            {settings.tokens.TP[dataItem.key].name}
                         </span>
                     </div>
                 ),

@@ -9,6 +9,19 @@
         "autoDefault": 1.0,
         "presets": [0.3, 1.0, 2.0]
     },
+    "defaults": {
+        "tokens": {
+            "name": "TICKER",
+            "fullName": "Token Name",
+            "decimals": 18,
+            "visibleDecimals": 6,
+            "visiblePriceDecimals": 2,
+            "visiblePriceUSD": 8,
+            "visibleBalanceDecimals": 8,
+            "visibleBalanceUSDDecimals": 2,
+            "peggedUSD": false
+        }
+    },
     "tokens": {
         "COINBASE": [
             {
@@ -73,7 +86,7 @@
                 "fullName": "RIF Pro",
                 "decimals": 18,
                 "visibleDecimals": 6,
-                "visiblePriceDecimals": 2,
+                "visiblePriceDecimals": 4,
                 "visiblePriceUSD": 8,
                 "visibleBalanceDecimals": 8,
                 "visibleBalanceUSDDecimals": 2,

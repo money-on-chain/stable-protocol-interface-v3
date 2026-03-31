@@ -185,7 +185,7 @@
         },
         "cardTitle": {
             "simpleExchange": "Exchange",
-            "balancedOps": "Balanced Operations"
+            "balancedOps": "Combined Operations"
         },
         "labelSending": "Exchanging",
         "LabelSendingUpTo": "Sending up to",
