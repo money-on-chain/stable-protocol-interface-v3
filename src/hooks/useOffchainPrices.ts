@@ -53,8 +53,20 @@ export function useOffchainPrices(
 
                 if (response.status === 200) {
                     const parsedPrices: ParsedPrices[] = [];
-                    const responseData = response.data as {
-                        values: Record<string, number>;
+                    const raw = response.data as unknown;
+                    if (
+                        typeof raw !== "object" ||
+                        raw === null ||
+                        typeof (raw as Record<string, unknown>).values !==
+                            "object" ||
+                        (raw as Record<string, unknown>).values === null
+                    ) {
+                        throw new Error(
+                            "Offchain prices API returned unexpected shape"
+                        );
+                    }
+                    const responseData = raw as {
+                        values: Record<string, unknown>;
                     };
 
                     for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
@@ -66,38 +78,22 @@ export function useOffchainPrices(
                         };
                         const map = mapPrices[ca];
 
-                        caParse.CA = [
-                            parseUnits(
-                                (responseData.values[map.CA] || 0).toFixed(18),
-                                18
-                            ),
-                            true,
-                        ];
+                        const toPrice = (key: string): bigint => {
+                            const v = responseData.values[key];
+                            const n =
+                                typeof v === "number" && isFinite(v) && v >= 0
+                                    ? v
+                                    : 0;
+                            return parseUnits(n.toFixed(18), 18);
+                        };
 
+                        caParse.CA = [toPrice(map.CA), true];
                         caParse.TP = map.TP.map((tp: string) => [
-                            parseUnits(
-                                (responseData.values[tp] || 0).toFixed(18),
-                                18
-                            ),
+                            toPrice(tp),
                             true,
                         ]);
-
-                        caParse.TF = [
-                            parseUnits(
-                                (responseData.values[map.TF] || 0).toFixed(18),
-                                18
-                            ),
-                            true,
-                        ];
-                        caParse.COINBASE = [
-                            parseUnits(
-                                (
-                                    responseData.values[map.COINBASE] || 0
-                                ).toFixed(18),
-                                18
-                            ),
-                            true,
-                        ];
+                        caParse.TF = [toPrice(map.TF), true];
+                        caParse.COINBASE = [toPrice(map.COINBASE), true];
 
                         parsedPrices.push(caParse);
                     }

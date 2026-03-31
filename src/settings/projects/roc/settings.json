@@ -64,23 +64,13 @@
                 "visibleBalanceDecimals": 2,
                 "visibleBalanceUSDDecimals": 2,
                 "peggedUSD": true
-            },
-            {
-                "key": 1,
-                "name": "CopFlip",
-                "decimals": 18,
-                "visibleDecimals": 2,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 2,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
             }
         ],
         "TC": [
             {
                 "key": 0,
-                "name": "RIFPRO",
+                "name": "RIFP",
+                "fullName": "RIF Pro",
                 "decimals": 18,
                 "visibleDecimals": 6,
                 "visiblePriceDecimals": 2,
@@ -102,7 +92,6 @@
                 "peggedUSD": false
             }
         ],
-
         "TF": [
             {
                 "key": 0,

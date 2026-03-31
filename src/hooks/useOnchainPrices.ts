@@ -6,6 +6,15 @@ import type { ContractInfo, DContracts, MultiCallInput } from "../types/hooks";
 import type { OnchainPricesResult } from "../types/status";
 import { useMultiCall } from "./useMulticall";
 
+function isPeekResult(result: unknown): result is [string | bigint, boolean] {
+    return (
+        Array.isArray(result) &&
+        result.length >= 2 &&
+        (typeof result[0] === "string" || typeof result[0] === "bigint") &&
+        typeof result[1] === "boolean"
+    );
+}
+
 /**
  * React hook that wraps useMultiCall3 to fetch contract status data.
  * Builds the call array with useMemo so it remains stable between renders.
@@ -48,8 +57,8 @@ export function useOnchainPrices(
                 ],
                 keys: [ca, "CA"],
                 transform: (result: unknown) => {
-                    const tuple = result as [bigint, boolean];
-                    return [normalizeToBigInt(tuple[0]), tuple[1]];
+                    if (!isPeekResult(result)) return [null, false];
+                    return [normalizeToBigInt(result[0]), result[1]];
                 },
             });
 
@@ -81,8 +90,8 @@ export function useOnchainPrices(
                     ],
                     keys: [ca, "TP", tp],
                     transform: (result: unknown) => {
-                        const tuple = result as [string, boolean];
-                        return [normalizeToBigInt(tuple[0]), tuple[1]];
+                        if (!isPeekResult(result)) return [null, false];
+                        return [normalizeToBigInt(result[0]), result[1]];
                     },
                 });
             }
@@ -130,8 +139,8 @@ export function useOnchainPrices(
                     ],
                     keys: [ca, "COINBASE"],
                     transform: (result: unknown) => {
-                        const tuple = result as [string, boolean];
-                        return [normalizeToBigInt(tuple[0]), tuple[1]];
+                        if (!isPeekResult(result)) return [null, false];
+                        return [normalizeToBigInt(result[0]), result[1]];
                     },
                 });
             }

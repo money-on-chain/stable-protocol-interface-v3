@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
 import type { Abi } from "viem";
 import { useReadContracts } from "wagmi";
 
@@ -15,7 +15,7 @@ function assignNestedValue(
     let current: Record<string | number, unknown> = obj;
     for (let i = 0; i < path.length - 1; i++) {
         const key = path[i];
-        if (current[key] == null) {
+        if (current[key] == null || typeof current[key] !== "object") {
             current[key] = typeof path[i + 1] === "number" ? [] : {};
         }
         current = current[key] as Record<string | number, unknown>;
@@ -78,19 +78,8 @@ export function useMultiCall(
         externalData,
     } = options;
 
-    // Step 1: Convert call definitions into wagmi-compatible format
-    // Memoize to prevent unnecessary re-renders and refetches
-    // Note: We rely on parent hooks to provide stable 'calls' arrays via their own useMemo
-    // Track both length and a hash of call signatures to detect meaningful changes
-    const callsSignature = useMemo(() => {
-        return calls
-            .map(
-                (c) =>
-                    `${typeof c.contract === "string" ? c.contract : c.contract.address}:${c.functionName}`
-            )
-            .join("|");
-    }, [calls]);
-
+    // Step 1: Convert call definitions into wagmi-compatible format.
+    // Parent hooks are expected to provide a stable `calls` array via their own useMemo.
     const contracts = useMemo(() => {
         if (calls.length === 0) return [];
 
@@ -124,11 +113,7 @@ export function useMultiCall(
                 `Invalid contract input for function "${functionName}"`
             );
         });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [calls.length, callsSignature]);
-
-    // Memoize external data - parent should provide stable reference
-    const memoizedExternalData = externalData;
+    }, [calls]);
 
     // Step 2: Perform the multicall using wagmi
     const {
@@ -149,39 +134,8 @@ export function useMultiCall(
         },
     });
 
-    // Log only when data actually changes (fetches), not on every render
-    const prevResultsRef = useRef<typeof results>();
-    useEffect(() => {
-        if (results !== prevResultsRef.current) {
-            if (results !== undefined) {
-                console.warn(
-                    `[Multicall Fetch] ${scopeKey || "unknown"} - ${results.length} results - ${new Date().toLocaleTimeString()}`
-                );
-            } else {
-                console.warn(
-                    `[Multicall Loading] ${scopeKey || "unknown"} - ${calls.length} calls pending - ${new Date().toLocaleTimeString()}`
-                );
-            }
-            prevResultsRef.current = results;
-        }
-    }, [results, scopeKey, calls.length]);
-
     // Step 3: Structure result into a nested dictionary, with optional transforms
     let storage: Record<string | number, unknown> | undefined = {};
-
-    // Handle different result states
-    if (!results || results.length === 0) {
-        // No results yet - this is normal during initial load or when calls are empty
-        if (calls.length > 0) {
-            // We have calls but no results - this is expected during loading
-            // Don't log this as it's normal behavior
-        }
-    } else if (results.length !== calls.length) {
-        // Length mismatch - this can happen with stale cached results
-        console.warn(
-            `[Multicall] Length mismatch for ${scopeKey || "unknown"}: results=${results.length}, calls=${calls.length}. Using available data.`
-        );
-    }
 
     // Only process results that have corresponding calls
     const safeLength = Math.min(results?.length || 0, calls.length);
@@ -240,24 +194,17 @@ export function useMultiCall(
         }
     });
 
-    // Set canOperate flag and handle empty results
-    if (calls.length === 0) {
-        // We have calls but no results yet - return undefined to indicate loading
+    // Return undefined while calls are pending so consumers can distinguish loading from empty
+    if (calls.length > 0 && (!results || results.length === 0)) {
         storage = undefined;
     }
 
-    // merge with external data
-    if (storage && memoizedExternalData) {
-        //storage = { ...storage, ...memoizedExternalData }
+    // Merge with external data
+    if (storage && externalData) {
         storage = deepMerge(
             storage,
-            memoizedExternalData as Record<string | number, unknown>
+            externalData as Record<string | number, unknown>
         );
-
-        if (storage.length === 0) {
-            // We have calls but no results yet - return undefined to indicate loading
-            storage = undefined;
-        }
     }
 
     return {

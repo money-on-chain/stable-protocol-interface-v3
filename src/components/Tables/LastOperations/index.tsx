@@ -71,12 +71,16 @@ interface OperationData {
         qTC_?: string;
         qTC?: string;
         qTP_?: string;
+        qTPfrom_?: string;
+        qTPto_?: string;
         qACmin?: string;
         qFeeToken_?: string;
         qFeeTokenVendorMarkup_?: string;
         qACfee_?: string;
         qACVendorMarkup_?: string;
         tpIndex_?: number;
+        tpFromIndex_?: number;
+        tpToIndex_?: number;
         blockNumber?: number;
     };
     params?: {
@@ -85,8 +89,11 @@ interface OperationData {
         qTC_?: string;
         qTC?: string;
         qTP?: string;
+        qTPmin?: string;
         qACmin?: string;
         tpIndex_?: number;
+        tpFromIndex?: number;
+        tpToIndex?: number;
         recipient?: string;
         amount?: string;
         token?: string;
@@ -237,7 +244,7 @@ export default function LastOperations(props: LastOperationsProps) {
             const skip = (currentRef.current - 1) * pageSizeRef.current;
 
             const url = new URL(
-                import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS
+                String(import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS)
             );
             url.pathname = "/v1/operations/list/";
             url.search = new URLSearchParams({
@@ -359,36 +366,33 @@ export default function LastOperations(props: LastOperationsProps) {
         }
     };
 
-    const getTokenInfo = useCallback(
-        (token: string) => {
-            if (token === "FeeToken") {
-                return {
-                    name: settings.tokens.TF[0].name,
-                    token: settings.tokens.TF[0],
-                };
-            }
-            const match = token.match(/^(CA|TC|TP)_(\d+)$/);
-            if (match) {
-                const [, prefix, indexStr] = match;
-                const index = parseInt(indexStr, 10);
-                const arr =
-                    prefix === "CA"
-                        ? (settings.tokens.CA as TokenConfig[])
-                        : prefix === "TC"
-                          ? settings.tokens.TC
-                          : settings.tokens.TP;
-                const tokenConfig = arr[index];
-                if (!tokenConfig) return undefined;
-                return {
-                    name: tokenConfig?.name || "",
-                    token: tokenConfig,
-                };
-            }
-            console.warn("UNRECOGNIZED TOKEN: " + token);
-            return undefined;
-        },
-        [settings]
-    );
+    const getTokenInfo = useCallback((token: string) => {
+        if (token === "FeeToken") {
+            return {
+                name: settings.tokens.TF[0].name,
+                token: settings.tokens.TF[0],
+            };
+        }
+        const match = token.match(/^(CA|TC|TP)_(\d+)$/);
+        if (match) {
+            const [, prefix, indexStr] = match;
+            const index = parseInt(indexStr, 10);
+            const arr =
+                prefix === "CA"
+                    ? (settings.tokens.CA as TokenConfig[])
+                    : prefix === "TC"
+                      ? settings.tokens.TC
+                      : settings.tokens.TP;
+            const tokenConfig = arr[index];
+            if (!tokenConfig) return undefined;
+            return {
+                name: tokenConfig?.name || "",
+                token: tokenConfig,
+            };
+        }
+        console.warn("UNRECOGNIZED TOKEN: " + token);
+        return undefined;
+    }, []);
 
     const tokenExchange = useCallback(
         (row_operation: OperationData): TokenExchangeResult | undefined => {
@@ -621,14 +625,18 @@ export default function LastOperations(props: LastOperationsProps) {
                     status === "executed"
                         ? row_operation.executed
                         : row_operation.params;
-                let tp_from_index =
-                    statusData?.tpFromIndex_ ||
-                    (statusData as { tpFromIndex?: number })?.tpFromIndex;
-                if (tp_from_index === undefined) tp_from_index = 0;
-                let tp_to_index =
-                    statusData?.tpToIndex_ ||
-                    (statusData as { tpToIndex?: number })?.tpToIndex;
-                if (tp_to_index === undefined) tp_to_index = 0;
+                const sd = statusData as
+                    | {
+                          tpFromIndex_?: number;
+                          tpFromIndex?: number;
+                          tpToIndex_?: number;
+                          tpToIndex?: number;
+                      }
+                    | undefined;
+                const tp_from_index: number =
+                    sd?.tpFromIndex_ ?? sd?.tpFromIndex ?? 0;
+                const tp_to_index: number =
+                    sd?.tpToIndex_ ?? sd?.tpToIndex ?? 0;
 
                 return {
                     exchange: {
@@ -969,7 +977,7 @@ export default function LastOperations(props: LastOperationsProps) {
                     return String(error);
             }
         },
-        [t]
+        [t, token]
     );
     const TruncatedAddress = useCallback((address: string, length = 6) => {
         if (!address) return "";
@@ -1346,16 +1354,20 @@ export default function LastOperations(props: LastOperationsProps) {
                                                     const receiveToken = token
                                                         .receive
                                                         .token as TokenConfig;
-                                                    return token.receive.amount === undefined ? "--" : PrecisionNumbers({
-                                                        amount: BigInt(
-                                                            token.receive.amount
-                                                        ),
-                                                        token: receiveToken,
-                                                        decimals:
-                                                            receiveToken.visibleDecimals ??
-                                                            2,
-                                                        i18n: i18n,
-                                                    });
+                                                    return token.receive
+                                                        .amount === undefined
+                                                        ? "--"
+                                                        : PrecisionNumbers({
+                                                              amount: BigInt(
+                                                                  token.receive
+                                                                      .amount
+                                                              ),
+                                                              token: receiveToken,
+                                                              decimals:
+                                                                  receiveToken.visibleDecimals ??
+                                                                  2,
+                                                              i18n: i18n,
+                                                          });
                                                 })()}
                                             </div>
                                         </div>
@@ -1411,14 +1423,20 @@ export default function LastOperations(props: LastOperationsProps) {
                                                     const receiveToken = token
                                                         .another
                                                         .token as TokenConfig;
-                                                    return token.another.amount === undefined ? "--" : PrecisionNumbers({
-                                                        amount: BigInt(
-                                                            token.another.amount
-                                                        ),
-                                                        token: receiveToken,
-                                                        decimals: receiveToken.visibleDecimals ?? 2,
-                                                        i18n: i18n,
-                                                    });
+                                                    return token.another
+                                                        .amount === undefined
+                                                        ? "--"
+                                                        : PrecisionNumbers({
+                                                              amount: BigInt(
+                                                                  token.another
+                                                                      .amount
+                                                              ),
+                                                              token: receiveToken,
+                                                              decimals:
+                                                                  receiveToken.visibleDecimals ??
+                                                                  2,
+                                                              i18n: i18n,
+                                                          });
                                                 })()}
                                             </div>
                                         </div>

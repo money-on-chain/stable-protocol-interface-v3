@@ -19,15 +19,9 @@ interface DecodedEvent {
 
 type ContractName = "MocQueue" | "Moc" | "MocVendors" | "VestingFactory";
 
-const renderEvent = (evente: DecodedEvent): void => {
-    console.warn("");
-    console.warn("\x1b[35m%s\x1b[0m", `Event: ${evente.eventName}`);
-    console.warn("");
-
-    for (const [eveName, eveValue] of Object.entries(evente.args)) {
-        console.warn("\x1b[32m%s\x1b[0m", `${eveName}: ${String(eveValue)}`);
-    }
-};
+// Intentionally a no-op in production — event data (amounts, addresses) must
+// not be logged to the console where browser extensions can read it.
+const renderEvent = (_evente: DecodedEvent): void => {};
 
 const getContractAbi = (contractName: ContractName): readonly unknown[] => {
     let abi: readonly unknown[] = abi_MocQueue;

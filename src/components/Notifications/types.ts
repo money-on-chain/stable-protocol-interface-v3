@@ -65,7 +65,7 @@ export interface CreateNotificationOptions
     id?: string;
 
     /** Optional onDismiss handler at creation time */
-    onDismiss?: AppNotificationProps["onDismiss"];
+    onDismiss?: BaseAppNotificationProps["onDismiss"];
 }
 
 /**
@@ -91,8 +91,7 @@ export interface NotificationContextValue {
  * Props for the GlobalNotificationCenter, which reads data from context.
  * Mirrors NotificationCenterProps minus notifications & onNotificationDismiss.
  */
-export interface GlobalNotificationCenterProps
-    extends Omit<
-        NotificationCenterProps,
-        "notifications" | "onNotificationDismiss"
-    > {}
+export type GlobalNotificationCenterProps = Omit<
+    NotificationCenterProps,
+    "notifications" | "onNotificationDismiss"
+>;

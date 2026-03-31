@@ -79,11 +79,13 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
         contractProtocolStatus.data[caIndex].getPTCac
     ) {
         // TC row
-        const priceTEC = contractProtocolStatus.data[caIndex].getPTCac || 0n;
+        const priceTEC =
+            normalizeToBigInt(contractProtocolStatus.data[caIndex].getPTCac) ??
+            0n;
         const priceCA =
             normalizeToBigInt(
                 contractProtocolStatus.data[caIndex].PP_CA?.[0]
-            ) || 0n;
+            ) ?? 0n;
         const price = mulPrecision(priceTEC, priceCA);
 
         tokensData.push({
@@ -228,7 +230,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                               .pegContainer[dataItem.key][0],
                           token: settings.tokens.TP[dataItem.key],
                           decimals:
-                              settings.tokens.TP[caIndex]
+                              settings.tokens.TP[dataItem.key]
                                   .visibleBalanceDecimals,
                           i18n,
                       }),
@@ -238,7 +240,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                           amount: tpAvailableToMint,
                           token: settings.tokens.TP[dataItem.key],
                           decimals:
-                              settings.tokens.TP[caIndex]
+                              settings.tokens.TP[dataItem.key]
                                   .visibleBalanceDecimals,
                           i18n,
                       }),

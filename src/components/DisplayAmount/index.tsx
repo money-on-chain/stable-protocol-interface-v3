@@ -23,7 +23,7 @@ const space = "\u00A0";
 const DisplayAmount: React.FC<DisplayAmountProps> = ({
     value,
     token,
-    label,    
+    label,
     equivalentValue,
     equivalentLabel = "USD",
     showApproxSymbol = true,
@@ -32,7 +32,7 @@ const DisplayAmount: React.FC<DisplayAmountProps> = ({
     equivalentDecimals = 2,
 }) => {
     const { i18n } = useProjectTranslation();
-    
+
     return (
         <div className={`displayAmount ${className}`.trim()}>
             {label && (

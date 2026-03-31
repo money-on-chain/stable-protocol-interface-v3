@@ -25,7 +25,7 @@ const AllowanceAmount = async (
 ): Promise<TransactionReceipt | undefined> => {
     const { address } = interfaceContext;
     const contractAllowAddress = contractAllow.address;
-    
+
     const { request } = await simulateContract(config, {
         address: token.address,
         abi: token.abi,

@@ -1,9 +1,9 @@
 import "./Styles.scss";
 
-import { notification, Typography } from "antd";
+import { notification } from "antd";
 import React from "react";
 import type { Connector } from "wagmi";
-import { useAccount, useConnect } from "wagmi";
+import { useConnect } from "wagmi";
 
 import { useProjectTranslation } from "../../helpers/translations";
 
@@ -11,17 +11,12 @@ interface ProvidersProps {
     onCloseModal: () => void;
 }
 
-const ORDER = ["injected", "walletConnect", "safe"] as const;
-
-const { Title, Text } = Typography;
-
 export default function WalletProviders({ onCloseModal }: ProvidersProps) {
     const { t } = useProjectTranslation();
     const { connectors, connectAsync } = useConnect();
-    const { isConnected } = useAccount();
     const [loadingId, setLoadingId] = React.useState<string | null>(null);
 
-    // Detect mobile UA
+    // Detect mobile UA (phones/tablets without an in-app wallet browser)
     const isMobileUA = React.useMemo(
         () =>
             typeof navigator !== "undefined" &&
@@ -31,7 +26,8 @@ export default function WalletProviders({ onCloseModal }: ProvidersProps) {
         []
     );
 
-    // Detect in-app wallet browser (MetaMask/Rainbow/Trust)
+    // Detect an in-app wallet browser (MetaMask mobile, Rainbow, Trust, etc.)
+    // These inject window.ethereum and we can connect directly via injected.
     const isInAppWallet = React.useMemo(
         () =>
             typeof window !== "undefined" &&
@@ -39,52 +35,78 @@ export default function WalletProviders({ onCloseModal }: ProvidersProps) {
         []
     );
 
-    // Helpers
-    const isInjected = (c: Connector) =>
-        c.id === "injected" || c.type === "injected";
-    const isWalletConnect = (c: Connector) => c.id === "walletConnect";
-    const isSafe = (c: Connector) => c.id === "safe";
+    // ─── EIP-6963 deduplication logic ────────────────────────────────────────
+    //
+    // With multiInjectedProviderDiscovery:true, wagmi auto-discovers every wallet
+    // that announces itself via EIP-6963 (window.addEventListener("eip6963:announceProvider")).
+    // Those connectors have type === "injected" and an RDNS-based id (e.g. "io.metamask").
+    //
+    // The manually-registered injected() connector (id === "injected") serves as a
+    // fallback for wallets that only set window.ethereum without announcing via EIP-6963.
+    //
+    // Rule: if any EIP-6963 wallet is discovered, the generic "injected" fallback is
+    // redundant (every real wallet is already listed individually) and should be hidden.
+    // ─────────────────────────────────────────────────────────────────────────
 
-    // 1) Base: quedarnos SOLO con injected + walletConnect (+ safe si existe)
-    const baseAllowed = React.useMemo(
+    // Wallets discovered via EIP-6963 (specific ids like "io.metamask", "io.rabby", …)
+    const eip6963Connectors = React.useMemo(
         () =>
             connectors.filter(
-                (c) => isInjected(c) || isWalletConnect(c) || isSafe(c)
+                (c) => c.type === "injected" && c.id !== "injected"
             ),
         [connectors]
     );
 
-    // 2) Visibilidad por contexto:
-    // - Mobile normal → solo WalletConnect
-    // - Mobile in-app → injected + WalletConnect
-    // - Desktop → injected + WalletConnect
-    const visibleConnectors = React.useMemo(() => {
-        if (isMobileUA && !isInAppWallet)
-            return baseAllowed.filter(isWalletConnect);
-        return baseAllowed;
-    }, [baseAllowed, isMobileUA, isInAppWallet]);
+    // Generic injected fallback — only shown when zero EIP-6963 wallets exist
+    const genericInjected = React.useMemo(
+        () =>
+            eip6963Connectors.length === 0
+                ? connectors.find((c) => c.id === "injected")
+                : undefined,
+        [connectors, eip6963Connectors]
+    );
 
-    // Agrupación simple: inyectados arriba
-    const installed = visibleConnectors.filter(isInjected);
-    const others = visibleConnectors.filter((c) => !installed.includes(c));
+    const wcConnector = React.useMemo(
+        () => connectors.find((c) => c.id === "walletConnect"),
+        [connectors]
+    );
 
-    // Si solo hay WC, escondemos el aviso “no browser wallet”
-    const wcOnly =
-        visibleConnectors.length > 0 &&
-        visibleConnectors.every((c) => c.id === "walletConnect");
+    const cbConnector = React.useMemo(
+        () => connectors.find((c) => c.id === "coinbaseWallet"),
+        [connectors]
+    );
 
-    const sortByOrder = (a: Connector, b: Connector) => {
-        const key = (c: Connector) =>
-            isInjected(c)
-                ? "injected"
-                : isWalletConnect(c)
-                  ? "walletConnect"
-                  : isSafe(c)
-                    ? "safe"
-                    : "walletConnect";
-        return ORDER.indexOf(key(a)) - ORDER.indexOf(key(b));
-    };
-    const othersOrdered = [...others].sort(sortByOrder);
+    const safeConnector = React.useMemo(
+        () => connectors.find((c) => c.id === "safe"),
+        [connectors]
+    );
+
+    // ─── Build the visible list ───────────────────────────────────────────────
+    //
+    // Desktop / in-app mobile:
+    //   injected wallets (EIP-6963 or generic fallback) + WalletConnect + Coinbase
+    // Mobile normal browser (no in-app wallet):
+    //   WalletConnect only — there is no injected wallet to connect to
+    // ─────────────────────────────────────────────────────────────────────────
+
+    const injectedToShow = React.useMemo<Connector[]>(() => {
+        if (isMobileUA && !isInAppWallet) return []; // mobile browser → no injected
+        if (eip6963Connectors.length > 0) return eip6963Connectors;
+        return genericInjected ? [genericInjected] : [];
+    }, [isMobileUA, isInAppWallet, eip6963Connectors, genericInjected]);
+
+    const othersToShow = React.useMemo<Connector[]>(() => {
+        const list: Connector[] = [];
+        if (safeConnector) list.push(safeConnector);
+        if (cbConnector && !isMobileUA) list.push(cbConnector); // Coinbase: desktop only
+        if (wcConnector) list.push(wcConnector);
+        return list;
+    }, [safeConnector, cbConnector, wcConnector, isMobileUA]);
+
+    const noBrowserWallet =
+        injectedToShow.length === 0 && !isMobileUA && !isInAppWallet;
+
+    // ─────────────────────────────────────────────────────────────────────────
 
     const handleConnect = async (connector: Connector) => {
         try {
@@ -113,15 +135,16 @@ export default function WalletProviders({ onCloseModal }: ProvidersProps) {
                 <h1>{t("walletProviders.connectYourWallet")}</h1>
             </header>
             <section>
-                {installed.length === 0 && !wcOnly && (
-                    <Text type="secondary">
+                {noBrowserWallet && (
+                    <p className="providers__no-wallet">
                         {t("walletProviders.noBrowserWallets")}
-                    </Text>
+                    </p>
                 )}
 
                 <div className="providers__connectors">
-                    {installed.map((c) => (
-                        <WalletOption
+                    {/* EIP-6963 wallets / generic injected fallback */}
+                    {injectedToShow.map((c) => (
+                        <WalletButton
                             key={c.uid}
                             connector={c}
                             onClick={() => void handleConnect(c)}
@@ -131,8 +154,9 @@ export default function WalletProviders({ onCloseModal }: ProvidersProps) {
                         />
                     ))}
 
-                    {othersOrdered.map((c) => (
-                        <WalletOption
+                    {/* WalletConnect, Coinbase, Safe */}
+                    {othersToShow.map((c) => (
+                        <WalletButton
                             key={c.uid}
                             connector={c}
                             onClick={() => void handleConnect(c)}
@@ -147,7 +171,9 @@ export default function WalletProviders({ onCloseModal }: ProvidersProps) {
     );
 }
 
-function WalletOption({
+// ─── WalletButton ─────────────────────────────────────────────────────────────
+
+function WalletButton({
     connector,
     onClick,
     loading,
@@ -160,36 +186,67 @@ function WalletOption({
     isInAppWallet?: boolean;
     t: ReturnType<typeof useProjectTranslation>["t"];
 }) {
-    // WC siempre habilitado; injected habilitado en in-app aunque .ready diga lo contrario
+    // WalletConnect is always "ready"; in-app injected may report not-ready but works.
     const ready =
         connector.id === "walletConnect"
             ? true
-            : isInAppWallet && connector.id === "injected"
+            : isInAppWallet && connector.type === "injected"
               ? true
               : (connector.ready ?? true);
 
     return (
         <button onClick={onClick} disabled={!ready || loading}>
-            <div>{labelFor(connector, t)}</div>
-            <div
-                className={`walletIcon walletIcon-${connector?.name ?? ""}`}
-            ></div>
-            {!ready && <span>(not available)</span>}
+            <span>{labelFor(connector, t)}</span>
+            <WalletIcon connector={connector} />
+            {!ready && (
+                <span className="providers__not-available">
+                    (not available)
+                </span>
+            )}
         </button>
     );
 }
 
+// ─── WalletIcon ───────────────────────────────────────────────────────────────
+// EIP-6963 connectors provide connector.icon (base64 data URI from the wallet itself).
+// For known connectors without an EIP-6963 icon, fall back to CSS background-image.
+
+function WalletIcon({ connector }: { connector: Connector }) {
+    const icon = connector.icon; // set by EIP-6963 discovery, undefined otherwise
+
+    if (icon) {
+        return (
+            <img
+                src={icon}
+                alt={connector.name}
+                width={32}
+                height={32}
+                className="walletIcon walletIcon--eip6963"
+            />
+        );
+    }
+
+    // CSS fallback — classes defined in Styles.scss
+    return (
+        <div
+            className={`walletIcon walletIcon-${connector.name}`}
+            aria-hidden="true"
+        />
+    );
+}
+
+// ─── labelFor ─────────────────────────────────────────────────────────────────
+
 function labelFor(
     c: Connector,
     t: ReturnType<typeof useProjectTranslation>["t"]
-) {
-    const n = c.name.toLowerCase();
+): string {
     if (c.id === "walletConnect")
         return t("walletProviders.providers.walletconnect");
     if (c.id === "safe") return t("walletProviders.providers.multisig");
-    if (c.id === "injected") {
-        // Si querés renombrar a “MetaMask” cuando el in-app es MetaMask, podés detectar window.ethereum.isMetaMask aquí.
-        return t("walletProviders.providers.injected");
-    }
+    if (c.id === "coinbaseWallet") return "Coinbase Wallet";
+    // EIP-6963 and generic injected: use the name the wallet reports (e.g. "MetaMask", "Rabby")
+    // For the generic injected fallback, c.name is "Injected" — translate it.
+    if (c.id === "injected") return t("walletProviders.providers.injected");
     return c.name;
 }

@@ -1,8 +1,8 @@
 import Modal from "antd/lib/modal/Modal";
 import React from "react";
 
-import Allowance from "../../Allowance";
 import type { AllowanceStep } from "../../../types/status";
+import Allowance from "../../Allowance";
 
 interface ModalAllowanceOperationProps {
     name?: string;

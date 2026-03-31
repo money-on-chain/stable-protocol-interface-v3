@@ -6,9 +6,8 @@ import { TokenSettings } from "../../helpers/currencies";
 import { toBigIntPrecision } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import CopyAddress from "../CopyAddress";
-import { PrecisionNumbers } from "../PrecisionNumbers";
 import DisplayAmount from "../DisplayAmount";
-
+import { PrecisionNumbers } from "../PrecisionNumbers";
 
 interface ConfirmSendProps {
     currencyYouExchange: string;
@@ -32,8 +31,12 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
     } = props;
 
     const { t, i18n, ns } = useProjectTranslation();
-    const { interfaceTransferToken, interfaceTransferCoinbase, userBalance, contractProtocolStatus } =
-        useWalletContext();
+    const {
+        interfaceTransferToken,
+        interfaceTransferCoinbase,
+        userBalance,
+        contractProtocolStatus,
+    } = useWalletContext();
 
     const [status, setStatus] = useState<StatusType>("SUBMIT");
     const [txID, setTxID] = useState<string>("");
@@ -50,15 +53,10 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
                 destinationAddress.toLowerCase(),
                 onTransaction,
                 onReceipt
-            )
-                .then((/*value*/) => {
-                    console.warn("DONE!");
-                })
-                .catch((error: unknown) => {
-                    console.error("ERROR");
-                    setStatus("ERROR");
-                    console.error(error);
-                });
+            ).catch((error: unknown) => {
+                console.error("ConfirmSend transfer error:", error);
+                setStatus("ERROR");
+            });
         } else {
             void interfaceTransferToken(
                 currencyYouExchange,
@@ -66,29 +64,19 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
                 destinationAddress.toLowerCase(),
                 onTransaction,
                 onReceipt
-            )
-                .then((/*value*/) => {
-                    console.warn("DONE!");
-                })
-                .catch((error: unknown) => {
-                    console.error("ERROR");
-                    setStatus("ERROR");
-                    console.error(error);
-                });
+            ).catch((error: unknown) => {
+                console.error("ConfirmSend transfer error:", error);
+                setStatus("ERROR");
+            });
         }
     };
 
     const onTransaction = (transactionHash: string): void => {
-        // Tx receipt detected change status to waiting
         setStatus("WAITING");
-        console.warn("On transaction: ", transactionHash);
         setTxID(transactionHash);
     };
 
-    const onReceipt = (receipt: unknown): void => {
-        // Tx is mined ok
-        console.warn("On receipt: ", receipt);
-
+    const onReceipt = (_receipt: unknown): void => {
         /*
         // Events name list
         const filter = [
@@ -153,10 +141,16 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
                     <div className="tx-amount-data">
                         <DisplayAmount
                             value={toBigIntPrecision(amountYouExchange)}
-                            token={t(`send.tokens.${currencyYouExchange}.abbr`, {
-                                ns: ns,
-                            })}
-                            decimals={TokenSettings(currencyYouExchange).visibleDecimals}                            
+                            token={t(
+                                `send.tokens.${currencyYouExchange}.abbr`,
+                                {
+                                    ns: ns,
+                                }
+                            )}
+                            decimals={
+                                TokenSettings(currencyYouExchange)
+                                    .visibleDecimals
+                            }
                             /* equivalentValue={!contractProtocolStatus.data
                                 ? 0n
                                 : ConvertAmount(
@@ -165,8 +159,8 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
                                     "USD",
                                     toBigIntPrecision(amountYouExchange),
                                     caIndex
-                                )} */                            
-                        />                       
+                                )} */
+                        />
                     </div>
                     <div className="tx-direction">
                         <div className="swapArrow">

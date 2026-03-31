@@ -2,14 +2,14 @@
     "prices": [
         {
             "COINBASE": "BTC/USD",
-            "CA": "BPRO/USD",
-            "TP": ["BPRO/ARS", "BPRO/COP"],
-            "TF": "MOC/BPRO"
+            "CA": "RIF/USD",
+            "TP": ["RIF/USD"],
+            "TF": "MOC/RIF"
         },
         {
             "COINBASE": "BTC/USD",
             "CA": "DOC/USD",
-            "TP": ["USD/ARS(CCB)", "USD/COP(CCB)"],
+            "TP": ["DOC/USD"],
             "TF": "MOC/USD"
         }
     ]
