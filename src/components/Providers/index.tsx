@@ -196,7 +196,11 @@ function WalletButton({
 
     return (
         <button onClick={onClick} disabled={!ready || loading}>
-            <span>{labelFor(connector, t)}</span>
+            <span
+                data-testid={`wallet-button-${connector.id.replace(/\./g, "-")}`}
+            >
+                {labelFor(connector, t)}
+            </span>
             <WalletIcon connector={connector} />
             {!ready && (
                 <span className="providers__not-available">
