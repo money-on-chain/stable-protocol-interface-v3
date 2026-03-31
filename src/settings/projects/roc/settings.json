@@ -63,7 +63,7 @@
                 "visiblePriceUSD": 8,
                 "visibleBalanceDecimals": 2,
                 "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
+                "peggedUSD": true
             },
             {
                 "key": 1,
@@ -91,7 +91,8 @@
             },
             {
                 "key": 1,
-                "name": "DOCX",
+                "name": "RIFDOC",
+                "fullName": "RIF DOC",
                 "decimals": 18,
                 "visibleDecimals": 2,
                 "visiblePriceDecimals": 2,

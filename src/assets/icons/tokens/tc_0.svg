@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>tc_0</title>
-    <g id="tc_0" stroke="none" fill="none">
+    <title>tc</title>
+    <g id="tc" stroke="none" fill="none">
         <rect id="Square-Area" x="0" y="0" width="32" height="32"></rect>
         <g id="Group" stroke-width="1" fill-rule="evenodd">
             <path d="M16.0000609,32 C24.8365428,32 32,24.8365192 32,16 C32,7.16345149 24.8365428,0 16.0000609,0 C7.16345723,0 0,7.16345149 0,16 C0,24.8365192 7.16345723,32 16.0000609,32 Z" id="Path" fill="#4B5CF0" fill-rule="nonzero"></path>

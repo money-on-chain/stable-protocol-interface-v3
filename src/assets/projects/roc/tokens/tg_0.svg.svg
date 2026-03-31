@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>tf</title>
-    <g id="tf" stroke="none" fill="none">
+    <title>tg_0.svg</title>
+    <g id="tg_0.svg" stroke="none" fill="none">
         <rect id="Square-Area" x="0" y="0" width="32" height="32"></rect>
         <g id="Toiken--MOC" stroke-width="1" fill-rule="evenodd">
             <path d="M32,16 C32,24.83648 24.83648,32 16,32 C7.16352,32 0,24.83648 0,16 C0,7.16352 7.16352,0 16,0 C24.83648,0 32,7.16352 32,16" id="Fill-1" fill="#FCFCFC"></path>
