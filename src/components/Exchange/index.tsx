@@ -1190,7 +1190,15 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             totalbalance,
             caIndex
         );
-        setValueExchange(totalbalance.toString());
+        setValueExchange(
+            totalbalance === 0n
+                ? ""
+                : bigIntToInputValue(
+                      totalbalance,
+                      currencyYouExchange,
+                      totalbalance < 10n ** 17n ? 12 : 8
+                  )
+        );        
         setAmountYouExchange(totalbalance);
         void onChangeAmounts(totalbalance, convertAmountReceive, "exchange");
     };
