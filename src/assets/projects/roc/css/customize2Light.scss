@@ -167,9 +167,9 @@
         hue-rotate(300deg) brightness(103%) contrast(110%);
 
     --notification-error-background: var(--color-semantic-negative);
-    --notification-error-text: #0c0c08;
-    --notification-error-filter: invert(0%) sepia(8%) saturate(7469%)
-        hue-rotate(300deg) brightness(103%) contrast(110%);
+    --notification-error-text: #ffffff;
+    --notification-error-filter: invert(100%) sepia(0%) saturate(7500%)
+        hue-rotate(236deg) brightness(101%) contrast(100%);
 
     --notification-warning-background: #0d0d0d;
     --notification-warning-text: #ffffff;
@@ -262,10 +262,10 @@
     --color-icon-primary: invert(11%) sepia(8%) saturate(478%)
         hue-rotate(114deg) brightness(101%) contrast(94%);
 
-    --color-icon-link-filter: invert(0%) sepia(90%) saturate(1895%)
-        hue-rotate(225deg) brightness(99%) contrast(90%);
-    --color-icon-link-hover-filter: invert(0%) sepia(20%) saturate(6237%)
-        hue-rotate(317deg) brightness(107%) contrast(115%);
+    --color-icon-link-filter: invert(32%) sepia(99%) saturate(3295%)
+        hue-rotate(228deg) brightness(98%) contrast(93%);
+    --color-icon-link-hover-filter: invert(53%) sepia(98%) saturate(1512%)
+        hue-rotate(206deg) brightness(87%) contrast(88%);
 
     --color-icon-link-secondary-filter: invert(44%) sepia(28%) saturate(232%)
         hue-rotate(174deg) brightness(93%) contrast(91%);

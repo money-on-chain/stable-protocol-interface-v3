@@ -12,8 +12,8 @@
     --brand-color-light: #737cd3;
     --brand-color-lighter: #b2b7ec;
     --brand-color-overbrand: #ffffff;
-    --brand-color-base-filter: invert(74%) sepia(47%) saturate(3118%)
-        hue-rotate(197deg) brightness(96%) contrast(100%);
+    --brand-color-base-filter: invert(36%) sepia(30%) saturate(3309%)
+        hue-rotate(216deg) brightness(91%) contrast(86%);
     --brand-color-overbrand-filter: invert(100%) sepia(100%) saturate(0%)
         hue-rotate(288deg) brightness(102%) contrast(102%);
 
@@ -171,14 +171,14 @@
         hue-rotate(300deg) brightness(103%) contrast(110%);
 
     --notification-error-background: var(--color-semantic-negative);
-    --notification-error-text: #0c0c08;
-    --notification-error-filter: invert(0%) sepia(8%) saturate(7469%)
-        hue-rotate(300deg) brightness(103%) contrast(110%);
+    --notification-error-text: #ffffff;
+    --notification-error-filter: invert(100%) sepia(0%) saturate(7500%)
+        hue-rotate(236deg) brightness(101%) contrast(100%);
 
-    --notification-warning-background: #0d0d0d;
-    --notification-error-text: #0c0c08;
-    --notification-error-filter: invert(0%) sepia(8%) saturate(7469%)
-        hue-rotate(300deg) brightness(103%) contrast(110%);
+    --notification-warning-background: #b5b5b5;
+    --notification-warning-text: #0c0c08;
+    --notification-warning-filter: invert(2%) sepia(4%) saturate(5371%)
+        hue-rotate(22deg) brightness(100%) contrast(96%);
 
     --notification-info-background: #b5b5b5;
     --notification-info-text: #0c0c08;
@@ -265,9 +265,8 @@
         hue-rotate(185deg) brightness(85%) contrast(99%);
 
     --color-icon-link-filter: var(--brand-color-base-filter);
-    --color-icon-link-hover-filter: invert(0%) sepia(20%) saturate(6237%)
-        hue-rotate(317deg) brightness(107%) contrast(115%);
-
+    --color-icon-link-hover-filter: invert(53%) sepia(98%) saturate(1512%)
+        hue-rotate(206deg) brightness(87%) contrast(88%);
     --color-icon-link-secondary-filter: invert(44%) sepia(28%) saturate(232%)
         hue-rotate(174deg) brightness(93%) contrast(91%);
     --color-icon-link-secondary-hover-filter: invert(44%) sepia(28%)
