@@ -230,7 +230,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                               .pegContainer[dataItem.key][0],
                           token: settings.tokens.TP[dataItem.key],
                           decimals:
-                              settings.tokens.TP[caIndex]
+                              settings.tokens.TP[dataItem.key]
                                   .visibleBalanceDecimals,
                           i18n,
                       }),
@@ -240,7 +240,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                           amount: tpAvailableToMint,
                           token: settings.tokens.TP[dataItem.key],
                           decimals:
-                              settings.tokens.TP[caIndex]
+                              settings.tokens.TP[dataItem.key]
                                   .visibleBalanceDecimals,
                           i18n,
                       }),

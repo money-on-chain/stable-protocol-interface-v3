@@ -36,9 +36,14 @@ const localhostWithMulticall = {
     contracts: {
         ...localhost.contracts,
         multicall3: {
-            address: "0xcA11bde05977b3631167028862bE2a173976CA11" as `0x${string}`,
+            address:
+                "0xcA11bde05977b3631167028862bE2a173976CA11" as `0x${string}`,
         },
     },
 } as const;
 
-export const CHAINS = [rootstock, rootstockTestnet, localhostWithMulticall] as const;
+export const CHAINS = [
+    rootstock,
+    rootstockTestnet,
+    localhostWithMulticall,
+] as const;

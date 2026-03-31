@@ -145,7 +145,6 @@ export function useRpcErrorHandler(): UseRpcErrorHandlerReturn {
 
             setIsRpcHealthy(true);
         } catch (error) {
-
             // Check if it's a network error (no internet)
             const errorMessage =
                 error instanceof Error ? error.message : String(error);

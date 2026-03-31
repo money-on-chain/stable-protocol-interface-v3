@@ -60,7 +60,9 @@ const redeemTC = async (
         context;
 
     if (limitAmount === 0n)
-        throw new Error("limitAmount must be > 0 — a zero minimum would accept receiving nothing");
+        throw new Error(
+            "limitAmount must be > 0 — a zero minimum would accept receiving nothing"
+        );
 
     if (!userBalance.data[caIndex])
         throw new Error(`Bucket index not found for ${caIndex}`);
@@ -197,7 +199,9 @@ const redeemTP = async (
     } = context;
 
     if (limitAmount === 0n)
-        throw new Error("limitAmount must be > 0 — a zero minimum would accept receiving nothing");
+        throw new Error(
+            "limitAmount must be > 0 — a zero minimum would accept receiving nothing"
+        );
 
     // Verifications
     if (!contracts.TP) throw new Error("TP not found");
@@ -627,7 +631,9 @@ const redeemTCandTP = async (
     } = context;
 
     if (limitAmount === 0n)
-        throw new Error("limitAmount must be > 0 — a zero minimum would accept receiving nothing");
+        throw new Error(
+            "limitAmount must be > 0 — a zero minimum would accept receiving nothing"
+        );
 
     if (!contracts.TP) throw new Error("TP not found");
     if (!contracts.TP[tpIndex]) throw new Error(`TP not found for ${tpIndex}`);
@@ -755,8 +761,15 @@ const sendWithExecFee = async (
     // We assume all transports in 127.0.0.1 or localhost to be hardhat, and we
     // simulate with a 0 executionFee. Hopefully we can remove this check in the future.
     try {
-        const host = new URL(String((publicClient.transport.transports as Array<{ value?: { url?: string } }>)[0]?.value?.url ?? ""))
-            .hostname;
+        const host = new URL(
+            String(
+                (
+                    publicClient.transport.transports as Array<{
+                        value?: { url?: string };
+                    }>
+                )[0]?.value?.url ?? ""
+            )
+        ).hostname;
         if (host == "localhost" || host == "127.0.0.1") {
             const clientVersion = await publicClient.request({
                 method: "web3_clientVersion",

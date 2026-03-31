@@ -57,12 +57,17 @@ export function useOffchainPrices(
                     if (
                         typeof raw !== "object" ||
                         raw === null ||
-                        typeof (raw as Record<string, unknown>).values !== "object" ||
+                        typeof (raw as Record<string, unknown>).values !==
+                            "object" ||
                         (raw as Record<string, unknown>).values === null
                     ) {
-                        throw new Error("Offchain prices API returned unexpected shape");
+                        throw new Error(
+                            "Offchain prices API returned unexpected shape"
+                        );
                     }
-                    const responseData = raw as { values: Record<string, unknown> };
+                    const responseData = raw as {
+                        values: Record<string, unknown>;
+                    };
 
                     for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
                         const caParse: ParsedPrices = {
@@ -75,12 +80,18 @@ export function useOffchainPrices(
 
                         const toPrice = (key: string): bigint => {
                             const v = responseData.values[key];
-                            const n = typeof v === "number" && isFinite(v) && v >= 0 ? v : 0;
+                            const n =
+                                typeof v === "number" && isFinite(v) && v >= 0
+                                    ? v
+                                    : 0;
                             return parseUnits(n.toFixed(18), 18);
                         };
 
                         caParse.CA = [toPrice(map.CA), true];
-                        caParse.TP = map.TP.map((tp: string) => [toPrice(tp), true]);
+                        caParse.TP = map.TP.map((tp: string) => [
+                            toPrice(tp),
+                            true,
+                        ]);
                         caParse.TF = [toPrice(map.TF), true];
                         caParse.COINBASE = [toPrice(map.COINBASE), true];
 
