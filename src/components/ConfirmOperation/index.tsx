@@ -898,6 +898,7 @@ export default function ConfirmOperation(
                                 type="button"
                                 className="button secondary"
                                 onClick={onClose}
+                                data-testid="button-close-operation"
                             >
                                 {t("exchange.buttonClose")}
                             </button>
