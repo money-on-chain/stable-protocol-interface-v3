@@ -17,6 +17,7 @@ interface TokenRowProps {
     tokenTicker: string;
     price: bigint;
     balance: bigint;
+    balanceLoaded: boolean;
     balanceUSD: bigint;
     visiblePriceDecimals: number;
     visibleBalanceDecimals: number;
@@ -38,6 +39,7 @@ export const generateTokenRow = ({
     tokenTicker,
     price,
     balance,
+    balanceLoaded,
     balanceUSD,
     visiblePriceDecimals,
     visibleBalanceDecimals,
@@ -87,17 +89,21 @@ export const generateTokenRow = ({
                     data-testid={`portfolio-balance-${tokenTicker}`}
                     className="table__cell table__cell__amount"
                 >
-                    <PrecisionNumbers
-                        amount={balance}
-                        token={{
-                            name: "",
-                            decimals: 18,
-                            visibleDecimals: visibleBalanceDecimals,
-                        }}
-                        decimals={visibleBalanceDecimals}
-                        i18n={i18n}
-                        compact={true}
-                    />{" "}
+                    {balanceLoaded ? (
+                        <PrecisionNumbers
+                            amount={balance}
+                            token={{
+                                name: "",
+                                decimals: 18,
+                                visibleDecimals: visibleBalanceDecimals,
+                            }}
+                            decimals={visibleBalanceDecimals}
+                            i18n={i18n}
+                            compact={true}
+                        />
+                    ) : (
+                        <>--</>
+                    )}{" "}
                     <div className="token__ticker">
                         {/* {tokenTicker}  */}
                         {/* show token ticker after balance */}
@@ -108,7 +114,7 @@ export const generateTokenRow = ({
                 </div>
                 {/* Token balance in USD */}
                 <div className="table__cell table__cell__usdBalance">
-                    {balanceUSD ? (
+                    {balanceLoaded && balanceUSD ? (
                         <PrecisionNumbers
                             amount={balanceUSD}
                             token={{
