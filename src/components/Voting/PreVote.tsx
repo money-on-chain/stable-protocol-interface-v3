@@ -318,6 +318,7 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
                                                     //numericLabelParams: {},
                                                     i18n: i18n,
                                                     //skipContractConvert: true,
+                                                    compact: true,
                                                 })}
                                                 {t("staking.tokens.TG.abbr", {
                                                     ns: ns,
@@ -332,6 +333,7 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
                                                     //numericLabelParams: {},
                                                     i18n: i18n,
                                                     //skipContractConvert: true,
+                                                    compact: true,
                                                 })}
                                                 %)
                                             </div>

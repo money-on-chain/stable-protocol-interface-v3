@@ -27,6 +27,7 @@ export default function BalanceBar(props: BalanceBarProps): React.ReactElement {
                         token: TokenSettings("TG"),
                         decimals: 2,
                         i18n: i18n,
+                        compact: true,
                     })}
                     {space}(
                     {PrecisionNumbers({
@@ -34,6 +35,7 @@ export default function BalanceBar(props: BalanceBarProps): React.ReactElement {
                         token: TokenSettings("TG"),
                         decimals: 2,
                         i18n: i18n,
+                        compact: true,
                     })}
                     %) against
                 </div>
@@ -43,6 +45,7 @@ export default function BalanceBar(props: BalanceBarProps): React.ReactElement {
                         token: TokenSettings("TG"),
                         decimals: 2,
                         i18n: i18n,
+                        compact: true,
                     })}
                     {space}(
                     {PrecisionNumbers({
@@ -50,6 +53,7 @@ export default function BalanceBar(props: BalanceBarProps): React.ReactElement {
                         token: TokenSettings("TG"),
                         decimals: 2,
                         i18n: i18n,
+                        compact: true,
                     })}
                     %) in favor
                 </div>

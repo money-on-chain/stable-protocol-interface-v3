@@ -75,6 +75,7 @@ export const generateTokenRow = ({
                             }}
                             decimals={visiblePriceDecimals}
                             i18n={i18n}
+                            compact={true}
                         />
                     ) : (
                         <>--</>
@@ -95,6 +96,7 @@ export const generateTokenRow = ({
                         }}
                         decimals={visibleBalanceDecimals}
                         i18n={i18n}
+                        compact={true}
                     />{" "}
                     <div className="token__ticker">
                         {/* {tokenTicker}  */}
@@ -116,6 +118,7 @@ export const generateTokenRow = ({
                             }}
                             decimals={visibleBalanceUSDDecimals}
                             i18n={i18n}
+                            compact={true}
                         />
                     ) : (
                         <>--</>

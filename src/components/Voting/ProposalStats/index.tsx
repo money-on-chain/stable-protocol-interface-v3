@@ -37,6 +37,7 @@ export default function ProposalStats(
                             decimals: 2,
                             i18n: i18n,
                             //skipContractConvert: true,
+                            compact: true,
                         })}
                     </div>
                     <div className="statPercentage">
@@ -47,6 +48,7 @@ export default function ProposalStats(
                             decimals: 2,
                             i18n: i18n,
                             //skipContractConvert: true,
+                            compact: true,
                         })}
                         %)
                     </div>

@@ -98,6 +98,7 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
                                 token: settings.tokens.TG[0],
                                 decimals: Number(t("staking.display_decimals")),
                                 i18n: i18n,
+                                compact: true,
                             })}
                         </div>{" "}
                         <div className="item-data withdraw__status">
@@ -218,6 +219,7 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
                                         t("staking.display_decimals")
                                     ),
                                     i18n: i18n,
+                                    compact: true,
                                 })}{" "}
                                 {`${settings.tokens.TG[0].name}`}
                             </div>
@@ -239,6 +241,7 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
                                         t("staking.display_decimals")
                                     ),
                                     i18n: i18n,
+                                    compact: true,
                                 })}{" "}
                                 {`${settings.tokens.TG[0].name}`}
                             </div>

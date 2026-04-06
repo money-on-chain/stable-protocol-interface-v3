@@ -1486,6 +1486,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                               ),
                                               decimals: 8,
                                               i18n: i18n,
+                                              compact: true,
                                           })
                                 }
                                 setAddTotalAvailable={setAddTotalAvailable}
@@ -1551,6 +1552,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                                           ),
                                                           decimals: 8,
                                                           i18n: i18n,
+                                                          compact: true,
                                                       })
                                             }
                                             getFiatEquivalent={() => {
@@ -1589,6 +1591,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                                               `TP_${tpIndex}`
                                                           ),
                                                           i18n: i18n,
+                                                          compact: true,
                                                       })}
                                             </div>
                                             <div className="amountInput__infoBar">
@@ -1609,6 +1612,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                                               ),
                                                               decimals: 2,
                                                               i18n: i18n,
+                                                              compact: true,
                                                           })}
                                                     {space}USD
                                                 </div>
@@ -1627,6 +1631,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                                               ),
                                                               decimals: 8,
                                                               i18n: i18n,
+                                                              compact: true,
                                                           })}
                                                 </div>
                                             </div>
@@ -1648,6 +1653,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                             ),
                                             decimals: 2,
                                             i18n: i18n,
+                                            compact: true,
                                         })
                                       : PrecisionNumbers({
                                             /* Mint */
@@ -1663,6 +1669,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                             ),
                                             decimals: 2,
                                             i18n: i18n,
+                                            compact: true,
                                         })}
                                 {space}
                                 USD
@@ -1717,6 +1724,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                               ),
                                               decimals: 8,
                                               i18n: i18n,
+                                              compact: true,
                                           })
                                 }
                                 setAddTotalAvailable={setAddTotalAvailable}
@@ -1782,6 +1790,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                                       ),
                                                       decimals: 8,
                                                       i18n: i18n,
+                                                      compact: true,
                                                   })
                                         }
                                         getFiatEquivalent={(value: number) => {
@@ -1817,6 +1826,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                                           `TC_${caIndex}`
                                                       ),
                                                       i18n: i18n,
+                                                      compact: true,
                                                   })}
                                         </span>
                                         <div className="amountInput__infoBar">
@@ -1837,6 +1847,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                                           ),
                                                           decimals: 2,
                                                           i18n: i18n,
+                                                          compact: true,
                                                       })}
                                                 {space}USD
                                             </div>
@@ -1855,6 +1866,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                                           ),
                                                           decimals: 8,
                                                           i18n: i18n,
+                                                          compact: true,
                                                       })}
                                             </div>
                                         </div>
@@ -1875,6 +1887,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                             ),
                                             decimals: 2,
                                             i18n: i18n,
+                                            compact: true,
                                         })
                                       : PrecisionNumbers({
                                             /* Redeem */
@@ -1890,6 +1903,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                             ),
                                             decimals: 2,
                                             i18n: i18n,
+                                            compact: true,
                                         })}
                                 {space}USD
                             </div>
@@ -1932,6 +1946,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                                       currencyYouReceive
                                                   ),
                                                   i18n: i18n,
+                                                  compact: true,
                                               })}
                                     </span>
                                     <span className={"token_receive_name"}>
@@ -1974,6 +1989,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                                       currencyYouExchange
                                                   ),
                                                   i18n: i18n,
+                                                  compact: true,
                                               })}
                                     </span>
                                     <span className={"token_receive_name"}>
@@ -2022,6 +2038,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                                           `CA_${caIndex}`
                                                       ),
                                                       i18n: i18n,
+                                                      compact: true,
                                                   })}
                                         </span>
                                         <span className={"token_receive_name"}>
@@ -2077,6 +2094,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                                               : `TP_${tpIndex}`
                                                       ),
                                                       i18n: i18n,
+                                                      compact: true,
                                                   })}
                                         </span>
                                         <span className={"token_receive_name"}>
@@ -2140,6 +2158,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                           decimals: 2,
                                           i18n: i18n,
                                           isUSD: true,
+                                          compact: true,
                                       })}
                             </div>
                         ) : (

@@ -199,6 +199,7 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
                                 decimals: 2,
                                 i18n: i18n,
                                 isUSD: true,
+                                compact: true,
                             })}
                             {space}
                             {fiatLabel}

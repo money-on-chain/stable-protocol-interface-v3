@@ -553,6 +553,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                                             decimals: 2,
                                             i18n: i18n,
                                             //isInWei: false,
+                                            compact: true,
                                         })}
                                         {space}{" "}
                                         {t("voting.feedback.stakeRequiered2")}
@@ -570,6 +571,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                                                 token: TokenSettings("TG"),
                                                 decimals: 2,
                                                 i18n: i18n,
+                                                compact: true,
                                             })}
                                             {space}
                                             {t("staking.tokens.TG.abbr", {
@@ -583,6 +585,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                                                 token: TokenSettings("TG"),
                                                 decimals: 4,
                                                 i18n: i18n,
+                                                compact: true,
                                             })}
                                             % )
                                         </div>

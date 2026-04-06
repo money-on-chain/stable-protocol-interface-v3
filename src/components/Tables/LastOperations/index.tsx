@@ -1040,6 +1040,7 @@ export default function LastOperations(props: LastOperationsProps) {
                             token: TokenSettings(fee["token"] || ""),
                             decimals: 6,
                             i18n: i18n,
+                            compact: true,
                         })}
                         {/* </span> */}
                         <span className="token">
@@ -1312,6 +1313,7 @@ export default function LastOperations(props: LastOperationsProps) {
                                                             2
                                                         }
                                                         i18n={i18n}
+                                                        compact={true}
                                                     />
                                                 );
                                             })()}
@@ -1367,6 +1369,7 @@ export default function LastOperations(props: LastOperationsProps) {
                                                                   receiveToken.visibleDecimals ??
                                                                   2,
                                                               i18n: i18n,
+                                                              compact: true,
                                                           });
                                                 })()}
                                             </div>
@@ -1436,6 +1439,7 @@ export default function LastOperations(props: LastOperationsProps) {
                                                                   receiveToken.visibleDecimals ??
                                                                   2,
                                                               i18n: i18n,
+                                                              compact: true,
                                                           });
                                                 })()}
                                             </div>

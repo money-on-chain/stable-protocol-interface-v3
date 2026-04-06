@@ -191,6 +191,7 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
                                     token: TokenSettings("CA_0"),
                                     decimals: 8,
                                     i18n: i18n,
+                                    compact: true,
                                 })}
                             </div>
 
