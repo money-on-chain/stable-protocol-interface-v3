@@ -1445,6 +1445,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
     const executionFeeUSD = executionFeeInFiat();
 
     const isSlippageBlockingExchange = !slippageInteraction.isValid;
+    const isZeroAmount = amountYouExchange <= 0n || amountYouReceive <= 0n;
 
     return (
         <div>
@@ -2191,7 +2192,9 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                         amountYouExchange={amountYouExchange}
                         amountYouReceive={amountYouReceive}
                         inputValidationError={
-                            inputValidationError || isSlippageBlockingExchange
+                            inputValidationError ||
+                            isSlippageBlockingExchange ||
+                            isZeroAmount
                         }
                         executionFee={executionFee}
                         executionFeeUSD={executionFeeUSD}
