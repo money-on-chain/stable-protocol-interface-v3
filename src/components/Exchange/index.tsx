@@ -100,7 +100,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
     const [inputValidationErrorText, setInputValidationErrorText] =
         useState<string>("");
     const [inputValidationError, setInputValidationError] =
-        useState<boolean>(false);
+        useState<boolean>(true);
     const [globalValidationErrorText, setGlobalValidationErrorText] =
         useState<string>("");
     const [showLinkOpCombined, setShowLinkOpCombined] =
@@ -209,6 +209,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
     };
 
     const onValidate = useCallback((): void => {
+        
         // Protocol in not-good status
         const { statusCode } = checkerStatus();
 
@@ -562,15 +563,13 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
     ]);
 
     useEffect(() => {
-        if (
-            amountYouExchange &&
+        if (            
             contractProtocolStatus.data &&
             userBalance.data
         ) {
             onValidate();
         }
     }, [
-        amountYouExchange,
         contractProtocolStatus.data,
         userBalance.data,
         onValidate,
