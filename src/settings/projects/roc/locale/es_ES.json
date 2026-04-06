@@ -790,5 +790,6 @@
         "status": "Estado",
         "statusReceived": "Recibido",
         "statusInProgress": "En progreso"
-    }
+    },
+    "slippageTolerance": { "title": "Slippage Tolerance" }
 }

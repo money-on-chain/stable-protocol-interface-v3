@@ -90,7 +90,16 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
     const [slippageTolerance, setSlippageTolerance] = useState<number>(
         slippage.autoDefault
     );
+    interface SlippageInteractionState {
+        hasPendingCustom: boolean;
+        isValid: boolean;
+    }
 
+    const [slippageInteraction, setSlippageInteraction] =
+        useState<SlippageInteractionState>({
+            hasPendingCustom: false,
+            isValid: true,
+        });
     const [commissionsByKey, setCommissionsByKey] = useState<CommissionsState>(
         {}
     );
@@ -631,7 +640,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         };
 
         void run();
-        // eslint-disable-next-line react-hooks/exhaustive-deps -- onChangeAmounts is intentionally excluded: it is redeclared every render but its behaviour only changes when its captured state changes, which is already covered by the explicit deps below
+        // eslint--next-line react-hooks/exhaustive-deps -- onChangeAmounts is intentionally excluded: it is redeclared every render but its behaviour only changes when its captured state changes, which is already covered by the explicit deps below
     }, [
         slippageTolerance,
         // depends on these because if they change and the user adjusts slippage, you want to recalculate properly
@@ -1211,7 +1220,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
 
     const onSlippageInteractionChange = useCallback(
         (next: { hasPendingCustom: boolean; isValid: boolean }) => {
-            return next;
+            setSlippageInteraction(next);
         },
         []
     );
@@ -1434,6 +1443,8 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             ? totalAmountExchangeInFiat
             : totalAmountReceiveInFiat;
     const executionFeeUSD = executionFeeInFiat();
+
+    const isSlippageBlockingExchange = !slippageInteraction.isValid;
 
     return (
         <div>
@@ -2111,6 +2122,9 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                     onInteractionChange={
                                         onSlippageInteractionChange
                                     }
+                                    onInteractionChange={
+                                        onSlippageInteractionChange
+                                    }
                                 />
                             </div>
                         </div>
@@ -2176,7 +2190,9 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                         commissionsByKey={commissionsByKey}
                         amountYouExchange={amountYouExchange}
                         amountYouReceive={amountYouReceive}
-                        inputValidationError={inputValidationError}
+                        inputValidationError={
+                            inputValidationError || isSlippageBlockingExchange
+                        }
                         executionFee={executionFee}
                         executionFeeUSD={executionFeeUSD}
                         radioSelectFee={radioSelectFee}
