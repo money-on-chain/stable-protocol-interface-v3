@@ -1897,7 +1897,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                 <div className="tx-fees-item">
                                     <span className={""}>
                                         {" "}
-                                        1{" "}
+                                        1
                                         {t(
                                             `exchange.tokens.${currencyYouExchange}.abbr`,
                                             {

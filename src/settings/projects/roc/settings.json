@@ -94,8 +94,8 @@
             },
             {
                 "key": 1,
-                "name": "RIFDOC",
-                "fullName": "RIF DOC",
+                "name": "ROCR",
+                "fullName": "ROC Reserve",
                 "decimals": 18,
                 "visibleDecimals": 2,
                 "visiblePriceDecimals": 2,
