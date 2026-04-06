@@ -313,7 +313,13 @@ export default function PortfolioTable() {
                     );
 
                     // Now that balance and variation is calculated, is multiplied for priceCA for price final value
-                    price = divPrecision(price, priceCA);
+                    price = ConvertAmount(
+                        contractProtocolStatus,
+                        "TF",
+                        "USD",
+                        price,
+                        token.key || 0
+                    );
 
                     break;
                 case "TG":
