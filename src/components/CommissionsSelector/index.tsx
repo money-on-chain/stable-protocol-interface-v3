@@ -84,7 +84,7 @@ export default function CommissionsSelector(
                                     amount:
                                         commissionsByKey["FeeToken"]
                                             ?.commissionUSD ?? 0n,
-                                    decimals: 2,
+                                    decimals: 6,
                                     token: TokenSettings(`CA_${caIndex}`),
                                     i18n: i18n,
                                     isUSD: true,
@@ -141,7 +141,7 @@ export default function CommissionsSelector(
                                         amount:
                                             commissionsByKey[`CA_${ca}`]
                                                 ?.commissionUSD ?? 0n,
-                                        decimals: 2,
+                                        decimals: 6,
                                         token: TokenSettings(`CA_${ca}`),
                                         i18n: i18n,
                                         isUSD: true,
