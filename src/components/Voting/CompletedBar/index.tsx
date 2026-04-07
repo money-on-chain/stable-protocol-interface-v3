@@ -56,6 +56,7 @@ export default function CompletedBar(
                             token: TokenSettings("TG"),
                             decimals: 2,
                             i18n: i18n,
+                            compact: true,
                         })}
                         {space}(
                         {PrecisionNumbers({
@@ -63,6 +64,7 @@ export default function CompletedBar(
                             token: TokenSettings("TG"),
                             decimals: 2,
                             i18n: i18n,
+                            compact: true,
                         })}
                         %)
                     </div>
@@ -75,6 +77,7 @@ export default function CompletedBar(
                             token: TokenSettings("TG"),
                             decimals: 2,
                             i18n: i18n,
+                            compact: true,
                         })}
                         {space}(
                         {PrecisionNumbers({
@@ -82,6 +85,7 @@ export default function CompletedBar(
                             token: TokenSettings("TG"),
                             decimals: 2,
                             i18n: i18n,
+                            compact: true,
                         })}
                         %)
                     </div>
@@ -94,6 +98,7 @@ export default function CompletedBar(
                             token: TokenSettings("TG"),
                             decimals: 2,
                             i18n: i18n,
+                            compact: true,
                         })}
                         {space}(
                         {PrecisionNumbers({
@@ -101,6 +106,7 @@ export default function CompletedBar(
                             token: TokenSettings("TG"),
                             decimals: 2,
                             i18n: i18n,
+                            compact: true,
                         })}
                         %)
                     </div>
@@ -117,7 +123,8 @@ export default function CompletedBar(
                         t: t,
                         i18n: i18n,
                         ns: ns,
-                        skipContractConvert: true
+                        skipContractConvert: true,
+                        compact: true,
                     })}
                     {space}(
                     {PrecisionNumbers({
@@ -127,7 +134,8 @@ export default function CompletedBar(
                         t: t,
                         i18n: i18n,
                         ns: ns,
-                        skipContractConvert: true
+                        skipContractConvert: true,
+                        compact: true,
                     })}
                     %)
                 </div>
@@ -141,7 +149,8 @@ export default function CompletedBar(
                             t: t,
                             i18n: i18n,
                             ns: ns,
-                            skipContractConvert: true
+                            skipContractConvert: true,
+                            compact: true,
                         })}
                         {space}(
                         {PrecisionNumbers({
@@ -151,7 +160,8 @@ export default function CompletedBar(
                             t: t,
                             i18n: i18n,
                             ns: ns,
-                            skipContractConvert: true
+                            skipContractConvert: true,
+                            compact: true,
                         })}
                         %)
                     </div>
@@ -166,7 +176,8 @@ export default function CompletedBar(
                             t: t,
                             i18n: i18n,
                             ns: ns,
-                            skipContractConvert: true
+                            skipContractConvert: true,
+                            compact: true,
                         })}
                         {space}(100%)
                     </div>

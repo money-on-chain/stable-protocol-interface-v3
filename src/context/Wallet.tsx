@@ -239,7 +239,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     );
 
     const readContractsAddresses = useCallback(async (): Promise<void> => {
-        if (!isConnected || !isOnCorrectChain || contractsAddressLoaded || !publicClient) return;
+        if (
+            !isConnected ||
+            !isOnCorrectChain ||
+            contractsAddressLoaded ||
+            !publicClient
+        )
+            return;
 
         try {
             const contractsAddresses = await readContracts(publicClient);
@@ -377,7 +383,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             const newVesting: string[] = [];
             response.transactions.forEach((data) => {
                 const addr = data.vesting.toLowerCase();
-                if (EVM_ADDRESS_RE.test(data.vesting) && !vLowerFromStorage.includes(addr)) {
+                if (
+                    EVM_ADDRESS_RE.test(data.vesting) &&
+                    !vLowerFromStorage.includes(addr)
+                ) {
                     newVesting.push(addr);
                 }
             });
@@ -390,9 +399,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     };
 
     const readUserVesting = (): void => {
-        const apiBase = import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS as string | undefined;
+        const apiBase = import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS as
+            | string
+            | undefined;
         if (!apiBase) {
-            console.warn("readUserVesting: REACT_APP_ENVIRONMENT_API_OPERATIONS is not set");
+            console.warn(
+                "readUserVesting: REACT_APP_ENVIRONMENT_API_OPERATIONS is not set"
+            );
             return;
         }
         const url = new URL(apiBase);

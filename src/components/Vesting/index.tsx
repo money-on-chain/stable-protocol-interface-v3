@@ -750,6 +750,7 @@ const Vesting: React.FC = () => {
                                             ),
                                             //numericLabelParams: {},
                                             i18n: i18n,
+                                            compact: true,
                                         })}
                                         {t("staking.governanceToken")}
                                     </div>
@@ -1004,6 +1005,7 @@ const Vesting: React.FC = () => {
                                         ),
                                         //numericLabelParams: {},
                                         i18n: i18n,
+                                        compact: true,
                                     })}
                                 </div>
                                 <div className="vesting__label">
@@ -1042,6 +1044,7 @@ const Vesting: React.FC = () => {
                                     ),
                                     //numericLabelParams: {},
                                     i18n: i18n,
+                                    compact: true,
                                 })}
                             </div>
                             <div className="vesting__label">
@@ -1081,6 +1084,7 @@ const Vesting: React.FC = () => {
                                     ),
                                     //numericLabelParams: {},
                                     i18n: i18n,
+                                    compact: true,
                                 })}{" "}
                             </div>
                             <div className="vesting__label">
@@ -1109,6 +1113,7 @@ const Vesting: React.FC = () => {
                                     ),
                                     //numericLabelParams: {},
                                     i18n: i18n,
+                                    compact: true,
                                 })}
                             </div>
                             <div className="vesting__label">
@@ -1141,6 +1146,7 @@ const Vesting: React.FC = () => {
                                     ),
                                     //numericLabelParams: {},
                                     i18n: i18n,
+                                    compact: true,
                                 })}
                                 {space}
                                 {t("staking.tokens.TG.abbr", { ns: ns })}

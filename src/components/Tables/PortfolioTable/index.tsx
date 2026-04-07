@@ -140,6 +140,7 @@ export default function PortfolioTable() {
 
         allTheTokens.forEach((token: TokenConfig) => {
             let balance = 0n;
+            let balanceLoaded = false;
             let price = 0n;
             let priceTEC = 0n;
             let priceCA = 0n;
@@ -152,6 +153,7 @@ export default function PortfolioTable() {
                     tokenIcon = "icon-token-" + token.type.toLowerCase();
 
                     balance = BigInt(userBaseCoinBalance.balance || 0);
+                    balanceLoaded = userBaseCoinBalance.balance != null;
 
                     price =
                         normalizeToBigInt(
@@ -182,10 +184,10 @@ export default function PortfolioTable() {
                             token.key;
 
                         // Convert balance to BigNumber with correct decimal precision
-                        balance =
-                            normalizeToBigInt(
-                                userBalance.data?.CA?.[token.key || 0]?.balance
-                            ) || 0n;
+                        const rawBalanceCA =
+                            userBalance.data?.CA?.[token.key || 0]?.balance;
+                        balanceLoaded = rawBalanceCA != null;
+                        balance = normalizeToBigInt(rawBalanceCA) || 0n;
                         price =
                             normalizeToBigInt(
                                 contractProtocolStatus.data?.[token.key || 0]
@@ -212,22 +214,22 @@ export default function PortfolioTable() {
                     if (token.peggedUSD) {
                         // CALCULATE TOKENS TP USD-Pegged Tokens DATA
 
-                        balance =
-                            normalizeToBigInt(
-                                userBalance.data?.TP?.[0]?.[token.key || 0]
-                                    ?.balance
-                            ) || 0n;
+                        const rawBalanceTPPegged =
+                            userBalance.data?.TP?.[0]?.[token.key || 0]
+                                ?.balance;
+                        balanceLoaded = rawBalanceTPPegged != null;
+                        balance = normalizeToBigInt(rawBalanceTPPegged) || 0n;
 
                         price = 1n;
 
                         balanceUSD = mulPrecision(balance, price);
                     } else {
                         //CALCULATE TOKENS TP NON-USD-Pegged Tokens DATA
-                        balance =
-                            normalizeToBigInt(
-                                userBalance.data?.TP?.[0]?.[token.key || 0]
-                                    ?.balance
-                            ) || 0n;
+                        const rawBalanceTP =
+                            userBalance.data?.TP?.[0]?.[token.key || 0]
+                                ?.balance;
+                        balanceLoaded = rawBalanceTP != null;
+                        balance = normalizeToBigInt(rawBalanceTP) || 0n;
                         price =
                             normalizeToBigInt(
                                 contractProtocolStatus.data[0]?.PP_TP?.[
@@ -257,10 +259,10 @@ export default function PortfolioTable() {
                         "_" +
                         token.key;
 
-                    balance =
-                        normalizeToBigInt(
-                            userBalance.data?.[token.key || 0]?.TC?.balance
-                        ) || 0n;
+                    const rawBalanceTC =
+                        userBalance.data?.[token.key || 0]?.TC?.balance;
+                    balanceLoaded = rawBalanceTC != null;
+                    balance = normalizeToBigInt(rawBalanceTC) || 0n;
 
                     priceTEC =
                         normalizeToBigInt(
@@ -286,10 +288,10 @@ export default function PortfolioTable() {
                     // CALCULATE TOKENS TF DATA
 
                     tokenIcon = "icon-token-" + token.type.toLowerCase();
-                    balance =
-                        normalizeToBigInt(
-                            userBalance.data[token.key || 0]?.FeeToken?.balance
-                        ) || 0n;
+                    const rawBalanceTF =
+                        userBalance.data[token.key || 0]?.FeeToken?.balance;
+                    balanceLoaded = rawBalanceTF != null;
+                    balance = normalizeToBigInt(rawBalanceTF) || 0n;
 
                     // RAW price for balance and variation calculation
                     price =
@@ -311,7 +313,13 @@ export default function PortfolioTable() {
                     );
 
                     // Now that balance and variation is calculated, is multiplied for priceCA for price final value
-                    price = divPrecision(price, priceCA);
+                    price = ConvertAmount(
+                        contractProtocolStatus,
+                        "TF",
+                        "USD",
+                        price,
+                        token.key || 0
+                    );
 
                     break;
                 case "TG":
@@ -342,6 +350,7 @@ export default function PortfolioTable() {
                 tokenTicker,
                 price,
                 balance,
+                balanceLoaded,
                 balanceUSD,
                 visiblePriceDecimals: token.visiblePriceDecimals || 0,
                 visibleBalanceDecimals: token.visibleBalanceDecimals || 0,

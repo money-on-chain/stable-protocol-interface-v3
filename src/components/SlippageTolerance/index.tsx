@@ -257,6 +257,7 @@ export const SlippageTolerance: React.FC<SlippageToleranceProps> = ({
                         type="button"
                         className={`slippage-tolerance__pill slippage-tolerance__pill--mode-${currentState.mode}`}
                         onClick={toggleExpanded}
+                        data-testid={`slippage-selector-open-${pairId}`}
                         disabled={disabled}
                     >
                         <div className="slippage-tolerance__pill-mode">
@@ -316,6 +317,7 @@ export const SlippageTolerance: React.FC<SlippageToleranceProps> = ({
                                     min={0}
                                     step={0.01}
                                     className="slippage-tolerance__input"
+                                    data-testid={`slippage-input-${pairId}`}
                                     value={customInput}
                                     onChange={handleCustomInputChange}
                                     onKeyDown={handleCustomKeyDown}
@@ -336,7 +338,10 @@ export const SlippageTolerance: React.FC<SlippageToleranceProps> = ({
                                     }
                                     aria-label="Set custom slippage"
                                 >
-                                    <div className="icon-accept slippage-tolerance__accept"></div>
+                                    <div
+                                        data-testid={`slippage-accept-${pairId}`}
+                                        className="icon-accept slippage-tolerance__accept"
+                                    ></div>
                                 </button>
                             </div>
                         </div>

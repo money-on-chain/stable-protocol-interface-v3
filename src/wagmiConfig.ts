@@ -2,11 +2,7 @@
 import { custom } from "viem";
 import { createConfig, fallback, http } from "wagmi";
 import { localhost, rootstock, rootstockTestnet } from "wagmi/chains";
-import {
-    coinbaseWallet,
-    injected,
-    walletConnect,
-} from "wagmi/connectors";
+import { coinbaseWallet, injected, walletConnect } from "wagmi/connectors";
 
 import { ALLOWED_CHAIN, CHAINS } from "./constants/chain";
 import settings from "./settings/settings.json";
@@ -146,7 +142,10 @@ const activeConnectorTransport = (
 
             // rpcParams comes from viem's custom() callback which types it as any
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            return provider.request({ method, params: rpcParams as unknown }) as unknown;
+            return provider.request({
+                method,
+                params: rpcParams as unknown,
+            }) as unknown;
         },
     })(params);
 };

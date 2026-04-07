@@ -198,7 +198,11 @@ function WalletButton({
         <button onClick={onClick} disabled={!ready || loading}>
             <span>{labelFor(connector, t)}</span>
             <WalletIcon connector={connector} />
-            {!ready && <span className="providers__not-available">(not available)</span>}
+            {!ready && (
+                <span className="providers__not-available">
+                    (not available)
+                </span>
+            )}
         </button>
     );
 }

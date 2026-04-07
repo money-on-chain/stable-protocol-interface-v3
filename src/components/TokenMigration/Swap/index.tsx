@@ -268,6 +268,7 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
                                             token: TokenSettings("TP_0"),
                                             decimals: 4,
                                             i18n: i18n,
+                                            compact: true,
                                         })}
                                     </div>
                                     <div className="Token">RDOC</div>
@@ -285,6 +286,7 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
                                             token: TokenSettings("TP_0"),
                                             decimals: 4,
                                             i18n: i18n,
+                                            compact: true,
                                         })}
                                     </div>
                                     <div className="Token">USDRIF</div>

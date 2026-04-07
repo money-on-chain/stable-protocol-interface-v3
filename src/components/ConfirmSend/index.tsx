@@ -53,11 +53,10 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
                 destinationAddress.toLowerCase(),
                 onTransaction,
                 onReceipt
-            )
-                .catch((error: unknown) => {
-                    console.error("ConfirmSend transfer error:", error);
-                    setStatus("ERROR");
-                });
+            ).catch((error: unknown) => {
+                console.error("ConfirmSend transfer error:", error);
+                setStatus("ERROR");
+            });
         } else {
             void interfaceTransferToken(
                 currencyYouExchange,
@@ -65,11 +64,10 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
                 destinationAddress.toLowerCase(),
                 onTransaction,
                 onReceipt
-            )
-                .catch((error: unknown) => {
-                    console.error("ConfirmSend transfer error:", error);
-                    setStatus("ERROR");
-                });
+            ).catch((error: unknown) => {
+                console.error("ConfirmSend transfer error:", error);
+                setStatus("ERROR");
+            });
         }
     };
 
@@ -79,7 +77,6 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
     };
 
     const onReceipt = (_receipt: unknown): void => {
-
         /*
         // Events name list
         const filter = [
@@ -194,6 +191,7 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
                                     token: TokenSettings("CA_0"),
                                     decimals: 8,
                                     i18n: i18n,
+                                    compact: true,
                                 })}
                             </div>
 

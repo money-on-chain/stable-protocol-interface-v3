@@ -17,6 +17,7 @@ interface TokenRowProps {
     tokenTicker: string;
     price: bigint;
     balance: bigint;
+    balanceLoaded: boolean;
     balanceUSD: bigint;
     visiblePriceDecimals: number;
     visibleBalanceDecimals: number;
@@ -38,6 +39,7 @@ export const generateTokenRow = ({
     tokenTicker,
     price,
     balance,
+    balanceLoaded,
     balanceUSD,
     visiblePriceDecimals,
     visibleBalanceDecimals,
@@ -48,7 +50,10 @@ export const generateTokenRow = ({
     return {
         key,
         renderRow: (
-            <div className="table__row">
+            <div
+                data-testid={`portfolio-row-${tokenTicker}`}
+                className="table__row"
+            >
                 {/* Token icon, name, and ticker */}
                 <div className="table__cell__name">
                     <div className="token">
@@ -58,7 +63,10 @@ export const generateTokenRow = ({
                     </div>
                 </div>
                 {/* Token price */}
-                <div className="table__cell table__cell__price">
+                <div
+                    data-testid={`portfolio-price-${tokenTicker}`}
+                    className="table__cell table__cell__price"
+                >
                     {price ? (
                         <PrecisionNumbers
                             amount={price}
@@ -69,6 +77,7 @@ export const generateTokenRow = ({
                             }}
                             decimals={visiblePriceDecimals}
                             i18n={i18n}
+                            compact={true}
                         />
                     ) : (
                         <>--</>
@@ -76,17 +85,25 @@ export const generateTokenRow = ({
                     <div className="table__cell__label">{label.price}</div>
                 </div>
                 {/* Token balance */}
-                <div className="table__cell table__cell__amount">
-                    <PrecisionNumbers
-                        amount={balance}
-                        token={{
-                            name: "",
-                            decimals: 18,
-                            visibleDecimals: visibleBalanceDecimals,
-                        }}
-                        decimals={visibleBalanceDecimals}
-                        i18n={i18n}
-                    />{" "}
+                <div
+                    data-testid={`portfolio-balance-${tokenTicker}`}
+                    className="table__cell table__cell__amount"
+                >
+                    {balanceLoaded ? (
+                        <PrecisionNumbers
+                            amount={balance}
+                            token={{
+                                name: "",
+                                decimals: 18,
+                                visibleDecimals: visibleBalanceDecimals,
+                            }}
+                            decimals={visibleBalanceDecimals}
+                            i18n={i18n}
+                            compact={true}
+                        />
+                    ) : (
+                        <>--</>
+                    )}{" "}
                     <div className="token__ticker">
                         {/* {tokenTicker}  */}
                         {/* show token ticker after balance */}
@@ -97,7 +114,7 @@ export const generateTokenRow = ({
                 </div>
                 {/* Token balance in USD */}
                 <div className="table__cell table__cell__usdBalance">
-                    {balanceUSD ? (
+                    {balanceLoaded && balanceUSD ? (
                         <PrecisionNumbers
                             amount={balanceUSD}
                             token={{
@@ -107,6 +124,7 @@ export const generateTokenRow = ({
                             }}
                             decimals={visibleBalanceUSDDecimals}
                             i18n={i18n}
+                            compact={true}
                         />
                     ) : (
                         <>--</>

@@ -61,6 +61,7 @@ export default function CommissionsSelector(
                                     token: TokenSettings(currencyYouExchange),
                                     decimals: 2,
                                     i18n: i18n,
+                                    compact: true,
                                 })}
                                 %)
                             </span>
@@ -72,6 +73,7 @@ export default function CommissionsSelector(
                                             ?.commission ?? 0n,
                                     token: TokenSettings(`TF_${caIndex}`),
                                     i18n: i18n,
+                                    compact: true,
                                 })}
                             </span>
                             <span className={""}>
@@ -88,6 +90,7 @@ export default function CommissionsSelector(
                                     token: TokenSettings(`CA_${caIndex}`),
                                     i18n: i18n,
                                     isUSD: true,
+                                    compact: true,
                                 })}
                             </span>
                             <span className={""}>
@@ -116,6 +119,7 @@ export default function CommissionsSelector(
                                         ),
                                         decimals: 2,
                                         i18n: i18n,
+                                        compact: true,
                                     })}
                                     %)
                                 </span>
@@ -127,6 +131,7 @@ export default function CommissionsSelector(
                                                 ?.commission ?? 0n,
                                         token: TokenSettings(`CA_${ca}`),
                                         i18n: i18n,
+                                        compact: true,
                                     })}
                                 </span>
                                 <span className={""}>
@@ -145,6 +150,7 @@ export default function CommissionsSelector(
                                         token: TokenSettings(`CA_${ca}`),
                                         i18n: i18n,
                                         isUSD: true,
+                                        compact: true,
                                     })}
                                 </span>
                                 <span className={""}>

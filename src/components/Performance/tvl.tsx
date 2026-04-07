@@ -45,6 +45,7 @@ export default function TVL(): JSX.Element {
                         token: TokenSettings("CA_0"),
                         decimals: 2,
                         i18n: i18n,
+                        compact: true,
                     })}
                 </div>
                 <div className="caption">

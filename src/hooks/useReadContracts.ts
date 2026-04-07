@@ -98,7 +98,9 @@ const readContracts = async (
         | undefined;
     // Validate each address before using it as a contract target
     const ppca: Address[] = ppcaRaw
-        ? (ppcaRaw.split(",").filter((a) => EVM_ADDR_RE.test(a.trim())) as Address[])
+        ? (ppcaRaw
+              .split(",")
+              .filter((a) => EVM_ADDR_RE.test(a.trim())) as Address[])
         : [];
 
     for (let ca = 0; ca < s.CA.length; ca++) {
@@ -393,7 +395,9 @@ const readContracts = async (
         };
 
         if (!import.meta.env.REACT_APP_CONTRACT_TOKEN_MIGRATOR) {
-            console.error("Please set REACT_APP_CONTRACT_TOKEN_MIGRATOR env var");
+            console.error(
+                "Please set REACT_APP_CONTRACT_TOKEN_MIGRATOR env var"
+            );
         } else {
             contracts.token_migrator = {
                 address: import.meta.env

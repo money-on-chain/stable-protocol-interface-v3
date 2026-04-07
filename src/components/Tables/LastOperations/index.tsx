@@ -366,36 +366,33 @@ export default function LastOperations(props: LastOperationsProps) {
         }
     };
 
-    const getTokenInfo = useCallback(
-        (token: string) => {
-            if (token === "FeeToken") {
-                return {
-                    name: settings.tokens.TF[0].name,
-                    token: settings.tokens.TF[0],
-                };
-            }
-            const match = token.match(/^(CA|TC|TP)_(\d+)$/);
-            if (match) {
-                const [, prefix, indexStr] = match;
-                const index = parseInt(indexStr, 10);
-                const arr =
-                    prefix === "CA"
-                        ? (settings.tokens.CA as TokenConfig[])
-                        : prefix === "TC"
-                          ? settings.tokens.TC
-                          : settings.tokens.TP;
-                const tokenConfig = arr[index];
-                if (!tokenConfig) return undefined;
-                return {
-                    name: tokenConfig?.name || "",
-                    token: tokenConfig,
-                };
-            }
-            console.warn("UNRECOGNIZED TOKEN: " + token);
-            return undefined;
-        },
-        []
-    );
+    const getTokenInfo = useCallback((token: string) => {
+        if (token === "FeeToken") {
+            return {
+                name: settings.tokens.TF[0].name,
+                token: settings.tokens.TF[0],
+            };
+        }
+        const match = token.match(/^(CA|TC|TP)_(\d+)$/);
+        if (match) {
+            const [, prefix, indexStr] = match;
+            const index = parseInt(indexStr, 10);
+            const arr =
+                prefix === "CA"
+                    ? (settings.tokens.CA as TokenConfig[])
+                    : prefix === "TC"
+                      ? settings.tokens.TC
+                      : settings.tokens.TP;
+            const tokenConfig = arr[index];
+            if (!tokenConfig) return undefined;
+            return {
+                name: tokenConfig?.name || "",
+                token: tokenConfig,
+            };
+        }
+        console.warn("UNRECOGNIZED TOKEN: " + token);
+        return undefined;
+    }, []);
 
     const tokenExchange = useCallback(
         (row_operation: OperationData): TokenExchangeResult | undefined => {
@@ -628,9 +625,18 @@ export default function LastOperations(props: LastOperationsProps) {
                     status === "executed"
                         ? row_operation.executed
                         : row_operation.params;
-                const sd = statusData as { tpFromIndex_?: number; tpFromIndex?: number; tpToIndex_?: number; tpToIndex?: number } | undefined;
-                const tp_from_index: number = sd?.tpFromIndex_ ?? sd?.tpFromIndex ?? 0;
-                const tp_to_index: number = sd?.tpToIndex_ ?? sd?.tpToIndex ?? 0;
+                const sd = statusData as
+                    | {
+                          tpFromIndex_?: number;
+                          tpFromIndex?: number;
+                          tpToIndex_?: number;
+                          tpToIndex?: number;
+                      }
+                    | undefined;
+                const tp_from_index: number =
+                    sd?.tpFromIndex_ ?? sd?.tpFromIndex ?? 0;
+                const tp_to_index: number =
+                    sd?.tpToIndex_ ?? sd?.tpToIndex ?? 0;
 
                 return {
                     exchange: {
@@ -1034,6 +1040,7 @@ export default function LastOperations(props: LastOperationsProps) {
                             token: TokenSettings(fee["token"] || ""),
                             decimals: 6,
                             i18n: i18n,
+                            compact: true,
                         })}
                         {/* </span> */}
                         <span className="token">
@@ -1306,6 +1313,7 @@ export default function LastOperations(props: LastOperationsProps) {
                                                             2
                                                         }
                                                         i18n={i18n}
+                                                        compact={true}
                                                     />
                                                 );
                                             })()}
@@ -1361,6 +1369,7 @@ export default function LastOperations(props: LastOperationsProps) {
                                                                   receiveToken.visibleDecimals ??
                                                                   2,
                                                               i18n: i18n,
+                                                              compact: true,
                                                           });
                                                 })()}
                                             </div>
@@ -1430,6 +1439,7 @@ export default function LastOperations(props: LastOperationsProps) {
                                                                   receiveToken.visibleDecimals ??
                                                                   2,
                                                               i18n: i18n,
+                                                              compact: true,
                                                           });
                                                 })()}
                                             </div>

@@ -117,6 +117,7 @@ export default function VestingSchedule(): React.ReactElement {
                                 token: settings.tokens.TG[0],
                                 decimals: Number(t("staking.display_decimals")),
                                 i18n: i18n,
+                                compact: true,
                             })}
                         </div>
                         <div className="status">

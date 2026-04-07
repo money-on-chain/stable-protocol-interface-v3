@@ -107,6 +107,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                       token: settings.tokens.TC[caIndex],
                       decimals: 3,
                       i18n,
+                      compact: true,
                   }),
             ema: "--",
             minted: !contractProtocolStatus.data[caIndex]?.nTCcb
@@ -118,6 +119,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                           (settings.tokens.CA as TokenConfig[])[caIndex]
                               ?.visibleDecimals || 6,
                       i18n,
+                      compact: true,
                   }),
             mintable: "No limit",
             redeemable: !contractProtocolStatus.data[caIndex]
@@ -131,6 +133,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                           (settings.tokens.CA as TokenConfig[])[caIndex]
                               ?.visibleDecimals || 6,
                       i18n,
+                      compact: true,
                   }),
             coverage: <div className="item-usd">--</div>,
         });
@@ -210,6 +213,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                               settings.tokens.TP[dataItem.key]
                                   .visiblePriceDecimals,
                           i18n,
+                          compact: true,
                       }),
                 ema: !tpEMARaw?.[0]
                     ? "--"
@@ -220,6 +224,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                               settings.tokens.TP[dataItem.key]
                                   .visiblePriceDecimals,
                           i18n,
+                          compact: true,
                       }),
                 minted: !contractProtocolStatus.data[caIndex]?.pegContainer?.[
                     dataItem.key
@@ -230,9 +235,10 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                               .pegContainer[dataItem.key][0],
                           token: settings.tokens.TP[dataItem.key],
                           decimals:
-                              settings.tokens.TP[caIndex]
+                              settings.tokens.TP[dataItem.key]
                                   .visibleBalanceDecimals,
                           i18n,
+                          compact: true,
                       }),
                 mintable: !tpAvailableToMint
                     ? "--"
@@ -240,9 +246,10 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                           amount: tpAvailableToMint,
                           token: settings.tokens.TP[dataItem.key],
                           decimals:
-                              settings.tokens.TP[caIndex]
+                              settings.tokens.TP[dataItem.key]
                                   .visibleBalanceDecimals,
                           i18n,
+                          compact: true,
                       }),
                 redeemable: "No limit",
                 coverage: !contractProtocolStatus.data[caIndex]?.tpCtarg?.[
@@ -256,6 +263,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                           token: settings.tokens.TP[dataItem.key],
                           decimals: 2,
                           i18n,
+                          compact: true,
                       }),
             });
         });

@@ -80,6 +80,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                               caIndex
                                           ]?.visibleDecimals || 6,
                                       i18n: i18n,
+                                      compact: true,
                                   })
                                 : "--"}
                         </div>
@@ -103,6 +104,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                       token: settings.tokens.CA[caIndex],
                                       decimals: 4,
                                       i18n: i18n,
+                                      compact: true,
                                   })
                                 : "--"}
                         </div>
@@ -127,6 +129,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                       token: TokenSettings(`CA_${caIndex}`),
                                       decimals: 4,
                                       i18n: i18n,
+                                      compact: true,
                                   })
                                 : "--"}
                         </div>
@@ -145,6 +148,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                       token: TokenSettings(`CA_${caIndex}`),
                                       decimals: 4,
                                       i18n: i18n,
+                                      compact: true,
                                   })
                                 : "--"}
                         </div>
@@ -166,6 +170,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                               caIndex
                                           ]?.visibleDecimals || 6,
                                       i18n: i18n,
+                                      compact: true,
                                   })
                                 : "--"}
                         </div>
