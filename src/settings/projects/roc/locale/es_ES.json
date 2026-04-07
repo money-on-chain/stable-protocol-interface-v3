@@ -185,7 +185,7 @@
         },
         "cardTitle": {
             "simpleExchange": "Cambiar",
-            "balancedOps": "Operaciones Balanceadas"
+            "balancedOps": "Operaciones Combinadas"
         },
         "labelSending": "cambiando",
         "LabelSendingUpTo": "Enviando hasta",
@@ -218,8 +218,8 @@
             "noLiquidity": "No hay suficiente liquidez en el protocolo",
             "maxLimitedByProtocol": "Maximos limitados temporalmente por el protocolo",
             "insufficientTPinCA": "Tokens insuficientes en este bucket",
-            "useBalancedOps": "Podés usar Operaciones Balanceadas para intercambiar tokens sin afectar la cobertura actual.",
-            "balancedOpsCTA": "Ir a la sección de Operaciones Balanceadas",
+            "useBalancedOps": "Podés usar Operaciones Combinadas para intercambiar tokens sin afectar la cobertura actual.",
+            "balancedOpsCTA": "Ir a la sección de Operaciones Combinadas",
             "noBalanceForFees": "Saldo insuficiente para pagar las comisiones"
         }
     },
@@ -790,5 +790,6 @@
         "status": "Estado",
         "statusReceived": "Recibido",
         "statusInProgress": "En progreso"
-    }
+    },
+    "slippageTolerance": { "title": "Slippage Tolerance" }
 }

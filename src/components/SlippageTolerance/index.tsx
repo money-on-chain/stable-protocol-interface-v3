@@ -128,6 +128,30 @@ export const SlippageTolerance: React.FC<SlippageToleranceProps> = ({
         }
     }, [currentState.mode, currentState.value, isExpanded]);
 
+    const handleCustomBlur = () => {
+        if (disabled) return;
+
+        const trimmed = customInput.trim();
+
+        if (trimmed === "") {
+            setValidationError(null);
+            setCustomInput(
+                currentState.mode === "custom" ? String(currentState.value) : ""
+            );
+            return;
+        }
+
+        const error = validateCustomInput(trimmed);
+
+        if (error) {
+            setValidationError(error);
+            return;
+        }
+
+        setValidationError(null);
+        setIsExpanded(false);
+    };
+
     const emitChange = (next: SlippageState, collapseAfter: boolean) => {
         if (!isControlled) {
             setInternalState(next);
@@ -171,7 +195,19 @@ export const SlippageTolerance: React.FC<SlippageToleranceProps> = ({
     ) => {
         const rawValue = event.target.value;
         setCustomInput(rawValue);
-        setValidationError(validateCustomInput(rawValue));
+
+        const error = validateCustomInput(rawValue);
+        setValidationError(error);
+
+        const trimmed = rawValue.trim();
+
+        if (trimmed === "" || error) {
+            return;
+        }
+
+        const parsed = parseFloat(trimmed.replace(",", "."));
+        const next: SlippageState = { mode: "custom", value: parsed };
+        emitChange(next, false);
     };
 
     const handleConfirmCustom = () => {
@@ -193,7 +229,10 @@ export const SlippageTolerance: React.FC<SlippageToleranceProps> = ({
     ) => {
         if (event.key === "Enter") {
             event.preventDefault();
-            handleConfirmCustom();
+
+            if (!validationError && customInput.trim() !== "") {
+                setIsExpanded(false);
+            }
         }
     };
 
@@ -223,8 +262,7 @@ export const SlippageTolerance: React.FC<SlippageToleranceProps> = ({
         (currentState.mode !== "custom" || parsedCustom !== currentState.value);
 
     const hasError = Boolean(validationError);
-    const isValid = !hasError && !hasPendingCustom;
-
+    const isValid = !hasError;
     // Notify parent about interaction state so it can, for example,
     // disable the outer "Confirm" button while there is a pending custom value.
     useEffect(() => {
@@ -316,18 +354,20 @@ export const SlippageTolerance: React.FC<SlippageToleranceProps> = ({
                                     type="number"
                                     min={0}
                                     step={0.01}
+                                    inputMode="decimal"
                                     className="slippage-tolerance__input"
                                     data-testid={`slippage-input-${pairId}`}
                                     value={customInput}
                                     onChange={handleCustomInputChange}
                                     onKeyDown={handleCustomKeyDown}
+                                    onBlur={handleCustomBlur}
                                     placeholder="Custom"
                                     disabled={disabled}
                                 />
                                 <div className="slippage-tolerance__input-suffix">
                                     %
                                 </div>
-                                <button
+                                {/* <button
                                     type="button"
                                     className="slippage-tolerance__confirm"
                                     onClick={handleConfirmCustom}
@@ -338,11 +378,8 @@ export const SlippageTolerance: React.FC<SlippageToleranceProps> = ({
                                     }
                                     aria-label="Set custom slippage"
                                 >
-                                    <div
-                                        data-testid={`slippage-accept-${pairId}`}
-                                        className="icon-accept slippage-tolerance__accept"
-                                    ></div>
-                                </button>
+                                    <div className="icon-accept slippage-tolerance__accept"></div>
+                                </button> */}
                             </div>
                         </div>
                     </div>

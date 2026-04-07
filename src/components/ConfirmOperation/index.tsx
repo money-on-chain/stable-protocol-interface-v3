@@ -720,6 +720,7 @@ export default function ConfirmOperation(
                 </div>
             </div>
             <div className="divider-horizontal"></div>
+
             <div className="tx-fees-container">
                 <div className="tx-fees-data">
                     <div className="tx-fees-item">
@@ -799,6 +800,17 @@ export default function ConfirmOperation(
                         </span>
                         <span className={""}> USD</span>
                         <span className={""}>) </span>
+                    </div>
+                </div>{" "}
+                <div className="tx-slippageTolerance">
+                    <div className="tx-fees-item">
+                        <span className="token_exchange">
+                            {t("slippageTolerance.title")}
+                        </span>
+                        : {space}
+                        <span className="token_receive">
+                            {slippageTolerance}%
+                        </span>
                     </div>
                 </div>
                 <div className="tx-fees-info">

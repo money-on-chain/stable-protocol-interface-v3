@@ -70,7 +70,6 @@
         align-items: center;
         gap: 16px;
         margin-top: 16px;
-        margin-left: -18px;
     }
 
     &__options {
@@ -105,41 +104,49 @@
     }
 
     &__custom {
-        // margin-left: auto;
-        // Push custom input group to the right if desired
+        flex: 0 0 auto;
     }
 
     &__input-group {
         display: inline-flex;
-        position: relative;
         align-items: center;
-        max-width: 80px;
-        // overflow: hidden;
+        width: 72px;
+        min-width: 72px;
+        max-width: 72px;
+        border: 1px solid var(--dividers);
+        border-radius: 4px;
+        background-color: var(--color-btn-tertiary-background-default);
+        overflow: hidden;
     }
 
     &__input {
+        width: 100%;
+        min-width: 0;
         border: none;
-        border-radius: 4px;
-        background-color: var(--color-btn-tertiary-background-default);
+        border-radius: 0;
+        background-color: transparent;
         padding: 2px 4px;
-        // padding-right: 2.5rem;
-        max-width: 100%;
         color: var(--color-txt-primary);
         font-weight: 600;
     }
+    &--custom-active &__input-group {
+        border-color: var(--color-txt-highlight);
+    }
+
     &--custom-active &__input {
-        border: 1px solid var(--color-txt-highlight);
         color: var(--color-txt-highlight);
     }
+    &--error &__input-group {
+        border-color: var(--color-semantic-negative);
+    }
+
     &--error &__input {
-        border: 1px solid var(--color-semantic-negative);
         color: var(--color-semantic-negative);
     }
     &__input-suffix {
-        position: absolute;
-        right: 4px;
+        flex: 0 0 auto;
+        padding-right: 4px;
         color: var(--color-txt-secondary);
-        // Align the "%" suffix inside the input group
     }
 
     &__confirm {

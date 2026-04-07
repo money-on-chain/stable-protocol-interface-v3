@@ -42,7 +42,7 @@ export default function Send(): JSX.Element {
         setInputValidationAddressErrorText,
     ] = useState<string>("");
     const [inputValidationError, setInputValidationError] =
-        useState<boolean>(false);
+        useState<boolean>(true);
 
     const onChangeCurrencyYouSend = (newCurrencyYouExchange: string): void => {
         onClear();
@@ -67,6 +67,10 @@ export default function Send(): JSX.Element {
 
     const onClear = (): void => {
         setAmountYouSend("");
+        setDestinationAddress("");
+        setInputValidationErrorText("");
+        setInputValidationAddressErrorText("");
+        setInputValidationError(true);
     };
 
     const onValidate = useCallback((): void => {
@@ -83,23 +87,18 @@ export default function Send(): JSX.Element {
         );
         const amountYouSendBig: bigint = toBigIntPrecision(amountYouSend);
 
-        if (amountYouSendBig > totalBalance) {
+        if (!amountYouSend || amountYouSendBig === 0n) {
+            amountInputError = true;
+        } else if (amountYouSendBig > totalBalance) {
             setInputValidationErrorText(t("send.infoNoBalance"));
             amountInputError = true;
-        }
-        if (amountYouSendBig === 0n) {
-            amountInputError = true;
-        }
-        if (amountYouSendBig < 0n) {
+        } else if (amountYouSendBig < 0n) {
             setInputValidationErrorText(t("send.infoNoNegativeValues"));
             amountInputError = true;
         }
-        if (amountYouSendBig === null) {
-            setInputValidationErrorText(t("send.infoNoNegativeValues"));
-            amountInputError = true;
-        }
+
         // 2. Input address valid
-        if (destinationAddress === "") {
+        if (!destinationAddress) {
             addressInputError = true;
         } else if (!/^0x[0-9a-fA-F]{40}$/.test(destinationAddress)) {
             setInputValidationAddressErrorText(t("send.infoAddressInvalid"));
@@ -114,11 +113,7 @@ export default function Send(): JSX.Element {
             setInputValidationAddressErrorText("");
         }
 
-        if (amountInputError || addressInputError) {
-            setInputValidationError(true);
-        } else {
-            setInputValidationError(false);
-        }
+        setInputValidationError(amountInputError || addressInputError);
     }, [
         amountYouSend,
         currencyYouSend,
@@ -133,16 +128,8 @@ export default function Send(): JSX.Element {
     }, [amountYouSend]);
 
     useEffect(() => {
-        if (amountYouSend) {
-            onValidate();
-        }
-    }, [amountYouSend, onValidate]);
-
-    useEffect(() => {
-        if (destinationAddress) {
-            onValidate();
-        }
-    }, [destinationAddress, onValidate]);
+        onValidate();
+    }, [amountYouSend, destinationAddress, onValidate]);
 
     const onChangeAmountYouSend = (
         newAmount: string | number,
@@ -260,6 +247,7 @@ export default function Send(): JSX.Element {
                                 type="text"
                                 placeholder={t("send.placeholder")}
                                 className="input-addressOLD amountInput__value "
+                                value={destinationAddress}
                                 onChange={onChangeDestinationAddress}
                             />
                         </div>
