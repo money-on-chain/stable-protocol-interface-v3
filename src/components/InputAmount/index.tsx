@@ -138,6 +138,12 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
                         value={inputValue}
                         inputMode="decimal"
                         readOnly={isNonEditable}
+                        tabIndex={isNonEditable ? -1 : 0}
+                        style={
+                            isNonEditable
+                                ? { pointerEvents: "none" }
+                                : undefined
+                        }
                         onChange={(event) => {
                             handleValueChange(event.target.value);
                         }}
