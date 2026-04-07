@@ -205,6 +205,7 @@ const Stake = (props: StakeProps): JSX.Element => {
                                     t("staking.staking.input_decimals")
                                 ),
                                 i18n: i18n,
+                                compact: true,
                             })}
                             placeholder={"0.0"}
                             inputValue={
@@ -233,7 +234,8 @@ const Stake = (props: StakeProps): JSX.Element => {
                     decimals: t('staking.display_decimals'),
                     t: t,
                     i18n: i18n,
-                    ns: ns
+                    ns: ns,
+                    compact: true,
                 })}
                 {TokenSettings(defaultTokenStake).name}
             </div> */}
@@ -256,6 +258,7 @@ const Stake = (props: StakeProps): JSX.Element => {
                                           t("staking.display_decimals")
                                       ),
                                       i18n: i18n,
+                                      compact: true,
                                   })
                             : amountToStake === ""
                               ? ""
@@ -266,6 +269,7 @@ const Stake = (props: StakeProps): JSX.Element => {
                                         t("staking.display_decimals")
                                     ),
                                     i18n: i18n,
+                                    compact: true,
                                 })}
                         {t("staking.governanceToken")}
                     </div>

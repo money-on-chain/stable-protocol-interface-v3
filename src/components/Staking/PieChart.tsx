@@ -166,6 +166,7 @@ const PieChartComponent: React.FC<PieChartComponentProps> = (props) => {
                               token: settings.tokens.TG[0],
                               decimals: 2,
                               i18n: i18n,
+                              compact: true,
                           })
                         : "--"}
                     {space}

@@ -422,6 +422,7 @@ function Vote(props: VoteProps): JSX.Element {
                                                 token: TokenSettings("TG"),
                                                 decimals: 2,
                                                 i18n: i18n,
+                                                compact: true,
                                             })}
                                             {t("staking.tokens.TG.abbr", {
                                                 ns: ns,
@@ -434,6 +435,7 @@ function Vote(props: VoteProps): JSX.Element {
                                                 token: TokenSettings("TG"),
                                                 decimals: 4,
                                                 i18n: i18n,
+                                                compact: true,
                                             })}
                                             %)
                                         </div>

@@ -65,7 +65,7 @@ export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
         <Fragment>{displayValue}</Fragment>
     ) : (
         <Tooltip title={formattedString}>
-            <span>{displayValue}</span>
+            <span data-testid="value">{displayValue}</span>
         </Tooltip>
     );
 };

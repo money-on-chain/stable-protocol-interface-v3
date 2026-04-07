@@ -82,6 +82,7 @@ export default function MultiCollateral(): JSX.Element {
                                       token: TokenSettings("CA_0"),
                                       decimals: 4,
                                       i18n: i18n,
+                                      compact: true,
                                   })
                                 : "--"}
                         </div>
@@ -101,6 +102,7 @@ export default function MultiCollateral(): JSX.Element {
                                       token: settings.tokens.CA[0],
                                       decimals: 4,
                                       i18n: i18n,
+                                      compact: true,
                                   })
                                 : "--"}
                         </div>
@@ -119,6 +121,7 @@ export default function MultiCollateral(): JSX.Element {
                                       token: TokenSettings("CA_0"),
                                       decimals: 4,
                                       i18n: i18n,
+                                      compact: true,
                                   })
                                 : "--"}
                         </div>

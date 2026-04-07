@@ -223,6 +223,7 @@ export default function Send(): JSX.Element {
                                     TokenSettings(currencyYouSend)
                                         .visibleDecimals,
                                 i18n: i18n,
+                                compact: true,
                             })}
                             setAddTotalAvailable={setAddTotalAvailable}
                             action={t("send.labelSending")}
@@ -272,6 +273,7 @@ export default function Send(): JSX.Element {
                                     token: TokenSettings("CA_0"),
                                     decimals: 2,
                                     i18n: i18n,
+                                    compact: true,
                                 })}
                             </span>
                         ) : (

@@ -150,6 +150,7 @@ export default function SectionHeader(): JSX.Element {
                     {mainMenuOptions.map((option: MenuOption) => (
                         <a
                             onClick={() => handleOptionClick(option.path)}
+                            data-testid={`navbar-menu-item-${option.className}`}
                             className={`menu-nav-item disable-nav-item ${location.pathname === option.path ? "menu-nav-item-selected" : ""}`}
                             key={option.path}
                         >

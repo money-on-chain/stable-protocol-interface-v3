@@ -145,6 +145,7 @@ const Dashboard = (): JSX.Element => {
                             decimals: parseInt(t("staking.display_decimals")),
                             //numericLabelParams: {},
                             i18n: i18n,
+                            compact: true,
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -165,6 +166,7 @@ const Dashboard = (): JSX.Element => {
                             decimals: parseInt(t("staking.display_decimals")),
                             //numericLabelParams: {},
                             i18n: i18n,
+                            compact: true,
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -185,6 +187,7 @@ const Dashboard = (): JSX.Element => {
                             decimals: parseInt(t("staking.display_decimals")),
                             //numericLabelParams: {},
                             i18n: i18n,
+                            compact: true,
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -205,6 +208,7 @@ const Dashboard = (): JSX.Element => {
                             decimals: parseInt(t("staking.display_decimals")),
                             //numericLabelParams: {},
                             i18n: i18n,
+                            compact: true,
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -225,6 +229,7 @@ const Dashboard = (): JSX.Element => {
                             decimals: parseInt(t("staking.display_decimals")),
                             //numericLabelParams: {},
                             i18n: i18n,
+                            compact: true,
                         })}
                     </div>
                     <div className="stakingDash__data__label">

@@ -49,6 +49,7 @@ const DisplayAmount: React.FC<DisplayAmountProps> = ({
                             token: TokenSettings("CA_0"),
                             decimals: decimals,
                             i18n: i18n,
+                            compact: true,
                         })}
                     </span>
                 </div>
@@ -66,6 +67,7 @@ const DisplayAmount: React.FC<DisplayAmountProps> = ({
                             decimals: equivalentDecimals,
                             i18n,
                             isUSD: true,
+                            compact: true,
                         })}
                         {space}
                         {equivalentLabel}

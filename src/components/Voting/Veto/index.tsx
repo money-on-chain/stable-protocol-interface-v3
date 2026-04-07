@@ -309,6 +309,7 @@ const Veto: React.FC = () => {
                                         t("staking.display_decimals")
                                     ),
                                     i18n: i18n,
+                                    compact: true,
                                 })}
                                 {space}
                                 tokens

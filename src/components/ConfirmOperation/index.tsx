@@ -731,6 +731,7 @@ export default function ConfirmOperation(
                                 token: commissionSettings,
                                 decimals: 2,
                                 i18n: i18n,
+                                compact: true,
                             })}
                             %)
                         </span>
@@ -741,6 +742,7 @@ export default function ConfirmOperation(
                                 decimals: 10,
                                 token: commissionSettings,
                                 i18n: i18n,
+                                compact: true,
                             })}
                         </span>
                         <span className={"token_receive_name"}>
@@ -755,6 +757,7 @@ export default function ConfirmOperation(
                                 token: TokenSettings(`CA_${caIndex}`),
                                 i18n: i18n,
                                 isUSD: true,
+                                compact: true,
                             })}
                         </span>
                         <span className={""}>
@@ -774,6 +777,7 @@ export default function ConfirmOperation(
                                 decimals: 10,
                                 token: TokenSettings("COINBASE"),
                                 i18n: i18n,
+                                compact: true,
                             })}
                         </span>
                         <span className={"token_receive_name"}>
@@ -791,6 +795,7 @@ export default function ConfirmOperation(
                                 token: TokenSettings(`CA_${caIndex}`),
                                 i18n: i18n,
                                 isUSD: true,
+                                compact: true,
                             })}
                         </span>
                         <span className={""}> USD</span>
@@ -834,6 +839,7 @@ export default function ConfirmOperation(
                                         decimals: 2,
                                         i18n: i18n,
                                         isUSD: true,
+                                        compact: true,
                                     })}
                                 </div>
                                 <div className={"token_receive_name"}>
@@ -910,6 +916,7 @@ export default function ConfirmOperation(
                                 type="button"
                                 className="button secondary"
                                 onClick={onClose}
+                                data-testid="button-close-operation"
                             >
                                 {t("exchange.buttonClose")}
                             </button>

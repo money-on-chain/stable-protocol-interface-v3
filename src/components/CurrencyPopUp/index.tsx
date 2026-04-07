@@ -131,6 +131,7 @@ export default function CurrencyPopUp(props: CurrencyPopUpProps): JSX.Element {
                         {filteredOptions.map((currency) => (
                             <div
                                 key={currency.value}
+                                data-testid={`token-list-select-${currency.abbreviation}`}
                                 className={`token-item ${
                                     currency.value === value
                                         ? "is-selected"
