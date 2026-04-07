@@ -428,17 +428,17 @@ export default function ConfirmOperation(
         ) {
             tokenAmount = amountYouExchange;
             limitAmount = amountYouReceive;
-        } else if (
-            operationType === "SWAP_TPFORTP" ||
-            operationType === "SWAP_TPFORTC" ||
-            operationType === "SWAP_TCFORTP"
-        ) {
-            tokenAmount = amountYouExchange;
-            limitAmount = amountYouExchange;
-            qAssetMaxFees = calculateLimit(
-                commissionsByKey[`CA_${caIndex}`].commission,
-                slippageTolerance / 100
-            );
+        } else if (                
+                operationType === "SWAP_TCFORTP" ||
+                operationType === "SWAP_TPFORTC" ||
+                operationType === "SWAP_TPFORTP" 
+            ) {
+                tokenAmount = amountYouExchange;
+                limitAmount = amountYouReceive;
+                qAssetMaxFees = calculateLimit(
+                    commissionsByKey[`CA_${caIndex}`].commission,
+                    slippageTolerance / 100
+                );
         } else {
             throw new Error("Invalid type operation");
         }
