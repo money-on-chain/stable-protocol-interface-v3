@@ -200,7 +200,7 @@ export default function PortfolioTable() {
                             "USD",
                             balance,
                             token.key || 0
-                        );
+                        );                                                
                     }
 
                     break;
@@ -220,7 +220,7 @@ export default function PortfolioTable() {
                         balanceLoaded = rawBalanceTPPegged != null;
                         balance = normalizeToBigInt(rawBalanceTPPegged) || 0n;
 
-                        price = 1n;
+                        price = 1n*10n**18n;
 
                         balanceUSD = mulPrecision(balance, price);
                     } else {
