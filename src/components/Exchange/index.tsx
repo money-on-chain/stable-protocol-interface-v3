@@ -434,11 +434,9 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             tIndex = TokenSettings(currencyYouExchange).key;
             if (tIndex !== undefined) {
                 if (!contractProtocolStatus.data) return;
-                const pegContainerArray =
-                    contractProtocolStatus.data[caIndex].pegContainer;
-                const maxAvailableTP = Array.isArray(pegContainerArray)
-                    ? pegContainerArray[tIndex]
-                    : undefined;
+                const maxAvailableTP =
+                    contractProtocolStatus.data[caIndex].pegContainer[tIndex][0];
+                
                 if (
                     maxAvailableTP !== undefined &&
                     typeof maxAvailableTP === "bigint" &&
