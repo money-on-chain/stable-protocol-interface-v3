@@ -1,9 +1,7 @@
 import { useWalletContext } from "../../../context/Wallet";
-import { ConvertAmount } from "../../../helpers/currencies";
-import { normalizeToBigInt } from "../../../helpers/precision";
+import { getPortfolioTotalUsd } from "../../../helpers/portfolio";
 import { useProjectTranslation } from "../../../helpers/translations";
 import settings from "../../../settings/settings.json";
-import type { TokenConfig } from "../../../types/hooks";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 import PortfolioTable from "../../Tables/PortfolioTable";
 
@@ -12,121 +10,11 @@ export default function Portfolio(): JSX.Element {
     const { t, i18n } = useProjectTranslation();
     const { contractProtocolStatus, userBalance, userBaseCoinBalance } =
         useWalletContext();
-
-    let balance: bigint;
-    let balanceUSD: bigint;
-    let totalUSD: bigint = 0n;
-
-    // Total tokens
-    if (
-        contractProtocolStatus.data &&
-        userBalance.data &&
-        userBaseCoinBalance.balance
-    ) {
-        for (const dataItem of settings.tokens.CA as TokenConfig[]) {
-            if (dataItem.key == null) continue;
-
-            // Check if the required data exists before accessing it
-            if (
-                !userBalance.data?.CA?.[dataItem.key] ||
-                !contractProtocolStatus.data?.[dataItem.key]
-            ) {
-                continue;
-            }
-
-            ////////////////
-            // Tokens CA
-            ///////////////
-
-            balance =
-                normalizeToBigInt(userBalance.data.CA[dataItem.key].balance) ||
-                0n;
-            balanceUSD = ConvertAmount(
-                contractProtocolStatus,
-                "CA",
-                "USD",
-                balance,
-                dataItem.key
-            );
-            totalUSD = totalUSD + balanceUSD;
-
-            /////////////
-            // Token TC
-            ////////////
-            balance =
-                normalizeToBigInt(userBalance.data[dataItem.key].TC.balance) ||
-                0n;
-            balanceUSD = ConvertAmount(
-                contractProtocolStatus,
-                "TC",
-                "USD",
-                balance,
-                dataItem.key
-            );
-            totalUSD = totalUSD + balanceUSD;
-        }
-        ///////////////
-        // Tokens TP
-        //////////////
-        for (const dataItem of settings.tokens.TP as TokenConfig[]) {
-            if (dataItem.key == null) continue;
-
-            // Check if the required data exists before accessing it
-            if (
-                !userBalance.data?.TP?.[0]?.[dataItem.key] ||
-                !contractProtocolStatus.data?.[0]?.PP_TP?.[dataItem.key]
-            ) {
-                continue;
-            }
-
-            balance =
-                normalizeToBigInt(
-                    userBalance.data.TP[0][dataItem.key].balance
-                ) || 0n;
-            balanceUSD = ConvertAmount(
-                contractProtocolStatus,
-                "TP",
-                "USD",
-                balance,
-                dataItem.key
-            );
-            totalUSD = totalUSD + balanceUSD;
-        }
-
-        ///////////////
-        // Coinbase
-        //////////////
-        balance = BigInt(userBaseCoinBalance.balance || 0);
-        balanceUSD = ConvertAmount(
-            contractProtocolStatus,
-            "COINBASE",
-            "USD",
-            balance,
-            0
-        );
-        totalUSD = totalUSD + balanceUSD;
-
-        /////////////////
-        // Fee Token (TF) the price provider is expressed in collateral
-        ////////////////
-        // Check if the required data exists before accessing it
-        if (
-            userBalance.data?.[0]?.FeeToken &&
-            contractProtocolStatus.data?.[0]?.PP_CA &&
-            contractProtocolStatus.data?.[0]?.PP_FeeToken
-        ) {
-            balance =
-                normalizeToBigInt(userBalance.data[0].FeeToken.balance) || 0n;
-            balanceUSD = ConvertAmount(
-                contractProtocolStatus,
-                "TF",
-                "USD",
-                balance,
-                0
-            );
-            totalUSD = totalUSD + balanceUSD;
-        }
-    }
+    const totalUSD = getPortfolioTotalUsd(
+        contractProtocolStatus,
+        userBalance,
+        userBaseCoinBalance
+    );
 
     return (
         <div className="dashboard-portfolio">

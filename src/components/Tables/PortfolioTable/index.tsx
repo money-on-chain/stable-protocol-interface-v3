@@ -8,8 +8,8 @@ import {
     ConvertAmount,
     ConvertPeggedTokenPrice,
 } from "../../../helpers/currencies";
+import { getPortfolioTokenUsdBalance } from "../../../helpers/portfolio";
 import {
-    divPrecision,
     mulPrecision,
     normalizeToBigInt,
 } from "../../../helpers/precision";
@@ -159,13 +159,10 @@ export default function PortfolioTable() {
                         normalizeToBigInt(
                             contractProtocolStatus.data.PP_COINBASE?.[0]
                         ) ?? 0n;
-
-                    balanceUSD = ConvertAmount(
+                    balanceUSD = getPortfolioTokenUsdBalance(
                         contractProtocolStatus,
-                        "COINBASE",
-                        "USD",
-                        balance,
-                        0
+                        token,
+                        balance
                     );
 
                     break;
@@ -194,13 +191,11 @@ export default function PortfolioTable() {
                                     ?.PP_CA?.[0]
                             ) ?? 0n;
 
-                        balanceUSD = ConvertAmount(
+                        balanceUSD = getPortfolioTokenUsdBalance(
                             contractProtocolStatus,
-                            "CA",
-                            "USD",
-                            balance,
-                            token.key || 0
-                        );                                                
+                            token,
+                            balance
+                        );
                     }
 
                     break;
@@ -221,8 +216,6 @@ export default function PortfolioTable() {
                         balance = normalizeToBigInt(rawBalanceTPPegged) || 0n;
 
                         price = 1n*10n**18n;
-
-                        balanceUSD = mulPrecision(balance, price);
                     } else {
                         //CALCULATE TOKENS TP NON-USD-Pegged Tokens DATA
                         const rawBalanceTP =
@@ -243,15 +236,14 @@ export default function PortfolioTable() {
                             token.key || 0,
                             price
                         );
-
-                        if (price > 0n) {
-                            balanceUSD = divPrecision(balance, price);
-                        } else {
-                            balanceUSD = 0n;
-                        }
                     }
+                    balanceUSD = getPortfolioTokenUsdBalance(
+                        contractProtocolStatus,
+                        token,
+                        balance
+                    );
                     break;
-                case "TC":
+                case "TC": {
                     // CALCULATE TOKENS TC DATA
                     tokenIcon =
                         "icon-token-" +
@@ -275,16 +267,15 @@ export default function PortfolioTable() {
                                 ?.PP_CA?.[0]
                         ) ?? 0n;
                     price = mulPrecision(priceTEC, priceCA);
-                    balanceUSD = ConvertAmount(
+                    balanceUSD = getPortfolioTokenUsdBalance(
                         contractProtocolStatus,
-                        "TC",
-                        "USD",
-                        balance,
-                        token.key || 0
+                        token,
+                        balance
                     );
 
                     break;
-                case "TF":
+                }
+                case "TF": {
                     // CALCULATE TOKENS TF DATA
 
                     tokenIcon = "icon-token-" + token.type.toLowerCase();
@@ -304,12 +295,10 @@ export default function PortfolioTable() {
                             contractProtocolStatus.data[token.key || 0]
                                 ?.PP_CA?.[0]
                         ) ?? 0n;
-                    balanceUSD = ConvertAmount(
+                    balanceUSD = getPortfolioTokenUsdBalance(
                         contractProtocolStatus,
-                        "TF",
-                        "USD",
-                        balance,
-                        token.key || 0
+                        token,
+                        balance
                     );
 
                     // Now that balance and variation is calculated, is multiplied for priceCA for price final value
@@ -322,6 +311,7 @@ export default function PortfolioTable() {
                     );
 
                     break;
+                }
                 case "TG":
                     // console.log(`Processing ${token.name} (TG)`);
                     // CALCULATE TOKENS TG DATA
