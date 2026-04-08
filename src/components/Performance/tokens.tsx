@@ -173,7 +173,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                 true
             );
 
-            if (dataItem.peggedUSD) price = 1n;
+            if (dataItem.peggedUSD) price = 1n*10n**18n; // 1 USD
 
             let tpAvailableToMint =
                 contractProtocolStatus.data[caIndex].getRealTPAvailableToMint?.[
