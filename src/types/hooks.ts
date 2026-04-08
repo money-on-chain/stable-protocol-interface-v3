@@ -194,6 +194,7 @@ export interface ExternalData {
         PP_TP: {
             [tp: number]: [bigint, boolean];
         };
+        PP_FeeToken: [bigint, boolean];
     };
     [key: string]: unknown;
 }
