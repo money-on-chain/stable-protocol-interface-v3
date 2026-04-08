@@ -33,12 +33,16 @@ test("uses four decimals when the unscaled value has more than two significant d
     assert.equal(formatSignificantCompactValue(9.9999, locale), "9.9999");
 });
 
-test("scales values from one million upward with no decimals and truncation", () => {
-    assert.equal(formatSignificantCompactValue(1234567.89, locale), "1,234K");
-    assert.equal(formatSignificantCompactValue(3200200, locale), "3,200K");
-    assert.equal(formatSignificantCompactValue(12999999.99, locale), "12,999K");
-    assert.equal(formatSignificantCompactValue(1234567890.12, locale), "1,234M");
-    assert.equal(formatSignificantCompactValue(1234567890123.45, locale), "1,234B");
+test("scales values from one million upward with two decimals and truncation", () => {
+    assert.equal(formatSignificantCompactValue(1234567.89, locale), "1.23M");
+    assert.equal(formatSignificantCompactValue(3200200, locale), "3.20M");
+    assert.equal(formatSignificantCompactValue(12999999.99, locale), "12.99M");
+    assert.equal(formatSignificantCompactValue(1234567890.12, locale), "1.23B");
+    assert.equal(formatSignificantCompactValue(1234567890123.45, locale), "1.23T");
+    assert.equal(
+        formatSignificantCompactValue(1234567890123456, locale),
+        "1.23Q"
+    );
 });
 
 test("formats tooltip values without scaling and with two or four decimals", () => {

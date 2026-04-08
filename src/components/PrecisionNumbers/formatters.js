@@ -1,9 +1,8 @@
 const SCALE_SUFFIXES = [
-    "K",
-    "M",
-    "B",
-    "T",
-    "Q",
+    { threshold: 1e15, suffix: "Q" },
+    { threshold: 1e12, suffix: "T" },
+    { threshold: 1e9, suffix: "B" },
+    { threshold: 1e6, suffix: "M" },
 ];
 
 export const truncateToDecimals = (value, decimals) => {
@@ -70,18 +69,18 @@ export const formatSignificantCompactValue = (value, locale) => {
     const absoluteValue = Math.abs(value);
 
     if (absoluteValue < 1e6) {
-        const decimals = absoluteValue >= 1e4 ? 0 : getRequiredUnscaledDecimals(value);
+        const decimals =
+            absoluteValue >= 1e4 ? 0 : getRequiredUnscaledDecimals(value);
 
         return `${sign}${formatLocalizedNumber(absoluteValue, locale, decimals)}`;
     }
 
-    const integerDigits = Math.trunc(absoluteValue).toString().length;
-    const suffixIndex = Math.min(
-        Math.floor((integerDigits - 7) / 3),
-        SCALE_SUFFIXES.length - 1
-    );
-    const scaleDivisor = 10 ** ((suffixIndex + 1) * 3);
-    const scaledValue = absoluteValue / scaleDivisor;
+    for (const { threshold, suffix } of SCALE_SUFFIXES) {
+        if (absoluteValue >= threshold) {
+            const scaledValue = absoluteValue / threshold;
+            return `${sign}${formatLocalizedNumber(scaledValue, locale, 2)}${suffix}`;
+        }
+    }
 
-    return `${sign}${formatLocalizedInteger(scaledValue, locale)}${SCALE_SUFFIXES[suffixIndex]}`;
+    return `${sign}${formatLocalizedNumber(absoluteValue / 1e6, locale, 2)}M`;
 };
