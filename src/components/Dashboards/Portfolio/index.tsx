@@ -143,6 +143,7 @@ export default function Portfolio(): JSX.Element {
                                 decimals: 2,
                                 i18n: i18n,
                                 compact: true,
+                                compactVariant: "significant",
                             })}
                             {space}
                             {t("portfolio.totalCurrency")}
