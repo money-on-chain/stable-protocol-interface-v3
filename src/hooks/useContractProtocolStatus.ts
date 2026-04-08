@@ -468,7 +468,7 @@ export function useContractProtocolStatus(
             callRequest.push({
                 contract: Moc,
                 functionName: "maxQACToMintTP",
-                args: [3600],
+                args: [0],
                 resultType: "uint256",
                 keys: [ca, "maxQACToMintTP"],
             });
@@ -476,7 +476,7 @@ export function useContractProtocolStatus(
             callRequest.push({
                 contract: Moc,
                 functionName: "maxQACToRedeemTP",
-                args: [3600],
+                args: [0],
                 resultType: "uint256",
                 keys: [ca, "maxQACToRedeemTP"],
             });
