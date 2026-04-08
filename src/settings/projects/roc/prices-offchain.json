@@ -2,8 +2,8 @@
     "prices": [
         {
             "COINBASE": "BTC/USD",
-            "CA": "RIF/USD",
-            "TP": ["RIF/USD"],
+            "CA": "RIF/USD(TMA)",
+            "TP": ["RIF/USD(TMA)"],
             "TF": "MOC/RIF"
         },
         {
