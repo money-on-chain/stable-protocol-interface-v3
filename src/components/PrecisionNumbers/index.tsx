@@ -1,8 +1,12 @@
 import { Tooltip } from "antd";
-import React, { Fragment } from "react";
+import React from "react";
 import { formatUnits } from "viem";
 
 import type { TokenConfig } from "../../types/hooks";
+import {
+    formatFullLocaleValue,
+    formatSignificantCompactValue,
+} from "./formatters";
 
 interface I18n {
     languages: readonly string[];
@@ -16,6 +20,8 @@ interface PrecisionNumbersProps {
     isInWei?: boolean;
     isUSD?: boolean;
     compact?: boolean;
+    compactVariant?: "intl" | "significant";
+    tooltipVariant?: "raw" | "formatted";
 }
 
 export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
@@ -26,6 +32,8 @@ export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
     isInWei = true,
     isUSD = false,
     compact = false,
+    compactVariant = "intl",
+    tooltipVariant = "raw",
 }) => {
     if (typeof amount !== "bigint") {
         console.warn("❌ amount must be bigint:", amount);
@@ -46,15 +54,20 @@ export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
     }
 
     const floatValue = parseFloat(formattedString);
+    const locale = i18n.languages[0] || "en-US";
 
-    // Formatter using Intl.NumberFormat
-    const formatter = new Intl.NumberFormat(i18n.languages[0] || "en-US", {
-        notation: compact ? "compact" : "standard", // 👈 formato compacto
-        maximumFractionDigits: precision,
-        minimumFractionDigits: precision,
-    });
-
-    const displayValue = formatter.format(floatValue);
+    const displayValue =
+        compact && compactVariant === "significant"
+            ? formatSignificantCompactValue(floatValue, locale)
+            : new Intl.NumberFormat(locale, {
+                  notation: compact ? "compact" : "standard",
+                  maximumFractionDigits: precision,
+                  minimumFractionDigits: precision,
+              }).format(floatValue);
+    const tooltipValue =
+        tooltipVariant === "formatted"
+            ? formatFullLocaleValue(floatValue, locale)
+            : formattedString;
 
     // Avoid rendering extremely large numbers
     if (amount >= 2n ** 255n) {
@@ -62,10 +75,14 @@ export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
     }
 
     return isUSD ? (
-        <Fragment>{displayValue}</Fragment>
+        <span data-testid="value" data-raw-value={formattedString}>
+            {displayValue}
+        </span>
     ) : (
-        <Tooltip title={formattedString}>
-            <span data-testid="value">{displayValue}</span>
+        <Tooltip title={tooltipValue}>
+            <span data-testid="value" data-raw-value={formattedString}>
+                {displayValue}
+            </span>
         </Tooltip>
     );
 };
