@@ -1296,7 +1296,10 @@ export default function LastOperations(props: LastOperationsProps) {
                                         <div className="lastOp__detail__label">
                                             {token.exchange.title}
                                         </div>
-                                        <div className="table-amount">
+                                        <div
+                                            className="table-amount"
+                                            data-testid="last-op-exchange-amount"
+                                        >
                                             {(() => {
                                                 const exchangeToken = token
                                                     .exchange
@@ -1351,7 +1354,10 @@ export default function LastOperations(props: LastOperationsProps) {
                                             <div className="lastOp__detail__label">
                                                 {token.receive.title}
                                             </div>
-                                            <div className="lastOp__detail__amount">
+                                            <div
+                                                className="lastOp__detail__amount"
+                                                data-testid="last-op-receive-amount"
+                                            >
                                                 {(() => {
                                                     const receiveToken = token
                                                         .receive
@@ -1421,7 +1427,10 @@ export default function LastOperations(props: LastOperationsProps) {
                                             <div className="lastOp__detail__label">
                                                 {token.another.title}
                                             </div>
-                                            <div className="lastOp__detail__amount">
+                                            <div
+                                                className="lastOp__detail__amount"
+                                                data-testid="last-op-another-amount"
+                                            >
                                                 {(() => {
                                                     const receiveToken = token
                                                         .another
@@ -1436,8 +1445,11 @@ export default function LastOperations(props: LastOperationsProps) {
                                                               ),
                                                               token: receiveToken,
                                                               decimals:
-                                                                  receiveToken === undefined ? 2 : receiveToken.visibleDecimals ??
-                                                                  2,
+                                                                  receiveToken ===
+                                                                  undefined
+                                                                      ? 2
+                                                                      : (receiveToken.visibleDecimals ??
+                                                                        2),
                                                               i18n: i18n,
                                                               compact: true,
                                                           });
@@ -1638,6 +1650,7 @@ export default function LastOperations(props: LastOperationsProps) {
             {ready || processedData.length > 0 ? (
                 <>
                     <Table
+                        data-testid="last-operations-table"
                         className={
                             "vertical-middle custom-border-spacing-table custom-table"
                         }
@@ -1674,6 +1687,9 @@ export default function LastOperations(props: LastOperationsProps) {
                         dataSource={
                             isConnected == true ? processedData : undefined
                         }
+                        onRow={(_record, index) => ({
+                            "data-testid": `last-operations-row-${index ?? 0}`,
+                        })}
                         scroll={{ y: lastOperationsHeight }}
                         style={{}}
                         loading={!ready && processedData.length === 0}
