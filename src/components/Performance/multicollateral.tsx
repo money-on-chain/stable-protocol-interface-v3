@@ -101,7 +101,6 @@ export default function MultiCollateral(): JSX.Element {
                     </div>
                     <div className="info">
                         <div className="amount">
-                            1000
                             {contractProtocolStatus.data?.getCombinedCtargemaCA
                                 ? PrecisionNumbers({
                                       amount: contractProtocolStatus.data
