@@ -95,6 +95,7 @@ export default function MultiCollateral(): JSX.Element {
                     </div>
                     <div className="info">
                         <div className="amount">
+                            1000
                             {contractProtocolStatus.data?.getCombinedCtargemaCA
                                 ? PrecisionNumbers({
                                       amount: contractProtocolStatus.data
@@ -103,6 +104,8 @@ export default function MultiCollateral(): JSX.Element {
                                       decimals: 4,
                                       i18n: i18n,
                                       compact: true,
+                                      compactVariant: "significant",
+                                      tooltipVariant: "formatted",
                                   })
                                 : "--"}
                         </div>
@@ -122,6 +125,8 @@ export default function MultiCollateral(): JSX.Element {
                                       decimals: 4,
                                       i18n: i18n,
                                       compact: true,
+                                      compactVariant: "significant",
+                                      tooltipVariant: "formatted",
                                   })
                                 : "--"}
                         </div>

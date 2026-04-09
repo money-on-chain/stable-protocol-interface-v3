@@ -138,19 +138,15 @@
                 "abbr": "RIFP"
             },
             "TC_1": {
-                "label": "DOC Max",
-                "abbr": "DOCX"
+                "label": "ROC Reserve",
+                "abbr": "ROCR"
             },
             "TP_0": {
-                "label": "RIF Dollar",
+                "label": "RIF US Dollar",
                 "abbr": "USDRIF"
             },
-            "TP_1": {
-                "label": "COP",
-                "abbr": "CopFlip"
-            },
             "COINBASE": {
-                "label": "Smart Bitcoin",
+                "label": "rBTC",
                 "abbr": "RBTC"
             },
             "TF": {
@@ -335,12 +331,8 @@
                 "label": "RIF US Dollar",
                 "abbr": "USDRIF"
             },
-            "TP_1": {
-                "label": "COP",
-                "abbr": "CopFlip"
-            },
             "COINBASE": {
-                "label": "Smart Bitcoin",
+                "label": "rBTC",
                 "abbr": "RBTC"
             },
             "TF": {

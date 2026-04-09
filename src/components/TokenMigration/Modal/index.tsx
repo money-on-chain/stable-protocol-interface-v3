@@ -42,6 +42,7 @@ export default function ModalTokenMigration(
                 </div>
                 <div className="cta-options-group">
                     <button
+                        data-testid="token-migrator-start"
                         type="button"
                         className="button"
                         onClick={showModal}

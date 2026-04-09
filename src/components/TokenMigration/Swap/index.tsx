@@ -233,11 +233,11 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
     }
 
     return (
-        <div className="Content">
+        <div className="Content" data-testid="token-migrator-dialog">
             <div className="Title">{title}</div>
             <div className="Body">
                 {status === "SUBMIT" && (
-                    <div>
+                    <div data-testid="token-migrator-submit-container">
                         <p>{t("swapModal.explanation1")}</p>
                         <p>
                             <strong>{t("swapModal.explanation2")}</strong>
@@ -247,7 +247,7 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
                 )}
 
                 {status === "CONFIRM" && (
-                    <div>
+                    <div data-testid="token-migrator-confirm-container">
                         <div className="TokenIcon">
                             <img
                                 className={""}
@@ -297,7 +297,7 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
                 )}
 
                 {status === "ALLOWANCE-SIGN" && (
-                    <div>
+                    <div data-testid="token-migrator-allowance-sign-container">
                         <div className="tx-logo-status">
                             <i className="icon-tx-signWallet"></i>
                         </div>
@@ -308,7 +308,7 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
                 )}
 
                 {status === "ALLOWANCE-WAITING" && (
-                    <div>
+                    <div data-testid="token-migrator-allowance-waiting-container">
                         {/*ALLOWANCE-WAITING*/}
                         <div className="tx-logo-status">
                             <i className="icon-tx-waiting rotate"></i>
@@ -326,7 +326,7 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
                 )}
 
                 {status === "ALLOWANCE-ERROR" && (
-                    <div>
+                    <div data-testid="token-migrator-allowance-error-container">
                         {" "}
                         {/*ALLOWANCE-ERROR*/}
                         <div className="tx-logo-status">
@@ -347,7 +347,7 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
                 )}
 
                 {status === "TOKEN-MIGRATION-SIGN" && (
-                    <div>
+                    <div data-testid="token-migrator-token-migration-sign-container">
                         <div className="tx-logo-status">
                             <i className="icon-tx-signWallet"></i>
                         </div>
@@ -358,7 +358,7 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
                 )}
 
                 {status === "TOKEN-MIGRATION-WAITING" && (
-                    <div>
+                    <div data-testid="token-migrator-token-migration-waiting-container">
                         {" "}
                         {/*TOKEN-MIGRATION-WAITING*/}
                         <div className="tx-logo-status">
@@ -377,7 +377,7 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
                 )}
 
                 {status === "TOKEN-MIGRATION-SUCCESS" && (
-                    <div>
+                    <div data-testid="token-migrator-token-migration-success-container">
                         {" "}
                         {/* TOKEN-MIGRATION-SUCCESS */}
                         <div className="tx-logo-status">
@@ -398,7 +398,7 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
                 )}
 
                 {status === "TOKEN-MIGRATION-ERROR" && (
-                    <div>
+                    <div data-testid="token-migrator-token-migration-error-container">
                         <div className="tx-logo-status">
                             <i className="icon-tx-error"></i>
                         </div>
@@ -426,6 +426,7 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
                             <Button
                                 type="default"
                                 className="button secondary"
+                                data-testid="token-migrator-dialog-close"
                                 onClick={onClose}
                             >
                                 {t("defaultCTA.buttonClose")}
@@ -436,6 +437,7 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
                             className="button"
                             type="primary"
                             disabled={btnDisable}
+                            data-testid="token-migrator-dialog-primary-action"
                             onClick={onConfirm}
                         >
                             {btnLabel}
@@ -446,6 +448,7 @@ const SwapToken = (props: SwapTokenProps): JSX.Element => {
                             className="button"
                             type="primary"
                             disabled={btnDisable}
+                            data-testid="token-migrator-dialog-close-on-success"
                             onClick={onConfirm}
                         >
                             {btnLabel}

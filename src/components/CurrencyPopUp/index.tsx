@@ -20,6 +20,7 @@ interface CurrencyPopUpProps {
     disabled?: boolean;
     action: string;
     title?: string;
+    "data-testid"?: string;
 
     /** If true, renders as display-only and disables modal interaction */
     displayOnly?: boolean;
@@ -33,6 +34,7 @@ export default function CurrencyPopUp(props: CurrencyPopUpProps): JSX.Element {
         disabled,
         action,
         title,
+        "data-testid": dataTestId,
         displayOnly = false,
     } = props;
 
@@ -125,6 +127,7 @@ export default function CurrencyPopUp(props: CurrencyPopUpProps): JSX.Element {
                     onCancel={closeModal}
                     footer={null}
                     centered
+                    data-testid={dataTestId}
                     className="select__token__modal"
                 >
                     <div className="token-list">

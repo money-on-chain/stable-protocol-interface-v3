@@ -39,6 +39,10 @@ export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
         console.warn("❌ amount must be bigint:", amount);
         return <span>Error</span>;
     }
+    // Avoid rendering extremely large numbers
+    if (amount >= 2n ** 255n) {
+        return <span>Infinity +</span>;
+    }
 
     const tokenDecimals = token?.decimals ?? 18;
     const precision = decimals ?? token?.visibleDecimals ?? 2;
@@ -68,11 +72,6 @@ export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
         tooltipVariant === "formatted"
             ? formatFullLocaleValue(floatValue, locale)
             : formattedString;
-
-    // Avoid rendering extremely large numbers
-    if (amount >= 2n ** 255n) {
-        return <span>Infinity +</span>;
-    }
 
     return isUSD ? (
         <span data-testid="value" data-raw-value={formattedString}>

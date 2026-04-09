@@ -105,6 +105,8 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                       decimals: 4,
                                       i18n: i18n,
                                       compact: true,
+                                      compactVariant: "significant",
+                                      tooltipVariant: "formatted",
                                   })
                                 : "--"}
                         </div>
@@ -130,6 +132,8 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                       decimals: 4,
                                       i18n: i18n,
                                       compact: true,
+                                      compactVariant: "significant",
+                                      tooltipVariant: "formatted",
                                   })
                                 : "--"}
                         </div>
