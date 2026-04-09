@@ -395,11 +395,9 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             tIndex = TokenSettings(currencyYouReceive).key;
             if (tIndex !== undefined) {
                 if (!contractProtocolStatus.data) return;
-                const maxQACToMintTPArray =
-                    contractProtocolStatus.data[caIndex].maxQACToMintTP;
-                const maxQACToMintTP = Array.isArray(maxQACToMintTPArray)
-                    ? (maxQACToMintTPArray[tIndex] as bigint | undefined)
-                    : undefined;
+                const maxQACToMintTP =
+                    contractProtocolStatus.data[caIndex].maxQACToMintTP;                
+                
                 if (
                     maxQACToMintTP !== undefined &&
                     typeof maxQACToMintTP === "bigint" &&
@@ -425,18 +423,9 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             tIndex = TokenSettings(currencyYouReceive).key;
             if (tIndex !== undefined) {
                 if (!contractProtocolStatus.data) return;
-                const maxQACToRedeemTPArray =
-                    contractProtocolStatus.data[caIndex].maxQACToRedeemTP;
-                const maxQACToRedeemTP = Array.isArray(maxQACToRedeemTPArray)
-                    ? (maxQACToRedeemTPArray[tIndex] as bigint | undefined)
-                    : undefined;
-                console.warn(
-                    "maxQACToRedeemTP: ",
-                    typeof maxQACToRedeemTP === "bigint"
-                        ? maxQACToRedeemTP.toString()
-                        : "undefined"
-                );
-                console.warn("amountYouReceive: ", amountYouReceive.toString());
+                const maxQACToRedeemTP =
+                    contractProtocolStatus.data[caIndex].maxQACToRedeemTP;                
+                
                 if (
                     maxQACToRedeemTP !== undefined &&
                     typeof maxQACToRedeemTP === "bigint" &&
@@ -454,11 +443,9 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             tIndex = TokenSettings(currencyYouExchange).key;
             if (tIndex !== undefined) {
                 if (!contractProtocolStatus.data) return;
-                const pegContainerArray =
-                    contractProtocolStatus.data[caIndex].pegContainer;
-                const maxAvailableTP = Array.isArray(pegContainerArray)
-                    ? pegContainerArray[tIndex]
-                    : undefined;
+                const maxAvailableTP =
+                    contractProtocolStatus.data[caIndex].pegContainer[tIndex][0];
+                
                 if (
                     maxAvailableTP !== undefined &&
                     typeof maxAvailableTP === "bigint" &&

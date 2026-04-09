@@ -63,7 +63,8 @@ export function useContractProtocolStatus(
                 data[ca] = {
                     PP_CA: parsedPrices[ca]?.CA,
                     PP_TP: {},
-                };
+                    PP_FeeToken: parsedPrices[ca]?.TF,
+                };                
                 for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
                     data[ca].PP_TP[tp] = parsedPrices[ca]?.TP[tp];
                 }
@@ -468,7 +469,7 @@ export function useContractProtocolStatus(
             callRequest.push({
                 contract: Moc,
                 functionName: "maxQACToMintTP",
-                args: [currentBlockNumber],
+                args: [0],
                 resultType: "uint256",
                 keys: [ca, "maxQACToMintTP"],
             });
@@ -476,7 +477,7 @@ export function useContractProtocolStatus(
             callRequest.push({
                 contract: Moc,
                 functionName: "maxQACToRedeemTP",
-                args: [currentBlockNumber],
+                args: [0],
                 resultType: "uint256",
                 keys: [ca, "maxQACToRedeemTP"],
             });
