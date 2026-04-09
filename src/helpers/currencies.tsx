@@ -334,7 +334,7 @@ function getTCTokenIndex(
 function TokenSettings(tokenName: string): TokenConfig {
     // Ex. tokenName = CA_0, CA_1, TP_0, TP_1, TC_0, TC_1, COINBASE, TF_0, TF_1
     const aTokenName = tokenName.split("_");
-    let token: TokenConfig = settings.tokens.CA[0];
+    let token: TokenConfig = settings.tokens.TG[0];
     switch (aTokenName[0]) {
         case "CA":
             token = settings.tokens.CA[parseInt(aTokenName[1])];

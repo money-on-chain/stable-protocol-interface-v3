@@ -32,6 +32,37 @@ export function useUserBalance(
 
         const calls: CallRequest[] = [];
 
+        // ---- Voting app special-case (uses the first CollateralToken)
+        if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting") {
+            
+            const firstCT = Array.isArray(contracts.CollateralToken)
+                ? contracts.CollateralToken[0]
+                : undefined;
+            const mocAddress = import.meta.env.REACT_APP_CONTRACT_VETO_MOC as
+                | Address
+                | undefined;
+            if (firstCT) {
+                calls.push({
+                    contract: firstCT,
+                    functionName: "balanceOf",
+                    args: [userAddress],
+                    resultType: "uint256",
+                    keys: [0, "TC", "balance"],
+                });
+
+                calls.push({
+                    contract: firstCT,
+                    functionName: "allowance",
+                    args: [userAddress, mocAddress],
+                    resultType: "uint256",
+                    keys: [0, "TC", "allowance"],
+                });
+            }
+
+            // on voting project ends here
+            return calls;
+        }
+
         // ---- CA core tokens: CollateralToken / FeeToken / Moc (arrays) ----
         const hasCAArrays =
             Array.isArray(contracts.Moc) &&
@@ -166,34 +197,7 @@ export function useUserBalance(
                 keys: ["tpLegacy", "allowance"],
             });
         }
-
-        // ---- Voting app special-case (uses the first CollateralToken)
-        if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting") {
-            const firstCT = Array.isArray(contracts.CollateralToken)
-                ? contracts.CollateralToken[0]
-                : undefined;
-            const mocAddress = import.meta.env.REACT_APP_CONTRACT_VETO_MOC as
-                | Address
-                | undefined;
-            if (firstCT) {
-                calls.push({
-                    contract: firstCT,
-                    functionName: "balanceOf",
-                    args: [userAddress],
-                    resultType: "uint256",
-                    keys: [0, "TC", "balance"],
-                });
-
-                calls.push({
-                    contract: firstCT,
-                    functionName: "allowance",
-                    args: [userAddress, mocAddress],
-                    resultType: "uint256",
-                    keys: [0, "TC", "allowance"],
-                });
-            }
-        }
-
+        
         return calls;
     }, [contracts, userAddress]);
 

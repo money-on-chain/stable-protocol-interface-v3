@@ -92,6 +92,107 @@ const readContracts = async (
         PP_TP: {} as Record<number, ContractInfo[]>,
     };
 
+    // Single collateral (voting project) convenience
+    if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting") {
+        const tcAddress = import.meta.env.REACT_APP_CONTRACT_VETO_TC as
+            | Address
+            | undefined;
+        if (tcAddress) {
+            contracts.CollateralToken!.push({
+                address: tcAddress,
+                abi: ABI_CollateralToken,
+                name: "CollateralToken",
+                type: "",
+            });
+        }
+    }
+
+    // ---- Registry-based contracts ----
+    if (import.meta.env.REACT_APP_CONTRACT_IREGISTRY) {
+        contracts.IRegistry = {
+            address: import.meta.env.REACT_APP_CONTRACT_IREGISTRY as Address,
+            abi: IRegistry.abi as readonly unknown[],
+            name: "IRegistry",
+            type: "",
+        };
+
+        const registryAddr = await registryAddresses(
+            publicClient,
+            contracts.IRegistry
+        );
+
+        contracts.StakingMachine = {
+            address: registryAddr.data.MOC_STAKING_MACHINE,
+            abi: ABI_StakingMachine,
+            name: "StakingMachine",
+            type: "",
+        };
+
+        contracts.DelayMachine = {
+            address: registryAddr.data.MOC_DELAY_MACHINE,
+            abi: ABI_DelayMachine,
+            name: "DelayMachine",
+            type: "",
+        };
+
+        contracts.Supporters = {
+            address: registryAddr.data.SUPPORTERS_ADDR,
+            abi: ABI_Supporters,
+            name: "Supporters",
+            type: "",
+        };
+
+        contracts.VestingFactory = {
+            address: registryAddr.data.MOC_VESTING_MACHINE,
+            abi: ABI_VestingFactory,
+            name: "VestingFactory",
+            type: "",
+        };
+
+        contracts.VotingMachine = {
+            address: registryAddr.data.MOC_VOTING_MACHINE,
+            abi: ABI_VotingMachine,
+            name: "VotingMachine",
+            type: "",
+        };
+
+        contracts.VetoMachine = {
+            address: registryAddr.data.MOC_VETO_MACHINE,
+            abi: ABI_VetoMachine,
+            name: "VetoMachine",
+            type: "",
+        };
+
+        contracts.TG = {
+            address: registryAddr.data.MOC_TOKEN,
+            abi: ABI_IERC20,
+            name: "TG",
+            type: "",
+        };
+
+        // Placeholder VestingMachine (address filled when user selects a vesting)
+        contracts.VestingMachine = {
+            address: "0x0000000000000000000000000000000000000000",
+            abi: ABI_VestingMachine,
+            name: "VestingMachine",
+            type: "",
+        };
+    }
+
+    // ---- Incentive V2 ----
+    if (import.meta.env.REACT_APP_CONTRACT_INCENTIVE_V2) {
+        contracts.IncentiveV2 = {
+            address: import.meta.env.REACT_APP_CONTRACT_INCENTIVE_V2 as Address,
+            abi: ABI_IncentiveV2,
+            name: "IncentiveV2",
+            type: "",
+        };
+    }
+
+    // If voting project, return contracts here because it does not use the price providers
+    if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting")
+        return contracts;
+
     // ---- Price Providers (CA/USD) from env (comma-separated) ----
     const ppcaRaw = import.meta.env.REACT_APP_CONTRACT_PRICE_PROVIDER_CA as
         | string
@@ -287,104 +388,7 @@ const readContracts = async (
             }
         }
     }
-
-    // Single collateral (voting project) convenience
-    if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting") {
-        const tcAddress = import.meta.env.REACT_APP_CONTRACT_VETO_TC as
-            | Address
-            | undefined;
-        if (tcAddress) {
-            contracts.CollateralToken!.push({
-                address: tcAddress,
-                abi: ABI_CollateralToken,
-                name: "CollateralToken",
-                type: "",
-            });
-        }
-    }
-
-    // ---- Registry-based contracts ----
-    if (import.meta.env.REACT_APP_CONTRACT_IREGISTRY) {
-        contracts.IRegistry = {
-            address: import.meta.env.REACT_APP_CONTRACT_IREGISTRY as Address,
-            abi: IRegistry.abi as readonly unknown[],
-            name: "IRegistry",
-            type: "",
-        };
-
-        const registryAddr = await registryAddresses(
-            publicClient,
-            contracts.IRegistry
-        );
-
-        contracts.StakingMachine = {
-            address: registryAddr.data.MOC_STAKING_MACHINE,
-            abi: ABI_StakingMachine,
-            name: "StakingMachine",
-            type: "",
-        };
-
-        contracts.DelayMachine = {
-            address: registryAddr.data.MOC_DELAY_MACHINE,
-            abi: ABI_DelayMachine,
-            name: "DelayMachine",
-            type: "",
-        };
-
-        contracts.Supporters = {
-            address: registryAddr.data.SUPPORTERS_ADDR,
-            abi: ABI_Supporters,
-            name: "Supporters",
-            type: "",
-        };
-
-        contracts.VestingFactory = {
-            address: registryAddr.data.MOC_VESTING_MACHINE,
-            abi: ABI_VestingFactory,
-            name: "VestingFactory",
-            type: "",
-        };
-
-        contracts.VotingMachine = {
-            address: registryAddr.data.MOC_VOTING_MACHINE,
-            abi: ABI_VotingMachine,
-            name: "VotingMachine",
-            type: "",
-        };
-
-        contracts.VetoMachine = {
-            address: registryAddr.data.MOC_VETO_MACHINE,
-            abi: ABI_VetoMachine,
-            name: "VetoMachine",
-            type: "",
-        };
-
-        contracts.TG = {
-            address: registryAddr.data.MOC_TOKEN,
-            abi: ABI_IERC20,
-            name: "TG",
-            type: "",
-        };
-
-        // Placeholder VestingMachine (address filled when user selects a vesting)
-        contracts.VestingMachine = {
-            address: "0x0000000000000000000000000000000000000000",
-            abi: ABI_VestingMachine,
-            name: "VestingMachine",
-            type: "",
-        };
-    }
-
-    // ---- Incentive V2 ----
-    if (import.meta.env.REACT_APP_CONTRACT_INCENTIVE_V2) {
-        contracts.IncentiveV2 = {
-            address: import.meta.env.REACT_APP_CONTRACT_INCENTIVE_V2 as Address,
-            abi: ABI_IncentiveV2,
-            name: "IncentiveV2",
-            type: "",
-        };
-    }
-
+    
     // ---- Token migrator & legacy TP ----
     if (import.meta.env.REACT_APP_CONTRACT_LEGACY_TP) {
         contracts.tp_legacy = {
