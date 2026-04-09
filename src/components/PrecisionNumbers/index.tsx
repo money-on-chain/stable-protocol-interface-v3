@@ -20,7 +20,6 @@ interface PrecisionNumbersProps {
     isInWei?: boolean;
     isUSD?: boolean;
     compact?: boolean;
-    compactVariant?: "intl" | "significant";
     tooltipVariant?: "raw" | "formatted";
 }
 
@@ -32,7 +31,6 @@ export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
     isInWei = true,
     isUSD = false,
     compact = false,
-    compactVariant,
     tooltipVariant,
 }) => {
     if (typeof amount !== "bigint") {
@@ -59,19 +57,16 @@ export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
 
     const floatValue = parseFloat(formattedString);
     const locale = i18n.languages[0] || "en-US";
-    const effectiveCompactVariant =
-        compactVariant ?? (compact ? "significant" : "intl");
     const effectiveTooltipVariant =
         tooltipVariant ?? (compact ? "formatted" : "raw");
 
-    const displayValue =
-        compact && effectiveCompactVariant === "significant"
-            ? formatSignificantCompactValue(floatValue, locale)
-            : new Intl.NumberFormat(locale, {
-                  notation: compact ? "compact" : "standard",
-                  maximumFractionDigits: precision,
-                  minimumFractionDigits: precision,
-              }).format(floatValue);
+    const displayValue = compact
+        ? formatSignificantCompactValue(floatValue, locale)
+        : new Intl.NumberFormat(locale, {
+              notation: "standard",
+              maximumFractionDigits: precision,
+              minimumFractionDigits: precision,
+          }).format(floatValue);
     const tooltipValue =
         effectiveTooltipVariant === "formatted"
             ? formatFullLocaleValue(floatValue, locale)
