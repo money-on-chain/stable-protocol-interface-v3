@@ -4,6 +4,9 @@ const SCALE_SUFFIXES = [
     { threshold: 1e9, suffix: "B" },
     { threshold: 1e6, suffix: "M" },
 ];
+const MAX_COMPACT_VALUE = 1e15;
+const MIN_EXTENDED_PRECISION_VALUE = 1e-4;
+const MIN_DISPLAYABLE_EXTENDED_VALUE = 1e-8;
 
 export const truncateToDecimals = (value, decimals) => {
     const factor = 10 ** decimals;
@@ -45,12 +48,49 @@ export const formatLocalizedInteger = (value, locale) => {
     }).format(truncatedValue);
 };
 
+export const formatLocalizedNumberUpToDecimals = (value, locale, decimals) => {
+    const truncatedValue = truncateToDecimals(value, decimals);
+
+    return new Intl.NumberFormat(locale, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: decimals,
+        useGrouping: Math.abs(truncatedValue) >= 1000,
+    }).format(truncatedValue);
+};
+
+const formatTinyValue = (value, locale) => {
+    const absoluteValue = Math.abs(value);
+
+    if (absoluteValue < MIN_DISPLAYABLE_EXTENDED_VALUE) {
+        return value < 0 ? "> -0.0001" : "<0.0001";
+    }
+
+    const sign = value < 0 ? "-" : "";
+    return `${sign}${formatLocalizedNumberUpToDecimals(absoluteValue, locale, 8)}`;
+};
+
 export const formatFullLocaleValue = (value, locale) => {
     if (!Number.isFinite(value)) {
         return String(value);
     }
 
+    if (value > MAX_COMPACT_VALUE) {
+        return "> 1Q";
+    }
+
+    if (value < -MAX_COMPACT_VALUE) {
+        return "< -1Q";
+    }
+
     const absoluteValue = Math.abs(value);
+
+    if (
+        absoluteValue > 0 &&
+        absoluteValue < MIN_EXTENDED_PRECISION_VALUE
+    ) {
+        return formatTinyValue(value, locale);
+    }
+
     const truncatedToFour = truncateToDecimals(absoluteValue, 4);
     const scaledFraction = Math.trunc(truncatedToFour * 10000) % 10000;
     const thirdOrFourthDecimalsAreNonZero = scaledFraction % 100 !== 0;
@@ -65,8 +105,24 @@ export const formatSignificantCompactValue = (value, locale) => {
         return String(value);
     }
 
-    const sign = value < 0 ? "-" : "";
     const absoluteValue = Math.abs(value);
+
+    if (value > MAX_COMPACT_VALUE) {
+        return "> 1Q";
+    }
+
+    if (value < -MAX_COMPACT_VALUE) {
+        return "< -1Q";
+    }
+
+    if (
+        absoluteValue > 0 &&
+        absoluteValue < MIN_EXTENDED_PRECISION_VALUE
+    ) {
+        return formatTinyValue(value, locale);
+    }
+
+    const sign = value < 0 ? "-" : "";
 
     if (absoluteValue < 1e6) {
         const decimals =

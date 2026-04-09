@@ -567,6 +567,13 @@ export default function ConfirmOperation(
         `CA_${caIndex}`
     );
     let commissionTokenName: string;
+    const executionFeeInSats = (executionFee + 9999999999n) / 10000000000n;
+    const satsToken = {
+        ...TokenSettings("COINBASE"),
+        decimals: 0,
+        visibleDecimals: 0,
+        visibleBalanceDecimals: 0,
+    };
 
     if (operationType === "MINT" || operationType === "COMBINED_MINT") {
         commissionTokenName = t(`exchange.tokens.${currencyYouExchange}.abbr`, {
@@ -773,18 +780,15 @@ export default function ConfirmOperation(
                         <span className={"symbol"}> ≈ </span>
                         <span className={"token_receive"}>
                             {PrecisionNumbers({
-                                amount: executionFee,
-                                decimals: 10,
-                                token: TokenSettings("COINBASE"),
+                                amount: executionFeeInSats,
+                                token: satsToken,
                                 i18n: i18n,
-                                compact: true,
+                                decimals: 0,
+                                isInWei: false,
                             })}
                         </span>
                         <span className={"token_receive_name"}>
-                            {" "}
-                            {t(`exchange.tokens.COINBASE.abbr`, {
-                                ns: ns,
-                            })}{" "}
+                            {" "}SATS{" "}
                         </span>
 
                         <span className={""}> (</span>
