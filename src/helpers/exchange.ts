@@ -64,6 +64,10 @@ const tokenMap = {
 function loadTokenMap(): TokenMap {
     const tMap: TokenMap = {};
 
+    // Voting project does not use this function
+    if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting") 
+        return tMap;
+
     const caLen = settings.tokens.CA.length;
     const tpLen = settings.tokens.TP.length;
 
@@ -100,6 +104,10 @@ function loadTokenMap(): TokenMap {
 
 function loadTokenMapCombined(): TokenMap {
     const tMap: TokenMap = {};
+
+    // Voting project does not use this function
+    if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting") 
+        return tMap;
 
     const caLen = settings.tokens.CA.length;
     const tpLen = settings.tokens.TP.length;
