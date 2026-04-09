@@ -218,7 +218,6 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
     };
 
     const onValidate = useCallback((): void => {
-        
         // Protocol in not-good status
         const { statusCode } = checkerStatus();
 
@@ -559,17 +558,10 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
     ]);
 
     useEffect(() => {
-        if (            
-            contractProtocolStatus.data &&
-            userBalance.data
-        ) {
+        if (contractProtocolStatus.data && userBalance.data) {
             onValidate();
         }
-    }, [
-        contractProtocolStatus.data,
-        userBalance.data,
-        onValidate,
-    ]);
+    }, [contractProtocolStatus.data, userBalance.data, onValidate]);
 
     useEffect(() => {
         // avoid recalculating in the first render (optional)
@@ -1193,7 +1185,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                       currencyYouExchange,
                       totalbalance < 10n ** 17n ? 12 : 8
                   )
-        );        
+        );
         setAmountYouExchange(totalbalance);
         void onChangeAmounts(totalbalance, convertAmountReceive, "exchange");
     };
@@ -1458,6 +1450,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                         >
                             <CurrencyPopUp
                                 value={currencyYouExchange}
+                                data-testid="exchange-input-from-popup"
                                 currencyOptions={
                                     isCombinedOperation
                                         ? tokenExchangeCombined()
@@ -1691,6 +1684,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                         >
                             <CurrencyPopUp
                                 value={currencyYouReceive}
+                                data-testid="exchange-input-to-popup"
                                 currencyOptions={
                                     isCombinedOperation
                                         ? tokenReceiveCombined(

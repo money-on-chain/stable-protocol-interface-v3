@@ -78,8 +78,6 @@ export const generateTokenRow = ({
                             decimals={visiblePriceDecimals}
                             i18n={i18n}
                             compact={true}
-                            compactVariant="significant"
-                            tooltipVariant="formatted"
                         />
                     ) : (
                         <>--</>
@@ -102,8 +100,6 @@ export const generateTokenRow = ({
                             decimals={visibleBalanceDecimals}
                             i18n={i18n}
                             compact={true}
-                            compactVariant="significant"
-                            tooltipVariant="formatted"
                         />
                     ) : (
                         <>--</>
@@ -129,8 +125,6 @@ export const generateTokenRow = ({
                             decimals={visibleBalanceUSDDecimals}
                             i18n={i18n}
                             compact={true}
-                            compactVariant="significant"
-                            tooltipVariant="formatted"
                         />
                     ) : (
                         <>--</>

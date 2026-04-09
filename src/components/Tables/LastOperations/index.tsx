@@ -1041,8 +1041,6 @@ export default function LastOperations(props: LastOperationsProps) {
                             decimals: 6,
                             i18n: i18n,
                             compact: true,
-                            compactVariant: "significant",
-                            tooltipVariant: "formatted",
                         })}
                         {/* </span> */}
                         <span className="token">
@@ -1316,8 +1314,6 @@ export default function LastOperations(props: LastOperationsProps) {
                                                         }
                                                         i18n={i18n}
                                                         compact={true}
-                                                        compactVariant="significant"
-                                                        tooltipVariant="formatted"
                                                     />
                                                 );
                                             })()}
@@ -1374,10 +1370,6 @@ export default function LastOperations(props: LastOperationsProps) {
                                                                   2,
                                                               i18n: i18n,
                                                               compact: true,
-                                                              compactVariant:
-                                                                  "significant",
-                                                              tooltipVariant:
-                                                                  "formatted",
                                                           });
                                                 })()}
                                             </div>
@@ -1448,10 +1440,6 @@ export default function LastOperations(props: LastOperationsProps) {
                                                                   2,
                                                               i18n: i18n,
                                                               compact: true,
-                                                              compactVariant:
-                                                                  "significant",
-                                                              tooltipVariant:
-                                                                  "formatted",
                                                           });
                                                 })()}
                                             </div>

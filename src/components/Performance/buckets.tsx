@@ -59,7 +59,10 @@ export default function Buckets(props: BucketsProps): JSX.Element {
             {/* </div> */}
 
             <div className="metrics">
-                <div className="dataGroup">
+                <div
+                    data-testid={`performance-bucket-${caIndex}-group-amount-in-protocol`}
+                    className="dataGroup"
+                >
                     <div className="icon__back">
                         <div className="icon icon__Total"></div>
                     </div>
@@ -87,7 +90,10 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                         <div className="label">Amount in protocol</div>
                     </div>
                 </div>
-                <div className="dataGroup">
+                <div
+                    data-testid={`performance-bucket-${caIndex}-group-coverage`}
+                    className="dataGroup"
+                >
                     <div className="icon__back">
                         <div className="icon icon__CoverageActual"></div>
                     </div>
@@ -111,7 +117,10 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                         <div className="label">Coverage</div>
                     </div>
                 </div>
-                <div className="dataGroup">
+                <div
+                    data-testid={`performance-bucket-${caIndex}-group-target-coverage-adjusted`}
+                    className="dataGroup"
+                >
                     <div className="icon__back">
                         <div className="icon icon__CoverageTarget"></div>
                     </div>
@@ -136,7 +145,10 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                         <div className="label">Target Coverage Adjusted</div>
                     </div>
                 </div>
-                <div className="dataGroup">
+                <div
+                    data-testid={`performance-bucket-${caIndex}-group-leverage`}
+                    className="dataGroup"
+                >
                     <div className="icon__back">
                         <div className="icon icon__Leverage"></div>
                     </div>
@@ -155,7 +167,10 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                         <div className="label">Leverage</div>
                     </div>
                 </div>
-                <div className="dataGroup">
+                <div
+                    data-testid={`performance-bucket-${caIndex}-group-locked-collateral`}
+                    className="dataGroup"
+                >
                     <div className="icon__back">
                         <div className="icon icon__CoverageActual"></div>
                     </div>

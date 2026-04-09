@@ -69,7 +69,10 @@ export default function MultiCollateral(): JSX.Element {
             </div>
 
             <div className="metrics">
-                <div className="dataGroup">
+                <div
+                    data-testid="performance-global-group-coverage"
+                    className="dataGroup"
+                >
                     <div className="icon__back">
                         <div className="icon icon__CoverageActual"></div>
                     </div>
@@ -89,7 +92,10 @@ export default function MultiCollateral(): JSX.Element {
                         <div className="label">Coverage</div>
                     </div>
                 </div>
-                <div className="dataGroup">
+                <div
+                    data-testid="performance-global-group-target-coverage-adjusted"
+                    className="dataGroup"
+                >
                     <div className="icon__back">
                         <div className="icon icon__CoverageTarget"></div>
                     </div>
@@ -109,7 +115,10 @@ export default function MultiCollateral(): JSX.Element {
                         <div className="label">Target Coverage Adjusted</div>
                     </div>
                 </div>
-                <div className="dataGroup">
+                <div
+                    data-testid="performance-global-group-leverage"
+                    className="dataGroup"
+                >
                     <div className="icon__back">
                         <div className="icon icon__Leverage"></div>
                     </div>
