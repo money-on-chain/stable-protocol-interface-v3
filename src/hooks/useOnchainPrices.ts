@@ -26,6 +26,10 @@ export function useOnchainPrices(
     const callsRequests = useMemo(() => {
         if (!contracts) return [];
 
+        // Voting project does not use this hook
+        if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting") 
+            return [];
+
         const callRequest: MultiCallInput[] = [];
 
         let PP_TP: ContractInfo | undefined;

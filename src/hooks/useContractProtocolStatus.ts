@@ -78,6 +78,10 @@ export function useContractProtocolStatus(
 
         if (!currentBlockNumber) return [];
 
+        // Voting project does not use this hook
+        if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting") 
+            return [];
+
         let parsedPrices: ParsedPrices[] = [];
         if (offChainPrices) {
             parsedPrices = offChainPrices;
