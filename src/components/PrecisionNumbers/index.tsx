@@ -8,6 +8,8 @@ import {
     formatSignificantCompactValue,
 } from "./formatters";
 
+const NUMBER_LOCALE = "en-US";
+
 interface I18n {
     languages: readonly string[];
 }
@@ -56,20 +58,19 @@ export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
     }
 
     const floatValue = parseFloat(formattedString);
-    const locale = i18n.languages[0] || "en-US";
     const effectiveTooltipVariant =
         tooltipVariant ?? (compact ? "formatted" : "raw");
 
     const displayValue = compact
-        ? formatSignificantCompactValue(floatValue, locale)
-        : new Intl.NumberFormat(locale, {
+        ? formatSignificantCompactValue(floatValue, NUMBER_LOCALE)
+        : new Intl.NumberFormat(NUMBER_LOCALE, {
               notation: "standard",
               maximumFractionDigits: precision,
               minimumFractionDigits: precision,
           }).format(floatValue);
     const tooltipValue =
         effectiveTooltipVariant === "formatted"
-            ? formatFullLocaleValue(floatValue, locale)
+            ? formatFullLocaleValue(floatValue, NUMBER_LOCALE)
             : formattedString;
 
     return isUSD ? (

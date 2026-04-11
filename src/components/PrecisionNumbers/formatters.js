@@ -19,7 +19,7 @@ export const truncateToDecimals = (value, decimals) => {
 export const getRequiredUnscaledDecimals = (value) => {
     const absoluteValue = Math.abs(value);
 
-    if (absoluteValue >= 10) {
+    if (absoluteValue >= 100) {
         return 2;
     }
 
@@ -125,8 +125,7 @@ export const formatSignificantCompactValue = (value, locale) => {
     const sign = value < 0 ? "-" : "";
 
     if (absoluteValue < 1e6) {
-        const decimals =
-            absoluteValue >= 1e4 ? 0 : getRequiredUnscaledDecimals(value);
+        const decimals = getRequiredUnscaledDecimals(value);
 
         return `${sign}${formatLocalizedNumber(absoluteValue, locale, decimals)}`;
     }

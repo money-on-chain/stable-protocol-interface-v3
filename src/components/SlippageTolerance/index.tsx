@@ -349,14 +349,16 @@ export const SlippageTolerance: React.FC<SlippageToleranceProps> = ({
                         })}
 
                         <div className="slippage-tolerance__custom">
-                            <div className="slippage-tolerance__input-group">
+                            <div
+                                className="slippage-tolerance__input-group"
+                                data-testid={`slippage-input-${pairId}`}
+                            >
                                 <input
                                     type="number"
                                     min={0}
                                     step={0.01}
                                     inputMode="decimal"
                                     className="slippage-tolerance__input"
-                                    data-testid={`slippage-input-${pairId}`}
                                     value={customInput}
                                     onChange={handleCustomInputChange}
                                     onKeyDown={handleCustomKeyDown}

@@ -9,11 +9,11 @@ import {
 const locale = "en-US";
 
 test("keeps values below one million unscaled", () => {
-    assert.equal(formatSignificantCompactValue(999999.9999, locale), "999,999");
+    assert.equal(formatSignificantCompactValue(999999.9999, locale), "999,999.99");
 });
 
 test("never shows decimals above ten thousand when unscaled", () => {
-    assert.equal(formatSignificantCompactValue(12345.6789, locale), "12,345");
+    assert.equal(formatSignificantCompactValue(12345.6789, locale), "12,345.67");
 });
 
 test("shows two decimals for unscaled values from ten up to ten thousand", () => {
@@ -28,9 +28,15 @@ test("uses two decimals below ten unless the third or fourth decimals are signif
     assert.equal(formatSignificantCompactValue(1.12, locale), "1.12");
 });
 
-test("uses four decimals when the unscaled value has more than two significant decimals", () => {
+test("uses four decimals below one hundred when the third or fourth decimals matter", () => {
     assert.equal(formatSignificantCompactValue(0.03529, locale), "0.0352");
     assert.equal(formatSignificantCompactValue(9.9999, locale), "9.9999");
+    assert.equal(formatSignificantCompactValue(99.12345, locale), "99.1234");
+});
+
+test("keeps two decimals for unscaled values from one hundred upward", () => {
+    assert.equal(formatSignificantCompactValue(123.4567, locale), "123.45");
+    assert.equal(formatSignificantCompactValue(9999.9999, locale), "9,999.99");
 });
 
 test("shows up to eight significant decimals for tiny values above the minimum threshold", () => {

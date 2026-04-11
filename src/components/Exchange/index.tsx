@@ -395,8 +395,8 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             if (tIndex !== undefined) {
                 if (!contractProtocolStatus.data) return;
                 const maxQACToMintTP =
-                    contractProtocolStatus.data[caIndex].maxQACToMintTP;                
-                
+                    contractProtocolStatus.data[caIndex].maxQACToMintTP;
+
                 if (
                     maxQACToMintTP !== undefined &&
                     typeof maxQACToMintTP === "bigint" &&
@@ -423,8 +423,8 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             if (tIndex !== undefined) {
                 if (!contractProtocolStatus.data) return;
                 const maxQACToRedeemTP =
-                    contractProtocolStatus.data[caIndex].maxQACToRedeemTP;                
-                
+                    contractProtocolStatus.data[caIndex].maxQACToRedeemTP;
+
                 if (
                     maxQACToRedeemTP !== undefined &&
                     typeof maxQACToRedeemTP === "bigint" &&
@@ -443,8 +443,10 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             if (tIndex !== undefined) {
                 if (!contractProtocolStatus.data) return;
                 const maxAvailableTP =
-                    contractProtocolStatus.data[caIndex].pegContainer[tIndex][0];
-                
+                    contractProtocolStatus.data[caIndex].pegContainer[
+                        tIndex
+                    ][0];
+
                 if (
                     maxAvailableTP !== undefined &&
                     typeof maxAvailableTP === "bigint" &&
@@ -1500,9 +1502,13 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                         {isCombinedOperation &&
                             operationType === "COMBINED_REDEEM" && (
                                 <>
-                                    <div className="combined-operations-info">
+                                    <div
+                                        data-testid="exchange-input-combined-redeem-other-token"
+                                        className="combined-operations-info"
+                                    >
                                         <div className="combined-operations-info-item">
                                             <CurrencyPopUp
+                                                data-testid="exchange-input-combined-redeem-other-token-popup"
                                                 value={allTPs[tpIndex]}
                                                 currencyOptions={allTPs}
                                                 onChange={onChangeTPIndex}
@@ -1737,9 +1743,13 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                         </div>
                         {isCombinedOperation &&
                             operationType === "COMBINED_MINT" && (
-                                <div className="combined-operations-info second-token">
+                                <div
+                                    data-testid="exchange-input-combined-mint-other-token"
+                                    className="combined-operations-info second-token"
+                                >
                                     <div className="combined-operations-info-item">
                                         <CurrencyPopUp
+                                            data-testid="exchange-input-combined-mint-other-token-popup"
                                             value={`TC_${caIndex}`}
                                             currencyOptions={[`TC_${caIndex}`]}
                                             onChange={() => {}}

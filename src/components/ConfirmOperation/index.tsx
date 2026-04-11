@@ -567,8 +567,8 @@ export default function ConfirmOperation(
         `CA_${caIndex}`
     );
     let commissionTokenName: string;
-    const executionFeeInSats = (executionFee + 9999999999n) / 10000000000n;
-    const satsToken = {
+    const executionFeeInGwei = (executionFee + 999999999n) / 1000000000n;
+    const gweiToken = {
         ...TokenSettings("COINBASE"),
         decimals: 0,
         visibleDecimals: 0,
@@ -780,15 +780,15 @@ export default function ConfirmOperation(
                         <span className={"symbol"}> ≈ </span>
                         <span className={"token_receive"}>
                             {PrecisionNumbers({
-                                amount: executionFeeInSats,
-                                token: satsToken,
+                                amount: executionFeeInGwei,
+                                token: gweiToken,
                                 i18n: i18n,
                                 decimals: 0,
                                 isInWei: false,
                             })}
                         </span>
                         <span className={"token_receive_name"}>
-                            {" "}SATS{" "}
+                            {" "}GWEI{" "}
                         </span>
 
                         <span className={""}> (</span>
