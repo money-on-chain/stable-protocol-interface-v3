@@ -1309,8 +1309,7 @@ export default function LastOperations(props: LastOperationsProps) {
                                                         )}
                                                         token={exchangeToken}
                                                         decimals={
-                                                            exchangeToken.visibleDecimals ??
-                                                            2
+                                                            exchangeToken === undefined ? 2 : exchangeToken.visibleDecimals ?? 2
                                                         }
                                                         i18n={i18n}
                                                         compact={true}
@@ -1366,8 +1365,7 @@ export default function LastOperations(props: LastOperationsProps) {
                                                               ),
                                                               token: receiveToken,
                                                               decimals:
-                                                                  receiveToken.visibleDecimals ??
-                                                                  2,
+                                                                 receiveToken === undefined ? 2 : receiveToken.visibleDecimals ?? 2,
                                                               i18n: i18n,
                                                               compact: true,
                                                           });
