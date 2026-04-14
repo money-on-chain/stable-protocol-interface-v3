@@ -403,8 +403,8 @@ export default function LastOperations(props: LastOperationsProps) {
                 status = "params";
             }
 
-            const caIndex = row_operation.bucket_index;
-
+            const caIndex = row_operation.bucket_index ?? 0;
+            
             if (!status) {
                 return {
                     exchange: {
