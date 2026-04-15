@@ -3,7 +3,7 @@ import "./Styles.scss";
 import { notification } from "antd";
 import React from "react";
 import type { Connector } from "wagmi";
-import { useConnect } from "wagmi";
+import { ConnectorAlreadyConnectedError, useConnect } from "wagmi";
 
 import { useProjectTranslation } from "../../helpers/translations";
 
@@ -116,6 +116,12 @@ export default function WalletProviders({ onCloseModal }: ProvidersProps) {
             if (!isWC) onCloseModal();
             localStorage.setItem("last-connector", connector.id);
         } catch (e: unknown) {
+            // Wallet was already connected (e.g. wagmi auto-reconnected from a
+            // stored session before the user clicked). Treat it as success.
+            if (e instanceof ConnectorAlreadyConnectedError) {
+                onCloseModal();
+                return;
+            }
             const error = e as Error & { shortMessage?: string };
             notification.error({
                 message: "Failed to connect",
