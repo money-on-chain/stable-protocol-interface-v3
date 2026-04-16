@@ -69,7 +69,7 @@ export default function PortfolioTable() {
         if (
             contractProtocolStatus.data &&
             userBalance.data &&
-            userBaseCoinBalance.balance
+            userBaseCoinBalance.balance != null
         ) {
             setReady(true);
         }
