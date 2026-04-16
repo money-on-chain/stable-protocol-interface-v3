@@ -29,7 +29,10 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                 <div className="stakingDash__icon__back">
                     <div className="icon__govBalance"></div>
                 </div>
-                <div className="stakingDash__data">
+                <div
+                    className="stakingDash__data"
+                    data-testid="staking-dashboard-balance"
+                >
                     <div className="stakingDash__data__amount">
                         {" "}
                         {PrecisionNumbers({
@@ -37,6 +40,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                             token: settings.tokens.TG[0],
                             decimals: Number(t("staking.display_decimals")),
                             i18n: i18n,
+                            compact: true,
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -49,13 +53,17 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                 <div className="stakingDash__icon__back">
                     <div className="icon__govStaked"></div>
                 </div>
-                <div className="stakingDash__data">
+                <div
+                    className="stakingDash__data"
+                    data-testid="staking-dashboard-staked"
+                >
                     <div className="stakingDash__data__amount">
                         {PrecisionNumbers({
                             amount: userInfoStaking["unstakeBalance"] || 0n,
                             token: settings.tokens.TG[0],
                             decimals: Number(t("staking.display_decimals")),
                             i18n: i18n,
+                            compact: true,
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -68,7 +76,10 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                 <div className="stakingDash__icon__back">
                     <div className="icon__govUnstaking"></div>
                 </div>
-                <div className="stakingDash__data">
+                <div
+                    className="stakingDash__data"
+                    data-testid="staking-dashboard-unstaking"
+                >
                     <div className="stakingDash__data__amount">
                         {" "}
                         {PrecisionNumbers({
@@ -77,6 +88,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                             token: settings.tokens.TG[0],
                             decimals: Number(t("staking.display_decimals")),
                             i18n: i18n,
+                            compact: true,
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -90,7 +102,10 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                 <div className="stakingDash__icon__back">
                     <div className="icon__govReadyWithdraw"></div>
                 </div>
-                <div className="stakingDash__data">
+                <div
+                    className="stakingDash__data"
+                    data-testid="staking-dashboard-ready-to-withdraw"
+                >
                     <div className="stakingDash__data__amount">
                         {PrecisionNumbers({
                             amount:
@@ -99,6 +114,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                             token: settings.tokens.TG[0],
                             decimals: Number(t("staking.display_decimals")),
                             i18n: i18n,
+                            compact: true,
                         })}
                     </div>
                     <div className="stakingDash__data__label">
@@ -113,13 +129,17 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                     <div className="stakingDash__icon__back">
                         <div className="icon__govLockedTokensVoting"></div>
                     </div>
-                    <div className="stakingDash__data">
+                    <div
+                        className="stakingDash__data"
+                        data-testid="staking-dashboard-locked-in-voting"
+                    >
                         <div className="stakingDash__data__amount">
                             {PrecisionNumbers({
                                 amount: userInfoStaking["lockedInVoting"] || 0n,
                                 token: settings.tokens.TG[0],
                                 decimals: Number(t("staking.display_decimals")),
                                 i18n: i18n,
+                                compact: true,
                             })}
                         </div>
                         <div className="stakingDash__data__label">

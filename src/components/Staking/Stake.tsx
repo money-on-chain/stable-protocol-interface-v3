@@ -190,6 +190,11 @@ const Stake = (props: StakeProps): JSX.Element => {
                             disabled={true}
                         />
                         <InputAmount
+                            testId={
+                                isUnstaking
+                                    ? "staking-unstake-amount"
+                                    : "staking-stake-amount"
+                            }
                             balanceText={t("staking.staking.inputAvailable")}
                             action={
                                 isUnstaking
@@ -279,6 +284,11 @@ const Stake = (props: StakeProps): JSX.Element => {
                 </div>
                 <div className="cta-options-group">
                     <Button
+                        data-testid={
+                            isUnstaking
+                                ? "staking-unstake-open-modal"
+                                : "staking-stake-open-modal"
+                        }
                         type="primary"
                         className={"button"}
                         onClick={onStakeButton}

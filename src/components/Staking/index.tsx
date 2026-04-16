@@ -213,12 +213,14 @@ export default function Staking(): JSX.Element {
                                 </div>
                                 <div className="tabs">
                                     <button
+                                        data-testid="staking-tab-stake"
                                         onClick={() => setActiveTab("tab1")}
                                         className={`tab-button ${activeTab === "tab1" ? "active" : ""}`}
                                     >
                                         {t("staking.staking.tabStake")}
                                     </button>
                                     <button
+                                        data-testid="staking-tab-unstake"
                                         onClick={() => setActiveTab("tab2")}
                                         className={`tab-button ${activeTab === "tab2" ? "active" : ""}`}
                                     >

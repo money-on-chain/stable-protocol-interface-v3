@@ -307,7 +307,10 @@ export default function StakingOptionsModal(
                 return (
                     <Fragment>
                         {/* Asks user to authorize governance tokens */}
-                        <div className="">
+                        <div
+                            className=""
+                            data-testid="staking-allowance-dialog"
+                        >
                             <h1 className="">
                                 {t("allowance.cardTitle")}
                                 {"  "} {"  "}
@@ -329,6 +332,7 @@ export default function StakingOptionsModal(
                                 <div className="cta-container">
                                     <div className="cta-options-group">
                                         <Button
+                                            data-testid="staking-allowance-cancel"
                                             type="default"
                                             className="button secondary"
                                             onClick={onClose}
@@ -336,6 +340,7 @@ export default function StakingOptionsModal(
                                             {t("allowance.confirm.cancel")}
                                         </Button>
                                         <Button
+                                            data-testid="staking-allowance-authorize"
                                             type="primary"
                                             className="button"
                                             onClick={() => void setAllowance()}
@@ -457,6 +462,7 @@ export default function StakingOptionsModal(
                                         </div>{" "}
                                         <div className="cta-options-group">
                                             <Button
+                                                data-testid="staking-modal-cancel"
                                                 type="default"
                                                 onClick={onClose}
                                                 className="button secondary"
@@ -466,6 +472,7 @@ export default function StakingOptionsModal(
                                                 )}
                                             </Button>
                                             <Button
+                                                data-testid="staking-modal-confirm"
                                                 type="primary"
                                                 onClick={() => void addStake()}
                                                 className="button"
@@ -546,6 +553,7 @@ export default function StakingOptionsModal(
                         </div>
                         <div className="cta-options-group">
                             <Button
+                                data-testid="staking-modal-cancel"
                                 type="default"
                                 onClick={onClose}
                                 className="button secondary"
@@ -553,6 +561,7 @@ export default function StakingOptionsModal(
                                 {t("staking.modal.StakingOptionsModal_Cancel")}
                             </Button>
                             <Button
+                                data-testid="staking-modal-confirm"
                                 type="primary"
                                 onClick={() => void UnStake()}
                                 className="button"
@@ -612,6 +621,7 @@ export default function StakingOptionsModal(
                         </div>
                         <div className="cta-options-group">
                             <Button
+                                data-testid="staking-modal-cancel"
                                 type="default"
                                 className="button secondary"
                                 onClick={onClose}
@@ -619,6 +629,7 @@ export default function StakingOptionsModal(
                                 {t("staking.modal.StakingOptionsModal_Cancel")}
                             </Button>
                             <Button
+                                data-testid="staking-modal-confirm"
                                 type="primary"
                                 className="button"
                                 onClick={() => void withdraw()}
@@ -675,6 +686,7 @@ export default function StakingOptionsModal(
 
                         <div className="cta-options-group">
                             <Button
+                                data-testid="staking-modal-cancel"
                                 type="default"
                                 className="button secondary"
                                 onClick={onClose}
@@ -682,6 +694,7 @@ export default function StakingOptionsModal(
                                 {t("staking.modal.StakingOptionsModal_Cancel")}
                             </Button>
                             <Button
+                                data-testid="staking-modal-confirm"
                                 type="primary"
                                 className="button"
                                 onClick={() => void CancelWithdraw()}
@@ -715,7 +728,7 @@ export default function StakingOptionsModal(
             maskClosable={false}
             maskStyle={{}}
         >
-            {render()}
+            <div data-testid="staking-modal">{render()}</div>
         </Modal>
     );
 }

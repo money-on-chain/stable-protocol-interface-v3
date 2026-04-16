@@ -346,6 +346,7 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
                                 <div className="cta-options-group votingButtons">
                                     {proposal.canVote && (
                                         <button
+                                            data-testid="voting-pre-vote-in-favor"
                                             className="button infavor"
                                             onClick={() => void onVoteInFavor()}
                                             disabled={votingInFavorError}
@@ -356,6 +357,7 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
                                     )}
                                     {proposal.canRunStep && (
                                         <button
+                                            data-testid="voting-pre-vote-step"
                                             className="button secondary"
                                             onClick={() => onRunPreVoteStep()}
                                         >
@@ -369,12 +371,17 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
                     </div>
                 </div>
                 <div className="go-back">
-                    <button className="button" onClick={() => onBack()}>
+                    <button
+                        data-testid="voting-back-to-proposals"
+                        className="button"
+                        onClick={() => onBack()}
+                    >
                         Back to Proposals
                     </button>
 
                     {proposal.canUnregister && (
                         <button
+                            data-testid="voting-unregister-proposal"
                             className="button"
                             onClick={() =>
                                 onUnRegisterProposal(proposal.changeContract)

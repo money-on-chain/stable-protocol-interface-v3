@@ -8,6 +8,7 @@ import { useProjectTranslation } from "../../helpers/translations";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 
 interface InputAmountProps {
+    testId?: string;
     balanceText?: string;
     action?: string;
     balance?: React.ReactNode;
@@ -41,6 +42,7 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
 
     const {
         balanceText,
+        testId,
         action,
         balance,
         placeholder,
@@ -115,6 +117,7 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
 
     return (
         <div
+            data-testid={testId}
             className={`amountInput ${readOnly ? "amountInput--readonly" : ""} ${
                 displayOnly ? "display-only-background" : ""
             }`}
@@ -133,6 +136,7 @@ const InputAmount: React.FC<InputAmountProps> = (props) => {
             <div className="amountInput__inputBar">
                 <div className="amountInput__amount">
                     <input
+                        data-testid={testId ? `${testId}-input` : undefined}
                         ref={inputRef}
                         placeholder={placeholder}
                         value={inputValue}

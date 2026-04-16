@@ -64,7 +64,10 @@ const VotingStatusModal: React.FC<VotingStatusModalProps> = ({
                 {title || t("staking.modal.StatusModal_Modal_Title")}
             </h1>
 
-            <div className="ProposalVoteModal">
+            <div
+                data-testid={`voting-status-modal-${operationStatus}`}
+                className="ProposalVoteModal"
+            >
                 {showProposal && (
                     <div className="proposalChanger__container">
                         <div className="proposalChanger__details">
@@ -138,6 +141,7 @@ const VotingStatusModal: React.FC<VotingStatusModalProps> = ({
                         <p className="tx-feedback-text">{statusLabel}</p>
                     </div>
                     <button
+                        data-testid="voting-status-close"
                         type="button"
                         className="button secondary"
                         onClick={onCancel}

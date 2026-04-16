@@ -164,6 +164,7 @@ export default function SectionHeader(): JSX.Element {
                     ))}
                     {moreMenuOptions.length > 0 && (
                         <div
+                            data-testid="navbar-menu-item-more"
                             onClick={() =>
                                 setShowMoreDropdown(!showMoreDropdown)
                             }
@@ -178,6 +179,7 @@ export default function SectionHeader(): JSX.Element {
                                     {moreMenuOptions.map(
                                         (option: MenuOption) => (
                                             <a
+                                                data-testid={`navbar-menu-item-${option.className}`}
                                                 onClick={() =>
                                                     handleOptionClick(
                                                         option.path

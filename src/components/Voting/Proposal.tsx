@@ -147,7 +147,10 @@ const Proposal: React.FC<ProposalProps> = (props) => {
     ];
 
     return (
-        <div className="proposal__wrapper">
+        <div
+            className="proposal__wrapper"
+            data-testid={`voting-proposal-${proposal.changeContract.toLowerCase()}`}
+        >
             <div className="title">{proposal.changeContract}</div>
             <div className="proposal__content">
                 <div className="details">
@@ -210,6 +213,7 @@ const Proposal: React.FC<ProposalProps> = (props) => {
                         <div className="cta-options-group">
                             {proposal.canRunStep && (
                                 <button
+                                    data-testid={`voting-pre-vote-step-${proposal.changeContract.toLowerCase()}`}
                                     className="button secondary"
                                     onClick={() => onRunPreVoteStep()}
                                 >
@@ -217,6 +221,7 @@ const Proposal: React.FC<ProposalProps> = (props) => {
                                 </button>
                             )}
                             <button
+                                data-testid={`voting-view-proposal-${proposal.changeContract.toLowerCase()}`}
                                 className="button"
                                 onClick={() =>
                                     onViewProposal(proposal.changeContract)

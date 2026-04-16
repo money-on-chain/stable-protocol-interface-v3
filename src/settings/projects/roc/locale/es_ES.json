@@ -630,7 +630,7 @@
             },
             "page4": {
                 "stepTitle": "¡Vesting Machine creada con éxito!",
-                "successMessage": "¡Felicitaciones! Has hecho el claim de tus tokens Flip y has creado una Vesting Machine (VM). Por favor, lee cuidadosamente la información de abajo y no olivdes guardar la dirección de tu vesting como se indica.",
+                "successMessage": "¡Felicitaciones! Has hecho el claim de tus tokens MOC y has creado una Vesting Machine (VM). Por favor, lee cuidadosamente la información de abajo y no olivdes guardar la dirección de tu vesting como se indica.",
                 "addressLabel": "Dirección de la Vesting Machine creada",
                 "buttonDownloadAddress": "Descargar Dirección",
                 "buttonCopyAddress": "Copiar Dirección",
