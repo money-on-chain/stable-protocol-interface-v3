@@ -1,27 +1,9 @@
 # Stable Protocol Interface v3 (Multicollateral)
 
-## Warning: This is only for version 3 of the main contracts.
+### Warning: This is only for version 3 of the main contracts.
 
-Open source **decentralized interface** for v3 contracts
+Stable Protocol Interface v3 is a web interface for the Money on Chain Stable Protocol v3, running on the Rootstock (RSK)  blockchain. It allows users to mint and redeem pegged stablecoins (TP tokens) and collateral tokens (TC tokens) backed by crypto collateral, supporting multiple projects with different fiat pegs (ARS, COP, USD, and others). Users can also swap between token types, view their portfolio balances, participate in governance voting and staking via the Govern token, and review transaction history. Wallet connectivity is handled via wagmi/viem, supporting Coinbase Wallet, WalletConnect, and injected providers.
 
-You can:
-
-- Mint / Redeem Pegged Token (TP): Ex.: FlipARS
-- Mint / Redeem Collateral Token (TC): Ex.: BProMax
-- Metrics
-- Last operations
-
-### Projects and tokens
-
-**Projects**
-
-| Token | Token name       | Project   | Token Name | Collateral |
-| ----- | ---------------- | --------- | ---------- | ---------- |
-| TP #0 | Pegged Token     | Flipmoney | Flip ARS   | BPro/DOC   |
-| TP #1 | Pegged Token     | Flipmoney | Flip COP   | BPro/DOC   |
-| TC #0 | Collateral Token | Flipmoney | BProMax    | BPro       |
-| TC #1 | Collateral Token | Flipmoney | DOCMax     | DOC        |
-| TF    | Fee Token        | Flipmoney | Flip       | -          |
 
 ### Releases
 
@@ -29,15 +11,17 @@ Each release gets deployed to IPFS automatically.
 
 Please go to release section, there are several links to [releases](https://github.com/money-on-chain/stable-protocol-interface-v3/releases)
 
-**Notes:** The list of operations of the user is get it through an API. We use an api also for the liquidity mining program, but is not need it to run or to exchange tokens.
+Also you can access with this primary gateways, always point to the latest release
+
+| Project              |  Main Gateway                         |
+| -------------------- | ------------------------------------- |
+| ROC Testnet          |  [https://dapp-testnet.rifonchain.com](https://dapp-testnet.rifonchain.com) |
+| ROC Mainnet          |  [https://dapp.rifonchain.com](https://dapp.rifonchain.com) |
+
 
 ## DEVELOP
 
 ### Setup: Running develop
-
-Requires:
-
-- Nodejs > 14
 
 Install nodejs
 
@@ -49,19 +33,13 @@ Install packages
 
 Run
 
-`npm run start:flipmoney-testnet`
+`npm run start:roc-testnet`
 
-**Note:** Start the environment you want to run ex. **"start:flipmoney-testnet"** to start environment Flipmoney Testnet
+or
 
-### Environment table
+`npm run start:<environment>`
 
-Environment is our already deployed contracts.
-**Develop**: npm run start:<environment>
-
-| Name              | Project | Main Gateway                         | Environment | Network | npm run                 |
-| ----------------- | ------- | ------------------------------------ | ----------- | ------- | ----------------------- |
-| Flipmoney Testnet | MOC     | [link](https://www.moneyonchain.com) | Testnet     | RSK     | start:flipmoney-testnet |
-| Flipmoney Mainnet | MOC     | [link](https://www.moneyonchain.com) | Mainnet     | RSK     | start:flipmoney-mainnet |
+**Note:** Start the environment you want to run ex. **"start:roc-testnet"** to start environment ROC Testnet
 
 ### Faucets
 
@@ -69,16 +47,3 @@ In testnet you may need some test RBTC
 
 - **Faucet tRBTC**: https://faucet.rsk.co/
 
-### Contracts
-
-**Stable protocol core v2**
-
-_[https://github.com/money-on-chain/stable-protocol-core-v2](https://github.com/money-on-chain/stable-protocol-core-v2)_
-
-**Flipmoney implementation v2**
-
-_[https://github.com/money-on-chain/stable-protocol-roc-v2](https://github.com/money-on-chain/stable-protocol-roc-v2)_
-
-### Integration
-
-If you want to integrate Money on Chain protocols please review our Integration repository: [https://github.com/money-on-chain/stable-protocol-backend-v3](https://github.com/money-on-chain/stable-protocol-backend-v3)
