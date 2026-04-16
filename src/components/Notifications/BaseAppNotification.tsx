@@ -22,6 +22,7 @@ export interface AppNotificationAction {
     target?: string;
     type?: AppNotificationActionVisualType;
     disabled?: boolean;
+    loading?: boolean;
 }
 
 export interface BaseAppNotificationProps {
@@ -214,6 +215,7 @@ export const BaseAppNotification: React.FC<BaseAppNotificationProps> = ({
                         target,
                         type: actionType = "primary",
                         disabled,
+                        loading,
                     } = action;
 
                     const actionClassName = [
@@ -237,6 +239,7 @@ export const BaseAppNotification: React.FC<BaseAppNotificationProps> = ({
                                 }
                                 className={actionClassName}
                                 aria-disabled={disabled || undefined}
+                                aria-loading={loading ? "true" : "false"}
                                 onClick={(event) => {
                                     if (disabled) {
                                         event.preventDefault();

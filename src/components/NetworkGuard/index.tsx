@@ -1,7 +1,8 @@
 // NetworkGuard.tsx
-import { Alert, Button, Space } from "antd";
-import React from "react";
+import { Space } from "antd";
 import { useAccount, useChainId, useSwitchChain } from "wagmi";
+import { AppNotification } from "../Notifications";
+
 
 import { ALLOWED_CHAIN } from "../../wagmiConfig";
 
@@ -16,27 +17,28 @@ export function NetworkGuard() {
     if (!isWrongNetwork) return null;
 
     return (
-        <Alert
+        <AppNotification
             type="error"
-            showIcon
-            message="Wrong network"
-            description={
+            title="Wrong network"
+            content={
                 <Space direction="vertical" size={8}>
                     <span>
                         You are connected to the wrong network. This environment
                         only allows <strong>{ALLOWED_CHAIN.name}</strong>.
-                    </span>
-                    <Button
-                        type="primary"
-                        loading={isPending}
-                        onClick={() =>
-                            switchChain({ chainId: ALLOWED_CHAIN.id })
-                        }
-                    >
-                        Switch to {ALLOWED_CHAIN.name}
-                    </Button>
+                    </span>                    
                 </Space>
             }
+            actions={[
+                {
+                    key: "switch-network",
+                    label: `Switch to ${ALLOWED_CHAIN.name}`,
+                    type: "primary",
+                    loading: isPending,
+                    onClick: () => {
+                        switchChain({ chainId: ALLOWED_CHAIN.id })
+                    },
+                },
+            ]}
         />
     );
 }
