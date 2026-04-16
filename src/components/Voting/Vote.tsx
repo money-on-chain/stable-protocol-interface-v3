@@ -342,13 +342,19 @@ function Vote(props: VoteProps): JSX.Element {
                     </div>
                 )}
             </div>
-            <div className="votingDetails__wrapper">
+            <div
+                className="votingDetails__wrapper"
+                data-testid="voting-current-stage"
+            >
                 <div className={"layout-card-title"}>
                     <h1>{t("voting.cardTitle.votingStage")}</h1>
                 </div>
 
                 <div className="details">
-                    <div className="title">
+                    <div
+                        className="title"
+                        data-testid="voting-current-proposal"
+                    >
                         {infoVoting.votingData["winnerProposal"]}
                     </div>
 
@@ -442,6 +448,7 @@ function Vote(props: VoteProps): JSX.Element {
                                     </div>
                                     <div className="cta-options-group votingButtons">
                                         <button
+                                            data-testid="voting-vote-against"
                                             className="button against"
                                             onClick={() => void onVote(false)}
                                             disabled={
@@ -452,6 +459,7 @@ function Vote(props: VoteProps): JSX.Element {
                                             {t("voting.votingOptions.against")}
                                         </button>
                                         <button
+                                            data-testid="voting-vote-in-favor"
                                             className="button infavor"
                                             onClick={() => void onVote(true)}
                                             disabled={
@@ -474,6 +482,7 @@ function Vote(props: VoteProps): JSX.Element {
                                             <div className="cta-info-summary "></div>
                                             <div className="cta-options-group">
                                                 <button
+                                                    data-testid="voting-run-vote-step"
                                                     className="button secondary"
                                                     onClick={() =>
                                                         void onRunVoteStep()
@@ -493,6 +502,7 @@ function Vote(props: VoteProps): JSX.Element {
                                         {t("voting.cta.infoApplyChanges")}
                                     </div>
                                     <button
+                                        data-testid="voting-run-accepted-step"
                                         className="button secondary"
                                         onClick={() => void onRunAcceptedStep()}
                                     >

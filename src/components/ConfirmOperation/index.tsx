@@ -428,17 +428,17 @@ export default function ConfirmOperation(
         ) {
             tokenAmount = amountYouExchange;
             limitAmount = amountYouReceive;
-        } else if (                
-                operationType === "SWAP_TCFORTP" ||
-                operationType === "SWAP_TPFORTC" ||
-                operationType === "SWAP_TPFORTP" 
-            ) {
-                tokenAmount = amountYouExchange;
-                limitAmount = amountYouReceive;
-                qAssetMaxFees = calculateLimit(
-                    commissionsByKey[`CA_${caIndex}`].commission,
-                    slippageTolerance / 100
-                );
+        } else if (
+            operationType === "SWAP_TCFORTP" ||
+            operationType === "SWAP_TPFORTC" ||
+            operationType === "SWAP_TPFORTP"
+        ) {
+            tokenAmount = amountYouExchange;
+            limitAmount = amountYouReceive;
+            qAssetMaxFees = calculateLimit(
+                commissionsByKey[`CA_${caIndex}`].commission,
+                slippageTolerance / 100
+            );
         } else {
             throw new Error("Invalid type operation");
         }
@@ -567,6 +567,13 @@ export default function ConfirmOperation(
         `CA_${caIndex}`
     );
     let commissionTokenName: string;
+    const executionFeeInGwei = (executionFee + 999999999n) / 1000000000n;
+    const gweiToken = {
+        ...TokenSettings("COINBASE"),
+        decimals: 0,
+        visibleDecimals: 0,
+        visibleBalanceDecimals: 0,
+    };
 
     if (operationType === "MINT" || operationType === "COMBINED_MINT") {
         commissionTokenName = t(`exchange.tokens.${currencyYouExchange}.abbr`, {
@@ -773,20 +780,14 @@ export default function ConfirmOperation(
                         <span className={"symbol"}> ≈ </span>
                         <span className={"token_receive"}>
                             {PrecisionNumbers({
-                                amount: executionFee,
-                                decimals: 10,
-                                token: TokenSettings("COINBASE"),
+                                amount: executionFeeInGwei,
+                                token: gweiToken,
                                 i18n: i18n,
-                                compact: true,
+                                decimals: 0,
+                                isInWei: false,
                             })}
                         </span>
-                        <span className={"token_receive_name"}>
-                            {" "}
-                            {t(`exchange.tokens.COINBASE.abbr`, {
-                                ns: ns,
-                            })}{" "}
-                        </span>
-
+                        <span className={"token_receive_name"}> GWEI </span>
                         <span className={""}> (</span>
                         <span>
                             {PrecisionNumbers({

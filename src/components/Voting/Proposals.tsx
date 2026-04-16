@@ -492,6 +492,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                                     </div>
                                 )}
                             <div
+                                data-testid="voting-add-proposal-open"
                                 className="button__addProposal"
                                 onClick={onShowAddProposal}
                             >
@@ -516,6 +517,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                                         </div>
                                         <div className="proposal__add__text amountInput__amount">
                                             <Input
+                                                data-testid="voting-add-proposal-input"
                                                 type="text"
                                                 placeholder="Changer address"
                                                 className="proposal__add__input amountInput__value"
@@ -593,6 +595,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                                 </div>
                                 <div className="cta-options-group">
                                     <button
+                                        data-testid="voting-add-proposal-cancel"
                                         type="button"
                                         className="button secondary"
                                         onClick={onCloseAddProposal}
@@ -600,6 +603,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                                         {t("voting.cta.cancel")}
                                     </button>
                                     <button
+                                        data-testid="voting-add-proposal-submit"
                                         type="button"
                                         className="button"
                                         onClick={onAddProposal}

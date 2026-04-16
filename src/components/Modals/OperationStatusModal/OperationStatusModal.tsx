@@ -58,7 +58,10 @@ const OperationStatusModal: React.FC<OperationStatusModalProps> = ({
                 {title || t("staking.modal.StatusModal_Modal_Title")}
             </h1>
 
-            <div className="tx-amount-group">
+            <div
+                className="tx-amount-group"
+                data-testid="operation-status-modal"
+            >
                 <div className="tx-id-container">
                     <div className="tx-id-data">
                         {(operationStatus === "pending" ||
@@ -88,9 +91,15 @@ const OperationStatusModal: React.FC<OperationStatusModalProps> = ({
                         <div className="tx-feedback-icon tx-logo-status">
                             <div className={sentIcon}></div>
                         </div>
-                        <p className="tx-feedback-text">{statusLabel}</p>
+                        <p
+                            className="tx-feedback-text"
+                            data-testid={`operation-status-state-${operationStatus || "sign"}`}
+                        >
+                            {statusLabel}
+                        </p>
                     </div>
                     <button
+                        data-testid="operation-status-close"
                         type="button"
                         className="button secondary"
                         onClick={onCancel}
