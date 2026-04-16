@@ -1106,9 +1106,9 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         }
 
         setCommissionForKey("FeeToken", {
-            commission: baseForFeeToken.totalFeeToken,
-            commissionUSD: baseForFeeToken.totalFeeTokenUSD,
-            commissionPercent: baseForFeeToken.feeTokenPercent,
+            commission: calculateLimit(baseForFeeToken.totalFeeToken, +(slippageTolerance / 100)),
+            commissionUSD: calculateLimit(baseForFeeToken.totalFeeTokenUSD, +(slippageTolerance / 100)),
+            commissionPercent: calculateLimit(baseForFeeToken.feeTokenPercent, +(slippageTolerance / 100)),
             balance: userBalance.data[choosenCAIndex].FeeToken.balance,
         });
 

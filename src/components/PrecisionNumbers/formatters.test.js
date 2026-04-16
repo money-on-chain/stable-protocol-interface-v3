@@ -57,6 +57,15 @@ test("shows less-than marker for values below the minimum tiny-value threshold",
     assert.equal(formatSignificantCompactValue(0.000000001, locale), "<0.0001");
 });
 
+test("shows up to eight significant decimals for tiny values above the minimum threshold", () => {
+    assert.equal(formatSignificantCompactValue(0.00009999, locale), "0.00009999");
+    assert.equal(formatSignificantCompactValue(0.00000001, locale), "0.00000001");
+});
+
+test("shows less-than marker for values below the minimum tiny-value threshold", () => {
+    assert.equal(formatSignificantCompactValue(0.000000001, locale), "<0.0001");
+});
+
 test("scales values from one million upward with two decimals and truncation", () => {
     assert.equal(formatSignificantCompactValue(1234567.89, locale), "1.23M");
     assert.equal(formatSignificantCompactValue(3200200, locale), "3.20M");

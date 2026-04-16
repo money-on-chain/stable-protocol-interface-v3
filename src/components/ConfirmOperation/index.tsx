@@ -349,7 +349,7 @@ export default function ConfirmOperation(
         );
 
         if (
-            radioSelectFee === 0 &&
+            radioSelectFee === 1 &&
             tokenAllowance > commissionsByKey["FeeToken"].commission
         ) {
             // if we select not to pay with fee token, please disallow to use Fee token
@@ -788,7 +788,6 @@ export default function ConfirmOperation(
                             })}
                         </span>
                         <span className={"token_receive_name"}> GWEI </span>
-
                         <span className={""}> (</span>
                         <span>
                             {PrecisionNumbers({
