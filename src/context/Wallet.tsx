@@ -300,6 +300,15 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         }
     }, [isConnected, showModalProviders]);
 
+    // Auto-close the providers modal once the wallet is connected (handles the
+    // case where wagmi silently auto-reconnects from a stored session before the
+    // user explicitly clicks a wallet button).
+    useEffect(() => {
+        if (isConnected && showModalProviders) {
+            setShowModalProviders(false);
+        }
+    }, [isConnected, showModalProviders]);
+
     // Use refs so the effect always calls the latest refetch without re-running on every render
     const refetchBaseCoinBalanceRef = useRef(userBaseCoinBalance?.refetch);
     refetchBaseCoinBalanceRef.current = userBaseCoinBalance?.refetch;
