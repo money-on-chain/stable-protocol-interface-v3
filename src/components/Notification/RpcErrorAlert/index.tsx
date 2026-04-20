@@ -82,6 +82,8 @@ export default function RpcErrorAlert({
             ]}
             dismissible={!!onDismiss}
             deliveryMode="center"
+            notificationId="rpc-error-alert"
+            lingerMs={4000}
         />
     );
 }
