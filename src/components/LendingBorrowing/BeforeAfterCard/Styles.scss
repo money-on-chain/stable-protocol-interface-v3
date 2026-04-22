@@ -1,0 +1,103 @@
+.before-after-card {
+    --before-after-card-notch-height: 18px;
+    --before-after-card-notch-width: 34px;
+
+    overflow: hidden;
+    border: 1px solid var(--dividers);
+    border-radius: var(--card-border-radius);
+    background-color: transparent;
+}
+
+.before-after-card__title {
+    padding: 6px 12px 0;
+    font-size: 10px;
+    font-weight: 600;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.before-after-card__section {
+    padding: 12px;
+    position: relative;
+}
+
+.before-after-card__section--before {
+    z-index: 1;
+    background-color: var(--surface-color-3);
+}
+
+.before-after-card__section--before::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: calc(var(--before-after-card-notch-height) * -1);
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: var(--before-after-card-notch-width) solid transparent;
+    border-right: var(--before-after-card-notch-width) solid transparent;
+    border-top: var(--before-after-card-notch-height) solid
+        var(--surface-color-3);
+}
+
+.before-after-card__section--after {
+    z-index: 0;
+    background-color: var(--surface-color-1);
+}
+
+.before-after-card__section--after-only {
+    background-color: var(--surface-color-3);
+}
+
+.before-after-card__label {
+    margin-bottom: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.before-after-card__value-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.before-after-card__value-group {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+.before-after-card__value {
+    color: var(--color-txt-primary);
+    font-size: 20px;
+    font-weight: 600;
+    font-family: var(--brand-font);
+}
+
+.before-after-card__unit {
+    color: var(--color-txt-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.before-after-card__trend {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.before-after-card__trend--positive {
+    background-color: var(--color-semantic-positive);
+}
+
+.before-after-card__trend--negative {
+    background-color: var(--color-semantic-negative);
+}
+
+.before-after-card__trend--neutral {
+    background-color: var(--color-semantic-neutral);
+}

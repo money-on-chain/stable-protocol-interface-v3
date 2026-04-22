@@ -1,0 +1,221 @@
+.lend-earn-view {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.lend-earn-title {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.lend-earn-body {
+    width: 100%;
+    max-width: 740px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.lend-earn-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    align-self: flex-start;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-txt-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s ease, opacity 0.2s ease;
+    opacity: 0.9;
+}
+
+.lend-earn-back-link:hover,
+.lend-earn-back-link:focus-visible {
+    color: var(--primary-color);
+    opacity: 1;
+}
+
+.lend-earn-back-link__icon {
+    color: inherit;
+    font-size: 14px;
+    line-height: 1;
+}
+
+.lend-earn-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.lend-earn-header__spacer {
+    flex: 1;
+}
+
+.lend-earn-rate {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.lend-earn-rate__value {
+    color: var(--color-txt-primary);
+    font-size: 22px;
+    font-weight: 600;
+    font-family: var(--brand-font);
+}
+
+.lend-earn-rate__label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.lend-earn-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.8fr);
+    gap: 32px;
+    align-items: start;
+}
+
+.lend-earn-input-card {
+    padding: 12px;
+    border-radius: var(--card-border-radius);
+    background-color: var(--surface-color-2);
+}
+
+.lend-earn-input-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.lend-earn-input-card__top,
+.lend-earn-input-card__body {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.lend-earn-input-card__label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.lend-earn-input-card__quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.lend-earn-input-card__quick-action {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--primary-color);
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.lend-earn-input-card__amount-wrapper {
+    flex: 1;
+}
+
+.lend-earn-input-card__amount-input {
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-txt-primary);
+    font-size: 28px;
+    font-weight: 600;
+    font-family: var(--brand-font);
+    outline: none;
+}
+
+.lend-earn-input-card__amount-input::placeholder {
+    color: var(--color-txt-primary);
+    opacity: 1;
+}
+
+.lend-earn-input-card__amount-usd,
+.lend-earn-input-card__balance {
+    color: var(--color-txt-secondary);
+}
+
+.lend-earn-input-card__token-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.lend-earn-notice {
+    padding: 16px;
+    border: 1px solid var(--primary-color);
+    border-radius: var(--card-border-radius);
+    text-align: center;
+}
+
+.lend-earn-notice__title {
+    color: var(--primary-color);
+    font-size: 18px;
+    font-weight: 600;
+    font-family: var(--brand-font);
+}
+
+.lend-earn-notice__subtitle {
+    margin-top: 4px;
+    color: var(--color-txt-primary);
+}
+
+.lend-earn-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.lend-earn-actions__submit {
+    width: min(320px, 100%);
+}
+
+.lend-earn-actions__submit:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+@media (max-width: 960px) {
+    .lend-earn-content {
+        grid-template-columns: 1fr;
+    }
+
+    .lend-earn-input-card__top,
+    .lend-earn-input-card__body {
+        flex-direction: column;
+    }
+
+    .lend-earn-input-card__token-panel,
+    .lend-earn-rate {
+        align-items: flex-start;
+    }
+
+    .lend-earn-header {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .lend-earn-header__spacer {
+        display: none;
+    }
+
+    .lend-earn-actions__submit {
+        width: 100%;
+    }
+}

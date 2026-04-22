@@ -409,7 +409,8 @@
         "vesting": "Vesting",
         "voting": "Voting",
         "more": "More",
-        "combinedOperations": "Combined Ops."
+        "combinedOperations": "Combined Ops.",
+        "lendingBorrowing": "Lend & Borrow"
     },
 
     "language": {

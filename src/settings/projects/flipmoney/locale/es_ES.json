@@ -417,7 +417,8 @@
         "vesting": "Bloqueo",
         "voting": "Votación",
         "more": "Más",
-        "combinedOperations": "Op. Combinadas"
+        "combinedOperations": "Op. Combinadas",
+        "lendingBorrowing": "Lend & Borrow"
     },
 
     "language": {

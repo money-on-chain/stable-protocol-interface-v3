@@ -3,92 +3,60 @@
         "nameKey": "menuOptions.portfolio",
         "className": "logo-portfolio",
         "path": "/",
-        "allowedProjects": [
-            "flipmoney",
-            "roc",
-            "stablex",
-            "moc"
-        ]
+        "allowedProjects": ["flipmoney", "roc", "stablex", "moc"]
     },
     {
         "nameKey": "menuOptions.send",
         "className": "logo-send",
         "path": "/send",
-        "allowedProjects": [
-            "flipmoney",
-            "roc",
-            "stablex",
-            "moc"
-        ]
+        "allowedProjects": ["flipmoney", "roc", "stablex", "moc"]
     },
     {
         "nameKey": "menuOptions.exchange",
         "className": "logo-exchange",
         "path": "/exchange",
-        "allowedProjects": [
-            "flipmoney",
-            "roc",
-            "stablex",
-            "moc"
-        ]
+        "allowedProjects": ["flipmoney", "roc", "stablex", "moc"]
     },
     {
         "nameKey": "menuOptions.staking",
         "className": "logo-staking",
         "path": "/staking",
-        "allowedProjects": [
-            "moc",
-            "flipmoney",
-            "voting",
-            "roc"
-        ]
+        "allowedProjects": ["moc", "flipmoney", "voting", "roc"]
     },
     {
         "nameKey": "menuOptions.performance",
         "className": "logo-performance",
         "path": "/performance",
-        "allowedProjects": [
-            "flipmoney",
-            "roc",
-            "stablex",
-            "moc"
-        ]
+        "allowedProjects": ["flipmoney", "roc", "stablex", "moc"]
     },
     {
         "nameKey": "menuOptions.vesting",
         "className": "logo-vesting",
         "path": "/vesting",
-        "allowedProjects": [
-            "moc",
-            "voting"
-        ]
+        "allowedProjects": ["moc", "voting"]
     },
     {
         "nameKey": "menuOptions.liquidityMining",
         "className": "logo-liquidity-mining",
         "path": "/liquidity-mining",
-        "allowedProjects": [
-            "moc"
-        ]
+        "allowedProjects": ["moc"]
     },
     {
         "nameKey": "menuOptions.voting",
         "className": "logo-voting",
         "path": "/voting",
-        "allowedProjects": [
-            "flipmoney",
-            "moc",
-            "voting",
-            "roc"
-        ]
+        "allowedProjects": ["flipmoney", "moc", "voting", "roc"]
     },
     {
         "nameKey": "menuOptions.combinedOperations",
         "className": "logo-exchange-combined",
         "path": "/combined-operations",
-        "allowedProjects": [
-            "flipmoney",
-            "roc"
-        ]
+        "allowedProjects": ["flipmoney", "roc"]
+    },
+    {
+        "nameKey": "menuOptions.lendingBorrowing",
+        "className": "logo-lending-borrowing",
+        "path": "/lending-borrowing",
+        "allowedProjects": ["flipmoney"]
     }
 ]

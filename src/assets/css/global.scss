@@ -1235,6 +1235,36 @@ h2 {
     background: var(--color-btn-primary-secondary-hover);
     color: var(--color-btn-secondary-txt-hover);
 }
+.button--compact {
+    transition:
+        background-color 0.3s,
+        color 0.3s,
+        border-color 0.3s;
+    cursor: pointer;
+    border: 2px solid var(--color-btn-secondary-txt-default);
+    border-color: var(--color-btn-secondary-txt-default);
+    border-radius: var(--btn-compact-radius);
+    background-color: var(--color-btn-primary-background-default);
+    padding: 0px var(--btn-compact-padding) 1px var(--btn-compact-padding);
+    height: var(--btn-compact-height);
+    color: var(--color-btn-primary-txt-default);
+    font-weight: 600;
+    font-size: 12px;
+    font-family: var(--main-font);
+    text-align: center;
+    &--secondary {
+        background-color: var(--color-btn-secondary-background-default);
+        color: red;
+        color: var(--color-btn-secondary-txt-default);
+    }
+}
+
+.button--compact:hover,
+.button--compact:focus {
+    border-color: var(--color-btn-secondary-txt-hover);
+    background: var(--color-btn-primary-secondary-hover);
+    color: var(--color-btn-secondary-txt-hover);
+}
 
 .app-notification__action {
     // @extend .button--small;

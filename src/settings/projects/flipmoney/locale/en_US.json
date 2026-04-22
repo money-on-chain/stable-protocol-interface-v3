@@ -417,7 +417,8 @@
         "vesting": "Vesting",
         "voting": "Voting",
         "more": "More",
-        "combinedOperations": "Combined Ops."
+        "combinedOperations": "Combined Ops.",
+        "lendingBorrowing": "Lend & Borrow"
     },
 
     "language": {
@@ -790,5 +791,21 @@
             "statusReceived": "Received",
             "statusInProgress": "In progress"
         }
+    },
+    "lending": {
+        "cardTitle": {
+            "section": "Lend"
+        },
+        "labelInterest": "Variable Supply APY",
+        "labelDeposits": "Your Deposits + Earnings",
+        "cta": { "earn": "Earn", "withdraw": "Withdraw" }
+    },
+    "borrowing": {
+        "cardTitle": {
+            "section": "Borrow"
+        },
+        "labelInterest": "Variable Borrow APY",
+        "labelDeposits": "Your Deposits + Earnings",
+        "cta": { "earn": "Earn", "withdraw": "Withdraw" }
     }
 }

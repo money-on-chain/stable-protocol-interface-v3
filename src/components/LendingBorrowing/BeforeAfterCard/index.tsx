@@ -1,0 +1,102 @@
+import "./Styles.scss";
+
+import React from "react";
+
+type BeforeAfterTrend = "positive" | "negative" | "neutral";
+
+interface BeforeAfterCardEntry {
+    isInvalid?: boolean;
+    label: string;
+    unit?: string;
+    value?: string;
+}
+
+interface BeforeAfterCardProps {
+    after: BeforeAfterCardEntry;
+    before?: BeforeAfterCardEntry;
+    notchHeight?: number;
+    notchWidth?: number;
+    trend?: BeforeAfterTrend;
+    title: string;
+}
+
+function renderEntryValue(
+    entry: BeforeAfterCardEntry
+): { unit?: string; value: string } {
+    if (entry.isInvalid) {
+        return { value: "- -" };
+    }
+
+    return {
+        unit: entry.unit,
+        value: entry.value?.trim() ? entry.value : "- -",
+    };
+}
+
+export default function BeforeAfterCard({
+    after,
+    before,
+    notchHeight = 18,
+    notchWidth = 34,
+    title,
+    trend,
+}: BeforeAfterCardProps): React.ReactElement {
+    const style = {
+        "--before-after-card-notch-height": `${notchHeight}px`,
+        "--before-after-card-notch-width": `${notchWidth}px`,
+    } as React.CSSProperties;
+
+    const beforeValue = before ? renderEntryValue(before) : null;
+    const afterValue = renderEntryValue(after);
+
+    return (
+        <div className="before-after-card" style={style}>
+            <div className="before-after-card__title">{title}</div>
+
+            {before ? (
+                <div className="before-after-card__section before-after-card__section--before">
+                    <div className="before-after-card__label">{before.label}</div>
+                    <div className="before-after-card__value-row">
+                        <div className="before-after-card__value">
+                            {beforeValue?.value}
+                        </div>
+                        {beforeValue?.unit ? (
+                            <div className="before-after-card__unit">
+                                {beforeValue.unit}
+                            </div>
+                        ) : null}
+                    </div>
+                </div>
+            ) : null}
+
+            <div
+                className={[
+                    "before-after-card__section",
+                    "before-after-card__section--after",
+                    !before && "before-after-card__section--after-only",
+                ]
+                    .filter(Boolean)
+                    .join(" ")}
+            >
+                <div className="before-after-card__label">{after.label}</div>
+                <div className="before-after-card__value-row">
+                    <div className="before-after-card__value-group">
+                        <div className="before-after-card__value">
+                            {afterValue.value}
+                        </div>
+                        {afterValue.unit ? (
+                            <div className="before-after-card__unit">
+                                {afterValue.unit}
+                            </div>
+                        ) : null}
+                    </div>
+                    {trend ? (
+                        <div
+                            className={`before-after-card__trend before-after-card__trend--${trend}`}
+                        ></div>
+                    ) : null}
+                </div>
+            </div>
+        </div>
+    );
+}
