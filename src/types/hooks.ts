@@ -111,6 +111,7 @@ export interface Settings {
     slippage: {
         autoDefault: number;
         presets: number[];
+        max?: number;
     };
     showPriceVariation: boolean;
     tokens: SettingsTokens;
