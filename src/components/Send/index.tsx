@@ -1,6 +1,8 @@
 import { Input } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
+import { checksumAddress } from "viem";
 
+import { ALLOWED_CHAIN } from "../../constants/chain";
 import { useWalletContext } from "../../context/Wallet";
 import {
     ConvertAmount,
@@ -98,18 +100,35 @@ export default function Send(): JSX.Element {
         }
 
         // 2. Input address valid
+        let addressChecksumWarning: boolean = false;
         if (!destinationAddress) {
             addressInputError = true;
         } else if (!/^0x[0-9a-fA-F]{40}$/.test(destinationAddress)) {
             setInputValidationAddressErrorText(t("send.infoAddressInvalid"));
             addressInputError = true;
+        } else {
+            // For mixed-case addresses, warn if EIP-1191 checksum doesn't match,
+            // but still allow the operation to proceed.
+            // All-lowercase / all-uppercase addresses carry no checksum claim and are accepted as-is.
+            const hex = destinationAddress.slice(2);
+            const hasMixedCase = /[A-F]/.test(hex) && /[a-f]/.test(hex);
+            if (hasMixedCase) {
+                const addr = destinationAddress as `0x${string}`;
+                if (destinationAddress !== checksumAddress(addr, ALLOWED_CHAIN.id)) {
+                    addressChecksumWarning = true;
+                }
+            }
         }
 
         if (!amountInputError) {
             setInputValidationErrorText("");
         }
 
-        if (!addressInputError) {
+        if (addressChecksumWarning) {
+            setInputValidationAddressErrorText(
+                t("send.infoAddressChecksumInvalid")
+            );
+        } else if (!addressInputError) {
             setInputValidationAddressErrorText("");
         }
 
@@ -159,10 +178,6 @@ export default function Send(): JSX.Element {
     const onChangeDestinationAddress = (
         event: React.ChangeEvent<HTMLInputElement>
     ): void => {
-        if (event.target.value.length < 42) {
-            setInputValidationAddressErrorText(t("send.infoAddressInvalid"));
-            setInputValidationError(true);
-        }
         setDestinationAddress(event.target.value);
     };
 

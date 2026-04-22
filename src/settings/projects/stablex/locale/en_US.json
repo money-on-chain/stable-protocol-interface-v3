@@ -290,6 +290,7 @@
         "noNegativeValues": "Value must be greater than 0",
         "infoAddressEmpty": "Destination address not specified",
         "infoAddressInvalid": "Invalid address",
+        "infoAddressChecksumInvalid": "This address uses a different format than the current network. It should still work—just make sure it was copied correctly.",
         "feedback": {
             "submit": "Wait for transaction confirmation",
             "sign": "Sign the transaction in your wallet",
