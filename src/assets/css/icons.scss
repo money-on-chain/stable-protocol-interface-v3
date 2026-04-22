@@ -212,7 +212,14 @@ icons.css contains all the css code for Icons across the Dapp
     background-size: 32px 32px;
     background-repeat: no-repeat;
 }
-
+.icon-select-token {
+    display: block;
+    width: 12px;
+    height: 12px;
+    background-image: url("../icons/select-token.svg");
+    background-size: 12px 12px;
+    background-repeat: no-repeat;
+}
 .item-usd {
     padding-right: 8px;
 }

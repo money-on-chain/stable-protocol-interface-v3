@@ -591,7 +591,7 @@ $breakpoint-mobile: 600px;
     height: 32px;
 }
 .logo-lending-borrowing {
-    filter: var(--color-nav-icon-filter-active);
+    filter: var(--color-nav-icon-filter-default);
     background-image: url("../../assets/icons/LendingBorrowing.svg");
     background-size: 32px 32px;
     background-repeat: no-repeat;

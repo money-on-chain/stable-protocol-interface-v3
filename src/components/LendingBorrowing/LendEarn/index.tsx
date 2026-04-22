@@ -2,8 +2,9 @@ import "./Styles.scss";
 
 import React from "react";
 
+import TokenAmountInput from "../../TokenAmountInput";
 import BeforeAfterCard from "../BeforeAfterCard";
-import type { LendCardData } from "../Lend/data";
+import { LEND_CARDS, type LendCardData } from "../Lend/data";
 
 interface LendEarnProps {
     onBack: () => void;
@@ -45,11 +46,18 @@ export default function LendEarn({
     token,
 }: LendEarnProps): React.ReactElement {
     const [amount, setAmount] = React.useState("");
+    const [selectedTokenId, setSelectedTokenId] = React.useState(token.id);
+    const selectedToken =
+        LEND_CARDS.find((card) => card.id === selectedTokenId) || token;
 
     const { isValid: isAmountValid, value: amountValue } = parseAmount(amount);
-    const walletBalanceValue = parseAmount(token.walletBalance);
+    const walletBalanceValue = parseAmount(selectedToken.walletBalance);
     const hasSelectedAmount = isAmountValid && amountValue > 0;
     const hasTypedAmount = amount.trim().length > 0;
+
+    React.useEffect(() => {
+        setSelectedTokenId(token.id);
+    }, [token.id]);
 
     const handleQuickAmountSelection = (percentage: number) => {
         const nextAmount =
@@ -84,83 +92,52 @@ export default function LendEarn({
                     <div className="lend-earn-header__spacer"></div>
                     <div className="lend-earn-rate">
                         <div className="lend-earn-rate__value">
-                            {token.supplyApy} %
+                            {selectedToken.supplyApy} %
                         </div>
                         <div className="lend-earn-rate__label">
-                            {token.tokenTicker}/DOC Variable APY
+                            {selectedToken.tokenTicker}/DOC Variable APY
                         </div>
                     </div>
                 </div>
 
                 <div className="lend-earn-content">
-                    <div className="lend-earn-input-card">
-                        <div className="lend-earn-input-card__top">
-                            <div className="lend-earn-input-card__label">
-                                Amount to Lend
-                            </div>
-                            <div className="lend-earn-input-card__quick-actions">
-                                {QUICK_ACTIONS.map((percentage) => (
-                                    <button
-                                        className="lend-earn-input-card__quick-action"
-                                        key={percentage}
-                                        onClick={() =>
-                                            handleQuickAmountSelection(
-                                                percentage
-                                            )
-                                        }
-                                        type="button"
-                                    >
-                                        {percentage === 100
-                                            ? "MAX"
-                                            : `${percentage}%`}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="lend-earn-input-card__body">
-                            <div className="lend-earn-input-card__amount-wrapper">
-                                <input
-                                    className="lend-earn-input-card__amount-input"
-                                    inputMode="decimal"
-                                    onChange={(event) =>
-                                        setAmount(event.target.value)
-                                    }
-                                    placeholder="0.00"
-                                    value={amount}
-                                />
-                                <div className="lend-earn-input-card__amount-usd">
-                                    ~= 0.00 USD
-                                </div>
-                            </div>
-
-                            <div className="lend-earn-input-card__token-panel">
-                                <div className="token">
-                                    <div
-                                        className={token.tokenIconClassName}
-                                    ></div>
-                                    <div className="token-name">
-                                        {token.tokenTicker}
-                                    </div>
-                                </div>
-                                <div className="lend-earn-input-card__balance">
-                                    Balance: {token.walletBalance}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <TokenAmountInput
+                        balanceLabel="Balance"
+                        balanceValue={selectedToken.walletBalance}
+                        fiatValue="0.00"
+                        inputValue={amount}
+                        label="Amount to Lend"
+                        onMaxClick={() => handleQuickAmountSelection(100)}
+                        onQuickActionClick={handleQuickAmountSelection}
+                        onTokenSelect={setSelectedTokenId}
+                        onValueChange={setAmount}
+                        quickActions={QUICK_ACTIONS.filter(
+                            (percentage) => percentage !== 100
+                        )}
+                        selectedTokenValue={selectedToken.id}
+                        showMaxShortcut
+                        testId="lend-earn-input"
+                        tokenIconClassName={selectedToken.tokenIconClassName}
+                        tokenLabel={selectedToken.tokenTicker}
+                        tokenOptions={LEND_CARDS.map((card) => ({
+                            iconClassName: card.tokenIconClassName,
+                            label: card.tokenTicker,
+                            value: card.id,
+                        }))}
+                        tokenSelectable
+                    />
 
                     <BeforeAfterCard
                         after={{
                             isInvalid: hasTypedAmount && !isAmountValid,
                             label: "Next",
-                            unit: token.depositedTicker,
+                            unit: selectedToken.depositedTicker,
                             value: hasSelectedAmount ? amount : "0.00",
                         }}
                         before={{
                             label: "Current",
-                            unit: token.depositedTicker,
-                            value: token.depositedAmount,
+                            unit: selectedToken.depositedTicker,
+                            value: selectedToken.depositedAmount,
                         }}
                         title="Your Deposit + Earnings"
                     />
@@ -174,7 +151,7 @@ export default function LendEarn({
                     </div>
                     <div className="lend-earn-notice__subtitle">
                         {hasSelectedAmount
-                            ? `You are about to lend ${amount} ${token.tokenTicker}.`
+                            ? `You are about to lend ${amount} ${selectedToken.tokenTicker}.`
                             : "Enter an amount to lend."}
                     </div>
                 </div>
