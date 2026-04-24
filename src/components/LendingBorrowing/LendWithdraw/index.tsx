@@ -154,6 +154,7 @@ export default function LendWithdraw({
                                     value: token.availableToWithdrawAmount,
                                 }}
                                 title="Your Deposit + Earnings"
+                                useBorder
                             />
                         </div>
                     </div>

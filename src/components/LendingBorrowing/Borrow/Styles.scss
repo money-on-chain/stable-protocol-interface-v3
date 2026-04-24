@@ -76,12 +76,20 @@
         margin-top: 16px;
     }
 
+    .borrow-card-primary-metric--full {
+        grid-column: 1 / -1;
+    }
+
     .borrow-card-primary-spacer {
         min-height: 1px;
     }
 
     .borrow-card-primary-action {
         width: 100%;
+    }
+
+    .borrow-card-primary-action--single {
+        grid-column: 1;
     }
 
     .borrow-card-metrics {
@@ -119,6 +127,17 @@
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 8px;
+    }
+
+    .button--compact:disabled,
+    .button--compact:disabled:hover,
+    .button--compact:disabled:focus {
+        cursor: not-allowed;
+        box-shadow: none;
+        border-color: var(--color-btn-primary-background-disabled);
+        background-color: var(--color-btn-primary-background-disabled);
+        color: var(--color-btn-primary-txt-disabled);
+        opacity: 1;
     }
 }
 

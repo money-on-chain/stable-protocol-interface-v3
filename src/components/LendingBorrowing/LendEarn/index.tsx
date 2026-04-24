@@ -138,6 +138,7 @@ export default function LendEarn({
                                 //     value: selectedToken.depositedAmount,
                                 // }}
                                 title="Your Deposit + Earnings"
+                                useBorder
                             />
                         </div>
                     </div>

@@ -18,6 +18,7 @@ interface BeforeAfterCardProps {
     notchWidth?: number;
     trend?: BeforeAfterTrend;
     title: string;
+    useBorder?: boolean;
 }
 
 function renderEntryValue(
@@ -40,6 +41,7 @@ export default function BeforeAfterCard({
     notchWidth,
     title,
     trend,
+    useBorder = false,
 }: BeforeAfterCardProps): React.ReactElement {
     const style =
         notchHeight !== undefined || notchWidth !== undefined
@@ -55,9 +57,18 @@ export default function BeforeAfterCard({
 
     const beforeValue = before ? renderEntryValue(before) : null;
     const afterValue = renderEntryValue(after);
+    const resolvedTrend = before ? trend : undefined;
 
     return (
-        <div className="before-after-card" style={style}>
+        <div
+            className={[
+                "before-after-card",
+                useBorder && "before-after-card--bordered",
+            ]
+                .filter(Boolean)
+                .join(" ")}
+            style={style}
+        >
             <div className="before-after-card__title">{title}</div>
 
             {before ? (
@@ -89,7 +100,8 @@ export default function BeforeAfterCard({
                 <div
                     className={[
                         "before-after-card__value-row",
-                        trend && "before-after-card__value-row--with-trend",
+                        resolvedTrend &&
+                            "before-after-card__value-row--with-trend",
                     ]
                         .filter(Boolean)
                         .join(" ")}
@@ -104,9 +116,9 @@ export default function BeforeAfterCard({
                             </div>
                         ) : null}
                     </div>
-                    {trend ? (
+                    {resolvedTrend ? (
                         <div
-                            className={`before-after-card__trend before-after-card__trend--${trend}`}
+                            className={`before-after-card__trend before-after-card__trend--${resolvedTrend}`}
                         ></div>
                     ) : null}
                 </div>
