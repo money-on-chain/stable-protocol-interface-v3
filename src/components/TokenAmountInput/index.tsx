@@ -140,6 +140,17 @@ export default function TokenAmountInput({
 
     const TokenContent = (
         <>
+            <div
+                className={[
+                    "tokenAmountInput__token-selectSlot",
+                    !tokenSelectable &&
+                        "tokenAmountInput__token-selectSlot--hidden",
+                ]
+                    .filter(Boolean)
+                    .join(" ")}
+            >
+                <div className="icon-select-token tokenAmountInput__token-selectIcon"></div>
+            </div>
             {resolvedTokenIconClassName ? (
                 <div
                     className={[
@@ -153,9 +164,6 @@ export default function TokenAmountInput({
                     {resolvedTokenLabel}
                 </div>
             ) : null}
-            {tokenSelectable ? (
-                <div className="icon-select-token tokenAmountInput__token-selectIcon"></div>
-            ) : null}
         </>
     );
 
@@ -163,6 +171,7 @@ export default function TokenAmountInput({
         <div
             className={[
                 "tokenAmountInput",
+                displayOnly && "tokenAmountInput--displayOnly",
                 isNonEditable && "tokenAmountInput--readonly",
                 tokenSelectable && "tokenAmountInput--token-selectable",
             ]

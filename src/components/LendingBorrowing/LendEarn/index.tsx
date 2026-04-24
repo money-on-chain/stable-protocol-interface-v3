@@ -3,8 +3,11 @@ import "./Styles.scss";
 import React from "react";
 
 import TokenAmountInput from "../../TokenAmountInput";
-import BeforeAfterCard from "../BeforeAfterCard";
 import { LEND_CARDS, type LendCardData } from "../Lend/data";
+import BeforeAfterCard from "../MiniComponents/BeforeAfterCard";
+import OperationActions from "../MiniComponents/OperationActions";
+import OperationBackLink from "../MiniComponents/OperationBackLink";
+import OperationNotice from "../MiniComponents/OperationNotice";
 
 interface LendEarnProps {
     onBack: () => void;
@@ -77,94 +80,90 @@ export default function LendEarn({
         <div className="layout-card lend-earn-view">
             <div className="layout-card-title lend-earn-title">
                 <h1>Lend</h1>
-                <button
-                    className="lend-earn-back-link"
-                    onClick={onBack}
-                    type="button"
-                >
-                    <span className="lend-earn-back-link__icon">←</span>
-                    <span>Back to Lending & Borrowing</span>
-                </button>
+                <OperationBackLink onClick={onBack} />
             </div>
 
             <div className="lend-earn-body">
-                <div className="lend-earn-header">
-                    <div className="lend-earn-header__spacer"></div>
-                    <div className="lend-earn-rate">
-                        <div className="lend-earn-rate__value">
-                            {selectedToken.supplyApy} %
+                <div className="lend-earn-main">
+                    <div className="lend-earn-header">
+                        <div className="lend-earn-header__spacer"></div>
+                        <div className="lend-earn-rate">
+                            <div className="lend-earn-rate__value">
+                                {selectedToken.supplyApy} %
+                            </div>
+                            <div className="lend-earn-rate__label">
+                                {selectedToken.tokenTicker}/DOC Variable APY
+                            </div>
                         </div>
-                        <div className="lend-earn-rate__label">
-                            {selectedToken.tokenTicker}/DOC Variable APY
+                    </div>
+
+                    <div className="lend-earn-content">
+                        <TokenAmountInput
+                            balanceLabel="Balance"
+                            balanceValue={selectedToken.walletBalance}
+                            fiatValue="0.00"
+                            inputValue={amount}
+                            label="Amount to Lend"
+                            onMaxClick={() => handleQuickAmountSelection(100)}
+                            onQuickActionClick={handleQuickAmountSelection}
+                            onTokenSelect={setSelectedTokenId}
+                            onValueChange={setAmount}
+                            quickActions={QUICK_ACTIONS.filter(
+                                (percentage) => percentage !== 100
+                            )}
+                            selectedTokenValue={selectedToken.id}
+                            showMaxShortcut
+                            testId="lend-earn-input"
+                            tokenIconClassName={selectedToken.tokenIconClassName}
+                            tokenLabel={selectedToken.tokenTicker}
+                            tokenOptions={LEND_CARDS.map((card) => ({
+                                iconClassName: card.tokenIconClassName,
+                                label: card.tokenTicker,
+                                value: card.id,
+                            }))}
+                            tokenSelectable
+                        />
+
+                        <div className="lend-earn-summary-column">
+                            <BeforeAfterCard
+                                after={{
+                                    isInvalid: hasTypedAmount && !isAmountValid,
+                                    label: "Next",
+                                    unit: selectedToken.depositedTicker,
+                                    value: hasSelectedAmount ? amount : "0.00",
+                                }}
+                                // before={{
+                                //     label: "Current",
+                                //     unit: selectedToken.depositedTicker,
+                                //     value: selectedToken.depositedAmount,
+                                // }}
+                                title="Your Deposit + Earnings"
+                            />
                         </div>
                     </div>
                 </div>
 
-                <div className="lend-earn-content">
-                    <TokenAmountInput
-                        balanceLabel="Balance"
-                        balanceValue={selectedToken.walletBalance}
-                        fiatValue="0.00"
-                        inputValue={amount}
-                        label="Amount to Lend"
-                        onMaxClick={() => handleQuickAmountSelection(100)}
-                        onQuickActionClick={handleQuickAmountSelection}
-                        onTokenSelect={setSelectedTokenId}
-                        onValueChange={setAmount}
-                        quickActions={QUICK_ACTIONS.filter(
-                            (percentage) => percentage !== 100
-                        )}
-                        selectedTokenValue={selectedToken.id}
-                        showMaxShortcut
-                        testId="lend-earn-input"
-                        tokenIconClassName={selectedToken.tokenIconClassName}
-                        tokenLabel={selectedToken.tokenTicker}
-                        tokenOptions={LEND_CARDS.map((card) => ({
-                            iconClassName: card.tokenIconClassName,
-                            label: card.tokenTicker,
-                            value: card.id,
-                        }))}
-                        tokenSelectable
-                    />
-
-                    <BeforeAfterCard
-                        after={{
-                            isInvalid: hasTypedAmount && !isAmountValid,
-                            label: "Next",
-                            unit: selectedToken.depositedTicker,
-                            value: hasSelectedAmount ? amount : "0.00",
-                        }}
-                        before={{
-                            label: "Current",
-                            unit: selectedToken.depositedTicker,
-                            value: selectedToken.depositedAmount,
-                        }}
-                        title="Your Deposit + Earnings"
-                    />
-                </div>
-
-                <div className="lend-earn-notice">
-                    <div className="lend-earn-notice__title">
-                        {hasSelectedAmount
+                <OperationNotice
+                    title={
+                        hasSelectedAmount
                             ? "Review lend amount"
-                            : "No lend amount selected"}
-                    </div>
-                    <div className="lend-earn-notice__subtitle">
-                        {hasSelectedAmount
-                            ? `You are about to lend ${amount} ${selectedToken.tokenTicker}.`
-                            : "Enter an amount to lend."}
-                    </div>
-                </div>
+                            : "No lend amount selected"
+                    }
+                >
+                    {hasSelectedAmount
+                        ? `You are about to lend ${amount} ${selectedToken.tokenTicker}.`
+                        : "Enter an amount to lend."}
+                </OperationNotice>
 
-                <div className="lend-earn-actions">
+                <OperationActions>
                     <button
-                        className="button--compact lend-earn-actions__submit"
+                        className="button"
                         disabled={!hasSelectedAmount}
                         type="button"
                     >
                         {hasSelectedAmount ? "Lend" : "Enter an amount"}
                     </button>
-                </div>
+                </OperationActions>
             </div>
         </div>
     );

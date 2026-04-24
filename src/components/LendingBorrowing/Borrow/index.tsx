@@ -3,7 +3,7 @@ import "./Styles.scss";
 import React from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
-import MetricCard from "../MetricCard";
+import MetricCard from "../MiniComponents/MetricCard";
 
 interface BorrowCardMetric {
     value: string;

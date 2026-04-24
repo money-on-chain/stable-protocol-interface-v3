@@ -3,14 +3,18 @@ import "./Styles.scss";
 import React from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
-import MetricCard from "../MetricCard";
+import MetricCard from "../MiniComponents/MetricCard";
 import { LEND_CARDS, type LendCardData } from "./data";
 
 interface LendProps {
     onEarn: (token: LendCardData) => void;
+    onWithdraw: (token: LendCardData) => void;
 }
 
-export default function Lend({ onEarn }: LendProps): React.ReactElement {
+export default function Lend({
+    onEarn,
+    onWithdraw,
+}: LendProps): React.ReactElement {
     const { t } = useProjectTranslation();
 
     return (
@@ -57,6 +61,7 @@ export default function Lend({ onEarn }: LendProps): React.ReactElement {
                                 </button>
                                 <button
                                     className="button--compact button--compact--secondary"
+                                    onClick={() => onWithdraw(card)}
                                     type="button"
                                 >
                                     {t("lending.cta.withdraw")}

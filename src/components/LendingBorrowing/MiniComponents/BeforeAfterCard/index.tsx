@@ -36,15 +36,22 @@ function renderEntryValue(
 export default function BeforeAfterCard({
     after,
     before,
-    notchHeight = 18,
-    notchWidth = 34,
+    notchHeight,
+    notchWidth,
     title,
     trend,
 }: BeforeAfterCardProps): React.ReactElement {
-    const style = {
-        "--before-after-card-notch-height": `${notchHeight}px`,
-        "--before-after-card-notch-width": `${notchWidth}px`,
-    } as React.CSSProperties;
+    const style =
+        notchHeight !== undefined || notchWidth !== undefined
+            ? ({
+                  ...(notchHeight !== undefined && {
+                      "--before-after-card-notch-height": `${notchHeight}px`,
+                  }),
+                  ...(notchWidth !== undefined && {
+                      "--before-after-card-notch-width": `${notchWidth}px`,
+                  }),
+              } as React.CSSProperties)
+            : undefined;
 
     const beforeValue = before ? renderEntryValue(before) : null;
     const afterValue = renderEntryValue(after);
@@ -79,7 +86,14 @@ export default function BeforeAfterCard({
                     .join(" ")}
             >
                 <div className="before-after-card__label">{after.label}</div>
-                <div className="before-after-card__value-row">
+                <div
+                    className={[
+                        "before-after-card__value-row",
+                        trend && "before-after-card__value-row--with-trend",
+                    ]
+                        .filter(Boolean)
+                        .join(" ")}
+                >
                     <div className="before-after-card__value-group">
                         <div className="before-after-card__value">
                             {afterValue.value}

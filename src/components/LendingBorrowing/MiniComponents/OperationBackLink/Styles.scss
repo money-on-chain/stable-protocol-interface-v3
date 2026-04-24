@@ -1,0 +1,40 @@
+.operation-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    align-self: flex-start;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-txt-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+        color 0.2s ease,
+        opacity 0.2s ease;
+    opacity: 0.9;
+}
+
+.operation-back-link:hover,
+.operation-back-link:focus-visible {
+    color: var(--color-txt-link);
+    opacity: 1;
+}
+
+.operation-back-link__icon {
+    color: inherit;
+    font-size: 14px;
+    line-height: 1;
+    transition: filter 0.2s ease;
+}
+
+.operation-back-link__label {
+    color: inherit;
+    padding-top: 1px;
+}
+
+.operation-back-link:hover .operation-back-link__icon,
+.operation-back-link:focus-visible .operation-back-link__icon {
+    filter: var(--color-icon-link-hover-filter);
+}

@@ -1,0 +1,35 @@
+.compact-metric-display {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.compact-metric-display__label {
+    color: var(--color-txt-secondary);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.compact-metric-display__amount {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.compact-metric-display__value {
+    color: var(--color-txt-primary);
+    font-size: 22px;
+    font-weight: 600;
+    font-family: var(--brand-font);
+    line-height: 1;
+}
+
+.compact-metric-display__value-label {
+    color: var(--color-txt-primary);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    text-transform: uppercase;
+}

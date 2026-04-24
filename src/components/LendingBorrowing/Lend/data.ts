@@ -1,4 +1,6 @@
 export interface LendCardData {
+    availableToWithdrawAmount: string;
+    availableToWithdrawAmountUsd: string;
     id: string;
     tokenIconClassName: string;
     tokenName: string;
@@ -12,6 +14,8 @@ export interface LendCardData {
 
 export const LEND_CARDS: LendCardData[] = [
     {
+        availableToWithdrawAmount: "15,000.00",
+        availableToWithdrawAmountUsd: "10.00",
         id: "arsflip",
         tokenIconClassName: "icon-token-tp_0 token-icon",
         tokenName: "Argentine Peso",
@@ -23,6 +27,8 @@ export const LEND_CARDS: LendCardData[] = [
         walletBalance: "8,460,750.00",
     },
     {
+        availableToWithdrawAmount: "8,500.00",
+        availableToWithdrawAmountUsd: "6.80",
         id: "copflip",
         tokenIconClassName: "icon-token-tp_1 token-icon",
         tokenName: "Colombian Peso",

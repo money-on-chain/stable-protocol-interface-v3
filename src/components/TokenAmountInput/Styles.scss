@@ -8,6 +8,10 @@
     background-color: var(--surface-color-2);
 }
 
+.tokenAmountInput--displayOnly {
+    background-color: transparent;
+}
+
 .tokenAmountInput__topRow,
 .tokenAmountInput__bottomRow,
 .tokenAmountInput__content {
@@ -119,6 +123,9 @@
 .tokenAmountInput__fiatValue,
 .tokenAmountInput__balance {
     color: var(--color-txt-secondary);
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: 700;
 }
 
 .tokenAmountInput__balance {
@@ -130,7 +137,7 @@
 .tokenAmountInput__tokenButton {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     align-self: center;
     color: var(--color-txt-primary);
     cursor: pointer;
@@ -161,10 +168,22 @@
     filter: var(--color-icon-link-secondary-filter);
 }
 
+.tokenAmountInput__token-selectSlot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 12px;
+    flex-shrink: 0;
+}
+
+.tokenAmountInput__token-selectSlot--hidden {
+    visibility: hidden;
+}
+
 .tokenAmountInput__tokenButton:hover .tokenAmountInput__token-selectIcon,
 .tokenAmountInput__tokenButton:focus-visible
     .tokenAmountInput__token-selectIcon {
-    filter: var(--color-icon-link-secondary-hover-filter);
+    filter: var(--color-icon-link-hover-filter);
 }
 
 .tokenAmountInput__selectorModal {
