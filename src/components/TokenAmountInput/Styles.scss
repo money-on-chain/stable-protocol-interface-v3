@@ -3,15 +3,33 @@
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 0px;
+    gap: 0;
+}
+
+.tokenAmountInput:focus-within .tokenAmountInput__field {
+    outline: 2px solid var(--brand-color-base);
+}
+
+.tokenAmountInput__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
     padding: 4px 8px;
     border: 1px solid var(--dividers);
     border-radius: var(--card-border-radius);
     background-color: var(--surface-color-2);
 }
 
-.tokenAmountInput--displayOnly {
+.tokenAmountInput--displayOnly .tokenAmountInput__field {
     background-color: transparent;
+}
+
+.tokenAmountInput--error .tokenAmountInput__field {
+    border-color: var(--color-semantic-negative);
+}
+
+.tokenAmountInput--readonly {
+    cursor: default;
 }
 
 .tokenAmountInput__topRow,
@@ -186,6 +204,40 @@
 .tokenAmountInput__tokenButton:focus-visible
     .tokenAmountInput__token-selectIcon {
     filter: var(--color-icon-link-hover-filter);
+}
+
+.tokenAmountInput__feedback {
+    width: 100%;
+    margin-top: 8px;
+    padding: 2px 0;
+    color: var(--color-txt-secondary);
+    font-family: var(--main-font);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: 12px;
+    text-align: left;
+}
+
+.tokenAmountInput__feedback--default {
+    color: var(--color-txt-secondary);
+}
+
+.tokenAmountInput__feedback--positive {
+    color: var(--color-semantic-positive);
+}
+
+.tokenAmountInput__feedback--neutral {
+    color: var(--color-semantic-neutral);
+}
+
+.tokenAmountInput__feedback--negative {
+    color: var(--color-semantic-negative);
+}
+
+.tokenAmountInput__feedback--placeholder {
+    min-height: 12px;
 }
 
 .tokenAmountInput__selectorModal {

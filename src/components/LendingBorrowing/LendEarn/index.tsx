@@ -3,7 +3,7 @@ import "./Styles.scss";
 import React from "react";
 
 import TokenAmountInput from "../../TokenAmountInput";
-import { LEND_CARDS, type LendCardData } from "../Lend/data";
+import { type LendCardData } from "../Lend/data";
 import BeforeAfterCard from "../MiniComponents/BeforeAfterCard";
 import OperationActions from "../MiniComponents/OperationActions";
 import OperationBackLink from "../MiniComponents/OperationBackLink";
@@ -49,18 +49,15 @@ export default function LendEarn({
     token,
 }: LendEarnProps): React.ReactElement {
     const [amount, setAmount] = React.useState("");
-    const [selectedTokenId, setSelectedTokenId] = React.useState(token.id);
-    const selectedToken =
-        LEND_CARDS.find((card) => card.id === selectedTokenId) || token;
 
     const { isValid: isAmountValid, value: amountValue } = parseAmount(amount);
-    const walletBalanceValue = parseAmount(selectedToken.walletBalance);
-    const hasSelectedAmount = isAmountValid && amountValue > 0;
+    const walletBalanceValue = parseAmount(token.walletBalance);
     const hasTypedAmount = amount.trim().length > 0;
-
-    React.useEffect(() => {
-        setSelectedTokenId(token.id);
-    }, [token.id]);
+    const hasBalanceError =
+        isAmountValid && amountValue > walletBalanceValue.value;
+    const hasValidationError = !isAmountValid || hasBalanceError;
+    const hasSelectedAmount =
+        isAmountValid && !hasBalanceError && amountValue > 0;
 
     const handleQuickAmountSelection = (percentage: number) => {
         const nextAmount =
@@ -89,10 +86,10 @@ export default function LendEarn({
                         <div className="lend-earn-header__spacer"></div>
                         <div className="lend-earn-rate">
                             <div className="lend-earn-rate__value">
-                                {selectedToken.supplyApy} %
+                                {token.supplyApy} %
                             </div>
                             <div className="lend-earn-rate__label">
-                                {selectedToken.tokenTicker}/DOC Variable APY
+                                {token.tokenTicker}/DOC Variable APY
                             </div>
                         </div>
                     </div>
@@ -100,28 +97,27 @@ export default function LendEarn({
                     <div className="lend-earn-content">
                         <TokenAmountInput
                             balanceLabel="Balance"
-                            balanceValue={selectedToken.walletBalance}
+                            balanceValue={token.walletBalance}
+                            feedbackMessage={
+                                hasBalanceError
+                                    ? "Not enough balance in your wallet"
+                                    : undefined
+                            }
+                            feedbackState="negative"
                             fiatValue="0.00"
                             inputValue={amount}
                             label="Amount to Lend"
                             onMaxClick={() => handleQuickAmountSelection(100)}
                             onQuickActionClick={handleQuickAmountSelection}
-                            onTokenSelect={setSelectedTokenId}
                             onValueChange={setAmount}
                             quickActions={QUICK_ACTIONS.filter(
                                 (percentage) => percentage !== 100
                             )}
-                            selectedTokenValue={selectedToken.id}
                             showMaxShortcut
                             testId="lend-earn-input"
-                            tokenIconClassName={selectedToken.tokenIconClassName}
-                            tokenLabel={selectedToken.tokenTicker}
-                            tokenOptions={LEND_CARDS.map((card) => ({
-                                iconClassName: card.tokenIconClassName,
-                                label: card.tokenTicker,
-                                value: card.id,
-                            }))}
-                            tokenSelectable
+                            tokenIconClassName={token.tokenIconClassName}
+                            tokenLabel={token.tokenTicker}
+                            validateError={hasBalanceError}
                         />
 
                         <div className="lend-earn-summary-column">
@@ -129,7 +125,7 @@ export default function LendEarn({
                                 after={{
                                     isInvalid: hasTypedAmount && !isAmountValid,
                                     label: "Next",
-                                    unit: selectedToken.depositedTicker,
+                                    unit: token.depositedTicker,
                                     value: hasSelectedAmount ? amount : "0.00",
                                 }}
                                 // before={{
@@ -146,20 +142,24 @@ export default function LendEarn({
 
                 <OperationNotice
                     title={
-                        hasSelectedAmount
+                        hasBalanceError
+                            ? "Not enough balance"
+                            : hasSelectedAmount
                             ? "Review lend amount"
                             : "No lend amount selected"
                     }
                 >
-                    {hasSelectedAmount
-                        ? `You are about to lend ${amount} ${selectedToken.tokenTicker}.`
+                    {hasBalanceError
+                        ? "The amount exceeds your wallet balance."
+                        : hasSelectedAmount
+                        ? `You are about to lend ${amount} ${token.tokenTicker}.`
                         : "Enter an amount to lend."}
                 </OperationNotice>
 
                 <OperationActions>
                     <button
                         className="button"
-                        disabled={!hasSelectedAmount}
+                        disabled={!hasSelectedAmount || hasValidationError}
                         type="button"
                     >
                         {hasSelectedAmount ? "Lend" : "Enter an amount"}

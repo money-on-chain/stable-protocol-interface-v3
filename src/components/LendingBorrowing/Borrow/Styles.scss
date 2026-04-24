@@ -4,6 +4,8 @@
     gap: 32px;
 
     .borrow-card {
+        display: flex;
+        flex-direction: column;
         border: 1px solid var(--dividers);
         border-radius: var(--card-border-radius);
         padding: 16px;
@@ -72,7 +74,7 @@
     .borrow-card-primary-metrics {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 16px;
+        gap: 16px 24px;
         margin-top: 16px;
     }
 
@@ -97,6 +99,82 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 12px 24px;
         margin-top: 16px;
+    }
+
+    .borrow-card-previous-liquidation {
+        margin-top: auto;
+        padding-top: 16px;
+        border-top: 1px solid var(--dividers);
+    }
+
+    .borrow-card-previous-liquidation__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .borrow-card-previous-liquidation__title {
+        color: var(--color-semantic-negative);
+        font-size: 22px;
+        font-weight: 600;
+        font-family: var(--brand-font);
+        line-height: 1;
+    }
+
+    .borrow-card-previous-liquidation__cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--color-txt-highlight);
+        font-size: 16px;
+        font-weight: 600;
+        font-family: var(--brand-font);
+        white-space: nowrap;
+    }
+
+    .borrow-card-previous-liquidation__cta-icon {
+        width: 18px;
+        height: 18px;
+        background-size: 18px 18px;
+        filter: var(--color-icon-link-hover-filter);
+    }
+
+    .borrow-card-previous-liquidation__metrics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px 24px;
+        margin-top: 16px;
+    }
+
+    .borrow-card-previous-liquidation__metric {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .borrow-card-previous-liquidation__metric--right {
+        align-items: flex-end;
+        text-align: right;
+    }
+
+    .borrow-card-previous-liquidation__metric-value {
+        color: var(--color-txt-primary);
+        font-size: 16px;
+        font-weight: 700;
+        font-family: var(--brand-font);
+        line-height: 19px;
+    }
+
+    .borrow-card-previous-liquidation__metric-label {
+        color: var(--color-txt-secondary);
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1.1;
+        text-transform: uppercase;
     }
 
     .borrow-card-footer {
@@ -126,7 +204,7 @@
     .borrow-card-actions {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
+        gap: 8px 24px;
     }
 
     .button--compact:disabled,
@@ -148,8 +226,19 @@
         .borrow-card-primary-metrics,
         .borrow-card-assets,
         .borrow-card-metrics,
-        .borrow-card-actions {
+        .borrow-card-actions,
+        .borrow-card-previous-liquidation__metrics {
             grid-template-columns: 1fr;
+        }
+
+        .borrow-card-previous-liquidation__header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .borrow-card-previous-liquidation__metric--right {
+            align-items: flex-start;
+            text-align: left;
         }
 
         .borrow-card-primary-spacer {

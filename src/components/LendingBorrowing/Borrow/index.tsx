@@ -3,20 +3,31 @@ import "./Styles.scss";
 import React from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
+import { BORROW_CARDS } from "../mocks/borrowCards";
+import MetricCard from "../MiniComponents/MetricCard";
 import {
     BORROW_ACTION_LABELS,
-    BORROW_CARDS,
     parseMetricNumber,
     type BorrowCardActionId,
     type BorrowCardData,
 } from "./data";
-import MetricCard from "../MiniComponents/MetricCard";
 
 interface BorrowProps {
     onOpenBorrow: (card: BorrowCardData) => void;
+    onOpenRepay: (card: BorrowCardData) => void;
 }
 
-export default function Borrow({ onOpenBorrow }: BorrowProps): React.ReactElement {
+const BORROW_SECONDARY_ACTION_ORDER: BorrowCardActionId[] = [
+    "repay",
+    "deposit-collateral",
+    "repay-with-collateral",
+    "withdraw-collateral",
+];
+
+export default function Borrow({
+    onOpenBorrow,
+    onOpenRepay,
+}: BorrowProps): React.ReactElement {
     const { t } = useProjectTranslation();
 
     return (
@@ -36,6 +47,7 @@ export default function Borrow({ onOpenBorrow }: BorrowProps): React.ReactElemen
                                 ) > 0;
                             const hasDebtOrCollateral =
                                 hasCurrentDebt || hasDepositedCollateral;
+                            const borrowPair = `${card.borrowTokenTicker}/${card.collateralTokenTicker}`;
 
                             const isActionDisabled = (
                                 actionId: BorrowCardActionId
@@ -56,140 +68,108 @@ export default function Borrow({ onOpenBorrow }: BorrowProps): React.ReactElemen
 
                             return (
                                 <>
-                        <div className="card-header">
-                            <div className="interest-wrapper">
-                                <div className="label">
-                                    {t("borrowing.labelInterest")}
-                                </div>
-                                <div className="interest-data">
-                                    <div>{card.borrowApy}</div>
-                                    <div>%</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="borrow-card-assets">
-                            <div className="borrow-card-asset">
-                                <div className="borrow-card-asset-label">
-                                    Loan Token
-                                </div>
-                                <div className="token">
-                                    <div
-                                        className={
-                                            card.borrowTokenIconClassName
-                                        }
-                                    ></div>
-                                    <div className="token-name">
-                                        {card.borrowTokenName}
-                                        <div className="token-ticker">
-                                            ({card.borrowTokenTicker})
+                                    <div className="card-header">
+                                        <div className="interest-wrapper">
+                                            <div className="label">
+                                                {t("borrowing.labelInterest")}
+                                            </div>
+                                            <div className="interest-data">
+                                                <div>{card.borrowApy}</div>
+                                                <div>%</div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div className="borrow-card-asset">
-                                <div className="borrow-card-asset-label">
-                                    Collateral Token
-                                </div>
-                                <div className="token">
-                                    <div
-                                        className={
-                                            card.collateralTokenIconClassName
-                                        }
-                                    ></div>
-                                    <div className="token-name">
-                                        {card.collateralTokenName}
-                                        <div className="token-ticker">
-                                            ({card.collateralTokenTicker})
+
+                                    <div className="borrow-card-assets">
+                                        <div className="borrow-card-asset">
+                                            <div className="borrow-card-asset-label">
+                                                Loan Token
+                                            </div>
+                                            <div className="token">
+                                                <div
+                                                    className={
+                                                        card.borrowTokenIconClassName
+                                                    }
+                                                ></div>
+                                                <div className="token-name">
+                                                    {card.borrowTokenName}
+                                                    <div className="token-ticker">
+                                                        (
+                                                        {card.borrowTokenTicker}
+                                                        )
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="borrow-card-asset">
+                                            <div className="borrow-card-asset-label">
+                                                Collateral Token
+                                            </div>
+                                            <div className="token">
+                                                <div
+                                                    className={
+                                                        card.collateralTokenIconClassName
+                                                    }
+                                                ></div>
+                                                <div className="token-name">
+                                                    {card.collateralTokenName}
+                                                    <div className="token-ticker">
+                                                        (
+                                                        {
+                                                            card.collateralTokenTicker
+                                                        }
+                                                        )
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
 
-                        <div className="borrow-card-primary-metrics">
-                            <div
-                                className={[
-                                    "borrow-card-primary-metric",
-                                    !hasDebtOrCollateral &&
-                                        "borrow-card-primary-metric--full",
-                                ]
-                                    .filter(Boolean)
-                                    .join(" ")}
-                            >
-                                <MetricCard
-                                    label="Max Available (Wallet + Collateral)"
-                                    localCurrencyValue={card.maxAvailable.valueUsd}
-                                    value={card.maxAvailable.value}
-                                    valueLabel={card.maxAvailable.ticker}
-                                />
-                            </div>
-                            {hasDebtOrCollateral ? (
-                                <div className="borrow-card-primary-spacer"></div>
-                            ) : null}
-                            {card.actions
-                                .filter((action) => action.id === "borrow")
-                                .map((action) => (
-                                    <button
-                                        className={[
-                                            "button--compact",
-                                            "borrow-card-primary-action",
-                                            !hasDebtOrCollateral &&
-                                                "borrow-card-primary-action--single",
-                                        ]
-                                            .filter(Boolean)
-                                            .join(" ")}
-                                        disabled={isActionDisabled(action.id)}
-                                        onClick={() => onOpenBorrow(card)}
-                                        key={action.id}
-                                        type="button"
-                                    >
-                                        {BORROW_ACTION_LABELS[action.id]}
-                                    </button>
-                                ))}
-                            {hasDebtOrCollateral ? (
-                                <div className="borrow-card-primary-spacer"></div>
-                            ) : null}
-                        </div>
-
-                        {hasDebtOrCollateral ? (
-                            <>
-                                <div className="borrow-card-metrics">
-                                    {[
-                                        {
-                                            id: "current-debt",
-                                            label: "Current Debt",
-                                            metric: card.currentDebt,
-                                        },
-                                        {
-                                            id: "deposited-collateral",
-                                            label: "Deposited Collateral",
-                                            metric: card.depositedCollateral,
-                                        },
-                                    ].map(({ id, label, metric }) => (
-                                        <MetricCard
-                                            key={id}
-                                            label={label}
-                                            localCurrencyValue={metric.valueUsd}
-                                            value={metric.value}
-                                            valueLabel={metric.ticker}
-                                        />
-                                    ))}
-                                </div>
-
-                                <div className="borrow-card-footer">
-                                    <div className="borrow-card-actions">
+                                    <div className="borrow-card-primary-metrics">
+                                        <div
+                                            className={[
+                                                "borrow-card-primary-metric",
+                                                !hasDebtOrCollateral &&
+                                                    "borrow-card-primary-metric--full",
+                                            ]
+                                                .filter(Boolean)
+                                                .join(" ")}
+                                        >
+                                            <MetricCard
+                                                label="Max Available (Wallet + Collateral)"
+                                                localCurrencyValue={
+                                                    card.maxAvailable.valueUsd
+                                                }
+                                                value={card.maxAvailable.value}
+                                                valueLabel={
+                                                    card.maxAvailable.ticker
+                                                }
+                                            />
+                                        </div>
+                                        {hasDebtOrCollateral ? (
+                                            <div className="borrow-card-primary-spacer"></div>
+                                        ) : null}
                                         {card.actions
                                             .filter(
                                                 (action) =>
-                                                    action.id !== "borrow"
+                                                    action.id === "borrow"
                                             )
                                             .map((action) => (
                                                 <button
-                                                    className="button--compact button--compact--secondary"
+                                                    className={[
+                                                        "button--compact",
+                                                        "borrow-card-primary-action",
+                                                        !hasDebtOrCollateral &&
+                                                            "borrow-card-primary-action--single",
+                                                    ]
+                                                        .filter(Boolean)
+                                                        .join(" ")}
                                                     disabled={isActionDisabled(
                                                         action.id
                                                     )}
+                                                    onClick={() =>
+                                                        onOpenBorrow(card)
+                                                    }
                                                     key={action.id}
                                                     type="button"
                                                 >
@@ -200,21 +180,163 @@ export default function Borrow({ onOpenBorrow }: BorrowProps): React.ReactElemen
                                                     }
                                                 </button>
                                             ))}
+                                        {hasDebtOrCollateral ? (
+                                            <div className="borrow-card-primary-spacer"></div>
+                                        ) : null}
                                     </div>
 
-                                    <div className="borrow-card-liquidation">
-                                        <div className="borrow-card-liquidation-value">
-                                            Loan is liquidated if collateral
-                                            price drops{" "}
-                                            {card.liquidationDropPercentage.toFixed(
-                                                2
-                                            )}
-                                            %
+                                    {hasDebtOrCollateral ? (
+                                        <>
+                                            <div className="borrow-card-metrics">
+                                                {[
+                                                    {
+                                                        id: "current-debt",
+                                                        label: "Current Debt",
+                                                        metric: card.currentDebt,
+                                                    },
+                                                    {
+                                                        id: "deposited-collateral",
+                                                        label: "Deposited Collateral",
+                                                        metric: card.depositedCollateral,
+                                                    },
+                                                ].map(
+                                                    ({ id, label, metric }) => (
+                                                        <MetricCard
+                                                            key={id}
+                                                            label={label}
+                                                            localCurrencyValue={
+                                                                metric.valueUsd
+                                                            }
+                                                            value={metric.value}
+                                                            valueLabel={
+                                                                metric.ticker
+                                                            }
+                                                        />
+                                                    )
+                                                )}
+                                            </div>
+
+                                            <div className="borrow-card-footer">
+                                                <div className="borrow-card-actions">
+                                                    {card.actions
+                                                        .filter(
+                                                            (action) =>
+                                                                action.id !==
+                                                                "borrow"
+                                                        )
+                                                        .sort(
+                                                            (
+                                                                leftAction,
+                                                                rightAction
+                                                            ) =>
+                                                                BORROW_SECONDARY_ACTION_ORDER.indexOf(
+                                                                    leftAction.id
+                                                                ) -
+                                                                BORROW_SECONDARY_ACTION_ORDER.indexOf(
+                                                                    rightAction.id
+                                                                )
+                                                        )
+                                                        .map((action) => (
+                                                            <button
+                                                                className="button--compact button--compact--secondary"
+                                                                disabled={isActionDisabled(
+                                                                    action.id
+                                                                )}
+                                                                onClick={() => {
+                                                                    if (
+                                                                        action.id ===
+                                                                        "repay"
+                                                                    ) {
+                                                                        onOpenRepay(
+                                                                            card
+                                                                        );
+                                                                    }
+                                                                }}
+                                                                key={action.id}
+                                                                type="button"
+                                                            >
+                                                                {
+                                                                    BORROW_ACTION_LABELS[
+                                                                        action
+                                                                            .id
+                                                                    ]
+                                                                }
+                                                            </button>
+                                                        ))}
+                                                </div>
+
+                                                <div className="borrow-card-liquidation">
+                                                    <div className="borrow-card-liquidation-value">
+                                                        Loan is liquidated if
+                                                        collateral price drops{" "}
+                                                        {card.liquidationDropPercentage.toFixed(
+                                                            2
+                                                        )}
+                                                        %
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </>
+                                    ) : null}
+
+                                    {card.previousLiquidation ? (
+                                        <div className="borrow-card-previous-liquidation">
+                                            <div className="borrow-card-previous-liquidation__header">
+                                                <div className="borrow-card-previous-liquidation__title">
+                                                    {
+                                                        card.previousLiquidation
+                                                            .title
+                                                    }
+                                                </div>
+                                                <button
+                                                    className="borrow-card-previous-liquidation__cta"
+                                                    type="button"
+                                                >
+                                                    <span>
+                                                        {
+                                                            card
+                                                                .previousLiquidation
+                                                                .ctaLabel
+                                                        }
+                                                    </span>
+                                                    <div className="icon__button__arrow borrow-card-previous-liquidation__cta-icon"></div>
+                                                </button>
+                                            </div>
+                                            <div className="borrow-card-previous-liquidation__metrics">
+                                                <div className="borrow-card-previous-liquidation__metric">
+                                                    <div className="borrow-card-previous-liquidation__metric-value">
+                                                        {
+                                                            card
+                                                                .previousLiquidation
+                                                                .amount
+                                                        }
+                                                    </div>
+                                                    <div className="borrow-card-previous-liquidation__metric-label">
+                                                        Amount Liquidated (
+                                                        {
+                                                            card
+                                                                .previousLiquidation
+                                                                .amountTicker
+                                                        }
+                                                        )
+                                                    </div>
+                                                </div>
+                                                <div className="borrow-card-previous-liquidation__metric borrow-card-previous-liquidation__metric--right">
+                                                    <div className="borrow-card-previous-liquidation__metric-value">
+                                                        {
+                                                            card
+                                                                .previousLiquidation
+                                                                .liquidationPrice
+                                                        }
+                                                    </div>
+                                                    <div className="borrow-card-previous-liquidation__metric-label">
+                                                        Liquidation Price{" "}
+                                                        {borrowPair}
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                            </>
-                        ) : null}
+                                    ) : null}
                                 </>
                             );
                         })()}

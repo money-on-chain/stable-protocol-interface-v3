@@ -7,19 +7,21 @@ import type { LendCardData } from "../Lend/data";
 
 interface OverviewProps {
     onOpenBorrow: (card: BorrowCardData) => void;
+    onOpenBorrowRepay: (card: BorrowCardData) => void;
     onOpenLendEarn: (token: LendCardData) => void;
     onOpenLendWithdraw: (token: LendCardData) => void;
 }
 
 export default function Overview({
     onOpenBorrow,
+    onOpenBorrowRepay,
     onOpenLendEarn,
     onOpenLendWithdraw,
 }: OverviewProps): React.ReactElement {
     return (
         <>
             <Lend onEarn={onOpenLendEarn} onWithdraw={onOpenLendWithdraw} />
-            <Borrow onOpenBorrow={onOpenBorrow} />
+            <Borrow onOpenBorrow={onOpenBorrow} onOpenRepay={onOpenBorrowRepay} />
         </>
     );
 }

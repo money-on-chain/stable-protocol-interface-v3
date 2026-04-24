@@ -1,0 +1,138 @@
+.borrow-repay-view {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.borrow-repay-title {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.borrow-repay-body {
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.borrow-repay-main {
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.borrow-repay-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.borrow-repay-header__spacer {
+    flex: 1;
+}
+
+.borrow-repay-rate {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.borrow-repay-rate__value {
+    color: var(--color-txt-primary);
+    font-size: 22px;
+    font-weight: 600;
+    font-family: var(--brand-font);
+}
+
+.borrow-repay-rate__label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.borrow-repay-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 710px;
+    max-width: 100%;
+}
+
+.borrow-repay-panel__title {
+    color: var(--color-txt-primary);
+    font-size: 22px;
+    font-weight: 600;
+    font-family: var(--brand-font);
+    text-align: left;
+    width: min(100%, 400px);
+}
+
+.borrow-repay-panel > .tokenAmountInput {
+    width: 100%;
+    max-width: 400px;
+}
+
+.borrow-repay-panel > .compact-metric-display {
+    width: min(100%, 400px);
+}
+
+.borrow-repay-metrics {
+    display: grid;
+    gap: 16px;
+}
+
+.borrow-repay-metrics__row {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.borrow-repay-notice-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.operation-actions > .borrow-repay-actions__confirm {
+    width: min(300px, 100%);
+}
+
+@media (max-width: 1200px) {
+    .borrow-repay-metrics__row {
+        width: 100%;
+    }
+}
+
+@media (max-width: 960px) {
+    .borrow-repay-rate {
+        align-items: flex-start;
+    }
+
+    .borrow-repay-header {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .borrow-repay-header__spacer {
+        display: none;
+    }
+
+    .borrow-repay-main {
+        width: 100%;
+    }
+
+    .borrow-repay-metrics__row {
+        flex-direction: column;
+        align-items: center;
+    }
+}

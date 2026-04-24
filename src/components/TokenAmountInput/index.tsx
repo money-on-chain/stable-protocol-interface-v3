@@ -13,6 +13,8 @@ interface TokenAmountInputProps {
     balanceLabel?: string;
     balanceValue?: React.ReactNode;
     displayOnly?: boolean;
+    feedbackMessage?: React.ReactNode;
+    feedbackState?: "default" | "negative" | "neutral" | "positive";
     fiatLabel?: string;
     fiatValue?: React.ReactNode;
     inputValue?: string;
@@ -25,6 +27,7 @@ interface TokenAmountInputProps {
     placeholder?: string;
     quickActions?: number[];
     readOnly?: boolean;
+    preserveSpaceWhenNoFeedback?: boolean;
     selectedTokenValue?: string;
     showApproxSymbol?: boolean;
     showMaxShortcut?: boolean;
@@ -33,6 +36,7 @@ interface TokenAmountInputProps {
     tokenLabel?: string;
     tokenOptions?: TokenAmountInputOption[];
     tokenSelectable?: boolean;
+    validateError?: boolean;
 }
 
 function sanitizeValue(value: string): string {
@@ -63,6 +67,8 @@ export default function TokenAmountInput({
     balanceLabel,
     balanceValue,
     displayOnly = false,
+    feedbackMessage,
+    feedbackState,
     fiatLabel = "USD",
     fiatValue,
     inputValue = "",
@@ -75,6 +81,7 @@ export default function TokenAmountInput({
     placeholder = "0.00",
     quickActions = [],
     readOnly = false,
+    preserveSpaceWhenNoFeedback = false,
     selectedTokenValue,
     showApproxSymbol = true,
     showMaxShortcut = true,
@@ -83,6 +90,7 @@ export default function TokenAmountInput({
     tokenLabel,
     tokenOptions = [],
     tokenSelectable = false,
+    validateError = false,
 }: TokenAmountInputProps): React.ReactElement {
     const inputRef = React.useRef<HTMLInputElement>(null);
     const [isSelectorOpen, setIsSelectorOpen] = React.useState(false);
@@ -96,6 +104,10 @@ export default function TokenAmountInput({
     const hasTokenSelector = tokenSelectable && tokenOptions.length > 0;
     const hasInteractiveToken =
         tokenSelectable && (hasTokenSelector || !!onTokenClick);
+    const resolvedFeedbackState =
+        feedbackState || (validateError ? "negative" : "default");
+    const shouldRenderFeedback =
+        !!feedbackMessage || preserveSpaceWhenNoFeedback;
 
     React.useEffect(() => {
         const inputElement = inputRef.current;
@@ -172,6 +184,7 @@ export default function TokenAmountInput({
             className={[
                 "tokenAmountInput",
                 displayOnly && "tokenAmountInput--displayOnly",
+                validateError && "tokenAmountInput--error",
                 isNonEditable && "tokenAmountInput--readonly",
                 tokenSelectable && "tokenAmountInput--token-selectable",
             ]
@@ -179,120 +192,145 @@ export default function TokenAmountInput({
                 .join(" ")}
             data-testid={testId}
         >
-            {(label || showMaxShortcut || quickActions.length > 0) && (
-                <div className="tokenAmountInput__topRow">
-                    {label ? (
-                        <div className="tokenAmountInput__label">{label}</div>
-                    ) : (
-                        <div></div>
-                    )}
+            <div className="tokenAmountInput__field">
+                {(label || showMaxShortcut || quickActions.length > 0) && (
+                    <div className="tokenAmountInput__topRow">
+                        {label ? (
+                            <div className="tokenAmountInput__label">
+                                {label}
+                            </div>
+                        ) : (
+                            <div></div>
+                        )}
 
-                    {(showMaxShortcut || quickActions.length > 0) && (
-                        <div className="tokenAmountInput__actions">
-                            {quickActions.length > 0 ? (
-                                <div className="tokenAmountInput__quick-actions">
-                                    {quickActions.map((percentage, index) => (
-                                        <React.Fragment key={percentage}>
-                                            {index > 0 ? (
-                                                <span className="tokenAmountInput__divider">
-                                                    |
-                                                </span>
-                                            ) : null}
-                                            <button
-                                                className="tokenAmountInput__quick-action"
-                                                onClick={() =>
-                                                    onQuickActionClick?.(
-                                                        percentage
-                                                    )
-                                                }
-                                                type="button"
-                                            >
-                                                {`${percentage}%`}
-                                            </button>
-                                        </React.Fragment>
-                                    ))}
-                                </div>
-                            ) : null}
+                        {(showMaxShortcut || quickActions.length > 0) && (
+                            <div className="tokenAmountInput__actions">
+                                {quickActions.length > 0 ? (
+                                    <div className="tokenAmountInput__quick-actions">
+                                        {quickActions.map(
+                                            (percentage, index) => (
+                                                <React.Fragment
+                                                    key={percentage}
+                                                >
+                                                    {index > 0 ? (
+                                                        <span className="tokenAmountInput__divider">
+                                                            |
+                                                        </span>
+                                                    ) : null}
+                                                    <button
+                                                        className="tokenAmountInput__quick-action"
+                                                        onClick={() =>
+                                                            onQuickActionClick?.(
+                                                                percentage
+                                                            )
+                                                        }
+                                                        type="button"
+                                                    >
+                                                        {`${percentage}%`}
+                                                    </button>
+                                                </React.Fragment>
+                                            )
+                                        )}
+                                    </div>
+                                ) : null}
 
-                            {showMaxShortcut ? (
+                                {showMaxShortcut ? (
+                                    <>
+                                        {quickActions.length > 0 ? (
+                                            <span className="tokenAmountInput__divider tokenAmountInput__divider--max">
+                                                |
+                                            </span>
+                                        ) : null}
+                                        <button
+                                            className="tokenAmountInput__maxButton"
+                                            onClick={onMaxClick}
+                                            type="button"
+                                        >
+                                            MAX
+                                        </button>
+                                    </>
+                                ) : null}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                <div className="tokenAmountInput__content">
+                    <div className="tokenAmountInput__amountBlock">
+                        <input
+                            className="tokenAmountInput__value"
+                            data-testid={
+                                testId ? `${testId}-input` : undefined
+                            }
+                            inputMode="decimal"
+                            onChange={(event) =>
+                                handleValueChange(event.target.value)
+                            }
+                            placeholder={placeholder}
+                            readOnly={isNonEditable}
+                            ref={inputRef}
+                            style={
+                                isNonEditable
+                                    ? { pointerEvents: "none" }
+                                    : undefined
+                            }
+                            tabIndex={isNonEditable ? -1 : 0}
+                            value={inputValue}
+                        />
+                    </div>
+
+                    {(tokenIconClassName || tokenLabel) &&
+                        (hasInteractiveToken ? (
+                            <button
+                                className="tokenAmountInput__tokenButton"
+                                onClick={handleTokenButtonClick}
+                                type="button"
+                            >
+                                {TokenContent}
+                            </button>
+                        ) : (
+                            <div className="tokenAmountInput__tokenButton tokenAmountInput__tokenButton--static">
+                                {TokenContent}
+                            </div>
+                        ))}
+                </div>
+
+                {(fiatValue || balanceLabel || balanceValue) && (
+                    <div className="tokenAmountInput__bottomRow">
+                        <div className="tokenAmountInput__fiatValue">
+                            {fiatValue ? (
                                 <>
-                                    {quickActions.length > 0 ? (
-                                        <span className="tokenAmountInput__divider tokenAmountInput__divider--max">
-                                            |
-                                        </span>
-                                    ) : null}
-                                    <button
-                                        className="tokenAmountInput__maxButton"
-                                        onClick={onMaxClick}
-                                        type="button"
-                                    >
-                                        MAX
-                                    </button>
+                                    {showApproxSymbol ? "≈ " : ""}
+                                    {fiatValue}
+                                    {fiatLabel ? ` ${fiatLabel}` : ""}
                                 </>
                             ) : null}
                         </div>
-                    )}
-                </div>
-            )}
 
-            <div className="tokenAmountInput__content">
-                <div className="tokenAmountInput__amountBlock">
-                    <input
-                        className="tokenAmountInput__value"
-                        data-testid={testId ? `${testId}-input` : undefined}
-                        inputMode="decimal"
-                        onChange={(event) =>
-                            handleValueChange(event.target.value)
-                        }
-                        placeholder={placeholder}
-                        readOnly={isNonEditable}
-                        ref={inputRef}
-                        style={
-                            isNonEditable
-                                ? { pointerEvents: "none" }
-                                : undefined
-                        }
-                        tabIndex={isNonEditable ? -1 : 0}
-                        value={inputValue}
-                    />
-                </div>
-
-                {(tokenIconClassName || tokenLabel) &&
-                    (hasInteractiveToken ? (
-                        <button
-                            className="tokenAmountInput__tokenButton"
-                            onClick={handleTokenButtonClick}
-                            type="button"
-                        >
-                            {TokenContent}
-                        </button>
-                    ) : (
-                        <div className="tokenAmountInput__tokenButton tokenAmountInput__tokenButton--static">
-                            {TokenContent}
-                        </div>
-                    ))}
+                        {(balanceLabel || balanceValue) && (
+                            <div className="tokenAmountInput__balance">
+                                {balanceLabel ? `${balanceLabel}: ` : ""}
+                                {balanceValue}
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
 
-            {(fiatValue || balanceLabel || balanceValue) && (
-                <div className="tokenAmountInput__bottomRow">
-                    <div className="tokenAmountInput__fiatValue">
-                        {fiatValue ? (
-                            <>
-                                {showApproxSymbol ? "≈ " : ""}
-                                {fiatValue}
-                                {fiatLabel ? ` ${fiatLabel}` : ""}
-                            </>
-                        ) : null}
-                    </div>
-
-                    {(balanceLabel || balanceValue) && (
-                        <div className="tokenAmountInput__balance">
-                            {balanceLabel ? `${balanceLabel}: ` : ""}
-                            {balanceValue}
-                        </div>
-                    )}
+            {shouldRenderFeedback ? (
+                <div
+                    className={[
+                        "tokenAmountInput__feedback",
+                        `tokenAmountInput__feedback--${resolvedFeedbackState}`,
+                        !feedbackMessage &&
+                            "tokenAmountInput__feedback--placeholder",
+                    ]
+                        .filter(Boolean)
+                        .join(" ")}
+                >
+                    {feedbackMessage}
                 </div>
-            )}
+            ) : null}
 
             {hasTokenSelector && onTokenSelect ? (
                 <Modal

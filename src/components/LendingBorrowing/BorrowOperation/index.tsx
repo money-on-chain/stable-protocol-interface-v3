@@ -6,8 +6,15 @@ import TokenAmountInput from "../../TokenAmountInput";
 import {
     parseMetricNumber,
     type BorrowCardData,
-    type BorrowOperationMetric,
 } from "../Borrow/data";
+import {
+    clampRiskDelta,
+    formatAmount,
+    getImpactScore,
+    getMetricNextValue,
+    getMetricTrend,
+    parseAmount,
+} from "../Borrow/operationUtils";
 import BeforeAfterCard from "../MiniComponents/BeforeAfterCard";
 import CompactMetricDisplay from "../MiniComponents/CompactMetricDisplay";
 import OperationActions from "../MiniComponents/OperationActions";
@@ -20,107 +27,6 @@ interface BorrowOperationProps {
 }
 
 const QUICK_ACTIONS = [25, 50, 75, 100];
-
-type BeforeAfterTrend = "positive" | "negative" | "neutral";
-
-function parseAmount(rawAmount: string): { isValid: boolean; value: number } {
-    const normalizedAmount = rawAmount.replace(/,/g, "");
-
-    if (!normalizedAmount.trim()) {
-        return {
-            isValid: true,
-            value: 0,
-        };
-    }
-
-    const parsedAmount = Number(normalizedAmount);
-
-    if (Number.isNaN(parsedAmount)) {
-        return {
-            isValid: false,
-            value: 0,
-        };
-    }
-
-    return {
-        isValid: true,
-        value: parsedAmount,
-    };
-}
-
-function formatAmount(value: number): string {
-    return value.toLocaleString("en-US", {
-        maximumFractionDigits: 2,
-        minimumFractionDigits: 2,
-    });
-}
-
-function formatMetricValue(rawValue: string, value: number): string {
-    const decimalMatch = rawValue.match(/\.(\d+)/);
-    const minimumFractionDigits = decimalMatch ? decimalMatch[1].length : 0;
-
-    return value.toLocaleString("en-US", {
-        maximumFractionDigits: minimumFractionDigits,
-        minimumFractionDigits,
-    });
-}
-
-function getImpactScore(effect?: "improves" | "neutral" | "worsens"): number {
-    if (effect === "improves") {
-        return 1;
-    }
-
-    if (effect === "worsens") {
-        return -1;
-    }
-
-    return 0;
-}
-
-function clampRiskDelta(value: number): number {
-    return Math.max(-1, Math.min(1, value));
-}
-
-function getMetricTrend(
-    metric: BorrowOperationMetric,
-    riskDelta: number
-): BeforeAfterTrend | undefined {
-    if (Math.abs(riskDelta) < 0.001) {
-        return "neutral";
-    }
-
-    const currentValue = parseMetricNumber(metric.currentValue);
-    const targetValue = parseMetricNumber(metric.nextValue);
-
-    if (currentValue === targetValue) {
-        return "neutral";
-    }
-
-    return riskDelta > 0 ? "positive" : "negative";
-}
-
-function getMetricNextValue(
-    metric: BorrowOperationMetric,
-    riskDelta: number
-): string {
-    const currentValue = parseMetricNumber(metric.currentValue);
-    const targetValue = parseMetricNumber(metric.nextValue);
-
-    if (metric.currentValue.includes("- -")) {
-        return riskDelta > 0 ? metric.nextValue : metric.currentValue;
-    }
-
-    if (currentValue === targetValue || Math.abs(riskDelta) < 0.001) {
-        return metric.currentValue;
-    }
-
-    const interpolatedValue =
-        riskDelta > 0
-            ? currentValue + (targetValue - currentValue) * riskDelta
-            : currentValue - (targetValue - currentValue) * Math.abs(riskDelta);
-
-    return formatMetricValue(metric.currentValue, interpolatedValue);
-}
 
 export default function BorrowOperation({
     card,
@@ -135,13 +41,26 @@ export default function BorrowOperation({
 
     const borrowAmountValue = parseAmount(borrowAmount);
     const collateralAmountValue = parseAmount(collateralAmount);
+    const collateralWalletBalanceValue = parseAmount(
+        card.collateralWalletBalance
+    );
+    const maxAvailableValue = parseAmount(card.maxAvailable.value);
     const hasBorrowTyped = borrowAmount.trim().length > 0;
     const hasCollateralTyped = collateralAmount.trim().length > 0;
     const hasInvalidTypedAmount =
         (hasBorrowTyped && !borrowAmountValue.isValid) ||
         (hasCollateralTyped && !collateralAmountValue.isValid);
+    const hasBorrowLimitError =
+        borrowAmountValue.isValid && borrowAmountValue.value > maxAvailableValue.value;
+    const hasCollateralBalanceError =
+        collateralAmountValue.isValid &&
+        collateralAmountValue.value > collateralWalletBalanceValue.value;
+    const hasValidationError =
+        hasInvalidTypedAmount ||
+        hasBorrowLimitError ||
+        hasCollateralBalanceError;
     const hasPendingChanges =
-        !hasInvalidTypedAmount &&
+        !hasValidationError &&
         (borrowAmountValue.value > 0 || collateralAmountValue.value > 0);
     const borrowRatio =
         card.maxAvailable.value.trim() && parseAmount(card.maxAvailable.value).value > 0
@@ -207,7 +126,11 @@ export default function BorrowOperation({
                   riskMessage,
               ].filter(Boolean);
           })()
-        : ["Enter borrow and/or collateral amounts to continue."];
+        : hasBorrowLimitError
+          ? ["The borrow amount exceeds your available borrow limit."]
+          : hasCollateralBalanceError
+          ? ["The collateral amount exceeds your wallet balance."]
+          : ["Enter borrow and/or collateral amounts to continue."];
 
     const topMetrics = card.borrowOperationMetrics.slice(0, 3);
     const bottomMetrics = card.borrowOperationMetrics.slice(3);
@@ -247,6 +170,12 @@ export default function BorrowOperation({
                                 />
                             ) : null}
                             <TokenAmountInput
+                                feedbackMessage={
+                                    hasBorrowLimitError
+                                        ? "Amount exceeds your available borrow limit"
+                                        : undefined
+                                }
+                                feedbackState="negative"
                                 fiatValue="0.00"
                                 inputValue={borrowAmount}
                                 label="Amount to Borrow"
@@ -260,6 +189,7 @@ export default function BorrowOperation({
                                 testId="borrow-operation-borrow-input"
                                 tokenIconClassName={card.borrowTokenIconClassName}
                                 tokenLabel={card.borrowTokenTicker}
+                                validateError={hasBorrowLimitError}
                             />
                         </div>
 
@@ -277,6 +207,12 @@ export default function BorrowOperation({
                             <TokenAmountInput
                                 balanceLabel="Balance"
                                 balanceValue={card.collateralWalletBalance}
+                                feedbackMessage={
+                                    hasCollateralBalanceError
+                                        ? "Not enough balance in your wallet"
+                                        : undefined
+                                }
+                                feedbackState="negative"
                                 fiatValue="0.00"
                                 inputValue={collateralAmount}
                                 label="Add to Collateral"
@@ -294,6 +230,7 @@ export default function BorrowOperation({
                                     card.collateralTokenIconClassName
                                 }
                                 tokenLabel={card.collateralTokenTicker}
+                                validateError={hasCollateralBalanceError}
                             />
                         </div>
                     </div>
@@ -408,7 +345,11 @@ export default function BorrowOperation({
 
                 <OperationNotice
                     title={
-                        hasPendingChanges
+                        hasBorrowLimitError
+                            ? "Borrow amount exceeds limit"
+                            : hasCollateralBalanceError
+                            ? "Not enough balance"
+                            : hasPendingChanges
                             ? "Ready to continue"
                             : "No amount selected"
                     }

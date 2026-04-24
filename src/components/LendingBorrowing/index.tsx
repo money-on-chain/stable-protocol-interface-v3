@@ -3,11 +3,13 @@ import "./Styles.scss";
 import React from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { BORROW_CARDS } from "./Borrow/data";
+import { parseMetricNumber } from "./Borrow/data";
 import BorrowOperation from "./BorrowOperation";
-import { LEND_CARDS } from "./Lend/data";
+import BorrowRepay from "./BorrowRepay";
 import LendEarn from "./LendEarn";
 import LendWithdraw from "./LendWithdraw";
+import { BORROW_CARDS } from "./mocks/borrowCards";
+import { LEND_CARDS } from "./mocks/lendCards";
 import Overview from "./Overview";
 
 const LendingBorrowing: React.FC = () => {
@@ -22,6 +24,10 @@ const LendingBorrowing: React.FC = () => {
     const isLendWithdrawView = view === "lend-withdraw" && !!selectedLendCard;
     const isBorrowOperationView =
         view === "borrow-operation" && !!selectedBorrowCard;
+    const isBorrowRepayView =
+        view === "borrow-repay" &&
+        !!selectedBorrowCard &&
+        parseMetricNumber(selectedBorrowCard.currentDebt.value) > 0;
 
     const updateSearchParams = (
         updater: (params: URLSearchParams) => void
@@ -35,11 +41,18 @@ const LendingBorrowing: React.FC = () => {
         <div className="section-container">
             {!isLendEarnView &&
             !isLendWithdrawView &&
-            !isBorrowOperationView ? (
+            !isBorrowOperationView &&
+            !isBorrowRepayView ? (
                 <Overview
                     onOpenBorrow={(card) =>
                         updateSearchParams((params) => {
                             params.set("view", "borrow-operation");
+                            params.set("token", card.id);
+                        })
+                    }
+                    onOpenBorrowRepay={(card) =>
+                        updateSearchParams((params) => {
+                            params.set("view", "borrow-repay");
                             params.set("token", card.id);
                         })
                     }
@@ -75,6 +88,16 @@ const LendingBorrowing: React.FC = () => {
                         })
                     }
                     token={selectedLendCard}
+                />
+            ) : isBorrowRepayView ? (
+                <BorrowRepay
+                    card={selectedBorrowCard}
+                    onBack={() =>
+                        updateSearchParams((params) => {
+                            params.delete("view");
+                            params.delete("token");
+                        })
+                    }
                 />
             ) : (
                 <BorrowOperation

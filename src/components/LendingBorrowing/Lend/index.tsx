@@ -3,8 +3,9 @@ import "./Styles.scss";
 import React from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
+import { LEND_CARDS } from "../mocks/lendCards";
 import MetricCard from "../MiniComponents/MetricCard";
-import { LEND_CARDS, type LendCardData } from "./data";
+import type { LendCardData } from "./data";
 
 interface LendProps {
     onEarn: (token: LendCardData) => void;

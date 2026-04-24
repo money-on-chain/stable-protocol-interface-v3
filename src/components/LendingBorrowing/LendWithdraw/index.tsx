@@ -60,8 +60,12 @@ export default function LendWithdraw({
 
     const availableValue = parseAmount(token.availableToWithdrawAmount);
     const { isValid: isAmountValid, value: amountValue } = parseAmount(amount);
-    const hasSelectedAmount = isAmountValid && amountValue > 0;
     const hasTypedAmount = amount.trim().length > 0;
+    const hasAvailableBalanceError =
+        isAmountValid && amountValue > availableValue.value;
+    const hasValidationError = !isAmountValid || hasAvailableBalanceError;
+    const hasSelectedAmount =
+        isAmountValid && !hasAvailableBalanceError && amountValue > 0;
     const cappedWithdrawValue = Math.min(amountValue, availableValue.value);
     const nextDepositValue = Math.max(
         availableValue.value - cappedWithdrawValue,
@@ -122,6 +126,12 @@ export default function LendWithdraw({
                             />
 
                             <TokenAmountInput
+                                feedbackMessage={
+                                    hasAvailableBalanceError
+                                        ? "Amount exceeds your available withdraw balance"
+                                        : undefined
+                                }
+                                feedbackState="negative"
                                 fiatValue="0.00"
                                 inputValue={amount}
                                 label="Amount to Withdraw"
@@ -135,6 +145,7 @@ export default function LendWithdraw({
                                 testId="lend-withdraw-input"
                                 tokenIconClassName={token.tokenIconClassName}
                                 tokenLabel={token.tokenTicker}
+                                validateError={hasAvailableBalanceError}
                             />
                         </div>
 
@@ -162,12 +173,16 @@ export default function LendWithdraw({
 
                 <OperationNotice
                     title={
-                        hasSelectedAmount
+                        hasAvailableBalanceError
+                            ? "Amount exceeds available balance"
+                            : hasSelectedAmount
                             ? "Ready to withdraw"
                             : "No withdraw amount selected"
                     }
                 >
-                    {hasSelectedAmount ? (
+                    {hasAvailableBalanceError ? (
+                        "The amount exceeds what you can currently withdraw."
+                    ) : hasSelectedAmount ? (
                         <div className="lend-withdraw-notice-lines">
                             <div>
                                 {`You are about to withdraw ${amount} ${token.tokenTicker}.`}
@@ -191,7 +206,7 @@ export default function LendWithdraw({
                     </button>
                     <button
                         className="button"
-                        disabled={!hasSelectedAmount}
+                        disabled={!hasSelectedAmount || hasValidationError}
                         type="button"
                     >
                         {hasSelectedAmount ? "Withdraw" : "Enter an amount"}
