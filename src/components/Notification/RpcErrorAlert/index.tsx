@@ -52,36 +52,11 @@ export default function RpcErrorAlert({
                         )}
                     </div>
                 </div>
-            }
-            actions={[
-                ...(onRetry
-                    ? [
-                          {
-                              key: "retry",
-                              label:
-                                  t("notification.rpcError.retry") ||
-                                  "Retry Connection",
-                              type: "primary",
-                              disabled: isRetrying,
-                              onClick: onRetry,
-                          },
-                      ]
-                    : []),
-                ...(onDismiss
-                    ? [
-                          {
-                              key: "dismiss",
-                              label:
-                                  t("notification.rpcError.dismiss") ||
-                                  "Dismiss",
-                              type: "secondary",
-                              onClick: onDismiss,
-                          },
-                      ]
-                    : []),
-            ]}
+            }            
             dismissible={!!onDismiss}
             deliveryMode="center"
+            notificationId="rpc-error-alert"
+            lingerMs={4000}
         />
     );
 }

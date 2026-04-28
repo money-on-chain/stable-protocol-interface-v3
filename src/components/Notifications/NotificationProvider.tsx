@@ -3,7 +3,9 @@ import React, {
     createContext,
     useCallback,
     useContext,
+    useEffect,
     useMemo,
+    useRef,
     useState,
 } from "react";
 
@@ -44,33 +46,87 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     const [notifications, setNotifications] = useState<
         NotificationCenterItem[]
     >([]);
+    const notificationsRef = useRef<NotificationCenterItem[]>([]);
+    const dismissTimersRef = useRef<Map<string, number>>(new Map());
+
+    useEffect(() => {
+        notificationsRef.current = notifications;
+    }, [notifications]);
+
+    const cancelPendingDismiss = useCallback((id: string) => {
+        const timerId = dismissTimersRef.current.get(id);
+        if (typeof timerId === "number") {
+            window.clearTimeout(timerId);
+            dismissTimersRef.current.delete(id);
+        }
+    }, []);
 
     const notify = useCallback((options: CreateNotificationOptions): string => {
         const { id: providedId, onDismiss, ...rest } = options;
         const id = providedId ?? generateNotificationId();
 
-        setNotifications((prev) => [
-            ...prev,
-            {
+        cancelPendingDismiss(id);
+
+        setNotifications((prev) => {
+            const nextNotification: NotificationCenterItem = {
                 id,
                 ...rest,
                 itemOnDismiss: onDismiss,
-            },
-        ]);
+            };
+
+            const existingIndex = prev.findIndex(
+                (notification) => notification.id === id
+            );
+
+            if (providedId && existingIndex !== -1) {
+                const next = [...prev];
+                next[existingIndex] = {
+                    ...next[existingIndex],
+                    ...nextNotification,
+                };
+                return next;
+            }
+
+            return [...prev, nextNotification];
+        });
 
         return id;
-    }, []);
+    }, [cancelPendingDismiss]);
 
     const dismiss = useCallback(
-        (id: string, _reason?: AppNotificationVisibilityChangeReason) => {
+        (id: string, reason?: AppNotificationVisibilityChangeReason) => {
+            const notification = notificationsRef.current.find(
+                (item) => item.id === id
+            );
+            const lingerMs =
+                reason === undefined ? notification?.lingerMs ?? 0 : 0;
+
+            cancelPendingDismiss(id);
+
+            if (lingerMs > 0) {
+                const timerId = window.setTimeout(() => {
+                    dismissTimersRef.current.delete(id);
+                    setNotifications((prev) =>
+                        prev.filter((item) => item.id !== id)
+                    );
+                }, lingerMs);
+
+                dismissTimersRef.current.set(id, timerId);
+                return;
+            }
+
             setNotifications((prev) =>
                 prev.filter((notification) => notification.id !== id)
             );
         },
-        []
+        [cancelPendingDismiss]
     );
 
     const clearAll = useCallback(() => {
+        dismissTimersRef.current.forEach((timerId) => {
+            window.clearTimeout(timerId);
+        });
+        dismissTimersRef.current.clear();
         setNotifications([]);
     }, []);
 

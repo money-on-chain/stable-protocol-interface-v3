@@ -19,6 +19,12 @@ export interface NotificationCenterItem
     id: string;
 
     /**
+     * Optional grace period before removing a notification when its source
+     * component unmounts. Useful to avoid flicker during transient state flips.
+     */
+    lingerMs?: number;
+
+    /**
      * Optional per-item dismiss handler.
      * This is called before the center-level onNotificationDismiss.
      */
