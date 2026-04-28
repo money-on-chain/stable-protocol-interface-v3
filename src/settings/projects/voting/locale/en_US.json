@@ -184,6 +184,7 @@
         "infoNoBalance": "insufficient balance",
         "infoAddressEmpty": "Enter destination address",
         "infoAddressInvalid": "Invalid destination address",
+        "infoAddressChecksumInvalid": "This address uses a different format than the current network. It should still work—just make sure it was copied correctly.",
         "errors": {
             "notOperational": "Not Operational due to low Global Coverage ratio",
             "cantOperate": "Cannot operate with the current status",
