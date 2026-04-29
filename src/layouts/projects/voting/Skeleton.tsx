@@ -213,6 +213,8 @@ export default function Skeleton(): JSX.Element {
                             {...protocolNotification}
                             deliveryMode="center"
                             dismissible={false}
+                            notificationId="protocol-health-alert"
+                            lingerMs={4000}
                         />
                     )}
                     {priceNotValidStatus && (
@@ -220,6 +222,8 @@ export default function Skeleton(): JSX.Element {
                             {...priceNotValidStatus}
                             deliveryMode="center"
                             dismissible={false}
+                            notificationId="price-not-valid-alert"
+                            lingerMs={4000}
                         />
                     )}
                     {/* Veto withdrawal notification with primary CTA */}
@@ -228,6 +232,8 @@ export default function Skeleton(): JSX.Element {
                             {...vetoNotification}
                             deliveryMode="center"
                             dismissible={false}
+                            notificationId="veto-withdrawal-alert"
+                            lingerMs={4000}
                         />
                     )}
                     {isConnected && !isWrongNetwork ? (

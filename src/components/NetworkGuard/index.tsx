@@ -39,6 +39,8 @@ export function NetworkGuard() {
                     },
                 },
             ]}
+            notificationId="network-guard"
+            lingerMs={4000}
         />
     );
 }

@@ -13,6 +13,8 @@ export default function W3ErrorAlert(): React.ReactElement {
                     There is a problem connecting to the blockchain, please
                     review the internet connection.</div>
             }
+            notificationId="w3-error-alert"
+            lingerMs={4000}
         />
     );
 }

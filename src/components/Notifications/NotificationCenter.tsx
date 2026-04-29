@@ -44,6 +44,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
             {notifications.map((item: NotificationCenterItem) => {
                 const {
                     id,
+                    lingerMs: _lingerMs,
                     itemOnDismiss,
                     // The rest of props will go to BaseAppNotification.
                     ...appNotificationProps

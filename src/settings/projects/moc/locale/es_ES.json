@@ -286,6 +286,7 @@
         "noNegativeValues": "El valor debe ser mayor a cero",
         "infoAddressEmpty": "Falta la dirección de destino",
         "infoAddressInvalid": "Dirección de destino inválida",
+        "infoAddressChecksumInvalid": "Esta dirección usa un formato diferente al de la red actual. Debería funcionar igual; solo asegurate de que se haya copiado correctamente.",
         "feedback": {
             "submit": "Espera la confirmación de la transacción",
             "sign": "Firma la transacción en tu billetera",
