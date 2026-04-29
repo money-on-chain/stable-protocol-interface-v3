@@ -195,14 +195,19 @@ export default function Send(): JSX.Element {
         <div>
             <div className="sectionSend__Content">
                 <div className="inputFields">
-                    <div className="tokenSelector">
+                    <div
+                        className="tokenSelector"
+                        data-testid="send-input-token"
+                    >
                         <CurrencyPopUp
                             value={currencyYouSend}
+                            data-testid="send-input-token-popup"
                             currencyOptions={tokenSend}
                             onChange={onChangeCurrencyYouSend}
                             action={"send"}
                         />
                         <InputAmount
+                            testId="send-input-amount"
                             inputValue={amountYouSend.toString()}
                             placeholder={"0.0"}
                             onValueChange={onChangeAmountYouSend}
@@ -244,6 +249,7 @@ export default function Send(): JSX.Element {
                                 </div>
                             </div>
                             <Input
+                                data-testid="send-input-destination"
                                 type="text"
                                 placeholder={t("send.placeholder")}
                                 className="input-addressOLD amountInput__value "
