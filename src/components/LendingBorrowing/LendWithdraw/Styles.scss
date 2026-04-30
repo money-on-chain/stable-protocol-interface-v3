@@ -38,26 +38,6 @@
     flex: 1;
 }
 
-.lend-withdraw-rate {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 4px;
-}
-
-.lend-withdraw-rate__value {
-    color: var(--color-txt-primary);
-    font-size: 22px;
-    font-weight: 600;
-    font-family: var(--brand-font);
-}
-
-.lend-withdraw-rate__label {
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
 .lend-withdraw-content {
     display: flex;
     justify-content: center;
@@ -90,10 +70,6 @@
     .lend-withdraw-content {
         flex-direction: column;
         align-items: center;
-    }
-
-    .lend-withdraw-rate {
-        align-items: flex-start;
     }
 
     .lend-withdraw-header {

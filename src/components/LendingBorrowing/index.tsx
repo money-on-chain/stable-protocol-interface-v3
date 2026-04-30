@@ -4,8 +4,11 @@ import React from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { parseMetricNumber } from "./Borrow/data";
+import BorrowDepositCollateral from "./BorrowDepositCollateral";
 import BorrowOperation from "./BorrowOperation";
 import BorrowRepay from "./BorrowRepay";
+import BorrowRepayWithCollateral from "./BorrowRepayWithCollateral";
+import BorrowWithdrawCollateral from "./BorrowWithdrawCollateral";
 import LendEarn from "./LendEarn";
 import LendWithdraw from "./LendWithdraw";
 import { BORROW_CARDS } from "./mocks/borrowCards";
@@ -24,14 +27,25 @@ const LendingBorrowing: React.FC = () => {
     const isLendWithdrawView = view === "lend-withdraw" && !!selectedLendCard;
     const isBorrowOperationView =
         view === "borrow-operation" && !!selectedBorrowCard;
+    const isBorrowDepositCollateralView =
+        view === "borrow-deposit-collateral" &&
+        !!selectedBorrowCard &&
+        parseMetricNumber(selectedBorrowCard.currentDebt.value) > 0;
     const isBorrowRepayView =
         view === "borrow-repay" &&
         !!selectedBorrowCard &&
         parseMetricNumber(selectedBorrowCard.currentDebt.value) > 0;
+    const isBorrowRepayWithCollateralView =
+        view === "borrow-repay-with-collateral" &&
+        !!selectedBorrowCard &&
+        parseMetricNumber(selectedBorrowCard.currentDebt.value) > 0 &&
+        parseMetricNumber(selectedBorrowCard.depositedCollateral.value) > 0;
+    const isBorrowWithdrawCollateralView =
+        view === "borrow-withdraw-collateral" &&
+        !!selectedBorrowCard &&
+        parseMetricNumber(selectedBorrowCard.depositedCollateral.value) > 0;
 
-    const updateSearchParams = (
-        updater: (params: URLSearchParams) => void
-    ) => {
+    const updateSearchParams = (updater: (params: URLSearchParams) => void) => {
         const nextParams = new URLSearchParams(searchParams);
         updater(nextParams);
         setSearchParams(nextParams);
@@ -41,8 +55,11 @@ const LendingBorrowing: React.FC = () => {
         <div className="section-container">
             {!isLendEarnView &&
             !isLendWithdrawView &&
+            !isBorrowDepositCollateralView &&
             !isBorrowOperationView &&
-            !isBorrowRepayView ? (
+            !isBorrowRepayView &&
+            !isBorrowRepayWithCollateralView &&
+            !isBorrowWithdrawCollateralView ? (
                 <Overview
                     onOpenBorrow={(card) =>
                         updateSearchParams((params) => {
@@ -53,6 +70,24 @@ const LendingBorrowing: React.FC = () => {
                     onOpenBorrowRepay={(card) =>
                         updateSearchParams((params) => {
                             params.set("view", "borrow-repay");
+                            params.set("token", card.id);
+                        })
+                    }
+                    onOpenBorrowDepositCollateral={(card) =>
+                        updateSearchParams((params) => {
+                            params.set("view", "borrow-deposit-collateral");
+                            params.set("token", card.id);
+                        })
+                    }
+                    onOpenBorrowRepayWithCollateral={(card) =>
+                        updateSearchParams((params) => {
+                            params.set("view", "borrow-repay-with-collateral");
+                            params.set("token", card.id);
+                        })
+                    }
+                    onOpenBorrowWithdrawCollateral={(card) =>
+                        updateSearchParams((params) => {
+                            params.set("view", "borrow-withdraw-collateral");
                             params.set("token", card.id);
                         })
                     }
@@ -89,6 +124,16 @@ const LendingBorrowing: React.FC = () => {
                     }
                     token={selectedLendCard}
                 />
+            ) : isBorrowDepositCollateralView ? (
+                <BorrowDepositCollateral
+                    card={selectedBorrowCard}
+                    onBack={() =>
+                        updateSearchParams((params) => {
+                            params.delete("view");
+                            params.delete("token");
+                        })
+                    }
+                />
             ) : isBorrowRepayView ? (
                 <BorrowRepay
                     card={selectedBorrowCard}
@@ -99,9 +144,29 @@ const LendingBorrowing: React.FC = () => {
                         })
                     }
                 />
+            ) : isBorrowRepayWithCollateralView ? (
+                <BorrowRepayWithCollateral
+                    card={selectedBorrowCard}
+                    onBack={() =>
+                        updateSearchParams((params) => {
+                            params.delete("view");
+                            params.delete("token");
+                        })
+                    }
+                />
+            ) : isBorrowWithdrawCollateralView ? (
+                <BorrowWithdrawCollateral
+                    card={selectedBorrowCard}
+                    onBack={() =>
+                        updateSearchParams((params) => {
+                            params.delete("view");
+                            params.delete("token");
+                        })
+                    }
+                />
             ) : (
                 <BorrowOperation
-                    card={selectedBorrowCard}
+                    card={selectedBorrowCard!}
                     onBack={() =>
                         updateSearchParams((params) => {
                             params.delete("view");

@@ -3,8 +3,9 @@ import "./Styles.scss";
 import React from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
-import { LEND_CARDS } from "../mocks/lendCards";
 import MetricCard from "../MiniComponents/MetricCard";
+import RateDisplay from "../MiniComponents/RateDisplay";
+import { LEND_CARDS } from "../mocks/lendCards";
 import type { LendCardData } from "./data";
 
 interface LendProps {
@@ -21,7 +22,7 @@ export default function Lend({
     return (
         <div className={"layout-card"}>
             <div className={"layout-card-title"}>
-                <h1>{t("lending.cardTitle.section")}</h1>
+                <h1>{t("lending.cardTitle")}</h1>
             </div>
             <div className="lend-items">
                 {LEND_CARDS.map((card) => (
@@ -36,14 +37,10 @@ export default function Lend({
                                     </div>
                                 </div>
                             </div>
-                            <div className="interest-wrapper">
-                                <div className="label">
-                                    {t("lending.labelInterest")}
-                                </div>
-                                <div className="interest-data">
-                                    <div>{card.supplyApy}</div> <div>%</div>
-                                </div>
-                            </div>
+                            <RateDisplay
+                                number={card.supplyApy}
+                                title={t("lending.labelInterest")}
+                            />
                         </div>
                         <div className="card-content">
                             <MetricCard

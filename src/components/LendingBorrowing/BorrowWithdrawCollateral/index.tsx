@@ -6,13 +6,12 @@ import { useWalletContext } from "../../../context/Wallet";
 import { ConvertAmount, TokenSettings } from "../../../helpers/currencies";
 import { toBigIntPrecision } from "../../../helpers/precision";
 import { useProjectTranslation } from "../../../helpers/translations";
-import TokenAmountInput from "../../TokenAmountInput";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
+import TokenAmountInput from "../../TokenAmountInput";
 import type { BorrowCardData, BorrowOperationMetric } from "../Borrow/data";
 import {
     formatAmount,
     formatMetricValue,
-    getImpactScore,
     parseAmount,
     type BorrowMetricTrend,
 } from "../Borrow/operationUtils";
@@ -21,15 +20,19 @@ import CompactMetricDisplay from "../MiniComponents/CompactMetricDisplay";
 import OperationActions from "../MiniComponents/OperationActions";
 import OperationBackLink from "../MiniComponents/OperationBackLink";
 import OperationNotice from "../MiniComponents/OperationNotice";
-import { getRepayMockRatio } from "../mocks/borrowOperationMockFormulas";
+import { getWithdrawCollateralMockRatio } from "../mocks/borrowOperationMockFormulas";
 
-interface BorrowRepayProps {
+interface BorrowWithdrawCollateralProps {
     card: BorrowCardData;
     onBack: () => void;
 }
 
 const QUICK_ACTIONS = [25, 50, 75, 100];
 const EPSILON = 0.001;
+
+function getMetricNumber(value: string): number {
+    return parseAmount(value).value;
+}
 
 function formatMetric(metric: BorrowOperationMetric, value: number): string {
     const pattern = metric.currentValue.includes("- -")
@@ -39,10 +42,9 @@ function formatMetric(metric: BorrowOperationMetric, value: number): string {
     return formatMetricValue(pattern, value);
 }
 
-function getRepayMetricState(
+function getWorseningLiquidationPriceState(
     metric: BorrowOperationMetric,
-    ratio: number,
-    impact?: "positive" | "neutral" | "negative"
+    ratio: number
 ): { nextValue: string; trend?: BorrowMetricTrend } {
     if (ratio <= EPSILON) {
         return {
@@ -51,54 +53,114 @@ function getRepayMetricState(
         };
     }
 
-    if (
-        metric.currentValue.includes("- -") ||
-        metric.nextValue.includes("- -")
-    ) {
-        return {
-            nextValue: metric.nextValue,
-            trend: metric.showTrend ? (impact ?? "neutral") : undefined,
-        };
-    }
-
-    const currentValue = parseAmount(metric.currentValue).value;
-    const targetValue = parseAmount(metric.nextValue).value;
-    const nextValue = currentValue + (targetValue - currentValue) * ratio;
+    const currentValue = getMetricNumber(metric.currentValue);
+    const targetValue = getMetricNumber(metric.nextValue);
+    const metricDelta = Math.abs(currentValue - targetValue);
 
     return {
-        nextValue:
-            currentValue === targetValue
-                ? metric.currentValue
-                : formatMetric(metric, nextValue),
-        trend: metric.showTrend
-            ? impact === "neutral" || !impact
-                ? "neutral"
-                : getImpactScore(impact) > 0
-                  ? "positive"
-                  : "negative"
-            : undefined,
+        nextValue: formatMetric(metric, currentValue + metricDelta * ratio),
+        trend: metric.showTrend ? "negative" : undefined,
     };
 }
 
-export default function BorrowRepay({
+function getWorseningDistanceToLiquidationState(
+    metric: BorrowOperationMetric,
+    ratio: number
+): { nextValue: string; trend?: BorrowMetricTrend } {
+    if (ratio <= EPSILON) {
+        return {
+            nextValue: metric.currentValue,
+            trend: metric.showTrend ? "neutral" : undefined,
+        };
+    }
+
+    const currentValue = getMetricNumber(metric.currentValue);
+    const targetValue = getMetricNumber(metric.nextValue);
+    const metricDelta = Math.abs(currentValue - targetValue);
+
+    return {
+        nextValue: formatMetric(
+            metric,
+            Math.max(0, currentValue - metricDelta * ratio)
+        ),
+        trend: metric.showTrend ? "negative" : undefined,
+    };
+}
+
+function getNeutralMetricState(
+    metric: BorrowOperationMetric
+): { nextValue: string; trend?: BorrowMetricTrend } {
+    return {
+        nextValue: metric.currentValue,
+        trend: metric.showTrend ? "neutral" : undefined,
+    };
+}
+
+function getWorseningBorrowAvailableState(
+    metric: BorrowOperationMetric,
+    ratio: number
+): { nextValue: string; trend?: BorrowMetricTrend } {
+    if (ratio <= EPSILON) {
+        return {
+            nextValue: metric.currentValue,
+            trend: metric.showTrend ? "neutral" : undefined,
+        };
+    }
+
+    const currentValue = getMetricNumber(metric.currentValue);
+    const targetValue = getMetricNumber(metric.nextValue);
+    const metricDelta = Math.abs(currentValue - targetValue);
+
+    return {
+        nextValue: formatMetric(
+            metric,
+            Math.max(0, currentValue - metricDelta * ratio)
+        ),
+        trend: metric.showTrend ? "negative" : undefined,
+    };
+}
+
+function getWorseningBorrowUsageState(
+    metric: BorrowOperationMetric,
+    ratio: number
+): { nextValue: string; trend?: BorrowMetricTrend } {
+    if (ratio <= EPSILON) {
+        return {
+            nextValue: metric.currentValue,
+            trend: metric.showTrend ? "neutral" : undefined,
+        };
+    }
+
+    const currentValue = getMetricNumber(metric.currentValue);
+    const targetValue = getMetricNumber(metric.nextValue);
+    const metricDelta = Math.abs(currentValue - targetValue);
+
+    return {
+        nextValue: formatMetric(metric, currentValue + metricDelta * ratio),
+        trend: metric.showTrend ? "negative" : undefined,
+    };
+}
+
+export default function BorrowWithdrawCollateral({
     card,
     onBack,
-}: BorrowRepayProps): React.ReactElement {
-    const [repayAmount, setRepayAmount] = React.useState("");
+}: BorrowWithdrawCollateralProps): React.ReactElement {
+    const [collateralAmount, setCollateralAmount] = React.useState("");
     const { contractProtocolStatus } = useWalletContext();
     const { i18n } = useProjectTranslation();
 
-    const currentDebtValue = parseAmount(card.currentDebt.value);
-    const repayAmountValue = parseAmount(repayAmount);
-    const hasTypedAmount = repayAmount.trim().length > 0;
-    const hasDebtLimitError =
-        repayAmountValue.isValid &&
-        repayAmountValue.value > currentDebtValue.value;
-    const hasValidationError = !repayAmountValue.isValid || hasDebtLimitError;
+    const depositedCollateralValue = parseAmount(card.depositedCollateral.value);
+    const collateralAmountValue = parseAmount(collateralAmount);
+    const hasTypedAmount = collateralAmount.trim().length > 0;
+    const hasCollateralLimitError =
+        collateralAmountValue.isValid &&
+        collateralAmountValue.value > depositedCollateralValue.value;
+    const hasValidationError =
+        !collateralAmountValue.isValid || hasCollateralLimitError;
     const hasPendingChanges =
-        repayAmountValue.isValid &&
-        !hasDebtLimitError &&
-        repayAmountValue.value > 0;
+        collateralAmountValue.isValid &&
+        !hasCollateralLimitError &&
+        collateralAmountValue.value > 0;
     const getFiatEquivalent = React.useCallback(
         (value: number) => {
             const amountBigInt = toBigIntPrecision(value);
@@ -116,7 +178,7 @@ export default function BorrowRepay({
 
             const amountUSD = ConvertAmount(
                 contractProtocolStatus,
-                card.borrowTokenCode,
+                card.collateralTokenCode,
                 "USD",
                 amountBigInt,
                 card.caIndex
@@ -131,28 +193,24 @@ export default function BorrowRepay({
                 compact: true,
             });
         },
-        [card.borrowTokenCode, card.caIndex, contractProtocolStatus, i18n]
+        [card.caIndex, card.collateralTokenCode, contractProtocolStatus, i18n]
     );
-    const cappedRepayValue = Math.min(
-        repayAmountValue.value,
-        currentDebtValue.value
-    );
-    const repayRatio = getRepayMockRatio(
-        cappedRepayValue,
-        currentDebtValue.value
+    const withdrawalRatio = getWithdrawCollateralMockRatio(
+        collateralAmountValue.value,
+        depositedCollateralValue.value
     );
 
     const handleQuickAction = (percentage: number) => {
         const nextAmount =
             percentage === 100
-                ? currentDebtValue.value
-                : currentDebtValue.value * (percentage / 100);
+                ? depositedCollateralValue.value
+                : depositedCollateralValue.value * (percentage / 100);
 
-        setRepayAmount(formatAmount(nextAmount));
+        setCollateralAmount(formatAmount(nextAmount));
     };
 
-    const handleRepayInFull = () => {
-        setRepayAmount(formatAmount(currentDebtValue.value));
+    const handleUseMaxCollateral = () => {
+        setCollateralAmount(formatAmount(depositedCollateralValue.value));
     };
 
     const [
@@ -161,104 +219,109 @@ export default function BorrowRepay({
         minRequiredCollateralMetric,
         borrowAvailableMetric,
         borrowUsageMetric,
-    ] = card.repayOperationMetrics;
+    ] = card.depositCollateralOperationMetrics;
 
     const liquidationPriceState = liquidationPriceMetric
-        ? getRepayMetricState(
+        ? getWorseningLiquidationPriceState(
               liquidationPriceMetric,
-              repayRatio,
-              liquidationPriceMetric.repayImpact
+              withdrawalRatio
           )
         : null;
     const distanceToLiquidationState = distanceToLiquidationMetric
-        ? getRepayMetricState(
+        ? getWorseningDistanceToLiquidationState(
               distanceToLiquidationMetric,
-              repayRatio,
-              distanceToLiquidationMetric.repayImpact
+              withdrawalRatio
           )
         : null;
     const borrowAvailableState = borrowAvailableMetric
-        ? getRepayMetricState(
+        ? getWorseningBorrowAvailableState(
               borrowAvailableMetric,
-              repayRatio,
-              borrowAvailableMetric.repayImpact
+              withdrawalRatio
           )
         : null;
     const borrowUsageState = borrowUsageMetric
-        ? getRepayMetricState(
-              borrowUsageMetric,
-              repayRatio,
-              borrowUsageMetric.repayImpact
-          )
+        ? getWorseningBorrowUsageState(borrowUsageMetric, withdrawalRatio)
         : null;
 
     const noticeLines = hasPendingChanges
         ? (() => {
               return [
-                  `Repaying: ${repayAmount} ${card.currentDebt.ticker}.`,
+                  `Withdrawing collateral: ${collateralAmount} ${card.collateralTokenTicker}.`,
                   liquidationPriceMetric
                       ? `Liquidation Price: ${liquidationPriceState?.nextValue} ${liquidationPriceMetric.nextUnit}.`
                       : null,
                   borrowAvailableMetric
                       ? `Borrow available with collateral: ${borrowAvailableState?.nextValue} ${borrowAvailableMetric.nextUnit}.`
                       : null,
-                  borrowUsageMetric
-                      ? `Borrow usage: ${borrowUsageState?.nextValue} ${borrowUsageMetric.nextUnit}.`
-                      : null,
-                  "Risk will decrease if you proceed.",
+                  "Risk will increase if you proceed.",
               ].filter(Boolean);
           })()
-        : ['Enter an amount to repay or use "Repay in Full".'];
+        : ["Enter a collateral amount to withdraw."];
 
     return (
-        <div className="layout-card borrow-repay-view">
-            <div className="layout-card-title borrow-repay-title">
-                <h1>Repay</h1>
+        <div className="layout-card borrow-withdraw-collateral-view">
+            <div className="layout-card-title borrow-withdraw-collateral-title">
+                <h1>Withdraw Collateral</h1>
                 <OperationBackLink onClick={onBack} />
             </div>
 
-            <div className="borrow-repay-body">
-                <div className="borrow-repay-main">
-                    <div className="borrow-repay-panel">
-                        <CompactMetricDisplay
-                            label="Current Debt"
-                            value={card.currentDebt.value}
-                            valueLabel={card.currentDebt.ticker}
-                        />
-                        <TokenAmountInput
-                            feedbackMessage={
-                                hasDebtLimitError
-                                    ? "Amount exceeds your current debt"
-                                    : undefined
-                            }
-                            feedbackState="negative"
-                            getFiatEquivalent={getFiatEquivalent}
-                            fiatValue="0.00"
-                            inputValue={repayAmount}
-                            label="Amount to Repay"
-                            onMaxClick={handleRepayInFull}
-                            onQuickActionClick={handleQuickAction}
-                            onValueChange={setRepayAmount}
-                            quickActions={QUICK_ACTIONS.filter(
-                                (percentage) => percentage !== 100
-                            )}
-                            showMaxShortcut
-                            testId="borrow-repay-input"
-                            tokenIconClassName={card.borrowTokenIconClassName}
-                            tokenLabel={card.borrowTokenTicker}
-                            validateError={hasDebtLimitError}
-                        />
+            <div className="borrow-withdraw-collateral-body">
+                <div className="borrow-withdraw-collateral-main">
+                    <div className="borrow-withdraw-collateral-panel">
+                        <div className="borrow-withdraw-collateral-panel__columns">
+                            <div className="borrow-withdraw-collateral-panel__column borrow-withdraw-collateral-panel__column--secondary">
+                                <CompactMetricDisplay
+                                    label="Current Debt"
+                                    value={card.currentDebt.value}
+                                    valueLabel={card.currentDebt.ticker}
+                                />
+                            </div>
+
+                            <div className="borrow-withdraw-collateral-panel__column borrow-withdraw-collateral-panel__column--primary">
+                                <CompactMetricDisplay
+                                    label="Deposited Collateral"
+                                    value={card.depositedCollateral.value}
+                                    valueLabel={card.depositedCollateral.ticker}
+                                />
+
+                                <TokenAmountInput
+                                    feedbackMessage={
+                                        hasCollateralLimitError
+                                            ? "Amount exceeds your deposited collateral"
+                                            : undefined
+                                    }
+                                    feedbackState="negative"
+                                    getFiatEquivalent={getFiatEquivalent}
+                                    fiatValue="0.00"
+                                    inputValue={collateralAmount}
+                                    label="Amount to Withdraw"
+                                    onMaxClick={handleUseMaxCollateral}
+                                    onQuickActionClick={handleQuickAction}
+                                    onValueChange={setCollateralAmount}
+                                    quickActions={QUICK_ACTIONS.filter(
+                                        (percentage) => percentage !== 100
+                                    )}
+                                    showMaxShortcut
+                                    testId="borrow-withdraw-collateral-input"
+                                    tokenIconClassName={
+                                        card.collateralTokenIconClassName
+                                    }
+                                    tokenLabel={card.collateralTokenTicker}
+                                    validateError={hasCollateralLimitError}
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div className="borrow-repay-metrics">
-                    <div className="borrow-repay-metrics__row borrow-repay-metrics__row--top">
+                <div className="borrow-withdraw-collateral-metrics">
+                    <div className="borrow-withdraw-collateral-metrics__row borrow-withdraw-collateral-metrics__row--top">
                         {liquidationPriceMetric ? (
                             <BeforeAfterCard
                                 after={{
                                     isInvalid:
                                         hasTypedAmount &&
-                                        !repayAmountValue.isValid,
+                                        !collateralAmountValue.isValid,
                                     label: "Next",
                                     unit: hasPendingChanges
                                         ? liquidationPriceMetric.nextUnit
@@ -288,7 +351,7 @@ export default function BorrowRepay({
                                 after={{
                                     isInvalid:
                                         hasTypedAmount &&
-                                        !repayAmountValue.isValid,
+                                        !collateralAmountValue.isValid,
                                     label: "Next",
                                     unit: hasPendingChanges
                                         ? distanceToLiquidationMetric.nextUnit
@@ -318,12 +381,16 @@ export default function BorrowRepay({
                                 after={{
                                     isInvalid:
                                         hasTypedAmount &&
-                                        !repayAmountValue.isValid,
+                                        !collateralAmountValue.isValid,
                                     label: "Next",
                                     unit: hasPendingChanges
                                         ? minRequiredCollateralMetric.nextUnit
                                         : minRequiredCollateralMetric.currentUnit,
-                                    value: minRequiredCollateralMetric.currentValue,
+                                    value: hasPendingChanges
+                                        ? getNeutralMetricState(
+                                              minRequiredCollateralMetric
+                                          ).nextValue
+                                        : minRequiredCollateralMetric.currentValue,
                                 }}
                                 before={{
                                     label: "Current",
@@ -336,13 +403,13 @@ export default function BorrowRepay({
                         ) : null}
                     </div>
 
-                    <div className="borrow-repay-metrics__row borrow-repay-metrics__row--bottom">
+                    <div className="borrow-withdraw-collateral-metrics__row borrow-withdraw-collateral-metrics__row--bottom">
                         {borrowAvailableMetric ? (
                             <BeforeAfterCard
                                 after={{
                                     isInvalid:
                                         hasTypedAmount &&
-                                        !repayAmountValue.isValid,
+                                        !collateralAmountValue.isValid,
                                     label: "Next",
                                     unit: hasPendingChanges
                                         ? borrowAvailableMetric.nextUnit
@@ -372,7 +439,7 @@ export default function BorrowRepay({
                                 after={{
                                     isInvalid:
                                         hasTypedAmount &&
-                                        !repayAmountValue.isValid,
+                                        !collateralAmountValue.isValid,
                                     label: "Next",
                                     unit: hasPendingChanges
                                         ? borrowUsageMetric.nextUnit
@@ -402,37 +469,25 @@ export default function BorrowRepay({
 
                 <OperationNotice
                     title={
-                        hasDebtLimitError
-                            ? "Repay amount exceeds current debt"
-                            : hasPendingChanges
-                              ? "Ready to repay"
-                              : "Repay amount not specified"
+                        hasPendingChanges
+                            ? "Ready to continue"
+                            : "Withdraw amount not specified"
                     }
                 >
-                    <div className="borrow-repay-notice-lines">
-                        {(hasDebtLimitError
-                            ? ["The repay amount exceeds your current debt."]
-                            : noticeLines
-                        ).map((line) => (
-                            <div key={line}>{line}</div>
+                    <div className="borrow-withdraw-collateral-notice-lines">
+                        {noticeLines.map((line, index) => (
+                            <div key={`${line}-${index}`}>{line}</div>
                         ))}
                     </div>
                 </OperationNotice>
 
                 <OperationActions>
                     <button
-                        className="button secondary"
-                        onClick={handleRepayInFull}
-                        type="button"
-                    >
-                        Repay in Full
-                    </button>
-                    <button
-                        className="button borrow-repay-actions__confirm"
+                        className="button borrow-withdraw-collateral-actions__confirm"
                         disabled={!hasPendingChanges || hasValidationError}
                         type="button"
                     >
-                        {hasPendingChanges ? "Repay" : "Enter an Amount"}
+                        Confirm
                     </button>
                 </OperationActions>
             </div>

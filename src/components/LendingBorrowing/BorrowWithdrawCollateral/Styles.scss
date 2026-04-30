@@ -1,0 +1,119 @@
+.borrow-withdraw-collateral-view {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.borrow-withdraw-collateral-title {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.borrow-withdraw-collateral-body {
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.borrow-withdraw-collateral-main {
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.borrow-withdraw-collateral-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 832px;
+    max-width: 100%;
+}
+
+.borrow-withdraw-collateral-panel__columns {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 400px));
+    gap: 32px;
+    align-items: start;
+}
+
+.borrow-withdraw-collateral-panel__column {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.borrow-withdraw-collateral-panel__column--primary {
+    gap: 16px;
+}
+
+.borrow-withdraw-collateral-panel__column > .compact-metric-display,
+.borrow-withdraw-collateral-panel__column > .tokenAmountInput {
+    width: 100%;
+    max-width: 400px;
+}
+
+.borrow-withdraw-collateral-metrics {
+    display: grid;
+    gap: 16px;
+}
+
+.borrow-withdraw-collateral-metrics__row {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.borrow-withdraw-collateral-notice-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.operation-actions > .borrow-withdraw-collateral-actions__confirm {
+    width: min(300px, 100%);
+}
+
+@media (max-width: 1200px) {
+    .borrow-withdraw-collateral-metrics__row {
+        width: 100%;
+    }
+}
+
+@media (max-width: 960px) {
+    .borrow-withdraw-collateral-main {
+        width: 100%;
+    }
+
+    .borrow-withdraw-collateral-panel {
+        width: 100%;
+    }
+
+    .borrow-withdraw-collateral-panel__columns {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .borrow-withdraw-collateral-panel__column {
+        width: 100%;
+        align-items: center;
+    }
+
+    .borrow-withdraw-collateral-panel__column > .compact-metric-display,
+    .borrow-withdraw-collateral-panel__column > .tokenAmountInput {
+        max-width: 400px;
+    }
+
+    .borrow-withdraw-collateral-metrics__row {
+        flex-direction: column;
+        align-items: center;
+    }
+}

@@ -24,6 +24,7 @@ export interface BorrowOperationMetric {
     nextUnit?: string;
     nextValue: string;
     repayImpact?: "positive" | "neutral" | "negative";
+    repayWithCollateralImpact?: "positive" | "neutral" | "negative";
     showTrend?: boolean;
     title: string;
 }
@@ -40,9 +41,12 @@ export interface BorrowCardData {
     actions: BorrowCardAction[];
     borrowApy: string;
     borrowOperationMetrics: BorrowOperationMetric[];
+    borrowTokenCode: string;
     borrowTokenIconClassName: string;
     borrowTokenName: string;
     borrowTokenTicker: string;
+    caIndex: number;
+    collateralTokenCode: string;
     collateralTokenIconClassName: string;
     collateralTokenName: string;
     collateralTokenTicker: string;
@@ -52,8 +56,10 @@ export interface BorrowCardData {
     id: string;
     liquidationDropPercentage: number;
     maxAvailable: BorrowCardMetric;
+    depositCollateralOperationMetrics: BorrowOperationMetric[];
     previousLiquidation?: BorrowPreviousLiquidation;
     repayOperationMetrics: BorrowOperationMetric[];
+    repayWithCollateralOperationMetrics: BorrowOperationMetric[];
 }
 
 export function parseMetricNumber(value: string): number {

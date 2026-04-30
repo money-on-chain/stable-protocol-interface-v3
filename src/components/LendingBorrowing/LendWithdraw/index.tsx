@@ -2,6 +2,11 @@ import "./Styles.scss";
 
 import React from "react";
 
+import { useWalletContext } from "../../../context/Wallet";
+import { ConvertAmount, TokenSettings } from "../../../helpers/currencies";
+import { toBigIntPrecision } from "../../../helpers/precision";
+import { useProjectTranslation } from "../../../helpers/translations";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
 import TokenAmountInput from "../../TokenAmountInput";
 import { type LendCardData } from "../Lend/data";
 import BeforeAfterCard from "../MiniComponents/BeforeAfterCard";
@@ -9,6 +14,7 @@ import CompactMetricDisplay from "../MiniComponents/CompactMetricDisplay";
 import OperationActions from "../MiniComponents/OperationActions";
 import OperationBackLink from "../MiniComponents/OperationBackLink";
 import OperationNotice from "../MiniComponents/OperationNotice";
+import RateDisplay from "../MiniComponents/RateDisplay";
 
 interface LendWithdrawProps {
     onBack: () => void;
@@ -57,6 +63,8 @@ export default function LendWithdraw({
     token,
 }: LendWithdrawProps): React.ReactElement {
     const [amount, setAmount] = React.useState("");
+    const { contractProtocolStatus } = useWalletContext();
+    const { i18n } = useProjectTranslation();
 
     const availableValue = parseAmount(token.availableToWithdrawAmount);
     const { isValid: isAmountValid, value: amountValue } = parseAmount(amount);
@@ -70,6 +78,40 @@ export default function LendWithdraw({
     const nextDepositValue = Math.max(
         availableValue.value - cappedWithdrawValue,
         0
+    );
+    const getFiatEquivalent = React.useCallback(
+        (value: number) => {
+            const amountBigInt = toBigIntPrecision(value);
+
+            if (amountBigInt < 0n || !contractProtocolStatus.data) {
+                return PrecisionNumbers({
+                    amount: 0n,
+                    token: TokenSettings("CA_0"),
+                    decimals: 2,
+                    i18n,
+                    isUSD: true,
+                    compact: true,
+                });
+            }
+
+            const amountUSD = ConvertAmount(
+                contractProtocolStatus,
+                token.tokenCode,
+                "USD",
+                amountBigInt,
+                token.caIndex
+            );
+
+            return PrecisionNumbers({
+                amount: amountUSD,
+                token: TokenSettings("CA_0"),
+                decimals: 2,
+                i18n,
+                isUSD: true,
+                compact: true,
+            });
+        },
+        [contractProtocolStatus, i18n, token.caIndex, token.tokenCode]
     );
 
     const handleQuickAmountSelection = (percentage: number) => {
@@ -96,14 +138,10 @@ export default function LendWithdraw({
                 <div className="lend-withdraw-main">
                     <div className="lend-withdraw-header">
                         <div className="lend-withdraw-header__spacer"></div>
-                        <div className="lend-withdraw-rate">
-                            <div className="lend-withdraw-rate__value">
-                                {token.supplyApy} %
-                            </div>
-                            <div className="lend-withdraw-rate__label">
-                                {token.tokenTicker}/DOC Variable APY
-                            </div>
-                        </div>
+                        <RateDisplay
+                            number={token.supplyApy}
+                            title={`${token.tokenTicker}/DOC Variable APY`}
+                        />
                     </div>
 
                     <div className="lend-withdraw-content">
@@ -132,6 +170,7 @@ export default function LendWithdraw({
                                         : undefined
                                 }
                                 feedbackState="negative"
+                                getFiatEquivalent={getFiatEquivalent}
                                 fiatValue="0.00"
                                 inputValue={amount}
                                 label="Amount to Withdraw"
@@ -176,8 +215,8 @@ export default function LendWithdraw({
                         hasAvailableBalanceError
                             ? "Amount exceeds available balance"
                             : hasSelectedAmount
-                            ? "Ready to withdraw"
-                            : "No withdraw amount selected"
+                              ? "Ready to withdraw"
+                              : "No withdraw amount selected"
                     }
                 >
                     {hasAvailableBalanceError ? (

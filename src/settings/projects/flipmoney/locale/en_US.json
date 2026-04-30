@@ -792,13 +792,27 @@
             "statusInProgress": "In progress"
         }
     },
+    "beforeAfterCard": {
+        "before": "Current",
+        "after": "Next"
+    },
     "lending": {
-        "cardTitle": {
-            "section": "Lend"
-        },
+        "cardTitle": "Lend",
         "labelInterest": "Variable Supply APY",
         "labelDeposits": "Your Deposits + Earnings",
-        "cta": { "earn": "Earn", "withdraw": "Withdraw" }
+        "cta": { "earn": "Earn", "withdraw": "Withdraw" },
+        "sectionEarn": {
+            "cardTitle": "Earn",
+            "apy": "Variable APY",
+            "summary": {
+                "titleBalanceError": "Not enough Balance",
+                "titleAmountOK": "Ready to lend",
+                "titleNoAmount": "No lend amount selected",
+                "txtExceedsBalance": "The amount exceeds your wallet balance.",
+                "txtAboutToLend": "You are about to lend"
+            },
+            "cta": { "ok": "Lend", "noAmount": "Enter an amount" }
+        }
     },
     "borrowing": {
         "cardTitle": {
@@ -806,6 +820,15 @@
         },
         "labelInterest": "Variable Borrow APY",
         "labelDeposits": "Your Deposits + Earnings",
+        "labelLoanToken": "Loan Token",
+        "labelCollateralToken": "Collateral Token",
+        "labelLiquidationPercentage": "Loan is liquidated if collateral price drops",
+        "liquidated": {
+            "title": "Liquidated",
+            "ctaDetails": "Details",
+            "labelAmount": "Amount Liquidated",
+            "labelLiquidationPrice": "Liquidation Price"
+        },
         "cta": { "earn": "Earn", "withdraw": "Withdraw" }
     }
 }

@@ -3,18 +3,22 @@ import "./Styles.scss";
 import React from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
-import { BORROW_CARDS } from "../mocks/borrowCards";
 import MetricCard from "../MiniComponents/MetricCard";
+import RateDisplay from "../MiniComponents/RateDisplay";
+import { BORROW_CARDS } from "../mocks/borrowCards";
 import {
     BORROW_ACTION_LABELS,
-    parseMetricNumber,
     type BorrowCardActionId,
     type BorrowCardData,
+    parseMetricNumber,
 } from "./data";
 
 interface BorrowProps {
     onOpenBorrow: (card: BorrowCardData) => void;
+    onOpenDepositCollateral: (card: BorrowCardData) => void;
     onOpenRepay: (card: BorrowCardData) => void;
+    onOpenRepayWithCollateral: (card: BorrowCardData) => void;
+    onOpenWithdrawCollateral: (card: BorrowCardData) => void;
 }
 
 const BORROW_SECONDARY_ACTION_ORDER: BorrowCardActionId[] = [
@@ -26,7 +30,10 @@ const BORROW_SECONDARY_ACTION_ORDER: BorrowCardActionId[] = [
 
 export default function Borrow({
     onOpenBorrow,
+    onOpenDepositCollateral,
     onOpenRepay,
+    onOpenRepayWithCollateral,
+    onOpenWithdrawCollateral,
 }: BorrowProps): React.ReactElement {
     const { t } = useProjectTranslation();
 
@@ -69,21 +76,16 @@ export default function Borrow({
                             return (
                                 <>
                                     <div className="card-header">
-                                        <div className="interest-wrapper">
-                                            <div className="label">
-                                                {t("borrowing.labelInterest")}
-                                            </div>
-                                            <div className="interest-data">
-                                                <div>{card.borrowApy}</div>
-                                                <div>%</div>
-                                            </div>
-                                        </div>
+                                        <RateDisplay
+                                            number={card.borrowApy}
+                                            title={t("borrowing.labelInterest")}
+                                        />
                                     </div>
 
                                     <div className="borrow-card-assets">
                                         <div className="borrow-card-asset">
                                             <div className="borrow-card-asset-label">
-                                                Loan Token
+                                                {t("borrowing.labelLoanToken")}
                                             </div>
                                             <div className="token">
                                                 <div
@@ -103,7 +105,9 @@ export default function Borrow({
                                         </div>
                                         <div className="borrow-card-asset">
                                             <div className="borrow-card-asset-label">
-                                                Collateral Token
+                                                {t(
+                                                    "borrowing.labelCollateralToken"
+                                                )}
                                             </div>
                                             <div className="token">
                                                 <div
@@ -126,6 +130,7 @@ export default function Borrow({
                                     </div>
 
                                     <div className="borrow-card-primary-metrics">
+                                        AA
                                         <div
                                             className={[
                                                 "borrow-card-primary-metric",
@@ -251,6 +256,33 @@ export default function Borrow({
                                                                             card
                                                                         );
                                                                     }
+
+                                                                    if (
+                                                                        action.id ===
+                                                                        "repay-with-collateral"
+                                                                    ) {
+                                                                        onOpenRepayWithCollateral(
+                                                                            card
+                                                                        );
+                                                                    }
+
+                                                                    if (
+                                                                        action.id ===
+                                                                        "deposit-collateral"
+                                                                    ) {
+                                                                        onOpenDepositCollateral(
+                                                                            card
+                                                                        );
+                                                                    }
+
+                                                                    if (
+                                                                        action.id ===
+                                                                        "withdraw-collateral"
+                                                                    ) {
+                                                                        onOpenWithdrawCollateral(
+                                                                            card
+                                                                        );
+                                                                    }
                                                                 }}
                                                                 key={action.id}
                                                                 type="button"
@@ -267,8 +299,9 @@ export default function Borrow({
 
                                                 <div className="borrow-card-liquidation">
                                                     <div className="borrow-card-liquidation-value">
-                                                        Loan is liquidated if
-                                                        collateral price drops{" "}
+                                                        {t(
+                                                            "borrowing.labelLiquidationPercentage"
+                                                        )}
                                                         {card.liquidationDropPercentage.toFixed(
                                                             2
                                                         )}
@@ -312,7 +345,10 @@ export default function Borrow({
                                                         }
                                                     </div>
                                                     <div className="borrow-card-previous-liquidation__metric-label">
-                                                        Amount Liquidated (
+                                                        {t(
+                                                            "borrowing.liquidated.labelAmount"
+                                                        )}{" "}
+                                                        (
                                                         {
                                                             card
                                                                 .previousLiquidation
@@ -330,8 +366,10 @@ export default function Borrow({
                                                         }
                                                     </div>
                                                     <div className="borrow-card-previous-liquidation__metric-label">
-                                                        Liquidation Price{" "}
-                                                        {borrowPair}
+                                                        {t(
+                                                            "borrowing.liquidated.labelLiquidationPrice"
+                                                        )}{" "}
+                                                        ({borrowPair})
                                                     </div>
                                                 </div>
                                             </div>

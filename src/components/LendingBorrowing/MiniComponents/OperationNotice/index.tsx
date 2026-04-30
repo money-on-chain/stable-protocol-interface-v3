@@ -16,7 +16,7 @@ export default function OperationNotice({
             <div className="operation-notice">
                 <div className="operation-notice__title">{title}</div>
                 <div className="operation-notice__content">{children}</div>
-            </div>{" "}
+            </div>
         </div>
     );
 }

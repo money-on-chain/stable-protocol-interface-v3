@@ -3,18 +3,34 @@ import "./Styles.scss";
 import { Modal } from "antd";
 import React from "react";
 
+import {
+    getCurrenciesDetail,
+    TokenSettings,
+} from "../../helpers/currencies";
+import { useProjectTranslation } from "../../helpers/translations";
+import { PrecisionNumbers } from "../PrecisionNumbers";
+
 export interface TokenAmountInputOption {
+    displayLabel?: string;
+    icon?: React.ReactNode;
     iconClassName?: string;
     label: string;
     value: string;
 }
 
 interface TokenAmountInputProps {
+    action?: string;
+    balance?: React.ReactNode;
     balanceLabel?: string;
+    balanceText?: string;
     balanceValue?: React.ReactNode;
+    currencyOptions?: string[];
+    disabled?: boolean;
+    "data-testid"?: string;
     displayOnly?: boolean;
     feedbackMessage?: React.ReactNode;
     feedbackState?: "default" | "negative" | "neutral" | "positive";
+    getFiatEquivalent?: (value: number) => bigint | React.ReactNode;
     fiatLabel?: string;
     fiatValue?: React.ReactNode;
     inputValue?: string;
@@ -31,12 +47,16 @@ interface TokenAmountInputProps {
     selectedTokenValue?: string;
     showApproxSymbol?: boolean;
     showMaxShortcut?: boolean;
+    setAddTotalAvailable?: () => void;
     testId?: string;
+    title?: string;
     tokenIconClassName?: string;
     tokenLabel?: string;
     tokenOptions?: TokenAmountInputOption[];
     tokenSelectable?: boolean;
     validateError?: boolean;
+    value?: string;
+    onChange?: (value: string) => void;
 }
 
 function sanitizeValue(value: string): string {
@@ -64,11 +84,18 @@ function sanitizeValue(value: string): string {
 }
 
 export default function TokenAmountInput({
+    action,
+    balance,
     balanceLabel,
+    balanceText,
     balanceValue,
+    currencyOptions = [],
+    disabled = false,
+    "data-testid": dataTestId,
     displayOnly = false,
     feedbackMessage,
     feedbackState,
+    getFiatEquivalent,
     fiatLabel = "USD",
     fiatValue,
     inputValue = "",
@@ -82,32 +109,111 @@ export default function TokenAmountInput({
     quickActions = [],
     readOnly = false,
     preserveSpaceWhenNoFeedback = false,
+    setAddTotalAvailable,
     selectedTokenValue,
     showApproxSymbol = true,
     showMaxShortcut = true,
     testId,
+    title,
     tokenIconClassName,
     tokenLabel,
     tokenOptions = [],
     tokenSelectable = false,
     validateError = false,
+    value,
+    onChange,
 }: TokenAmountInputProps): React.ReactElement {
+    const { i18n, ns, t } = useProjectTranslation();
     const inputRef = React.useRef<HTMLInputElement>(null);
     const [isSelectorOpen, setIsSelectorOpen] = React.useState(false);
     const isNonEditable = readOnly || displayOnly;
+    const resolvedSelectedTokenValue = selectedTokenValue || value;
+    const resolvedOnTokenSelect = onTokenSelect || onChange;
+    const tokenOptionsFromCurrencies = React.useMemo<
+        TokenAmountInputOption[]
+    >(() => {
+        if (!currencyOptions.length || !action) {
+            return [];
+        }
+
+        const currencies = getCurrenciesDetail().map((currency) => ({
+            abbreviation: String(
+                t(`${action}.tokens.${currency.value}.abbr`, { ns })
+            ),
+            label: String(t(`${action}.tokens.${currency.value}.abbr`, { ns })),
+            displayLabel: String(
+                t(`${action}.tokens.${currency.value}.label`, {
+                    ns,
+                })
+            ),
+            icon: currency.image,
+            value: currency.value,
+        }));
+
+        const alreadyAdded: string[] = [];
+
+        return currencies.filter((currency) => {
+            if (alreadyAdded.includes(currency.abbreviation)) {
+                return false;
+            }
+
+            if (!(action === "exchange" && currency.value === "COINBASE")) {
+                alreadyAdded.push(currency.abbreviation);
+            }
+
+            return currencyOptions.includes(currency.value);
+        });
+    }, [action, currencyOptions, ns, t]);
+    const resolvedTokenOptions = tokenOptions.length
+        ? tokenOptions
+        : tokenOptionsFromCurrencies;
     const resolvedToken =
-        tokenOptions.find((option) => option.value === selectedTokenValue) ||
+        resolvedTokenOptions.find(
+            (option) => option.value === resolvedSelectedTokenValue
+        ) ||
         null;
     const resolvedTokenIconClassName =
         resolvedToken?.iconClassName || tokenIconClassName;
     const resolvedTokenLabel = resolvedToken?.label || tokenLabel;
-    const hasTokenSelector = tokenSelectable && tokenOptions.length > 0;
+    const hasTokenSelector =
+        (tokenSelectable || !!currencyOptions.length) &&
+        resolvedTokenOptions.length > 0 &&
+        !!resolvedOnTokenSelect;
     const hasInteractiveToken =
-        tokenSelectable && (hasTokenSelector || !!onTokenClick);
+        !disabled &&
+        (tokenSelectable || !!currencyOptions.length) &&
+        (hasTokenSelector || !!onTokenClick);
     const resolvedFeedbackState =
         feedbackState || (validateError ? "negative" : "default");
     const shouldRenderFeedback =
         !!feedbackMessage || preserveSpaceWhenNoFeedback;
+    const sanitizedInputValue = sanitizeValue(inputValue);
+    const numericInputValue = sanitizedInputValue
+        ? Number(sanitizedInputValue)
+        : 0;
+    const rawFiatValue = getFiatEquivalent
+        ? getFiatEquivalent(
+              Number.isNaN(numericInputValue) ? 0 : numericInputValue
+          )
+        : fiatValue;
+    const resolvedFiatValue =
+        typeof rawFiatValue === "bigint" ? (
+            <PrecisionNumbers
+                amount={rawFiatValue}
+                compact
+                decimals={2}
+                i18n={i18n}
+                isUSD
+                token={TokenSettings("CA_0")}
+            />
+        ) : (
+            rawFiatValue
+        );
+    const resolvedLabel = label || action;
+    const resolvedBalanceLabel = balanceLabel || balanceText;
+    const resolvedBalanceValue =
+        balanceValue !== undefined ? balanceValue : balance;
+    const resolvedOnMaxClick = onMaxClick || setAddTotalAvailable;
 
     React.useEffect(() => {
         const inputElement = inputRef.current;
@@ -142,7 +248,7 @@ export default function TokenAmountInput({
             return;
         }
 
-        if (hasTokenSelector && onTokenSelect) {
+        if (hasTokenSelector) {
             setIsSelectorOpen(true);
             return;
         }
@@ -155,7 +261,7 @@ export default function TokenAmountInput({
             <div
                 className={[
                     "tokenAmountInput__token-selectSlot",
-                    !tokenSelectable &&
+                    !(tokenSelectable || !!currencyOptions.length) &&
                         "tokenAmountInput__token-selectSlot--hidden",
                 ]
                     .filter(Boolean)
@@ -163,7 +269,11 @@ export default function TokenAmountInput({
             >
                 <div className="icon-select-token tokenAmountInput__token-selectIcon"></div>
             </div>
-            {resolvedTokenIconClassName ? (
+            {resolvedToken?.icon ? (
+                <div className="tokenAmountInput__token-icon">
+                    {resolvedToken.icon}
+                </div>
+            ) : resolvedTokenIconClassName ? (
                 <div
                     className={[
                         resolvedTokenIconClassName,
@@ -186,18 +296,21 @@ export default function TokenAmountInput({
                 displayOnly && "tokenAmountInput--displayOnly",
                 validateError && "tokenAmountInput--error",
                 isNonEditable && "tokenAmountInput--readonly",
-                tokenSelectable && "tokenAmountInput--token-selectable",
+                (tokenSelectable || !!currencyOptions.length) &&
+                    "tokenAmountInput--token-selectable",
             ]
                 .filter(Boolean)
                 .join(" ")}
-            data-testid={testId}
+            data-testid={testId || dataTestId}
         >
             <div className="tokenAmountInput__field">
-                {(label || showMaxShortcut || quickActions.length > 0) && (
+                {(resolvedLabel ||
+                    showMaxShortcut ||
+                    quickActions.length > 0) && (
                     <div className="tokenAmountInput__topRow">
-                        {label ? (
+                        {resolvedLabel ? (
                             <div className="tokenAmountInput__label">
-                                {label}
+                                {resolvedLabel}
                             </div>
                         ) : (
                             <div></div>
@@ -243,7 +356,7 @@ export default function TokenAmountInput({
                                         ) : null}
                                         <button
                                             className="tokenAmountInput__maxButton"
-                                            onClick={onMaxClick}
+                                            onClick={resolvedOnMaxClick}
                                             type="button"
                                         >
                                             MAX
@@ -260,7 +373,9 @@ export default function TokenAmountInput({
                         <input
                             className="tokenAmountInput__value"
                             data-testid={
-                                testId ? `${testId}-input` : undefined
+                                testId || dataTestId
+                                    ? `${testId || dataTestId}-input`
+                                    : undefined
                             }
                             inputMode="decimal"
                             onChange={(event) =>
@@ -279,7 +394,7 @@ export default function TokenAmountInput({
                         />
                     </div>
 
-                    {(tokenIconClassName || tokenLabel) &&
+                    {(resolvedToken || tokenIconClassName || tokenLabel) &&
                         (hasInteractiveToken ? (
                             <button
                                 className="tokenAmountInput__tokenButton"
@@ -295,22 +410,27 @@ export default function TokenAmountInput({
                         ))}
                 </div>
 
-                {(fiatValue || balanceLabel || balanceValue) && (
+                {(resolvedFiatValue ||
+                    resolvedBalanceLabel ||
+                    resolvedBalanceValue) && (
                     <div className="tokenAmountInput__bottomRow">
                         <div className="tokenAmountInput__fiatValue">
-                            {fiatValue ? (
+                            {resolvedFiatValue ? (
                                 <>
                                     {showApproxSymbol ? "≈ " : ""}
-                                    {fiatValue}
+                                    {resolvedFiatValue}
                                     {fiatLabel ? ` ${fiatLabel}` : ""}
                                 </>
                             ) : null}
                         </div>
 
-                        {(balanceLabel || balanceValue) && (
+                        {(resolvedBalanceLabel ||
+                            resolvedBalanceValue) && (
                             <div className="tokenAmountInput__balance">
-                                {balanceLabel ? `${balanceLabel}: ` : ""}
-                                {balanceValue}
+                                {resolvedBalanceLabel
+                                    ? `${resolvedBalanceLabel}: `
+                                    : ""}
+                                {resolvedBalanceValue}
                             </div>
                         )}
                     </div>
@@ -332,37 +452,42 @@ export default function TokenAmountInput({
                 </div>
             ) : null}
 
-            {hasTokenSelector && onTokenSelect ? (
+            {hasTokenSelector && resolvedOnTokenSelect ? (
                 <Modal
                     centered
                     className="tokenAmountInput__selectorModal"
                     footer={null}
                     onCancel={() => setIsSelectorOpen(false)}
                     open={isSelectorOpen}
-                    title="Select a token"
+                    title={title && title.trim() !== "" ? title : "Select a token"}
                 >
                     <div className="tokenAmountInput__optionList">
-                        {tokenOptions.map((option) => (
+                        {resolvedTokenOptions.map((option) => (
                             <button
                                 className={[
                                     "tokenAmountInput__option",
-                                    option.value === selectedTokenValue &&
+                                    option.value ===
+                                        resolvedSelectedTokenValue &&
                                         "tokenAmountInput__option--selected",
                                 ]
                                     .filter(Boolean)
                                     .join(" ")}
                                 key={option.value}
                                 onClick={() => {
-                                    onTokenSelect(option.value);
+                                    resolvedOnTokenSelect(option.value);
                                     setIsSelectorOpen(false);
                                 }}
                                 type="button"
                             >
-                                {option.iconClassName ? (
+                                {option.icon ? (
+                                    <div className="tokenAmountInput__optionIcon">
+                                        {option.icon}
+                                    </div>
+                                ) : option.iconClassName ? (
                                     <div className={option.iconClassName}></div>
                                 ) : null}
                                 <div className="tokenAmountInput__optionLabel">
-                                    {option.label}
+                                    {option.displayLabel || option.label}
                                 </div>
                             </button>
                         ))}
