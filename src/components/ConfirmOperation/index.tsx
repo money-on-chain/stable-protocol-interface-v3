@@ -347,7 +347,7 @@ export default function ConfirmOperation(
             `TF_${caIndex}`,
             caIndex
         );
-
+        
         if (
             radioSelectFee === 1 &&
             tokenAllowance > commissionsByKey["FeeToken"].commission
@@ -357,7 +357,7 @@ export default function ConfirmOperation(
             // show allowance window
             return true;
         } else if (radioSelectFee === 0) {
-            return commissionsByKey["FeeToken"].commission >= tokenAllowance;
+            return commissionsByKey["FeeToken"].commission > tokenAllowance;
         }
 
         return false;

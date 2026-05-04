@@ -49,7 +49,8 @@ export default function CommissionsSelector(
                             value={0}
                             disabled={
                                 commissionsByKey["FeeToken"]?.commission >
-                                commissionsByKey["FeeToken"]?.balance
+                                commissionsByKey["FeeToken"]?.balance || 
+                                commissionsByKey["FeeToken"]?.commission === 0n
                             }
                         >
                             <span className={""}>
@@ -105,7 +106,8 @@ export default function CommissionsSelector(
                                 key={index + 1}
                                 disabled={
                                     commissionsByKey[`CA_${ca}`]?.commission >
-                                    commissionsByKey[`CA_${ca}`]?.balance
+                                    commissionsByKey[`CA_${ca}`]?.balance ||
+                                    commissionsByKey[`CA_${ca}`]?.commission === 0n
                                 }
                             >
                                 <span className={"token_exchange"}>
