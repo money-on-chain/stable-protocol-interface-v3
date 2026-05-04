@@ -358,7 +358,7 @@ export default function ConfirmOperation(
             // show allowance window
             return true;
         } else if (payingFeeWithFeeToken) {
-            return commissionsByKey["FeeToken"].commission >= tokenAllowance;
+            return commissionsByKey["FeeToken"].commission > tokenAllowance;
         }
 
         return false;
