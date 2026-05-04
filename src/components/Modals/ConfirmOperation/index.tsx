@@ -16,7 +16,7 @@ interface ModalConfirmOperationProps {
     amountYouReceive: bigint;
     executionFee: bigint;
     executionFeeUSD: bigint;
-    radioSelectFee: number;
+    selectedFeeCurrency: string;
     caIndex: number;
     operationType: string;
     slippageTolerance: number;

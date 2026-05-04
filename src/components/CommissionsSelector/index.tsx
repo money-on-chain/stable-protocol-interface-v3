@@ -10,7 +10,7 @@ import { PrecisionNumbers } from "../PrecisionNumbers";
 
 interface CommissionsSelectorProps {
     onChangeFee: (e: RadioChangeEvent) => void;
-    radioSelectFee: number;
+    selectedFeeCurrency: string;
     currencyYouExchange: string;
     commissionsByKey: CommissionsState;
     caIndex: number;
@@ -22,7 +22,7 @@ export default function CommissionsSelector(
 ): React.ReactElement {
     const {
         onChangeFee,
-        radioSelectFee,
+        selectedFeeCurrency,
         currencyYouExchange,
         commissionsByKey,
         caIndex,
@@ -43,10 +43,10 @@ export default function CommissionsSelector(
     return (
         <>
             <div className={"radioButton"}>
-                <Radio.Group onChange={onChangeFee} value={radioSelectFee}>
+                <Radio.Group onChange={onChangeFee} value={selectedFeeCurrency}>
                     <Space direction="vertical">
                         <Radio
-                            value={0}
+                            value={"TF"}
                             disabled={
                                 commissionsByKey["FeeToken"]?.commission >
                                 commissionsByKey["FeeToken"]?.balance
@@ -101,7 +101,7 @@ export default function CommissionsSelector(
                         </Radio>
                         {collateralAvailable.map((ca, index) => (
                             <Radio
-                                value={index + 1}
+                                value={`CA_${ca}`}
                                 key={index + 1}
                                 disabled={
                                     commissionsByKey[`CA_${ca}`]?.commission >
