@@ -215,6 +215,7 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
                         </Button>
                         <button
                             type="button"
+                            data-testid="confirm-send-submit"
                             className={
                                 import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT.toLowerCase()
                                     ? `button`
@@ -256,7 +257,14 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
                             </div>
                         </div>
                     )}{" "}
-                    <div className="tx-feedback-container">
+                    <div
+                        className="tx-feedback-container"
+                        data-testid={
+                            status === "SUCCESS"
+                                ? "confirm-send-success"
+                                : undefined
+                        }
+                    >
                         <div className="tx-feedback-icon tx-logo-status">
                             <div className={sentIcon}></div>
                         </div>
@@ -268,6 +276,7 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
                                 type="button"
                                 className="button secondary"
                                 onClick={onClose}
+                                data-testid="button-close-send"
                             >
                                 {t("send.buttonClose")}
                             </button>

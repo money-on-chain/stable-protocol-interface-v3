@@ -40,6 +40,7 @@ export default function ModalConfirmSend(
                         ? "button"
                         : "button"
                 }
+                data-testid="confirm-send-ok"
                 onClick={showModal}
                 disabled={inputValidationError || false}
             >

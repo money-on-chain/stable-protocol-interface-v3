@@ -39,7 +39,7 @@ interface ConfirmOperationProps {
     onCloseModal: () => void;
     executionFee: bigint;
     executionFeeUSD: bigint;
-    radioSelectFee: number;
+    selectedFeeCurrency: string;
     caIndex: number;
     operationType: string;
     slippageTolerance: number;
@@ -83,7 +83,7 @@ export default function ConfirmOperation(
         onCloseModal,
         executionFee,
         executionFeeUSD,
-        radioSelectFee,
+        selectedFeeCurrency,
         caIndex,
         operationType,
         slippageTolerance,
@@ -347,16 +347,17 @@ export default function ConfirmOperation(
             `TF_${caIndex}`,
             caIndex
         );
-        
+        const payingFeeWithFeeToken = selectedFeeCurrency === "TF";
+
         if (
-            radioSelectFee === 1 &&
+            !payingFeeWithFeeToken &&
             tokenAllowance > commissionsByKey["FeeToken"].commission
         ) {
             // if we select not to pay with fee token, please disallow to use Fee token
             setDisAllowanceFeeToken(true);
             // show allowance window
             return true;
-        } else if (radioSelectFee === 0) {
+        } else if (payingFeeWithFeeToken) {
             return commissionsByKey["FeeToken"].commission > tokenAllowance;
         }
 
@@ -598,7 +599,7 @@ export default function ConfirmOperation(
         throw new Error("Invalid type operation");
     }
 
-    if (radioSelectFee === 0) {
+    if (selectedFeeCurrency === "TF") {
         // Pay with Fee Token
         commissionPAY = commissionsByKey["FeeToken"].commission;
         commissionPAYUSD = commissionsByKey["FeeToken"].commissionUSD;
@@ -950,7 +951,12 @@ export default function ConfirmOperation(
                 onHideModalAllowance={onHideModalAllowancePayCommissionFeeToken}
                 currencyYouExchange={`TF_${caIndex}`}
                 currencyYouReceive={`TF_${caIndex}`}
-                amountYouExchangeLimit={commissionsByKey["FeeToken"].commission}
+                amountYouExchangeLimit={
+                    selectedFeeCurrency === "TF"
+                        ? (commissionsByKey["FeeToken"].commission * 150n) /
+                          100n
+                        : commissionsByKey["FeeToken"].commission
+                }
                 //amountYouReceiveLimit={commissionFeeToken}
                 onCallback={onSendTransaction}
                 disAllowance={disAllowanceFeeToken}

@@ -125,7 +125,8 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         operationType = "COMBINED_REDEEM";
     }
 
-    const [radioSelectFee, setRadioSelectFee] = useState<number>(1);
+    const [selectedFeeCurrency, setSelectedFeeCurrency] =
+        useState<string>("CA_0");
 
     const [valueExchange, setValueExchange] = useState<string>("");
     const [valueReceive, setValueReceive] = useState<string>("");
@@ -527,7 +528,10 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             return;
         }
 
-        if (currencyYouExchange.startsWith("CA_") && radioSelectFee > 0) {
+        if (
+            currencyYouExchange.startsWith("CA_") &&
+            selectedFeeCurrency.startsWith("CA_")
+        ) {
             const feeCA = commissionsByKey[`CA_${caIndex}`]?.commission ?? 0n;
             const needed = amountYouExchange + feeCA;
             const bal = TokenBalance(userBalance, currencyYouExchange);
@@ -552,7 +556,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         currencyYouExchange,
         currencyYouReceive,
         operationType,
-        radioSelectFee,
+        selectedFeeCurrency,
         t,
         userBalance,
         valueExchange,
@@ -649,7 +653,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         //const isMint = ex === "CA" && re !== "CA"; // CA -> (TC/TP)
         //const isRedeem = ex !== "CA" && re === "CA"; // (TC/TP) -> CA
         //const isSwapNoCA = ex !== "CA" && re !== "CA"; // (TC/TP) -> (TC/TP)
-        //const payFeeInCA = radioSelectFee > 0;
+        //const payFeeInCA = selectedFeeCurrency.startsWith("CA_");
 
         let amountInCA: bigint = 0n;
 
@@ -1194,12 +1198,22 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
 
     const onChangeFee = (e: RadioChangeEvent): void => {
         console.warn("radio checked", e.target.value);
-        const nValue = Number(e.target.value);
-        setRadioSelectFee(nValue);
-        if (operationType === "SWAP_TPFORTP" && nValue > 0) {
-            setCAIndex(nValue - 1);
+        const feeCurrency = String(e.target.value);
+        setSelectedFeeCurrency(feeCurrency);
+        if (operationType === "SWAP_TPFORTP" && feeCurrency.startsWith("CA_")) {
+            const nextCaIndex = parseInt(feeCurrency.split("_")[1], 10);
+            if (!Number.isNaN(nextCaIndex)) {
+                setCAIndex(nextCaIndex);
+            }
         }
     };
+
+    useEffect(() => {
+        setSelectedFeeCurrency((current) => {
+            if (current === "TF") return "TF";
+            return `CA_${caIndex}`;
+        });
+    }, [caIndex]);
 
     const onChangeSlippageTolerance = (value: number): void => {
         console.warn("slippage tolerance", value);
@@ -2115,7 +2129,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                             <div className="tx-fee-options">
                                 <CommissionsSelector
                                     onChangeFee={onChangeFee}
-                                    radioSelectFee={radioSelectFee}
+                                    selectedFeeCurrency={selectedFeeCurrency}
                                     currencyYouExchange={currencyYouExchange}
                                     caIndex={caIndex}
                                     commissionsByKey={commissionsByKey}
@@ -2215,7 +2229,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                         }
                         executionFee={executionFee}
                         executionFeeUSD={executionFeeUSD}
-                        radioSelectFee={radioSelectFee}
+                        selectedFeeCurrency={selectedFeeCurrency}
                         caIndex={caIndex}
                         operationType={operationType}
                         slippageTolerance={slippageTolerance}
