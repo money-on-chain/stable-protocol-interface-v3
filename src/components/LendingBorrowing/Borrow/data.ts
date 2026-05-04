@@ -26,15 +26,12 @@ export interface BorrowOperationMetric {
     repayImpact?: "positive" | "neutral" | "negative";
     repayWithCollateralImpact?: "positive" | "neutral" | "negative";
     showTrend?: boolean;
-    title: string;
 }
 
 export interface BorrowPreviousLiquidation {
     amount: string;
     amountTicker: string;
-    ctaLabel: string;
     liquidationPrice: string;
-    title: string;
 }
 
 export interface BorrowCardData {
@@ -68,10 +65,10 @@ export function parseMetricNumber(value: string): number {
     return Number.isNaN(parsedValue) ? 0 : parsedValue;
 }
 
-export const BORROW_ACTION_LABELS: Record<BorrowCardActionId, string> = {
-    borrow: "Borrow",
-    repay: "Repay",
-    "repay-with-collateral": "Repay with Collateral",
-    "deposit-collateral": "Deposit Collateral",
-    "withdraw-collateral": "Withdraw Collateral",
+export const BORROW_ACTION_LABEL_KEYS: Record<BorrowCardActionId, string> = {
+    borrow: "borrowing.actions.borrow",
+    repay: "borrowing.actions.repay",
+    "repay-with-collateral": "borrowing.actions.repayWithCollateral",
+    "deposit-collateral": "borrowing.actions.depositCollateral",
+    "withdraw-collateral": "borrowing.actions.withdrawCollateral",
 };

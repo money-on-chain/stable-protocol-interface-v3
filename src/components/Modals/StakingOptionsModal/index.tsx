@@ -478,7 +478,7 @@ export default function StakingOptionsModal(
                                                 className="button"
                                             >
                                                 {t(
-                                                    "staking.modal.StakingOptionsModal_Comfirm"
+                                                    "staking.modal.StakingOptionsModal_Confirm"
                                                 )}
                                             </Button>
                                         </div>
@@ -566,7 +566,7 @@ export default function StakingOptionsModal(
                                 onClick={() => void UnStake()}
                                 className="button"
                             >
-                                {t("staking.modal.StakingOptionsModal_Comfirm")}
+                                {t("staking.modal.StakingOptionsModal_Confirm")}
                             </Button>
                         </div>
                     </div>
@@ -634,7 +634,7 @@ export default function StakingOptionsModal(
                                 className="button"
                                 onClick={() => void withdraw()}
                             >
-                                {t("staking.modal.StakingOptionsModal_Comfirm")}
+                                {t("staking.modal.StakingOptionsModal_Confirm")}
                             </Button>
                         </div>
                     </div>
@@ -699,7 +699,7 @@ export default function StakingOptionsModal(
                                 className="button"
                                 onClick={() => void CancelWithdraw()}
                             >
-                                {t("staking.modal.StakingOptionsModal_Comfirm")}
+                                {t("staking.modal.StakingOptionsModal_Confirm")}
                             </Button>
                         </div>
                     </div>

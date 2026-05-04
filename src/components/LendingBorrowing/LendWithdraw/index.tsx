@@ -64,7 +64,7 @@ export default function LendWithdraw({
 }: LendWithdrawProps): React.ReactElement {
     const [amount, setAmount] = React.useState("");
     const { contractProtocolStatus } = useWalletContext();
-    const { i18n } = useProjectTranslation();
+    const { t, i18n } = useProjectTranslation();
 
     const availableValue = parseAmount(token.availableToWithdrawAmount);
     const { isValid: isAmountValid, value: amountValue } = parseAmount(amount);
@@ -130,7 +130,7 @@ export default function LendWithdraw({
     return (
         <div className="layout-card lend-withdraw-view">
             <div className="layout-card-title lend-withdraw-title">
-                <h1>Withdraw</h1>
+                <h1>{t("lending.sectionWithdraw.cardTitle")}</h1>
                 <OperationBackLink onClick={onBack} />
             </div>
 
@@ -140,25 +140,16 @@ export default function LendWithdraw({
                         <div className="lend-withdraw-header__spacer"></div>
                         <RateDisplay
                             number={token.supplyApy}
-                            title={`${token.tokenTicker}/DOC Variable APY`}
+                            title={`${token.tokenTicker}  ${t(
+                                "lending.sectionWithdraw.apy"
+                            )}`}
                         />
                     </div>
 
                     <div className="lend-withdraw-content">
                         <div className="lend-withdraw-inputs">
-                            {/* <TokenAmountInput
-                            displayOnly
-                            fiatValue={token.availableToWithdrawAmountUsd}
-                            inputValue={token.availableToWithdrawAmount}
-                            label="Deposits + Earnings"
-                            showMaxShortcut={false}
-                            testId="lend-withdraw-available"
-                            tokenIconClassName={token.tokenIconClassName}
-                            tokenLabel={token.tokenTicker}
-                        /> */}
-
                             <CompactMetricDisplay
-                                label="Deposits + Earnings"
+                                label={t("lending.sectionWithdraw.available")}
                                 value={token.availableToWithdrawAmount}
                                 valueLabel={token.tokenTicker}
                             />
@@ -166,14 +157,17 @@ export default function LendWithdraw({
                             <TokenAmountInput
                                 feedbackMessage={
                                     hasAvailableBalanceError
-                                        ? "Amount exceeds your available withdraw balance"
+                                        ? t(
+                                              "lending.sectionWithdraw.exceedsWithdrawBalance"
+                                          )
                                         : undefined
                                 }
                                 feedbackState="negative"
                                 getFiatEquivalent={getFiatEquivalent}
-                                fiatValue="0.00"
                                 inputValue={amount}
-                                label="Amount to Withdraw"
+                                label={t(
+                                    "lending.sectionWithdraw.labelAmountToWithdraw"
+                                )}
                                 onMaxClick={handleWithdrawAll}
                                 onQuickActionClick={handleQuickAmountSelection}
                                 onValueChange={setAmount}
@@ -192,18 +186,18 @@ export default function LendWithdraw({
                             <BeforeAfterCard
                                 after={{
                                     isInvalid: hasTypedAmount && !isAmountValid,
-                                    label: "Next",
+                                    label: t("beforeAfterCard.after"),
                                     unit: token.depositedTicker,
                                     value: hasSelectedAmount
                                         ? formatAmount(nextDepositValue)
                                         : token.availableToWithdrawAmount,
                                 }}
                                 before={{
-                                    label: "Current",
+                                    label: t("beforeAfterCard.before"),
                                     unit: token.depositedTicker,
                                     value: token.availableToWithdrawAmount,
                                 }}
-                                title="Your Deposit + Earnings"
+                                title={t("lending.labelDeposits")}
                                 useBorder
                             />
                         </div>
@@ -213,25 +207,31 @@ export default function LendWithdraw({
                 <OperationNotice
                     title={
                         hasAvailableBalanceError
-                            ? "Amount exceeds available balance"
+                            ? t(
+                                  "lending.sectionWithdraw.summary.titleBalanceError"
+                              )
                             : hasSelectedAmount
-                              ? "Ready to withdraw"
-                              : "No withdraw amount selected"
+                              ? t(
+                                    "lending.sectionWithdraw.summary.titleAmountOK"
+                                )
+                              : t(
+                                    "lending.sectionWithdraw.summary.titleNoAmount"
+                                )
                     }
                 >
                     {hasAvailableBalanceError ? (
-                        "The amount exceeds what you can currently withdraw."
+                        t("lending.sectionWithdraw.summary.txtExceedsBalance")
                     ) : hasSelectedAmount ? (
                         <div className="lend-withdraw-notice-lines">
                             <div>
-                                {`You are about to withdraw ${amount} ${token.tokenTicker}.`}
+                                {`${t("lending.sectionWithdraw.summary.txtAboutToWithdraw")}: ${amount} ${token.tokenTicker}.`}
                             </div>
                             <div>
-                                {`Remaining deposit: ${formatAmount(nextDepositValue)} ${token.depositedTicker}.`}
+                                {`${t("lending.sectionWithdraw.summary.txtRemaining")}: ${formatAmount(nextDepositValue)} ${token.depositedTicker}.`}
                             </div>
                         </div>
                     ) : (
-                        "Enter amount to withdraw or select Withdraw All"
+                        t("lending.sectionWithdraw.summary.txtEnterAmount")
                     )}
                 </OperationNotice>
 
@@ -241,14 +241,16 @@ export default function LendWithdraw({
                         onClick={handleWithdrawAll}
                         type="button"
                     >
-                        Withdraw All
+                        {t("lending.sectionWithdraw.cta.withdrawAll")}
                     </button>
                     <button
                         className="button"
                         disabled={!hasSelectedAmount || hasValidationError}
                         type="button"
                     >
-                        {hasSelectedAmount ? "Withdraw" : "Enter an amount"}
+                        {hasSelectedAmount
+                            ? t("lending.sectionWithdraw.cta.ok")
+                            : t("lending.sectionWithdraw.cta.noAmount")}
                     </button>
                 </OperationActions>
             </div>

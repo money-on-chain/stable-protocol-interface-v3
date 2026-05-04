@@ -59,7 +59,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextUnit: "ARSFLIP/DOC",
                 nextValue: "500.00",
                 showTrend: true,
-                title: "Liquidation Price",
             },
             {
                 borrowImpact: "negative",
@@ -69,7 +68,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextUnit: "%",
                 nextValue: "66.67",
                 showTrend: true,
-                title: "Distance to Liquidation",
             },
             {
                 borrowImpact: "neutral",
@@ -78,7 +76,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 currentValue: "150.00",
                 nextUnit: "DOC",
                 nextValue: "150.00",
-                title: "Min Required Collateral",
             },
             {
                 borrowImpact: "negative",
@@ -87,7 +84,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 currentValue: "150,000.00",
                 nextUnit: "ARSFLIP",
                 nextValue: "300,000.00",
-                title: "Borrow Available W/Collateral",
             },
             {
                 borrowImpact: "negative",
@@ -96,7 +92,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 currentValue: "30.00",
                 nextUnit: "%",
                 nextValue: "22.22",
-                title: "Borrow Usage",
             },
         ],
         depositCollateralOperationMetrics: [
@@ -107,7 +102,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextValue: "500.00",
                 collateralImpact: "positive",
                 showTrend: true,
-                title: "Liquidation Price",
             },
             {
                 currentUnit: "%",
@@ -116,7 +110,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextValue: "66.67",
                 collateralImpact: "positive",
                 showTrend: true,
-                title: "Distance to Liquidation",
             },
             {
                 currentUnit: "DOC",
@@ -124,7 +117,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextUnit: "DOC",
                 nextValue: "150.00",
                 collateralImpact: "neutral",
-                title: "Min Required Collateral",
             },
             {
                 currentUnit: "ARSFLIP",
@@ -132,7 +124,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextUnit: "ARSFLIP",
                 nextValue: "300,000.00",
                 collateralImpact: "positive",
-                title: "Borrow Available W/Collateral",
             },
             {
                 currentUnit: "%",
@@ -140,7 +131,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextUnit: "%",
                 nextValue: "22.22",
                 collateralImpact: "positive",
-                title: "Borrow Usage",
             },
         ],
         repayOperationMetrics: [
@@ -151,7 +141,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextValue: "500.00",
                 repayImpact: "positive",
                 showTrend: true,
-                title: "Liquidation Price",
             },
             {
                 currentUnit: "%",
@@ -160,7 +149,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextValue: "66.67",
                 repayImpact: "positive",
                 showTrend: true,
-                title: "Distance to Liquidation",
             },
             {
                 currentUnit: "DOC",
@@ -168,7 +156,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextUnit: "DOC",
                 nextValue: "150.00",
                 repayImpact: "neutral",
-                title: "Min Required Collateral",
             },
             {
                 currentUnit: "ARSFLIP",
@@ -176,7 +163,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextUnit: "ARSFLIP",
                 nextValue: "300,000.00",
                 repayImpact: "positive",
-                title: "Borrow Available W/Collateral",
             },
             {
                 currentUnit: "%",
@@ -184,7 +170,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextUnit: "%",
                 nextValue: "0.00",
                 repayImpact: "positive",
-                title: "Borrow Usage",
             },
         ],
         repayWithCollateralOperationMetrics: [
@@ -195,7 +180,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextValue: "1,250.00",
                 repayWithCollateralImpact: "neutral",
                 showTrend: true,
-                title: "Liquidation Price",
             },
             {
                 currentUnit: "%",
@@ -204,7 +188,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextValue: "16.67",
                 repayWithCollateralImpact: "neutral",
                 showTrend: true,
-                title: "Distance to Liquidation",
             },
             {
                 currentUnit: "DOC",
@@ -212,7 +195,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextUnit: "DOC",
                 nextValue: "0.00",
                 repayWithCollateralImpact: "negative",
-                title: "Min Required Collateral",
             },
             {
                 currentUnit: "ARSFLIP",
@@ -220,7 +202,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextUnit: "ARSFLIP",
                 nextValue: "0.00",
                 repayWithCollateralImpact: "negative",
-                title: "Borrow Available W/Collateral",
             },
             {
                 currentUnit: "%",
@@ -228,7 +209,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextUnit: "%",
                 nextValue: "0.00",
                 repayWithCollateralImpact: "neutral",
-                title: "Borrow Usage",
             },
         ],
         actions: [
@@ -261,9 +241,7 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
         liquidationDropPercentage: 42.5,
         previousLiquidation: {
             amount: "110.10",
-            ctaLabel: "Details",
             liquidationPrice: "1,200.00",
-            title: "Position liquidated",
         },
         borrowOperationMetrics: [
             {
@@ -274,7 +252,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextUnit: "COPFLIP/DOC",
                 nextValue: "980.00",
                 showTrend: true,
-                title: "Liquidation Price",
             },
             {
                 borrowImpact: "negative",
@@ -284,7 +261,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextUnit: "%",
                 nextValue: "58.00",
                 showTrend: true,
-                title: "Distance to Liquidation",
             },
             {
                 borrowImpact: "neutral",
@@ -293,7 +269,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 currentValue: "0.00",
                 nextUnit: "DOC",
                 nextValue: "120.00",
-                title: "Min Required Collateral",
             },
             {
                 borrowImpact: "negative",
@@ -302,7 +277,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 currentValue: "0.00",
                 nextUnit: "COPFLIP",
                 nextValue: "8,200.00",
-                title: "Borrow Available W/Collateral",
             },
             {
                 borrowImpact: "negative",
@@ -311,7 +285,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 currentValue: "0.00",
                 nextUnit: "%",
                 nextValue: "24.00",
-                title: "Borrow Usage",
             },
         ],
         depositCollateralOperationMetrics: [
@@ -322,7 +295,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextValue: "980.00",
                 collateralImpact: "positive",
                 showTrend: true,
-                title: "Liquidation Price",
             },
             {
                 currentUnit: "%",
@@ -331,7 +303,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextValue: "58.00",
                 collateralImpact: "positive",
                 showTrend: true,
-                title: "Distance to Liquidation",
             },
             {
                 currentUnit: "DOC",
@@ -339,7 +310,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextUnit: "DOC",
                 nextValue: "120.00",
                 collateralImpact: "neutral",
-                title: "Min Required Collateral",
             },
             {
                 currentUnit: "COPFLIP",
@@ -347,7 +317,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextUnit: "COPFLIP",
                 nextValue: "8,200.00",
                 collateralImpact: "positive",
-                title: "Borrow Available W/Collateral",
             },
             {
                 currentUnit: "%",
@@ -355,7 +324,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextUnit: "%",
                 nextValue: "24.00",
                 collateralImpact: "positive",
-                title: "Borrow Usage",
             },
         ],
         repayOperationMetrics: [
@@ -366,7 +334,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextValue: "- -",
                 repayImpact: "neutral",
                 showTrend: true,
-                title: "Liquidation Price",
             },
             {
                 currentUnit: "%",
@@ -375,7 +342,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextValue: "- -",
                 repayImpact: "neutral",
                 showTrend: true,
-                title: "Distance to Liquidation",
             },
             {
                 currentUnit: "DOC",
@@ -383,7 +349,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextUnit: "DOC",
                 nextValue: "0.00",
                 repayImpact: "neutral",
-                title: "Min Required Collateral",
             },
             {
                 currentUnit: "COPFLIP",
@@ -391,7 +356,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextUnit: "COPFLIP",
                 nextValue: "0.00",
                 repayImpact: "neutral",
-                title: "Borrow Available W/Collateral",
             },
             {
                 currentUnit: "%",
@@ -399,7 +363,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextUnit: "%",
                 nextValue: "0.00",
                 repayImpact: "neutral",
-                title: "Borrow Usage",
             },
         ],
         repayWithCollateralOperationMetrics: [
@@ -410,7 +373,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextValue: "- -",
                 repayWithCollateralImpact: "neutral",
                 showTrend: true,
-                title: "Liquidation Price",
             },
             {
                 currentUnit: "%",
@@ -419,7 +381,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextValue: "- -",
                 repayWithCollateralImpact: "neutral",
                 showTrend: true,
-                title: "Distance to Liquidation",
             },
             {
                 currentUnit: "DOC",
@@ -427,7 +388,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextUnit: "DOC",
                 nextValue: "0.00",
                 repayWithCollateralImpact: "neutral",
-                title: "Min Required Collateral",
             },
             {
                 currentUnit: "COPFLIP",
@@ -435,7 +395,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextUnit: "COPFLIP",
                 nextValue: "0.00",
                 repayWithCollateralImpact: "neutral",
-                title: "Borrow Available W/Collateral",
             },
             {
                 currentUnit: "%",
@@ -443,7 +402,6 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
                 nextUnit: "%",
                 nextValue: "0.00",
                 repayWithCollateralImpact: "neutral",
-                title: "Borrow Usage",
             },
         ],
         actions: [

@@ -6,15 +6,15 @@ import { useWalletContext } from "../../../context/Wallet";
 import { ConvertAmount, TokenSettings } from "../../../helpers/currencies";
 import { toBigIntPrecision } from "../../../helpers/precision";
 import { useProjectTranslation } from "../../../helpers/translations";
-import TokenAmountInput from "../../TokenAmountInput";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
+import TokenAmountInput from "../../TokenAmountInput";
 import type { BorrowCardData, BorrowOperationMetric } from "../Borrow/data";
 import {
+    type BorrowMetricTrend,
     formatAmount,
     formatMetricValue,
     getImpactScore,
     parseAmount,
-    type BorrowMetricTrend,
 } from "../Borrow/operationUtils";
 import BeforeAfterCard from "../MiniComponents/BeforeAfterCard";
 import CompactMetricDisplay from "../MiniComponents/CompactMetricDisplay";
@@ -86,7 +86,7 @@ export default function BorrowRepay({
 }: BorrowRepayProps): React.ReactElement {
     const [repayAmount, setRepayAmount] = React.useState("");
     const { contractProtocolStatus } = useWalletContext();
-    const { i18n } = useProjectTranslation();
+    const { t, i18n } = useProjectTranslation();
 
     const currentDebtValue = parseAmount(card.currentDebt.value);
     const repayAmountValue = parseAmount(repayAmount);
@@ -195,25 +195,25 @@ export default function BorrowRepay({
     const noticeLines = hasPendingChanges
         ? (() => {
               return [
-                  `Repaying: ${repayAmount} ${card.currentDebt.ticker}.`,
+                  `${t("borrowing.sectionRepay.summary.txtRepaying")}: ${repayAmount} ${card.currentDebt.ticker}.`,
                   liquidationPriceMetric
-                      ? `Liquidation Price: ${liquidationPriceState?.nextValue} ${liquidationPriceMetric.nextUnit}.`
+                      ? `${t("borrowing.labelLiquidationPrice")}: ${liquidationPriceState?.nextValue} ${liquidationPriceMetric.nextUnit}.`
                       : null,
                   borrowAvailableMetric
-                      ? `Borrow available with collateral: ${borrowAvailableState?.nextValue} ${borrowAvailableMetric.nextUnit}.`
+                      ? `${t("borrowing.labelAvailableWithCollateral")}: ${borrowAvailableState?.nextValue} ${borrowAvailableMetric.nextUnit}.`
                       : null,
                   borrowUsageMetric
-                      ? `Borrow usage: ${borrowUsageState?.nextValue} ${borrowUsageMetric.nextUnit}.`
+                      ? `${t("borrowing.labelBorrowUsage")}: ${borrowUsageState?.nextValue} ${borrowUsageMetric.nextUnit}.`
                       : null,
-                  "Risk will decrease if you proceed.",
+                  t("borrowing.risk.decrease"),
               ].filter(Boolean);
           })()
-        : ['Enter an amount to repay or use "Repay in Full".'];
+        : [t("borrowing.sectionRepay.summary.txtEnterAmount")];
 
     return (
         <div className="layout-card borrow-repay-view">
             <div className="layout-card-title borrow-repay-title">
-                <h1>Repay</h1>
+                <h1>{t("borrowing.sectionRepay.cardTitle")}</h1>
                 <OperationBackLink onClick={onBack} />
             </div>
 
@@ -221,21 +221,22 @@ export default function BorrowRepay({
                 <div className="borrow-repay-main">
                     <div className="borrow-repay-panel">
                         <CompactMetricDisplay
-                            label="Current Debt"
+                            label={t("borrowing.labelCurrentDebt")}
                             value={card.currentDebt.value}
                             valueLabel={card.currentDebt.ticker}
                         />
                         <TokenAmountInput
                             feedbackMessage={
                                 hasDebtLimitError
-                                    ? "Amount exceeds your current debt"
+                                    ? t(
+                                          "borrowing.sectionRepay.feedbackDebtLimit"
+                                      )
                                     : undefined
                             }
                             feedbackState="negative"
                             getFiatEquivalent={getFiatEquivalent}
-                            fiatValue="0.00"
                             inputValue={repayAmount}
-                            label="Amount to Repay"
+                            label={t("borrowing.sectionRepay.labelAmountToRepay")}
                             onMaxClick={handleRepayInFull}
                             onQuickActionClick={handleQuickAction}
                             onValueChange={setRepayAmount}
@@ -259,21 +260,21 @@ export default function BorrowRepay({
                                     isInvalid:
                                         hasTypedAmount &&
                                         !repayAmountValue.isValid,
-                                    label: "Next",
+                                    label: t("beforeAfterCard.after"),
                                     unit: hasPendingChanges
                                         ? liquidationPriceMetric.nextUnit
                                         : liquidationPriceMetric.currentUnit,
                                     value: hasPendingChanges
-                                        ? liquidationPriceState?.nextValue ??
-                                          liquidationPriceMetric.currentValue
+                                        ? (liquidationPriceState?.nextValue ??
+                                          liquidationPriceMetric.currentValue)
                                         : liquidationPriceMetric.currentValue,
                                 }}
                                 before={{
-                                    label: "Current",
+                                    label: t("beforeAfterCard.before"),
                                     unit: liquidationPriceMetric.currentUnit,
                                     value: liquidationPriceMetric.currentValue,
                                 }}
-                                title={liquidationPriceMetric.title}
+                                title={t("borrowing.labelLiquidationPrice")}
                                 trend={
                                     hasPendingChanges &&
                                     liquidationPriceMetric.showTrend
@@ -289,21 +290,23 @@ export default function BorrowRepay({
                                     isInvalid:
                                         hasTypedAmount &&
                                         !repayAmountValue.isValid,
-                                    label: "Next",
+                                    label: t("beforeAfterCard.after"),
                                     unit: hasPendingChanges
                                         ? distanceToLiquidationMetric.nextUnit
                                         : distanceToLiquidationMetric.currentUnit,
                                     value: hasPendingChanges
-                                        ? distanceToLiquidationState?.nextValue ??
-                                          distanceToLiquidationMetric.currentValue
+                                        ? (distanceToLiquidationState?.nextValue ??
+                                          distanceToLiquidationMetric.currentValue)
                                         : distanceToLiquidationMetric.currentValue,
                                 }}
                                 before={{
-                                    label: "Current",
+                                    label: t("beforeAfterCard.before"),
                                     unit: distanceToLiquidationMetric.currentUnit,
                                     value: distanceToLiquidationMetric.currentValue,
                                 }}
-                                title={distanceToLiquidationMetric.title}
+                                title={t(
+                                    "borrowing.labelDistanceToLiquidation"
+                                )}
                                 trend={
                                     hasPendingChanges &&
                                     distanceToLiquidationMetric.showTrend
@@ -319,18 +322,20 @@ export default function BorrowRepay({
                                     isInvalid:
                                         hasTypedAmount &&
                                         !repayAmountValue.isValid,
-                                    label: "Next",
+                                    label: t("beforeAfterCard.after"),
                                     unit: hasPendingChanges
                                         ? minRequiredCollateralMetric.nextUnit
                                         : minRequiredCollateralMetric.currentUnit,
                                     value: minRequiredCollateralMetric.currentValue,
                                 }}
                                 before={{
-                                    label: "Current",
+                                    label: t("beforeAfterCard.before"),
                                     unit: minRequiredCollateralMetric.currentUnit,
                                     value: minRequiredCollateralMetric.currentValue,
                                 }}
-                                title={minRequiredCollateralMetric.title}
+                                title={t(
+                                    "borrowing.labelMinRequieredCollateral"
+                                )}
                                 useBorder
                             />
                         ) : null}
@@ -343,21 +348,23 @@ export default function BorrowRepay({
                                     isInvalid:
                                         hasTypedAmount &&
                                         !repayAmountValue.isValid,
-                                    label: "Next",
+                                    label: t("beforeAfterCard.after"),
                                     unit: hasPendingChanges
                                         ? borrowAvailableMetric.nextUnit
                                         : borrowAvailableMetric.currentUnit,
                                     value: hasPendingChanges
-                                        ? borrowAvailableState?.nextValue ??
-                                          borrowAvailableMetric.currentValue
+                                        ? (borrowAvailableState?.nextValue ??
+                                          borrowAvailableMetric.currentValue)
                                         : borrowAvailableMetric.currentValue,
                                 }}
                                 before={{
-                                    label: "Current",
+                                    label: t("beforeAfterCard.before"),
                                     unit: borrowAvailableMetric.currentUnit,
                                     value: borrowAvailableMetric.currentValue,
                                 }}
-                                title={borrowAvailableMetric.title}
+                                title={t(
+                                    "borrowing.labelAvailableWithCollateral"
+                                )}
                                 trend={
                                     hasPendingChanges &&
                                     borrowAvailableMetric.showTrend
@@ -373,21 +380,21 @@ export default function BorrowRepay({
                                     isInvalid:
                                         hasTypedAmount &&
                                         !repayAmountValue.isValid,
-                                    label: "Next",
+                                    label: t("beforeAfterCard.after"),
                                     unit: hasPendingChanges
                                         ? borrowUsageMetric.nextUnit
                                         : borrowUsageMetric.currentUnit,
                                     value: hasPendingChanges
-                                        ? borrowUsageState?.nextValue ??
-                                          borrowUsageMetric.currentValue
+                                        ? (borrowUsageState?.nextValue ??
+                                          borrowUsageMetric.currentValue)
                                         : borrowUsageMetric.currentValue,
                                 }}
                                 before={{
-                                    label: "Current",
+                                    label: t("beforeAfterCard.before"),
                                     unit: borrowUsageMetric.currentUnit,
                                     value: borrowUsageMetric.currentValue,
                                 }}
-                                title={borrowUsageMetric.title}
+                                title={t("borrowing.labelBorrowUsage")}
                                 trend={
                                     hasPendingChanges &&
                                     borrowUsageMetric.showTrend
@@ -403,15 +410,15 @@ export default function BorrowRepay({
                 <OperationNotice
                     title={
                         hasDebtLimitError
-                            ? "Repay amount exceeds current debt"
+                            ? t("borrowing.sectionRepay.summary.titleDebtLimit")
                             : hasPendingChanges
-                              ? "Ready to repay"
-                              : "Repay amount not specified"
+                              ? t("borrowing.sectionRepay.summary.titleReady")
+                              : t("borrowing.sectionRepay.summary.titleNoAmount")
                     }
                 >
                     <div className="borrow-repay-notice-lines">
                         {(hasDebtLimitError
-                            ? ["The repay amount exceeds your current debt."]
+                            ? [t("borrowing.sectionRepay.summary.txtDebtLimit")]
                             : noticeLines
                         ).map((line) => (
                             <div key={line}>{line}</div>
@@ -425,14 +432,16 @@ export default function BorrowRepay({
                         onClick={handleRepayInFull}
                         type="button"
                     >
-                        Repay in Full
+                        {t("borrowing.sectionRepay.cta.repayInFull")}
                     </button>
                     <button
                         className="button borrow-repay-actions__confirm"
                         disabled={!hasPendingChanges || hasValidationError}
                         type="button"
                     >
-                        {hasPendingChanges ? "Repay" : "Enter an Amount"}
+                        {hasPendingChanges
+                            ? t("borrowing.sectionRepay.cta.ok")
+                            : t("borrowing.sectionRepay.cta.noAmount")}
                     </button>
                 </OperationActions>
             </div>

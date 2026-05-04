@@ -137,18 +137,17 @@ export default function LendEarn({
 
                     <div className="lend-earn-content">
                         <TokenAmountInput
-                            balanceLabel="Balance"
+                            balanceLabel={t("tokenAmountInput.labelBalance")}
                             balanceValue={token.walletBalance}
                             feedbackMessage={
                                 hasBalanceError
-                                    ? "Not enough balance in your wallet"
+                                    ? t("tokenAmountInput.noEnoughBalance")
                                     : undefined
                             }
                             feedbackState="negative"
                             getFiatEquivalent={getFiatEquivalent}
-                            fiatValue="0.00"
                             inputValue={amount}
-                            label="Amount to Lend"
+                            label={t("lending.sectionEarn.labelAmountToLend")}
                             onMaxClick={() => handleQuickAmountSelection(100)}
                             onQuickActionClick={handleQuickAmountSelection}
                             onValueChange={setAmount}
@@ -189,8 +188,8 @@ export default function LendEarn({
                     {hasBalanceError
                         ? t("lending.sectionEarn.summary.txtExceedsBalance")
                         : hasSelectedAmount
-                          ? `${t("lending.sectionEarn.summary.txtAboutToLend")} ${amount} ${token.tokenTicker}.`
-                          : "Enter an amount to lend."}
+                          ? `${t("lending.sectionEarn.summary.txtAboutToLend")}: ${amount} ${token.tokenTicker}.`
+                          : t("lending.sectionEarn.summary.txtEnterAmount")}
                 </OperationNotice>
 
                 <OperationActions>

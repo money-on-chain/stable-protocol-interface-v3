@@ -7,7 +7,7 @@ import MetricCard from "../MiniComponents/MetricCard";
 import RateDisplay from "../MiniComponents/RateDisplay";
 import { BORROW_CARDS } from "../mocks/borrowCards";
 import {
-    BORROW_ACTION_LABELS,
+    BORROW_ACTION_LABEL_KEYS,
     type BorrowCardActionId,
     type BorrowCardData,
     parseMetricNumber,
@@ -130,7 +130,6 @@ export default function Borrow({
                                     </div>
 
                                     <div className="borrow-card-primary-metrics">
-                                        AA
                                         <div
                                             className={[
                                                 "borrow-card-primary-metric",
@@ -141,7 +140,9 @@ export default function Borrow({
                                                 .join(" ")}
                                         >
                                             <MetricCard
-                                                label="Max Available (Wallet + Collateral)"
+                                                label={t(
+                                                    "borrowing.labelMaxAvailable"
+                                                )}
                                                 localCurrencyValue={
                                                     card.maxAvailable.valueUsd
                                                 }
@@ -178,11 +179,11 @@ export default function Borrow({
                                                     key={action.id}
                                                     type="button"
                                                 >
-                                                    {
-                                                        BORROW_ACTION_LABELS[
+                                                    {t(
+                                                        BORROW_ACTION_LABEL_KEYS[
                                                             action.id
                                                         ]
-                                                    }
+                                                    )}
                                                 </button>
                                             ))}
                                         {hasDebtOrCollateral ? (
@@ -196,12 +197,16 @@ export default function Borrow({
                                                 {[
                                                     {
                                                         id: "current-debt",
-                                                        label: "Current Debt",
+                                                        label: t(
+                                                            "borrowing.labelCurrentDebt"
+                                                        ),
                                                         metric: card.currentDebt,
                                                     },
                                                     {
                                                         id: "deposited-collateral",
-                                                        label: "Deposited Collateral",
+                                                        label: t(
+                                                            "borrowing.labelDepositedCollateral"
+                                                        ),
                                                         metric: card.depositedCollateral,
                                                     },
                                                 ].map(
@@ -287,12 +292,12 @@ export default function Borrow({
                                                                 key={action.id}
                                                                 type="button"
                                                             >
-                                                                {
-                                                                    BORROW_ACTION_LABELS[
+                                                                {t(
+                                                                    BORROW_ACTION_LABEL_KEYS[
                                                                         action
                                                                             .id
                                                                     ]
-                                                                }
+                                                                )}
                                                             </button>
                                                         ))}
                                                 </div>
@@ -316,21 +321,18 @@ export default function Borrow({
                                         <div className="borrow-card-previous-liquidation">
                                             <div className="borrow-card-previous-liquidation__header">
                                                 <div className="borrow-card-previous-liquidation__title">
-                                                    {
-                                                        card.previousLiquidation
-                                                            .title
-                                                    }
+                                                    {t(
+                                                        "borrowing.liquidated.title"
+                                                    )}
                                                 </div>
                                                 <button
                                                     className="borrow-card-previous-liquidation__cta"
                                                     type="button"
                                                 >
                                                     <span>
-                                                        {
-                                                            card
-                                                                .previousLiquidation
-                                                                .ctaLabel
-                                                        }
+                                                        {t(
+                                                            "borrowing.liquidated.ctaDetails"
+                                                        )}
                                                     </span>
                                                     <div className="icon__button__arrow borrow-card-previous-liquidation__cta-icon"></div>
                                                 </button>

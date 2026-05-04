@@ -573,11 +573,11 @@
             "StakingOptionsModal_Authorize": "Autorizar",
             "StakingOptionsModal_ReviewYourWalletDescription": "Por favor revise su wallet",
             "StakingOptionsModal_AllowanceDescription": "Antes de continuar con el staking deberás permitir el \"allowance\" para que el sistema pueda acceder a los tokens. Esto solo debe hacerse la primera vez y no bloquea ningún token de tu wallet.",
-            "StakingOptionsModal_ProccessingAllowance": "Procesando Allowance, por favor espera",
+            "StakingOptionsModal_ProcessingAllowance": "Procesando Allowance, por favor espera",
             "StakingOptionsModal_StakingDescription": "Los MoCs stakeados recibirán recompensas del Programa de Recompensas de Staking de MoC. Puedes retirar tus MoC's cuando quieras, el proceso de retiro tomará 30 días",
             "StakingOptionsModal_AmountToStake": "Cantidad para Stake",
             "StakingOptionsModal_Title": "Stake",
-            "StakingOptionsModal_Comfirm": "Confirmar",
+            "StakingOptionsModal_Confirm": "Confirmar",
             "StakingOptionsModal_Cancel": "Cancelar",
 
             "StakingOptionsModal_UnstakeTitle": "Unstake",
@@ -790,6 +790,164 @@
             "status": "Estado",
             "statusReceived": "Recibido",
             "statusInProgress": "En progreso"
+        }
+    },
+    "beforeAfterCard": {
+        "before": "Actual",
+        "after": "Siguiente"
+    },
+    "tokenAmountInput": {
+        "noEnoughBalance": "No hay balance suficiente en tu wallet.",
+        "labelBalance": "Balance"
+    },
+    "lendingBorrowing": { "backLink": "Volver a Lending & Borrowing" },
+    "lending": {
+        "cardTitle": "Prestar",
+        "labelInterest": "APY variable de suministro",
+        "labelDeposits": "Tus depósitos + ganancias",
+        "cta": { "earn": "Depositar", "withdraw": "Retirar" },
+        "sectionEarn": {
+            "cardTitle": "Depositar",
+            "apy": "APY variable",
+            "labelAmountToLend": "Monto a prestar",
+            "summary": {
+                "titleBalanceError": "Balance insuficiente",
+                "titleAmountOK": "Listo para prestar",
+                "titleNoAmount": "No se seleccionó monto para prestar",
+                "txtExceedsBalance": "El monto excede el balance de tu wallet.",
+                "txtAboutToLend": "Estás por prestar",
+                "txtEnterAmount": "Ingresa un monto para prestar."
+            },
+            "cta": { "ok": "Prestar", "noAmount": "Ingresa un monto" }
+        },
+        "sectionWithdraw": {
+            "cardTitle": "Retirar",
+            "apy": "APY variable",
+            "available": "Disponible para retirar",
+            "labelAmountToWithdraw": "Monto a retirar",
+            "exceedsWithdrawBalance": "El monto excede tu balance disponible para retirar",
+            "summary": {
+                "titleBalanceError": "El monto excede el balance disponible",
+                "titleAmountOK": "Listo para retirar",
+                "titleNoAmount": "No se seleccionó monto para retirar",
+                "txtExceedsBalance": "El monto excede lo que puedes retirar actualmente.",
+                "txtAboutToWithdraw": "Estás por retirar",
+                "txtEnterAmount": "Ingresa un monto para retirar o selecciona Retirar todo",
+                "txtRemaining": "Depósito restante"
+            },
+            "cta": {
+                "ok": "Retirar",
+                "noAmount": "Ingresa un monto",
+                "withdrawAll": "Retirar todo"
+            }
+        }
+    },
+    "borrowing": {
+        "cardTitle": {
+            "section": "Pedir prestado"
+        },
+        "labelInterest": "APY variable de préstamo",
+        "labelDeposits": "Tus depósitos + ganancias",
+        "labelMaxAvailable": "Máximo disponible (Wallet + Colateral)",
+        "labelCurrentDebt": "Deuda actual",
+        "labelDepositedCollateral": "Colateral depositado",
+        "labelLoanToken": "Token del préstamo",
+        "labelCollateralToken": "Token de colateral",
+        "labelLiquidationPercentage": "El préstamo se liquida si el precio del colateral cae",
+        "labelLiquidationPrice": "Precio de liquidación",
+        "labelDistanceToLiquidation": "Distancia a liquidación",
+        "labelMinRequieredCollateral": "Colateral mínimo requerido",
+        "labelAvailableWithCollateral": "Disponible para pedir con colateral",
+        "labelBorrowUsage": "Uso del préstamo",
+        "liquidated": {
+            "title": "Liquidado",
+            "ctaDetails": "Detalles",
+            "labelAmount": "Monto liquidado",
+            "labelLiquidationPrice": "Precio de liquidación"
+        },
+        "actions": {
+            "borrow": "Pedir prestado",
+            "repay": "Repagar",
+            "repayWithCollateral": "Repagar con colateral",
+            "depositCollateral": "Depositar colateral",
+            "withdrawCollateral": "Retirar colateral"
+        },
+        "cta": { "confirm": "Confirmar" },
+        "risk": {
+            "decrease": "El riesgo disminuirá si continúas.",
+            "increase": "El riesgo aumentará si continúas.",
+            "neutral": "El riesgo se mantendrá neutral si continúas."
+        },
+        "sectionBorrow": {
+            "cardTitle": "Pedir prestado",
+            "apy": "APY variable",
+            "feedbackBorrowLimit": "El monto excede tu límite disponible para pedir prestado",
+            "labelAmountToBorrow": "Monto a pedir prestado",
+            "labelAddToCollateral": "Agregar a colateral",
+            "summary": {
+                "titleBorrowLimit": "El monto excede el límite",
+                "titleNoBalance": "Balance insuficiente",
+                "titleReady": "Listo para continuar",
+                "titleNoAmount": "No se seleccionó monto",
+                "txtBorrowing": "Pidiendo prestado",
+                "txtDepositingCollateral": "Depositando colateral",
+                "txtBorrowAvailableWithDepositedCollateral": "Disponible para pedir con colateral depositado",
+                "txtBorrowLimit": "El monto a pedir prestado excede tu límite disponible.",
+                "txtCollateralBalance": "El monto de colateral excede el balance de tu wallet.",
+                "txtEnterAmounts": "Ingresa montos de préstamo y/o colateral para continuar."
+            }
+        },
+        "sectionRepay": {
+            "cardTitle": "Repagar",
+            "feedbackDebtLimit": "El monto excede tu deuda actual",
+            "labelAmountToRepay": "Monto a repagar",
+            "summary": {
+                "titleDebtLimit": "El monto excede la deuda actual",
+                "titleReady": "Listo para repagar",
+                "titleNoAmount": "No se especificó monto a repagar",
+                "txtRepaying": "Repagando",
+                "txtDebtLimit": "El monto a repagar excede tu deuda actual.",
+                "txtEnterAmount": "Ingresa un monto a repagar o usa \"Repagar todo\"."
+            },
+            "cta": {
+                "ok": "Repagar",
+                "noAmount": "Ingresa un monto",
+                "repayInFull": "Repagar todo"
+            }
+        },
+        "sectionRepayCollateral": {
+            "cardTitle": "Repagar con colateral",
+            "feedbackCollateralLimit": "El monto excede tu colateral depositado",
+            "labelCollateralForRepay": "Colateral para repagar",
+            "labelDepositedCollateralAfterRepayment": "Colateral depositado después del repago",
+            "summary": {
+                "titleReady": "Listo para continuar",
+                "titleNoAmount": "No se especificó monto para repagar con colateral",
+                "txtUsingCollateral": "Usando colateral para repagar",
+                "txtDepositedCollateralAfterRepayment": "Colateral depositado después del repago",
+                "txtEnterAmount": "Ingresa un monto para repagar con colateral o usa \"MAX\"."
+            }
+        },
+        "sectionDepositCollateral": {
+            "cardTitle": "Depositar colateral",
+            "labelAmountToDeposit": "Monto a depositar",
+            "summary": {
+                "titleReady": "Listo para continuar",
+                "titleNoAmount": "No se especificó monto a depositar",
+                "txtDepositingCollateral": "Depositando colateral",
+                "txtEnterAmount": "Ingresa un monto de colateral para depositar."
+            }
+        },
+        "sectionWithdrawCollateral": {
+            "cardTitle": "Retirar colateral",
+            "feedbackCollateralLimit": "El monto excede tu colateral depositado",
+            "labelAmountToWithdraw": "Monto a retirar",
+            "summary": {
+                "titleReady": "Listo para continuar",
+                "titleNoAmount": "No se especificó monto a retirar",
+                "txtWithdrawingCollateral": "Retirando colateral",
+                "txtEnterAmount": "Ingresa un monto de colateral para retirar."
+            }
         }
     }
 }
