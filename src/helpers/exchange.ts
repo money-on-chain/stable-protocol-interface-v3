@@ -121,11 +121,13 @@ function loadTokenMapCombined(): TokenMap {
 
     // Exchange CA -> all TP
     for (let i = 0; i < caLen; i++) {
+        if (settings.combinedOperations.disabledBuckets.includes(i)) continue;
         tMap[CA(i)] = [...allTP];
     }
 
     // Exchange TC -> CA_i
     for (let i = 0; i < caLen; i++) {
+        if (settings.combinedOperations.disabledBuckets.includes(i)) continue;
         tMap[TC(i)] = [CA(i)];
     }
     return tMap;

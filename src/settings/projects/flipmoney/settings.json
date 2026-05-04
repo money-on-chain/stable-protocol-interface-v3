@@ -10,6 +10,9 @@
         "presets": [0.3, 1.0, 2.0],
         "max": 5.0
     },
+    "combinedOperations": {
+        "disabledBuckets": []
+    },
     "tokens": {
         "COINBASE": [
             {
