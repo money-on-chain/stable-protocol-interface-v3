@@ -10,8 +10,15 @@
         "presets": [0.3, 1.0, 2.0],
         "max": 5.0
     },
+    "exchange": {
+        "tokenMap": {
+            "blacklist": []
+        }
+    },
     "combinedOperations": {
-        "disabledBuckets": []
+        "tokenMap": {
+            "blacklist": []
+        }
     },
     "tokens": {
         "COINBASE": [
