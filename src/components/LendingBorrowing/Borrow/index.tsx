@@ -307,7 +307,7 @@ export default function Borrow({
                                                     <div className="borrow-card-liquidation-value">
                                                         {t(
                                                             "borrowing.labelLiquidationPercentage"
-                                                        )}
+                                                        )}{" "}
                                                         {card.liquidationDropPercentage.toFixed(
                                                             2
                                                         )}

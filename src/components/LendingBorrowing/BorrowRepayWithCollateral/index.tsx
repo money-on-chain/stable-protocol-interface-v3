@@ -29,7 +29,6 @@ interface BorrowRepayWithCollateralProps {
     onBack: () => void;
 }
 
-const QUICK_ACTIONS = [25, 50, 75, 100];
 const EPSILON = 0.001;
 
 function formatMetric(metric: BorrowOperationMetric, value: number): string {
@@ -38,6 +37,12 @@ function formatMetric(metric: BorrowOperationMetric, value: number): string {
         : metric.currentValue;
 
     return formatMetricValue(pattern, value);
+}
+
+function getCollateralAmountNeededForFullRepay(card: BorrowCardData): string {
+    // TODO(api): Replace this mock fallback with the contract/API quote for the
+    // exact collateral amount required to fully repay the current debt.
+    return formatAmount(parseAmount(card.currentDebt.valueUsd).value);
 }
 
 function getRepayWithCollateralMetricState(
@@ -86,9 +91,9 @@ export default function BorrowRepayWithCollateral({
     onConfirm,
     onBack,
 }: BorrowRepayWithCollateralProps): React.ReactElement {
-    const [collateralAmount, setCollateralAmount] = React.useState("");
     const { contractProtocolStatus } = useWalletContext();
     const { t, i18n } = useProjectTranslation();
+    const collateralAmount = getCollateralAmountNeededForFullRepay(card);
 
     const depositedCollateralValue = parseAmount(
         card.depositedCollateral.value
@@ -142,27 +147,13 @@ export default function BorrowRepayWithCollateral({
         collateralAmountValue.value,
         depositedCollateralValue.value
     );
-    const repayWithCollateralRatio = getRepayWithCollateralRatio(
-        cappedCollateralValue,
-        depositedCollateralValue.value
-    );
+    const repayWithCollateralRatio = hasPendingChanges
+        ? getRepayWithCollateralRatio(1, 1)
+        : getRepayWithCollateralRatio(0, 1);
     const collateralAfterRepayment = Math.max(
         0,
         depositedCollateralValue.value - cappedCollateralValue
     );
-
-    const handleQuickAction = (percentage: number) => {
-        const nextAmount =
-            percentage === 100
-                ? depositedCollateralValue.value
-                : depositedCollateralValue.value * (percentage / 100);
-
-        setCollateralAmount(formatAmount(nextAmount));
-    };
-
-    const handleUseMaxCollateral = () => {
-        setCollateralAmount(formatAmount(depositedCollateralValue.value));
-    };
 
     const [
         liquidationPriceMetric,
@@ -250,13 +241,8 @@ export default function BorrowRepayWithCollateral({
                             label={t(
                                 "borrowing.sectionRepayCollateral.labelCollateralForRepay"
                             )}
-                            onMaxClick={handleUseMaxCollateral}
-                            onQuickActionClick={handleQuickAction}
-                            onValueChange={setCollateralAmount}
-                            quickActions={QUICK_ACTIONS.filter(
-                                (percentage) => percentage !== 100
-                            )}
-                            showMaxShortcut
+                            displayOnly
+                            showMaxShortcut={false}
                             testId="borrow-repay-with-collateral-input"
                             tokenIconClassName={
                                 card.collateralTokenIconClassName
