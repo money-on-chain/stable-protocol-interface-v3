@@ -16,6 +16,7 @@ import OperationNotice from "../MiniComponents/OperationNotice";
 import RateDisplay from "../MiniComponents/RateDisplay";
 
 interface LendEarnProps {
+    onConfirm: (token: LendCardData, amount: string) => void;
     onBack: () => void;
     token: LendCardData;
 }
@@ -58,6 +59,7 @@ function parseAmount(rawAmount: string): {
 }
 
 export default function LendEarn({
+    onConfirm,
     onBack,
     token,
 }: LendEarnProps): React.ReactElement {
@@ -196,6 +198,7 @@ export default function LendEarn({
                     <button
                         className="button"
                         disabled={!hasSelectedAmount || hasValidationError}
+                        onClick={() => onConfirm(token, amount)}
                         type="button"
                     >
                         {hasSelectedAmount

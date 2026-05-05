@@ -6,6 +6,8 @@ import Lend from "../Lend";
 import type { LendCardData } from "../Lend/data";
 
 interface OverviewProps {
+    borrowCards: BorrowCardData[];
+    lendCards: LendCardData[];
     onOpenBorrow: (card: BorrowCardData) => void;
     onOpenBorrowDepositCollateral: (card: BorrowCardData) => void;
     onOpenBorrowRepay: (card: BorrowCardData) => void;
@@ -16,6 +18,8 @@ interface OverviewProps {
 }
 
 export default function Overview({
+    borrowCards,
+    lendCards,
     onOpenBorrow,
     onOpenBorrowDepositCollateral,
     onOpenBorrowRepay,
@@ -26,8 +30,13 @@ export default function Overview({
 }: OverviewProps): React.ReactElement {
     return (
         <>
-            <Lend onEarn={onOpenLendEarn} onWithdraw={onOpenLendWithdraw} />
+            <Lend
+                cards={lendCards}
+                onEarn={onOpenLendEarn}
+                onWithdraw={onOpenLendWithdraw}
+            />
             <Borrow
+                cards={borrowCards}
                 onOpenBorrow={onOpenBorrow}
                 onOpenDepositCollateral={onOpenBorrowDepositCollateral}
                 onOpenRepay={onOpenBorrowRepay}

@@ -20,10 +20,11 @@ import CompactMetricDisplay from "../MiniComponents/CompactMetricDisplay";
 import OperationActions from "../MiniComponents/OperationActions";
 import OperationBackLink from "../MiniComponents/OperationBackLink";
 import OperationNotice from "../MiniComponents/OperationNotice";
-import { getWithdrawCollateralMockRatio } from "../mocks/borrowOperationMockFormulas";
+import { getWithdrawCollateralRatio } from "../operationPreviewAdapter";
 
 interface BorrowWithdrawCollateralProps {
     card: BorrowCardData;
+    onConfirm: (card: BorrowCardData, collateralAmount: string) => void;
     onBack: () => void;
 }
 
@@ -144,6 +145,7 @@ function getWorseningBorrowUsageState(
 
 export default function BorrowWithdrawCollateral({
     card,
+    onConfirm,
     onBack,
 }: BorrowWithdrawCollateralProps): React.ReactElement {
     const [collateralAmount, setCollateralAmount] = React.useState("");
@@ -198,7 +200,7 @@ export default function BorrowWithdrawCollateral({
         },
         [card.caIndex, card.collateralTokenCode, contractProtocolStatus, i18n]
     );
-    const withdrawalRatio = getWithdrawCollateralMockRatio(
+    const withdrawalRatio = getWithdrawCollateralRatio(
         collateralAmountValue.value,
         depositedCollateralValue.value
     );
@@ -501,6 +503,7 @@ export default function BorrowWithdrawCollateral({
                     <button
                         className="button borrow-withdraw-collateral-actions__confirm"
                         disabled={!hasPendingChanges || hasValidationError}
+                        onClick={() => onConfirm(card, collateralAmount)}
                         type="button"
                     >
                         {t("borrowing.cta.confirm")}

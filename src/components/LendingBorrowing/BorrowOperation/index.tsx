@@ -27,14 +27,19 @@ import OperationBackLink from "../MiniComponents/OperationBackLink";
 import OperationNotice from "../MiniComponents/OperationNotice";
 import RateDisplay from "../MiniComponents/RateDisplay";
 import {
-    getBorrowMockRatio,
-    getBorrowOperationMockRiskDelta,
-    getDepositCollateralMockRatio,
-} from "../mocks/borrowOperationMockFormulas";
+    getBorrowOperationRiskDelta,
+    getBorrowRatio,
+    getDepositCollateralRatio,
+} from "../operationPreviewAdapter";
 
 interface BorrowOperationProps {
     onBack: () => void;
     card: BorrowCardData;
+    onConfirm: (
+        card: BorrowCardData,
+        borrowAmount: string,
+        collateralAmount: string
+    ) => void;
 }
 
 const QUICK_ACTIONS = [25, 50, 75, 100];
@@ -65,10 +70,10 @@ function getBorrowOperationProgress(
     collateralWalletBalanceValue: number
 ): number {
     const borrowContribution =
-        getBorrowMockRatio(borrowAmountValue, maxAvailableValue) *
+        getBorrowRatio(borrowAmountValue, maxAvailableValue) *
         getImpactScore(borrowImpact);
     const collateralContribution =
-        getDepositCollateralMockRatio(
+        getDepositCollateralRatio(
             collateralAmountValue,
             depositedCollateralValue,
             collateralWalletBalanceValue
@@ -149,6 +154,7 @@ function getBorrowOperationMetricState(
 
 export default function BorrowOperation({
     card,
+    onConfirm,
     onBack,
 }: BorrowOperationProps): React.ReactElement {
     const [borrowAmount, setBorrowAmount] = React.useState("");
@@ -252,7 +258,7 @@ export default function BorrowOperation({
         },
         [card.caIndex, card.collateralTokenCode, contractProtocolStatus, i18n]
     );
-    const overallRiskDelta = getBorrowOperationMockRiskDelta(
+    const overallRiskDelta = getBorrowOperationRiskDelta(
         borrowAmountValue.value,
         parseAmount(card.maxAvailable.value).value,
         collateralAmountValue.value,
@@ -684,6 +690,9 @@ export default function BorrowOperation({
                     <button
                         className="button borrow-operation-actions__confirm"
                         disabled={!hasPendingChanges}
+                        onClick={() =>
+                            onConfirm(card, borrowAmount, collateralAmount)
+                        }
                         type="button"
                     >
                         {t("borrowing.cta.confirm")}

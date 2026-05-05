@@ -11,18 +11,20 @@ import BorrowRepayWithCollateral from "./BorrowRepayWithCollateral";
 import BorrowWithdrawCollateral from "./BorrowWithdrawCollateral";
 import LendEarn from "./LendEarn";
 import LendWithdraw from "./LendWithdraw";
-import { BORROW_CARDS } from "./mocks/borrowCards";
-import { LEND_CARDS } from "./mocks/lendCards";
 import Overview from "./Overview";
+import { useLendingBorrowingActions } from "./useLendingBorrowingActions";
+import { useLendingBorrowingData } from "./useLendingBorrowingData";
 
 const LendingBorrowing: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
+    const { borrowCards, lendCards } = useLendingBorrowingData();
+    const actions = useLendingBorrowingActions();
     const view = searchParams.get("view");
     const tokenId = searchParams.get("token");
     const selectedLendCard =
-        LEND_CARDS.find((card) => card.id === tokenId) || null;
+        lendCards.find((card) => card.id === tokenId) || null;
     const selectedBorrowCard =
-        BORROW_CARDS.find((card) => card.id === tokenId) || null;
+        borrowCards.find((card) => card.id === tokenId) || null;
     const isLendEarnView = view === "lend-earn" && !!selectedLendCard;
     const isLendWithdrawView = view === "lend-withdraw" && !!selectedLendCard;
     const isBorrowOperationView =
@@ -61,6 +63,8 @@ const LendingBorrowing: React.FC = () => {
             !isBorrowRepayWithCollateralView &&
             !isBorrowWithdrawCollateralView ? (
                 <Overview
+                    borrowCards={borrowCards}
+                    lendCards={lendCards}
                     onOpenBorrow={(card) =>
                         updateSearchParams((params) => {
                             params.set("view", "borrow-operation");
@@ -106,6 +110,7 @@ const LendingBorrowing: React.FC = () => {
                 />
             ) : isLendEarnView ? (
                 <LendEarn
+                    onConfirm={actions.confirmLendEarn}
                     onBack={() =>
                         updateSearchParams((params) => {
                             params.delete("view");
@@ -116,6 +121,7 @@ const LendingBorrowing: React.FC = () => {
                 />
             ) : isLendWithdrawView ? (
                 <LendWithdraw
+                    onConfirm={actions.confirmLendWithdraw}
                     onBack={() =>
                         updateSearchParams((params) => {
                             params.delete("view");
@@ -127,6 +133,7 @@ const LendingBorrowing: React.FC = () => {
             ) : isBorrowDepositCollateralView ? (
                 <BorrowDepositCollateral
                     card={selectedBorrowCard}
+                    onConfirm={actions.confirmBorrowDepositCollateral}
                     onBack={() =>
                         updateSearchParams((params) => {
                             params.delete("view");
@@ -137,6 +144,7 @@ const LendingBorrowing: React.FC = () => {
             ) : isBorrowRepayView ? (
                 <BorrowRepay
                     card={selectedBorrowCard}
+                    onConfirm={actions.confirmBorrowRepay}
                     onBack={() =>
                         updateSearchParams((params) => {
                             params.delete("view");
@@ -147,6 +155,7 @@ const LendingBorrowing: React.FC = () => {
             ) : isBorrowRepayWithCollateralView ? (
                 <BorrowRepayWithCollateral
                     card={selectedBorrowCard}
+                    onConfirm={actions.confirmBorrowRepayWithCollateral}
                     onBack={() =>
                         updateSearchParams((params) => {
                             params.delete("view");
@@ -157,6 +166,7 @@ const LendingBorrowing: React.FC = () => {
             ) : isBorrowWithdrawCollateralView ? (
                 <BorrowWithdrawCollateral
                     card={selectedBorrowCard}
+                    onConfirm={actions.confirmBorrowWithdrawCollateral}
                     onBack={() =>
                         updateSearchParams((params) => {
                             params.delete("view");
@@ -167,6 +177,7 @@ const LendingBorrowing: React.FC = () => {
             ) : (
                 <BorrowOperation
                     card={selectedBorrowCard!}
+                    onConfirm={actions.confirmBorrowOperation}
                     onBack={() =>
                         updateSearchParams((params) => {
                             params.delete("view");

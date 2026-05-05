@@ -17,6 +17,7 @@ import OperationNotice from "../MiniComponents/OperationNotice";
 import RateDisplay from "../MiniComponents/RateDisplay";
 
 interface LendWithdrawProps {
+    onConfirm: (token: LendCardData, amount: string) => void;
     onBack: () => void;
     token: LendCardData;
 }
@@ -59,6 +60,7 @@ function formatAmount(value: number): string {
 }
 
 export default function LendWithdraw({
+    onConfirm,
     onBack,
     token,
 }: LendWithdrawProps): React.ReactElement {
@@ -246,6 +248,7 @@ export default function LendWithdraw({
                     <button
                         className="button"
                         disabled={!hasSelectedAmount || hasValidationError}
+                        onClick={() => onConfirm(token, amount)}
                         type="button"
                     >
                         {hasSelectedAmount

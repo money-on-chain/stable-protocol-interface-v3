@@ -21,10 +21,11 @@ import CompactMetricDisplay from "../MiniComponents/CompactMetricDisplay";
 import OperationActions from "../MiniComponents/OperationActions";
 import OperationBackLink from "../MiniComponents/OperationBackLink";
 import OperationNotice from "../MiniComponents/OperationNotice";
-import { getRepayMockRatio } from "../mocks/borrowOperationMockFormulas";
+import { getRepayRatio } from "../operationPreviewAdapter";
 
 interface BorrowRepayProps {
     card: BorrowCardData;
+    onConfirm: (card: BorrowCardData, repayAmount: string) => void;
     onBack: () => void;
 }
 
@@ -82,6 +83,7 @@ function getRepayMetricState(
 
 export default function BorrowRepay({
     card,
+    onConfirm,
     onBack,
 }: BorrowRepayProps): React.ReactElement {
     const [repayAmount, setRepayAmount] = React.useState("");
@@ -137,10 +139,7 @@ export default function BorrowRepay({
         repayAmountValue.value,
         currentDebtValue.value
     );
-    const repayRatio = getRepayMockRatio(
-        cappedRepayValue,
-        currentDebtValue.value
-    );
+    const repayRatio = getRepayRatio(cappedRepayValue, currentDebtValue.value);
 
     const handleQuickAction = (percentage: number) => {
         const nextAmount =
@@ -437,6 +436,7 @@ export default function BorrowRepay({
                     <button
                         className="button borrow-repay-actions__confirm"
                         disabled={!hasPendingChanges || hasValidationError}
+                        onClick={() => onConfirm(card, repayAmount)}
                         type="button"
                     >
                         {hasPendingChanges

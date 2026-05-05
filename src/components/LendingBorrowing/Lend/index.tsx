@@ -5,15 +5,16 @@ import React from "react";
 import { useProjectTranslation } from "../../../helpers/translations";
 import MetricCard from "../MiniComponents/MetricCard";
 import RateDisplay from "../MiniComponents/RateDisplay";
-import { LEND_CARDS } from "../mocks/lendCards";
 import type { LendCardData } from "./data";
 
 interface LendProps {
+    cards: LendCardData[];
     onEarn: (token: LendCardData) => void;
     onWithdraw: (token: LendCardData) => void;
 }
 
 export default function Lend({
+    cards,
     onEarn,
     onWithdraw,
 }: LendProps): React.ReactElement {
@@ -25,7 +26,7 @@ export default function Lend({
                 <h1>{t("lending.cardTitle")}</h1>
             </div>
             <div className="lend-items">
-                {LEND_CARDS.map((card) => (
+                {cards.map((card) => (
                     <div className={"card"} key={card.id}>
                         <div className="card-header">
                             <div className="token">

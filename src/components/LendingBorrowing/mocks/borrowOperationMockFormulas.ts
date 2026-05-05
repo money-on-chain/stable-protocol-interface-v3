@@ -3,6 +3,9 @@ import {
 } from "../Borrow/operationUtils";
 const MOCK_EFFECT_REFERENCE_FALLBACK = 1;
 
+// TODO(api): These helpers are only for mock previews. Replace them with API/contract
+// simulations or freshly computed protocol metrics when block-by-block data is wired.
+
 function normalizeMockAmount(value: number): number {
     return Math.max(0, value);
 }

@@ -65,21 +65,33 @@ If no valid view is found, the component renders `Overview`.
 
 ## Data sources
 
-The component currently uses mocked card data:
+The component reads card data through `useLendingBorrowingData`:
 
 ```tsx
-import { BORROW_CARDS } from "./mocks/borrowCards";
-import { LEND_CARDS } from "./mocks/lendCards";
+const { borrowCards, lendCards } = useLendingBorrowingData();
 ```
 
 The selected cards are resolved from the `token` URL parameter:
 
 ```tsx
-const selectedLendCard = LEND_CARDS.find((card) => card.id === tokenId) || null;
+const selectedLendCard = lendCards.find((card) => card.id === tokenId) || null;
 
 const selectedBorrowCard =
-    BORROW_CARDS.find((card) => card.id === tokenId) || null;
+    borrowCards.find((card) => card.id === tokenId) || null;
 ```
+
+`useLendingBorrowingData` is the expected integration point for live API,
+contract, wallet, account, and block/query data. The hook still returns mocked
+cards today, but the `TODO(api)` comments inside it describe what should be
+replaced.
+
+Operation preview calculations are centralized in `operationPreviewAdapter`.
+Replace the mock-backed functions there with live simulations or computed
+protocol metrics while keeping the exported function names stable.
+
+Confirm actions are centralized in `useLendingBorrowingActions`. Replace the
+placeholder callbacks there with allowance checks, contract writes, transaction
+status handling, and post-confirmation refetches.
 
 ---
 
@@ -185,6 +197,8 @@ When the default `Overview` is rendered, callback props are passed down to open 
 
 ```tsx
 <Overview
+    borrowCards={borrowCards}
+    lendCards={lendCards}
     onOpenBorrow={(card) =>
         updateSearchParams((params) => {
             params.set("view", "borrow-operation");
@@ -324,6 +338,8 @@ import "./Styles.scss";
 - Navigation state is stored in URL search parameters.
 - Invalid or incomplete URL states return to `Overview`.
 - Borrowing sub-flows are guarded by card data checks.
-- The current data source is mocked.
-- `parseMetricNumber` is used to validate numeric mock values.
+- The current mock data enters through `useLendingBorrowingData`.
+- Preview mocks enter through `operationPreviewAdapter`.
+- Submit placeholders live in `useLendingBorrowingActions`.
+- `parseMetricNumber` is used to validate numeric card values.
 - Parent routing should render this component at the Lending & Borrowing page level.

@@ -21,10 +21,11 @@ import CompactMetricDisplay from "../MiniComponents/CompactMetricDisplay";
 import OperationActions from "../MiniComponents/OperationActions";
 import OperationBackLink from "../MiniComponents/OperationBackLink";
 import OperationNotice from "../MiniComponents/OperationNotice";
-import { getRepayWithCollateralMockRatio } from "../mocks/borrowOperationMockFormulas";
+import { getRepayWithCollateralRatio } from "../operationPreviewAdapter";
 
 interface BorrowRepayWithCollateralProps {
     card: BorrowCardData;
+    onConfirm: (card: BorrowCardData, collateralAmount: string) => void;
     onBack: () => void;
 }
 
@@ -82,6 +83,7 @@ function getRepayWithCollateralMetricState(
 
 export default function BorrowRepayWithCollateral({
     card,
+    onConfirm,
     onBack,
 }: BorrowRepayWithCollateralProps): React.ReactElement {
     const [collateralAmount, setCollateralAmount] = React.useState("");
@@ -140,7 +142,7 @@ export default function BorrowRepayWithCollateral({
         collateralAmountValue.value,
         depositedCollateralValue.value
     );
-    const repayWithCollateralRatio = getRepayWithCollateralMockRatio(
+    const repayWithCollateralRatio = getRepayWithCollateralRatio(
         cappedCollateralValue,
         depositedCollateralValue.value
     );
@@ -451,6 +453,7 @@ export default function BorrowRepayWithCollateral({
                     <button
                         className="button borrow-repay-with-collateral-actions__confirm"
                         disabled={!hasPendingChanges || hasValidationError}
+                        onClick={() => onConfirm(card, collateralAmount)}
                         type="button"
                     >
                         {t("borrowing.cta.confirm")}

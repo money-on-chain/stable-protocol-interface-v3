@@ -20,10 +20,11 @@ import CompactMetricDisplay from "../MiniComponents/CompactMetricDisplay";
 import OperationActions from "../MiniComponents/OperationActions";
 import OperationBackLink from "../MiniComponents/OperationBackLink";
 import OperationNotice from "../MiniComponents/OperationNotice";
-import { getDepositCollateralMockRatio } from "../mocks/borrowOperationMockFormulas";
+import { getDepositCollateralRatio } from "../operationPreviewAdapter";
 
 interface BorrowDepositCollateralProps {
     card: BorrowCardData;
+    onConfirm: (card: BorrowCardData, collateralAmount: string) => void;
     onBack: () => void;
 }
 
@@ -72,6 +73,7 @@ function getPositiveMetricState(
 
 export default function BorrowDepositCollateral({
     card,
+    onConfirm,
     onBack,
 }: BorrowDepositCollateralProps): React.ReactElement {
     const [collateralAmount, setCollateralAmount] = React.useState("");
@@ -129,7 +131,7 @@ export default function BorrowDepositCollateral({
         },
         [card.caIndex, card.collateralTokenCode, contractProtocolStatus, i18n]
     );
-    const collateralRatio = getDepositCollateralMockRatio(
+    const collateralRatio = getDepositCollateralRatio(
         collateralAmountValue.value,
         depositedCollateralValue.value,
         collateralWalletBalanceValue.value
@@ -417,6 +419,7 @@ export default function BorrowDepositCollateral({
                     <button
                         className="button borrow-deposit-collateral-actions__confirm"
                         disabled={!hasPendingChanges || hasValidationError}
+                        onClick={() => onConfirm(card, collateralAmount)}
                         type="button"
                     >
                         {t("borrowing.cta.confirm")}

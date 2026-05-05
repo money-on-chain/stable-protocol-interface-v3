@@ -5,7 +5,6 @@ import React from "react";
 import { useProjectTranslation } from "../../../helpers/translations";
 import MetricCard from "../MiniComponents/MetricCard";
 import RateDisplay from "../MiniComponents/RateDisplay";
-import { BORROW_CARDS } from "../mocks/borrowCards";
 import {
     BORROW_ACTION_LABEL_KEYS,
     type BorrowCardActionId,
@@ -14,6 +13,7 @@ import {
 } from "./data";
 
 interface BorrowProps {
+    cards: BorrowCardData[];
     onOpenBorrow: (card: BorrowCardData) => void;
     onOpenDepositCollateral: (card: BorrowCardData) => void;
     onOpenRepay: (card: BorrowCardData) => void;
@@ -29,6 +29,7 @@ const BORROW_SECONDARY_ACTION_ORDER: BorrowCardActionId[] = [
 ];
 
 export default function Borrow({
+    cards,
     onOpenBorrow,
     onOpenDepositCollateral,
     onOpenRepay,
@@ -43,7 +44,7 @@ export default function Borrow({
                 <h1>{t("borrowing.cardTitle.section")}</h1>
             </div>
             <div className="borrow-items">
-                {BORROW_CARDS.map((card) => (
+                {cards.map((card) => (
                     <div className="card borrow-card" key={card.id}>
                         {(() => {
                             const hasCurrentDebt =
