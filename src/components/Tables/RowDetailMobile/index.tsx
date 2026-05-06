@@ -21,6 +21,7 @@ interface DetailData {
     tx_hash_truncate: string;
     msg: string;
     reason: string;
+    price: string | number;
 }
 
 interface ItemDataProps {
@@ -139,6 +140,12 @@ function RowDetail(props: RowDetailProps): React.ReactElement {
                     ns: ns,
                 })}
                 data={props.detail.reason}
+            />
+            <ItemData
+                label={t(`operations.columns_detailed.price`, {
+                    ns: ns,
+                })}
+                data={props.detail.price}
             />
         </div>
     );

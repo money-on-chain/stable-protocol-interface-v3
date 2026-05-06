@@ -1058,6 +1058,25 @@ export default function LastOperations(props: LastOperationsProps) {
         },
         [i18n, t, ns]
     );
+    const getPrice = useCallback(
+        (row_operation: OperationData) => {
+            let price = "--";  
+            
+            if (row_operation["operation"] === "TPMint" && row_operation["executed"]) {
+                price = "1";
+            } else if (row_operation["operation"] === "TPRedeem" && row_operation["executed"]) {                price = "1";
+                price = "1"
+            } else if (row_operation["operation"] === "TCRedeem" && row_operation["executed"]) {
+                price = "1";
+            } else if (row_operation["operation"] === "TPMint" && row_operation["executed"]) {
+                price = "1";
+            } else if (row_operation["operation"] === "TCMint" && row_operation["executed"]) {
+                price = "1";
+            } 
+            return price;
+        },
+        [i18n, t, ns]
+    );
     const getTransferAction = useCallback(
         (row_operation: OperationData) => {
             if (
@@ -1282,6 +1301,7 @@ export default function LastOperations(props: LastOperationsProps) {
                 executed_tx_hash: data.params?.hash || "--",
                 status: getStatus(data) || "--",
                 fee: getFee(data) || "--",
+                price: getPrice(data) || "--",
             };
 
             received_row.push({

@@ -60,7 +60,8 @@
             "fee": "Fee",
             "gas": "Gas Fee",
             "msg": "Message",
-            "reason": "Reason"
+            "reason": "Reason",
+            "price": "Price"
         },
         "errors": {
             "qACBelow1": "Price variation for",
