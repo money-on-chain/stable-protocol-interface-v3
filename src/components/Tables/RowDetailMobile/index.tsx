@@ -23,7 +23,7 @@ interface DetailData {
     tx_hash_truncate: string;
     msg: string;
     reason: string;
-    price: bigint | null;
+    price: { value: bigint | null; currency: string | null } | null;
 }
 
 interface ItemDataProps {
@@ -147,7 +147,10 @@ function RowDetail(props: RowDetailProps): React.ReactElement {
                 label={t(`operations.columns_detailed.price`, {
                     ns: ns,
                 })}
-                data={props.detail.price ? <PrecisionNumbers amount={props.detail.price} token={settings.tokens.TF[0]} decimals={settings.tokens.TF[0].decimals} i18n={i18n} compact={true} /> : "--"}
+                data={props.detail.price?.value ? (<>
+                    <PrecisionNumbers amount={props.detail.price.value} token={settings.tokens.TF[0]} decimals={6} i18n={i18n} compact={true} />
+                    <span> {props.detail.price.currency}</span>
+                </>) : "--"}
             />
         </div>
     );
