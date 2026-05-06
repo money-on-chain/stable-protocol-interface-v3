@@ -3,6 +3,8 @@ import "./Styles.scss";
 import React from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
+import settings from "../../../settings/settings.json";
 
 interface DetailData {
     event: string;
@@ -21,7 +23,7 @@ interface DetailData {
     tx_hash_truncate: string;
     msg: string;
     reason: string;
-    price: string | number;
+    price: bigint | null;
 }
 
 interface ItemDataProps {
@@ -43,7 +45,7 @@ function ItemData(props: ItemDataProps): React.ReactElement {
 }
 
 function RowDetail(props: RowDetailProps): React.ReactElement {
-    const { t, ns } = useProjectTranslation();
+    const { t, ns, i18n } = useProjectTranslation();
 
     return (
         <div className="LastOp__expanded__container">
@@ -145,7 +147,7 @@ function RowDetail(props: RowDetailProps): React.ReactElement {
                 label={t(`operations.columns_detailed.price`, {
                     ns: ns,
                 })}
-                data={props.detail.price}
+                data={props.detail.price ? <PrecisionNumbers amount={props.detail.price} token={settings.tokens.TF[0]} decimals={settings.tokens.TF[0].decimals} i18n={i18n} compact={true} /> : "--"}
             />
         </div>
     );

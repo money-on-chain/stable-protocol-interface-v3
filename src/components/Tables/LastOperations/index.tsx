@@ -23,6 +23,7 @@ import Copy from "../../Copy";
 import AboutQueue from "../../Modals/AboutQueue";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 import RowDetailMobile from "../RowDetailMobile";
+import { wadDiv } from "../../../helpers/precision";
 
 // Type definitions
 interface LastOperationsProps {
@@ -1060,18 +1061,16 @@ export default function LastOperations(props: LastOperationsProps) {
     );
     const getPrice = useCallback(
         (row_operation: OperationData) => {
-            let price = "--";  
-            
-            if (row_operation["operation"] === "TPMint" && row_operation["executed"]) {
-                price = "1";
-            } else if (row_operation["operation"] === "TPRedeem" && row_operation["executed"]) {                price = "1";
-                price = "1"
-            } else if (row_operation["operation"] === "TCRedeem" && row_operation["executed"]) {
-                price = "1";
-            } else if (row_operation["operation"] === "TPMint" && row_operation["executed"]) {
-                price = "1";
-            } else if (row_operation["operation"] === "TCMint" && row_operation["executed"]) {
-                price = "1";
+            let price: bigint | null = null;
+            const row_executed = row_operation.executed;            
+            if (row_operation["operation"] === "TPMint" && row_executed && row_executed.qTP_ && row_executed.qAC_) {
+                price = wadDiv(BigInt(row_executed.qTP_), BigInt(row_executed.qAC_), "halfUp");
+            } else if (row_operation["operation"] === "TPRedeem" && row_executed && row_executed.qTP_ && row_executed.qAC_) {                
+                price = wadDiv(BigInt(row_executed.qTP_), BigInt(row_executed.qAC_), "halfUp");
+            } else if (row_operation["operation"] === "TCRedeem" && row_executed && row_executed.qTC_ && row_executed.qAC_) {
+                price = wadDiv(BigInt(row_executed.qTC_), BigInt(row_executed.qAC_), "halfUp");            
+            } else if (row_operation["operation"] === "TCMint" && row_executed && row_executed.qTC_ && row_executed.qAC_) {
+                price = wadDiv(BigInt(row_executed.qTC_), BigInt(row_executed.qAC_), "halfUp");
             } 
             return price;
         },
@@ -1301,7 +1300,7 @@ export default function LastOperations(props: LastOperationsProps) {
                 executed_tx_hash: data.params?.hash || "--",
                 status: getStatus(data) || "--",
                 fee: getFee(data) || "--",
-                price: getPrice(data) || "--",
+                price: getPrice(data)
             };
 
             received_row.push({
