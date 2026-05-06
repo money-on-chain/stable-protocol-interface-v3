@@ -721,6 +721,7 @@ export {
     TokenContract,
     tokenExchange,
     tokenExchangeCombined,
+    tokenMapBlacklist,
     tokenReceive,
     tokenReceiveCombined,
     typeOperation,

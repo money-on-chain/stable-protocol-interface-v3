@@ -8,6 +8,7 @@ import {
     ConvertAmount,
     ConvertPeggedTokenPrice,
 } from "../../../helpers/currencies";
+import { tokenMapBlacklist } from "../../../helpers/exchange";
 import { getPortfolioTokenUsdBalance } from "../../../helpers/portfolio";
 import {
     mulPrecision,
@@ -139,6 +140,8 @@ export default function PortfolioTable() {
         const newUSDpeggedTokenRows: TokenRow[] = []; // ✅ Store all updated rows
 
         allTheTokens.forEach((token: TokenConfig) => {
+            if (tokenMapBlacklist.has(`${token.type}_${token.key}`)) return;
+
             let balance = 0n;
             let balanceLoaded = false;
             let price = 0n;
@@ -146,7 +149,7 @@ export default function PortfolioTable() {
             let priceCA = 0n;
             let balanceUSD = 0n;
             let tokenIcon = "";
-
+            
             switch (token.type) {
                 case "COINBASE":
                     // CALCULATE COINBASE DATA
