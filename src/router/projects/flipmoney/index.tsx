@@ -22,6 +22,9 @@ const VetoWithdraw = React.lazy(() => import("../../../pages/Veto/Withdraw"));
 const LendingBorrowing = React.lazy(
     () => import("../../../pages/LendingBorrowing/index")
 );
+const ComponentTest = React.lazy(
+    () => import("../../../pages/ComponentTest/index")
+);
 
 export default function Router(): React.ReactElement | null {
     return useRoutes([
@@ -72,6 +75,10 @@ export default function Router(): React.ReactElement | null {
                 {
                     path: "lending-borrowing",
                     element: <LendingBorrowing />,
+                },
+                {
+                    path: "componenttest",
+                    element: <ComponentTest />,
                 },
                 { path: "404", element: <NotFound /> },
                 { path: "*", element: <Navigate to="/404" /> },

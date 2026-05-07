@@ -19,6 +19,9 @@ const VetoWithdraw = React.lazy(() => import("../../../pages/Veto/Withdraw"));
 const LiquidityMining = React.lazy(
     () => import("../../../pages/LiquidityMining/index")
 );
+const ComponentTest = React.lazy(
+    () => import("../../../pages/ComponentTest/index")
+);
 
 export default function Router(): React.ReactElement | null {
     return useRoutes([
@@ -69,6 +72,10 @@ export default function Router(): React.ReactElement | null {
                 {
                     path: "veto/withdraw",
                     element: <VetoWithdraw />,
+                },
+                {
+                    path: "componenttest",
+                    element: <ComponentTest />,
                 },
                 { path: "404", element: <NotFound /> },
                 { path: "*", element: <Navigate to="/404" /> },

@@ -941,5 +941,42 @@
                 "txtEnterAmount": "Ingresa un monto de colateral para retirar."
             }
         }
+    },
+    "operationProgressList": {
+        "transaction": "Transacción",
+        "openLink": "Abrir detalles",
+        "copyHash": "Copiar hash",
+        "status": {
+            "pending": "Pendiente",
+            "waiting": "Esperando",
+            "processing": "Procesando",
+            "completed": "Completado",
+            "failed": "Falló"
+        },
+        "example": {
+            "runSuccess": "Ejecutar flujo exitoso",
+            "runFailure": "Ejecutar flujo con fallo",
+            "reset": "Reiniciar",
+            "failureMessage": "El padre recibió un error y mantuvo los pasos restantes pendientes.",
+            "approveTokenA": {
+                "title": "Aprobar token A",
+                "description": "Se requiere aprobación del usuario para continuar la operación."
+            },
+            "approveTokenB": {
+                "title": "Aprobar token B",
+                "description": "Este paso puede completarse o fallar independientemente."
+            },
+            "depositCollateral": {
+                "title": "Depositar colateral",
+                "description": "El padre decide cuándo comienza este paso."
+            },
+            "borrowToken": {
+                "title": "Pedir token prestado",
+                "description": "La lista solo renderiza el estado que recibe."
+            },
+            "operationCompleted": {
+                "title": "Operación completada"
+            }
+        }
     }
 }

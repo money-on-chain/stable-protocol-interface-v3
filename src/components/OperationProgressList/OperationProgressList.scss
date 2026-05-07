@@ -1,0 +1,193 @@
+.operation-progress-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    list-style: none;
+    color: var(--color-txt-primary);
+    font-family: var(--main-font);
+
+    &__step {
+        display: grid;
+        grid-template-columns: 32px minmax(0, 1fr);
+        gap: 12px;
+        align-items: flex-start;
+        transition:
+            opacity 0.2s ease,
+            color 0.2s ease;
+    }
+
+    &__step--pending {
+        opacity: 0.45;
+    }
+
+    &__step--waiting {
+        .operation-progress-list__marker {
+            border-color: var(--color-controls-active);
+            background-color: var(--color-controls-background);
+        }
+    }
+
+    &__step--processing {
+        .operation-progress-list__marker {
+            border-color: var(--color-controls-active);
+        }
+    }
+
+    &__step--completed {
+        .operation-progress-list__marker {
+            border-color: var(--color-semantic-positive);
+        }
+
+        .operation-progress-list__status {
+            color: var(--color-semantic-positive);
+        }
+    }
+
+    &__step--failed {
+        .operation-progress-list__marker {
+            border-color: var(--color-semantic-negative);
+        }
+
+        .operation-progress-list__status {
+            color: var(--color-semantic-negative);
+        }
+    }
+
+    &__marker {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 1px solid var(--dividers);
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        flex: 0 0 32px;
+    }
+
+    &__icon:not(&__icon--custom) {
+        width: 16px;
+        height: 16px;
+        background-size: 16px 16px;
+    }
+
+    &__step--waiting &__icon:not(&__icon--custom),
+    &__step--failed &__icon:not(&__icon--custom) {
+        width: 20px;
+        height: 20px;
+        background-size: 20px 20px;
+    }
+
+    &__content {
+        min-width: 0;
+    }
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    &__title {
+        min-width: 0;
+        font-weight: 700;
+        font-size: 14px;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+    }
+
+    &__status {
+        flex: 0 0 auto;
+        font-weight: 700;
+        font-size: 11px;
+        line-height: 1.35;
+        color: var(--color-txt-secondary);
+        text-align: right;
+    }
+
+    &__description,
+    &__message,
+    &__error {
+        margin: 4px 0 0;
+        font-size: 12px;
+        line-height: 1.45;
+        overflow-wrap: anywhere;
+    }
+
+    &__description {
+        color: var(--color-txt-secondary);
+    }
+
+    &__message {
+        color: var(--color-txt-primary);
+    }
+
+    &__error {
+        color: var(--color-semantic-negative);
+    }
+
+    &__meta {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        margin-top: 6px;
+        min-width: 0;
+        font-size: 12px;
+        line-height: 1.35;
+    }
+
+    &__hash,
+    &__link {
+        overflow-wrap: anywhere;
+    }
+
+    &__transaction {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        max-width: 100%;
+    }
+
+    &__link {
+        color: var(--color-txt-link);
+        font-weight: 700;
+    }
+
+    &__copy-button {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        border: 0;
+        background: transparent;
+        padding: 0;
+        width: 22px;
+        height: 22px;
+        flex: 0 0 22px;
+
+        .icon-copy {
+            margin: 0;
+            width: 16px;
+            height: 16px;
+            background-size: 16px 16px;
+        }
+    }
+}
+
+@media (max-width: 600px) {
+    .operation-progress-list {
+        &__header {
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        &__status {
+            text-align: left;
+        }
+    }
+}

@@ -702,5 +702,42 @@
             "statusReceived": "Received",
             "statusInProgress": "In progress"
         }
+    },
+    "operationProgressList": {
+        "transaction": "Transaction",
+        "openLink": "Open details",
+        "copyHash": "Copy hash",
+        "status": {
+            "pending": "Pending",
+            "waiting": "Waiting",
+            "processing": "Processing",
+            "completed": "Completed",
+            "failed": "Failed"
+        },
+        "example": {
+            "runSuccess": "Run success flow",
+            "runFailure": "Run failed flow",
+            "reset": "Reset",
+            "failureMessage": "The parent received an error and kept the remaining steps pending.",
+            "approveTokenA": {
+                "title": "Approve token A",
+                "description": "User approval is required before the operation can continue."
+            },
+            "approveTokenB": {
+                "title": "Approve token B",
+                "description": "This step can complete or fail independently."
+            },
+            "depositCollateral": {
+                "title": "Deposit collateral",
+                "description": "The parent decides when this step starts."
+            },
+            "borrowToken": {
+                "title": "Borrow token",
+                "description": "The list only renders the status it receives."
+            },
+            "operationCompleted": {
+                "title": "Operation completed"
+            }
+        }
     }
 }
