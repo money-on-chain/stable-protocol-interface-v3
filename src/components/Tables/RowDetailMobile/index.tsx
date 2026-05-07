@@ -24,6 +24,7 @@ interface DetailData {
     msg: string;
     reason: string;
     price: { value: bigint | null; currency: string | null } | null;
+    price_another_token: { value: bigint | null; currency: string | null } | null;
 }
 
 interface ItemDataProps {
@@ -150,6 +151,15 @@ function RowDetail(props: RowDetailProps): React.ReactElement {
                 data={props.detail.price?.value ? (<>
                     <PrecisionNumbers amount={props.detail.price.value} token={settings.tokens.TF[0]} decimals={6} i18n={i18n} compact={true} />
                     <span> {props.detail.price.currency}</span>
+                </>) : "--"}
+            />
+            <ItemData
+                label={t(`operations.columns_detailed.price_another_token`, {
+                    ns: ns,
+                })}
+                data={props.detail.price_another_token?.value ? (<>
+                    <PrecisionNumbers amount={props.detail.price_another_token.value} token={settings.tokens.TF[0]} decimals={6} i18n={i18n} compact={true} />
+                    <span> {props.detail.price_another_token.currency}</span>
                 </>) : "--"}
             />
         </div>

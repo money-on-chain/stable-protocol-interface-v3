@@ -61,7 +61,8 @@
             "gas": "Gas Fee",
             "msg": "Message",
             "reason": "Reason",
-            "price": "Price"
+            "price": "Price",
+            "price_another_token": "Price"
         },
         "errors": {
             "qACBelow1": "Price variation for",
