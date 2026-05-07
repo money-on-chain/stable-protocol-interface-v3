@@ -5,6 +5,7 @@ import React from "react";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 import settings from "../../../settings/settings.json";
+import type { TokenConfig } from "../../../types/hooks";
 
 interface DetailData {
     event: string;
@@ -23,8 +24,8 @@ interface DetailData {
     tx_hash_truncate: string;
     msg: string;
     reason: string;
-    price: { value: bigint | null; currency: string | null } | null;
-    price_another_token: { value: bigint | null; currency: string | null } | null;
+    price: { value: bigint | null; currency: string | null; token: TokenConfig } | null;
+    price_another_token: { value: bigint | null; currency: string | null; token: TokenConfig } | null;
 }
 
 interface ItemDataProps {
@@ -149,7 +150,7 @@ function RowDetail(props: RowDetailProps): React.ReactElement {
                     ns: ns,
                 })}
                 data={props.detail.price?.value ? (<>
-                    <PrecisionNumbers amount={props.detail.price.value} token={settings.tokens.TF[0]} decimals={6} i18n={i18n} compact={true} />
+                    <PrecisionNumbers amount={props.detail.price.value} token={props.detail.price.token} decimals={props.detail.price.token.visibleDecimals ?? 6} i18n={i18n} compact={true} />
                     <span> {props.detail.price.currency}</span>
                 </>) : "--"}
             />
@@ -158,7 +159,7 @@ function RowDetail(props: RowDetailProps): React.ReactElement {
                     ns: ns,
                 })}
                 data={props.detail.price_another_token?.value ? (<>
-                    <PrecisionNumbers amount={props.detail.price_another_token.value} token={settings.tokens.TF[0]} decimals={6} i18n={i18n} compact={true} />
+                    <PrecisionNumbers amount={props.detail.price_another_token.value} token={props.detail.price_another_token.token} decimals={props.detail.price_another_token.token.visibleDecimals ?? 6} i18n={i18n} compact={true} />
                     <span> {props.detail.price_another_token.currency}</span>
                 </>) : "--"}
             />
