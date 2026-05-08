@@ -308,6 +308,23 @@ export default function LastOperations(props: LastOperationsProps) {
             hidden: false,
         },
     ].filter((item) => !item.hidden);
+
+    const getDetailsLayoutClass = useCallback((event: string) => {
+        if (event === "TCandTPRedeem") {
+            return "LastOp__group__details--two-one-split";
+        }
+
+        if (event === "TCandTPMint") {
+            return "LastOp__group__details--one-two-split";
+        }
+
+        if (event === "Transfer") {
+            return "LastOp__group__details--one-two-merged";
+        }
+
+        return "LastOp__group__details--single-single";
+    }, []);
+
     // Initial load - immediate, no delay
     useEffect(() => {
         if (
@@ -1686,22 +1703,44 @@ export default function LastOperations(props: LastOperationsProps) {
                             />
                         </div>
 
-                        <div className="LastOp__group__details">
-                            <div className="LastOp__divider"></div>
-                            <div className="LastOp__origin">
-                                {element.exchange}
-                                {element.detail.event === "TCandTPRedeem" && (
-                                    <>{element.another}</>
-                                )}
-                            </div>
+                        <div
+                            className={`LastOp__group__details ${getDetailsLayoutClass(element.detail.event)}`}
+                        >
+                            <div className="LastOp__divider LastOp__divider--details-start"></div>
+                            {element.detail.event === "ERROR" ? (
+                                <div className="LastOp__revert">
+                                    <span className="table-amount">
+                                        {t(
+                                            "operations.errors.failedBeforeExecution"
+                                        )}
+                                    </span>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="LastOp__origin">
+                                        {element.exchange}
+                                        {element.detail.event ===
+                                            "TCandTPRedeem" && (
+                                            <>
+                                                <div className="LastOp__divider LastOp__divider--opaciti"></div>
+                                                {element.another}
+                                            </>
+                                        )}
+                                    </div>
 
-                            <div className="LastOp__divider"></div>
-                            <div className="LastOp__destination">
-                                {element.receive}
-                                {element.detail.event === "TCandTPMint" && (
-                                    <>{element.another}</>
-                                )}
-                            </div>
+                                    <div className="LastOp__divider LastOp__divider--details-middle"></div>
+                                    <div className="LastOp__destination">
+                                        {element.receive}
+                                        {element.detail.event ===
+                                            "TCandTPMint" && (
+                                            <>
+                                                <div className="LastOp__divider LastOp__divider--opaciti"></div>
+                                                {element.another}
+                                            </>
+                                        )}
+                                    </div>
+                                </>
+                            )}
                         </div>
                         <div className="LastOp__group__dateStatus">
                             <div className="LastOp__divider"></div>
@@ -1744,6 +1783,7 @@ export default function LastOperations(props: LastOperationsProps) {
         tokenExchange,
         TruncatedAddress,
         getAsset,
+        getDetailsLayoutClass,
     ]);
 
     const tableColumns = useMemo(

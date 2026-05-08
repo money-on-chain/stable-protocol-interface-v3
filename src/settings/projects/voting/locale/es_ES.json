@@ -71,7 +71,8 @@
             "insufficientQAC2": "excedió el Slippage Tolerance. Intenta aumentar la tolerancia o reintentar.",
             "lowCoverage": "La operación falló debido a baja cobertura del sistema.",
             "fluxCapacitor": "Operación rechazada: se alcanzó el límite del sistema.",
-            "noMessage": "La transacción falló."
+            "noMessage": "La transacción falló.",
+            "failedBeforeExecution": "Falló antes de la ejecución"
         },
         "table": {
             "itemsPerPage": "Página"
