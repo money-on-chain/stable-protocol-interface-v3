@@ -15,6 +15,7 @@ import Moment from "react-moment";
 import { useWalletContext } from "../../../context/Wallet";
 import { TokenSettings } from "../../../helpers/currencies";
 import date from "../../../helpers/date";
+import { wadDiv } from "../../../helpers/precision";
 import { useProjectTranslation } from "../../../helpers/translations";
 import api from "../../../services/api";
 import settings from "../../../settings/settings.json";
@@ -23,11 +24,16 @@ import Copy from "../../Copy";
 import AboutQueue from "../../Modals/AboutQueue";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 import RowDetailMobile from "../RowDetailMobile";
-import { wadDiv } from "../../../helpers/precision";
 
 // Type definitions
 interface LastOperationsProps {
     token: string;
+}
+
+interface DetailPriceData {
+    value: bigint | null;
+    currency: string | null;
+    token: TokenConfig | null;
 }
 
 interface DetailData {
@@ -47,6 +53,8 @@ interface DetailData {
     tx_hash_truncate: string;
     msg: string;
     reason: string;
+    price: DetailPriceData | null;
+    price_another_token: DetailPriceData | null;
     exchange?: {
         action?: string;
         amount: string | number;

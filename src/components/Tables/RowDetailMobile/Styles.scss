@@ -1,27 +1,91 @@
 .LastOp__expanded__container {
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    // border: 1px dashed green;
-    gap: 16px 16px;
+    flex-direction: column;
+    gap: 18px;
+    width: 100%;
+    min-width: 0;
 }
-.LastOp__expanded__item {
+
+.LastOp__expanded__main-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(220px, 0.8fr);
+    gap: 16px 24px;
+    width: 100%;
+    min-width: 0;
+}
+
+.LastOp__expanded__group {
     display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+}
+
+.LastOp__expanded__item {
+    display: grid;
+    grid-template-columns: 108px minmax(0, 1fr);
+    gap: 8px;
     align-items: center;
     letter-spacing: 0.2;
+    min-width: 0;
 
     .LastOp__expanded__label {
-        width: 108px;
         font-weight: 600;
     }
     .LastOp__expanded__data {
-        width: 210px;
-
-        // border: 1px dashed red;
+        min-width: 0;
+        overflow-wrap: anywhere;
     }
     .LastOp__expanded__fee {
         display: flex;
         flex-direction: row;
+        min-width: 0;
+    }
+}
+
+.LastOp__expanded__status-dump {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 24px;
+    border-top: 1px solid var(--dividers);
+    padding-top: 16px;
+    min-width: 0;
+}
+
+@media (max-width: 1100px) {
+    .LastOp__expanded__main-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .LastOp__expanded__main-grid .LastOp__expanded__group:last-child {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 700px) {
+    .LastOp__expanded__container {
+        gap: 16px;
+    }
+
+    .LastOp__expanded__main-grid,
+    .LastOp__expanded__status-dump {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .LastOp__expanded__main-grid .LastOp__expanded__group:last-child {
+        grid-column: auto;
+    }
+
+    .LastOp__expanded__item {
+        grid-template-columns: minmax(96px, 38%) minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 420px) {
+    .LastOp__expanded__item {
+        grid-template-columns: 1fr;
+        gap: 2px;
+        align-items: start;
     }
 }
