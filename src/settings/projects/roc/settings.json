@@ -10,6 +10,16 @@
         "presets": [0.3, 0.5, 1.0],
         "max": 5.0
     },
+    "exchange": {
+        "tokenMap": {
+            "blacklist": ["TC_1"]
+        }
+    },
+    "combinedOperations": {
+        "tokenMap": {
+            "blacklist": ["CA_1", "TC_1"]
+        }
+    },
     "defaults": {
         "tokens": {
             "name": "TICKER",
