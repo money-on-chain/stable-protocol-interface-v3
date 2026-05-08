@@ -60,7 +60,9 @@
             "fee": "Tasa",
             "gas": "Tasa de Gas",
             "msg": "Mensaje",
-            "reason": "Motivo"
+            "reason": "Motivo",
+            "price": "Precio",
+            "price_another_token": "Precio"
         },
         "errors": {
             "qACBelow1": "La variación de precio para",

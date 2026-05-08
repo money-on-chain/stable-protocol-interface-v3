@@ -3,6 +3,9 @@ import "./Styles.scss";
 import React from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
+import { PrecisionNumbers } from "../../PrecisionNumbers";
+import settings from "../../../settings/settings.json";
+import type { TokenConfig } from "../../../types/hooks";
 
 interface DetailData {
     event: string;
@@ -21,6 +24,8 @@ interface DetailData {
     tx_hash_truncate: string;
     msg: string;
     reason: string;
+    price: { value: bigint | null; currency: string | null; token: TokenConfig } | null;
+    price_another_token: { value: bigint | null; currency: string | null; token: TokenConfig } | null;
 }
 
 interface ItemDataProps {
@@ -42,7 +47,7 @@ function ItemData(props: ItemDataProps): React.ReactElement {
 }
 
 function RowDetail(props: RowDetailProps): React.ReactElement {
-    const { t, ns } = useProjectTranslation();
+    const { t, ns, i18n } = useProjectTranslation();
 
     return (
         <div className="LastOp__expanded__container">
@@ -139,6 +144,24 @@ function RowDetail(props: RowDetailProps): React.ReactElement {
                     ns: ns,
                 })}
                 data={props.detail.reason}
+            />
+            <ItemData
+                label={t(`operations.columns_detailed.price`, {
+                    ns: ns,
+                })}
+                data={props.detail.price?.value ? (<>
+                    <PrecisionNumbers amount={props.detail.price.value} token={props.detail.price.token} decimals={props.detail.price.token.visibleDecimals ?? 6} i18n={i18n} compact={true} />
+                    <span> {props.detail.price.currency}</span>
+                </>) : "--"}
+            />
+            <ItemData
+                label={t(`operations.columns_detailed.price_another_token`, {
+                    ns: ns,
+                })}
+                data={props.detail.price_another_token?.value ? (<>
+                    <PrecisionNumbers amount={props.detail.price_another_token.value} token={props.detail.price_another_token.token} decimals={props.detail.price_another_token.token.visibleDecimals ?? 6} i18n={i18n} compact={true} />
+                    <span> {props.detail.price_another_token.currency}</span>
+                </>) : "--"}
             />
         </div>
     );
