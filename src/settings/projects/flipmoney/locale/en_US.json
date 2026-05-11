@@ -77,7 +77,8 @@
             "insufficientQAC2": "exceeded your slippage tolerance. Try increasing tolerance or retry.",
             "lowCoverage": "Operation failed due to low system coverage.",
             "fluxCapacitor": "Operation rejected: system limit reached.",
-            "noMessage": "Transaction failed."
+            "noMessage": "Transaction failed.",
+            "failedBeforeExecution": "Failed before execution"
         },
         "table": {
             "itemsPerPage": "Page"
