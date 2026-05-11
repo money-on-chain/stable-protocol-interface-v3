@@ -20,7 +20,6 @@ import { useProjectTranslation } from "../../../helpers/translations";
 import api from "../../../services/api";
 import settings from "../../../settings/settings.json";
 import type { TokenConfig } from "../../../types/hooks";
-import Copy from "../../Copy";
 import AboutQueue from "../../Modals/AboutQueue";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 import RowDetailMobile from "../RowDetailMobile";
@@ -49,6 +48,7 @@ interface DetailData {
     executed_tx_hash: string;
     executed_tx_hash_truncate: string;
     fee: React.ReactNode | string;
+    recipient_truncate: string;
     tx_hash: string;
     tx_hash_truncate: string;
     msg: string;
@@ -1419,16 +1419,13 @@ export default function LastOperations(props: LastOperationsProps) {
                     "--"
                 ),
                 recipient:
-                    data.params?.recipient !== "--" ? (
-                        <Copy
-                            textToShow={TruncatedAddress(
-                                data.params?.recipient || ""
-                            )}
-                            textToCopy={data.params?.recipient || ""}
-                        />
-                    ) : (
-                        "--"
-                    ),
+                    data.params?.recipient !== "--"
+                        ? data.params?.recipient || ""
+                        : "--",
+                recipient_truncate:
+                    data.params?.recipient !== "--"
+                        ? TruncatedAddress(data.params?.recipient || "") || "--"
+                        : "--",
                 block: data["blockNumber"] || "--",
                 tx_hash_truncate: TruncatedAddress(data["hash"] || "") || "--",
                 tx_hash: data["hash"] || "--",
