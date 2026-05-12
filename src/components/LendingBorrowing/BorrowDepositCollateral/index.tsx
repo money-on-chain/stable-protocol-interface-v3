@@ -18,7 +18,7 @@ import {
 import BeforeAfterCard from "../MiniComponents/BeforeAfterCard";
 import CompactMetricDisplay from "../MiniComponents/CompactMetricDisplay";
 import OperationActions from "../MiniComponents/OperationActions";
-import OperationBackLink from "../MiniComponents/OperationBackLink";
+import OperationCardHeader from "../MiniComponents/OperationCardHeader";
 import OperationNotice from "../MiniComponents/OperationNotice";
 import { getDepositCollateralRatio } from "../operationPreviewAdapter";
 
@@ -188,10 +188,10 @@ export default function BorrowDepositCollateral({
 
     return (
         <div className="layout-card borrow-deposit-collateral-view">
-            <div className="layout-card-title borrow-deposit-collateral-title">
-                <h1>{t("borrowing.sectionDepositCollateral.cardTitle")}</h1>
-                <OperationBackLink onClick={onBack} />
-            </div>
+            <OperationCardHeader
+                onBack={onBack}
+                title={t("borrowing.sectionDepositCollateral.cardTitle")}
+            />
 
             <div className="borrow-deposit-collateral-body">
                 <div className="borrow-deposit-collateral-main">
@@ -206,7 +206,9 @@ export default function BorrowDepositCollateral({
                             </div>
                             <div className="borrow-deposit-collateral-panel__column borrow-deposit-collateral-panel__column--primary">
                                 <CompactMetricDisplay
-                                    label={t("borrowing.labelDepositedCollateral")}
+                                    label={t(
+                                        "borrowing.labelDepositedCollateral"
+                                    )}
                                     value={card.depositedCollateral.value}
                                     valueLabel={card.depositedCollateral.ticker}
                                 />
@@ -214,7 +216,9 @@ export default function BorrowDepositCollateral({
                                 <TokenAmountInput
                                     feedbackMessage={
                                         hasCollateralBalanceError
-                                            ? t("tokenAmountInput.noEnoughBalance")
+                                            ? t(
+                                                  "tokenAmountInput.noEnoughBalance"
+                                              )
                                             : undefined
                                     }
                                     feedbackState="negative"

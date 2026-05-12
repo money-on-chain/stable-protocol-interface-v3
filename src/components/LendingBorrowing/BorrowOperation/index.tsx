@@ -23,7 +23,7 @@ import {
 import BeforeAfterCard from "../MiniComponents/BeforeAfterCard";
 import CompactMetricDisplay from "../MiniComponents/CompactMetricDisplay";
 import OperationActions from "../MiniComponents/OperationActions";
-import OperationBackLink from "../MiniComponents/OperationBackLink";
+import OperationCardHeader from "../MiniComponents/OperationCardHeader";
 import OperationNotice from "../MiniComponents/OperationNotice";
 import RateDisplay from "../MiniComponents/RateDisplay";
 import {
@@ -403,21 +403,19 @@ export default function BorrowOperation({
 
     return (
         <div className="layout-card borrow-operation-view">
-            <div className="layout-card-title borrow-operation-title">
-                <h1>{t("borrowing.sectionBorrow.cardTitle")}</h1>
-                <OperationBackLink onClick={onBack} />
-            </div>
+            <OperationCardHeader
+                aside={
+                    <RateDisplay
+                        number={card.borrowApy}
+                        title={`${card.borrowTokenTicker}/${card.collateralTokenTicker} ${t("borrowing.sectionBorrow.apy")}`}
+                    />
+                }
+                onBack={onBack}
+                title={t("borrowing.sectionBorrow.cardTitle")}
+            />
 
             <div className="borrow-operation-body">
                 <div className="borrow-operation-main">
-                    <div className="borrow-operation-header">
-                        <div className="borrow-operation-header__spacer"></div>
-                        <RateDisplay
-                            number={card.borrowApy}
-                            title={`${card.borrowTokenTicker}/${card.collateralTokenTicker} ${t("borrowing.sectionBorrow.apy")}`}
-                        />
-                    </div>
-
                     <div className="borrow-operation-panels">
                         <div className="borrow-operation-panel">
                             {hasDebtOrCollateral ? (
@@ -438,7 +436,9 @@ export default function BorrowOperation({
                                 feedbackState="negative"
                                 getFiatEquivalent={getBorrowFiatEquivalent}
                                 inputValue={borrowAmount}
-                                label={t("borrowing.sectionBorrow.labelAmountToBorrow")}
+                                label={t(
+                                    "borrowing.sectionBorrow.labelAmountToBorrow"
+                                )}
                                 onMaxClick={() => handleBorrowQuickAction(100)}
                                 onQuickActionClick={handleBorrowQuickAction}
                                 onValueChange={setBorrowAmount}
@@ -458,13 +458,17 @@ export default function BorrowOperation({
                         <div className="borrow-operation-panel">
                             {hasDebtOrCollateral ? (
                                 <CompactMetricDisplay
-                                    label={t("borrowing.labelDepositedCollateral")}
+                                    label={t(
+                                        "borrowing.labelDepositedCollateral"
+                                    )}
                                     value={card.depositedCollateral.value}
                                     valueLabel={card.depositedCollateral.ticker}
                                 />
                             ) : null}
                             <TokenAmountInput
-                                balanceLabel={t("tokenAmountInput.labelBalance")}
+                                balanceLabel={t(
+                                    "tokenAmountInput.labelBalance"
+                                )}
                                 balanceValue={card.collateralWalletBalance}
                                 feedbackMessage={
                                     hasCollateralBalanceError
@@ -474,7 +478,9 @@ export default function BorrowOperation({
                                 feedbackState="negative"
                                 getFiatEquivalent={getCollateralFiatEquivalent}
                                 inputValue={collateralAmount}
-                                label={t("borrowing.sectionBorrow.labelAddToCollateral")}
+                                label={t(
+                                    "borrowing.sectionBorrow.labelAddToCollateral"
+                                )}
                                 onMaxClick={() =>
                                     handleCollateralQuickAction(100)
                                 }
@@ -496,187 +502,174 @@ export default function BorrowOperation({
                 </div>
 
                 <div className="borrow-operation-metrics">
-                    <div className="borrow-operation-metrics__row borrow-operation-metrics__row--top">
-                        {liquidationPriceMetric ? (
-                            <BeforeAfterCard
-                                after={{
-                                    label: t("beforeAfterCard.after"),
-                                    unit: hasPendingChanges
-                                        ? liquidationPriceMetric.nextUnit
-                                        : liquidationPriceMetric.currentUnit,
-                                    value: hasPendingChanges
-                                        ? (liquidationPriceState?.nextValue ??
-                                          liquidationPriceMetric.currentValue)
-                                        : liquidationPriceMetric.currentValue,
-                                }}
-                                before={
-                                    hasDebtOrCollateral
-                                        ? {
-                                              label: t(
-                                                  "beforeAfterCard.before"
-                                              ),
-                                              unit: liquidationPriceMetric.currentUnit,
-                                              value: liquidationPriceMetric.currentValue,
-                                          }
-                                        : undefined
-                                }
-                                title={t("borrowing.labelLiquidationPrice")}
-                                trend={
-                                    hasPendingChanges &&
-                                    liquidationPriceMetric.showTrend
-                                        ? liquidationPriceState?.trend
-                                        : undefined
-                                }
-                                useBorder
-                            />
-                        ) : null}
-                        {distanceToLiquidationMetric ? (
-                            <BeforeAfterCard
-                                after={{
-                                    label: t("beforeAfterCard.after"),
-                                    unit: hasPendingChanges
-                                        ? distanceToLiquidationMetric.nextUnit
-                                        : distanceToLiquidationMetric.currentUnit,
-                                    value: hasPendingChanges
-                                        ? (distanceToLiquidationState?.nextValue ??
-                                          distanceToLiquidationMetric.currentValue)
-                                        : distanceToLiquidationMetric.currentValue,
-                                }}
-                                before={
-                                    hasDebtOrCollateral
-                                        ? {
-                                              label: t(
-                                                  "beforeAfterCard.before"
-                                              ),
-                                              unit: distanceToLiquidationMetric.currentUnit,
-                                              value: distanceToLiquidationMetric.currentValue,
-                                          }
-                                        : undefined
-                                }
-                                title={t(
-                                    "borrowing.labelDistanceToLiquidation"
-                                )}
-                                trend={
-                                    hasPendingChanges &&
-                                    distanceToLiquidationMetric.showTrend
-                                        ? distanceToLiquidationState?.trend
-                                        : undefined
-                                }
-                                useBorder
-                            />
-                        ) : null}
-                        {minRequiredCollateralMetric ? (
-                            <BeforeAfterCard
-                                after={{
-                                    label: t("beforeAfterCard.after"),
-                                    unit: hasPendingChanges
-                                        ? minRequiredCollateralMetric.nextUnit
-                                        : minRequiredCollateralMetric.currentUnit,
-                                    value: hasPendingChanges
-                                        ? getNeutralMetricState(
-                                              minRequiredCollateralMetric
-                                          ).nextValue
-                                        : minRequiredCollateralMetric.currentValue,
-                                }}
-                                before={
-                                    hasDebtOrCollateral
-                                        ? {
-                                              label: t(
-                                                  "beforeAfterCard.before"
-                                              ),
-                                              unit: minRequiredCollateralMetric.currentUnit,
-                                              value: minRequiredCollateralMetric.currentValue,
-                                          }
-                                        : undefined
-                                }
-                                title={t(
-                                    "borrowing.labelMinRequieredCollateral"
-                                )}
-                                useBorder
-                            />
-                        ) : null}
-                    </div>
-                    <div className="borrow-operation-metrics__row borrow-operation-metrics__row--bottom">
-                        {borrowAvailableMetric ? (
-                            <BeforeAfterCard
-                                after={{
-                                    label: t("beforeAfterCard.after"),
-                                    unit: hasPendingChanges
-                                        ? borrowAvailableMetric.nextUnit
-                                        : borrowAvailableMetric.currentUnit,
-                                    value: hasPendingChanges
-                                        ? (borrowAvailableState?.nextValue ??
-                                          borrowAvailableMetric.currentValue)
-                                        : borrowAvailableMetric.currentValue,
-                                }}
-                                before={
-                                    hasDebtOrCollateral
-                                        ? {
-                                              label: t(
-                                                  "beforeAfterCard.before"
-                                              ),
-                                              unit: borrowAvailableMetric.currentUnit,
-                                              value: borrowAvailableMetric.currentValue,
-                                          }
-                                        : undefined
-                                }
-                                title={t(
-                                    "borrowing.labelAvailableWithCollateral"
-                                )}
-                                trend={
-                                    hasPendingChanges &&
-                                    borrowAvailableMetric.showTrend
-                                        ? borrowAvailableState?.trend
-                                        : undefined
-                                }
-                                useBorder
-                            />
-                        ) : null}
-                        {borrowUsageMetric ? (
-                            <BeforeAfterCard
-                                after={{
-                                    label: t("beforeAfterCard.after"),
-                                    unit: hasPendingChanges
-                                        ? borrowUsageMetric.nextUnit
-                                        : borrowUsageMetric.currentUnit,
-                                    value: hasPendingChanges
-                                        ? (borrowUsageState?.nextValue ??
-                                          borrowUsageMetric.currentValue)
-                                        : borrowUsageMetric.currentValue,
-                                }}
-                                before={
-                                    hasDebtOrCollateral
-                                        ? {
-                                              label: t(
-                                                  "beforeAfterCard.before"
-                                              ),
-                                              unit: borrowUsageMetric.currentUnit,
-                                              value: borrowUsageMetric.currentValue,
-                                          }
-                                        : undefined
-                                }
-                                title={t("borrowing.labelBorrowUsage")}
-                                trend={
-                                    hasPendingChanges &&
-                                    borrowUsageMetric.showTrend
-                                        ? borrowUsageState?.trend
-                                        : undefined
-                                }
-                                useBorder
-                            />
-                        ) : null}
-                    </div>
+                    {liquidationPriceMetric ? (
+                        <BeforeAfterCard
+                            after={{
+                                label: t("beforeAfterCard.after"),
+                                unit: hasPendingChanges
+                                    ? liquidationPriceMetric.nextUnit
+                                    : liquidationPriceMetric.currentUnit,
+                                value: hasPendingChanges
+                                    ? (liquidationPriceState?.nextValue ??
+                                      liquidationPriceMetric.currentValue)
+                                    : liquidationPriceMetric.currentValue,
+                            }}
+                            before={
+                                hasDebtOrCollateral
+                                    ? {
+                                          label: t("beforeAfterCard.before"),
+                                          unit: liquidationPriceMetric.currentUnit,
+                                          value: liquidationPriceMetric.currentValue,
+                                      }
+                                    : undefined
+                            }
+                            title={t("borrowing.labelLiquidationPrice")}
+                            trend={
+                                hasPendingChanges &&
+                                liquidationPriceMetric.showTrend
+                                    ? liquidationPriceState?.trend
+                                    : undefined
+                            }
+                            useBorder
+                        />
+                    ) : null}
+                    {distanceToLiquidationMetric ? (
+                        <BeforeAfterCard
+                            after={{
+                                label: t("beforeAfterCard.after"),
+                                unit: hasPendingChanges
+                                    ? distanceToLiquidationMetric.nextUnit
+                                    : distanceToLiquidationMetric.currentUnit,
+                                value: hasPendingChanges
+                                    ? (distanceToLiquidationState?.nextValue ??
+                                      distanceToLiquidationMetric.currentValue)
+                                    : distanceToLiquidationMetric.currentValue,
+                            }}
+                            before={
+                                hasDebtOrCollateral
+                                    ? {
+                                          label: t("beforeAfterCard.before"),
+                                          unit: distanceToLiquidationMetric.currentUnit,
+                                          value: distanceToLiquidationMetric.currentValue,
+                                      }
+                                    : undefined
+                            }
+                            title={t("borrowing.labelDistanceToLiquidation")}
+                            trend={
+                                hasPendingChanges &&
+                                distanceToLiquidationMetric.showTrend
+                                    ? distanceToLiquidationState?.trend
+                                    : undefined
+                            }
+                            useBorder
+                        />
+                    ) : null}
+                    {minRequiredCollateralMetric ? (
+                        <BeforeAfterCard
+                            after={{
+                                label: t("beforeAfterCard.after"),
+                                unit: hasPendingChanges
+                                    ? minRequiredCollateralMetric.nextUnit
+                                    : minRequiredCollateralMetric.currentUnit,
+                                value: hasPendingChanges
+                                    ? getNeutralMetricState(
+                                          minRequiredCollateralMetric
+                                      ).nextValue
+                                    : minRequiredCollateralMetric.currentValue,
+                            }}
+                            before={
+                                hasDebtOrCollateral
+                                    ? {
+                                          label: t("beforeAfterCard.before"),
+                                          unit: minRequiredCollateralMetric.currentUnit,
+                                          value: minRequiredCollateralMetric.currentValue,
+                                      }
+                                    : undefined
+                            }
+                            title={t("borrowing.labelMinRequieredCollateral")}
+                            useBorder
+                        />
+                    ) : null}
+                    {borrowAvailableMetric ? (
+                        <BeforeAfterCard
+                            after={{
+                                label: t("beforeAfterCard.after"),
+                                unit: hasPendingChanges
+                                    ? borrowAvailableMetric.nextUnit
+                                    : borrowAvailableMetric.currentUnit,
+                                value: hasPendingChanges
+                                    ? (borrowAvailableState?.nextValue ??
+                                      borrowAvailableMetric.currentValue)
+                                    : borrowAvailableMetric.currentValue,
+                            }}
+                            before={
+                                hasDebtOrCollateral
+                                    ? {
+                                          label: t("beforeAfterCard.before"),
+                                          unit: borrowAvailableMetric.currentUnit,
+                                          value: borrowAvailableMetric.currentValue,
+                                      }
+                                    : undefined
+                            }
+                            title={t("borrowing.labelAvailableWithCollateral")}
+                            trend={
+                                hasPendingChanges &&
+                                borrowAvailableMetric.showTrend
+                                    ? borrowAvailableState?.trend
+                                    : undefined
+                            }
+                            useBorder
+                        />
+                    ) : null}
+                    {borrowUsageMetric ? (
+                        <BeforeAfterCard
+                            after={{
+                                label: t("beforeAfterCard.after"),
+                                unit: hasPendingChanges
+                                    ? borrowUsageMetric.nextUnit
+                                    : borrowUsageMetric.currentUnit,
+                                value: hasPendingChanges
+                                    ? (borrowUsageState?.nextValue ??
+                                      borrowUsageMetric.currentValue)
+                                    : borrowUsageMetric.currentValue,
+                            }}
+                            before={
+                                hasDebtOrCollateral
+                                    ? {
+                                          label: t("beforeAfterCard.before"),
+                                          unit: borrowUsageMetric.currentUnit,
+                                          value: borrowUsageMetric.currentValue,
+                                      }
+                                    : undefined
+                            }
+                            title={t("borrowing.labelBorrowUsage")}
+                            trend={
+                                hasPendingChanges && borrowUsageMetric.showTrend
+                                    ? borrowUsageState?.trend
+                                    : undefined
+                            }
+                            useBorder
+                        />
+                    ) : null}
                 </div>
 
                 <OperationNotice
                     title={
                         hasBorrowLimitError
-                            ? t("borrowing.sectionBorrow.summary.titleBorrowLimit")
+                            ? t(
+                                  "borrowing.sectionBorrow.summary.titleBorrowLimit"
+                              )
                             : hasCollateralBalanceError
-                              ? t("borrowing.sectionBorrow.summary.titleNoBalance")
+                              ? t(
+                                    "borrowing.sectionBorrow.summary.titleNoBalance"
+                                )
                               : hasPendingChanges
-                                ? t("borrowing.sectionBorrow.summary.titleReady")
-                                : t("borrowing.sectionBorrow.summary.titleNoAmount")
+                                ? t(
+                                      "borrowing.sectionBorrow.summary.titleReady"
+                                  )
+                                : t(
+                                      "borrowing.sectionBorrow.summary.titleNoAmount"
+                                  )
                     }
                 >
                     <div className="borrow-operation-notice-lines">

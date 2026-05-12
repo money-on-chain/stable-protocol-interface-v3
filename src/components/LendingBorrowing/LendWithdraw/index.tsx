@@ -12,7 +12,7 @@ import { type LendCardData } from "../Lend/data";
 import BeforeAfterCard from "../MiniComponents/BeforeAfterCard";
 import CompactMetricDisplay from "../MiniComponents/CompactMetricDisplay";
 import OperationActions from "../MiniComponents/OperationActions";
-import OperationBackLink from "../MiniComponents/OperationBackLink";
+import OperationCardHeader from "../MiniComponents/OperationCardHeader";
 import OperationNotice from "../MiniComponents/OperationNotice";
 import RateDisplay from "../MiniComponents/RateDisplay";
 
@@ -131,23 +131,21 @@ export default function LendWithdraw({
 
     return (
         <div className="layout-card lend-withdraw-view">
-            <div className="layout-card-title lend-withdraw-title">
-                <h1>{t("lending.sectionWithdraw.cardTitle")}</h1>
-                <OperationBackLink onClick={onBack} />
-            </div>
+            <OperationCardHeader
+                aside={
+                    <RateDisplay
+                        number={token.supplyApy}
+                        title={`${token.tokenTicker}  ${t(
+                            "lending.sectionWithdraw.apy"
+                        )}`}
+                    />
+                }
+                onBack={onBack}
+                title={t("lending.sectionWithdraw.cardTitle")}
+            />
 
             <div className="lend-withdraw-body">
                 <div className="lend-withdraw-main">
-                    <div className="lend-withdraw-header">
-                        <div className="lend-withdraw-header__spacer"></div>
-                        <RateDisplay
-                            number={token.supplyApy}
-                            title={`${token.tokenTicker}  ${t(
-                                "lending.sectionWithdraw.apy"
-                            )}`}
-                        />
-                    </div>
-
                     <div className="lend-withdraw-content">
                         <div className="lend-withdraw-inputs">
                             <CompactMetricDisplay

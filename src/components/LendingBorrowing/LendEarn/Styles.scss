@@ -2,12 +2,7 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
-}
-
-.lend-earn-title {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+    // outline: 1px dashed red;
 }
 
 .lend-earn-body {
@@ -17,6 +12,7 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
+    // outline: 1px dashed blue;
 }
 
 .lend-earn-main {
@@ -26,16 +22,6 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
-}
-
-.lend-earn-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-}
-
-.lend-earn-header__spacer {
-    flex: 1;
 }
 
 .lend-earn-content {
@@ -56,15 +42,6 @@
     .lend-earn-content {
         flex-direction: column;
         align-items: center;
-    }
-
-    .lend-earn-header {
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .lend-earn-header__spacer {
-        display: none;
     }
 
     .lend-earn-main {

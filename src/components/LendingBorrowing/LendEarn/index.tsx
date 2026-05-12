@@ -11,7 +11,7 @@ import TokenAmountInput from "../../TokenAmountInput";
 import { type LendCardData } from "../Lend/data";
 import BeforeAfterCard from "../MiniComponents/BeforeAfterCard";
 import OperationActions from "../MiniComponents/OperationActions";
-import OperationBackLink from "../MiniComponents/OperationBackLink";
+import OperationCardHeader from "../MiniComponents/OperationCardHeader";
 import OperationNotice from "../MiniComponents/OperationNotice";
 import RateDisplay from "../MiniComponents/RateDisplay";
 
@@ -120,23 +120,21 @@ export default function LendEarn({
 
     return (
         <div className="layout-card lend-earn-view">
-            <div className="layout-card-title lend-earn-title">
-                <h1>{t("lending.sectionEarn.cardTitle")}</h1>
-                <OperationBackLink onClick={onBack} />
-            </div>
+            <OperationCardHeader
+                aside={
+                    <RateDisplay
+                        number={token.supplyApy}
+                        title={`${token.tokenTicker} ${t(
+                            "lending.sectionEarn.apy"
+                        )}`}
+                    />
+                }
+                onBack={onBack}
+                title={t("lending.sectionEarn.cardTitle")}
+            />
 
             <div className="lend-earn-body">
                 <div className="lend-earn-main">
-                    <div className="lend-earn-header">
-                        <div className="lend-earn-header__spacer"></div>
-                        <RateDisplay
-                            number={token.supplyApy}
-                            title={`${token.tokenTicker} ${t(
-                                "lending.sectionEarn.apy"
-                            )}`}
-                        />
-                    </div>
-
                     <div className="lend-earn-content">
                         <TokenAmountInput
                             balanceLabel={t("tokenAmountInput.labelBalance")}

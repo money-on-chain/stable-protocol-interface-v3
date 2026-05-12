@@ -4,13 +4,9 @@
     gap: 16px;
 }
 
-.borrow-operation-title {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
 .borrow-operation-body {
+    --borrow-metrics-content-width: 980px;
+
     width: 100%;
     max-width: 1240px;
     margin: 0 auto;
@@ -20,22 +16,12 @@
 }
 
 .borrow-operation-main {
-    width: fit-content;
-    max-width: 100%;
+    width: 100%;
+    max-width: var(--borrow-metrics-content-width);
     margin: 0 auto;
     display: flex;
     flex-direction: column;
     gap: 24px;
-}
-
-.borrow-operation-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-}
-
-.borrow-operation-header__spacer {
-    flex: 1;
 }
 
 .borrow-operation-panels {
@@ -43,13 +29,14 @@
     justify-content: center;
     gap: 32px;
     align-items: flex-start;
+    width: 100%;
 }
 
 .borrow-operation-panel {
     display: flex;
     flex-direction: column;
     gap: 16px;
-    width: 400px;
+    flex: 1 1 0;
     max-width: 100%;
     // outline: 1px dashed red;
 }
@@ -60,15 +47,19 @@
 }
 
 .borrow-operation-metrics {
-    display: grid;
-    gap: 16px;
-}
-
-.borrow-operation-metrics__row {
     display: flex;
     justify-content: center;
     gap: 16px;
     flex-wrap: wrap;
+    width: 100%;
+    max-width: var(--borrow-metrics-content-width);
+    margin: 0 auto;
+}
+
+.borrow-operation-metrics > .before-after-card {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
 }
 
 .borrow-operation-notice-lines {
@@ -82,7 +73,7 @@
 }
 
 @media (max-width: 1200px) {
-    .borrow-operation-metrics__row {
+    .borrow-operation-metrics {
         width: 100%;
     }
 }
@@ -94,25 +85,17 @@
         gap: 32px;
     }
 
-    .borrow-operation-header {
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .borrow-operation-header__spacer {
-        display: none;
-    }
-
     .borrow-operation-main {
         width: 100%;
     }
 
-    .borrow-operation-title {
-        gap: 4px;
+    .borrow-operation-metrics {
+        align-items: center;
     }
 
-    .borrow-operation-metrics__row {
-        flex-direction: column;
-        align-items: center;
+    .borrow-operation-metrics > .before-after-card {
+        flex: 0 0 calc((100% - 16px) / 2);
+        width: auto;
+        max-width: 100%;
     }
 }

@@ -4,13 +4,9 @@
     gap: 16px;
 }
 
-.borrow-repay-title {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
 .borrow-repay-body {
+    --borrow-metrics-content-width: 980px;
+
     width: 100%;
     max-width: 1240px;
     margin: 0 auto;
@@ -56,15 +52,23 @@
 }
 
 .borrow-repay-metrics {
-    display: grid;
-    gap: 16px;
-}
-
-.borrow-repay-metrics__row {
     display: flex;
     justify-content: center;
     gap: 16px;
     flex-wrap: wrap;
+    width: 100%;
+    max-width: var(--borrow-metrics-content-width);
+    margin: 0 auto;
+}
+
+.borrow-repay-metrics__row {
+    display: contents;
+}
+
+.borrow-repay-metrics__row > .before-after-card {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
 }
 
 .borrow-repay-notice-lines {
@@ -78,7 +82,7 @@
 }
 
 @media (max-width: 1200px) {
-    .borrow-repay-metrics__row {
+    .borrow-repay-metrics {
         width: 100%;
     }
 }
@@ -88,8 +92,13 @@
         width: 100%;
     }
 
-    .borrow-repay-metrics__row {
-        flex-direction: column;
+    .borrow-repay-metrics {
         align-items: center;
+    }
+
+    .borrow-repay-metrics__row > .before-after-card {
+        flex: 0 0 calc((100% - 16px) / 2);
+        width: auto;
+        max-width: 100%;
     }
 }

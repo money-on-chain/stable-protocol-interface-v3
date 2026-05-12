@@ -4,12 +4,6 @@
     gap: 16px;
 }
 
-.lend-withdraw-title {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
 .lend-withdraw-body {
     width: 100%;
     max-width: 740px;
@@ -26,16 +20,6 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
-}
-
-.lend-withdraw-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-}
-
-.lend-withdraw-header__spacer {
-    flex: 1;
 }
 
 .lend-withdraw-content {
@@ -70,15 +54,6 @@
     .lend-withdraw-content {
         flex-direction: column;
         align-items: center;
-    }
-
-    .lend-withdraw-header {
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .lend-withdraw-header__spacer {
-        display: none;
     }
 
     .lend-withdraw-main {

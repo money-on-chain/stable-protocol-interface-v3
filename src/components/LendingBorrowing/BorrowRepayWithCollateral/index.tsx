@@ -19,7 +19,7 @@ import {
 import BeforeAfterCard from "../MiniComponents/BeforeAfterCard";
 import CompactMetricDisplay from "../MiniComponents/CompactMetricDisplay";
 import OperationActions from "../MiniComponents/OperationActions";
-import OperationBackLink from "../MiniComponents/OperationBackLink";
+import OperationCardHeader from "../MiniComponents/OperationCardHeader";
 import OperationNotice from "../MiniComponents/OperationNotice";
 import { getRepayWithCollateralRatio } from "../operationPreviewAdapter";
 
@@ -214,10 +214,10 @@ export default function BorrowRepayWithCollateral({
 
     return (
         <div className="layout-card borrow-repay-with-collateral-view">
-            <div className="layout-card-title borrow-repay-with-collateral-title">
-                <h1>{t("borrowing.sectionRepayCollateral.cardTitle")}</h1>
-                <OperationBackLink onClick={onBack} />
-            </div>
+            <OperationCardHeader
+                onBack={onBack}
+                title={t("borrowing.sectionRepayCollateral.cardTitle")}
+            />
 
             <div className="borrow-repay-with-collateral-body">
                 <div className="borrow-repay-with-collateral-main">
