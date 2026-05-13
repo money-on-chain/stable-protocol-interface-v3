@@ -413,6 +413,18 @@ const readContracts = async (
         }
     }
 
+
+    // ---- Lending manager ----
+    if (import.meta.env.REACT_APP_LENDING_MANAGER) {
+        console.log("Lending manager address: ", import.meta.env.REACT_APP_LENDING_MANAGER);
+        /*contracts.LendingManager = {
+            address: import.meta.env.REACT_APP_LENDING_MANAGER as Address,
+            abi: ABI_LendingManager,
+            name: "LendingManager",
+            type: "",
+        };*/
+    }
+
     return contracts;
 };
 
