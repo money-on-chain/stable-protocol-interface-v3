@@ -1,0 +1,17 @@
+//@import "~antd/dist/antd.css";
+
+:root {
+    // Theme used by default. Use "light" or "dark"
+    --default-theme: "light";
+}
+#root {
+    font-family: var(--main-font);
+    background-color: var(--surface-color-0) !important;
+    background-image: var(--surface-background-image);
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
+
+    --debugColor: rgba(75, 103, 36, 0.168) !important;
+    --debugBorder: 1px dashed red !important;
+}
