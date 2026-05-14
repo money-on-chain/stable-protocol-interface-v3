@@ -24,6 +24,8 @@ import VetoMachine from "../contracts/omoc/VetoMachine.json";
 import VotingMachine from "../contracts/omoc/VotingMachine.json";
 import TokenMigrator from "../contracts/TokenMigrator.json";
 import TokenPegged from "../contracts/TokenPegged.json";
+import LendingReader from "../contracts/lending/LendingReader.json";
+import LendingManager from "../contracts/lending/LendingManager.json";
 import omoc from "../settings/omoc/omoc.json";
 import settings from "../settings/settings.json";
 import type {
@@ -60,7 +62,8 @@ const ABI_VetoMachine = VetoMachine.abi as readonly unknown[];
 const ABI_VotingMachine = VotingMachine.abi as readonly unknown[];
 const ABI_TokenMigrator = TokenMigrator.abi as readonly unknown[];
 const ABI_TokenPegged = TokenPegged.abi as readonly unknown[];
-
+const ABI_LendingReader = LendingReader.abi as readonly unknown[];
+const ABI_LendingManager = LendingManager.abi as readonly unknown[];
 const EVM_ADDR_RE = /^0x[0-9a-fA-F]{40}$/;
 
 /** onError handler used by some multicall entries */
@@ -415,14 +418,30 @@ const readContracts = async (
 
 
     // ---- Lending manager ----
-    if (import.meta.env.REACT_APP_LENDING_MANAGER) {
-        console.log("Lending manager address: ", import.meta.env.REACT_APP_LENDING_MANAGER);
-        /*contracts.LendingManager = {
-            address: import.meta.env.REACT_APP_LENDING_MANAGER as Address,
+    if (import.meta.env.REACT_APP_LENDING_READER) {
+        console.log("Lending Reader address: ", import.meta.env.REACT_APP_LENDING_READER);
+        contracts.LendingReader = {
+            address: import.meta.env.REACT_APP_LENDING_READER as Address,
+            abi: ABI_LendingReader,
+            name: "LendingReader",
+            type: "",
+        };
+
+        const lendingManagerAddress = (await readContract(publicClient, {
+            address: contracts.LendingReader.address,
+            abi: ABI_LendingReader,
+            functionName: "LENDING_MANAGER",
+            args: [],
+        })) as Address;
+
+        console.log("Lending Manager address: ", lendingManagerAddress);
+
+        contracts.LendingManager = {
+            address: lendingManagerAddress,
             abi: ABI_LendingManager,
             name: "LendingManager",
             type: "",
-        };*/
+        };
     }
 
     return contracts;
