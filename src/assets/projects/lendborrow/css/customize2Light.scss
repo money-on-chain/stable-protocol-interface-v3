@@ -6,7 +6,7 @@
 
     --brand-color-darker: #08374f;
     --brand-color-dark: #396f68;
-    --brand-color-base: #3db2a4;
+    --brand-color-base: #00767A;
     --brand-color-light: #72c9bf;
     --brand-color-lighter: #a3e9e1;
     --brand-color-overbrand: #ffffff;
@@ -52,7 +52,7 @@
     --surface-shadow-1: 0px 1px 4px rgba(0, 0, 0, 0.1);
     --surface-color-2: rgba(242, 246, 245, 0.8);
     --surface-shadow-2: 0px 1px 4px rgba(0, 0, 0, 0.1499125874125874);
-    --surface-color-3: #ffffff;
+    --surface-color-3: #f6fbfb;
     --surface-shadow-3: 0px 1px 4px rgba(0, 0, 0, 0.1499125874125874);
     --surface-color-inset: rgba(242, 246, 245, 0.266);
     --surface-shadow-inset: inset 0px 2px 4px 0px rgba(0, 0, 0, 0.1);
@@ -82,10 +82,13 @@
     --btn-transition: 0.3s;
     --btn-small-height: 32px;
     --btn-small-padding: 16px;
+    --btn-compact-height: 24px;
+    --btn-compact-padding: 16px;
+    --btn-compact-radius: 4px;
 
     // Buttons - Primary
 
-    --color-btn-primary-background-default: #3db2a4;
+    --color-btn-primary-background-default: #00767A;
     --color-btn-primary-txt-default: #ffffff;
     --color-btn-primary-filter-default: invert(79%) sepia(44%) saturate(2710%)
         hue-rotate(96deg) brightness(94%) contrast(87%);
@@ -97,7 +100,7 @@
     --color-btn-primary-filter-hover: invert(100%) sepia(34%) saturate(1%)
         hue-rotate(210deg) brightness(108%) contrast(101%);
 
-    --color-btn-primary-background-active: #3db2a4;
+    --color-btn-primary-background-active: #00767A;
     --color-btn-primary-txt-active: #ffffff;
 
     --color-btn-primary-background-disabled: #d5d5d5;
@@ -111,7 +114,9 @@
     // Buttons - Secondary
 
     --color-btn-secondary-background-default: transparent;
-    --color-btn-secondary-txt-default: #5dc9bc;
+    --color-btn-secondary-txt-default: var(
+        --color-btn-primary-background-default
+    );
     --color-btn-secondary-background-hover: transparent;
     --color-btn-secondary-txt-hover: #08374f;
 
@@ -148,6 +153,7 @@
 
     --color-semantic-negative: #df4c4c;
     --color-semantic-neutral: #b5b5b5;
+    --color-semantic-neutral-alt: #72c9bf;
     --color-semantic-positive: #2faa1a;
     --filter-semantic-negative: invert(33%) sepia(83%) saturate(710%)
         hue-rotate(320deg) brightness(106%) contrast(97%);
@@ -169,6 +175,8 @@
         hue-rotate(300deg) brightness(103%) contrast(110%);
 
     --notification-warning-background: #0d0d0d;
+    --notification-warning-text: #ffffff;
+    --notification-warning-filter: var(--brand-color-overbrand-filter);
     --notification-error-text: #0c0c08;
     --notification-error-filter: invert(0%) sepia(8%) saturate(7469%)
         hue-rotate(300deg) brightness(103%) contrast(110%);
@@ -218,24 +226,22 @@
 
     // Language nav colors
 
-    --color-nav-background-default: transparent;
-    --color-nav-txt-default: #08374f;
-    --color-nav-icon-filter-default: invert(15%) sepia(14%) saturate(6001%)
+    --color-language-background-default: transparent;
+    --color-language-txt-default: #08374f;
+    --color-language-icon-filter-default: invert(15%) sepia(14%) saturate(6001%)
         hue-rotate(171deg) brightness(98%) contrast(94%);
 
-    --color-nav-background-hover: transparent;
-    --color-nav-txt-hover: #08374f;
-    --color-nav-icon-filter-hover: invert(15%) sepia(14%) saturate(6001%)
-        hue-rotate(171deg) brightness(98%) contrast(94%);
+    --color-language-background-hover: var(--brand-color-base);
+    --color-language-txt-hover: #ffffff;
+    --color-language-icon-filter-hover: var(--brand-color-overbrand-filter);
 
-    --color-nav-background-active: #08374f;
-    --color-nav-txt-active: #ffffff; //over hover color
-    --color-nav-icon-filter-active: invert(100%) sepia(100%) saturate(0%)
-        hue-rotate(288deg) brightness(102%) contrast(102%);
+    --color-language-background-active: transparent;
+    --color-language-txt-active: var(--brand-color-base); //over hover color
+    --color-language-icon-filter-active: var(--brand-color-base-filter);
 
-    --color-nav-background-disabled: transparent;
-    --color-nav-txt-disabled: #e0e0e0; //over hover color
-    --color-nav-icon-filter-disabled: invert(85%) sepia(10%) saturate(1%)
+    --color-language-background-disabled: transparent;
+    --color-language-txt-disabled: #e0e0e0; //over hover color
+    --color-language-icon-filter-disabled: invert(85%) sepia(10%) saturate(1%)
         hue-rotate(314deg) brightness(106%) contrast(91%);
 
     // Dropdown menus
@@ -254,6 +260,7 @@
     --color-txt-link: var(--brand-color-base);
     --color-txt-notification: #ffffff;
     --link-txt-style: underline;
+    --color-txt-inverted: #ffffff;
 
     --color-icon-primary: invert(11%) sepia(8%) saturate(478%)
         hue-rotate(114deg) brightness(101%) contrast(94%);
