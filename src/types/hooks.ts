@@ -41,6 +41,10 @@ export type DContracts = {
     // Pair matrix (CA x TP) of price providers
     PP_TP?: Record<number, ContractInfo[]>;
 
+    // Lending contracts
+    LendingManager?: ContractInfo;
+    LendingReader?: ContractInfo;
+
     // Extras contracts
     tp_legacy?: ContractInfo;
     token_migrator?: ContractInfo;
