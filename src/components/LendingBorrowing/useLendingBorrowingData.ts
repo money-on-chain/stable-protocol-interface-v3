@@ -2,6 +2,7 @@ import React from "react";
 import { formatUnits } from "viem";
 
 import { useWalletContext } from "../../context/Wallet";
+import { ConvertAmount } from "../../helpers/currencies";
 import settings from "../../settings/settings.json";
 import type { LendingPoolStatus } from "../../types/status";
 import type { SettingsTokens } from "../../types/hooks";
@@ -40,6 +41,7 @@ export function useLendingBorrowingData(): LendingBorrowingData {
     const {
         contractsAddress,
         contractLendingStatus,
+        contractProtocolStatus,
         userLending,
         userBalance,
     } = useWalletContext();
@@ -64,6 +66,8 @@ export function useLendingBorrowingData(): LendingBorrowingData {
 
             const tpBalance = userBalance.data?.TP?.[0]?.[tpIndex]?.balance ?? 0n;
 
+            const depositedTpUsd = ConvertAmount(contractProtocolStatus, tokenCode, "USD", depositedTp, 0);
+
             return {
                 id: `lend-tp-${tpIndex}`,
                 caIndex: 0,
@@ -74,13 +78,13 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                 depositedTicker: meta.ticker,
                 supplyApy: fmtWadPct(pool?.getBorrowFee ?? 0n),
                 depositedAmount: fmtBigInt(depositedTp),
-                depositedAmountUsd: "0",
+                depositedAmountUsd: fmtBigInt(depositedTpUsd),
                 availableToWithdrawAmount: fmtBigInt(depositedTp),
-                availableToWithdrawAmountUsd: "0",
+                availableToWithdrawAmountUsd: fmtBigInt(depositedTpUsd),
                 walletBalance: fmtBigInt(tpBalance),
             };
         });
-    }, [contractsAddress, pools, userLending.data, userBalance.data, tokens]);
+    }, [contractsAddress, contractProtocolStatus, pools, userLending.data, userBalance.data, tokens]);
 
     const borrowCards: BorrowCardData[] = React.useMemo((): BorrowCardData[] => {
         if (!contractsAddress?.TP || !contractsAddress?.Moc || !tokens) return [];
@@ -110,6 +114,10 @@ export function useLendingBorrowingData(): LendingBorrowingData {
 
                 const debtTp = mulWad(creditUnits, priceCreditUnit);
                 const caWallet = userBalance.data?.CA?.[ca]?.balance ?? 0n;
+
+                const debtTpUsd = ConvertAmount(contractProtocolStatus, borrowTokenCode, "USD", debtTp, ca);
+                const acBalanceUsd = ConvertAmount(contractProtocolStatus, collTokenCode, "USD", acBalance, ca);
+                const maxBorrowUsd = ConvertAmount(contractProtocolStatus, borrowTokenCode, "USD", maxBorrow, ca);
 
                 let liqDropPct = 0;
                 if (coverage > 0n && coverage > liquidationCov) {
@@ -255,9 +263,9 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                     collateralTokenTicker: cTicker,
                     borrowApy: fmtWadPct(borrowFee),
                     collateralWalletBalance: fmtBigInt(caWallet),
-                    currentDebt: { value: debtVal, ticker: bTicker, valueUsd: "0" },
-                    depositedCollateral: { value: collVal, ticker: cTicker, valueUsd: "0" },
-                    maxAvailable: { value: maxBorrowVal, ticker: bTicker, valueUsd: "0" },
+                    currentDebt: { value: debtVal, ticker: bTicker, valueUsd: fmtBigInt(debtTpUsd) },
+                    depositedCollateral: { value: collVal, ticker: cTicker, valueUsd: fmtBigInt(acBalanceUsd) },
+                    maxAvailable: { value: maxBorrowVal, ticker: bTicker, valueUsd: fmtBigInt(maxBorrowUsd) },
                     liquidationDropPercentage: liqDropPct,
                     borrowOperationMetrics,
                     depositCollateralOperationMetrics,
@@ -274,7 +282,7 @@ export function useLendingBorrowingData(): LendingBorrowingData {
             }
         }
         return cards;
-    }, [contractsAddress, pools, userLending.data, userBalance.data, tokens]);
+    }, [contractsAddress, contractProtocolStatus, pools, userLending.data, userBalance.data, tokens]);
 
     const refetch = React.useCallback(() => {
         void contractLendingStatus.refetch?.();

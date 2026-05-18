@@ -165,13 +165,21 @@ export default function LendEarn({
 
                         <div className="lend-earn-summary-column">
                             <BeforeAfterCard
+                                before={{
+                                    label: t("beforeAfterCard.before"),
+                                    unit: token.depositedTicker,
+                                    value: token.depositedAmount,
+                                }}
                                 after={{
                                     isInvalid: hasTypedAmount && !isAmountValid,
                                     label: t("beforeAfterCard.after"),
                                     unit: token.depositedTicker,
-                                    value: hasSelectedAmount ? amount : "0.00",
+                                    value: hasSelectedAmount
+                                        ? formatAmount(parseAmount(token.depositedAmount).value + amountValue)
+                                        : token.depositedAmount,
                                 }}
                                 title={t("lending.labelDeposits")}
+                                trend="positive"
                                 useBorder
                             />
                         </div>
