@@ -3,6 +3,7 @@ import "./Styles.scss";
 import React from "react";
 import { useSearchParams } from "react-router-dom";
 
+import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
 import { parseMetricNumber } from "./Borrow/data";
 import BorrowDepositCollateral from "./BorrowDepositCollateral";
 import BorrowOperation from "./BorrowOperation";
@@ -19,6 +20,7 @@ const LendingBorrowing: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const { borrowCards, lendCards } = useLendingBorrowingData();
     const actions = useLendingBorrowingActions();
+    const { operationModal } = actions;
     const view = searchParams.get("view");
     const tokenId = searchParams.get("token");
     const selectedLendCard =
@@ -55,6 +57,13 @@ const LendingBorrowing: React.FC = () => {
 
     return (
         <div className="section-container">
+            <OperationStatusModal
+                visible={operationModal.isVisible}
+                onCancel={operationModal.onClose}
+                title={operationModal.title}
+                operationStatus={operationModal.status}
+                txHash={operationModal.txHash}
+            />
             {!isLendEarnView &&
             !isLendWithdrawView &&
             !isBorrowDepositCollateralView &&

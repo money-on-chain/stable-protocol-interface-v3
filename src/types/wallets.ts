@@ -3,6 +3,7 @@ import type { usePublicClient } from "wagmi";
 import type { useWalletClient } from "wagmi";
 import type { useConnect } from "wagmi";
 
+import type { useContractLendingStatus } from "../hooks/useContractLendingStatus";
 import type { useContractOmocStatus } from "../hooks/useContractOmocStatus";
 import type { useContractProtocolStatus } from "../hooks/useContractProtocolStatus";
 import type { useIncentiveV2 } from "../hooks/useIncentiveV2";
@@ -13,6 +14,7 @@ import type { DContracts } from "./hooks";
 import type {
     ContractProtocolStatusResult,
     UserBalanceResult,
+    UserLendingResult,
     UserOmocBalanceResult,
     UserVestingResult,
 } from "./status";
@@ -50,6 +52,9 @@ export type WalletContextType = {
 
     contractStatusOmoc: ReturnType<typeof useContractOmocStatus>;
     contractProtocolStatus: ReturnType<typeof useContractProtocolStatus>;
+    contractLendingStatus: ReturnType<typeof useContractLendingStatus>;
+
+    userLending: UserLendingResult;
 
     userBalance: UserBalanceResult;
     userOmocBalance: UserOmocBalanceResult;

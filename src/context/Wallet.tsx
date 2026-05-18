@@ -257,11 +257,6 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         REFRESH_INTERVAL_USER_BALANCE
     );
 
-    console.log("DEBUG>>>")
-    console.log("userLending", userLending);
-    console.log("contractLendingStatus", contractLendingStatus);
-    console.log("DEBUG<<<")
-
     const readContractsAddresses = useCallback(async (): Promise<void> => {
         if (
             !isConnected ||
