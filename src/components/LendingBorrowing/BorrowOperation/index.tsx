@@ -196,7 +196,7 @@ export default function BorrowOperation({
         );
         return Number(minCA) / 1e18;
     }, [borrowAmountValue.isValid, borrowAmountValue.value, card.borrowTokenCode, card.collateralTokenCode, card.caIndex, contractProtocolStatus]);
-    const minRequiredCollateral = minRequiredCollateralValue > 0 ? formatAmount(minRequiredCollateralValue) : null;
+    const minRequiredCollateral = minRequiredCollateralValue > 0 ? formatAmount(minRequiredCollateralValue, card.collateralTokenDecimals) : null;
     const depositedCollateralAmount = parseAmount(card.depositedCollateral.value).value;
     const totalCollateral = depositedCollateralAmount + (collateralAmountValue.isValid ? collateralAmountValue.value : 0);
     const hasInsufficientCollateral =
@@ -296,7 +296,7 @@ export default function BorrowOperation({
                 ? maxBorrowValue
                 : maxBorrowValue * (percentage / 100);
 
-        setBorrowAmount(formatAmount(nextAmount));
+        setBorrowAmount(formatAmount(nextAmount, card.borrowTokenDecimals));
     };
 
     const handleCollateralQuickAction = (percentage: number) => {
@@ -308,7 +308,7 @@ export default function BorrowOperation({
                 ? maxCollateralValue
                 : maxCollateralValue * (percentage / 100);
 
-        setCollateralAmount(formatAmount(nextAmount));
+        setCollateralAmount(formatAmount(nextAmount, card.collateralTokenDecimals));
     };
 
     const [

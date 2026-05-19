@@ -4,6 +4,7 @@ export interface LendCardData {
     caIndex: number;
     id: string;
     tokenCode: string;
+    tokenDecimals: number;
     tokenIconClassName: string;
     tokenName: string;
     tokenTicker: string;

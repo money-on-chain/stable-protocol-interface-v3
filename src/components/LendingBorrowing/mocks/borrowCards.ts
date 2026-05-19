@@ -12,9 +12,11 @@ type RawBorrowPreviousLiquidation = Omit<
 >;
 type RawBorrowCardData = Omit<
     BorrowCardData,
+    | "borrowTokenDecimals"
     | "borrowTokenIconClassName"
     | "borrowTokenName"
     | "borrowTokenTicker"
+    | "collateralTokenDecimals"
     | "collateralTokenIconClassName"
     | "collateralTokenName"
     | "collateralTokenTicker"
@@ -422,9 +424,11 @@ export const BORROW_CARDS: BorrowCardData[] = RAW_BORROW_CARDS.map((card) => {
 
     return {
         ...card,
+        borrowTokenDecimals: borrowToken.visibleDecimals,
         borrowTokenIconClassName: borrowToken.iconClassName,
         borrowTokenName: borrowToken.name,
         borrowTokenTicker: borrowToken.ticker,
+        collateralTokenDecimals: collateralToken.visibleDecimals,
         collateralTokenIconClassName: collateralToken.iconClassName,
         collateralTokenName: collateralToken.name,
         collateralTokenTicker: collateralToken.ticker,

@@ -34,10 +34,10 @@ export function parseAmount(rawAmount: string): {
     };
 }
 
-export function formatAmount(value: number): string {
+export function formatAmount(value: number, decimals: number = 2): string {
     return value.toLocaleString("en-US", {
-        maximumFractionDigits: 2,
-        minimumFractionDigits: 2,
+        maximumFractionDigits: decimals,
+        minimumFractionDigits: decimals,
     });
 }
 

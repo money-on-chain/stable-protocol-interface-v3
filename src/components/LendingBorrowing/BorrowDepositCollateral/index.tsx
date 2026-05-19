@@ -143,11 +143,11 @@ export default function BorrowDepositCollateral({
                 ? collateralWalletBalanceValue.value
                 : collateralWalletBalanceValue.value * (percentage / 100);
 
-        setCollateralAmount(formatAmount(nextAmount));
+        setCollateralAmount(formatAmount(nextAmount, card.collateralTokenDecimals));
     };
 
     const handleUseMaxCollateral = () => {
-        setCollateralAmount(formatAmount(collateralWalletBalanceValue.value));
+        setCollateralAmount(formatAmount(collateralWalletBalanceValue.value, card.collateralTokenDecimals));
     };
 
     const [

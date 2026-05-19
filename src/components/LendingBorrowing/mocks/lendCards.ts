@@ -3,7 +3,7 @@ import { getLendingBorrowingTokenMetadata } from "../tokenMetadata";
 
 type RawLendCardData = Omit<
     LendCardData,
-    "depositedTicker" | "tokenIconClassName" | "tokenName" | "tokenTicker"
+    "depositedTicker" | "tokenDecimals" | "tokenIconClassName" | "tokenName" | "tokenTicker"
 >;
 
 const RAW_LEND_CARDS: RawLendCardData[] = [
@@ -37,6 +37,7 @@ export const LEND_CARDS: LendCardData[] = RAW_LEND_CARDS.map((card) => {
     return {
         ...card,
         depositedTicker: tokenMetadata.ticker,
+        tokenDecimals: tokenMetadata.visibleDecimals,
         tokenIconClassName: tokenMetadata.iconClassName,
         tokenName: tokenMetadata.name,
         tokenTicker: tokenMetadata.ticker,

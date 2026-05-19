@@ -9,6 +9,7 @@ import { useProjectTranslation } from "../../../helpers/translations";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 import TokenAmountInput from "../../TokenAmountInput";
 import { type LendCardData } from "../Lend/data";
+import { formatAmount } from "../Borrow/operationUtils";
 import BeforeAfterCard from "../MiniComponents/BeforeAfterCard";
 import OperationActions from "../MiniComponents/OperationActions";
 import OperationBackLink from "../MiniComponents/OperationBackLink";
@@ -22,13 +23,6 @@ interface LendEarnProps {
 }
 
 const QUICK_ACTIONS = [25, 50, 75, 100];
-
-function formatAmount(value: number): string {
-    return value.toLocaleString("en-US", {
-        maximumFractionDigits: 2,
-        minimumFractionDigits: 2,
-    });
-}
 
 function parseAmount(rawAmount: string): {
     isValid: boolean;
@@ -115,7 +109,7 @@ export default function LendEarn({
                 ? walletBalanceValue.value
                 : walletBalanceValue.value * (percentage / 100);
 
-        setAmount(formatAmount(nextAmount));
+        setAmount(formatAmount(nextAmount, token.tokenDecimals));
     };
 
     return (
@@ -175,7 +169,7 @@ export default function LendEarn({
                                     label: t("beforeAfterCard.after"),
                                     unit: token.depositedTicker,
                                     value: hasSelectedAmount
-                                        ? formatAmount(parseAmount(token.depositedAmount).value + amountValue)
+                                        ? formatAmount(parseAmount(token.depositedAmount).value + amountValue, token.tokenDecimals)
                                         : token.depositedAmount,
                                 }}
                                 title={t("lending.labelDeposits")}

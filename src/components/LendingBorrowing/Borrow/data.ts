@@ -39,11 +39,13 @@ export interface BorrowCardData {
     borrowApy: string;
     borrowOperationMetrics: BorrowOperationMetric[];
     borrowTokenCode: string;
+    borrowTokenDecimals: number;
     borrowTokenIconClassName: string;
     borrowTokenName: string;
     borrowTokenTicker: string;
     caIndex: number;
     collateralTokenCode: string;
+    collateralTokenDecimals: number;
     collateralTokenIconClassName: string;
     collateralTokenName: string;
     collateralTokenTicker: string;

@@ -211,11 +211,11 @@ export default function BorrowWithdrawCollateral({
                 ? depositedCollateralValue.value
                 : depositedCollateralValue.value * (percentage / 100);
 
-        setCollateralAmount(formatAmount(nextAmount));
+        setCollateralAmount(formatAmount(nextAmount, card.collateralTokenDecimals));
     };
 
     const handleUseMaxCollateral = () => {
-        setCollateralAmount(formatAmount(depositedCollateralValue.value));
+        setCollateralAmount(formatAmount(depositedCollateralValue.value, card.collateralTokenDecimals));
     };
 
     const [

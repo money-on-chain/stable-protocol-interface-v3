@@ -147,11 +147,11 @@ export default function BorrowRepay({
                 ? currentDebtValue.value
                 : currentDebtValue.value * (percentage / 100);
 
-        setRepayAmount(formatAmount(nextAmount));
+        setRepayAmount(formatAmount(nextAmount, card.borrowTokenDecimals));
     };
 
     const handleRepayInFull = () => {
-        setRepayAmount(formatAmount(currentDebtValue.value));
+        setRepayAmount(formatAmount(currentDebtValue.value, card.borrowTokenDecimals));
     };
 
     const [

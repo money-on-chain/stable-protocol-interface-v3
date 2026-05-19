@@ -9,6 +9,7 @@ import { useProjectTranslation } from "../../../helpers/translations";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 import TokenAmountInput from "../../TokenAmountInput";
 import { type LendCardData } from "../Lend/data";
+import { formatAmount as formatAmountUtil } from "../Borrow/operationUtils";
 import BeforeAfterCard from "../MiniComponents/BeforeAfterCard";
 import CompactMetricDisplay from "../MiniComponents/CompactMetricDisplay";
 import OperationActions from "../MiniComponents/OperationActions";
@@ -50,13 +51,6 @@ function parseAmount(rawAmount: string): {
         isValid: true,
         value: parsedAmount,
     };
-}
-
-function formatAmount(value: number): string {
-    return value.toLocaleString("en-US", {
-        maximumFractionDigits: 2,
-        minimumFractionDigits: 2,
-    });
 }
 
 export default function LendWithdraw({
@@ -122,11 +116,11 @@ export default function LendWithdraw({
                 ? availableValue.value
                 : availableValue.value * (percentage / 100);
 
-        setAmount(formatAmount(nextAmount));
+        setAmount(formatAmountUtil(nextAmount, token.tokenDecimals));
     };
 
     const handleWithdrawAll = () => {
-        setAmount(formatAmount(availableValue.value));
+        setAmount(formatAmountUtil(availableValue.value, token.tokenDecimals));
     };
 
     return (
@@ -191,7 +185,7 @@ export default function LendWithdraw({
                                     label: t("beforeAfterCard.after"),
                                     unit: token.depositedTicker,
                                     value: hasSelectedAmount
-                                        ? formatAmount(nextDepositValue)
+                                        ? formatAmountUtil(nextDepositValue, token.tokenDecimals)
                                         : token.availableToWithdrawAmount,
                                 }}
                                 before={{
@@ -229,7 +223,7 @@ export default function LendWithdraw({
                                 {`${t("lending.sectionWithdraw.summary.txtAboutToWithdraw")}: ${amount} ${token.tokenTicker}.`}
                             </div>
                             <div>
-                                {`${t("lending.sectionWithdraw.summary.txtRemaining")}: ${formatAmount(nextDepositValue)} ${token.depositedTicker}.`}
+                                {`${t("lending.sectionWithdraw.summary.txtRemaining")}: ${formatAmountUtil(nextDepositValue, token.tokenDecimals)} ${token.depositedTicker}.`}
                             </div>
                         </div>
                     ) : (

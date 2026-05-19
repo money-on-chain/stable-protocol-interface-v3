@@ -72,16 +72,17 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                 id: `lend-tp-${tpIndex}`,
                 caIndex: 0,
                 tokenCode,
+                tokenDecimals: meta.visibleDecimals,
                 tokenIconClassName: meta.iconClassName,
                 tokenName: meta.name,
                 tokenTicker: meta.ticker,
                 depositedTicker: meta.ticker,
                 supplyApy: fmtWadPct(pool?.getBorrowFee ?? 0n),
-                depositedAmount: fmtBigInt(depositedTp),
+                depositedAmount: fmtBigInt(depositedTp, 18, meta.visibleDecimals),
                 depositedAmountUsd: fmtBigInt(depositedTpUsd),
-                availableToWithdrawAmount: fmtBigInt(depositedTp),
+                availableToWithdrawAmount: fmtBigInt(depositedTp, 18, meta.visibleDecimals),
                 availableToWithdrawAmountUsd: fmtBigInt(depositedTpUsd),
-                walletBalance: fmtBigInt(tpBalance),
+                walletBalance: fmtBigInt(tpBalance, 18, meta.visibleDecimals),
             };
         });
     }, [contractsAddress, contractProtocolStatus, pools, userLending.data, userBalance.data, tokens]);
@@ -133,9 +134,9 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                 const liqUnit = `${bTicker}/${cTicker}`;
                 const liqVal = fmtBigInt(liqPrice);
                 const covVal = fmtWadPct(coverage);
-                const collVal = fmtBigInt(acBalance);
-                const debtVal = fmtBigInt(debtTp);
-                const maxBorrowVal = fmtBigInt(maxBorrow);
+                const collVal = fmtBigInt(acBalance, 18, collMeta.visibleDecimals);
+                const debtVal = fmtBigInt(debtTp, 18, borrowMeta.visibleDecimals);
+                const maxBorrowVal = fmtBigInt(maxBorrow, 18, borrowMeta.visibleDecimals);
 
                 const borrowOperationMetrics = [
                     {
@@ -258,18 +259,20 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                     id: `borrow-tp-${tp}-ca-${ca}`,
                     caIndex: ca,
                     borrowTokenCode,
+                    borrowTokenDecimals: borrowMeta.visibleDecimals,
                     borrowTokenIconClassName: borrowMeta.iconClassName,
                     borrowTokenName: borrowMeta.name,
                     borrowTokenTicker: bTicker,
                     collateralTokenCode: collTokenCode,
+                    collateralTokenDecimals: collMeta.visibleDecimals,
                     collateralTokenIconClassName: collMeta.iconClassName,
                     collateralTokenName: collMeta.name,
                     collateralTokenTicker: cTicker,
                     borrowApy: fmtWadPct(borrowFee),
-                    collateralWalletBalance: fmtBigInt(caWallet),
+                    collateralWalletBalance: fmtBigInt(caWallet, 18, collMeta.visibleDecimals),
                     currentDebt: { value: debtVal, ticker: bTicker, valueUsd: fmtBigInt(debtTpUsd) },
                     depositedCollateral: { value: collVal, ticker: cTicker, valueUsd: fmtBigInt(acBalanceUsd) },
-                    maxAvailable: { value: fmtBigInt(maxAvailableTP), ticker: bTicker, valueUsd: fmtBigInt(maxAvailableUsd) },
+                    maxAvailable: { value: fmtBigInt(maxAvailableTP, 18, borrowMeta.visibleDecimals), ticker: bTicker, valueUsd: fmtBigInt(maxAvailableUsd) },
                     liquidationDropPercentage: liqDropPct,
                     borrowOperationMetrics,
                     depositCollateralOperationMetrics,

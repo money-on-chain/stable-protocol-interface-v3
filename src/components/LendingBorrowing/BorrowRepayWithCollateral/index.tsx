@@ -100,7 +100,7 @@ export default function BorrowRepayWithCollateral({
             debtBigInt,
             card.caIndex
         );
-        return formatAmount(Number(collateralBigInt) / 1e18);
+        return formatAmount(Number(collateralBigInt) / 1e18, card.collateralTokenDecimals);
     }, [card, contractProtocolStatus]);
 
     const depositedCollateralValue = parseAmount(
@@ -203,7 +203,8 @@ export default function BorrowRepayWithCollateral({
     const noticeLines = hasPendingChanges
         ? (() => {
               const collateralAfterLabel = `${formatAmount(
-                  collateralAfterRepayment
+                  collateralAfterRepayment,
+                  card.collateralTokenDecimals
               )} ${card.depositedCollateral.ticker}.`;
 
               return [
@@ -262,7 +263,7 @@ export default function BorrowRepayWithCollateral({
                             label={t(
                                 "borrowing.sectionRepayCollateral.labelDepositedCollateralAfterRepayment"
                             )}
-                            value={formatAmount(collateralAfterRepayment)}
+                            value={formatAmount(collateralAfterRepayment, card.collateralTokenDecimals)}
                             valueLabel={card.depositedCollateral.ticker}
                         />
                     </div>
