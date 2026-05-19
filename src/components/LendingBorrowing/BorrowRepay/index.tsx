@@ -25,7 +25,7 @@ import { getRepayRatio } from "../operationPreviewAdapter";
 
 interface BorrowRepayProps {
     card: BorrowCardData;
-    onConfirm: (card: BorrowCardData, repayAmount: string) => void;
+    onConfirm: (card: BorrowCardData, repayAmount: string, onSuccess?: () => void) => void;
     onBack: () => void;
 }
 
@@ -436,7 +436,7 @@ export default function BorrowRepay({
                     <button
                         className="button borrow-repay-actions__confirm"
                         disabled={!hasPendingChanges || hasValidationError}
-                        onClick={() => onConfirm(card, repayAmount)}
+                        onClick={() => onConfirm(card, repayAmount, () => setRepayAmount(""))}
                         type="button"
                     >
                         {hasPendingChanges

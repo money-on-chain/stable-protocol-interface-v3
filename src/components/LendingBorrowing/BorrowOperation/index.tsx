@@ -38,7 +38,8 @@ interface BorrowOperationProps {
     onConfirm: (
         card: BorrowCardData,
         borrowAmount: string,
-        collateralAmount: string
+        collateralAmount: string,
+        onSuccess?: () => void
     ) => void;
 }
 
@@ -691,7 +692,10 @@ export default function BorrowOperation({
                         className="button borrow-operation-actions__confirm"
                         disabled={!hasPendingChanges}
                         onClick={() =>
-                            onConfirm(card, borrowAmount, collateralAmount)
+                            onConfirm(card, borrowAmount, collateralAmount, () => {
+                                setBorrowAmount("");
+                                setCollateralAmount("");
+                            })
                         }
                         type="button"
                     >

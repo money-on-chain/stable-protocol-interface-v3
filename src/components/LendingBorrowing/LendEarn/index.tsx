@@ -16,7 +16,7 @@ import OperationNotice from "../MiniComponents/OperationNotice";
 import RateDisplay from "../MiniComponents/RateDisplay";
 
 interface LendEarnProps {
-    onConfirm: (token: LendCardData, amount: string) => void;
+    onConfirm: (token: LendCardData, amount: string, onSuccess?: () => void) => void;
     onBack: () => void;
     token: LendCardData;
 }
@@ -206,7 +206,7 @@ export default function LendEarn({
                     <button
                         className="button"
                         disabled={!hasSelectedAmount || hasValidationError}
-                        onClick={() => onConfirm(token, amount)}
+                        onClick={() => onConfirm(token, amount, () => setAmount(""))}
                         type="button"
                     >
                         {hasSelectedAmount

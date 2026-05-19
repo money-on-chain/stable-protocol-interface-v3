@@ -43,13 +43,13 @@ export interface OperationModalState {
 }
 
 interface LendingBorrowingActions {
-    confirmBorrowDepositCollateral: (card: BorrowCardData, collateralAmount: string) => void;
-    confirmBorrowOperation: (card: BorrowCardData, borrowAmount: string, collateralAmount: string) => void;
-    confirmBorrowRepay: (card: BorrowCardData, repayAmount: string) => void;
-    confirmBorrowRepayWithCollateral: (card: BorrowCardData, collateralAmount: string) => void;
-    confirmBorrowWithdrawCollateral: (card: BorrowCardData, collateralAmount: string) => void;
-    confirmLendEarn: (token: LendCardData, amount: string) => void;
-    confirmLendWithdraw: (token: LendCardData, amount: string) => void;
+    confirmBorrowDepositCollateral: (card: BorrowCardData, collateralAmount: string, onSuccess?: () => void) => void;
+    confirmBorrowOperation: (card: BorrowCardData, borrowAmount: string, collateralAmount: string, onSuccess?: () => void) => void;
+    confirmBorrowRepay: (card: BorrowCardData, repayAmount: string, onSuccess?: () => void) => void;
+    confirmBorrowRepayWithCollateral: (card: BorrowCardData, collateralAmount: string, onSuccess?: () => void) => void;
+    confirmBorrowWithdrawCollateral: (card: BorrowCardData, collateralAmount: string, onSuccess?: () => void) => void;
+    confirmLendEarn: (token: LendCardData, amount: string, onSuccess?: () => void) => void;
+    confirmLendWithdraw: (token: LendCardData, amount: string, onSuccess?: () => void) => void;
     operationModal: OperationModalState;
 }
 
@@ -104,7 +104,7 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
     }, [tokens]);
 
     const confirmLendEarn = React.useCallback(
-        (token: LendCardData, amount: string) => {
+        (token: LendCardData, amount: string, onSuccess?: () => void) => {
             if (!address || !contractsAddress?.LendingManager) return;
             const tpIndex = parseTpIndex(token.tokenCode);
             const tpContract = contractsAddress.TP?.[tpIndex];
@@ -128,7 +128,7 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
 
                     await deposit(ctx, address, tpContract.address, tpAmount,
                         (hash) => setModalState((s) => ({ ...s, status: "pending", txHash: hash })),
-                        () => setModalState((s) => ({ ...s, status: "success" }))
+                        () => { setModalState((s) => ({ ...s, status: "success" })); onSuccess?.(); }
                     );
 
                     void userLending.refetch?.();
@@ -144,7 +144,7 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
     );
 
     const confirmLendWithdraw = React.useCallback(
-        (token: LendCardData, amount: string) => {
+        (token: LendCardData, amount: string, onSuccess?: () => void) => {
             if (!address || !contractsAddress?.LendingManager) return;
             const tpIndex = parseTpIndex(token.tokenCode);
             const tpContract = contractsAddress.TP?.[tpIndex];
@@ -162,7 +162,7 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
 
                     await withdraw(ctx, address, tpContract.address, depositUnits,
                         (hash) => setModalState((s) => ({ ...s, status: "pending", txHash: hash })),
-                        () => setModalState((s) => ({ ...s, status: "success" }))
+                        () => { setModalState((s) => ({ ...s, status: "success" })); onSuccess?.(); }
                     );
 
                     void userLending.refetch?.();
@@ -206,7 +206,7 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
     );
 
     const confirmBorrowOperation = React.useCallback(
-        (card: BorrowCardData, borrowAmount: string, collateralAmount: string) => {
+        (card: BorrowCardData, borrowAmount: string, collateralAmount: string, onSuccess?: () => void) => {
             if (!address || !contractsAddress?.LendingManager) return;
             const { tp, ca } = parseBorrowCardIndices(card.id);
             const tpContract = contractsAddress.TP?.[tp];
@@ -230,10 +230,11 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
                         const execFee = getExecutionFee();
                         await borrow(ctx, address, tpContract.address, mocContract.address, tpAmount, execFee,
                             (hash) => setModalState((s) => ({ ...s, status: "pending", txHash: hash })),
-                            () => setModalState((s) => ({ ...s, status: "success" }))
+                            () => { setModalState((s) => ({ ...s, status: "success" })); onSuccess?.(); }
                         );
                     } else {
                         setModalState((s) => ({ ...s, status: "success" }));
+                        onSuccess?.();
                     }
 
                     void userLending.refetch?.();
@@ -249,7 +250,7 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
     );
 
     const confirmBorrowRepay = React.useCallback(
-        (card: BorrowCardData, repayAmount: string) => {
+        (card: BorrowCardData, repayAmount: string, onSuccess?: () => void) => {
             if (!address || !contractsAddress?.LendingManager) return;
             const { tp, ca } = parseBorrowCardIndices(card.id);
             const tpContract = contractsAddress.TP?.[tp];
@@ -280,7 +281,7 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
 
                     await repay(ctx, address, tpContract.address, mocContract.address, creditUnits,
                         (hash) => setModalState((s) => ({ ...s, status: "pending", txHash: hash })),
-                        () => setModalState((s) => ({ ...s, status: "success" }))
+                        () => { setModalState((s) => ({ ...s, status: "success" })); onSuccess?.(); }
                     );
 
                     void userLending.refetch?.();
@@ -296,7 +297,7 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
     );
 
     const confirmBorrowRepayWithCollateral = React.useCallback(
-        (card: BorrowCardData, _collateralAmount: string) => {
+        (card: BorrowCardData, _collateralAmount: string, onSuccess?: () => void) => {
             if (!address || !contractsAddress?.LendingManager) return;
             const { tp, ca } = parseBorrowCardIndices(card.id);
             const tpContract = contractsAddress.TP?.[tp];
@@ -315,7 +316,7 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
 
                     await repayWithAC(ctx, tpContract.address, mocContract.address, creditUnits, execFee,
                         (hash) => setModalState((s) => ({ ...s, status: "pending", txHash: hash })),
-                        () => setModalState((s) => ({ ...s, status: "success" }))
+                        () => { setModalState((s) => ({ ...s, status: "success" })); onSuccess?.(); }
                     );
 
                     void userLending.refetch?.();
@@ -331,7 +332,7 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
     );
 
     const confirmBorrowDepositCollateral = React.useCallback(
-        (card: BorrowCardData, collateralAmount: string) => {
+        (card: BorrowCardData, collateralAmount: string, onSuccess?: () => void) => {
             if (!address || !contractsAddress?.LendingManager) return;
             const { tp, ca } = parseBorrowCardIndices(card.id);
             const tpContract = contractsAddress.TP?.[tp];
@@ -347,6 +348,7 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
                     const ctx = buildCtx();
                     await depositCollateral(ctx, ca, tpContract.address, mocContract.address, acAmount);
                     setModalState((s) => ({ ...s, status: "success" }));
+                    onSuccess?.();
 
                     void userLending.refetch?.();
                     void userBalance.refetch?.();
@@ -361,7 +363,7 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
     );
 
     const confirmBorrowWithdrawCollateral = React.useCallback(
-        (card: BorrowCardData, collateralAmount: string) => {
+        (card: BorrowCardData, collateralAmount: string, onSuccess?: () => void) => {
             if (!address || !contractsAddress?.LendingManager) return;
             const { tp, ca } = parseBorrowCardIndices(card.id);
             const tpContract = contractsAddress.TP?.[tp];
@@ -379,7 +381,7 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
 
                     await removeACfromVault(ctx, address, tpContract.address, mocContract.address, acAmount, execFee,
                         (hash) => setModalState((s) => ({ ...s, status: "pending", txHash: hash })),
-                        () => setModalState((s) => ({ ...s, status: "success" }))
+                        () => { setModalState((s) => ({ ...s, status: "success" })); onSuccess?.(); }
                     );
 
                     void userLending.refetch?.();

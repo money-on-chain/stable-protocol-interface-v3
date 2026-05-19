@@ -24,7 +24,7 @@ import { getWithdrawCollateralRatio } from "../operationPreviewAdapter";
 
 interface BorrowWithdrawCollateralProps {
     card: BorrowCardData;
-    onConfirm: (card: BorrowCardData, collateralAmount: string) => void;
+    onConfirm: (card: BorrowCardData, collateralAmount: string, onSuccess?: () => void) => void;
     onBack: () => void;
 }
 
@@ -503,7 +503,7 @@ export default function BorrowWithdrawCollateral({
                     <button
                         className="button borrow-withdraw-collateral-actions__confirm"
                         disabled={!hasPendingChanges || hasValidationError}
-                        onClick={() => onConfirm(card, collateralAmount)}
+                        onClick={() => onConfirm(card, collateralAmount, () => setCollateralAmount(""))}
                         type="button"
                     >
                         {t("borrowing.cta.confirm")}
