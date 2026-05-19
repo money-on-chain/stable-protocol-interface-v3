@@ -133,7 +133,8 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
 
                     void userLending.refetch?.();
                     void userBalance.refetch?.();
-                } catch {
+                } catch (error) {
+                    console.error("[lending] transaction failed:", error);
                     setModalState((s) => ({ ...s, status: "error" }));
                 }
             };
@@ -166,7 +167,8 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
 
                     void userLending.refetch?.();
                     void userBalance.refetch?.();
-                } catch {
+                } catch (error) {
+                    console.error("[lending] transaction failed:", error);
                     setModalState((s) => ({ ...s, status: "error" }));
                 }
             };
@@ -236,7 +238,8 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
 
                     void userLending.refetch?.();
                     void userBalance.refetch?.();
-                } catch {
+                } catch (error) {
+                    console.error("[lending] transaction failed:", error);
                     setModalState((s) => ({ ...s, status: "error" }));
                 }
             };
@@ -262,8 +265,11 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
                     const ctx = buildCtx();
                     const tpAllowance = userLending.data?.[tp]?.tpAllowance ?? 0n;
 
-                    if (tpAllowance < tpAmount) {
-                        await approveTP(ctx, tpContract, tpAmount,
+                    // Approve 1% more than input: the contract computes totalTPtoRepay = creditUnits * lastPCU_fresh,
+                    // which can exceed tpAmount if PCU has accrued interest since our last read.
+                    const approvalAmount = tpAmount + tpAmount / 100n;
+                    if (tpAllowance < approvalAmount) {
+                        await approveTP(ctx, tpContract, approvalAmount,
                             (hash) => setModalState((s) => ({ ...s, status: "pending", txHash: hash })),
                             () => setModalState((s) => ({ ...s, status: "sign", txHash: undefined }))
                         );
@@ -279,7 +285,8 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
 
                     void userLending.refetch?.();
                     void userBalance.refetch?.();
-                } catch {
+                } catch (error) {
+                    console.error("[repay] transaction failed:", error);
                     setModalState((s) => ({ ...s, status: "error" }));
                 }
             };
@@ -313,7 +320,8 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
 
                     void userLending.refetch?.();
                     void userBalance.refetch?.();
-                } catch {
+                } catch (error) {
+                    console.error("[lending] transaction failed:", error);
                     setModalState((s) => ({ ...s, status: "error" }));
                 }
             };
@@ -342,7 +350,8 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
 
                     void userLending.refetch?.();
                     void userBalance.refetch?.();
-                } catch {
+                } catch (error) {
+                    console.error("[lending] transaction failed:", error);
                     setModalState((s) => ({ ...s, status: "error" }));
                 }
             };
@@ -375,7 +384,8 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
 
                     void userLending.refetch?.();
                     void userBalance.refetch?.();
-                } catch {
+                } catch (error) {
+                    console.error("[lending] transaction failed:", error);
                     setModalState((s) => ({ ...s, status: "error" }));
                 }
             };
