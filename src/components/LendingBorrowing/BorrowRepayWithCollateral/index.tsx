@@ -39,11 +39,6 @@ function formatMetric(metric: BorrowOperationMetric, value: number): string {
     return formatMetricValue(pattern, value);
 }
 
-function getCollateralAmountNeededForFullRepay(card: BorrowCardData): string {
-    // TODO(api): Replace this mock fallback with the contract/API quote for the
-    // exact collateral amount required to fully repay the current debt.
-    return formatAmount(parseAmount(card.currentDebt.valueUsd).value);
-}
 
 function getRepayWithCollateralMetricState(
     metric: BorrowOperationMetric,
@@ -93,7 +88,20 @@ export default function BorrowRepayWithCollateral({
 }: BorrowRepayWithCollateralProps): React.ReactElement {
     const { contractProtocolStatus } = useWalletContext();
     const { t, i18n } = useProjectTranslation();
-    const collateralAmount = getCollateralAmountNeededForFullRepay(card);
+
+    const collateralAmount = React.useMemo(() => {
+        const debtValue = parseAmount(card.currentDebt.value).value;
+        if (debtValue <= 0 || !contractProtocolStatus.data) return "0.00";
+        const debtBigInt = toBigIntPrecision(debtValue);
+        const collateralBigInt = ConvertAmount(
+            contractProtocolStatus,
+            card.borrowTokenCode,
+            card.collateralTokenCode,
+            debtBigInt,
+            card.caIndex
+        );
+        return formatAmount(Number(collateralBigInt) / 1e18);
+    }, [card, contractProtocolStatus]);
 
     const depositedCollateralValue = parseAmount(
         card.depositedCollateral.value
