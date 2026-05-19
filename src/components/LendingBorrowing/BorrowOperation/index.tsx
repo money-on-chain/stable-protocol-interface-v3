@@ -184,10 +184,32 @@ export default function BorrowOperation({
     const hasCollateralBalanceError =
         collateralAmountValue.isValid &&
         collateralAmountValue.value > collateralWalletBalanceValue.value;
+    const minRequiredCollateralValue = React.useMemo(() => {
+        if (!borrowAmountValue.isValid || borrowAmountValue.value <= 0 || !contractProtocolStatus.data) return 0;
+        const borrowBigInt = toBigIntPrecision(borrowAmountValue.value);
+        const minCA = ConvertAmount(
+            contractProtocolStatus,
+            card.borrowTokenCode,
+            card.collateralTokenCode,
+            borrowBigInt,
+            card.caIndex
+        );
+        return Number(minCA) / 1e18;
+    }, [borrowAmountValue.isValid, borrowAmountValue.value, card.borrowTokenCode, card.collateralTokenCode, card.caIndex, contractProtocolStatus]);
+    const minRequiredCollateral = minRequiredCollateralValue > 0 ? formatAmount(minRequiredCollateralValue) : null;
+    const depositedCollateralAmount = parseAmount(card.depositedCollateral.value).value;
+    const totalCollateral = depositedCollateralAmount + (collateralAmountValue.isValid ? collateralAmountValue.value : 0);
+    const hasInsufficientCollateral =
+        hasBorrowTyped &&
+        borrowAmountValue.isValid &&
+        borrowAmountValue.value > 0 &&
+        minRequiredCollateralValue > 0 &&
+        totalCollateral < minRequiredCollateralValue;
     const hasValidationError =
         hasInvalidTypedAmount ||
         hasBorrowLimitError ||
-        hasCollateralBalanceError;
+        hasCollateralBalanceError ||
+        hasInsufficientCollateral;
     const hasPendingChanges =
         !hasValidationError &&
         (borrowAmountValue.value > 0 || collateralAmountValue.value > 0);
@@ -396,11 +418,15 @@ export default function BorrowOperation({
                   riskMessage,
               ].filter(Boolean);
           })()
-        : hasBorrowLimitError
-          ? [t("borrowing.sectionBorrow.summary.txtBorrowLimit")]
-          : hasCollateralBalanceError
-            ? [t("borrowing.sectionBorrow.summary.txtCollateralBalance")]
-            : [t("borrowing.sectionBorrow.summary.txtEnterAmounts")];
+        : hasInsufficientCollateral
+          ? [
+                `${t("borrowing.sectionBorrow.summary.txtMinCollateralNeeded")}: ${minRequiredCollateral ?? "..."} ${card.collateralTokenTicker}.`,
+            ]
+          : hasBorrowLimitError
+            ? [t("borrowing.sectionBorrow.summary.txtBorrowLimit")]
+            : hasCollateralBalanceError
+              ? [t("borrowing.sectionBorrow.summary.txtCollateralBalance")]
+              : [t("borrowing.sectionBorrow.summary.txtEnterAmounts")];
 
     return (
         <div className="layout-card borrow-operation-view">
@@ -470,7 +496,9 @@ export default function BorrowOperation({
                                 feedbackMessage={
                                     hasCollateralBalanceError
                                         ? t("tokenAmountInput.noEnoughBalance")
-                                        : undefined
+                                        : hasInsufficientCollateral
+                                          ? `${t("borrowing.sectionBorrow.summary.txtMinCollateralNeeded")}: ${minRequiredCollateral ?? "..."} ${card.collateralTokenTicker}.`
+                                          : undefined
                                 }
                                 feedbackState="negative"
                                 getFiatEquivalent={getCollateralFiatEquivalent}
@@ -490,7 +518,7 @@ export default function BorrowOperation({
                                     card.collateralTokenIconClassName
                                 }
                                 tokenLabel={card.collateralTokenTicker}
-                                validateError={hasCollateralBalanceError}
+                                validateError={hasCollateralBalanceError || hasInsufficientCollateral}
                             />
                         </div>
                     </div>
@@ -671,13 +699,15 @@ export default function BorrowOperation({
 
                 <OperationNotice
                     title={
-                        hasBorrowLimitError
-                            ? t("borrowing.sectionBorrow.summary.titleBorrowLimit")
-                            : hasCollateralBalanceError
-                              ? t("borrowing.sectionBorrow.summary.titleNoBalance")
-                              : hasPendingChanges
-                                ? t("borrowing.sectionBorrow.summary.titleReady")
-                                : t("borrowing.sectionBorrow.summary.titleNoAmount")
+                        hasInsufficientCollateral
+                            ? t("borrowing.sectionBorrow.summary.titleInsufficientCollateral")
+                            : hasBorrowLimitError
+                              ? t("borrowing.sectionBorrow.summary.titleBorrowLimit")
+                              : hasCollateralBalanceError
+                                ? t("borrowing.sectionBorrow.summary.titleNoBalance")
+                                : hasPendingChanges
+                                  ? t("borrowing.sectionBorrow.summary.titleReady")
+                                  : t("borrowing.sectionBorrow.summary.titleNoAmount")
                     }
                 >
                     <div className="borrow-operation-notice-lines">

@@ -119,6 +119,10 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                 const acBalanceUsd = ConvertAmount(contractProtocolStatus, collTokenCode, "USD", acBalance, ca);
                 const maxBorrowUsd = ConvertAmount(contractProtocolStatus, borrowTokenCode, "USD", maxBorrow, ca);
 
+                const totalCollateralCA = caWallet + acBalance;
+                const maxAvailableTP = ConvertAmount(contractProtocolStatus, collTokenCode, borrowTokenCode, totalCollateralCA, ca);
+                const maxAvailableUsd = ConvertAmount(contractProtocolStatus, borrowTokenCode, "USD", maxAvailableTP, ca);
+
                 let liqDropPct = 0;
                 if (coverage > 0n && coverage > liquidationCov) {
                     liqDropPct = Number((coverage - liquidationCov) * 10000n / coverage) / 100;
@@ -265,7 +269,7 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                     collateralWalletBalance: fmtBigInt(caWallet),
                     currentDebt: { value: debtVal, ticker: bTicker, valueUsd: fmtBigInt(debtTpUsd) },
                     depositedCollateral: { value: collVal, ticker: cTicker, valueUsd: fmtBigInt(acBalanceUsd) },
-                    maxAvailable: { value: maxBorrowVal, ticker: bTicker, valueUsd: fmtBigInt(maxBorrowUsd) },
+                    maxAvailable: { value: fmtBigInt(maxAvailableTP), ticker: bTicker, valueUsd: fmtBigInt(maxAvailableUsd) },
                     liquidationDropPercentage: liqDropPct,
                     borrowOperationMetrics,
                     depositCollateralOperationMetrics,

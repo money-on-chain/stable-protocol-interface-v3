@@ -887,7 +887,9 @@
                 "txtBorrowAvailableWithDepositedCollateral": "Borrow available with deposited collateral",
                 "txtBorrowLimit": "The borrow amount exceeds your available borrow limit.",
                 "txtCollateralBalance": "The collateral amount exceeds your wallet balance.",
-                "txtEnterAmounts": "Enter borrow and/or collateral amounts to continue."
+                "txtEnterAmounts": "Enter borrow and/or collateral amounts to continue.",
+                "titleInsufficientCollateral": "Insufficient collateral",
+                "txtMinCollateralNeeded": "Minimum collateral required"
             }
         },
         "sectionRepay": {

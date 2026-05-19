@@ -894,7 +894,9 @@
                 "txtBorrowAvailableWithDepositedCollateral": "Disponible para pedir con colateral depositado",
                 "txtBorrowLimit": "El monto a pedir prestado excede tu límite disponible.",
                 "txtCollateralBalance": "El monto de colateral excede el balance de tu wallet.",
-                "txtEnterAmounts": "Ingresa montos de préstamo y/o colateral para continuar."
+                "txtEnterAmounts": "Ingresa montos de préstamo y/o colateral para continuar.",
+                "titleInsufficientCollateral": "Colateral insuficiente",
+                "txtMinCollateralNeeded": "Colateral mínimo requerido"
             }
         },
         "sectionRepay": {
