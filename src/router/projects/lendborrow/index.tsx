@@ -1,7 +1,9 @@
 import React from "react";
 import { Navigate, useRoutes } from "react-router-dom";
 
+import { getProjectDefaultMenuPath } from "../../../helpers/menuOptions";
 import NotFound from "../../../pages/NotFound";
+import settings from "../../../settings/settings.json";
 const Skeleton = React.lazy(
     () => import("../../../layouts/projects/lendborrow/Skeleton")
 );
@@ -31,6 +33,8 @@ const ComponentTest = React.lazy(
 );
 
 export default function Router(): React.ReactElement | null {
+    const defaultMenuPath = getProjectDefaultMenuPath(settings.project);
+
     return useRoutes([
         {
             path: "/",
@@ -38,7 +42,12 @@ export default function Router(): React.ReactElement | null {
             children: [
                 {
                     path: "/",
-                    element: <Home />,
+                    element:
+                        defaultMenuPath === "/" ? (
+                            <Home />
+                        ) : (
+                            <Navigate to={defaultMenuPath} replace />
+                        ),
                 },
                 {
                     path: "exchange",

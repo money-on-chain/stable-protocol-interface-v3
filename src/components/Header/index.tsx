@@ -5,12 +5,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { useWalletContext } from "../../context/Wallet";
+import {
+    getProjectMenuOptions,
+    type RawMenuOption,
+} from "../../helpers/menuOptions";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings/settings.json";
 import DappVersion from "../DappVersion";
 import ThemeMode from "../ThemeMode";
 import Brand from "./Brand";
-import menuOptionsData from "./menuOptions.json";
 
 const { Header } = Layout;
 
@@ -54,35 +57,16 @@ export default function SectionHeader(): JSX.Element {
 
     const MAX_MAIN_MENU_ITEMS: number = 5;
 
-    // Process JSON for navigation menu
-    interface RawMenuOption {
-        path: string;
-        nameKey: string;
-        className: string;
-        allowedProjects: string[];
-    }
-
     // Filter options based on project and language changes
     const [displayOptions, setDisplayOptions] = useState<MenuOption[]>([]);
     const currentProject: string = settings.project;
     useEffect(() => {
-        const menuOptions: MenuOption[] = (
-            menuOptionsData as RawMenuOption[]
+        const filteredOptions: MenuOption[] = getProjectMenuOptions(
+            currentProject
         ).map((option: RawMenuOption) => ({
             ...option,
             name: () => t(option.nameKey), // Traducimos el nombre dinámicamente
         }));
-
-        const filteredOptions: MenuOption[] = menuOptions
-            .filter(
-                (option: MenuOption) =>
-                    option.allowedProjects.includes(currentProject) ||
-                    option.allowedProjects.includes("all")
-            )
-            .map((option: MenuOption) => ({
-                ...option,
-                name: option.name, // keep the function
-            }));
         setDisplayOptions(filteredOptions);
     }, [currentProject, lang, t]);
 
