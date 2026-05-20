@@ -1,6 +1,6 @@
 {
     "name": "stable-protocol-interface-v3",
-    "version": "0.15.0",
+    "version": "0.15.2",
     "private": true,
     "homepage": ".",
     "type": "module",
@@ -52,6 +52,10 @@
         "start:roc-testnet": "bash ./prepare_target.sh roc && export REACT_APP_VERSION=$npm_package_version && env-cmd -f .env.rocTestnet vite",
         "build:roc-testnet": "bash ./prepare_target.sh roc && export REACT_APP_VERSION=$npm_package_version && export NODE_OPTIONS=--max_old_space_size=4096 && env-cmd -f .env.rocTestnet vite build && bash ./remove_build.sh",
         "preview:roc-testnet": "bash ./prepare_target.sh roc && export REACT_APP_VERSION=$npm_package_version && env-cmd -f .env.rocTestnet vite preview",
+        "reload:roc-mainnet": "export REACT_APP_VERSION=$npm_package_version && env-cmd -f .env.rocMainnet vite",
+        "start:roc-mainnet": "bash ./prepare_target.sh roc && export REACT_APP_VERSION=$npm_package_version && env-cmd -f .env.rocMainnet vite",
+        "build:roc-mainnet": "bash ./prepare_target.sh roc && export REACT_APP_VERSION=$npm_package_version && export NODE_OPTIONS=--max_old_space_size=4096 && env-cmd -f .env.rocMainnet vite build && bash ./remove_build.sh",
+        "preview:roc-mainnet": "bash ./prepare_target.sh roc && export REACT_APP_VERSION=$npm_package_version && env-cmd -f .env.rocMainnet vite preview",
         "reload:voting-testnet": "export REACT_APP_VERSION=$npm_package_version && env-cmd -f .env.votingTestnet vite",
         "start:voting-testnet": "bash ./prepare_target.sh voting && export REACT_APP_VERSION=$npm_package_version && env-cmd -f .env.votingTestnet vite",
         "build:voting-testnet": "bash ./prepare_target.sh voting && export REACT_APP_VERSION=$npm_package_version && export NODE_OPTIONS=--max_old_space_size=4096 && env-cmd -f .env.votingTestnet vite build && bash ./remove_build.sh",
