@@ -56,6 +56,7 @@ export interface BorrowCardData {
     liquidationCoverage: number;
     liquidationDropPercentage: number;
     maxAvailable: BorrowCardMetric;
+    systemMaxBorrow: string | null;
     depositCollateralOperationMetrics: BorrowOperationMetric[];
     previousLiquidation?: BorrowPreviousLiquidation;
     repayOperationMetrics: BorrowOperationMetric[];

@@ -40,6 +40,7 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
         collateralTokenCode: "CA_1",
         borrowApy: "0.40",
         collateralWalletBalance: "750.00",
+        systemMaxBorrow: "150,000.00",
         maxAvailable: {
             value: "12,450.00",
             valueUsd: "10,000",
@@ -229,6 +230,7 @@ const RAW_BORROW_CARDS: RawBorrowCardData[] = [
         collateralTokenCode: "CA_1",
         borrowApy: "0.55",
         collateralWalletBalance: "425.00",
+        systemMaxBorrow: "8,200.00",
         maxAvailable: {
             value: "8,200.00",
             valueUsd: "1,950",

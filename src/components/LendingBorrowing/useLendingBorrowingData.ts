@@ -275,6 +275,9 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                     maxAvailable: { value: fmtBigInt(maxAvailableTP, 18, borrowMeta.visibleDecimals), ticker: bTicker, valueUsd: fmtBigInt(maxAvailableUsd) },
                     liquidationCoverage: Number(liquidationCov) / 1e18,
                     liquidationDropPercentage: liqDropPct,
+                    systemMaxBorrow: userLending.data != null
+                        ? fmtBigInt(maxBorrow, 18, borrowMeta.visibleDecimals)
+                        : null,
                     borrowOperationMetrics,
                     depositCollateralOperationMetrics,
                     repayOperationMetrics,

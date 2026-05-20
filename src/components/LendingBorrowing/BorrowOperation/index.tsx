@@ -55,15 +55,19 @@ export default function BorrowOperation({
     const collateralWalletBalanceValue = parseAmount(
         card.collateralWalletBalance
     );
-    const maxAvailableValue = parseAmount(card.maxAvailable.value);
+    const isMaxBorrowLoaded = card.systemMaxBorrow !== null;
+    const systemMaxBorrowNum = isMaxBorrowLoaded ? parseAmount(card.systemMaxBorrow).value : null;
+    const maxBorrowForCalc = systemMaxBorrowNum ?? parseAmount(card.maxAvailable.value).value;
     const hasBorrowTyped = borrowAmount.trim().length > 0;
     const hasCollateralTyped = collateralAmount.trim().length > 0;
     const hasInvalidTypedAmount =
         (hasBorrowTyped && !borrowAmountValue.isValid) ||
         (hasCollateralTyped && !collateralAmountValue.isValid);
     const hasBorrowLimitError =
+        isMaxBorrowLoaded &&
         borrowAmountValue.isValid &&
-        borrowAmountValue.value > maxAvailableValue.value;
+        systemMaxBorrowNum !== null &&
+        borrowAmountValue.value > systemMaxBorrowNum;
     const hasCollateralBalanceError =
         collateralAmountValue.isValid &&
         collateralAmountValue.value > collateralWalletBalanceValue.value;
@@ -166,18 +170,17 @@ export default function BorrowOperation({
     );
     const overallRiskDelta = getBorrowOperationRiskDelta(
         borrowAmountValue.value,
-        parseAmount(card.maxAvailable.value).value,
+        maxBorrowForCalc,
         collateralAmountValue.value,
         parseAmount(card.depositedCollateral.value).value,
         parseAmount(card.collateralWalletBalance).value
     );
 
     const handleBorrowQuickAction = (percentage: number) => {
-        const maxBorrowValue = parseAmount(card.maxAvailable.value).value;
         const nextAmount =
             percentage === 100
-                ? maxBorrowValue
-                : maxBorrowValue * (percentage / 100);
+                ? maxBorrowForCalc
+                : maxBorrowForCalc * (percentage / 100);
 
         setBorrowAmount(formatAmount(nextAmount, card.borrowTokenDecimals));
     };
