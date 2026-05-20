@@ -4,6 +4,9 @@
         "name": "Lending & Borrowing",
         "description": "Lending & Borrowing"
     },
+    "header": {
+        "centerVariant": "lendBorrowBanner"
+    },
     "showPriceVariation": false,
     "slippage": {
         "autoDefault": 0.5,
