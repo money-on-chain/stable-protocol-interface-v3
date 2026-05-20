@@ -273,6 +273,7 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                     currentDebt: { value: debtVal, ticker: bTicker, valueUsd: fmtBigInt(debtTpUsd) },
                     depositedCollateral: { value: collVal, ticker: cTicker, valueUsd: fmtBigInt(acBalanceUsd) },
                     maxAvailable: { value: fmtBigInt(maxAvailableTP, 18, borrowMeta.visibleDecimals), ticker: bTicker, valueUsd: fmtBigInt(maxAvailableUsd) },
+                    liquidationCoverage: Number(liquidationCov) / 1e18,
                     liquidationDropPercentage: liqDropPct,
                     borrowOperationMetrics,
                     depositCollateralOperationMetrics,

@@ -8,16 +8,10 @@ import { toBigIntPrecision } from "../../../helpers/precision";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 import TokenAmountInput from "../../TokenAmountInput";
-import {
-    type BorrowCardData,
-    type BorrowOperationMetric,
-    parseMetricNumber,
-} from "../Borrow/data";
+import { type BorrowCardData, parseMetricNumber } from "../Borrow/data";
 import {
     type BorrowMetricTrend,
     formatAmount,
-    formatMetricValue,
-    getImpactScore,
     parseAmount,
 } from "../Borrow/operationUtils";
 import BeforeAfterCard from "../MiniComponents/BeforeAfterCard";
@@ -26,11 +20,7 @@ import OperationActions from "../MiniComponents/OperationActions";
 import OperationBackLink from "../MiniComponents/OperationBackLink";
 import OperationNotice from "../MiniComponents/OperationNotice";
 import RateDisplay from "../MiniComponents/RateDisplay";
-import {
-    getBorrowOperationRiskDelta,
-    getBorrowRatio,
-    getDepositCollateralRatio,
-} from "../operationPreviewAdapter";
+import { getBorrowOperationRiskDelta } from "../operationPreviewAdapter";
 
 interface BorrowOperationProps {
     onBack: () => void;
@@ -45,113 +35,6 @@ interface BorrowOperationProps {
 
 const QUICK_ACTIONS = [25, 50, 75, 100];
 const EPSILON = 0.001;
-
-type BorrowOperationMetricKind =
-    | "liquidation-price"
-    | "distance-to-liquidation"
-    | "min-required-collateral"
-    | "borrow-available"
-    | "borrow-usage";
-
-function formatMetric(metric: BorrowOperationMetric, value: number): string {
-    const pattern = metric.currentValue.includes("- -")
-        ? metric.nextValue
-        : metric.currentValue;
-
-    return formatMetricValue(pattern, value);
-}
-
-function getBorrowOperationProgress(
-    borrowImpact: "positive" | "neutral" | "negative" | undefined,
-    collateralImpact: "positive" | "neutral" | "negative" | undefined,
-    borrowAmountValue: number,
-    maxAvailableValue: number,
-    collateralAmountValue: number,
-    depositedCollateralValue: number,
-    collateralWalletBalanceValue: number
-): number {
-    const borrowContribution =
-        getBorrowRatio(borrowAmountValue, maxAvailableValue) *
-        getImpactScore(borrowImpact);
-    const collateralContribution =
-        getDepositCollateralRatio(
-            collateralAmountValue,
-            depositedCollateralValue,
-            collateralWalletBalanceValue
-        ) * getImpactScore(collateralImpact);
-
-    return borrowContribution + collateralContribution;
-}
-
-function getNeutralMetricState(metric: BorrowOperationMetric): {
-    nextValue: string;
-    trend?: BorrowMetricTrend;
-} {
-    return {
-        nextValue: metric.currentValue,
-        trend: metric.showTrend ? "neutral" : undefined,
-    };
-}
-
-function getBorrowOperationMetricState(
-    metric: BorrowOperationMetric,
-    netProgress: number,
-    kind: BorrowOperationMetricKind
-): { nextValue: string; trend?: BorrowMetricTrend } {
-    if (Math.abs(netProgress) <= EPSILON) {
-        return getNeutralMetricState(metric);
-    }
-
-    if (metric.currentValue.includes("- -")) {
-        return {
-            nextValue: netProgress > 0 ? metric.nextValue : metric.currentValue,
-            trend: metric.showTrend
-                ? netProgress > 0
-                    ? "positive"
-                    : "negative"
-                : undefined,
-        };
-    }
-
-    const currentValue = parseAmount(metric.currentValue).value;
-    const targetValue = parseAmount(metric.nextValue).value;
-    const metricDelta = Math.abs(currentValue - targetValue);
-    const progress = Math.abs(netProgress);
-
-    let nextValue = currentValue;
-
-    if (netProgress > 0) {
-        nextValue = currentValue + (targetValue - currentValue) * progress;
-    } else {
-        if (kind === "liquidation-price") {
-            nextValue = currentValue + metricDelta * progress;
-        }
-
-        if (kind === "distance-to-liquidation") {
-            nextValue = Math.max(0, currentValue - metricDelta * progress);
-        }
-
-        if (kind === "borrow-available") {
-            nextValue = Math.max(0, currentValue - metricDelta * progress);
-        }
-
-        if (kind === "borrow-usage") {
-            nextValue = currentValue + metricDelta * progress;
-        }
-    }
-
-    return {
-        nextValue:
-            kind === "min-required-collateral"
-                ? metric.currentValue
-                : formatMetric(metric, nextValue),
-        trend: metric.showTrend
-            ? netProgress > 0
-                ? "positive"
-                : "negative"
-            : undefined,
-    };
-}
 
 export default function BorrowOperation({
     card,
@@ -319,79 +202,93 @@ export default function BorrowOperation({
         borrowUsageMetric,
     ] = card.borrowOperationMetrics;
 
-    const liquidationPriceProgress = liquidationPriceMetric
-        ? getBorrowOperationProgress(
-              liquidationPriceMetric.borrowImpact,
-              liquidationPriceMetric.collateralImpact,
-              borrowAmountValue.value,
-              maxAvailableValue.value,
-              collateralAmountValue.value,
-              parseAmount(card.depositedCollateral.value).value,
-              parseAmount(card.collateralWalletBalance).value
-          )
-        : 0;
-    const distanceToLiquidationProgress = distanceToLiquidationMetric
-        ? getBorrowOperationProgress(
-              distanceToLiquidationMetric.borrowImpact,
-              distanceToLiquidationMetric.collateralImpact,
-              borrowAmountValue.value,
-              maxAvailableValue.value,
-              collateralAmountValue.value,
-              parseAmount(card.depositedCollateral.value).value,
-              parseAmount(card.collateralWalletBalance).value
-          )
-        : 0;
-    const borrowAvailableProgress = borrowAvailableMetric
-        ? getBorrowOperationProgress(
-              borrowAvailableMetric.borrowImpact,
-              borrowAvailableMetric.collateralImpact,
-              borrowAmountValue.value,
-              maxAvailableValue.value,
-              collateralAmountValue.value,
-              parseAmount(card.depositedCollateral.value).value,
-              parseAmount(card.collateralWalletBalance).value
-          )
-        : 0;
-    const borrowUsageProgress = borrowUsageMetric
-        ? getBorrowOperationProgress(
-              borrowUsageMetric.borrowImpact,
-              borrowUsageMetric.collateralImpact,
-              borrowAmountValue.value,
-              maxAvailableValue.value,
-              collateralAmountValue.value,
-              parseAmount(card.depositedCollateral.value).value,
-              parseAmount(card.collateralWalletBalance).value
-          )
-        : 0;
+    const {
+        borrowAvailableAfter, borrowAvailableAfterTrend,
+        borrowUsageAfter, borrowUsageAfterTrend,
+        liqPriceAfter, liqPriceAfterTrend,
+        liqDistanceAfter, liqDistanceAfterTrend,
+    } = React.useMemo(() => {
+        if (!contractProtocolStatus.data) return {};
 
-    const liquidationPriceState = liquidationPriceMetric
-        ? getBorrowOperationMetricState(
-              liquidationPriceMetric,
-              liquidationPriceProgress,
-              "liquidation-price"
-          )
-        : null;
-    const distanceToLiquidationState = distanceToLiquidationMetric
-        ? getBorrowOperationMetricState(
-              distanceToLiquidationMetric,
-              distanceToLiquidationProgress,
-              "distance-to-liquidation"
-          )
-        : null;
-    const borrowAvailableState = borrowAvailableMetric
-        ? getBorrowOperationMetricState(
-              borrowAvailableMetric,
-              borrowAvailableProgress,
-              "borrow-available"
-          )
-        : null;
-    const borrowUsageState = borrowUsageMetric
-        ? getBorrowOperationMetricState(
-              borrowUsageMetric,
-              borrowUsageProgress,
-              "borrow-usage"
-          )
-        : null;
+        const marketPriceTP = Number(ConvertAmount(
+            contractProtocolStatus,
+            card.collateralTokenCode,
+            card.borrowTokenCode,
+            toBigIntPrecision(1),
+            card.caIndex
+        )) / 1e18;
+        if (marketPriceTP <= 0) return {};
+
+        const totalCA = depositedCollateralAmount + (collateralAmountValue.isValid ? collateralAmountValue.value : 0);
+        const existingDebt = parseAmount(card.currentDebt.value).value;
+        const newDebt = existingDebt + (borrowAmountValue.isValid ? borrowAmountValue.value : 0);
+
+        const result: {
+            borrowAvailableAfter?: string;
+            borrowAvailableAfterTrend?: BorrowMetricTrend;
+            borrowUsageAfter?: string;
+            borrowUsageAfterTrend?: BorrowMetricTrend;
+            liqPriceAfter?: string;
+            liqPriceAfterTrend?: BorrowMetricTrend;
+            liqDistanceAfter?: string;
+            liqDistanceAfterTrend?: BorrowMetricTrend;
+        } = {};
+
+        if (totalCA > 0) {
+            const totalTP = Number(ConvertAmount(
+                contractProtocolStatus,
+                card.collateralTokenCode,
+                card.borrowTokenCode,
+                toBigIntPrecision(totalCA),
+                card.caIndex
+            )) / 1e18;
+
+            if (totalTP > 0) {
+                const availableNum = Math.max(0, totalTP - newDebt);
+                const usageNum = Math.min(100, (newDebt / totalTP) * 100);
+                const availableCurrentNum = parseAmount(borrowAvailableMetric?.currentValue ?? "0").value;
+                const usageCurrentNum = parseAmount(borrowUsageMetric?.currentValue ?? "0").value;
+                result.borrowAvailableAfter = formatAmount(availableNum, card.borrowTokenDecimals);
+                result.borrowAvailableAfterTrend = (availableNum > availableCurrentNum + EPSILON ? "positive"
+                    : availableNum < availableCurrentNum - EPSILON ? "negative" : "neutral") as BorrowMetricTrend;
+                result.borrowUsageAfter = formatAmount(usageNum, 2);
+                result.borrowUsageAfterTrend = (usageNum < usageCurrentNum - EPSILON ? "positive"
+                    : usageNum > usageCurrentNum + EPSILON ? "negative" : "neutral") as BorrowMetricTrend;
+            }
+        }
+
+        if (totalCA > 0 && newDebt > 0 && card.liquidationCoverage > 0) {
+            const newLiqPrice = (card.liquidationCoverage * newDebt) / totalCA;
+            const newLiqDrop = Math.max(0, (1 - newLiqPrice / marketPriceTP) * 100);
+            const currentLiqPrice = parseAmount(liquidationPriceMetric?.currentValue ?? "0").value;
+            const currentLiqDrop = parseAmount(distanceToLiquidationMetric?.currentValue ?? "0").value;
+            result.liqPriceAfter = formatAmount(newLiqPrice, 2);
+            result.liqPriceAfterTrend = (newLiqPrice < currentLiqPrice - EPSILON ? "positive"
+                : newLiqPrice > currentLiqPrice + EPSILON ? "negative" : "neutral") as BorrowMetricTrend;
+            result.liqDistanceAfter = formatAmount(newLiqDrop, 2);
+            result.liqDistanceAfterTrend = (newLiqDrop > currentLiqDrop + EPSILON ? "positive"
+                : newLiqDrop < currentLiqDrop - EPSILON ? "negative" : "neutral") as BorrowMetricTrend;
+        }
+
+        return result;
+    }, [
+        depositedCollateralAmount,
+        collateralAmountValue.isValid,
+        collateralAmountValue.value,
+        borrowAmountValue.isValid,
+        borrowAmountValue.value,
+        card.collateralTokenCode,
+        card.borrowTokenCode,
+        card.caIndex,
+        card.borrowTokenDecimals,
+        card.currentDebt.value,
+        card.liquidationCoverage,
+        borrowAvailableMetric,
+        borrowUsageMetric,
+        liquidationPriceMetric,
+        distanceToLiquidationMetric,
+        contractProtocolStatus,
+    ]);
 
     const noticeLines = hasPendingChanges
         ? (() => {
@@ -409,11 +306,11 @@ export default function BorrowOperation({
                   collateralAmountValue.value > 0
                       ? `${t("borrowing.sectionBorrow.summary.txtDepositingCollateral")}: ${collateralAmount} ${card.collateralTokenTicker}.`
                       : null,
-                  liquidationPriceMetric
-                      ? `${t("borrowing.labelLiquidationPrice")}: ${liquidationPriceState?.nextValue} ${liquidationPriceMetric.nextUnit}.`
+                  liquidationPriceMetric && liqPriceAfter !== undefined
+                      ? `${t("borrowing.labelLiquidationPrice")}: ${liqPriceAfter} ${card.borrowTokenTicker}/${card.collateralTokenTicker}.`
                       : null,
-                  borrowAvailableMetric
-                      ? `${t("borrowing.sectionBorrow.summary.txtBorrowAvailableWithDepositedCollateral")}: ${borrowAvailableState?.nextValue} ${borrowAvailableMetric.nextUnit}.`
+                  borrowAvailableMetric && borrowAvailableAfter !== undefined
+                      ? `${t("borrowing.sectionBorrow.summary.txtBorrowAvailableWithDepositedCollateral")}: ${borrowAvailableAfter} ${card.borrowTokenTicker}.`
                       : null,
                   riskMessage,
               ].filter(Boolean);
@@ -530,12 +427,11 @@ export default function BorrowOperation({
                             <BeforeAfterCard
                                 after={{
                                     label: t("beforeAfterCard.after"),
-                                    unit: hasPendingChanges
-                                        ? liquidationPriceMetric.nextUnit
+                                    unit: (hasBorrowTyped || hasCollateralTyped) && liqPriceAfter !== undefined
+                                        ? `${card.borrowTokenTicker}/${card.collateralTokenTicker}`
                                         : liquidationPriceMetric.currentUnit,
-                                    value: hasPendingChanges
-                                        ? (liquidationPriceState?.nextValue ??
-                                          liquidationPriceMetric.currentValue)
+                                    value: (hasBorrowTyped || hasCollateralTyped) && liqPriceAfter !== undefined
+                                        ? liqPriceAfter
                                         : liquidationPriceMetric.currentValue,
                                 }}
                                 before={
@@ -551,9 +447,10 @@ export default function BorrowOperation({
                                 }
                                 title={t("borrowing.labelLiquidationPrice")}
                                 trend={
-                                    hasPendingChanges &&
-                                    liquidationPriceMetric.showTrend
-                                        ? liquidationPriceState?.trend
+                                    (hasBorrowTyped || hasCollateralTyped) &&
+                                    liquidationPriceMetric.showTrend &&
+                                    liqPriceAfterTrend !== undefined
+                                        ? liqPriceAfterTrend
                                         : undefined
                                 }
                                 useBorder
@@ -563,12 +460,11 @@ export default function BorrowOperation({
                             <BeforeAfterCard
                                 after={{
                                     label: t("beforeAfterCard.after"),
-                                    unit: hasPendingChanges
-                                        ? distanceToLiquidationMetric.nextUnit
+                                    unit: (hasBorrowTyped || hasCollateralTyped) && liqDistanceAfter !== undefined
+                                        ? "%"
                                         : distanceToLiquidationMetric.currentUnit,
-                                    value: hasPendingChanges
-                                        ? (distanceToLiquidationState?.nextValue ??
-                                          distanceToLiquidationMetric.currentValue)
+                                    value: (hasBorrowTyped || hasCollateralTyped) && liqDistanceAfter !== undefined
+                                        ? liqDistanceAfter
                                         : distanceToLiquidationMetric.currentValue,
                                 }}
                                 before={
@@ -586,9 +482,10 @@ export default function BorrowOperation({
                                     "borrowing.labelDistanceToLiquidation"
                                 )}
                                 trend={
-                                    hasPendingChanges &&
-                                    distanceToLiquidationMetric.showTrend
-                                        ? distanceToLiquidationState?.trend
+                                    (hasBorrowTyped || hasCollateralTyped) &&
+                                    distanceToLiquidationMetric.showTrend &&
+                                    liqDistanceAfterTrend !== undefined
+                                        ? liqDistanceAfterTrend
                                         : undefined
                                 }
                                 useBorder
@@ -628,12 +525,11 @@ export default function BorrowOperation({
                             <BeforeAfterCard
                                 after={{
                                     label: t("beforeAfterCard.after"),
-                                    unit: hasPendingChanges
-                                        ? borrowAvailableMetric.nextUnit
+                                    unit: (hasBorrowTyped || hasCollateralTyped) && borrowAvailableAfter !== undefined
+                                        ? card.borrowTokenTicker
                                         : borrowAvailableMetric.currentUnit,
-                                    value: hasPendingChanges
-                                        ? (borrowAvailableState?.nextValue ??
-                                          borrowAvailableMetric.currentValue)
+                                    value: (hasBorrowTyped || hasCollateralTyped) && borrowAvailableAfter !== undefined
+                                        ? borrowAvailableAfter
                                         : borrowAvailableMetric.currentValue,
                                 }}
                                 before={
@@ -651,9 +547,10 @@ export default function BorrowOperation({
                                     "borrowing.labelAvailableWithCollateral"
                                 )}
                                 trend={
-                                    hasPendingChanges &&
-                                    borrowAvailableMetric.showTrend
-                                        ? borrowAvailableState?.trend
+                                    (hasBorrowTyped || hasCollateralTyped) &&
+                                    borrowAvailableMetric.showTrend &&
+                                    borrowAvailableAfterTrend !== undefined
+                                        ? borrowAvailableAfterTrend
                                         : undefined
                                 }
                                 useBorder
@@ -663,12 +560,11 @@ export default function BorrowOperation({
                             <BeforeAfterCard
                                 after={{
                                     label: t("beforeAfterCard.after"),
-                                    unit: hasPendingChanges
-                                        ? borrowUsageMetric.nextUnit
+                                    unit: (hasBorrowTyped || hasCollateralTyped) && borrowUsageAfter !== undefined
+                                        ? "%"
                                         : borrowUsageMetric.currentUnit,
-                                    value: hasPendingChanges
-                                        ? (borrowUsageState?.nextValue ??
-                                          borrowUsageMetric.currentValue)
+                                    value: (hasBorrowTyped || hasCollateralTyped) && borrowUsageAfter !== undefined
+                                        ? borrowUsageAfter
                                         : borrowUsageMetric.currentValue,
                                 }}
                                 before={
@@ -684,9 +580,10 @@ export default function BorrowOperation({
                                 }
                                 title={t("borrowing.labelBorrowUsage")}
                                 trend={
-                                    hasPendingChanges &&
-                                    borrowUsageMetric.showTrend
-                                        ? borrowUsageState?.trend
+                                    (hasBorrowTyped || hasCollateralTyped) &&
+                                    borrowUsageMetric.showTrend &&
+                                    borrowUsageAfterTrend !== undefined
+                                        ? borrowUsageAfterTrend
                                         : undefined
                                 }
                                 useBorder

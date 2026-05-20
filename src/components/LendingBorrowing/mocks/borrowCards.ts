@@ -22,6 +22,7 @@ type RawBorrowCardData = Omit<
     | "collateralTokenTicker"
     | "currentDebt"
     | "depositedCollateral"
+    | "liquidationCoverage"
     | "maxAvailable"
     | "previousLiquidation"
 > & {
@@ -432,6 +433,7 @@ export const BORROW_CARDS: BorrowCardData[] = RAW_BORROW_CARDS.map((card) => {
         collateralTokenIconClassName: collateralToken.iconClassName,
         collateralTokenName: collateralToken.name,
         collateralTokenTicker: collateralToken.ticker,
+        liquidationCoverage: 1.1,
         currentDebt: {
             ...card.currentDebt,
             ticker: borrowToken.ticker,
