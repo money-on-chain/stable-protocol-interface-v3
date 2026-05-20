@@ -598,13 +598,11 @@ export default function BorrowOperation({
                             <BeforeAfterCard
                                 after={{
                                     label: t("beforeAfterCard.after"),
-                                    unit: hasPendingChanges
-                                        ? minRequiredCollateralMetric.nextUnit
+                                    unit: hasBorrowTyped && minRequiredCollateralValue > 0
+                                        ? card.collateralTokenTicker
                                         : minRequiredCollateralMetric.currentUnit,
-                                    value: hasPendingChanges
-                                        ? getNeutralMetricState(
-                                              minRequiredCollateralMetric
-                                          ).nextValue
+                                    value: hasBorrowTyped && minRequiredCollateralValue > 0
+                                        ? (minRequiredCollateral ?? minRequiredCollateralMetric.currentValue)
                                         : minRequiredCollateralMetric.currentValue,
                                 }}
                                 before={
