@@ -1,6 +1,22 @@
 import React from "react";
 
-import type { HeaderCenterProps, HeaderMenuOption } from "./types";
+interface HeaderMenuOption {
+    path: string;
+    nameKey: string;
+    className: string;
+    allowedProjects: string[];
+    name: () => string;
+}
+
+interface DefaultHeaderMenuProps {
+    currentPath: string;
+    mainMenuOptions: HeaderMenuOption[];
+    moreMenuOptions: HeaderMenuOption[];
+    onMenuOptionClick: (path: string) => void;
+    onMoreMenuToggle: () => void;
+    showMoreDropdown: boolean;
+    moreLabel: string;
+}
 
 export default function DefaultHeaderMenu({
     currentPath,
@@ -10,7 +26,7 @@ export default function DefaultHeaderMenu({
     onMoreMenuToggle,
     showMoreDropdown,
     moreLabel,
-}: HeaderCenterProps): React.ReactElement {
+}: DefaultHeaderMenuProps): React.ReactElement {
     return (
         <div className="central-menu">
             {mainMenuOptions.map((option: HeaderMenuOption) => (

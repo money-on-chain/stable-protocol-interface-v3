@@ -1,6 +1,16 @@
+import "./Styles.scss";
+
 import React from "react";
 
-import type { HeaderCenterProps } from "./types";
+interface LendBorrowHeaderCenterProps {
+    currentPath: string;
+    mainMenuOptions: unknown[];
+    moreMenuOptions: unknown[];
+    onMenuOptionClick: (path: string) => void;
+    onMoreMenuToggle: () => void;
+    showMoreDropdown: boolean;
+    moreLabel: string;
+}
 
 const EXTERNAL_DAPP_OPTIONS = [
     {
@@ -16,7 +26,7 @@ const EXTERNAL_DAPP_OPTIONS = [
 ];
 
 export default function LendBorrowHeaderCenter(
-    _props: HeaderCenterProps
+    _props: LendBorrowHeaderCenterProps
 ): React.ReactElement {
     return (
         <div className="header-center-banner header-center-banner--lend-borrow">

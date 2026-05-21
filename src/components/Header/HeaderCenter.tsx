@@ -1,11 +1,28 @@
 import React from "react";
 
 import settings from "../../settings/settings.json";
-import DefaultHeaderMenu from "./CustomHeaders/DefaultHeaderMenu";
 import LendBorrowHeaderCenter from "./CustomHeaders/LendBorrowHeaderCenter";
-import type { HeaderCenterProps } from "./CustomHeaders/types";
+import DefaultHeaderMenu from "./DefaultHeaderMenu";
 
 type HeaderCenterVariant = "default" | "lendBorrowBanner";
+
+interface HeaderMenuOption {
+    path: string;
+    nameKey: string;
+    className: string;
+    allowedProjects: string[];
+    name: () => string;
+}
+
+interface HeaderCenterProps {
+    currentPath: string;
+    mainMenuOptions: HeaderMenuOption[];
+    moreMenuOptions: HeaderMenuOption[];
+    onMenuOptionClick: (path: string) => void;
+    onMoreMenuToggle: () => void;
+    showMoreDropdown: boolean;
+    moreLabel: string;
+}
 
 interface ProjectSettingsWithHeader {
     header?: {
