@@ -441,7 +441,7 @@
         "staking": {
             "input_decimals": 2,
             "tabStake": "Stake",
-            "tabUnstake": "Ustake",
+            "tabUnstake": "Unstake",
             "inputStake": "Stake",
             "inputUnstake": "Unstake",
             "inputAvailable": "Available",
