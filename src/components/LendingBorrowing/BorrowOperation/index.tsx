@@ -56,18 +56,44 @@ export default function BorrowOperation({
         card.collateralWalletBalance
     );
     const isMaxBorrowLoaded = card.systemMaxBorrow !== null;
-    const systemMaxBorrowNum = isMaxBorrowLoaded ? parseAmount(card.systemMaxBorrow).value : null;
-    const maxBorrowForCalc = systemMaxBorrowNum ?? parseAmount(card.maxAvailable.value).value;
+    const systemMaxBorrowNum = card.systemMaxBorrow !== null ? parseAmount(card.systemMaxBorrow).value : null;
+    const depositedCollateralAmount = parseAmount(card.depositedCollateral.value).value;
     const hasBorrowTyped = borrowAmount.trim().length > 0;
     const hasCollateralTyped = collateralAmount.trim().length > 0;
     const hasInvalidTypedAmount =
         (hasBorrowTyped && !borrowAmountValue.isValid) ||
         (hasCollateralTyped && !collateralAmountValue.isValid);
+    // When user is also depositing collateral in the same TX, compute the
+    // effective borrow limit from (existing deposited + new collateral).
+    // When no new collateral, use the chain-reported max to avoid CoverageBelowMin reverts.
+    const effectiveMaxBorrowNum = React.useMemo(() => {
+        if (!isMaxBorrowLoaded || systemMaxBorrowNum === null) return null;
+        const addingCollateral = collateralAmountValue.isValid && collateralAmountValue.value > 0;
+        if (!addingCollateral) return systemMaxBorrowNum;
+        if (!contractProtocolStatus.data || card.liquidationCoverage <= 0) return systemMaxBorrowNum;
+        const totalCA = depositedCollateralAmount + collateralAmountValue.value;
+        if (totalCA <= 0) return systemMaxBorrowNum;
+        const totalTP = Number(ConvertAmount(
+            contractProtocolStatus,
+            card.collateralTokenCode,
+            card.borrowTokenCode,
+            toBigIntPrecision(totalCA),
+            card.caIndex
+        )) / 1e18;
+        const existingDebt = parseAmount(card.currentDebt.value).value;
+        return Math.max(0, totalTP / card.liquidationCoverage - existingDebt);
+    }, [
+        isMaxBorrowLoaded, systemMaxBorrowNum,
+        collateralAmountValue.isValid, collateralAmountValue.value,
+        depositedCollateralAmount, card.liquidationCoverage,
+        card.collateralTokenCode, card.borrowTokenCode, card.caIndex,
+        card.currentDebt.value, contractProtocolStatus,
+    ]);
+    const maxBorrowForCalc = effectiveMaxBorrowNum ?? parseAmount(card.maxAvailable.value).value;
     const hasBorrowLimitError =
-        isMaxBorrowLoaded &&
+        effectiveMaxBorrowNum !== null &&
         borrowAmountValue.isValid &&
-        systemMaxBorrowNum !== null &&
-        borrowAmountValue.value > systemMaxBorrowNum;
+        borrowAmountValue.value > effectiveMaxBorrowNum;
     const hasCollateralBalanceError =
         collateralAmountValue.isValid &&
         collateralAmountValue.value > collateralWalletBalanceValue.value;
@@ -84,7 +110,6 @@ export default function BorrowOperation({
         return Number(minCA) / 1e18;
     }, [borrowAmountValue.isValid, borrowAmountValue.value, card.borrowTokenCode, card.collateralTokenCode, card.caIndex, contractProtocolStatus]);
     const minRequiredCollateral = minRequiredCollateralValue > 0 ? formatAmount(minRequiredCollateralValue, card.collateralTokenDecimals) : null;
-    const depositedCollateralAmount = parseAmount(card.depositedCollateral.value).value;
     const totalCollateral = depositedCollateralAmount + (collateralAmountValue.isValid ? collateralAmountValue.value : 0);
     const hasInsufficientCollateral =
         hasBorrowTyped &&
