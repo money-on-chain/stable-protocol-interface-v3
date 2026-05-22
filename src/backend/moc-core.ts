@@ -38,6 +38,7 @@ const mintTC = async (
 
     return await sendWithExecFee(
         context,
+        caIndex,
         onTransaction,
         onReceipt,
         "mintTC",
@@ -90,6 +91,7 @@ const redeemTC = async (
 
     return await sendWithExecFee(
         context,
+        caIndex,
         onTransaction,
         onReceipt,
         "redeemTC",
@@ -171,6 +173,7 @@ const mintTP = async (
 
     return await sendWithExecFee(
         context,
+        caIndex,
         onTransaction,
         onReceipt,
         "mintTP",
@@ -238,6 +241,7 @@ const redeemTP = async (
 
     return await sendWithExecFee(
         context,
+        caIndex,
         onTransaction,
         onReceipt,
         "redeemTP",
@@ -327,6 +331,7 @@ const swapTPforTP = async (
 
     return await sendWithExecFee(
         context,
+        caIndex,
         onTransaction,
         onReceipt,
         "swapTPforTP",
@@ -421,6 +426,7 @@ const swapTCforTP = async (
 
     return await sendWithExecFee(
         context,
+        caIndex,
         onTransaction,
         onReceipt,
         "swapTCforTP",
@@ -514,6 +520,7 @@ const swapTPforTC = async (
 
     return await sendWithExecFee(
         context,
+        caIndex,
         onTransaction,
         onReceipt,
         "swapTPforTC",
@@ -602,6 +609,7 @@ const mintTCandTP = async (
 
     return await sendWithExecFee(
         context,
+        caIndex,
         onTransaction,
         onReceipt,
         "mintTCandTP",
@@ -667,6 +675,7 @@ const redeemTCandTP = async (
 
     return await sendWithExecFee(
         context,
+        caIndex,
         onTransaction,
         onReceipt,
         "redeemTCandTP",
@@ -679,7 +688,7 @@ const redeemTCandTP = async (
 interface CoreOpContext
     extends Omit<InterfaceContext, "contracts" | "address"> {
     vendorAddress: string;
-    mocContract: { address: `0x${string}`; abi: Abi };
+    mocContract: NonNullable<NonNullable<InterfaceContext["contracts"]>["Moc"]>[number];
     contracts: NonNullable<InterfaceContext["contracts"]>;
     address: NonNullable<InterfaceContext["address"]>;
     publicClient: NonNullable<InterfaceContext["publicClient"]>;
@@ -724,6 +733,7 @@ const coreOpContext = (
 
 const sendWithExecFee = async (
     context: CoreOpContext,
+    caIndex: number,
     onTransaction: OnTransaction,
     onReceipt: OnReceipt,
     functionName: string,
@@ -731,7 +741,7 @@ const sendWithExecFee = async (
     execCost: bigint,
     execFeeSlippage: number
 ): Promise<TransactionReceipt | undefined> => {
-    const { address, publicClient, mocContract } = context;
+    const { address, publicClient, mocContract, contractProtocolStatus } = context;
 
     const configParams: {
         address: `0x${string}`;
@@ -742,15 +752,18 @@ const sendWithExecFee = async (
         value?: bigint;
     } = {
         address: mocContract.address,
-        abi: mocContract.abi,
+        abi: mocContract.abi as Abi,
         functionName,
         args,
         account: address,
     };
 
+    const totalExecCost =
+        execCost + contractProtocolStatus.data[caIndex].priceUpdatesCost;
+
     const executionFee = await getExecutionFee(
         publicClient,
-        execCost,
+        totalExecCost,
         execFeeSlippage
     );
 

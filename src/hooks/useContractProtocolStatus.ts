@@ -18,6 +18,20 @@ const onErrorGetPTCac = (): MultiCallErrorResult => {
     return { value: 0n };
 };
 
+const onErrorGetZeroUint256 = (): MultiCallErrorResult => {
+    return { value: 0n };
+};
+
+const mocQueuePriceUpdatesCostAbi = [
+    {
+        inputs: [],
+        name: "priceUpdatesCost",
+        outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+        stateMutability: "view",
+        type: "function",
+    },
+] as const;
+
 /**
  * Checks if parsedPrices is empty (either empty array or empty object)
  */
@@ -468,6 +482,18 @@ export function useContractProtocolStatus(
                 args: [5],
                 resultType: "uint256",
                 keys: [ca, "mintTCandTPExecCost"],
+            });
+
+            callRequest.push({
+                contract: {
+                    address: MocQueue.address,
+                    abi: mocQueuePriceUpdatesCostAbi,
+                },
+                functionName: "priceUpdatesCost",
+                args: [],
+                resultType: "uint256",
+                keys: [ca, "priceUpdatesCost"],
+                onError: onErrorGetZeroUint256,
             });
 
             callRequest.push({

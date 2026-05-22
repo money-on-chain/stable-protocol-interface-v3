@@ -661,30 +661,43 @@ function executionFeeMap(
     const aTokenExchange: string[] = tokenExchange.split("_");
     const aTokenReceive: string[] = tokenReceive.split("_");
     const aTokenMap: string = `${aTokenExchange[0]},${aTokenReceive[0]}`;
+    let bucketIndex: number;
+    let execCost: bigint;
+
     switch (aTokenMap) {
         case "CA,TC":
-            return contractProtocolStatus.data[parseInt(aTokenExchange[1])]
-                .tcMintExecCost;
+            bucketIndex = parseInt(aTokenExchange[1]);
+            execCost = contractProtocolStatus.data[bucketIndex].tcMintExecCost;
+            break;
         case "CA,TP":
-            return contractProtocolStatus.data[parseInt(aTokenExchange[1])]
-                .tpMintExecCost;
+            bucketIndex = parseInt(aTokenExchange[1]);
+            execCost = contractProtocolStatus.data[bucketIndex].tpMintExecCost;
+            break;
         case "TP,CA":
-            return contractProtocolStatus.data[parseInt(aTokenReceive[1])]
-                .tpRedeemExecCost;
+            bucketIndex = parseInt(aTokenReceive[1]);
+            execCost = contractProtocolStatus.data[bucketIndex].tpRedeemExecCost;
+            break;
         case "TC,CA":
-            return contractProtocolStatus.data[parseInt(aTokenReceive[1])]
-                .tcRedeemExecCost;
+            bucketIndex = parseInt(aTokenReceive[1]);
+            execCost = contractProtocolStatus.data[bucketIndex].tcRedeemExecCost;
+            break;
         case "TP,TP":
-            return contractProtocolStatus.data[caIndex].swapTPforTPExecCost;
+            bucketIndex = caIndex;
+            execCost = contractProtocolStatus.data[bucketIndex].swapTPforTPExecCost;
+            break;
         case "TC,TP":
-            return contractProtocolStatus.data[parseInt(aTokenExchange[1])]
-                .swapTCforTPExecCost;
+            bucketIndex = parseInt(aTokenExchange[1]);
+            execCost = contractProtocolStatus.data[bucketIndex].swapTCforTPExecCost;
+            break;
         case "TP,TC":
-            return contractProtocolStatus.data[parseInt(aTokenReceive[1])]
-                .swapTPforTCExecCost;
+            bucketIndex = parseInt(aTokenReceive[1]);
+            execCost = contractProtocolStatus.data[bucketIndex].swapTPforTCExecCost;
+            break;
         default:
             throw new Error("Invalid token name map");
     }
+
+    return execCost + contractProtocolStatus.data[bucketIndex].priceUpdatesCost;
 }
 
 /**

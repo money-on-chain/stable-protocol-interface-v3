@@ -54,6 +54,7 @@ export type ProtocolStatusEntry = {
     nACcb: bigint;
     nTCcb: bigint;
     paused: boolean;
+    priceUpdatesCost: bigint;
     pegContainer: PegContainer[];
     protThrld: bigint;
     redeemTCandTPExecCost: bigint;
