@@ -198,8 +198,8 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                     },
                     {
                         collateralImpact: "positive" as const,
-                        currentUnit: "%", currentValue: "0.00",
-                        nextUnit: "%", nextValue: "0.00",
+                        currentUnit: "%", currentValue: usagePct,
+                        nextUnit: "%", nextValue: usagePct,
                     },
                 ];
 
