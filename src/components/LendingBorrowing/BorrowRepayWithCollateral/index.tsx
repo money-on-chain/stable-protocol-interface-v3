@@ -8,12 +8,10 @@ import { toBigIntPrecision } from "../../../helpers/precision";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 import TokenAmountInput from "../../TokenAmountInput";
-import type { BorrowCardData, BorrowOperationMetric } from "../Borrow/data";
+import type { BorrowCardData } from "../Borrow/data";
 import {
     type BorrowMetricTrend,
     formatAmount,
-    formatMetricValue,
-    getImpactScore,
     parseAmount,
 } from "../Borrow/operationUtils";
 import BeforeAfterCard from "../MiniComponents/BeforeAfterCard";
@@ -21,7 +19,6 @@ import CompactMetricDisplay from "../MiniComponents/CompactMetricDisplay";
 import OperationActions from "../MiniComponents/OperationActions";
 import OperationBackLink from "../MiniComponents/OperationBackLink";
 import OperationNotice from "../MiniComponents/OperationNotice";
-import { getRepayWithCollateralRatio } from "../operationPreviewAdapter";
 
 interface BorrowRepayWithCollateralProps {
     card: BorrowCardData;
@@ -31,56 +28,6 @@ interface BorrowRepayWithCollateralProps {
 
 const EPSILON = 0.001;
 
-function formatMetric(metric: BorrowOperationMetric, value: number): string {
-    const pattern = metric.currentValue.includes("- -")
-        ? metric.nextValue
-        : metric.currentValue;
-
-    return formatMetricValue(pattern, value);
-}
-
-
-function getRepayWithCollateralMetricState(
-    metric: BorrowOperationMetric,
-    ratio: number,
-    impact?: "positive" | "neutral" | "negative"
-): { nextValue: string; trend?: BorrowMetricTrend } {
-    if (ratio <= EPSILON) {
-        return {
-            nextValue: metric.currentValue,
-            trend: metric.showTrend ? "neutral" : undefined,
-        };
-    }
-
-    if (
-        metric.currentValue.includes("- -") ||
-        metric.nextValue.includes("- -")
-    ) {
-        return {
-            nextValue: metric.nextValue,
-            trend: metric.showTrend ? (impact ?? "neutral") : undefined,
-        };
-    }
-
-    const currentValue = parseAmount(metric.currentValue).value;
-    const targetValue = parseAmount(metric.nextValue).value;
-    const nextValue = currentValue + (targetValue - currentValue) * ratio;
-
-    return {
-        nextValue:
-            currentValue === targetValue
-                ? metric.currentValue
-                : formatMetric(metric, nextValue),
-        trend: metric.showTrend
-            ? impact === "neutral" || !impact
-                ? "neutral"
-                : getImpactScore(impact) > 0
-                  ? "positive"
-                  : "negative"
-            : undefined,
-    };
-}
-
 export default function BorrowRepayWithCollateral({
     card,
     onConfirm,
@@ -89,6 +36,7 @@ export default function BorrowRepayWithCollateral({
     const { contractProtocolStatus } = useWalletContext();
     const { t, i18n } = useProjectTranslation();
 
+    // Auto-compute collateral needed to repay the full debt
     const collateralAmount = React.useMemo(() => {
         const debtValue = parseAmount(card.currentDebt.value).value;
         if (debtValue <= 0 || !contractProtocolStatus.data) return "0.00";
@@ -103,11 +51,8 @@ export default function BorrowRepayWithCollateral({
         return formatAmount(Number(collateralBigInt) / 1e18, card.collateralTokenDecimals);
     }, [card, contractProtocolStatus]);
 
-    const depositedCollateralValue = parseAmount(
-        card.depositedCollateral.value
-    );
+    const depositedCollateralValue = parseAmount(card.depositedCollateral.value);
     const collateralAmountValue = parseAmount(collateralAmount);
-    const hasTypedAmount = collateralAmount.trim().length > 0;
     const hasCollateralLimitError =
         collateralAmountValue.isValid &&
         collateralAmountValue.value > depositedCollateralValue.value;
@@ -117,6 +62,7 @@ export default function BorrowRepayWithCollateral({
         collateralAmountValue.isValid &&
         !hasCollateralLimitError &&
         collateralAmountValue.value > 0;
+
     const getFiatEquivalent = React.useCallback(
         (value: number) => {
             const amountBigInt = toBigIntPrecision(value);
@@ -151,17 +97,6 @@ export default function BorrowRepayWithCollateral({
         },
         [card.caIndex, card.collateralTokenCode, contractProtocolStatus, i18n]
     );
-    const cappedCollateralValue = Math.min(
-        collateralAmountValue.value,
-        depositedCollateralValue.value
-    );
-    const repayWithCollateralRatio = hasPendingChanges
-        ? getRepayWithCollateralRatio(1, 1)
-        : getRepayWithCollateralRatio(0, 1);
-    const collateralAfterRepayment = Math.max(
-        0,
-        depositedCollateralValue.value - cappedCollateralValue
-    );
 
     const [
         liquidationPriceMetric,
@@ -171,50 +106,88 @@ export default function BorrowRepayWithCollateral({
         borrowUsageMetric,
     ] = card.repayWithCollateralOperationMetrics;
 
-    const liquidationPriceState = liquidationPriceMetric
-        ? getRepayWithCollateralMetricState(
-              liquidationPriceMetric,
-              repayWithCollateralRatio,
-              liquidationPriceMetric.repayWithCollateralImpact
-          )
-        : null;
-    const distanceToLiquidationState = distanceToLiquidationMetric
-        ? getRepayWithCollateralMetricState(
-              distanceToLiquidationMetric,
-              repayWithCollateralRatio,
-              distanceToLiquidationMetric.repayWithCollateralImpact
-          )
-        : null;
-    const borrowAvailableState = borrowAvailableMetric
-        ? getRepayWithCollateralMetricState(
-              borrowAvailableMetric,
-              repayWithCollateralRatio,
-              borrowAvailableMetric.repayWithCollateralImpact
-          )
-        : null;
-    const borrowUsageState = borrowUsageMetric
-        ? getRepayWithCollateralMetricState(
-              borrowUsageMetric,
-              repayWithCollateralRatio,
-              borrowUsageMetric.repayWithCollateralImpact
-          )
-        : null;
+    const existingCA = depositedCollateralValue.value;
+    const collateralNeeded = collateralAmountValue.isValid ? collateralAmountValue.value : 0;
+    const remainingCA = Math.max(0, existingCA - collateralNeeded);
+    const currentMaxBorrow = parseAmount(borrowAvailableMetric?.currentValue ?? "0").value;
+    const currentBorrowUsage = parseAmount(borrowUsageMetric?.currentValue ?? "0").value;
+    const currentLiqPrice = parseAmount(liquidationPriceMetric?.currentValue ?? "0").value;
+    const currentLiqDrop = parseAmount(distanceToLiquidationMetric?.currentValue ?? "0").value;
+
+    // After repaying with collateral: debt = 0, remainingCA = existingCA - collateralNeeded
+    const {
+        liqPriceAfter, liqPriceAfterTrend,
+        liqDistanceAfter, liqDistanceAfterTrend,
+        borrowAvailableAfter, borrowAvailableAfterTrend,
+        borrowUsageAfter, borrowUsageAfterTrend,
+        collateralAfter,
+    } = React.useMemo(() => {
+        if (!hasPendingChanges) return {};
+
+        const result: {
+            liqPriceAfter?: string;
+            liqPriceAfterTrend?: BorrowMetricTrend;
+            liqDistanceAfter?: string;
+            liqDistanceAfterTrend?: BorrowMetricTrend;
+            borrowAvailableAfter?: string;
+            borrowAvailableAfterTrend?: BorrowMetricTrend;
+            borrowUsageAfter?: string;
+            borrowUsageAfterTrend?: BorrowMetricTrend;
+            collateralAfter?: string;
+        } = {};
+
+        // Debt becomes 0 — no liquidation risk
+        result.liqPriceAfter = formatAmount(0, 2);
+        result.liqPriceAfterTrend = currentLiqPrice > EPSILON ? "positive" : "neutral";
+        result.liqDistanceAfter = formatAmount(100, 2);
+        result.liqDistanceAfterTrend = currentLiqDrop < 100 - EPSILON ? "positive" : "neutral";
+
+        // Remaining collateral after repay
+        result.collateralAfter = formatAmount(remainingCA, card.collateralTokenDecimals);
+
+        // Borrow available on remaining collateral (formula-based, debt = 0)
+        if (remainingCA > 0 && card.liquidationCoverage > 0 && contractProtocolStatus.data) {
+            const remainingTP = Number(ConvertAmount(
+                contractProtocolStatus,
+                card.collateralTokenCode,
+                card.borrowTokenCode,
+                toBigIntPrecision(remainingCA),
+                card.caIndex
+            )) / 1e18;
+            const newMaxBorrow = remainingTP / card.liquidationCoverage;
+            result.borrowAvailableAfter = formatAmount(newMaxBorrow, card.borrowTokenDecimals);
+            result.borrowAvailableAfterTrend = (newMaxBorrow > currentMaxBorrow + EPSILON ? "positive"
+                : newMaxBorrow < currentMaxBorrow - EPSILON ? "negative" : "neutral") as BorrowMetricTrend;
+        } else {
+            result.borrowAvailableAfter = formatAmount(0, card.borrowTokenDecimals);
+            result.borrowAvailableAfterTrend = currentMaxBorrow > EPSILON ? "negative" : "neutral";
+        }
+
+        // Usage = 0 (debt is 0)
+        result.borrowUsageAfter = formatAmount(0, 2);
+        result.borrowUsageAfterTrend = currentBorrowUsage > EPSILON ? "positive" : "neutral";
+
+        return result;
+    }, [
+        hasPendingChanges, remainingCA, existingCA,
+        card.liquidationCoverage, card.collateralTokenCode, card.borrowTokenCode,
+        card.caIndex, card.borrowTokenDecimals, card.collateralTokenDecimals,
+        currentLiqPrice, currentLiqDrop, currentMaxBorrow, currentBorrowUsage,
+        contractProtocolStatus,
+    ]);
+
+    const collateralAfterRepayment = remainingCA;
 
     const noticeLines = hasPendingChanges
         ? (() => {
-              const collateralAfterLabel = `${formatAmount(
-                  collateralAfterRepayment,
-                  card.collateralTokenDecimals
-              )} ${card.depositedCollateral.ticker}.`;
-
               return [
                   `${t("borrowing.sectionRepayCollateral.summary.txtUsingCollateral")}: ${collateralAmount} ${card.depositedCollateral.ticker}.`,
-                  `${t("borrowing.sectionRepayCollateral.summary.txtDepositedCollateralAfterRepayment")}: ${collateralAfterLabel}`,
-                  liquidationPriceMetric
-                      ? `${t("borrowing.labelLiquidationPrice")}: ${liquidationPriceState?.nextValue} ${liquidationPriceMetric.nextUnit}.`
+                  `${t("borrowing.sectionRepayCollateral.summary.txtDepositedCollateralAfterRepayment")}: ${formatAmount(collateralAfterRepayment, card.collateralTokenDecimals)} ${card.depositedCollateral.ticker}.`,
+                  liqPriceAfter !== undefined
+                      ? `${t("borrowing.labelLiquidationPrice")}: ${liqPriceAfter} ${card.borrowTokenTicker}/${card.collateralTokenTicker}.`
                       : null,
-                  distanceToLiquidationMetric
-                      ? `${t("borrowing.labelDistanceToLiquidation")}: ${distanceToLiquidationState?.nextValue} ${distanceToLiquidationMetric.nextUnit}.`
+                  liqDistanceAfter !== undefined
+                      ? `${t("borrowing.labelDistanceToLiquidation")}: ${liqDistanceAfter}%.`
                       : null,
                   t("borrowing.risk.neutral"),
               ].filter(Boolean);
@@ -239,30 +212,22 @@ export default function BorrowRepayWithCollateral({
                         <TokenAmountInput
                             feedbackMessage={
                                 hasCollateralLimitError
-                                    ? t(
-                                          "borrowing.sectionRepayCollateral.feedbackCollateralLimit"
-                                      )
+                                    ? t("borrowing.sectionRepayCollateral.feedbackCollateralLimit")
                                     : undefined
                             }
                             feedbackState="negative"
                             getFiatEquivalent={getFiatEquivalent}
                             inputValue={collateralAmount}
-                            label={t(
-                                "borrowing.sectionRepayCollateral.labelCollateralForRepay"
-                            )}
+                            label={t("borrowing.sectionRepayCollateral.labelCollateralForRepay")}
                             displayOnly
                             showMaxShortcut={false}
                             testId="borrow-repay-with-collateral-input"
-                            tokenIconClassName={
-                                card.collateralTokenIconClassName
-                            }
+                            tokenIconClassName={card.collateralTokenIconClassName}
                             tokenLabel={card.collateralTokenTicker}
                             validateError={hasCollateralLimitError}
                         />
                         <CompactMetricDisplay
-                            label={t(
-                                "borrowing.sectionRepayCollateral.labelDepositedCollateralAfterRepayment"
-                            )}
+                            label={t("borrowing.sectionRepayCollateral.labelDepositedCollateralAfterRepayment")}
                             value={formatAmount(collateralAfterRepayment, card.collateralTokenDecimals)}
                             valueLabel={card.depositedCollateral.ticker}
                         />
@@ -274,16 +239,10 @@ export default function BorrowRepayWithCollateral({
                         {liquidationPriceMetric ? (
                             <BeforeAfterCard
                                 after={{
-                                    isInvalid:
-                                        hasTypedAmount &&
-                                        !collateralAmountValue.isValid,
                                     label: t("beforeAfterCard.after"),
-                                    unit: hasPendingChanges
-                                        ? liquidationPriceMetric.nextUnit
-                                        : liquidationPriceMetric.currentUnit,
-                                    value: hasPendingChanges
-                                        ? (liquidationPriceState?.nextValue ??
-                                          liquidationPriceMetric.currentValue)
+                                    unit: liquidationPriceMetric.currentUnit,
+                                    value: hasPendingChanges && liqPriceAfter !== undefined
+                                        ? liqPriceAfter
                                         : liquidationPriceMetric.currentValue,
                                 }}
                                 before={{
@@ -292,11 +251,9 @@ export default function BorrowRepayWithCollateral({
                                     value: liquidationPriceMetric.currentValue,
                                 }}
                                 title={t("borrowing.labelLiquidationPrice")}
-                                trend={
-                                    hasPendingChanges &&
-                                    liquidationPriceMetric.showTrend
-                                        ? liquidationPriceState?.trend
-                                        : undefined
+                                trend={hasPendingChanges && liquidationPriceMetric.showTrend && liqPriceAfterTrend !== undefined
+                                    ? liqPriceAfterTrend
+                                    : undefined
                                 }
                                 useBorder
                             />
@@ -304,16 +261,10 @@ export default function BorrowRepayWithCollateral({
                         {distanceToLiquidationMetric ? (
                             <BeforeAfterCard
                                 after={{
-                                    isInvalid:
-                                        hasTypedAmount &&
-                                        !collateralAmountValue.isValid,
                                     label: t("beforeAfterCard.after"),
-                                    unit: hasPendingChanges
-                                        ? distanceToLiquidationMetric.nextUnit
-                                        : distanceToLiquidationMetric.currentUnit,
-                                    value: hasPendingChanges
-                                        ? (distanceToLiquidationState?.nextValue ??
-                                          distanceToLiquidationMetric.currentValue)
+                                    unit: distanceToLiquidationMetric.currentUnit,
+                                    value: hasPendingChanges && liqDistanceAfter !== undefined
+                                        ? liqDistanceAfter
                                         : distanceToLiquidationMetric.currentValue,
                                 }}
                                 before={{
@@ -321,14 +272,10 @@ export default function BorrowRepayWithCollateral({
                                     unit: distanceToLiquidationMetric.currentUnit,
                                     value: distanceToLiquidationMetric.currentValue,
                                 }}
-                                title={t(
-                                    "borrowing.labelDistanceToLiquidation"
-                                )}
-                                trend={
-                                    hasPendingChanges &&
-                                    distanceToLiquidationMetric.showTrend
-                                        ? distanceToLiquidationState?.trend
-                                        : undefined
+                                title={t("borrowing.labelDistanceToLiquidation")}
+                                trend={hasPendingChanges && distanceToLiquidationMetric.showTrend && liqDistanceAfterTrend !== undefined
+                                    ? liqDistanceAfterTrend
+                                    : undefined
                                 }
                                 useBorder
                             />
@@ -336,15 +283,10 @@ export default function BorrowRepayWithCollateral({
                         {minRequiredCollateralMetric ? (
                             <BeforeAfterCard
                                 after={{
-                                    isInvalid:
-                                        hasTypedAmount &&
-                                        !collateralAmountValue.isValid,
                                     label: t("beforeAfterCard.after"),
-                                    unit: hasPendingChanges
-                                        ? minRequiredCollateralMetric.nextUnit
-                                        : minRequiredCollateralMetric.currentUnit,
-                                    value: hasPendingChanges
-                                        ? minRequiredCollateralMetric.nextValue
+                                    unit: minRequiredCollateralMetric.currentUnit,
+                                    value: hasPendingChanges && collateralAfter !== undefined
+                                        ? collateralAfter
                                         : minRequiredCollateralMetric.currentValue,
                                 }}
                                 before={{
@@ -352,9 +294,11 @@ export default function BorrowRepayWithCollateral({
                                     unit: minRequiredCollateralMetric.currentUnit,
                                     value: minRequiredCollateralMetric.currentValue,
                                 }}
-                                title={t(
-                                    "borrowing.labelMinRequieredCollateral"
-                                )}
+                                title={t("borrowing.labelMinRequieredCollateral")}
+                                trend={hasPendingChanges && collateralAfter !== undefined
+                                    ? (remainingCA < existingCA - EPSILON ? "negative" : "neutral")
+                                    : undefined
+                                }
                                 useBorder
                             />
                         ) : null}
@@ -364,16 +308,10 @@ export default function BorrowRepayWithCollateral({
                         {borrowAvailableMetric ? (
                             <BeforeAfterCard
                                 after={{
-                                    isInvalid:
-                                        hasTypedAmount &&
-                                        !collateralAmountValue.isValid,
                                     label: t("beforeAfterCard.after"),
-                                    unit: hasPendingChanges
-                                        ? borrowAvailableMetric.nextUnit
-                                        : borrowAvailableMetric.currentUnit,
-                                    value: hasPendingChanges
-                                        ? (borrowAvailableState?.nextValue ??
-                                          borrowAvailableMetric.currentValue)
+                                    unit: borrowAvailableMetric.currentUnit,
+                                    value: hasPendingChanges && borrowAvailableAfter !== undefined
+                                        ? borrowAvailableAfter
                                         : borrowAvailableMetric.currentValue,
                                 }}
                                 before={{
@@ -381,14 +319,10 @@ export default function BorrowRepayWithCollateral({
                                     unit: borrowAvailableMetric.currentUnit,
                                     value: borrowAvailableMetric.currentValue,
                                 }}
-                                title={t(
-                                    "borrowing.labelAvailableWithCollateral"
-                                )}
-                                trend={
-                                    hasPendingChanges &&
-                                    borrowAvailableMetric.showTrend
-                                        ? borrowAvailableState?.trend
-                                        : undefined
+                                title={t("borrowing.labelAvailableWithCollateral")}
+                                trend={hasPendingChanges && borrowAvailableMetric.showTrend && borrowAvailableAfterTrend !== undefined
+                                    ? borrowAvailableAfterTrend
+                                    : undefined
                                 }
                                 useBorder
                             />
@@ -396,16 +330,10 @@ export default function BorrowRepayWithCollateral({
                         {borrowUsageMetric ? (
                             <BeforeAfterCard
                                 after={{
-                                    isInvalid:
-                                        hasTypedAmount &&
-                                        !collateralAmountValue.isValid,
                                     label: t("beforeAfterCard.after"),
-                                    unit: hasPendingChanges
-                                        ? borrowUsageMetric.nextUnit
-                                        : borrowUsageMetric.currentUnit,
-                                    value: hasPendingChanges
-                                        ? (borrowUsageState?.nextValue ??
-                                          borrowUsageMetric.currentValue)
+                                    unit: borrowUsageMetric.currentUnit,
+                                    value: hasPendingChanges && borrowUsageAfter !== undefined
+                                        ? borrowUsageAfter
                                         : borrowUsageMetric.currentValue,
                                 }}
                                 before={{
@@ -414,11 +342,9 @@ export default function BorrowRepayWithCollateral({
                                     value: borrowUsageMetric.currentValue,
                                 }}
                                 title={t("borrowing.labelBorrowUsage")}
-                                trend={
-                                    hasPendingChanges &&
-                                    borrowUsageMetric.showTrend
-                                        ? borrowUsageState?.trend
-                                        : undefined
+                                trend={hasPendingChanges && borrowUsageMetric.showTrend && borrowUsageAfterTrend !== undefined
+                                    ? borrowUsageAfterTrend
+                                    : undefined
                                 }
                                 useBorder
                             />
@@ -429,12 +355,8 @@ export default function BorrowRepayWithCollateral({
                 <OperationNotice
                     title={
                         hasPendingChanges
-                            ? t(
-                                  "borrowing.sectionRepayCollateral.summary.titleReady"
-                              )
-                            : t(
-                                  "borrowing.sectionRepayCollateral.summary.titleNoAmount"
-                              )
+                            ? t("borrowing.sectionRepayCollateral.summary.titleReady")
+                            : t("borrowing.sectionRepayCollateral.summary.titleNoAmount")
                     }
                 >
                     <div className="borrow-repay-with-collateral-notice-lines">

@@ -221,13 +221,13 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                     },
                     {
                         repayImpact: "positive" as const,
-                        currentUnit: bTicker, currentValue: debtVal,
-                        nextUnit: bTicker, nextValue: "0.00",
+                        currentUnit: bTicker, currentValue: maxBorrowVal,
+                        nextUnit: bTicker, nextValue: maxBorrowVal,
                     },
                     {
                         repayImpact: "positive" as const,
-                        currentUnit: "%", currentValue: "0.00",
-                        nextUnit: "%", nextValue: "0.00",
+                        currentUnit: "%", currentValue: usagePct,
+                        nextUnit: "%", nextValue: usagePct,
                     },
                 ];
 
@@ -249,13 +249,13 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                     },
                     {
                         repayWithCollateralImpact: "negative" as const,
-                        currentUnit: bTicker, currentValue: debtVal,
-                        nextUnit: bTicker, nextValue: "0.00",
+                        currentUnit: bTicker, currentValue: maxBorrowVal,
+                        nextUnit: bTicker, nextValue: maxBorrowVal,
                     },
                     {
                         repayWithCollateralImpact: "neutral" as const,
-                        currentUnit: "%", currentValue: "0.00",
-                        nextUnit: "%", nextValue: "0.00",
+                        currentUnit: "%", currentValue: usagePct,
+                        nextUnit: "%", nextValue: usagePct,
                     },
                 ];
 
