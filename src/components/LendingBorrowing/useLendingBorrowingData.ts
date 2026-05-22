@@ -133,10 +133,14 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                 const cTicker = collMeta.ticker;
                 const liqUnit = `${bTicker}/${cTicker}`;
                 const liqVal = fmtBigInt(liqPrice);
-                const covVal = fmtWadPct(coverage);
+                const liqDropVal = liqDropPct.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 const collVal = fmtBigInt(acBalance, 18, collMeta.visibleDecimals);
                 const debtVal = fmtBigInt(debtTp, 18, borrowMeta.visibleDecimals);
                 const maxBorrowVal = fmtBigInt(maxBorrow, 18, borrowMeta.visibleDecimals);
+                const totalCapacity = debtTp + maxBorrow;
+                const usagePct = totalCapacity > 0n
+                    ? ((Number(debtTp) / Number(totalCapacity)) * 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                    : "0.00";
 
                 const borrowOperationMetrics = [
                     {
@@ -148,8 +152,8 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                     {
                         borrowImpact: "negative" as const,
                         collateralImpact: "positive" as const,
-                        currentUnit: "%", currentValue: covVal,
-                        nextUnit: "%", nextValue: covVal, showTrend: true,
+                        currentUnit: "%", currentValue: liqDropVal,
+                        nextUnit: "%", nextValue: liqDropVal, showTrend: true,
                     },
                     {
                         borrowImpact: "neutral" as const,
@@ -166,8 +170,8 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                     {
                         borrowImpact: "negative" as const,
                         collateralImpact: "positive" as const,
-                        currentUnit: "%", currentValue: "0.00",
-                        nextUnit: "%", nextValue: "100.00",
+                        currentUnit: "%", currentValue: usagePct,
+                        nextUnit: "%", nextValue: usagePct,
                     },
                 ];
 
@@ -179,8 +183,8 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                     },
                     {
                         collateralImpact: "positive" as const,
-                        currentUnit: "%", currentValue: covVal,
-                        nextUnit: "%", nextValue: covVal, showTrend: true,
+                        currentUnit: "%", currentValue: liqDropVal,
+                        nextUnit: "%", nextValue: liqDropVal, showTrend: true,
                     },
                     {
                         collateralImpact: "neutral" as const,
@@ -207,8 +211,8 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                     },
                     {
                         repayImpact: "positive" as const,
-                        currentUnit: "%", currentValue: covVal,
-                        nextUnit: "%", nextValue: covVal, showTrend: true,
+                        currentUnit: "%", currentValue: liqDropVal,
+                        nextUnit: "%", nextValue: liqDropVal, showTrend: true,
                     },
                     {
                         repayImpact: "neutral" as const,
@@ -235,8 +239,8 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                     },
                     {
                         repayWithCollateralImpact: "neutral" as const,
-                        currentUnit: "%", currentValue: covVal,
-                        nextUnit: "%", nextValue: covVal, showTrend: true,
+                        currentUnit: "%", currentValue: liqDropVal,
+                        nextUnit: "%", nextValue: liqDropVal, showTrend: true,
                     },
                     {
                         repayWithCollateralImpact: "negative" as const,
