@@ -262,23 +262,42 @@ export default function BorrowOperation({
             liqDistanceAfterTrend?: BorrowMetricTrend;
         } = {};
 
+        const addingCollateral = collateralAmountValue.isValid && collateralAmountValue.value > 0;
         if (totalCA > 0) {
-            const totalTP = Number(ConvertAmount(
-                contractProtocolStatus,
-                card.collateralTokenCode,
-                card.borrowTokenCode,
-                toBigIntPrecision(totalCA),
-                card.caIndex
-            )) / 1e18;
+            const currentMaxBorrow = parseAmount(borrowAvailableMetric?.currentValue ?? "0").value;
+            const availableCurrentNum = currentMaxBorrow;
+            const usageCurrentNum = parseAmount(borrowUsageMetric?.currentValue ?? "0").value;
+            let availableNum: number | undefined;
+            let usageNum: number | undefined;
 
-            if (totalTP > 0) {
-                const availableNum = Math.max(0, totalTP - newDebt);
-                const usageNum = Math.min(100, (newDebt / totalTP) * 100);
-                const availableCurrentNum = parseAmount(borrowAvailableMetric?.currentValue ?? "0").value;
-                const usageCurrentNum = parseAmount(borrowUsageMetric?.currentValue ?? "0").value;
+            if (!addingCollateral) {
+                // No new collateral: subtract new borrow from chain-accurate max to avoid oracle discrepancy.
+                const newBorrowAmount = borrowAmountValue.isValid ? borrowAmountValue.value : 0;
+                availableNum = Math.max(0, currentMaxBorrow - newBorrowAmount);
+                const totalCapacity = existingDebt + currentMaxBorrow;
+                usageNum = totalCapacity > 0 ? Math.min(100, (newDebt / totalCapacity) * 100) : 0;
+            } else {
+                // Adding collateral: formula-based with liquidationCoverage.
+                const totalTP = Number(ConvertAmount(
+                    contractProtocolStatus,
+                    card.collateralTokenCode,
+                    card.borrowTokenCode,
+                    toBigIntPrecision(totalCA),
+                    card.caIndex
+                )) / 1e18;
+                if (totalTP > 0 && card.liquidationCoverage > 0) {
+                    const effectiveTP = totalTP / card.liquidationCoverage;
+                    availableNum = Math.max(0, effectiveTP - newDebt);
+                    usageNum = effectiveTP > 0 ? Math.min(100, (newDebt / effectiveTP) * 100) : 0;
+                }
+            }
+
+            if (availableNum !== undefined) {
                 result.borrowAvailableAfter = formatAmount(availableNum, card.borrowTokenDecimals);
                 result.borrowAvailableAfterTrend = (availableNum > availableCurrentNum + EPSILON ? "positive"
                     : availableNum < availableCurrentNum - EPSILON ? "negative" : "neutral") as BorrowMetricTrend;
+            }
+            if (usageNum !== undefined) {
                 result.borrowUsageAfter = formatAmount(usageNum, 2);
                 result.borrowUsageAfterTrend = (usageNum < usageCurrentNum - EPSILON ? "positive"
                     : usageNum > usageCurrentNum + EPSILON ? "negative" : "neutral") as BorrowMetricTrend;
