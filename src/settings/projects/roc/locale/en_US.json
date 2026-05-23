@@ -892,6 +892,17 @@
                 "txtMinCollateralNeeded": "Minimum collateral required"
             }
         },
+        "operationProgress": {
+            "approveTP": "Approve Token",
+            "approveCA": "Approve Collateral",
+            "depositLend": "Deposit",
+            "withdrawLend": "Withdraw",
+            "borrow": "Borrow",
+            "repay": "Repay",
+            "repayWithCollateral": "Repay with Collateral",
+            "depositCollateral": "Deposit Collateral",
+            "withdrawCollateral": "Withdraw Collateral"
+        },
         "sectionRepay": {
             "cardTitle": "Repay",
             "feedbackDebtLimit": "Amount exceeds your current debt",

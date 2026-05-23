@@ -891,6 +891,17 @@
                 "txtMinCollateralNeeded": "Colateral mínimo requerido"
             }
         },
+        "operationProgress": {
+            "approveTP": "Aprobar Token",
+            "approveCA": "Aprobar Colateral",
+            "depositLend": "Depositar",
+            "withdrawLend": "Retirar",
+            "borrow": "Solicitar Préstamo",
+            "repay": "Repagar",
+            "repayWithCollateral": "Repagar con Colateral",
+            "depositCollateral": "Depositar Colateral",
+            "withdrawCollateral": "Retirar Colateral"
+        },
         "sectionRepay": {
             "cardTitle": "Repagar",
             "feedbackDebtLimit": "El monto excede tu deuda actual",
