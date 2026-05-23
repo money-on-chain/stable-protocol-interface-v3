@@ -43,6 +43,7 @@ export interface BorrowCardData {
     borrowTokenIconClassName: string;
     borrowTokenName: string;
     borrowTokenTicker: string;
+    borrowTokenWalletBalance: string;
     caIndex: number;
     collateralTokenCode: string;
     collateralTokenDecimals: number;

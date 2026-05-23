@@ -39,15 +39,27 @@ export default function BorrowRepay({
     const { t, i18n } = useProjectTranslation();
 
     const currentDebtValue = parseAmount(card.currentDebt.value);
+    const walletBalanceValue = parseAmount(card.borrowTokenWalletBalance);
     const repayAmountValue = parseAmount(repayAmount);
     const hasTypedAmount = repayAmount.trim().length > 0;
     const hasDebtLimitError =
         repayAmountValue.isValid &&
         repayAmountValue.value > currentDebtValue.value;
-    const hasValidationError = !repayAmountValue.isValid || hasDebtLimitError;
+    // The action approves tpAmount * 1.01 to cover PCU drift between read and TX.
+    // The contract may transfer up to tpAmount * 1.01 from the wallet, so we need
+    // walletBalance >= repayAmount * 1.01.
+    const maxRepayableFromWallet = walletBalanceValue.isValid
+        ? walletBalanceValue.value / 1.01
+        : Infinity;
+    const hasWalletBalanceError =
+        repayAmountValue.isValid &&
+        walletBalanceValue.isValid &&
+        repayAmountValue.value > maxRepayableFromWallet;
+    const hasValidationError = !repayAmountValue.isValid || hasDebtLimitError || hasWalletBalanceError;
     const hasPendingChanges =
         repayAmountValue.isValid &&
         !hasDebtLimitError &&
+        !hasWalletBalanceError &&
         repayAmountValue.value > 0;
 
     const getFiatEquivalent = React.useCallback(
@@ -175,16 +187,13 @@ export default function BorrowRepay({
     ]);
 
     const handleQuickAction = (percentage: number) => {
-        const nextAmount =
-            percentage === 100
-                ? currentDebtValue.value
-                : currentDebtValue.value * (percentage / 100);
-
-        setRepayAmount(formatAmount(nextAmount, card.borrowTokenDecimals));
+        const rawAmount = currentDebtValue.value * (percentage / 100);
+        setRepayAmount(formatAmount(Math.min(rawAmount, maxRepayableFromWallet), card.borrowTokenDecimals));
     };
 
     const handleRepayInFull = () => {
-        setRepayAmount(formatAmount(currentDebtValue.value, card.borrowTokenDecimals));
+        const maxRepayable = Math.min(currentDebtValue.value, maxRepayableFromWallet);
+        setRepayAmount(formatAmount(maxRepayable, card.borrowTokenDecimals));
     };
 
     const noticeLines = hasPendingChanges
@@ -224,7 +233,9 @@ export default function BorrowRepay({
                             feedbackMessage={
                                 hasDebtLimitError
                                     ? t("borrowing.sectionRepay.feedbackDebtLimit")
-                                    : undefined
+                                    : hasWalletBalanceError
+                                      ? t("borrowing.sectionRepay.feedbackWalletBalance")
+                                      : undefined
                             }
                             feedbackState="negative"
                             getFiatEquivalent={getFiatEquivalent}
@@ -240,7 +251,7 @@ export default function BorrowRepay({
                             testId="borrow-repay-input"
                             tokenIconClassName={card.borrowTokenIconClassName}
                             tokenLabel={card.borrowTokenTicker}
-                            validateError={hasDebtLimitError}
+                            validateError={hasDebtLimitError || hasWalletBalanceError}
                         />
                     </div>
                 </div>
@@ -366,15 +377,19 @@ export default function BorrowRepay({
                     title={
                         hasDebtLimitError
                             ? t("borrowing.sectionRepay.summary.titleDebtLimit")
-                            : hasPendingChanges
-                              ? t("borrowing.sectionRepay.summary.titleReady")
-                              : t("borrowing.sectionRepay.summary.titleNoAmount")
+                            : hasWalletBalanceError
+                              ? t("borrowing.sectionRepay.summary.titleWalletBalance")
+                              : hasPendingChanges
+                                ? t("borrowing.sectionRepay.summary.titleReady")
+                                : t("borrowing.sectionRepay.summary.titleNoAmount")
                     }
                 >
                     <div className="borrow-repay-notice-lines">
                         {(hasDebtLimitError
                             ? [t("borrowing.sectionRepay.summary.txtDebtLimit")]
-                            : noticeLines
+                            : hasWalletBalanceError
+                              ? [t("borrowing.sectionRepay.summary.txtWalletBalance")]
+                              : noticeLines
                         ).map((line) => (
                             <div key={line}>{line}</div>
                         ))}

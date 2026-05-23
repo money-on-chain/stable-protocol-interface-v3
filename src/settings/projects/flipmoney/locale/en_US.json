@@ -902,13 +902,16 @@
         "sectionRepay": {
             "cardTitle": "Repay",
             "feedbackDebtLimit": "Amount exceeds your current debt",
+            "feedbackWalletBalance": "Amount exceeds your wallet balance",
             "labelAmountToRepay": "Amount to Repay",
             "summary": {
                 "titleDebtLimit": "Repay amount exceeds current debt",
+                "titleWalletBalance": "Insufficient wallet balance",
                 "titleReady": "Ready to repay",
                 "titleNoAmount": "Repay amount not specified",
                 "txtRepaying": "Repaying",
                 "txtDebtLimit": "The repay amount exceeds your current debt.",
+                "txtWalletBalance": "The repay amount exceeds your wallet balance of the borrow token.",
                 "txtEnterAmount": "Enter an amount to repay or use \"Repay in Full\"."
             },
             "cta": {

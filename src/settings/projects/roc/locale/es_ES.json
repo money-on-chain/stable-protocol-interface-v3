@@ -894,13 +894,16 @@
         "sectionRepay": {
             "cardTitle": "Repagar",
             "feedbackDebtLimit": "El monto excede tu deuda actual",
+            "feedbackWalletBalance": "El monto excede tu saldo en billetera",
             "labelAmountToRepay": "Monto a repagar",
             "summary": {
                 "titleDebtLimit": "El monto excede la deuda actual",
+                "titleWalletBalance": "Saldo insuficiente en billetera",
                 "titleReady": "Listo para repagar",
                 "titleNoAmount": "No se especificó monto a repagar",
                 "txtRepaying": "Repagando",
                 "txtDebtLimit": "El monto a repagar excede tu deuda actual.",
+                "txtWalletBalance": "El monto a repagar excede tu saldo en billetera del token solicitado.",
                 "txtEnterAmount": "Ingresa un monto a repagar o usa \"Repagar todo\"."
             },
             "cta": {

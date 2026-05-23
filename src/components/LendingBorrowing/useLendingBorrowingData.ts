@@ -115,6 +115,7 @@ export function useLendingBorrowingData(): LendingBorrowingData {
 
                 const debtTp = mulWad(creditUnits, priceCreditUnit);
                 const caWallet = userBalance.data?.CA?.[ca]?.balance ?? 0n;
+                const tpWallet = userBalance.data?.TP?.[0]?.[tp]?.balance ?? 0n;
 
                 const debtTpUsd = ConvertAmount(contractProtocolStatus, borrowTokenCode, "USD", debtTp, ca);
                 const acBalanceUsd = ConvertAmount(contractProtocolStatus, collTokenCode, "USD", acBalance, ca);
@@ -273,6 +274,7 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                     collateralTokenName: collMeta.name,
                     collateralTokenTicker: cTicker,
                     borrowApy: fmtWadPct(borrowFee),
+                    borrowTokenWalletBalance: fmtBigInt(tpWallet, 18, borrowMeta.visibleDecimals),
                     collateralWalletBalance: fmtBigInt(caWallet, 18, collMeta.visibleDecimals),
                     currentDebt: { value: debtVal, ticker: bTicker, valueUsd: fmtBigInt(debtTpUsd) },
                     depositedCollateral: { value: collVal, ticker: cTicker, valueUsd: fmtBigInt(acBalanceUsd) },
