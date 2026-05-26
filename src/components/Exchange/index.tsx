@@ -520,8 +520,9 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         const notEnoughBalanceToPayFees =
             Object.values(commissionsByKey).length > 0 &&
             Object.values(commissionsByKey).every(
-                (item) => item.commission > item.balance
+                (item, index) => (operationType === "REDEEM" && index > 0) ? false : (item.commission > item.balance)
             );
+        
         if (notEnoughBalanceToPayFees) {
             setGlobalValidationErrorText(t("exchange.errors.noBalanceForFees"));
             setInputValidationError(true);

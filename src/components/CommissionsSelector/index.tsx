@@ -107,7 +107,8 @@ export default function CommissionsSelector(
                                 disabled={
                                     commissionsByKey[`CA_${ca}`]?.commission >
                                     commissionsByKey[`CA_${ca}`]?.balance ||
-                                    commissionsByKey[`CA_${ca}`]?.commission === 0n
+                                    commissionsByKey[`CA_${ca}`]?.commission === 0n || 
+                                    (operationType === "REDEEM" && index > 0) ? false : true
                                 }
                             >
                                 <span className={"token_exchange"}>
