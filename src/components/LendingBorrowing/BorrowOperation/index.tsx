@@ -17,7 +17,7 @@ import {
 import BeforeAfterCard from "../MiniComponents/BeforeAfterCard";
 import CompactMetricDisplay from "../MiniComponents/CompactMetricDisplay";
 import OperationActions from "../MiniComponents/OperationActions";
-import OperationBackLink from "../MiniComponents/OperationBackLink";
+import OperationCardHeader from "../MiniComponents/OperationCardHeader";
 import OperationNotice from "../MiniComponents/OperationNotice";
 import RateDisplay from "../MiniComponents/RateDisplay";
 import { getBorrowOperationRiskDelta } from "../operationPreviewAdapter";
@@ -374,21 +374,19 @@ export default function BorrowOperation({
 
     return (
         <div className="layout-card borrow-operation-view">
-            <div className="layout-card-title borrow-operation-title">
-                <h1>{t("borrowing.sectionBorrow.cardTitle")}</h1>
-                <OperationBackLink onClick={onBack} />
-            </div>
+            <OperationCardHeader
+                aside={
+                    <RateDisplay
+                        number={card.borrowApy}
+                        title={`${card.borrowTokenTicker}/${card.collateralTokenTicker} ${t("borrowing.sectionBorrow.apy")}`}
+                    />
+                }
+                onBack={onBack}
+                title={t("borrowing.sectionBorrow.cardTitle")}
+            />
 
             <div className="borrow-operation-body">
                 <div className="borrow-operation-main">
-                    <div className="borrow-operation-header">
-                        <div className="borrow-operation-header__spacer"></div>
-                        <RateDisplay
-                            number={card.borrowApy}
-                            title={`${card.borrowTokenTicker}/${card.collateralTokenTicker} ${t("borrowing.sectionBorrow.apy")}`}
-                        />
-                    </div>
-
                     <div className="borrow-operation-panels">
                         <div className="borrow-operation-panel">
                             {hasDebtOrCollateral ? (
@@ -409,7 +407,9 @@ export default function BorrowOperation({
                                 feedbackState="negative"
                                 getFiatEquivalent={getBorrowFiatEquivalent}
                                 inputValue={borrowAmount}
-                                label={t("borrowing.sectionBorrow.labelAmountToBorrow")}
+                                label={t(
+                                    "borrowing.sectionBorrow.labelAmountToBorrow"
+                                )}
                                 onMaxClick={() => handleBorrowQuickAction(100)}
                                 onQuickActionClick={handleBorrowQuickAction}
                                 onValueChange={setBorrowAmount}
@@ -429,13 +429,17 @@ export default function BorrowOperation({
                         <div className="borrow-operation-panel">
                             {hasDebtOrCollateral ? (
                                 <CompactMetricDisplay
-                                    label={t("borrowing.labelDepositedCollateral")}
+                                    label={t(
+                                        "borrowing.labelDepositedCollateral"
+                                    )}
                                     value={card.depositedCollateral.value}
                                     valueLabel={card.depositedCollateral.ticker}
                                 />
                             ) : null}
                             <TokenAmountInput
-                                balanceLabel={t("tokenAmountInput.labelBalance")}
+                                balanceLabel={t(
+                                    "tokenAmountInput.labelBalance"
+                                )}
                                 balanceValue={card.collateralWalletBalance}
                                 feedbackMessage={
                                     hasCollateralBalanceError
@@ -447,7 +451,9 @@ export default function BorrowOperation({
                                 feedbackState="negative"
                                 getFiatEquivalent={getCollateralFiatEquivalent}
                                 inputValue={collateralAmount}
-                                label={t("borrowing.sectionBorrow.labelAddToCollateral")}
+                                label={t(
+                                    "borrowing.sectionBorrow.labelAddToCollateral"
+                                )}
                                 onMaxClick={() =>
                                     handleCollateralQuickAction(100)
                                 }

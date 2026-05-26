@@ -4,13 +4,9 @@
     gap: 16px;
 }
 
-.borrow-withdraw-collateral-title {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
 .borrow-withdraw-collateral-body {
+    --borrow-metrics-content-width: 980px;
+
     width: 100%;
     max-width: 1240px;
     margin: 0 auto;
@@ -61,15 +57,23 @@
 }
 
 .borrow-withdraw-collateral-metrics {
-    display: grid;
-    gap: 16px;
-}
-
-.borrow-withdraw-collateral-metrics__row {
     display: flex;
     justify-content: center;
     gap: 16px;
     flex-wrap: wrap;
+    width: 100%;
+    max-width: var(--borrow-metrics-content-width);
+    margin: 0 auto;
+}
+
+.borrow-withdraw-collateral-metrics__row {
+    display: contents;
+}
+
+.borrow-withdraw-collateral-metrics__row > .before-after-card {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
 }
 
 .borrow-withdraw-collateral-notice-lines {
@@ -83,7 +87,7 @@
 }
 
 @media (max-width: 1200px) {
-    .borrow-withdraw-collateral-metrics__row {
+    .borrow-withdraw-collateral-metrics {
         width: 100%;
     }
 }
@@ -112,8 +116,13 @@
         max-width: 400px;
     }
 
-    .borrow-withdraw-collateral-metrics__row {
-        flex-direction: column;
+    .borrow-withdraw-collateral-metrics {
         align-items: center;
+    }
+
+    .borrow-withdraw-collateral-metrics__row > .before-after-card {
+        flex: 0 0 calc((100% - 16px) / 2);
+        width: auto;
+        max-width: 100%;
     }
 }

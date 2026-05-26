@@ -18,6 +18,9 @@ const RouterFlipmoney: LazyRouterComponent = React.lazy(
 const RouterRoc: LazyRouterComponent = React.lazy(
     () => import("./projects/roc")
 );
+const RouterLendBorrow: LazyRouterComponent = React.lazy(
+    () => import("./projects/lendborrow")
+);
 const RouterMoc: LazyRouterComponent = React.lazy(
     () => import("./projects/moc")
 );
@@ -34,6 +37,8 @@ const Router = (): LazyRouterComponent => {
             return RouterFlipmoney;
         case "roc":
             return RouterRoc;
+        case "lendborrow":
+            return RouterLendBorrow;
         case "moc":
             return RouterMoc;
         case "voting":

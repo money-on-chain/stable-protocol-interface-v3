@@ -5,12 +5,16 @@ import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { useWalletContext } from "../../context/Wallet";
+import {
+    getProjectMenuOptions,
+    type RawMenuOption,
+} from "../../helpers/menuOptions";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings/settings.json";
 import DappVersion from "../DappVersion";
 import ThemeMode from "../ThemeMode";
 import Brand from "./Brand";
-import menuOptionsData from "./menuOptions.json";
+import HeaderCenter from "./HeaderCenter";
 
 const { Header } = Layout;
 
@@ -54,35 +58,16 @@ export default function SectionHeader(): JSX.Element {
 
     const MAX_MAIN_MENU_ITEMS: number = 5;
 
-    // Process JSON for navigation menu
-    interface RawMenuOption {
-        path: string;
-        nameKey: string;
-        className: string;
-        allowedProjects: string[];
-    }
-
     // Filter options based on project and language changes
     const [displayOptions, setDisplayOptions] = useState<MenuOption[]>([]);
     const currentProject: string = settings.project;
     useEffect(() => {
-        const menuOptions: MenuOption[] = (
-            menuOptionsData as RawMenuOption[]
+        const filteredOptions: MenuOption[] = getProjectMenuOptions(
+            currentProject
         ).map((option: RawMenuOption) => ({
             ...option,
             name: () => t(option.nameKey), // Traducimos el nombre dinámicamente
         }));
-
-        const filteredOptions: MenuOption[] = menuOptions
-            .filter(
-                (option: MenuOption) =>
-                    option.allowedProjects.includes(currentProject) ||
-                    option.allowedProjects.includes("all")
-            )
-            .map((option: MenuOption) => ({
-                ...option,
-                name: option.name, // keep the function
-            }));
         setDisplayOptions(filteredOptions);
     }, [currentProject, lang, t]);
 
@@ -146,62 +131,17 @@ export default function SectionHeader(): JSX.Element {
         <Header>
             <div className="header-container">
                 <Brand />
-                <div className="central-menu">
-                    {mainMenuOptions.map((option: MenuOption) => (
-                        <a
-                            onClick={() => handleOptionClick(option.path)}
-                            data-testid={`navbar-menu-item-${option.className}`}
-                            className={`menu-nav-item disable-nav-item ${location.pathname === option.path ? "menu-nav-item-selected" : ""}`}
-                            key={option.path}
-                        >
-                            <div
-                                className={`${option.className}${location.pathname === option.path ? "-selected" : ""}`}
-                            ></div>
-                            <span className="menu-nav-item-title">
-                                {option.name()}
-                            </span>
-                        </a>
-                    ))}
-                    {moreMenuOptions.length > 0 && (
-                        <div
-                            data-testid="navbar-menu-item-more"
-                            onClick={() =>
-                                setShowMoreDropdown(!showMoreDropdown)
-                            }
-                            className="menu-nav-item-more"
-                        >
-                            <div className="logo-more"></div>
-                            <span className="menu-nav-item-title-more">
-                                {t("menuOptions.more")}
-                            </span>{" "}
-                            {showMoreDropdown && (
-                                <div className="dropdown-menu show">
-                                    {moreMenuOptions.map(
-                                        (option: MenuOption) => (
-                                            <a
-                                                data-testid={`navbar-menu-item-${option.className}`}
-                                                onClick={() =>
-                                                    handleOptionClick(
-                                                        option.path
-                                                    )
-                                                }
-                                                className={`menu-nav-item disable-nav-item ${location.pathname === option.path ? "menu-nav-item-selected" : ""}`}
-                                                key={option.path}
-                                            >
-                                                <i
-                                                    className={`${option.className}${location.pathname === option.path ? "-selected" : ""}`}
-                                                ></i>
-                                                <span className="menu-nav-item-title">
-                                                    {option.name()}
-                                                </span>
-                                            </a>
-                                        )
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
+                <HeaderCenter
+                    currentPath={location.pathname}
+                    mainMenuOptions={mainMenuOptions}
+                    moreMenuOptions={moreMenuOptions}
+                    onMenuOptionClick={handleOptionClick}
+                    onMoreMenuToggle={() =>
+                        setShowMoreDropdown(!showMoreDropdown)
+                    }
+                    showMoreDropdown={showMoreDropdown}
+                    moreLabel={t("menuOptions.more")}
+                />
                 <div className="wallet-user">
                     <div
                         className="wallet-translation"

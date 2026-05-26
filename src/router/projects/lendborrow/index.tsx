@@ -1,0 +1,106 @@
+import React from "react";
+import { Navigate, useRoutes } from "react-router-dom";
+
+import { getProjectDefaultMenuPath } from "../../../helpers/menuOptions";
+import NotFound from "../../../pages/NotFound";
+import settings from "../../../settings/settings.json";
+const Skeleton = React.lazy(
+    () => import("../../../layouts/projects/lendborrow/Skeleton")
+);
+const Home = React.lazy(() => import("../../../pages/Home/index"));
+const Veto = React.lazy(() => import("../../../pages/Veto/index"));
+const VetoWithdraw = React.lazy(() => import("../../../pages/Veto/Withdraw"));
+const Exchange = React.lazy(() => import("../../../pages/Exchange/index"));
+const CombinedOperations = React.lazy(
+    () => import("../../../pages/CombinedOperations/index")
+);
+
+const Send = React.lazy(() => import("../../../pages/Send/index"));
+const Performance = React.lazy(
+    () => import("../../../pages/Performance/index")
+);
+const Staking = React.lazy(() => import("../../../pages/Staking/index"));
+const LiquidityMining = React.lazy(
+    () => import("../../../pages/LiquidityMining/index")
+);
+const Vesting = React.lazy(() => import("../../../pages/Vesting/index"));
+const Voting = React.lazy(() => import("../../../pages/Voting/index"));
+const LendingBorrowing = React.lazy(
+    () => import("../../../pages/LendingBorrowing/index")
+);
+const ComponentTest = React.lazy(
+    () => import("../../../pages/ComponentTest/index")
+);
+
+export default function Router(): React.ReactElement | null {
+    const defaultMenuPath = getProjectDefaultMenuPath(settings.project);
+
+    return useRoutes([
+        {
+            path: "/",
+            element: <Skeleton />,
+            children: [
+                {
+                    path: "/",
+                    element:
+                        defaultMenuPath === "/" ? (
+                            <Home />
+                        ) : (
+                            <Navigate to={defaultMenuPath} replace />
+                        ),
+                },
+                {
+                    path: "exchange",
+                    element: <Exchange />,
+                },
+                {
+                    path: "send",
+                    element: <Send />,
+                },
+                {
+                    path: "performance",
+                    element: <Performance />,
+                },
+                {
+                    path: "staking",
+                    element: <Staking />,
+                },
+                {
+                    path: "liquidity-mining",
+                    element: <LiquidityMining />,
+                },
+                {
+                    path: "vesting",
+                    element: <Vesting />,
+                },
+                {
+                    path: "voting",
+                    element: <Voting />,
+                },
+                {
+                    path: "veto",
+                    element: <Veto />,
+                },
+                {
+                    path: "veto/withdraw",
+                    element: <VetoWithdraw />,
+                },
+                {
+                    path: "combined-operations",
+                    element: <CombinedOperations />,
+                },
+                {
+                    path: "lending-borrowing",
+                    element: <LendingBorrowing />,
+                },
+                {
+                    path: "componenttest",
+                    element: <ComponentTest />,
+                },
+                { path: "404", element: <NotFound /> },
+                { path: "*", element: <Navigate to="/404" /> },
+            ],
+        },
+        { path: "*", element: <Navigate to="/404" replace /> },
+    ]);
+}

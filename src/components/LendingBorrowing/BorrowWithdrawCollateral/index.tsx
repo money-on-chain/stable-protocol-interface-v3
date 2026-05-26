@@ -17,7 +17,7 @@ import {
 import BeforeAfterCard from "../MiniComponents/BeforeAfterCard";
 import CompactMetricDisplay from "../MiniComponents/CompactMetricDisplay";
 import OperationActions from "../MiniComponents/OperationActions";
-import OperationBackLink from "../MiniComponents/OperationBackLink";
+import OperationCardHeader from "../MiniComponents/OperationCardHeader";
 import OperationNotice from "../MiniComponents/OperationNotice";
 
 interface BorrowWithdrawCollateralProps {
@@ -215,10 +215,10 @@ export default function BorrowWithdrawCollateral({
 
     return (
         <div className="layout-card borrow-withdraw-collateral-view">
-            <div className="layout-card-title borrow-withdraw-collateral-title">
-                <h1>{t("borrowing.sectionWithdrawCollateral.cardTitle")}</h1>
-                <OperationBackLink onClick={onBack} />
-            </div>
+            <OperationCardHeader
+                onBack={onBack}
+                title={t("borrowing.sectionWithdrawCollateral.cardTitle")}
+            />
 
             <div className="borrow-withdraw-collateral-body">
                 <div className="borrow-withdraw-collateral-main">
@@ -234,7 +234,9 @@ export default function BorrowWithdrawCollateral({
 
                             <div className="borrow-withdraw-collateral-panel__column borrow-withdraw-collateral-panel__column--primary">
                                 <CompactMetricDisplay
-                                    label={t("borrowing.labelDepositedCollateral")}
+                                    label={t(
+                                        "borrowing.labelDepositedCollateral"
+                                    )}
                                     value={card.depositedCollateral.value}
                                     valueLabel={card.depositedCollateral.ticker}
                                 />

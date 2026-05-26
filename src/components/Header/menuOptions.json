@@ -57,6 +57,6 @@
         "nameKey": "menuOptions.lendingBorrowing",
         "className": "logo-lending-borrowing",
         "path": "/lending-borrowing",
-        "allowedProjects": ["flipmoney"]
+        "allowedProjects": ["flipmoney", "lendborrow"]
     }
 ]

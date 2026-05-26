@@ -300,13 +300,14 @@ $breakpoint-mobile: 600px;
 
 h1,
 h2 {
-    margin-bottom: 20px;
+    // margin-bottom: 20px;
     color: var(--color-txt-primary);
     font-style: normal;
     font-weight: 600;
     font-family: var(--brand-font);
     letter-spacing: 0px;
     text-align: left;
+    line-height: 1.2;
 }
 h1 {
     font-size: 20px;

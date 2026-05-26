@@ -17,7 +17,7 @@ import {
 import BeforeAfterCard from "../MiniComponents/BeforeAfterCard";
 import CompactMetricDisplay from "../MiniComponents/CompactMetricDisplay";
 import OperationActions from "../MiniComponents/OperationActions";
-import OperationBackLink from "../MiniComponents/OperationBackLink";
+import OperationCardHeader from "../MiniComponents/OperationCardHeader";
 import OperationNotice from "../MiniComponents/OperationNotice";
 
 interface BorrowRepayProps {
@@ -216,10 +216,10 @@ export default function BorrowRepay({
 
     return (
         <div className="layout-card borrow-repay-view">
-            <div className="layout-card-title borrow-repay-title">
-                <h1>{t("borrowing.sectionRepay.cardTitle")}</h1>
-                <OperationBackLink onClick={onBack} />
-            </div>
+            <OperationCardHeader
+                onBack={onBack}
+                title={t("borrowing.sectionRepay.cardTitle")}
+            />
 
             <div className="borrow-repay-body">
                 <div className="borrow-repay-main">
@@ -240,7 +240,9 @@ export default function BorrowRepay({
                             feedbackState="negative"
                             getFiatEquivalent={getFiatEquivalent}
                             inputValue={repayAmount}
-                            label={t("borrowing.sectionRepay.labelAmountToRepay")}
+                            label={t(
+                                "borrowing.sectionRepay.labelAmountToRepay"
+                            )}
                             onMaxClick={handleRepayInFull}
                             onQuickActionClick={handleQuickAction}
                             onValueChange={setRepayAmount}
