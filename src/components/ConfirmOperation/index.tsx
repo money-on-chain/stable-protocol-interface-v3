@@ -103,6 +103,11 @@ export default function ConfirmOperation(
     const [txID, setTxID] = useState<string>("");
     const [opID, setOpID] = useState<number | null>(null);
 
+    const amountYouExchangeLimit =
+        operationType === "COMBINED_REDEEM"
+            ? calculateLimit(amountYouExchange, slippageTolerance / 100)
+            : amountYouExchange;
+
     useEffect(() => {
         let timerId: NodeJS.Timeout;
         if (status === "QUEUING") {
@@ -311,7 +316,7 @@ export default function ConfirmOperation(
             currencyYouExchange,
             caIndex
         );
-        return amountYouExchange > tokenAllowance;
+        return amountYouExchangeLimit > tokenAllowance;
     };
 
     const showAllowancePayCommissionCA = (): boolean => {
@@ -427,7 +432,7 @@ export default function ConfirmOperation(
             operationType === "REDEEM" ||
             operationType === "COMBINED_REDEEM"
         ) {
-            tokenAmount = amountYouExchange;
+            tokenAmount = amountYouExchangeLimit;
             limitAmount = amountYouReceive;
         } else if (
             operationType === "SWAP_TCFORTP" ||
@@ -934,7 +939,7 @@ export default function ConfirmOperation(
                 onHideModalAllowance={onHideModalAllowancePayCurrencyExchange}
                 currencyYouExchange={currencyYouExchange}
                 currencyYouReceive={currencyYouReceive}
-                amountYouExchangeLimit={amountYouExchange}
+                amountYouExchangeLimit={amountYouExchangeLimit}
                 //amountYouReceiveLimit={amountYouReceiveLimit}
                 onCallback={onSendTransaction}
                 disAllowance={false}
