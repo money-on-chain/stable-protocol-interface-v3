@@ -115,9 +115,6 @@ function loadTokenMap(): TokenMap {
         if (receive.length > 0) tMap[TP(i)] = receive;
     }
 
-    console.log("DEBUG>>>")
-    console.log(tMap);
-
     return tMap;
 }
 
