@@ -15,7 +15,7 @@ import {
     swapTPforTC,
     swapTPforTP,
 } from "../backend/moc-rc20";
-import settings from "../settings/settings.json";
+import settings from "../settings";
 import type { ContractInfo, DContracts } from "../types/hooks";
 import type {
     ContractProtocolStatusResult,

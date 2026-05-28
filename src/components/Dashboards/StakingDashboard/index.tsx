@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useWalletContext } from "../../../context/Wallet";
 import { pendingWithdrawalsFormat } from "../../../helpers/staking";
 import { useProjectTranslation } from "../../../helpers/translations";
-import settings from "../../../settings/settings.json";
+import settings from "../../../settings";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 
 interface WithdrawalStatus {

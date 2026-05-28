@@ -25,7 +25,7 @@ import VotingMachine from "../contracts/omoc/VotingMachine.json";
 import TokenMigrator from "../contracts/TokenMigrator.json";
 import TokenPegged from "../contracts/TokenPegged.json";
 import omoc from "../settings/omoc/omoc.json";
-import settings from "../settings/settings.json";
+import settings from "../settings";
 import type {
     Address,
     CallRequest,

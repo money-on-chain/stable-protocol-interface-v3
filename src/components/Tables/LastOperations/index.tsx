@@ -18,7 +18,7 @@ import date from "../../../helpers/date";
 import { wadDiv } from "../../../helpers/precision";
 import { useProjectTranslation } from "../../../helpers/translations";
 import api from "../../../services/api";
-import settings from "../../../settings/settings.json";
+import settings from "../../../settings";
 import type { TokenConfig } from "../../../types/hooks";
 import AboutQueue from "../../Modals/AboutQueue";
 import { PrecisionNumbers } from "../../PrecisionNumbers";

@@ -17,7 +17,7 @@ import {
     saveDefaultVestingToLocalStorage,
     saveVestingAddressesToLocalStorage,
 } from "../../helpers/vesting";
-import settings from "../../settings/settings.json";
+import settings from "../../settings";
 import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 

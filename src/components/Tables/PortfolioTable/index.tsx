@@ -15,7 +15,7 @@ import {
     normalizeToBigInt,
 } from "../../../helpers/precision";
 import { useProjectTranslation } from "../../../helpers/translations";
-import settings from "../../../settings/settings.json";
+import settings from "../../../settings";
 import type { Settings, TokenConfig } from "../../../types/hooks";
 import { generateTokenRow } from "./renderHelpers";
 

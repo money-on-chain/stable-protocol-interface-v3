@@ -8,7 +8,7 @@ import LogoIconTC_1 from "../assets/tokens/tc_1.svg?react";
 import LogoIconTG_0 from "../assets/tokens/tg_0.svg?react";
 import LogoIconTP_0 from "../assets/tokens/tp_0.svg?react";
 import LogoIconTP_1 from "../assets/tokens/tp_1.svg?react";
-import settings from "../settings/settings.json";
+import settings from "../settings";
 import type { TokenConfig } from "../types/hooks";
 import type {
     ContractProtocolStatusResult,

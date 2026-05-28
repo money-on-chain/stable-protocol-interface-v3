@@ -6,7 +6,7 @@ import React, { Fragment, useEffect, useState } from "react";
 import VestingStatusAlert from "../../components/Notification/VestingStatusAlert";
 import Staking from "../../components/Staking";
 import { useWalletContext } from "../../context/Wallet";
-import settings from "../../settings/settings.json";
+import settings from "../../settings";
 
 export default function SectionStaking(): React.ReactElement {
     const {

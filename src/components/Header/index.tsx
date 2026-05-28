@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { useWalletContext } from "../../context/Wallet";
 import { useProjectTranslation } from "../../helpers/translations";
-import settings from "../../settings/settings.json";
+import settings from "../../settings";
 import DappVersion from "../DappVersion";
 import ThemeMode from "../ThemeMode";
 import Brand from "./Brand";

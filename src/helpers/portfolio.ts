@@ -1,4 +1,4 @@
-import settings from "../settings/settings.json";
+import settings from "../settings";
 import type { TokenConfig } from "../types/hooks";
 import type {
     ContractProtocolStatusResult,

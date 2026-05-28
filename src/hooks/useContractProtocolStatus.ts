@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { checksumAddress } from "viem";
 
 import { normalizeToBigInt } from "../helpers/precision";
-import settings from "../settings/settings.json";
+import settings from "../settings";
 import type {
     ContractInfo,
     DContracts,

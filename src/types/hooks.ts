@@ -102,6 +102,12 @@ export interface SettingsTokens {
     TG: TokenConfig[];
 }
 
+export interface SettingsTokenMap {
+    tokenMap?: {
+        blacklist?: string[];
+    };
+}
+
 export interface Settings {
     project: string;
     dapp: {
@@ -115,6 +121,11 @@ export interface Settings {
     };
     showPriceVariation: boolean;
     tokens: SettingsTokens;
+    exchange?: SettingsTokenMap;
+    combinedOperations?: SettingsTokenMap;
+    defaults?: {
+        tokens?: Partial<TokenConfig>;
+    };
 }
 
 /** Multicall response shapes we consume */

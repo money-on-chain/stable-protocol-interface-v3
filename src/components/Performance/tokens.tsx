@@ -4,7 +4,7 @@ import { useWalletContext } from "../../context/Wallet";
 import { ConvertPeggedTokenPrice } from "../../helpers/currencies";
 import { mulPrecision, normalizeToBigInt } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
-import settings from "../../settings/settings.json";
+import settings from "../../settings";
 import type { TokenConfig } from "../../types/hooks";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 
@@ -38,7 +38,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
         visiblePriceDecimals: defaultVisiblePriceDecimals,
         visibleDecimals: defaultVisibleDecimals,
         visibleBalanceDecimals: defaultVisibleBalanceDecimals,
-    } = settings.defaults.tokens;
+    } = settings.defaults?.tokens ?? {};
 
     const columns: Column[] = [
         {

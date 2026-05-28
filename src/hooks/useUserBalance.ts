@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import settings from "../settings/settings.json";
+import settings from "../settings";
 import type {
     Address,
     CallRequest,

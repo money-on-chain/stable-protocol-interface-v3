@@ -31,7 +31,7 @@ import {
     toBigIntPrecision,
 } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
-import settings from "../../settings/settings.json";
+import settings from "../../settings";
 import type { Settings } from "../../types/hooks";
 import type { CommissionItem, CommissionsState } from "../../types/status";
 import CommissionsSelector from "../CommissionsSelector";
