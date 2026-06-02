@@ -21,7 +21,7 @@
         }
     },
     "tokenPriceStrip": {
-        "tokens": ["CA_0", "TC_0", "CA_1"]
+        "tokens": ["CA_0", "TC_0", "CA_1", "TF_0", "COINBASE"]
     },
     "defaults": {
         "tokens": {

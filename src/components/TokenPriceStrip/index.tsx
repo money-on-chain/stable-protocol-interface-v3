@@ -22,12 +22,28 @@ interface TokenPriceItem {
     token: TokenConfig;
 }
 
+interface TokenPriceStripContentProps {
+    configuredTokens: string[];
+}
+
 const getFirstToken = (tokens: TokenConfig[] | undefined): TokenConfig | null =>
     tokens?.[0] ?? null;
 
 const appSettings = settings as Settings;
 
 export default function TokenPriceStrip(): JSX.Element | null {
+    const configuredTokens = Array.isArray(appSettings.tokenPriceStrip?.tokens)
+        ? appSettings.tokenPriceStrip.tokens
+        : [];
+
+    if (configuredTokens.length === 0) return null;
+
+    return <TokenPriceStripContent configuredTokens={configuredTokens} />;
+}
+
+function TokenPriceStripContent({
+    configuredTokens,
+}: TokenPriceStripContentProps): JSX.Element | null {
     const { contractProtocolStatus } = useWalletContext();
     const { i18n } = useProjectTranslation();
     const data = contractProtocolStatus.data;
@@ -38,7 +54,6 @@ export default function TokenPriceStrip(): JSX.Element | null {
         canScrollRight: false,
     });
 
-    const configuredTokens = appSettings.tokenPriceStrip?.tokens ?? [];
     const getIndexedToken = (
         tokens: TokenConfig[],
         tokenId: string
@@ -121,6 +136,25 @@ export default function TokenPriceStrip(): JSX.Element | null {
                     priceCurrency: token.peggedUSD
                         ? "USD"
                         : `${token.name}/USD`,
+                    token,
+                };
+            }
+            case "TF": {
+                const token = getIndexedToken(appSettings.tokens.TF, tokenId);
+                if (!token || !Number.isInteger(index)) return null;
+
+                return {
+                    key: tokenId,
+                    iconClassName: "icon-token-tf",
+                    price: ConvertAmount(
+                        contractProtocolStatus,
+                        "TF",
+                        "USD",
+                        WAD,
+                        index
+                    ),
+                    pricePrefix: "$",
+                    priceCurrency: "USD",
                     token,
                 };
             }
