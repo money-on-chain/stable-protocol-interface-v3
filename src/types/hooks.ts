@@ -114,6 +114,9 @@ export interface Settings {
         max?: number;
     };
     showPriceVariation: boolean;
+    tokenPriceStrip?: {
+        tokens: string[];
+    };
     tokens: SettingsTokens;
 }
 

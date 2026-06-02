@@ -1,6 +1,11 @@
 // Variables
 $breakpoint-mobile: 600px;
 
+.app-header {
+    height: auto;
+    min-height: 80px;
+}
+
 .header-container {
     display: flex;
     flex-direction: row;
@@ -628,7 +633,8 @@ $breakpoint-mobile: 600px;
         top: 0;
         z-index: 500;
         margin-top: 0;
-        height: 56px;
+        height: auto;
+        min-height: 56px;
     }
     .ant-layout {
         padding-bottom: 0;
@@ -648,7 +654,7 @@ $breakpoint-mobile: 600px;
         background-color: var(--color-mobilenav-header-background);
         padding: 0px 12px;
         width: 100%;
-        height: 100%;
+        height: 56px;
 
         .wallet-user {
             margin: 0;

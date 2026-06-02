@@ -20,6 +20,9 @@
             "blacklist": ["CA_1", "TC_1"]
         }
     },
+    "tokenPriceStrip": {
+        "tokens": ["CA_0", "TC_0", "CA_1"]
+    },
     "defaults": {
         "tokens": {
             "name": "TICKER",
