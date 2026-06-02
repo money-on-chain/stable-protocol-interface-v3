@@ -11,6 +11,8 @@ import type {
 import type { UserBalanceResult } from "../types/status";
 import { useMultiCall } from "./useMulticall";
 
+const EVM_ADDR_RE = /^0x[0-9a-fA-F]{40}$/;
+
 /**
  * React hook that wraps useMultiCall to fetch contract/user balances and allowances.
  * Builds the call array with useMemo so it remains stable between renders.
@@ -32,33 +34,50 @@ export function useUserBalance(
 
         const calls: CallRequest[] = [];
 
-        // ---- Voting app special-case (uses the first CollateralToken)
-        if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting") {
+        // 
+        if (import.meta.env.REACT_APP_CONTRACT_VETO_TC && contracts.CollateralTokenVeto && Array.isArray(contracts.CollateralTokenVeto) && import.meta.env.REACT_APP_CONTRACT_VETO_MOC) {
+
+            const vetoTcRaw = import.meta.env.REACT_APP_CONTRACT_VETO_TC as
+            | string
+            | undefined;
+
+            const vetoMocRaw = import.meta.env.REACT_APP_CONTRACT_VETO_MOC as
+            | string
+            | undefined;
             
-            const firstCT = Array.isArray(contracts.CollateralToken)
-                ? contracts.CollateralToken[0]
-                : undefined;
-            const mocAddress = import.meta.env.REACT_APP_CONTRACT_VETO_MOC as
-                | Address
-                | undefined;
-            if (firstCT) {
+            // Validate each address before using it as a contract target
+            const vetoTc: Address[] = vetoTcRaw
+                ? (vetoTcRaw
+                    .split(",")
+                    .filter((a) => EVM_ADDR_RE.test(a.trim())) as Address[])
+                : [];
+
+            const vetoMoc: Address[] = vetoMocRaw
+                ? (vetoMocRaw
+                    .split(",")
+                    .filter((a) => EVM_ADDR_RE.test(a.trim())) as Address[])
+                : [];
+
+            for (let tc = 0; tc < vetoTc.length; tc++) {
+
                 calls.push({
-                    contract: firstCT,
+                    contract: vetoTc[tc],
                     functionName: "balanceOf",
                     args: [userAddress],
                     resultType: "uint256",
-                    keys: [0, "TC", "balance"],
+                    keys: [tc, "VetoTC", "balance"],
                 });
 
                 calls.push({
-                    contract: firstCT,
+                    contract: vetoTc[tc],
                     functionName: "allowance",
-                    args: [userAddress, mocAddress],
+                    args: [userAddress, vetoMoc[tc]],
                     resultType: "uint256",
-                    keys: [0, "TC", "allowance"],
+                    keys: [tc, "VetoTC", "allowance"],
                 });
-            }
 
+            }            
+            
             // on voting project ends here
             return calls;
         }

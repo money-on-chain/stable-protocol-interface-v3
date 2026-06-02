@@ -30,7 +30,8 @@ export default function SectionVoting(): React.ReactElement {
             <div className="section-container">
                 <div className="content-page">
                     {(settings.project === "moc" ||
-                        settings.project === "voting") && (
+                        settings.project === "voting" ||
+                        settings.project === "roc") && (
                         <VestingStatusAlert />
                     )}
                 </div>

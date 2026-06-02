@@ -185,8 +185,8 @@ const Veto: React.FC = () => {
                     settings: TokenSettings("TC_" + index),
                     allowance: vetoData.vetoMachine.allowance[tc.address] || 0n,
                     balance: (
-                        userBalance.data[index] as { TC: { balance: bigint } }
-                    ).TC.balance,
+                        userBalance.data[index] as { VetoTC: { balance: bigint } }
+                    ).VetoTC.balance,
                     proposal: cData.votingData["winnerProposal"],
                     votingPower:
                         BigInt(

@@ -47,30 +47,34 @@ export function useUserVeto(
         if (!contracts) return [];
         if (!userBalance) return [];
         if (!contractStatusOmoc) return [];
-
+        if (!contracts.VetoMachine) return [];
+        if (!contracts.CollateralToken) return [];
+                
         const callRequest: MultiCallInput[] = [];
 
-        if (contracts.VetoMachine && contracts.VetoMachine.address !== "0x") {
-            const collateralTokens = contracts.CollateralToken;
+        if (contracts.VetoMachine && contracts.VetoMachine.address !== "0x" && contracts.CollateralTokenVeto) {
+            const collateralTokens = contracts.CollateralTokenVeto;
             if (!Array.isArray(collateralTokens)) return callRequest;
 
-            for (let ca = 0; ca < collateralTokens.length; ca++) {
-                const CollateralToken = collateralTokens[ca];
+            for (let tc = 0; tc < collateralTokens.length; tc++) {
+                const CollateralToken = collateralTokens[tc];
                 if (!CollateralToken) continue;
 
-                const userTCBalance = userBalance[ca]?.TC?.balance || 0n;
-                callRequest.push({
-                    contract: contracts.VetoMachine,
-                    functionName: "getVotingPower",
-                    args: [CollateralToken.address, userTCBalance],
-                    resultType: "uint256",
-                    keys: [
-                        "vetoMachine",
-                        "getVotingPower",
-                        CollateralToken.address,
-                    ],
-                    onError: onErrorVotingPower,
-                });
+                const userTCBalance = userBalance[tc]?.VetoTC?.balance || 0n;
+                if (userTCBalance > 0n) {
+                    callRequest.push({
+                        contract: contracts.VetoMachine,
+                        functionName: "getVotingPower",
+                        args: [CollateralToken.address, userTCBalance],
+                        resultType: "uint256",
+                        keys: [
+                            "vetoMachine",
+                            "getVotingPower",
+                            CollateralToken.address,
+                        ],
+                        onError: onErrorVotingPower,
+                    });
+                }
 
                 callRequest.push({
                     contract: CollateralToken,

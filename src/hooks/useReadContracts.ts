@@ -90,21 +90,35 @@ const readContracts = async (
         TP: [],
         PP_CA: [],
         PP_TP: {} as Record<number, ContractInfo[]>,
+        CollateralTokenVeto: [],
     };
 
-    // Single collateral (voting project) convenience
-    if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting") {
-        const tcAddress = import.meta.env.REACT_APP_CONTRACT_VETO_TC as
-            | Address
-            | undefined;
-        if (tcAddress) {
-            contracts.CollateralToken!.push({
-                address: tcAddress,
+    // If veto TC is set, add it to the contracts ex: REACT_APP_CONTRACT_VETO_TC=0x123...,0x456...,0x789...
+    if (import.meta.env.REACT_APP_CONTRACT_VETO_TC) { 
+        
+        const vetoTcRaw = import.meta.env.REACT_APP_CONTRACT_VETO_TC as
+        | string
+        | undefined;
+        
+        // Validate each address before using it as a contract target
+        const vetoTc: Address[] = vetoTcRaw
+            ? (vetoTcRaw
+                .split(",")
+                .filter((a) => EVM_ADDR_RE.test(a.trim())) as Address[])
+            : [];
+
+        for (let tc = 0; tc < vetoTc.length; tc++) {
+            const vetoTcAddr = vetoTc[tc];
+            if (!vetoTcAddr) continue;
+            const vetoTcContract: ContractInfo = {
+                address: vetoTcAddr,
                 abi: ABI_CollateralToken,
                 name: "CollateralToken",
                 type: "",
-            });
-        }
+            };
+            contracts.CollateralTokenVeto!.push(vetoTcContract as ContractInfo);
+        }    
+
     }
 
     // ---- Registry-based contracts ----
