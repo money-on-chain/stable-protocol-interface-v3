@@ -121,6 +121,7 @@ export interface Settings {
     };
     showPriceVariation: boolean;
     tokens: SettingsTokens;
+    portfolio_table?: string[];
     exchange?: SettingsTokenMap;
     combinedOperations?: SettingsTokenMap;
     defaults?: {

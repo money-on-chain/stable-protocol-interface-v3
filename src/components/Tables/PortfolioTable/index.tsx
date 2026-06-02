@@ -4,16 +4,10 @@ import { Skeleton } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 
 import { useWalletContext } from "../../../context/Wallet";
-import {
-    ConvertAmount,
-    ConvertPeggedTokenPrice,
-} from "../../../helpers/currencies";
+import { ConvertAmount } from "../../../helpers/currencies";
 import { tokenMapBlacklist } from "../../../helpers/exchange";
 import { getPortfolioTokenUsdBalance } from "../../../helpers/portfolio";
-import {
-    mulPrecision,
-    normalizeToBigInt,
-} from "../../../helpers/precision";
+import { normalizeToBigInt } from "../../../helpers/precision";
 import { useProjectTranslation } from "../../../helpers/translations";
 import settings from "../../../settings";
 import type { Settings, TokenConfig } from "../../../types/hooks";
@@ -91,37 +85,57 @@ export default function PortfolioTable() {
     const createAllTheTokens = (settings: Settings): TokenConfig[] => {
         let uniqueKeyCounter = 0;
         const allTheTokens: TokenConfig[] = [];
-        const tfTokenNames = new Set<string>(); // Track TF token names
+        const seenNames = new Set<string>();
 
-        // Step 1: Collect all tokens
-        Object.entries(settings.tokens).forEach(([type, tokens]) => {
-            (tokens as TokenConfig[]).forEach(
-                (token: TokenConfig, index: number) => {
-                    // Remove duplicated token names
-                    if (!tfTokenNames.has(token.name)) {
-                        allTheTokens.push({
-                            uniqueKey: uniqueKeyCounter++,
-                            key: token.key !== undefined ? token.key : index, // Fallback if key is missing
-                            type,
-                            name: token.name,
-                            fullName: token.fullName || token.name, // Use name if fullName is missing
-                            decimals: token.decimals,
-                            visiblePriceDecimals: token.visiblePriceDecimals,
-                            visibleBalanceDecimals:
-                                token.visibleBalanceDecimals,
-                            visibleBalanceUSDDecimals:
-                                token.visibleBalanceUSDDecimals,
-                            peggedUSD:
-                                token.peggedUSD !== undefined
-                                    ? token.peggedUSD
-                                    : false, // Default to false
-                            collateralType: token.collateralType,
-                        });
-                        tfTokenNames.add(token.name);
+        const pushToken = (type: string, token: TokenConfig, resolvedKey: number) => {
+            if (seenNames.has(token.name)) return;
+            allTheTokens.push({
+                uniqueKey: uniqueKeyCounter++,
+                key: resolvedKey,
+                type,
+                name: token.name,
+                fullName: token.fullName || token.name,
+                decimals: token.decimals,
+                visiblePriceDecimals: token.visiblePriceDecimals,
+                visibleBalanceDecimals: token.visibleBalanceDecimals,
+                visibleBalanceUSDDecimals: token.visibleBalanceUSDDecimals,
+                peggedUSD: token.peggedUSD !== undefined ? token.peggedUSD : false,
+                collateralType: token.collateralType,
+            });
+            seenNames.add(token.name);
+        };
+
+        if (settings.portfolio_table) {
+            // portfolio_table drives both selection and order
+            for (const entry of settings.portfolio_table) {
+                const lastUnderscore = entry.lastIndexOf("_");
+                const suffix = lastUnderscore !== -1 ? entry.slice(lastUnderscore + 1) : "";
+                if (lastUnderscore !== -1 && /^\d+$/.test(suffix)) {
+                    // Entry like "CA_0" — pick the specific token by key
+                    const type = entry.slice(0, lastUnderscore);
+                    const key = parseInt(suffix, 10);
+                    const typeTokens = settings.tokens[type as keyof typeof settings.tokens] as TokenConfig[] | undefined;
+                    if (typeTokens) {
+                        const token = typeTokens.find((t, i) => (t.key !== undefined ? t.key : i) === key);
+                        if (token) pushToken(type, token, key);
+                    }
+                } else {
+                    // Entry like "COINBASE" or "TF" — include all tokens of this type in their defined order
+                    const typeTokens = settings.tokens[entry as keyof typeof settings.tokens] as TokenConfig[] | undefined;
+                    if (typeTokens) {
+                        typeTokens.forEach((token, i) => pushToken(entry, token, token.key !== undefined ? token.key : i));
                     }
                 }
-            );
-        });
+            }
+        } else {
+            // No portfolio_table — include all tokens in settings order
+            Object.entries(settings.tokens).forEach(([type, tokens]) => {
+                (tokens as TokenConfig[]).forEach((token, i) =>
+                    pushToken(type, token, token.key !== undefined ? token.key : i)
+                );
+            });
+        }
+
         return allTheTokens;
     };
 
@@ -136,202 +150,72 @@ export default function PortfolioTable() {
             );
             return;
         }
-        const newNonUSDpeggedTokenRows: TokenRow[] = []; // ✅ Store all updated rows
-        const newUSDpeggedTokenRows: TokenRow[] = []; // ✅ Store all updated rows
+        const newNonUSDpeggedTokenRows: TokenRow[] = [];
+        const newUSDpeggedTokenRows: TokenRow[] = [];
 
         allTheTokens.forEach((token: TokenConfig) => {
             if (tokenMapBlacklist.has(`${token.type}_${token.key}`)) return;
 
             let balance = 0n;
             let balanceLoaded = false;
-            let price = 0n;
-            let priceTEC = 0n;
-            let priceCA = 0n;
-            let balanceUSD = 0n;
             let tokenIcon = "";
-            
+
             switch (token.type) {
                 case "COINBASE":
-                    // CALCULATE COINBASE DATA
-                    tokenIcon = "icon-token-" + token.type.toLowerCase();
-
+                    tokenIcon = "icon-token-coinbase";
                     balance = BigInt(userBaseCoinBalance.balance || 0);
                     balanceLoaded = userBaseCoinBalance.balance != null;
-
-                    price =
-                        normalizeToBigInt(
-                            contractProtocolStatus.data.PP_COINBASE?.[0]
-                        ) ?? 0n;
-                    balanceUSD = getPortfolioTokenUsdBalance(
-                        contractProtocolStatus,
-                        token,
-                        balance
-                    );
-
                     break;
-                case "CA":
-                    // CALCULATE TOKENS CA DATA
-                    if (
-                        contractProtocolStatus.data &&
-                        userBalance.data &&
-                        token.collateralType &&
-                        token.collateralType !== "coinbase"
-                    ) {
-                        tokenIcon =
-                            "icon-token-" +
-                            token.type.toLowerCase() +
-                            "_" +
-                            token.key;
-
-                        // Convert balance to BigNumber with correct decimal precision
-                        const rawBalanceCA =
-                            userBalance.data?.CA?.[token.key || 0]?.balance;
-                        balanceLoaded = rawBalanceCA != null;
-                        balance = normalizeToBigInt(rawBalanceCA) || 0n;
-                        price =
-                            normalizeToBigInt(
-                                contractProtocolStatus.data?.[token.key || 0]
-                                    ?.PP_CA?.[0]
-                            ) ?? 0n;
-
-                        balanceUSD = getPortfolioTokenUsdBalance(
-                            contractProtocolStatus,
-                            token,
-                            balance
-                        );
-                    }
-
+                case "CA": {
+                    if (!token.collateralType || token.collateralType === "coinbase") break;
+                    tokenIcon = `icon-token-ca_${token.key}`;
+                    const rawBalanceCA = userBalance.data?.CA?.[token.key || 0]?.balance;
+                    balanceLoaded = rawBalanceCA != null;
+                    balance = normalizeToBigInt(rawBalanceCA) || 0n;
                     break;
-                case "TP":
-                    tokenIcon =
-                        "icon-token-" +
-                        token.type.toLowerCase() +
-                        "_" +
-                        token.key;
-
-                    if (token.peggedUSD) {
-                        // CALCULATE TOKENS TP USD-Pegged Tokens DATA
-
-                        const rawBalanceTPPegged =
-                            userBalance.data?.TP?.[0]?.[token.key || 0]
-                                ?.balance;
-                        balanceLoaded = rawBalanceTPPegged != null;
-                        balance = normalizeToBigInt(rawBalanceTPPegged) || 0n;
-
-                        price = 1n*10n**18n;
-                    } else {
-                        //CALCULATE TOKENS TP NON-USD-Pegged Tokens DATA
-                        const rawBalanceTP =
-                            userBalance.data?.TP?.[0]?.[token.key || 0]
-                                ?.balance;
-                        balanceLoaded = rawBalanceTP != null;
-                        balance = normalizeToBigInt(rawBalanceTP) || 0n;
-                        price =
-                            normalizeToBigInt(
-                                contractProtocolStatus.data[0]?.PP_TP?.[
-                                    token.key || 0
-                                ]?.[0]
-                            ) ?? 0n;
-
-                        price = ConvertPeggedTokenPrice(
-                            contractProtocolStatus,
-                            0,
-                            token.key || 0,
-                            price
-                        );
-                    }
-                    balanceUSD = getPortfolioTokenUsdBalance(
-                        contractProtocolStatus,
-                        token,
-                        balance
-                    );
+                }
+                case "TP": {
+                    tokenIcon = `icon-token-tp_${token.key}`;
+                    const rawBalanceTP = userBalance.data?.TP?.[0]?.[token.key || 0]?.balance;
+                    balanceLoaded = rawBalanceTP != null;
+                    balance = normalizeToBigInt(rawBalanceTP) || 0n;
                     break;
+                }
                 case "TC": {
-                    // CALCULATE TOKENS TC DATA
-                    tokenIcon =
-                        "icon-token-" +
-                        token.type.toLowerCase() +
-                        "_" +
-                        token.key;
-
-                    const rawBalanceTC =
-                        userBalance.data?.[token.key || 0]?.TC?.balance;
+                    tokenIcon = `icon-token-tc_${token.key}`;
+                    const rawBalanceTC = userBalance.data?.[token.key || 0]?.TC?.balance;
                     balanceLoaded = rawBalanceTC != null;
                     balance = normalizeToBigInt(rawBalanceTC) || 0n;
-
-                    priceTEC =
-                        normalizeToBigInt(
-                            contractProtocolStatus.data?.[token.key || 0]
-                                ?.getPTCac
-                        ) || 0n;
-                    priceCA =
-                        normalizeToBigInt(
-                            contractProtocolStatus.data?.[token.key || 0]
-                                ?.PP_CA?.[0]
-                        ) ?? 0n;
-                    price = mulPrecision(priceTEC, priceCA);
-                    balanceUSD = getPortfolioTokenUsdBalance(
-                        contractProtocolStatus,
-                        token,
-                        balance
-                    );
-
                     break;
                 }
                 case "TF": {
-                    // CALCULATE TOKENS TF DATA
-
-                    tokenIcon = "icon-token-" + token.type.toLowerCase();
-                    const rawBalanceTF =
-                        userBalance.data[token.key || 0]?.FeeToken?.balance;
+                    tokenIcon = "icon-token-tf";
+                    const rawBalanceTF = userBalance.data[token.key || 0]?.FeeToken?.balance;
                     balanceLoaded = rawBalanceTF != null;
                     balance = normalizeToBigInt(rawBalanceTF) || 0n;
-
-                    // RAW price for balance and variation calculation
-                    price =
-                        normalizeToBigInt(
-                            contractProtocolStatus.data[0]?.PP_FeeToken?.[0]
-                        ) ?? 0n;
-
-                    priceCA =
-                        normalizeToBigInt(
-                            contractProtocolStatus.data[token.key || 0]
-                                ?.PP_CA?.[0]
-                        ) ?? 0n;
-                    balanceUSD = getPortfolioTokenUsdBalance(
-                        contractProtocolStatus,
-                        token,
-                        balance
-                    );
-
-                    // Now that balance and variation is calculated, is multiplied for priceCA for price final value
-                    price = ConvertAmount(
-                        contractProtocolStatus,
-                        "TF",
-                        "USD",
-                        price,
-                        token.key || 0
-                    );
-
                     break;
                 }
-                case "TG":
-                    // console.log(`Processing ${token.name} (TG)`);
-                    // CALCULATE TOKENS TG DATA
-
-                    break;
                 default:
-                    // console.log(`Unknown token type for ${token.name}`);
                     break;
             }
-            // const label = token.fullName || token.name;
-            const tokenName = token.fullName || token.name;
-            const tokenTicker = token.name;
 
-            // Create a copy of label for this specific token
+            const tokenKey = token.key || 0;
+            const tokenId = `${token.type}_${tokenKey}`;
+
+            let price: bigint;
+            if (token.type === "TP" && token.peggedUSD) {
+                price = 10n ** 18n;
+            } else if (token.type === "TP") {
+                // non-pegged TP: display tokens-per-USD
+                price = ConvertAmount(contractProtocolStatus, "USD", tokenId, 10n ** 18n, 0);
+            } else {
+                price = ConvertAmount(contractProtocolStatus, tokenId, "USD", 10n ** 18n, tokenKey);
+            }
+
+            const balanceUSD = getPortfolioTokenUsdBalance(contractProtocolStatus, token, balance);
+
             const tokenLabel = { ...label };
-            if (token.type === "TP" && token.peggedUSD === false) {
-                // Change Price in USD for Tokens per USD for !peggedUSD pegged tokens.
+            if (token.type === "TP" && !token.peggedUSD) {
                 tokenLabel.price = tFunc("portfolio.tokensTable.tokensPerUSD");
             }
 
@@ -339,8 +223,8 @@ export default function PortfolioTable() {
                 key: token.uniqueKey || 0,
                 label: tokenLabel,
                 tokenIcon,
-                tokenName,
-                tokenTicker,
+                tokenName: token.fullName || token.name,
+                tokenTicker: token.name,
                 price,
                 balance,
                 balanceLoaded,
@@ -353,16 +237,15 @@ export default function PortfolioTable() {
             });
 
             if (token.collateralType !== "coinbase") {
-                // Skip coinbase token when collateral is coinbase
-                if (token.type === "TP" && token.peggedUSD === false) {
-                    newNonUSDpeggedTokenRows.push(tokenRow); // ✅ Store updated token Rows for nonUSDpegged
+                if (token.type === "TP" && !token.peggedUSD) {
+                    newNonUSDpeggedTokenRows.push(tokenRow);
                 } else {
-                    newUSDpeggedTokenRows.push(tokenRow); // ✅ Store updated token Rows for USDpegged
+                    newUSDpeggedTokenRows.push(tokenRow);
                 }
             }
         });
-        setUsdPriceTokensData(newUSDpeggedTokenRows); // ✅ Overwrite the state instead of appending
-        setNonUSDPriceTokensData(newNonUSDpeggedTokenRows); // ✅ Overwrite the state instead of appending
+        setUsdPriceTokensData(newUSDpeggedTokenRows);
+        setNonUSDPriceTokensData(newNonUSDpeggedTokenRows);
     };
 
     useEffect(() => {
