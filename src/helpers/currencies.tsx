@@ -1,13 +1,5 @@
 import React from "react";
 
-import LogoIconCA_0 from "../assets/tokens/ca_0.svg?react";
-import LogoIconCA_1 from "../assets/tokens/ca_1.svg?react";
-import LogoIconCOINBASE from "../assets/tokens/coinbase.svg?react";
-import LogoIconTC_0 from "../assets/tokens/tc_0.svg?react";
-import LogoIconTC_1 from "../assets/tokens/tc_1.svg?react";
-import LogoIconTG_0 from "../assets/tokens/tg_0.svg?react";
-import LogoIconTP_0 from "../assets/tokens/tp_0.svg?react";
-import LogoIconTP_1 from "../assets/tokens/tp_1.svg?react";
 import settings from "../settings";
 import type { TokenConfig } from "../types/hooks";
 import type {
@@ -24,6 +16,21 @@ import {
     wadDiv,
     wadMul,
 } from "./precision";
+
+type SvgComponent = React.ComponentType<React.SVGProps<SVGSVGElement>>;
+
+// Eagerly load all token SVGs at build time; looked up by token name at runtime.
+const tokenSvgModules = import.meta.glob<SvgComponent>(
+    "../assets/tokens/*.svg",
+    { eager: true, query: "?react", import: "default" }
+);
+
+function getTokenIcon(tokenName: string): React.ReactElement {
+    const key = `../assets/tokens/${tokenName}.svg`;
+    const Icon = (tokenSvgModules[key] ??
+        tokenSvgModules["../assets/tokens/tx.svg"]) as SvgComponent | undefined;
+    return Icon ? <Icon className="token__icon" /> : <></>;
+}
 
 interface Currency {
     value: string;
@@ -43,22 +50,34 @@ interface FeeInfo {
     feeTokenPercent: bigint;
 }
 
-const currencies: Currency[] = [
-    {
-        value: "COINBASE",
-        image: <LogoIconCOINBASE className="token__icon" />,
-    },
-    { value: "CA_0", image: <LogoIconCA_0 className="token__icon" /> },
-    { value: "CA_1", image: <LogoIconCA_1 className="token__icon" /> },
-    { value: "TC_0", image: <LogoIconTC_0 className="token__icon" /> },
-    { value: "TC_1", image: <LogoIconTC_1 className="token__icon" /> },
-    { value: "TP_0", image: <LogoIconTP_0 className="token__icon" /> },
-    { value: "TP_1", image: <LogoIconTP_1 className="token__icon" /> },
-    { value: "TF", image: <LogoIconTG_0 className="token__icon" /> },
-    { value: "TG", image: <LogoIconTG_0 className="token__icon" /> },
-].map((it) => ({
-    ...it,
-}));
+const buildCurrencies = (): Currency[] => {
+    const entries: Currency[] = [];
+    const seenNames = new Set<string>();
+
+    settings.tokens.COINBASE?.forEach(t =>
+        entries.push({ value: "COINBASE", image: getTokenIcon(t.name) })
+    );
+
+    (["CA", "TC", "TP"] as const).forEach(type =>
+        settings.tokens[type]?.forEach((t, i) =>
+            entries.push({ value: `${type}_${t.key ?? i}`, image: getTokenIcon(t.name) })
+        )
+    );
+
+    // TF and TG: deduplicate by token name (same token can appear under multiple keys)
+    (["TF", "TG"] as const).forEach(type =>
+        settings.tokens[type]?.forEach(t => {
+            if (!seenNames.has(t.name)) {
+                seenNames.add(t.name);
+                entries.push({ value: type, image: getTokenIcon(t.name) });
+            }
+        })
+    );
+
+    return entries;
+};
+
+const currencies: Currency[] = buildCurrencies();
 
 const getCurrenciesDetail = (): Currency[] => currencies;
 

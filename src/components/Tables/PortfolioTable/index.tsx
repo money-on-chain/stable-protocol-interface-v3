@@ -158,38 +158,32 @@ export default function PortfolioTable() {
 
             let balance = 0n;
             let balanceLoaded = false;
-            let tokenIcon = "";
 
             switch (token.type) {
                 case "COINBASE":
-                    tokenIcon = "icon-token-coinbase";
                     balance = BigInt(userBaseCoinBalance.balance || 0);
                     balanceLoaded = userBaseCoinBalance.balance != null;
                     break;
                 case "CA": {
                     if (!token.collateralType || token.collateralType === "coinbase") break;
-                    tokenIcon = `icon-token-ca_${token.key}`;
                     const rawBalanceCA = userBalance.data?.CA?.[token.key || 0]?.balance;
                     balanceLoaded = rawBalanceCA != null;
                     balance = normalizeToBigInt(rawBalanceCA) || 0n;
                     break;
                 }
                 case "TP": {
-                    tokenIcon = `icon-token-tp_${token.key}`;
                     const rawBalanceTP = userBalance.data?.TP?.[0]?.[token.key || 0]?.balance;
                     balanceLoaded = rawBalanceTP != null;
                     balance = normalizeToBigInt(rawBalanceTP) || 0n;
                     break;
                 }
                 case "TC": {
-                    tokenIcon = `icon-token-tc_${token.key}`;
                     const rawBalanceTC = userBalance.data?.[token.key || 0]?.TC?.balance;
                     balanceLoaded = rawBalanceTC != null;
                     balance = normalizeToBigInt(rawBalanceTC) || 0n;
                     break;
                 }
                 case "TF": {
-                    tokenIcon = "icon-token-tf";
                     const rawBalanceTF = userBalance.data[token.key || 0]?.FeeToken?.balance;
                     balanceLoaded = rawBalanceTF != null;
                     balance = normalizeToBigInt(rawBalanceTF) || 0n;
@@ -198,6 +192,8 @@ export default function PortfolioTable() {
                 default:
                     break;
             }
+
+            const tokenIcon = `icon-token-${token.name}`;
 
             const tokenKey = token.key || 0;
             const tokenId = `${token.type}_${tokenKey}`;

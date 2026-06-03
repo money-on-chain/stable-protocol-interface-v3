@@ -1,0 +1,25 @@
+@mixin token-icon($filename) {
+    width: var(--icon-token-size);
+    height: var(--icon-token-size);
+    background-image: url("../tokens/#{$filename}.svg");
+    background-size: var(--icon-token-size) var(--icon-token-size);
+    background-repeat: no-repeat;
+}
+
+// Fallback
+.icon-token-tx      { @include token-icon("tx"); }
+
+// Token icons by name (all tokens from global.json)
+.icon-token-RBTC    { @include token-icon("RBTC"); }
+.icon-token-BPRO    { @include token-icon("BPRO"); }
+.icon-token-DOC     { @include token-icon("DOC"); }
+.icon-token-BPROX   { @include token-icon("BPROX"); }
+.icon-token-DOCX    { @include token-icon("DOCX"); }
+.icon-token-MOC     { @include token-icon("MOC"); }
+.icon-token-ROCR    { @include token-icon("ROCR"); }
+.icon-token-RIF     { @include token-icon("RIF"); }
+.icon-token-USDRIF  { @include token-icon("USDRIF"); }
+.icon-token-RIFP    { @include token-icon("RIFP"); }
+.icon-token-ARSFLIP { @include token-icon("ARSFLIP"); }
+.icon-token-COPFLIP { @include token-icon("COPFLIP"); }
+.icon-token-FLIP    { @include token-icon("FLIP"); }
