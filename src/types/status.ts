@@ -13,6 +13,8 @@ export type UserBalance = {
     CA: TokenBalance[];
     TP: TokenBalance[][];
     tpLegacy?: TokenBalance;
+    // Custom tokens keyed by pair name (e.g. "MOC/USD")
+    CUSTOM?: Record<string, TokenBalance>;
 };
 export type UserBalanceResult = Omit<UseStorageResult<unknown>, "data"> & {
     data: UserBalance;

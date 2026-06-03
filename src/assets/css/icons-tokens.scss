@@ -9,17 +9,22 @@
 // Fallback
 .icon-token-tx      { @include token-icon("tx"); }
 
-// Token icons by name (all tokens from global.json)
+// Token icons by name
 .icon-token-RBTC    { @include token-icon("RBTC"); }
 .icon-token-BPRO    { @include token-icon("BPRO"); }
 .icon-token-DOC     { @include token-icon("DOC"); }
 .icon-token-BPROX   { @include token-icon("BPROX"); }
 .icon-token-DOCX    { @include token-icon("DOCX"); }
-.icon-token-MOC     { @include token-icon("MOC"); }
-.icon-token-ROCR    { @include token-icon("ROCR"); }
-.icon-token-RIF     { @include token-icon("RIF"); }
-.icon-token-USDRIF  { @include token-icon("USDRIF"); }
-.icon-token-RIFP    { @include token-icon("RIFP"); }
 .icon-token-ARSFLIP { @include token-icon("ARSFLIP"); }
 .icon-token-COPFLIP { @include token-icon("COPFLIP"); }
 .icon-token-FLIP    { @include token-icon("FLIP"); }
+
+// Legacy type-based aliases (used by Performance and GlobalStatus components)
+.icon-token-coinbase { @include token-icon("RBTC"); }
+.icon-token-ca_0    { @include token-icon("BPRO"); }
+.icon-token-ca_1    { @include token-icon("DOC"); }
+.icon-token-tc_0    { @include token-icon("BPROX"); }
+.icon-token-tc_1    { @include token-icon("DOCX"); }
+.icon-token-tp_0    { @include token-icon("ARSFLIP"); }
+.icon-token-tp_1    { @include token-icon("COPFLIP"); }
+.icon-token-tf      { @include token-icon("FLIP"); }

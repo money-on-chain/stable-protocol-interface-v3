@@ -41,6 +41,13 @@ export type DContracts = {
     // Pair matrix (CA x TP) of price providers
     PP_TP?: Record<number, ContractInfo[]>;
 
+    // Custom price providers (from REACT_APP_CONTRACT_PRICE_PROVIDER_CUSTOM)
+    // Each ContractInfo.name holds the pair label, e.g. "MOC/USD"
+    PP_CUSTOM?: ContractInfo[];
+    // ERC-20 token contracts for custom PP tokens (third field in the env var)
+    // Each ContractInfo.name holds the same pair label as the matching PP_CUSTOM entry
+    CUSTOM_TOKENS?: ContractInfo[];
+
     // Extras contracts
     tp_legacy?: ContractInfo;
     token_migrator?: ContractInfo;

@@ -177,6 +177,30 @@ export function useUserBalance(
             }
         }
 
+        // ---- Custom tokens (from REACT_APP_CONTRACT_PRICE_PROVIDER_CUSTOM) ----
+        if (contracts.CUSTOM_TOKENS?.length) {
+            const spender = contracts.Moc?.[0]?.address;
+            for (const token of contracts.CUSTOM_TOKENS) {
+                const pair = token.name!;
+                calls.push({
+                    contract: token,
+                    functionName: "balanceOf",
+                    args: [userAddress],
+                    resultType: "uint256",
+                    keys: ["CUSTOM", pair, "balance"],
+                });
+                if (spender) {
+                    calls.push({
+                        contract: token,
+                        functionName: "allowance",
+                        args: [userAddress, spender],
+                        resultType: "uint256",
+                        keys: ["CUSTOM", pair, "allowance"],
+                    });
+                }
+            }
+        }
+
         // ---- Token migrator (tp_legacy + token_migrator) ----
         if (contracts.tp_legacy && contracts.token_migrator) {
             const tpLegacy = contracts.tp_legacy;

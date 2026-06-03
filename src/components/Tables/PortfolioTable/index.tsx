@@ -9,9 +9,12 @@ import { tokenMapBlacklist } from "../../../helpers/exchange";
 import { getPortfolioTokenUsdBalance } from "../../../helpers/portfolio";
 import { normalizeToBigInt } from "../../../helpers/precision";
 import { useProjectTranslation } from "../../../helpers/translations";
+import globalData from "../../../settings/global.json";
 import settings from "../../../settings";
 import type { Settings, TokenConfig } from "../../../types/hooks";
 import { generateTokenRow } from "./renderHelpers";
+
+const globalTokens = globalData.tokens as Record<string, TokenConfig>;
 
 // Type definitions
 
@@ -40,7 +43,7 @@ const serializeWithBigInt = (obj: unknown): string => {
 
 export default function PortfolioTable() {
     const { t, i18n } = useProjectTranslation();
-    const { contractProtocolStatus, userBalance, userBaseCoinBalance } =
+    const { contractProtocolStatus, userBalance, userBaseCoinBalance, priceProvider } =
         useWalletContext();
     const [ready, setReady] = useState<boolean>(false);
 
@@ -124,6 +127,10 @@ export default function PortfolioTable() {
                     const typeTokens = settings.tokens[entry as keyof typeof settings.tokens] as TokenConfig[] | undefined;
                     if (typeTokens) {
                         typeTokens.forEach((token, i) => pushToken(entry, token, token.key !== undefined ? token.key : i));
+                    } else {
+                        // Entry is a token name (e.g. "MOC") — look it up in global.json as a CUSTOM token
+                        const globalToken = globalTokens[entry];
+                        if (globalToken) pushToken("CUSTOM", globalToken, 0);
                     }
                 }
             }
@@ -189,6 +196,13 @@ export default function PortfolioTable() {
                     balance = normalizeToBigInt(rawBalanceTF) || 0n;
                     break;
                 }
+                case "CUSTOM": {
+                    const pair = `${token.name}/USD`;
+                    const rawBalanceCustom = userBalance.data?.CUSTOM?.[pair]?.balance;
+                    balanceLoaded = rawBalanceCustom != null;
+                    balance = normalizeToBigInt(rawBalanceCustom) ?? 0n;
+                    break;
+                }
                 default:
                     break;
             }
@@ -199,17 +213,24 @@ export default function PortfolioTable() {
             const tokenId = `${token.type}_${tokenKey}`;
 
             let price: bigint;
-            if (token.type === "TP" && token.peggedUSD) {
+            let balanceUSD: bigint;
+            if (token.type === "CUSTOM") {
+                const pair = `${token.name}/USD`;
+                price = priceProvider.data?.[pair]?.[0] ?? 0n;
+                balanceUSD = price > 0n ? (balance * price) / 10n ** 18n : 0n;
+            } else if (token.type === "TP" && token.peggedUSD) {
                 price = 10n ** 18n;
+                balanceUSD = getPortfolioTokenUsdBalance(contractProtocolStatus, token, balance);
             } else if (token.type === "TP") {
                 // non-pegged TP: display tokens-per-USD
                 price = ConvertAmount(contractProtocolStatus, "USD", tokenId, 10n ** 18n, 0);
+                balanceUSD = getPortfolioTokenUsdBalance(contractProtocolStatus, token, balance);
             } else {
                 price = ConvertAmount(contractProtocolStatus, tokenId, "USD", 10n ** 18n, tokenKey);
+                balanceUSD = getPortfolioTokenUsdBalance(contractProtocolStatus, token, balance);
             }
 
-            const balanceUSD = getPortfolioTokenUsdBalance(contractProtocolStatus, token, balance);
-
+            // CUSTOM tokens always render as USD-priced rows (no non-USD section)
             const tokenLabel = { ...label };
             if (token.type === "TP" && !token.peggedUSD) {
                 tokenLabel.price = tFunc("portfolio.tokensTable.tokensPerUSD");
@@ -290,6 +311,7 @@ export default function PortfolioTable() {
         ready,
         contractProtocolStatus.data,
         userBalance.data,
+        priceProvider.data,
         i18n.language,
         t,
     ]);
