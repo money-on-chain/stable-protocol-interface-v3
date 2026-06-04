@@ -8,7 +8,7 @@ import settings from "../../settings/settings.json";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 
 export default function MultiCollateral(): JSX.Element {
-    const { i18n } = useProjectTranslation();
+    const { t, i18n } = useProjectTranslation();
     const { contractProtocolStatus } = useWalletContext();
 
     let leverage = 0n;
@@ -84,7 +84,7 @@ export default function MultiCollateral(): JSX.Element {
     return (
         <div className="layout-card section__innerCard--big perfGlobalMetrics">
             <div className="layout-card-title">
-                <h1>Global Metrics</h1>
+                <h1>{t("performance.metrics.globalCardTitle")}</h1>
             </div>
 
             <div className="metrics">
@@ -108,7 +108,9 @@ export default function MultiCollateral(): JSX.Element {
                                   })
                                 : "--"}
                         </div>
-                        <div className="label">Coverage</div>
+                        <div className="label">
+                            {t("performance.metrics.currentCoverage")}
+                        </div>
                     </div>
                 </div>
                 <div
@@ -131,7 +133,9 @@ export default function MultiCollateral(): JSX.Element {
                                   })
                                 : "--"}
                         </div>
-                        <div className="label">Target Coverage Adjusted</div>
+                        <div className="label">
+                            {t("performance.metrics.targetCoverage")}
+                        </div>
                     </div>
                 </div>
                 <div
@@ -153,7 +157,9 @@ export default function MultiCollateral(): JSX.Element {
                                   })
                                 : "--"}
                         </div>
-                        <div className="label">Leverage</div>
+                        <div className="label">
+                            {t("performance.metrics.leverage")}
+                        </div>
                     </div>
                 </div>
                 {tpMintableTotals.map(({ token, total }) => (
@@ -180,7 +186,9 @@ export default function MultiCollateral(): JSX.Element {
                                     : "--"}
                             </div>
                             <div className="label">
-                                {token.name} Mintable
+                                {t("performance.metrics.tpMintable", {
+                                    ticker: token.name,
+                                })}
                             </div>
                         </div>
                     </div>

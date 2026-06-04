@@ -494,6 +494,14 @@ icons.css contains all the css code for Icons across the Dapp
     width: 24px;
     height: 24px;
 }
+.icon__TotalUsd {
+    background-image: url("../icons/Total.svg");
+    filter: var(--color-icon-link-secondary-filter);
+    background-size: 24px 24px;
+    background-repeat: no-repeat;
+    width: 24px;
+    height: 24px;
+}
 .icon__status__good {
     background-image: url("../icons/Total.svg");
     filter: var(--color-icon-link-secondary-filter);

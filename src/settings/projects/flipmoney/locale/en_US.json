@@ -290,6 +290,16 @@
             "cardTitle": "Total Value Locked",
             "expressedIn": "Expressed in USD"
         },
+        "metrics": {
+            "globalCardTitle": "Global Metrics",
+            "tvlInCollateral": "TVL in {{ticker}}",
+            "tvlInUsd": "TVL in USD",
+            "currentCoverage": "Current Coverage",
+            "targetCoverage": "Target Coverage",
+            "leverage": "Leverage",
+            "lockedCollateral": "Locked Collateral",
+            "tpMintable": "{{ticker}} Mintable"
+        },
 
         "tc": {
             "priceIn": "Price in USD",
@@ -307,6 +317,7 @@
         "pegged": {
             "cardTitle": "Pegged-Tokens Performance",
             "colName": "Name",
+            "colPriceIn": "Price in {{ticker}}",
             "colTokensPer": "Tokens per USD",
             "colMinted": "Minted",
             "colMintable": "Mintable",

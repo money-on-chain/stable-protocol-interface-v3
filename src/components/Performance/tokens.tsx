@@ -1,8 +1,11 @@
 import React from "react";
 
 import { useWalletContext } from "../../context/Wallet";
-import { ConvertPeggedTokenPrice } from "../../helpers/currencies";
-import { mulPrecision, normalizeToBigInt } from "../../helpers/precision";
+import {
+    ConvertPeggedTokenPrice,
+    TokenSettings,
+} from "../../helpers/currencies";
+import { normalizeToBigInt } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings/settings.json";
 import type { TokenConfig } from "../../types/hooks";
@@ -36,6 +39,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
     const noLimitLabel = t("numberFormat.noLimit", {
         defaultValue: "No limit",
     });
+    const collateralTicker = settings.tokens.CA[caIndex]?.name ?? "";
 
     const {
         visiblePriceDecimals: defaultVisiblePriceDecimals,
@@ -50,7 +54,9 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
         },
         {
             key: "price",
-            title: "Price",
+            title: t("performance.pegged.colPriceIn", {
+                ticker: collateralTicker,
+            }),
         },
         {
             key: "ema",
@@ -82,6 +88,26 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
         </tr>
     );
 
+    const renderPriceInCollateral = (
+        amount: bigint,
+        decimals: number
+    ): React.ReactNode =>
+        !amount ? (
+            "--"
+        ) : (
+            <>
+                {PrecisionNumbers({
+                    amount,
+                    token: TokenSettings(`CA_${caIndex}`),
+                    decimals,
+                    i18n,
+                    compact: true,
+                })}
+                {" "}
+                {collateralTicker}
+            </>
+        );
+
     if (
         contractProtocolStatus.data &&
         contractProtocolStatus.data[caIndex] &&
@@ -91,11 +117,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
         const priceTEC =
             normalizeToBigInt(contractProtocolStatus.data[caIndex].getPTCac) ??
             0n;
-        const priceCA =
-            normalizeToBigInt(
-                contractProtocolStatus.data[caIndex].PP_CA?.[0]
-            ) ?? 0n;
-        const price = mulPrecision(priceTEC, priceCA);
+        const price = priceTEC;
 
         tokensData.push({
             name: (
@@ -109,17 +131,11 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                     </span>
                 </div>
             ),
-            price: !price
-                ? "--"
-                : PrecisionNumbers({
-                      amount: price,
-                      token: settings.tokens.TC[caIndex],
-                      decimals:
-                          settings.tokens.TC[caIndex]?.visiblePriceDecimals ??
-                          defaultVisiblePriceDecimals,
-                      i18n,
-                      compact: true,
-                  }),
+            price: renderPriceInCollateral(
+                price,
+                settings.tokens.TC[caIndex]?.visiblePriceDecimals ??
+                    defaultVisiblePriceDecimals
+            ),
             ema: "--",
             minted: !contractProtocolStatus.data[caIndex]?.nTCcb
                 ? "--"
@@ -175,9 +191,6 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                 price,
                 true
             );
-
-            if (dataItem.peggedUSD) price = 1n * 10n ** 18n; // 1 USD
-
             let tpAvailableToMint =
                 contractProtocolStatus.data[caIndex].getRealTPAvailableToMint?.[
                     dataItem.key
@@ -211,28 +224,16 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                         </span>
                     </div>
                 ),
-                price: !price
-                    ? "--"
-                    : PrecisionNumbers({
-                          amount: price,
-                          token: settings.tokens.TP[dataItem.key],
-                          decimals:
-                              settings.tokens.TP[dataItem.key]
-                                  .visiblePriceDecimals,
-                          i18n,
-                          compact: true,
-                      }),
+                price: renderPriceInCollateral(
+                    price,
+                    settings.tokens.TP[dataItem.key].visiblePriceDecimals
+                ),
                 ema: !tpEMARaw?.[0]
                     ? "--"
-                    : PrecisionNumbers({
-                          amount: tpEMA,
-                          token: settings.tokens.TP[dataItem.key],
-                          decimals:
-                              settings.tokens.TP[dataItem.key]
-                                  .visiblePriceDecimals,
-                          i18n,
-                          compact: true,
-                      }),
+                    : renderPriceInCollateral(
+                          tpEMA,
+                          settings.tokens.TP[dataItem.key].visiblePriceDecimals
+                      ),
                 minted: !contractProtocolStatus.data[caIndex]?.pegContainer?.[
                     dataItem.key
                 ]?.[0]

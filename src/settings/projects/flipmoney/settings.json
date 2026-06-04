@@ -20,6 +20,18 @@
             "blacklist": []
         }
     },
+    "tokenPriceStrip": {
+        "tokens": [
+            "COINBASE",
+            "CA_0",
+            "CA_1",
+            "TC_0",
+            "TC_1",
+            "TP_0",
+            "TP_1",
+            "TG_0"
+        ]
+    },
     "defaults": {
         "tokens": {
             "name": "TICKER",

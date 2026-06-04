@@ -2,7 +2,11 @@ import React from "react";
 
 import { useWalletContext } from "../../context/Wallet";
 import { TokenSettings } from "../../helpers/currencies";
-import { divPrecision, normalizeToBigInt } from "../../helpers/precision";
+import {
+    divPrecision,
+    mulPrecision,
+    normalizeToBigInt,
+} from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings/settings.json";
 import type { TokenConfig } from "../../types/hooks";
@@ -19,10 +23,24 @@ export default function Buckets(props: BucketsProps): JSX.Element {
     const { t, i18n, ns } = useProjectTranslation();
     const { contractProtocolStatus } = useWalletContext();
     const space = "\u00A0";
+    const collateralTicker = settings.tokens.CA[caIndex]?.name ?? "";
 
     let lckAC: bigint = 0n;
     let nACcb: bigint = 0n;
     let leverage: bigint = 0n;
+    let tvlUsd: bigint = 0n;
+
+    const acBalance =
+        normalizeToBigInt(
+            contractProtocolStatus.data?.[caIndex]?.getACBalance
+        ) ?? 0n;
+    const priceCA =
+        normalizeToBigInt(contractProtocolStatus.data?.[caIndex]?.PP_CA?.[0]) ??
+        0n;
+
+    if (acBalance !== 0n && priceCA !== 0n) {
+        tvlUsd = mulPrecision(acBalance, priceCA);
+    }
 
     if (
         contractProtocolStatus.data &&
@@ -53,7 +71,8 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                     {t(`exchange.tokens.CA_${caIndex}.label`, {
                         ns: ns,
                     })}
-                    {space} Collateral
+                    {space}
+                    {t("performance.collateral.cardTitle")}
                 </h1>
             </div>
             {/* </div> */}
@@ -68,15 +87,9 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                     </div>
                     <div className="info">
                         <div className="amount">
-                            {contractProtocolStatus.data?.[caIndex]
-                                ?.getACBalance
+                            {acBalance !== 0n
                                 ? PrecisionNumbers({
-                                      amount:
-                                          normalizeToBigInt(
-                                              contractProtocolStatus.data[
-                                                  caIndex
-                                              ].getACBalance
-                                          ) ?? 0n,
+                                      amount: acBalance,
                                       token: TokenSettings(`CA_${caIndex}`),
                                       decimals:
                                           (settings.tokens.CA as TokenConfig[])[
@@ -87,7 +100,35 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                   })
                                 : "--"}
                         </div>
-                        <div className="label">Amount in protocol</div>
+                        <div className="label">
+                            {t("performance.metrics.tvlInCollateral", {
+                                ticker: collateralTicker,
+                            })}
+                        </div>
+                    </div>
+                </div>
+                <div
+                    data-testid={`performance-bucket-${caIndex}-group-tvl-usd`}
+                    className="dataGroup"
+                >
+                    <div className="icon__back">
+                        <div className="icon icon__TotalUsd"></div>
+                    </div>
+                    <div className="info">
+                        <div className="amount">
+                            {tvlUsd !== 0n
+                                ? PrecisionNumbers({
+                                      amount: tvlUsd,
+                                      token: settings.tokens.COINBASE[0],
+                                      decimals: 2,
+                                      i18n: i18n,
+                                      compact: true,
+                                  })
+                                : "--"}
+                        </div>
+                        <div className="label">
+                            {t("performance.metrics.tvlInUsd")}
+                        </div>
                     </div>
                 </div>
                 <div
@@ -114,7 +155,9 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                   })
                                 : "--"}
                         </div>
-                        <div className="label">Coverage</div>
+                        <div className="label">
+                            {t("performance.metrics.currentCoverage")}
+                        </div>
                     </div>
                 </div>
                 <div
@@ -142,7 +185,9 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                   })
                                 : "--"}
                         </div>
-                        <div className="label">Target Coverage Adjusted</div>
+                        <div className="label">
+                            {t("performance.metrics.targetCoverage")}
+                        </div>
                     </div>
                 </div>
                 <div
@@ -164,10 +209,12 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                   })
                                 : "--"}
                         </div>
-                        <div className="label">Leverage</div>
+                        <div className="label">
+                            {t("performance.metrics.leverage")}
+                        </div>
                     </div>
                 </div>
-                <div
+                {/* <div
                     data-testid={`performance-bucket-${caIndex}-group-locked-collateral`}
                     className="dataGroup"
                 >
@@ -189,9 +236,11 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                   })
                                 : "--"}
                         </div>
-                        <div className="label">Locked Collateral</div>
+                        <div className="label">
+                            {t("performance.metrics.lockedCollateral")}
+                        </div>
                     </div>
-                </div>
+                </div> */}
             </div>
             {/* </div> */}
 
