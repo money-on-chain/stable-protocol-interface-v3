@@ -37,6 +37,10 @@ export default function Buckets(props: BucketsProps): JSX.Element {
     const priceCA =
         normalizeToBigInt(contractProtocolStatus.data?.[caIndex]?.PP_CA?.[0]) ??
         0n;
+    const bucketEma =
+        normalizeToBigInt(
+            contractProtocolStatus.data?.[caIndex]?.getCtargemaCA
+        ) ?? 0n;
 
     if (acBalance !== 0n && priceCA !== 0n) {
         tvlUsd = mulPrecision(acBalance, priceCA);
@@ -169,15 +173,9 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                     </div>
                     <div className="info">
                         <div className="amount">
-                            {contractProtocolStatus.data?.[caIndex]
-                                ?.getCtargemaCA
+                            {bucketEma !== 0n
                                 ? PrecisionNumbers({
-                                      amount:
-                                          normalizeToBigInt(
-                                              contractProtocolStatus.data[
-                                                  caIndex
-                                              ].getCtargemaCA
-                                          ) ?? 0n,
+                                      amount: bucketEma,
                                       token: TokenSettings(`CA_${caIndex}`),
                                       decimals: 4,
                                       i18n: i18n,
@@ -187,6 +185,30 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                         </div>
                         <div className="label">
                             {t("performance.metrics.targetCoverage")}
+                        </div>
+                    </div>
+                </div>
+                <div
+                    data-testid={`performance-bucket-${caIndex}-group-ema`}
+                    className="dataGroup"
+                >
+                    <div className="icon__back">
+                        <div className="icon icon__Ema"></div>
+                    </div>
+                    <div className="info">
+                        <div className="amount">
+                            {bucketEma !== 0n
+                                ? PrecisionNumbers({
+                                      amount: bucketEma,
+                                      token: TokenSettings(`CA_${caIndex}`),
+                                      decimals: 4,
+                                      i18n: i18n,
+                                      compact: true,
+                                  })
+                                : "--"}
+                        </div>
+                        <div className="label">
+                            {t("performance.metrics.ema")}
                         </div>
                     </div>
                 </div>

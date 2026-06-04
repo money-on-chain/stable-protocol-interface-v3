@@ -272,7 +272,8 @@
             "targetCoverage": "Cobertura Objetivo",
             "leverage": "Apalancamiento",
             "lockedCollateral": "Colateral Bloqueado",
-            "tpMintable": "{{ticker}} Minteable"
+            "tpMintable": "{{ticker}} Minteable",
+            "ema": "EMA"
         },
 
         "tc": {

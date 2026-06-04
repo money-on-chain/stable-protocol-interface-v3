@@ -486,6 +486,14 @@ icons.css contains all the css code for Icons across the Dapp
     width: 24px;
     height: 24px;
 }
+.icon__Ema {
+    background-image: url("../icons/GlobalMetrics_EMA.svg");
+    filter: var(--color-icon-link-secondary-filter);
+    background-size: 24px 24px;
+    background-repeat: no-repeat;
+    width: 24px;
+    height: 24px;
+}
 .icon__Total {
     background-image: url("../icons/Total.svg");
     filter: var(--color-icon-link-secondary-filter);
@@ -495,7 +503,7 @@ icons.css contains all the css code for Icons across the Dapp
     height: 24px;
 }
 .icon__TotalUsd {
-    background-image: url("../icons/Total.svg");
+    background-image: url("../icons/GlobalMetrics_TotalUSD.svg");
     filter: var(--color-icon-link-secondary-filter);
     background-size: 24px 24px;
     background-repeat: no-repeat;

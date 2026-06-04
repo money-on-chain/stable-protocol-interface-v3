@@ -24,7 +24,6 @@ interface Column {
 interface TokenData {
     name: JSX.Element;
     price: React.ReactNode;
-    ema: string | React.ReactNode;
     minted: React.ReactNode;
     mintable: string | React.ReactNode;
     redeemable: React.ReactNode;
@@ -57,10 +56,6 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
             title: t("performance.pegged.colPriceIn", {
                 ticker: collateralTicker,
             }),
-        },
-        {
-            key: "ema",
-            title: t("performance.pegged.colEMA"),
         },
         {
             key: "minted",
@@ -136,7 +131,6 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                 settings.tokens.TC[caIndex]?.visiblePriceDecimals ??
                     defaultVisiblePriceDecimals
             ),
-            ema: "--",
             minted: !contractProtocolStatus.data[caIndex]?.nTCcb
                 ? "--"
                 : PrecisionNumbers({
@@ -197,19 +191,6 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                 ] || 0n;
             if (tpAvailableToMint < 0) tpAvailableToMint = 0n;
 
-            const tpEMARaw =
-                contractProtocolStatus.data[caIndex].tpEma?.[dataItem.key];
-
-            const tpEMA = tpEMARaw?.[0]
-                ? ConvertPeggedTokenPrice(
-                      contractProtocolStatus,
-                      caIndex,
-                      dataItem.key,
-                      tpEMARaw[0], // 0: EMA 1: SF
-                      true
-                  )
-                : 0n;
-
             tokensData.push({
                 name: (
                     <div className="token">
@@ -228,12 +209,6 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                     price,
                     settings.tokens.TP[dataItem.key].visiblePriceDecimals
                 ),
-                ema: !tpEMARaw?.[0]
-                    ? "--"
-                    : renderPriceInCollateral(
-                          tpEMA,
-                          settings.tokens.TP[dataItem.key].visiblePriceDecimals
-                      ),
                 minted: !contractProtocolStatus.data[caIndex]?.pegContainer?.[
                     dataItem.key
                 ]?.[0]
