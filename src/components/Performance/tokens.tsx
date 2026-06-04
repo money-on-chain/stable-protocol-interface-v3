@@ -68,10 +68,10 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
             key: "redeemable",
             title: "Redeem",
         },
-        {
-            key: "coverage",
-            title: t("performance.pegged.colTargetCoverage"),
-        },
+        // {
+        //     key: "coverage",
+        //     title: t("performance.pegged.colTargetCoverage"),
+        // },
     ];
 
     const renderTokenRow = (token: TokenData, index: number): JSX.Element => (

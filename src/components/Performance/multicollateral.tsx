@@ -12,6 +12,25 @@ export default function MultiCollateral(): JSX.Element {
     const { contractProtocolStatus } = useWalletContext();
 
     let leverage = 0n;
+    const tpMintableTotals = settings.tokens.TP.map((tpToken) => {
+        const total = settings.tokens.CA.reduce((sum, _caToken, caIndex) => {
+            let mintable =
+                contractProtocolStatus.data?.[caIndex]
+                    ?.getRealTPAvailableToMint?.[tpToken.key] ?? 0n;
+
+            if (mintable < 0n) {
+                mintable = 0n;
+            }
+
+            return sum + mintable;
+        }, 0n);
+
+        return {
+            token: tpToken,
+            total,
+        };
+    });
+
     if (
         contractProtocolStatus.data &&
         contractProtocolStatus.data.getNormalizationFactors
@@ -137,6 +156,35 @@ export default function MultiCollateral(): JSX.Element {
                         <div className="label">Leverage</div>
                     </div>
                 </div>
+                {tpMintableTotals.map(({ token, total }) => (
+                    <div
+                        data-testid={`performance-global-group-tp-${token.key}-mintable`}
+                        className="dataGroup"
+                        key={token.key}
+                    >
+                        <div className="icon__back">
+                            <div
+                                className={`icon-token-tp_${token.key} token__icon`}
+                            />
+                        </div>
+                        <div className="info">
+                            <div className="amount">
+                                {total !== 0n
+                                    ? PrecisionNumbers({
+                                          amount: total,
+                                          token,
+                                          decimals: token.visibleBalanceDecimals,
+                                          i18n: i18n,
+                                          compact: true,
+                                      })
+                                    : "--"}
+                            </div>
+                            <div className="label">
+                                {token.name} Mintable
+                            </div>
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
     );

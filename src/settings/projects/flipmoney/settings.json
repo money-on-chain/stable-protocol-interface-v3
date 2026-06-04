@@ -20,6 +20,19 @@
             "blacklist": []
         }
     },
+    "defaults": {
+        "tokens": {
+            "name": "TICKER",
+            "fullName": "Token Name",
+            "decimals": 18,
+            "visibleDecimals": 6,
+            "visiblePriceDecimals": 2,
+            "visiblePriceUSD": 8,
+            "visibleBalanceDecimals": 8,
+            "visibleBalanceUSDDecimals": 2,
+            "peggedUSD": false
+        }
+    },
     "tokens": {
         "COINBASE": [
             {
@@ -67,6 +80,7 @@
             {
                 "key": 0,
                 "name": "ArsFlip",
+                "fullName": "Argentine Peso Flip",
                 "decimals": 18,
                 "visibleDecimals": 2,
                 "visiblePriceDecimals": 2,
@@ -78,6 +92,7 @@
             {
                 "key": 1,
                 "name": "CopFlip",
+                "fullName": "Colombian Peso Flip",
                 "decimals": 18,
                 "visibleDecimals": 2,
                 "visiblePriceDecimals": 2,
@@ -91,6 +106,7 @@
             {
                 "key": 0,
                 "name": "BPROX",
+                "fullName": "BPro X",
                 "decimals": 18,
                 "visibleDecimals": 6,
                 "visiblePriceDecimals": 2,
@@ -102,6 +118,7 @@
             {
                 "key": 1,
                 "name": "DOCX",
+                "fullName": "Dollar on Chain X",
                 "decimals": 18,
                 "visibleDecimals": 2,
                 "visiblePriceDecimals": 2,
