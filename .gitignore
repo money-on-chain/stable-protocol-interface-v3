@@ -15,6 +15,7 @@ src/assets/css/customize1Defaults.scss
 src/assets/css/customize2Light.scss
 src/assets/css/customize3Dark.scss
 src/assets/css/customize4Overwrites.scss
+src/assets/css/icons-tokens.scss
 src/assets/css/logout.scss
 src/assets/css/pages.scss
 
