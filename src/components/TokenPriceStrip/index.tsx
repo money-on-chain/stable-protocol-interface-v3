@@ -185,16 +185,33 @@ function TokenPriceStripContent({
     const items = configuredTokens
         .map(getTokenPriceItem)
         .filter(Boolean) as TokenPriceItem[];
+    const itemsSignature = items
+        .map((item) => `${item.key}:${item.price.toString()}`)
+        .join("|");
 
     const updateScrollState = useCallback(() => {
         const viewport = viewportRef.current;
         if (!viewport) return;
 
         const maxScrollLeft = viewport.scrollWidth - viewport.clientWidth;
-        setScrollState({
+        const nextScrollState = {
             hasOverflow: maxScrollLeft > 1,
             canScrollLeft: viewport.scrollLeft > 1,
             canScrollRight: viewport.scrollLeft < maxScrollLeft - 1,
+        };
+
+        setScrollState((prevScrollState) => {
+            if (
+                prevScrollState.hasOverflow === nextScrollState.hasOverflow &&
+                prevScrollState.canScrollLeft ===
+                    nextScrollState.canScrollLeft &&
+                prevScrollState.canScrollRight ===
+                    nextScrollState.canScrollRight
+            ) {
+                return prevScrollState;
+            }
+
+            return nextScrollState;
         });
     }, []);
 
@@ -210,19 +227,25 @@ function TokenPriceStripContent({
 
     useEffect(() => {
         updateScrollState();
+        const animationFrameId =
+            window.requestAnimationFrame(updateScrollState);
 
         const viewport = viewportRef.current;
-        if (!viewport) return;
+        if (!viewport) {
+            window.cancelAnimationFrame(animationFrameId);
+            return;
+        }
 
         const resizeObserver = new ResizeObserver(updateScrollState);
         resizeObserver.observe(viewport);
         window.addEventListener("resize", updateScrollState);
 
         return () => {
+            window.cancelAnimationFrame(animationFrameId);
             resizeObserver.disconnect();
             window.removeEventListener("resize", updateScrollState);
         };
-    }, [items.length, updateScrollState]);
+    }, [items.length, itemsSignature, updateScrollState]);
 
     if (items.length === 0) return null;
 
@@ -245,7 +268,7 @@ function TokenPriceStripContent({
                     onClick={() => scrollPrices(-1)}
                     disabled={!scrollState.canScrollLeft}
                 >
-                    <span className="token-price-strip__arrow-icon" />
+                    <span className="icon__scroll__left" />
                 </button>
             )}
             <div
@@ -300,7 +323,7 @@ function TokenPriceStripContent({
                     onClick={() => scrollPrices(1)}
                     disabled={!scrollState.canScrollRight}
                 >
-                    <span className="token-price-strip__arrow-icon" />
+                    <span className="icon__scroll__right" />
                 </button>
             )}
         </div>

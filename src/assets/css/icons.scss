@@ -424,6 +424,24 @@ icons.css contains all the css code for Icons across the Dapp
     width: 16px;
     height: 16px;
 }
+.icon__scroll__left {
+    display: block;
+    filter: var(--color-nav-icon-filter-default);
+    background-image: url("../icons/ScrollLeft.svg");
+    background-size: 20px 20px;
+    background-repeat: no-repeat;
+    width: 20px;
+    height: 20px;
+}
+.icon__scroll__right {
+    display: block;
+    filter: var(--color-nav-icon-filter-default);
+    background-image: url("../icons/ScrollRight.svg");
+    background-size: 20px 20px;
+    background-repeat: no-repeat;
+    width: 20px;
+    height: 20px;
+}
 .icon__addProposal {
     background-image: url("../icons/AddProposalOutline.svg");
     background-size: 48px 48px;
