@@ -7,6 +7,7 @@ const SCALE_SUFFIXES = [
 const MAX_COMPACT_VALUE = 1e15;
 const MIN_EXTENDED_PRECISION_VALUE = 1e-4;
 const MIN_DISPLAYABLE_EXTENDED_VALUE = 1e-8;
+const DEFAULT_NO_LIMIT_LABEL = "No limit";
 
 export const truncateToDecimals = (value, decimals) => {
     const factor = 10 ** decimals;
@@ -69,17 +70,21 @@ const formatTinyValue = (value, locale) => {
     return `${sign}${formatLocalizedNumberUpToDecimals(absoluteValue, locale, 8)}`;
 };
 
-export const formatFullLocaleValue = (value, locale) => {
+export const formatFullLocaleValue = (
+    value,
+    locale,
+    noLimitLabel = DEFAULT_NO_LIMIT_LABEL
+) => {
     if (!Number.isFinite(value)) {
         return String(value);
     }
 
     if (value > MAX_COMPACT_VALUE) {
-        return "> 1Q";
+        return noLimitLabel;
     }
 
     if (value < -MAX_COMPACT_VALUE) {
-        return "< -1Q";
+        return noLimitLabel;
     }
 
     const absoluteValue = Math.abs(value);
@@ -100,7 +105,11 @@ export const formatFullLocaleValue = (value, locale) => {
     return `${sign}${formatLocalizedNumber(absoluteValue, locale, decimals)}`;
 };
 
-export const formatSignificantCompactValue = (value, locale) => {
+export const formatSignificantCompactValue = (
+    value,
+    locale,
+    noLimitLabel = DEFAULT_NO_LIMIT_LABEL
+) => {
     if (!Number.isFinite(value)) {
         return String(value);
     }
@@ -108,11 +117,11 @@ export const formatSignificantCompactValue = (value, locale) => {
     const absoluteValue = Math.abs(value);
 
     if (value > MAX_COMPACT_VALUE) {
-        return "> 1Q";
+        return noLimitLabel;
     }
 
     if (value < -MAX_COMPACT_VALUE) {
-        return "< -1Q";
+        return noLimitLabel;
     }
 
     if (

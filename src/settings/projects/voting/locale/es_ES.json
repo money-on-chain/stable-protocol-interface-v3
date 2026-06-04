@@ -399,7 +399,8 @@
 
     "numberFormat": {
         "thousandsSeparator": ",",
-        "decimalSeparator": "."
+        "decimalSeparator": ".",
+        "noLimit": "Sin límite"
     },
 
     "swapModal": {

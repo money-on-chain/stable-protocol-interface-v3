@@ -360,7 +360,8 @@
 
     "numberFormat": {
         "thousandsSeparator": ",",
-        "decimalSeparator": "."
+        "decimalSeparator": ".",
+        "noLimit": "No limit"
     },
 
     "swapModal": {

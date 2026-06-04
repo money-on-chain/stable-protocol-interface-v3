@@ -33,6 +33,9 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
     const { t, i18n, ns } = useProjectTranslation();
     const { contractProtocolStatus } = useWalletContext();
     const tokensData: TokenData[] = [];
+    const noLimitLabel = t("numberFormat.noLimit", {
+        defaultValue: "No limit",
+    });
 
     const {
         visiblePriceDecimals: defaultVisiblePriceDecimals,
@@ -129,7 +132,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                       i18n,
                       compact: true,
                   }),
-            mintable: "No limit",
+            mintable: noLimitLabel,
             redeemable: !contractProtocolStatus.data[caIndex]
                 ?.getRealTCAvailableToRedeem
                 ? "--"
@@ -255,7 +258,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                           i18n,
                           compact: true,
                       }),
-                redeemable: "No limit",
+                redeemable: noLimitLabel,
                 coverage: !contractProtocolStatus.data[caIndex]?.tpCtarg?.[
                     dataItem.key
                 ]

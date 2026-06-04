@@ -75,8 +75,15 @@ test("scales values from one million upward with two decimals and truncation", (
     assert.equal(formatSignificantCompactValue(1000000000000000, locale), "1.00Q");
 });
 
-test("shows greater-than marker for values above one quadrillion", () => {
-    assert.equal(formatSignificantCompactValue(1000000000000001, locale), "> 1Q");
+test("shows no-limit label for values above one quadrillion", () => {
+    assert.equal(
+        formatSignificantCompactValue(1000000000000001, locale),
+        "No limit"
+    );
+    assert.equal(
+        formatSignificantCompactValue(1000000000000001, locale, "Sin límite"),
+        "Sin límite"
+    );
 });
 
 test("formats tooltip values without scaling and with two or four decimals", () => {
@@ -87,8 +94,12 @@ test("formats tooltip values without scaling and with two or four decimals", () 
     assert.equal(formatFullLocaleValue(1234567.89129, locale), "1,234,567.8912");
 });
 
-test("formats tooltip values for tiny and huge numbers using the same guardrails", () => {
+test("formats tooltip values for tiny and no-limit numbers using the same guardrails", () => {
     assert.equal(formatFullLocaleValue(0.00009999, locale), "0.00009999");
     assert.equal(formatFullLocaleValue(0.000000001, locale), "<0.0001");
-    assert.equal(formatFullLocaleValue(1000000000000001, locale), "> 1Q");
+    assert.equal(formatFullLocaleValue(1000000000000001, locale), "No limit");
+    assert.equal(
+        formatFullLocaleValue(1000000000000001, locale, "Sin límite"),
+        "Sin límite"
+    );
 });
