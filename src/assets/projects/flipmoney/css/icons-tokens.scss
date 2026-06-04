@@ -18,6 +18,7 @@
 .icon-token-ARSFLIP { @include token-icon("ARSFLIP"); }
 .icon-token-COPFLIP { @include token-icon("COPFLIP"); }
 .icon-token-FLIP    { @include token-icon("FLIP"); }
+.icon-token-MOC     { @include token-icon("MOC"); }
 
 // Legacy type-based aliases (used by Performance and GlobalStatus components)
 .icon-token-coinbase { @include token-icon("RBTC"); }

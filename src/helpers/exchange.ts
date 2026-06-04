@@ -448,6 +448,12 @@ function TokenContract(
                 token: contracts.TG,
                 decimals: tokenExchangeSettings.decimals,
             };
+        case "CUSTOM": {
+            const pair = `${aTokenMap[1]}/USD`;
+            const customToken = contracts.CUSTOM_TOKENS?.find((t) => t.name === pair);
+            if (!customToken) throw new Error(`CUSTOM_TOKENS contract not found for pair: ${pair}`);
+            return { token: customToken, decimals: tokenExchangeSettings.decimals };
+        }
         default:
             throw new Error("Invalid token name");
     }

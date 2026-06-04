@@ -1,6 +1,7 @@
 import React from "react";
 
 import settings from "../settings";
+import globalData from "../settings/global.json";
 import type { TokenConfig } from "../types/hooks";
 import type {
     ContractProtocolStatusResult,
@@ -50,6 +51,21 @@ interface FeeInfo {
     feeTokenPercent: bigint;
 }
 
+const globalTokens = globalData.tokens as Record<string, TokenConfig>;
+
+function getCustomPPEntries(): string[] {
+    const raw = import.meta.env.REACT_APP_CONTRACT_PRICE_PROVIDER_CUSTOM as string | undefined;
+    if (!raw) return [];
+    return raw.split(",").flatMap((entry) => {
+        const parts = entry.trim().split(":");
+        if (parts.length < 2) return [];
+        const pair = parts[0].trim();
+        const slashIdx = pair.indexOf("/");
+        const name = slashIdx > 0 ? pair.slice(0, slashIdx) : pair;
+        return name ? [name] : [];
+    });
+}
+
 const buildCurrencies = (): Currency[] => {
     const entries: Currency[] = [];
     const seenNames = new Set<string>();
@@ -73,6 +89,14 @@ const buildCurrencies = (): Currency[] => {
             }
         })
     );
+
+    // Custom tokens from REACT_APP_CONTRACT_PRICE_PROVIDER_CUSTOM
+    getCustomPPEntries().forEach((tokenName) => {
+        if (!seenNames.has(tokenName)) {
+            seenNames.add(tokenName);
+            entries.push({ value: `CUSTOM_${tokenName}`, image: getTokenIcon(tokenName) });
+        }
+    });
 
     return entries;
 };
@@ -373,6 +397,11 @@ function TokenSettings(tokenName: string): TokenConfig {
         case "TG":
             token = settings.tokens.TG[0];
             break;
+        case "CUSTOM": {
+            const cfg = globalTokens[aTokenName[1]];
+            if (!cfg) throw new Error(`Custom token "${aTokenName[1]}" not found in global.json`);
+            return cfg;
+        }
         default:
             throw new Error("Invalid token name");
     }
@@ -425,6 +454,12 @@ function TokenBalance(
         case "TG":
             balance =
                 normalizeToBigInt(userOmocBalance?.data?.TG?.balance) ?? 0n;
+            break;
+        case "CUSTOM":
+            balance =
+                normalizeToBigInt(
+                    userBalance.data?.CUSTOM?.[`${aTokenName[1]}/USD`]?.balance
+                ) ?? 0n;
             break;
         default:
             throw new Error("Invalid token name");
