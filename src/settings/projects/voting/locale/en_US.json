@@ -273,8 +273,7 @@
             "targetCoverage": "Target Coverage",
             "leverage": "Leverage",
             "lockedCollateral": "Locked Collateral",
-            "tpMintable": "{{ticker}} Mintable",
-            "ema": "EMA"
+            "tpMintable": "{{ticker}} Mintable"
         },
 
         "tc": {
@@ -299,6 +298,7 @@
             "colMintable": "Mintable",
             "colTargetCoverage": "T. Coverage",
             "colEMA": "EMA",
+            "colCAUsed": "Collateral used",
             "colTargetEMA": "Target EMA"
         }
     },

@@ -5,7 +5,7 @@ import {
     ConvertPeggedTokenPrice,
     TokenSettings,
 } from "../../helpers/currencies";
-import { normalizeToBigInt } from "../../helpers/precision";
+import { divPrecision, normalizeToBigInt } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings/settings.json";
 import type { TokenConfig } from "../../types/hooks";
@@ -24,6 +24,8 @@ interface Column {
 interface TokenData {
     name: JSX.Element;
     price: React.ReactNode;
+    ema: string | React.ReactNode;
+    caUsed: React.ReactNode;
     minted: React.ReactNode;
     mintable: string | React.ReactNode;
     redeemable: React.ReactNode;
@@ -56,6 +58,14 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
             title: t("performance.pegged.colPriceIn", {
                 ticker: collateralTicker,
             }),
+        },
+        {
+            key: "ema",
+            title: t("performance.pegged.colEMA"),
+        },
+        {
+            key: "caUsed",
+            title: t("performance.pegged.colCAUsed"),
         },
         {
             key: "minted",
@@ -103,6 +113,17 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
             </>
         );
 
+    const renderPercent = (ratio: bigint | null): React.ReactNode => {
+        if (ratio === null) return "--";
+
+        const precision = 10n ** 18n;
+        const basisPoints = (ratio * 10000n + precision / 2n) / precision;
+        const integer = basisPoints / 100n;
+        const decimals = (basisPoints % 100n).toString().padStart(2, "0");
+
+        return `${integer.toString()}.${decimals}%`;
+    };
+
     if (
         contractProtocolStatus.data &&
         contractProtocolStatus.data[caIndex] &&
@@ -113,6 +134,17 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
             normalizeToBigInt(contractProtocolStatus.data[caIndex].getPTCac) ??
             0n;
         const price = priceTEC;
+        const totalBucketAC =
+            normalizeToBigInt(contractProtocolStatus.data[caIndex].nACcb) ??
+            0n;
+        const totalLockedAC =
+            normalizeToBigInt(
+                contractProtocolStatus.data[caIndex].getLckACOnchain
+            ) ?? 0n;
+        const tcCAUsed =
+            totalBucketAC !== 0n && totalBucketAC >= totalLockedAC
+                ? divPrecision(totalBucketAC - totalLockedAC, totalBucketAC)
+                : null;
 
         tokensData.push({
             name: (
@@ -131,6 +163,8 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                 settings.tokens.TC[caIndex]?.visiblePriceDecimals ??
                     defaultVisiblePriceDecimals
             ),
+            ema: "--",
+            caUsed: renderPercent(tcCAUsed),
             minted: !contractProtocolStatus.data[caIndex]?.nTCcb
                 ? "--"
                 : PrecisionNumbers({
@@ -191,6 +225,29 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                 ] || 0n;
             if (tpAvailableToMint < 0) tpAvailableToMint = 0n;
 
+            const tpEMARaw =
+                contractProtocolStatus.data[caIndex].tpEma?.[dataItem.key];
+
+            const tpEMA = tpEMARaw?.[0]
+                ? ConvertPeggedTokenPrice(
+                      contractProtocolStatus,
+                      caIndex,
+                      dataItem.key,
+                      tpEMARaw[0], // 0: EMA 1: SF
+                      true
+                  )
+                : 0n;
+            const tpLockedAC =
+                normalizeToBigInt(
+                    contractProtocolStatus.data[caIndex].getLckACByTP?.[
+                        dataItem.key
+                    ]
+                ) ?? 0n;
+            const tpCAUsed =
+                totalBucketAC !== 0n
+                    ? divPrecision(tpLockedAC, totalBucketAC)
+                    : null;
+
             tokensData.push({
                 name: (
                     <div className="token">
@@ -209,6 +266,13 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                     price,
                     settings.tokens.TP[dataItem.key].visiblePriceDecimals
                 ),
+                ema: !tpEMARaw?.[0]
+                    ? "--"
+                    : renderPriceInCollateral(
+                          tpEMA,
+                          settings.tokens.TP[dataItem.key].visiblePriceDecimals
+                      ),
+                caUsed: renderPercent(tpCAUsed),
                 minted: !contractProtocolStatus.data[caIndex]?.pegContainer?.[
                     dataItem.key
                 ]?.[0]

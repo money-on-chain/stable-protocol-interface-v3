@@ -319,6 +319,14 @@ export function useContractProtocolStatus(
 
             callRequest.push({
                 contract: Moc,
+                functionName: "getLckAC",
+                args: [],
+                resultType: "uint256",
+                keys: [ca, "getLckACOnchain"],
+            });
+
+            callRequest.push({
+                contract: Moc,
                 functionName: parsedPrices
                     ? "calcTCAvailableToRedeem"
                     : "getTCAvailableToRedeem",
@@ -562,6 +570,14 @@ export function useContractProtocolStatus(
                     args: [tp],
                     resultType: "uint256",
                     keys: [ca, "tpCtarg", tp],
+                });
+
+                callRequest.push({
+                    contract: Moc,
+                    functionName: "getLckACByTP",
+                    args: [tp],
+                    resultType: "uint256",
+                    keys: [ca, "getLckACByTP", tp],
                 });
 
                 callRequest.push({
