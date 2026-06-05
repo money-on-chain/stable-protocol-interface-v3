@@ -57,7 +57,10 @@ export default function Buckets(props: BucketsProps): JSX.Element {
         () =>
             collateralDistributionRows.map((row, index) => ({
                 id: row.id,
-                label: row.fullName || row.symbol,
+                label:
+                    row.fullName && row.fullName !== row.symbol
+                        ? `${row.fullName} (${row.symbol})`
+                        : row.symbol,
                 value: ratioToPercentNumber(row.collateralUsedRatio),
                 color: [
                     "var(--brand-color-base)",
@@ -283,7 +286,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                         displaySize="45%"
                         gap={16}
                         sliceGap={1}
-                        legendPosition="right"
+                        legendPosition="bottom"
                         legendLayout="column"
                         legendMaxWidth="80%"
                         justifyContent="center"

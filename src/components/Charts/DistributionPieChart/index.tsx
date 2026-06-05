@@ -47,8 +47,10 @@ const DEFAULT_COLORS = [
     "var(--color-txt-link)",
 ];
 const TOOLTIP_WIDTH = 144;
-const TOOLTIP_HEIGHT = 44;
-const TOOLTIP_LABEL_MAX_LENGTH = 22;
+const TOOLTIP_VERTICAL_PADDING = 10;
+const TOOLTIP_LINE_HEIGHT = 13;
+const TOOLTIP_VALUE_LINE_HEIGHT = 16;
+const TOOLTIP_LABEL_MAX_LINE_LENGTH = 20;
 
 export function sanitizeValue(value: number): number {
     return Number.isFinite(value) && value > 0 ? value : 0;
@@ -63,14 +65,12 @@ export function normalizeSlices(
             value: sanitizeValue(slice.value),
             color: slice.color || DEFAULT_COLORS[index % DEFAULT_COLORS.length],
         }))
-        .filter((slice) => slice.value > 0);
+        .filter((slice) => slice.id && slice.label);
     const total = sanitizedSlices.reduce((sum, slice) => sum + slice.value, 0);
-
-    if (total <= 0) return [];
 
     return sanitizedSlices.map((slice) => ({
         ...slice,
-        percentage: (slice.value / total) * 100,
+        percentage: total > 0 ? (slice.value / total) * 100 : 0,
     }));
 }
 
@@ -159,10 +159,36 @@ export function createPiePath(
     return describeArc(centerX, centerY, radius, startAngle, endAngle);
 }
 
-function truncateLabel(label: string): string {
-    if (label.length <= TOOLTIP_LABEL_MAX_LENGTH) return label;
+function wrapLabel(label: string): string[] {
+    const words = label.trim().split(/\s+/);
+    const lines: string[] = [];
 
-    return `${label.slice(0, TOOLTIP_LABEL_MAX_LENGTH - 3)}...`;
+    words.forEach((word) => {
+        const wordChunks = word.match(
+            new RegExp(`.{1,${TOOLTIP_LABEL_MAX_LINE_LENGTH}}`, "g")
+        ) ?? [word];
+
+        wordChunks.forEach((chunk) => {
+            const currentLine = lines[lines.length - 1];
+
+            if (!currentLine) {
+                lines.push(chunk);
+                return;
+            }
+
+            if (
+                `${currentLine} ${chunk}`.length <=
+                TOOLTIP_LABEL_MAX_LINE_LENGTH
+            ) {
+                lines[lines.length - 1] = `${currentLine} ${chunk}`;
+                return;
+            }
+
+            lines.push(chunk);
+        });
+    });
+
+    return lines.length > 0 ? lines : [label];
 }
 
 function toStyleValue(value: number | string): string {
@@ -193,14 +219,17 @@ export default function DistributionPieChart({
 }: DistributionPieChartProps): JSX.Element | null {
     const [hoveredSliceId, setHoveredSliceId] = useState<string | null>(null);
     const normalizedSlices = useMemo(() => normalizeSlices(slices), [slices]);
+    const drawableSlices = useMemo(
+        () => normalizedSlices.filter((slice) => slice.value > 0),
+        [normalizedSlices]
+    );
     const paths = useMemo(() => {
         let currentAngle = 0;
         const center = size / 2;
         const radius = center - borderWidth / 2;
-        const gapAngle =
-            normalizedSlices.length > 1 ? Math.max(0, sliceGap) : 0;
+        const gapAngle = drawableSlices.length > 1 ? Math.max(0, sliceGap) : 0;
 
-        return normalizedSlices.map((slice) => {
+        return drawableSlices.map((slice) => {
             const angle = (slice.percentage / 100) * 360;
             const startAngle = currentAngle + gapAngle / 2;
             const endAngle = currentAngle + angle - gapAngle / 2;
@@ -227,7 +256,7 @@ export default function DistributionPieChart({
                 tooltipY: labelPoint.y,
             };
         });
-    }, [borderWidth, normalizedSlices, size, sliceGap]);
+    }, [borderWidth, drawableSlices, size, sliceGap]);
     const formatValue =
         valueFormatter ?? ((value: number): string => `${value.toFixed(2)}%`);
     const rootClassName = [
@@ -256,6 +285,11 @@ export default function DistributionPieChart({
         hoveredSliceId === null
             ? null
             : paths.find((slice) => slice.id === hoveredSliceId);
+    const hoveredLabelLines = hoveredSlice ? wrapLabel(hoveredSlice.label) : [];
+    const tooltipHeight =
+        TOOLTIP_VERTICAL_PADDING * 2 +
+        hoveredLabelLines.length * TOOLTIP_LINE_HEIGHT +
+        TOOLTIP_VALUE_LINE_HEIGHT;
 
     if (normalizedSlices.length === 0) {
         return null;
@@ -298,27 +332,36 @@ export default function DistributionPieChart({
                             <rect
                                 className="distributionPieChart__tooltipBox"
                                 x={-TOOLTIP_WIDTH / 2}
-                                y={-TOOLTIP_HEIGHT / 2}
+                                y={-tooltipHeight / 2}
                                 width={TOOLTIP_WIDTH}
-                                height={TOOLTIP_HEIGHT}
+                                height={tooltipHeight}
                                 rx="8"
                             />
                             <text
                                 className="distributionPieChart__tooltipText"
                                 textAnchor="middle"
-                                dominantBaseline="middle"
                             >
-                                <tspan
-                                    className="distributionPieChart__tooltipLabel"
-                                    x="0"
-                                    dy="-6"
-                                >
-                                    {truncateLabel(hoveredSlice.label)}
-                                </tspan>
+                                {hoveredLabelLines.map((line, index) => (
+                                    <tspan
+                                        key={`${hoveredSlice.id}-label-${index}`}
+                                        className="distributionPieChart__tooltipLabel"
+                                        x="0"
+                                        y={
+                                            -tooltipHeight / 2 +
+                                            TOOLTIP_VERTICAL_PADDING +
+                                            TOOLTIP_LINE_HEIGHT * (index + 0.75)
+                                        }
+                                    >
+                                        {line}
+                                    </tspan>
+                                ))}
                                 <tspan
                                     className="distributionPieChart__tooltipValue"
                                     x="0"
-                                    dy="16"
+                                    y={
+                                        tooltipHeight / 2 -
+                                        TOOLTIP_VERTICAL_PADDING
+                                    }
                                 >
                                     {formatValue(hoveredSlice.value)}
                                 </tspan>
