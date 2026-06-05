@@ -1,0 +1,138 @@
+.distributionPieChart {
+    --distribution-pie-size: 220px;
+    --distribution-pie-gap: 16px;
+    --distribution-pie-legend-direction: column;
+    --distribution-pie-legend-flex-basis: 132px;
+    --distribution-pie-legend-max-width: min(
+        100%,
+        var(--distribution-pie-size)
+    );
+    --distribution-pie-legend-width: 100%;
+    display: flex;
+    gap: var(--distribution-pie-gap);
+    width: 100%;
+    color: var(--color-txt-primary);
+}
+
+.distributionPieChart--bottom {
+    flex-direction: column;
+}
+
+.distributionPieChart--top {
+    flex-direction: column-reverse;
+}
+
+.distributionPieChart--left {
+    flex-direction: row-reverse;
+}
+
+.distributionPieChart--right {
+    flex-direction: row;
+}
+
+.distributionPieChart__svg {
+    display: block;
+    flex: 0 0 auto;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    overflow: visible;
+}
+
+.distributionPieChart__chart {
+    position: relative;
+    flex: 1 1 var(--distribution-pie-size);
+    width: min(100%, var(--distribution-pie-size));
+    max-width: var(--distribution-pie-size);
+    aspect-ratio: 1;
+    min-width: 0;
+}
+
+.distributionPieChart__slice {
+    cursor: default;
+    outline: none;
+    transition: opacity 0.15s ease;
+}
+
+.distributionPieChart__slice:hover,
+.distributionPieChart__slice:focus-visible {
+    opacity: 0.85;
+}
+
+.distributionPieChart__slice:focus-visible {
+    filter: drop-shadow(0 0 4px var(--brand-color-base));
+}
+
+.distributionPieChart__tooltip {
+    pointer-events: none;
+}
+
+.distributionPieChart__tooltipBox {
+    fill: var(--surface-color-2);
+    stroke: var(--dividers);
+    stroke-width: 1;
+}
+
+.distributionPieChart__tooltipText {
+    color: var(--color-txt-primary);
+    fill: var(--color-txt-primary);
+    font-family: var(--main-font);
+    line-height: 1.15;
+}
+
+.distributionPieChart__tooltipLabel {
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.distributionPieChart__tooltipValue {
+    color: var(--color-txt-secondary);
+    fill: var(--color-txt-secondary);
+    font-family: var(--brand-font);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.distributionPieChart__legend {
+    display: flex;
+    flex-direction: var(--distribution-pie-legend-direction);
+    gap: 8px;
+    width: var(--distribution-pie-legend-width);
+    max-width: var(--distribution-pie-legend-max-width);
+    min-width: 0;
+}
+
+.distributionPieChart--left .distributionPieChart__legend,
+.distributionPieChart--right .distributionPieChart__legend {
+    flex: 0 1 var(--distribution-pie-legend-flex-basis);
+}
+
+.distributionPieChart__legendItem {
+    display: grid;
+    grid-template-columns: 10px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-txt-secondary);
+    font-family: var(--main-font);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.distributionPieChart__legendDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.distributionPieChart__legendLabel {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.distributionPieChart__legendValue {
+    color: var(--color-txt-primary);
+    font-family: var(--brand-font);
+    font-weight: 600;
+}

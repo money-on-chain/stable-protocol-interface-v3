@@ -329,12 +329,29 @@
 }
 
 .perfGlobalMetrics {
+    .collateralMetricsArea {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(360px, 42%);
+        gap: 32px;
+        align-items: stretch;
+        margin-top: 32px;
+    }
+
     .metrics {
         display: flex;
         flex-wrap: wrap;
         gap: 32px;
-        margin-top: 32px;
+        margin-top: 0;
     }
+
+    .collateralDistribution {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 0;
+        min-height: 180px;
+    }
+
     .dataGroup {
         display: flex;
         gap: 16px;
@@ -377,6 +394,17 @@
     }
     .buckets {
         margin-top: 40px;
+    }
+
+    @media (max-width: 900px) {
+        .collateralMetricsArea {
+            grid-template-columns: 1fr;
+        }
+
+        .collateralDistribution {
+            justify-content: center;
+            min-height: 260px;
+        }
     }
 }
 
