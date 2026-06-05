@@ -3,7 +3,7 @@ import "./Styles.scss";
 import React from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
-import settings from "../../../settings/settings.json";
+import settings from "../../../settings";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 
 interface UserInfoStaking {

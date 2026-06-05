@@ -1,14 +1,7 @@
 import React from "react";
 
-import LogoIconCA_0 from "../assets/tokens/ca_0.svg?react";
-import LogoIconCA_1 from "../assets/tokens/ca_1.svg?react";
-import LogoIconCOINBASE from "../assets/tokens/coinbase.svg?react";
-import LogoIconTC_0 from "../assets/tokens/tc_0.svg?react";
-import LogoIconTC_1 from "../assets/tokens/tc_1.svg?react";
-import LogoIconTG_0 from "../assets/tokens/tg_0.svg?react";
-import LogoIconTP_0 from "../assets/tokens/tp_0.svg?react";
-import LogoIconTP_1 from "../assets/tokens/tp_1.svg?react";
-import settings from "../settings/settings.json";
+import settings from "../settings";
+import globalData from "../settings/global.json";
 import type { TokenConfig } from "../types/hooks";
 import type {
     ContractProtocolStatusResult,
@@ -24,6 +17,21 @@ import {
     wadDiv,
     wadMul,
 } from "./precision";
+
+type SvgComponent = React.ComponentType<React.SVGProps<SVGSVGElement>>;
+
+// Eagerly load all token SVGs at build time; looked up by token name at runtime.
+const tokenSvgModules = import.meta.glob<SvgComponent>(
+    "../assets/tokens/*.svg",
+    { eager: true, query: "?react", import: "default" }
+);
+
+function getTokenIcon(tokenName: string): React.ReactElement {
+    const key = `../assets/tokens/${tokenName}.svg`;
+    const Icon = (tokenSvgModules[key] ??
+        tokenSvgModules["../assets/tokens/tx.svg"]) as SvgComponent | undefined;
+    return Icon ? <Icon className="token__icon" /> : <></>;
+}
 
 interface Currency {
     value: string;
@@ -43,22 +51,57 @@ interface FeeInfo {
     feeTokenPercent: bigint;
 }
 
-const currencies: Currency[] = [
-    {
-        value: "COINBASE",
-        image: <LogoIconCOINBASE className="token__icon" />,
-    },
-    { value: "CA_0", image: <LogoIconCA_0 className="token__icon" /> },
-    { value: "CA_1", image: <LogoIconCA_1 className="token__icon" /> },
-    { value: "TC_0", image: <LogoIconTC_0 className="token__icon" /> },
-    { value: "TC_1", image: <LogoIconTC_1 className="token__icon" /> },
-    { value: "TP_0", image: <LogoIconTP_0 className="token__icon" /> },
-    { value: "TP_1", image: <LogoIconTP_1 className="token__icon" /> },
-    { value: "TF", image: <LogoIconTG_0 className="token__icon" /> },
-    { value: "TG", image: <LogoIconTG_0 className="token__icon" /> },
-].map((it) => ({
-    ...it,
-}));
+const globalTokens = globalData.tokens as Record<string, TokenConfig>;
+
+function getCustomPPEntries(): string[] {
+    const raw = import.meta.env.REACT_APP_CONTRACT_PRICE_PROVIDER_CUSTOM as string | undefined;
+    if (!raw) return [];
+    return raw.split(",").flatMap((entry) => {
+        const parts = entry.trim().split(":");
+        if (parts.length < 2) return [];
+        const pair = parts[0].trim();
+        const slashIdx = pair.indexOf("/");
+        const name = slashIdx > 0 ? pair.slice(0, slashIdx) : pair;
+        return name ? [name] : [];
+    });
+}
+
+const buildCurrencies = (): Currency[] => {
+    const entries: Currency[] = [];
+    const seenNames = new Set<string>();
+
+    settings.tokens.COINBASE?.forEach(t =>
+        entries.push({ value: "COINBASE", image: getTokenIcon(t.name) })
+    );
+
+    (["CA", "TC", "TP"] as const).forEach(type =>
+        settings.tokens[type]?.forEach((t, i) =>
+            entries.push({ value: `${type}_${t.key ?? i}`, image: getTokenIcon(t.name) })
+        )
+    );
+
+    // TF and TG: deduplicate by token name (same token can appear under multiple keys)
+    (["TF", "TG"] as const).forEach(type =>
+        settings.tokens[type]?.forEach(t => {
+            if (!seenNames.has(t.name)) {
+                seenNames.add(t.name);
+                entries.push({ value: type, image: getTokenIcon(t.name) });
+            }
+        })
+    );
+
+    // Custom tokens from REACT_APP_CONTRACT_PRICE_PROVIDER_CUSTOM
+    getCustomPPEntries().forEach((tokenName) => {
+        if (!seenNames.has(tokenName)) {
+            seenNames.add(tokenName);
+            entries.push({ value: `CUSTOM_${tokenName}`, image: getTokenIcon(tokenName) });
+        }
+    });
+
+    return entries;
+};
+
+const currencies: Currency[] = buildCurrencies();
 
 const getCurrenciesDetail = (): Currency[] => currencies;
 
@@ -354,6 +397,11 @@ function TokenSettings(tokenName: string): TokenConfig {
         case "TG":
             token = settings.tokens.TG[0];
             break;
+        case "CUSTOM": {
+            const cfg = globalTokens[aTokenName[1]];
+            if (!cfg) throw new Error(`Custom token "${aTokenName[1]}" not found in global.json`);
+            return cfg;
+        }
         default:
             throw new Error("Invalid token name");
     }
@@ -406,6 +454,12 @@ function TokenBalance(
         case "TG":
             balance =
                 normalizeToBigInt(userOmocBalance?.data?.TG?.balance) ?? 0n;
+            break;
+        case "CUSTOM":
+            balance =
+                normalizeToBigInt(
+                    userBalance.data?.CUSTOM?.[`${aTokenName[1]}/USD`]?.balance
+                ) ?? 0n;
             break;
         default:
             throw new Error("Invalid token name");

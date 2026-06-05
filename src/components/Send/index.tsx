@@ -20,12 +20,22 @@ import { PrecisionNumbers } from "../PrecisionNumbers";
 export default function Send(): JSX.Element {
     const { t, i18n } = useProjectTranslation();
 
-    const { contractProtocolStatus, userBalance, userBaseCoinBalance } =
+    const { contractProtocolStatus, userBalance, userBaseCoinBalance, priceProvider } =
         useWalletContext();
 
     const tokenSend: string[] = tokenExchange();
     // Add Token Govern
     tokenSend.push("TG");
+    // Add custom tokens from REACT_APP_CONTRACT_PRICE_PROVIDER_CUSTOM
+    const ppCustomRaw = import.meta.env.REACT_APP_CONTRACT_PRICE_PROVIDER_CUSTOM as string | undefined;
+    if (ppCustomRaw) {
+        for (const entry of ppCustomRaw.split(",")) {
+            const pair = entry.trim().split(":")[0]?.trim() ?? "";
+            const slashIdx = pair.indexOf("/");
+            const name = slashIdx > 0 ? pair.slice(0, slashIdx) : pair;
+            if (name) tokenSend.push(`CUSTOM_${name}`);
+        }
+    }
     // Add Coinbase support at index 0
     tokenSend.splice(0, 0, "COINBASE");
 
@@ -198,13 +208,21 @@ export default function Send(): JSX.Element {
         onChangeAmountYouSend(totalYouSend, true);
     };
 
-    const sendingUSD = ConvertAmount(
-        contractProtocolStatus,
-        currencyYouSend,
-        "USD",
-        toBigIntPrecision(amountYouSend),
-        caIndex
-    );
+    const sendingUSD: bigint = (() => {
+        if (currencyYouSend.split("_")[0] === "CUSTOM") {
+            const tokenName = currencyYouSend.replace(/^CUSTOM_/, "");
+            const price = priceProvider.data?.[`${tokenName}/USD`]?.[0] ?? 0n;
+            const amt = toBigIntPrecision(amountYouSend);
+            return price > 0n ? (amt * price) / 10n ** 18n : 0n;
+        }
+        return ConvertAmount(
+            contractProtocolStatus,
+            currencyYouSend,
+            "USD",
+            toBigIntPrecision(amountYouSend),
+            caIndex
+        );
+    })();
 
     return (
         <div>

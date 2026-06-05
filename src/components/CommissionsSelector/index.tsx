@@ -4,7 +4,7 @@ import React from "react";
 
 import { TokenSettings } from "../../helpers/currencies";
 import { useProjectTranslation } from "../../helpers/translations";
-import settings from "../../settings/settings.json";
+import settings from "../../settings";
 import type { CommissionsState } from "../../types/status";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 

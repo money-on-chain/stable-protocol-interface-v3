@@ -70,6 +70,7 @@ import { useIncentiveV2 } from "../hooks/useIncentiveV2";
 import { useLatestBlockNumber } from "../hooks/useLatestBlockNumber";
 import { useOffchainPrices } from "../hooks/useOffchainPrices";
 import { useOnchainPrices } from "../hooks/useOnchainPrices";
+import { usePriceProvider } from "../hooks/usePriceProvider";
 import { readContracts } from "../hooks/useReadContracts";
 import { useRpcErrorHandler } from "../hooks/useRpcErrorHandler";
 import { useRpcErrorIntegration } from "../hooks/useRpcErrorIntegration";
@@ -184,6 +185,14 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         Number(blockNumber),
         offChainPrices,
         onChainPrices,
+        REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS
+    );
+
+    const priceProvider = usePriceProvider(
+        contractsAddressLoaded && contractsAddress
+            ? contractsAddress
+            : undefined,
+        undefined, // pass PriceProviderData here to override with offchain prices
         REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS
     );
 
@@ -961,6 +970,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 userBalance,
                 blockNumber,
                 offChainPrices,
+                priceProvider,
                 userBaseCoinBalance,
                 vestingAddress,
                 publicClient,

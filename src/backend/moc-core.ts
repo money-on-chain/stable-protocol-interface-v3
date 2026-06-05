@@ -5,7 +5,7 @@ import {
 } from "@wagmi/core";
 import { type Abi, type TransactionReceipt } from "viem";
 
-import settings from "../settings/settings.json";
+import settings from "../settings";
 import type { TokenConfig } from "../types/hooks";
 import type {
     InterfaceContext,

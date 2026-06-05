@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import settings from "../settings/settings.json";
+import settings from "../settings";
 import type {
     Address,
     CallRequest,
@@ -174,6 +174,30 @@ export function useUserBalance(
                 });
 
                 countRC20++;
+            }
+        }
+
+        // ---- Custom tokens (from REACT_APP_CONTRACT_PRICE_PROVIDER_CUSTOM) ----
+        if (contracts.CUSTOM_TOKENS?.length) {
+            const spender = contracts.Moc?.[0]?.address;
+            for (const token of contracts.CUSTOM_TOKENS) {
+                const pair = token.name!;
+                calls.push({
+                    contract: token,
+                    functionName: "balanceOf",
+                    args: [userAddress],
+                    resultType: "uint256",
+                    keys: ["CUSTOM", pair, "balance"],
+                });
+                if (spender) {
+                    calls.push({
+                        contract: token,
+                        functionName: "allowance",
+                        args: [userAddress, spender],
+                        resultType: "uint256",
+                        keys: ["CUSTOM", pair, "allowance"],
+                    });
+                }
             }
         }
 
