@@ -342,6 +342,7 @@ export type UserLendingVaultStatus = {
     getLiquidationPrice: bigint;
     getMaxACToRemove: bigint;
     getMaxTPToBorrow: bigint;
+    getPACtp: bigint;
     isVaultLiquidable: boolean;
 };
 

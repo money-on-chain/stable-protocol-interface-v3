@@ -119,6 +119,19 @@ export function useUserLending(
                     resultType: "bool",
                     keys: [tp, ca, "isVaultLiquidable"],
                 });
+
+                // Oracle CA price in TP terms — needed to compute safe withdrawal limit
+                // when dust credit units remain after repay rounding.
+                const mocBucket = mocBuckets[ca];
+                if (mocBucket) {
+                    calls.push({
+                        contract: mocBucket,
+                        functionName: "getPACtp",
+                        args: [tpAddress],
+                        resultType: "uint256",
+                        keys: [tp, ca, "getPACtp"],
+                    });
+                }
             }
         }
 

@@ -359,7 +359,13 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
                     }
 
                     const priceCreditUnit = pools?.[tp]?.getPriceCreditUnit ?? WAD;
-                    const creditUnits = (tpAmount * WAD) / priceCreditUnit;
+                    const fullCreditBalance = userLending.data?.[tp]?.[ca]?.getUserVaultCreditBalance ?? 0n;
+                    const fullDebtTP = (fullCreditBalance * priceCreditUnit) / WAD;
+                    // When repaying full debt, send fullCreditBalance directly to avoid integer
+                    // truncation (tpAmount * WAD / pCU) leaving dust credit units in the vault.
+                    const creditUnits = tpAmount >= fullDebtTP
+                        ? fullCreditBalance
+                        : (tpAmount * WAD) / priceCreditUnit;
                     let repayHash = "";
 
                     await repay(ctx, address, tpContract.address, mocContract.address, creditUnits,
@@ -466,7 +472,7 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
             const mocContract = contractsAddress.Moc?.[ca];
             if (!tpContract || !mocContract) return;
 
-            const acAmount = parseAmount(collateralAmount);
+            let acAmount = parseAmount(collateralAmount);
             if (acAmount <= 0n) return;
 
             const steps: OperationProgressStep[] = [
@@ -478,8 +484,32 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
                 try {
                     const ctx = buildCtx();
                     const execFee = getExecutionFee();
-                    let withdrawHash = "";
 
+                    // Compute safe max AC to remove using ceiling division so that
+                    // even dust credit units (where minACRequired rounds to 0 in the
+                    // contract's floor division) do not trigger CoverageBelowMin.
+                    // Formula mirrors MocLendingReader.getMaxACToRemoveWithPACtp but
+                    // with ceiling instead of floor.
+                    const creditBalance = userLending.data?.[tp]?.[ca]?.getUserVaultCreditBalance ?? 0n;
+                    const vaultACBalance = userLending.data?.[tp]?.[ca]?.getUserVaultACBalance ?? 0n;
+                    const pCU = pools?.[tp]?.getPriceCreditUnit ?? WAD;
+                    const minCov = pools?.[tp]?.getMinCoverage ?? WAD;
+                    const pACtp = userLending.data?.[tp]?.[ca]?.getPACtp ?? 0n;
+
+                    if (creditBalance > 0n && pACtp > 0n && vaultACBalance > 0n) {
+                        // minACRequired = ceil(creditBalance * pCU * minCov / (pACtp * WAD))
+                        const denom = pACtp * WAD;
+                        const minACRequired = (creditBalance * pCU * minCov + denom - 1n) / denom;
+                        const safeMax = vaultACBalance > minACRequired ? vaultACBalance - minACRequired : 0n;
+                        if (acAmount > safeMax) acAmount = safeMax;
+                    }
+
+                    if (acAmount <= 0n) {
+                        markActiveFailed();
+                        return;
+                    }
+
+                    let withdrawHash = "";
                     await removeACfromVault(ctx, address, tpContract.address, mocContract.address, acAmount, execFee,
                         (hash) => { withdrawHash = hash; setStepStatus("withdraw-collateral", "processing", hash); },
                         () => { setStepStatus("withdraw-collateral", "completed", withdrawHash); onSuccess?.(); }
@@ -494,7 +524,7 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
             };
             void run();
         },
-        [address, buildCtx, contractsAddress, getExecutionFee, markActiveFailed, setStepStatus, t, userBalance, userLending]
+        [address, buildCtx, contractsAddress, getExecutionFee, markActiveFailed, pools, setStepStatus, t, userBalance, userLending]
     );
 
     return {
