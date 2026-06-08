@@ -11,10 +11,12 @@ $breakpoint-mobile: 600px;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    gap: var(--card-padding);
 
     .wallet-user {
         display: flex;
         position: relative;
+        box-sizing: border-box;
         flex-direction: column;
         justify-content: center;
         align-items: flex-end;
@@ -26,7 +28,7 @@ $breakpoint-mobile: 600px;
         border-radius: var(--card-border-radius);
         background: var(--surface-color-1);
         padding: 8px var(--card-padding);
-        width: 224px;
+        width: 192px;
         height: 80px;
         line-height: 80px;
         .wallet-address {
@@ -39,7 +41,8 @@ $breakpoint-mobile: 600px;
             order: 1;
             gap: 8px;
             padding: 0px;
-            width: 160px;
+            width: 100%;
+            min-width: 0;
             height: 24px;
             color: (var(--color-txt-primary));
             font-style: normal;
@@ -48,6 +51,11 @@ $breakpoint-mobile: 600px;
             line-height: 17px; // identical to box height
             font-family: var(--main-font);
             text-align: center;
+            a {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
         }
 
         .walletDisconnected a {
@@ -208,7 +216,6 @@ $breakpoint-mobile: 600px;
     border-radius: var(--card-border-radius);
     background: var(--surface-color-1);
     width: 736px;
-    width: 752px;
     height: 80px;
     line-height: 80px;
 }
@@ -650,6 +657,7 @@ $breakpoint-mobile: 600px;
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
+        gap: 0;
         box-shadow: var(--color-mobilenav-header-shadow);
         background-color: var(--color-mobilenav-header-background);
         padding: 0px 12px;
@@ -660,6 +668,8 @@ $breakpoint-mobile: 600px;
             margin: 0;
             box-shadow: none;
             background-color: transparent !important;
+            padding: 0;
+            width: auto;
             height: 100%;
             .wallet-address {
                 margin: 0;
