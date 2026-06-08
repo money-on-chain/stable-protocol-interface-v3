@@ -25,8 +25,8 @@ $breakpoint-mobile: 600px;
         border: var(--card-border);
         border-radius: var(--card-border-radius);
         background: var(--surface-color-1);
-        padding: 8px 16px;
-        width: 192px;
+        padding: 8px var(--card-padding);
+        width: 224px;
         height: 80px;
         line-height: 80px;
         .wallet-address {

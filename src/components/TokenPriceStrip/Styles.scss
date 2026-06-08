@@ -10,7 +10,7 @@ $token-price-strip-fade-size: 64px;
     border: var(--card-border);
     border-radius: var(--card-border-radius);
     background: var(--surface-color-1);
-    padding: 6px 10px;
+    padding: 6px var(--card-padding);
     width: 100%;
     min-height: 32px;
 }
@@ -19,12 +19,17 @@ $token-price-strip-fade-size: 64px;
     display: flex;
     flex: 1 1 auto;
     align-items: center;
+    justify-content: space-between;
     gap: 18px;
     min-width: 0;
     overflow-x: auto;
     overflow-y: hidden;
     scroll-behavior: smooth;
     scrollbar-width: none;
+}
+
+.token-price-strip--overflow .token-price-strip__viewport {
+    justify-content: flex-start;
 }
 
 .token-price-strip--can-scroll-left .token-price-strip__viewport {
