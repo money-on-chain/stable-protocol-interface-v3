@@ -950,6 +950,7 @@
         "sectionWithdrawCollateral": {
             "cardTitle": "Withdraw Collateral",
             "feedbackCollateralLimit": "Amount exceeds your deposited collateral",
+            "feedbackWithdrawLimit": "Amount exceeds your withdrawable collateral (minimum required to cover debt)",
             "labelAmountToWithdraw": "Amount to Withdraw",
             "summary": {
                 "titleReady": "Ready to continue",

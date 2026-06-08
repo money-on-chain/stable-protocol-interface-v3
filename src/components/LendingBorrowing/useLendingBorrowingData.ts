@@ -112,6 +112,7 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                 const maxBorrow = vault?.getMaxTPToBorrow ?? 0n;
                 const coverage = vault?.getCoverage ?? 0n;
                 const liqPrice = vault?.getLiquidationPrice ?? 0n;
+                const maxACToRemove = vault?.getMaxACToRemove ?? 0n;
 
                 const debtTp = mulWad(creditUnits, priceCreditUnit);
                 const caWallet = userBalance.data?.CA?.[ca]?.balance ?? 0n;
@@ -123,6 +124,9 @@ export function useLendingBorrowingData(): LendingBorrowingData {
 
                 const totalCollateralCA = caWallet + acBalance;
                 const maxAvailableTP = ConvertAmount(contractProtocolStatus, collTokenCode, borrowTokenCode, totalCollateralCA, ca);
+
+                // Use the contract's own reader to get the exact max removable collateral.
+                const maxWithdrawableCA = maxACToRemove;
                 const maxAvailableUsd = ConvertAmount(contractProtocolStatus, borrowTokenCode, "USD", maxAvailableTP, ca);
 
                 let liqDropPct = 0;
@@ -279,6 +283,7 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                     currentDebt: { value: debtVal, ticker: bTicker, valueUsd: fmtBigInt(debtTpUsd) },
                     depositedCollateral: { value: collVal, ticker: cTicker, valueUsd: fmtBigInt(acBalanceUsd) },
                     maxAvailable: { value: fmtBigInt(maxAvailableTP, 18, borrowMeta.visibleDecimals), ticker: bTicker, valueUsd: fmtBigInt(maxAvailableUsd) },
+                    maxWithdrawableCollateral: fmtBigInt(maxWithdrawableCA, 18, collMeta.visibleDecimals),
                     liquidationCoverage: Number(liquidationCov) / 1e18,
                     liquidationDropPercentage: liqDropPct,
                     systemMaxBorrow: userLending.data != null

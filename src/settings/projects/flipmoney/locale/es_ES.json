@@ -957,6 +957,7 @@
         "sectionWithdrawCollateral": {
             "cardTitle": "Retirar colateral",
             "feedbackCollateralLimit": "El monto excede tu colateral depositado",
+            "feedbackWithdrawLimit": "El monto excede tu colateral retirable (mínimo requerido para cubrir la deuda)",
             "labelAmountToWithdraw": "Monto a retirar",
             "summary": {
                 "titleReady": "Listo para continuar",

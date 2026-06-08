@@ -17,6 +17,7 @@ type RawBorrowCardData = Omit<
     | "borrowTokenName"
     | "borrowTokenTicker"
     | "borrowTokenWalletBalance"
+    | "maxWithdrawableCollateral"
     | "collateralTokenDecimals"
     | "collateralTokenIconClassName"
     | "collateralTokenName"
@@ -433,6 +434,7 @@ export const BORROW_CARDS: BorrowCardData[] = RAW_BORROW_CARDS.map((card) => {
         borrowTokenName: borrowToken.name,
         borrowTokenTicker: borrowToken.ticker,
         borrowTokenWalletBalance: "50,000.00",
+        maxWithdrawableCollateral: "150.00",
         collateralTokenDecimals: collateralToken.visibleDecimals,
         collateralTokenIconClassName: collateralToken.iconClassName,
         collateralTokenName: collateralToken.name,

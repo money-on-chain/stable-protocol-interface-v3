@@ -39,16 +39,23 @@ export default function BorrowWithdrawCollateral({
     const { t, i18n } = useProjectTranslation();
 
     const depositedCollateralValue = parseAmount(card.depositedCollateral.value);
+    const maxWithdrawableValue = parseAmount(card.maxWithdrawableCollateral);
     const collateralAmountValue = parseAmount(collateralAmount);
     const hasTypedAmount = collateralAmount.trim().length > 0;
     const hasCollateralLimitError =
         collateralAmountValue.isValid &&
         collateralAmountValue.value > depositedCollateralValue.value;
+    const hasWithdrawLimitError =
+        !hasCollateralLimitError &&
+        collateralAmountValue.isValid &&
+        maxWithdrawableValue.isValid &&
+        collateralAmountValue.value > maxWithdrawableValue.value;
     const hasValidationError =
-        !collateralAmountValue.isValid || hasCollateralLimitError;
+        !collateralAmountValue.isValid || hasCollateralLimitError || hasWithdrawLimitError;
     const hasPendingChanges =
         collateralAmountValue.isValid &&
         !hasCollateralLimitError &&
+        !hasWithdrawLimitError &&
         collateralAmountValue.value > 0;
 
     const getFiatEquivalent = React.useCallback(
@@ -185,17 +192,17 @@ export default function BorrowWithdrawCollateral({
         contractProtocolStatus,
     ]);
 
-    const handleQuickAction = (percentage: number) => {
-        const nextAmount =
-            percentage === 100
-                ? depositedCollateralValue.value
-                : depositedCollateralValue.value * (percentage / 100);
+    const maxWithdrawable = maxWithdrawableValue.isValid
+        ? Math.min(maxWithdrawableValue.value, depositedCollateralValue.value)
+        : depositedCollateralValue.value;
 
-        setCollateralAmount(formatAmount(nextAmount, card.collateralTokenDecimals));
+    const handleQuickAction = (percentage: number) => {
+        const rawAmount = depositedCollateralValue.value * (percentage / 100);
+        setCollateralAmount(formatAmount(Math.min(rawAmount, maxWithdrawable), card.collateralTokenDecimals));
     };
 
     const handleUseMaxCollateral = () => {
-        setCollateralAmount(formatAmount(depositedCollateralValue.value, card.collateralTokenDecimals));
+        setCollateralAmount(formatAmount(maxWithdrawable, card.collateralTokenDecimals));
     };
 
     const noticeLines = hasPendingChanges
@@ -245,7 +252,9 @@ export default function BorrowWithdrawCollateral({
                                     feedbackMessage={
                                         hasCollateralLimitError
                                             ? t("borrowing.sectionWithdrawCollateral.feedbackCollateralLimit")
-                                            : undefined
+                                            : hasWithdrawLimitError
+                                                ? t("borrowing.sectionWithdrawCollateral.feedbackWithdrawLimit")
+                                                : undefined
                                     }
                                     feedbackState="negative"
                                     getFiatEquivalent={getFiatEquivalent}
@@ -261,7 +270,7 @@ export default function BorrowWithdrawCollateral({
                                     testId="borrow-withdraw-collateral-input"
                                     tokenIconClassName={card.collateralTokenIconClassName}
                                     tokenLabel={card.collateralTokenTicker}
-                                    validateError={hasCollateralLimitError}
+                                    validateError={hasCollateralLimitError || hasWithdrawLimitError}
                                 />
                             </div>
                         </div>
