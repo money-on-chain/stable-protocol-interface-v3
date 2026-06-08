@@ -280,6 +280,11 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                 </div> */}
                 </div>
                 <div className="collateralDistribution">
+                    <h2 className="collateralDistribution__title">
+                        {t("performance.collateral.distributionTitle", {
+                            ticker: collateralTicker,
+                        })}
+                    </h2>
                     <DistributionPieChart
                         slices={collateralDistributionSlices}
                         size={224}

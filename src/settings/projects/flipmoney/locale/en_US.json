@@ -310,6 +310,7 @@
 
         "collateral": {
             "cardTitle": "Collateral",
+            "distributionTitle": "Collateral distribution ({{ticker}})",
             "totalIn": "Total collateral in USD",
             "globalCoverage": "Global coverage"
         },

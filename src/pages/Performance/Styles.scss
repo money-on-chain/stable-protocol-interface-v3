@@ -346,10 +346,24 @@
 
     .collateralDistribution {
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
+        gap: 12px;
         min-width: 0;
         min-height: 180px;
+    }
+
+    .collateralDistribution__title {
+        margin: 0;
+        color: var(--color-txt-secondary);
+        font-family: var(--main-font);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        line-height: 1.2;
+        text-align: center;
+        text-transform: uppercase;
     }
 
     .dataGroup {
