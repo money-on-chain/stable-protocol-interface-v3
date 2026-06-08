@@ -316,14 +316,23 @@
         width: 170px;
         text-align: right;
     }
-    .token-table__cell--redeem,
-    .token-table__header--redeem {
+    .token-table__cell--redeemable,
+    .token-table__header--redeemable {
         width: 170px;
         text-align: right;
     }
     .token-table__cell--coverage,
     .token-table__header--coverage {
         width: 100px;
+        text-align: right;
+    }
+
+    .token-table__footnote {
+        margin-top: 24px;
+        color: var(--color-txt-secondary);
+        font-family: var(--main-font);
+        font-size: 12px;
+        line-height: 1.35;
         text-align: right;
     }
 }
@@ -371,6 +380,10 @@
         gap: 16px;
         min-width: 256px;
         // outline: 1px dashed green;
+    }
+
+    .perfGlobalMetrics__footnote {
+        text-align: left;
     }
     .icon__back {
         display: flex;

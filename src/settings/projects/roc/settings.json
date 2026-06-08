@@ -5,6 +5,7 @@
         "description": "ROC UI"
     },
     "showPriceVariation": false,
+    "useCombinedOperationsRedeemableLimit": true,
     "slippage": {
         "autoDefault": 0.5,
         "presets": [0.3, 0.5, 1.0],

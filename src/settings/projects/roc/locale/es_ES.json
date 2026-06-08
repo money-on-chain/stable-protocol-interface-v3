@@ -295,7 +295,8 @@
             "targetCoverage": "Cobertura Objetivo",
             "leverage": "Apalancamiento",
             "lockedCollateral": "Colateral Bloqueado",
-            "tpMintable": "{{ticker}} Minteable"
+            "tpMintable": "{{ticker}} Minteable",
+            "tpRedeemable": "{{ticker}} Redimible"
         },
 
         "tc": {
@@ -319,10 +320,14 @@
             "colTokensPer": "Tokens por USD",
             "colMinted": "Minteados",
             "colMintable": "Minteables",
+            "colRedeemable": "Redimible",
             "colTargetCoverage": "Cobertura Obj.",
             "colEMA": "EMA",
             "colCAUsed": "Colateral usado",
-            "colTargetEMA": "EMA Objetivo"
+            "colTargetEMA": "EMA Objetivo",
+            "redeemableNoLimit": "Sin límite",
+            "redeemableNoLimitWithFootnote": "Sin límite*",
+            "redeemableCombinedOperationsFootnote": "* Sin límite mediante operaciones combinadas únicamente."
         }
     },
 

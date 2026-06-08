@@ -26,6 +26,7 @@ export interface CollateralDistributionRow {
     redeemable: bigint | null;
     redeemableToken: TokenConfig;
     redeemableDecimals: number;
+    showZeroRedeemable: boolean;
     isMintableUnlimited: boolean;
     isRedeemableUnlimited: boolean;
     coverage: bigint | null;
@@ -63,6 +64,8 @@ export function buildCollateralDistributionRows(
         totalBucketAC !== 0n && totalBucketAC >= totalLockedAC
             ? divPrecision(totalBucketAC - totalLockedAC, totalBucketAC)
             : null;
+    const useCombinedOperationsRedeemableLimit =
+        settings.useCombinedOperationsRedeemableLimit === true;
 
     rows.push({
         id: `TC_${caIndex}`,
@@ -90,6 +93,7 @@ export function buildCollateralDistributionRows(
         redeemableToken: tcSettings,
         redeemableDecimals:
             caSettings?.visibleDecimals ?? defaultVisibleBalanceDecimals,
+        showZeroRedeemable: false,
         isMintableUnlimited: true,
         isRedeemableUnlimited: false,
         coverage: null,
@@ -137,6 +141,14 @@ export function buildCollateralDistributionRows(
                 bucketData.getRealTPAvailableToMint?.[tokenKey]
             ) ?? 0n;
         if (availableToMint < 0n) availableToMint = 0n;
+        const mintedRaw = bucketData.pegContainer?.[tokenKey]?.[0];
+        const minted =
+            mintedRaw === undefined || mintedRaw === null
+                ? null
+                : normalizeToBigInt(mintedRaw);
+        const useMintedAsRedeemable =
+            useCombinedOperationsRedeemableLimit &&
+            tokenSettings.peggedUSD === true;
 
         rows.push({
             id: `TP_${tokenKey}`,
@@ -152,9 +164,7 @@ export function buildCollateralDistributionRows(
                 tokenSettings.visiblePriceDecimals ??
                 defaultVisiblePriceDecimals,
             collateralUsedRatio,
-            minted: bucketData.pegContainer?.[tokenKey]?.[0]
-                ? normalizeToBigInt(bucketData.pegContainer[tokenKey][0])
-                : null,
+            minted,
             mintedToken: tokenSettings,
             mintedDecimals:
                 tokenSettings.visibleBalanceDecimals ??
@@ -164,13 +174,14 @@ export function buildCollateralDistributionRows(
             mintableDecimals:
                 tokenSettings.visibleBalanceDecimals ??
                 defaultVisibleBalanceDecimals,
-            redeemable: null,
+            redeemable: useMintedAsRedeemable ? minted : null,
             redeemableToken: tokenSettings,
             redeemableDecimals:
                 tokenSettings.visibleBalanceDecimals ??
                 defaultVisibleBalanceDecimals,
+            showZeroRedeemable: useMintedAsRedeemable,
             isMintableUnlimited: false,
-            isRedeemableUnlimited: true,
+            isRedeemableUnlimited: !useMintedAsRedeemable,
             coverage: bucketData.tpCtarg?.[tokenKey]
                 ? normalizeToBigInt(bucketData.tpCtarg[tokenKey])
                 : null,

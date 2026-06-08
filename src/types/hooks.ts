@@ -114,6 +114,7 @@ export interface Settings {
         max?: number;
     };
     showPriceVariation: boolean;
+    useCombinedOperationsRedeemableLimit?: boolean;
     tokenPriceStrip?: {
         tokens: string[];
     };

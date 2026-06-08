@@ -10,6 +10,8 @@ import {
     type CollateralDistributionRow,
 } from "./collateralDistribution";
 
+const DEBUG_FORCE_BUCKET_REDEEMABLE_FOOTNOTE = false;
+
 // Type definitions
 interface TokensProps {
     caIndex: number;
@@ -28,6 +30,7 @@ interface TokenData {
     minted: React.ReactNode;
     mintable: string | React.ReactNode;
     redeemable: React.ReactNode;
+    hasRedeemableFootnote: boolean;
     coverage: React.ReactNode;
     [key: string]: React.ReactNode | string;
 }
@@ -38,6 +41,12 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
     const noLimitLabel = t("numberFormat.noLimit", {
         defaultValue: "No limit",
     });
+    const redeemableNoLimitWithFootnoteLabel = t(
+        "performance.pegged.redeemableNoLimitWithFootnote",
+        {
+            defaultValue: "No Limit*",
+        }
+    );
     const collateralTicker = settings.tokens.CA[caIndex]?.name ?? "";
 
     const columns: Column[] = [
@@ -69,7 +78,9 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
         },
         {
             key: "redeemable",
-            title: "Redeem",
+            title: t("performance.pegged.colRedeemable", {
+                defaultValue: "Redeemable",
+            }),
         },
         // {
         //     key: "coverage",
@@ -110,9 +121,10 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
     const renderAmount = (
         amount: bigint | null,
         token: CollateralDistributionRow["mintedToken"],
-        decimals: number
+        decimals: number,
+        showZero = false
     ): React.ReactNode =>
-        !amount
+        amount === null || (!showZero && amount === 0n)
             ? "--"
             : PrecisionNumbers({
                   amount,
@@ -128,75 +140,103 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
         contractProtocolStatus
     );
 
-    const tokensData: TokenData[] = bucketRows.map((row) => ({
-        name: (
-            <div className="token">
-                <div className={`${row.iconClassName} token__icon`} />
-                <span className="token__name">{row.fullName}</span>
-                <span className="token__ticker">{row.symbol}</span>
-            </div>
-        ),
-        price: renderPriceInCollateral(row.price, row.priceDecimals),
-        ema:
-            row.ema === null
-                ? "--"
-                : renderPriceInCollateral(row.ema, row.emaDecimals),
-        caUsed: renderPercent(row.collateralUsedRatio),
-        minted: renderAmount(row.minted, row.mintedToken, row.mintedDecimals),
-        mintable: row.isMintableUnlimited
-            ? noLimitLabel
-            : renderAmount(
-                  row.mintable,
-                  row.mintableToken,
-                  row.mintableDecimals
-              ),
-        redeemable: row.isRedeemableUnlimited
-            ? noLimitLabel
-            : renderAmount(
-                  row.redeemable,
-                  row.redeemableToken,
-                  row.redeemableDecimals
-              ),
-        coverage:
-            row.coverage === null ? (
-                <div className="item-usd">--</div>
-            ) : (
-                renderAmount(
-                    row.coverage,
-                    row.coverageToken,
-                    row.coverageDecimals
-                )
+    const tokensData: TokenData[] = bucketRows.map((row) => {
+        const forceRedeemableFootnote =
+            DEBUG_FORCE_BUCKET_REDEEMABLE_FOOTNOTE &&
+            settings.useCombinedOperationsRedeemableLimit === true &&
+            row.redeemableToken.peggedUSD === true;
+
+        return {
+            name: (
+                <div className="token">
+                    <div className={`${row.iconClassName} token__icon`} />
+                    <span className="token__name">{row.fullName}</span>
+                    <span className="token__ticker">{row.symbol}</span>
+                </div>
             ),
-    }));
+            price: renderPriceInCollateral(row.price, row.priceDecimals),
+            ema:
+                row.ema === null
+                    ? "--"
+                    : renderPriceInCollateral(row.ema, row.emaDecimals),
+            caUsed: renderPercent(row.collateralUsedRatio),
+            minted: renderAmount(
+                row.minted,
+                row.mintedToken,
+                row.mintedDecimals
+            ),
+            mintable: row.isMintableUnlimited
+                ? noLimitLabel
+                : renderAmount(
+                      row.mintable,
+                      row.mintableToken,
+                      row.mintableDecimals
+                  ),
+            redeemable: forceRedeemableFootnote
+                ? redeemableNoLimitWithFootnoteLabel
+                : row.isRedeemableUnlimited
+                  ? noLimitLabel
+                  : renderAmount(
+                        row.redeemable,
+                        row.redeemableToken,
+                        row.redeemableDecimals,
+                        row.showZeroRedeemable
+                    ),
+            hasRedeemableFootnote: forceRedeemableFootnote,
+            coverage:
+                row.coverage === null ? (
+                    <div className="item-usd">--</div>
+                ) : (
+                    renderAmount(
+                        row.coverage,
+                        row.coverageToken,
+                        row.coverageDecimals
+                    )
+                ),
+        };
+    });
+
+    const showRedeemableFootnote = tokensData.some(
+        (token) => token.hasRedeemableFootnote
+    );
 
     return (
-        <table className="token-table">
-            <thead>
-                <tr className="token-table__header-row">
-                    {columns.map((col) => (
-                        <th
-                            key={col.key}
-                            className={`token-table__header token-table__header--${col.key}`}
-                        >
-                            {col.title}
-                        </th>
-                    ))}
-                </tr>
-            </thead>
-            <tbody>
-                {tokensData.map((token, index) => (
-                    <tr key={index} className="token-table__row">
+        <>
+            <table className="token-table">
+                <thead>
+                    <tr className="token-table__header-row">
                         {columns.map((col) => (
-                            <td
+                            <th
                                 key={col.key}
-                                className={`token-table__cell token-table__cell--${col.key}`}
+                                className={`token-table__header token-table__header--${col.key}`}
                             >
-                                {token[col.key]}
-                            </td>
+                                {col.title}
+                            </th>
                         ))}
                     </tr>
-                ))}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {tokensData.map((token, index) => (
+                        <tr key={index} className="token-table__row">
+                            {columns.map((col) => (
+                                <td
+                                    key={col.key}
+                                    className={`token-table__cell token-table__cell--${col.key}`}
+                                >
+                                    {token[col.key]}
+                                </td>
+                            ))}
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+            {showRedeemableFootnote && (
+                <div className="token-table__footnote">
+                    {t(
+                        "performance.pegged.redeemableCombinedOperationsFootnote"
+                    )}
+                </div>
+            )}
+        </>
     );
 }

@@ -2,6 +2,7 @@ import React from "react";
 
 import { useWalletContext } from "../../context/Wallet";
 import { TokenSettings } from "../../helpers/currencies";
+import { CheckStatusGlobal } from "../../helpers/checkStatus";
 import { divPrecision, mulPrecision } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings/settings.json";
@@ -10,8 +11,20 @@ import { PrecisionNumbers } from "../PrecisionNumbers";
 export default function MultiCollateral(): JSX.Element {
     const { t, i18n } = useProjectTranslation();
     const { contractProtocolStatus } = useWalletContext();
+    const { checkerStatus } = CheckStatusGlobal();
 
     let leverage = 0n;
+    const useCombinedOperationsRedeemableLimit =
+        settings.useCombinedOperationsRedeemableLimit === true;
+    const globalStatus = checkerStatus().globalStatus;
+    const isProtectedMode = globalStatus === 3;
+    const redeemableLimitLabel = isProtectedMode
+        ? t("performance.pegged.redeemableNoLimitWithFootnote", {
+              defaultValue: "No Limit*",
+          })
+        : t("performance.pegged.redeemableNoLimit", {
+              defaultValue: "No Limit",
+          });
     const tpMintableTotals = settings.tokens.TP.map((tpToken) => {
         const total = settings.tokens.CA.reduce((sum, _caToken, caIndex) => {
             let mintable =
@@ -30,6 +43,11 @@ export default function MultiCollateral(): JSX.Element {
             total,
         };
     });
+    const tpRedeemableLimits = useCombinedOperationsRedeemableLimit
+        ? settings.tokens.TP.filter((tpToken) => tpToken.peggedUSD === true)
+        : [];
+    const showRedeemableFootnote =
+        tpRedeemableLimits.length > 0 && isProtectedMode;
 
     if (
         contractProtocolStatus.data &&
@@ -193,7 +211,35 @@ export default function MultiCollateral(): JSX.Element {
                         </div>
                     </div>
                 ))}
+                {tpRedeemableLimits.map((token) => (
+                    <div
+                        data-testid={`performance-global-group-tp-${token.key}-redeemable`}
+                        className="dataGroup"
+                        key={`redeemable-${token.key}`}
+                    >
+                        <div className="icon__back">
+                            <div
+                                className={`icon-token-tp_${token.key} token__icon`}
+                            />
+                        </div>
+                        <div className="info">
+                            <div className="amount">
+                                {redeemableLimitLabel}
+                            </div>
+                            <div className="label">
+                                {t("performance.metrics.tpRedeemable", {
+                                    ticker: token.name,
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                ))}
             </div>
+            {showRedeemableFootnote && (
+                <div className="token-table__footnote perfGlobalMetrics__footnote">
+                    {t("performance.pegged.redeemableCombinedOperationsFootnote")}
+                </div>
+            )}
         </div>
     );
 }
