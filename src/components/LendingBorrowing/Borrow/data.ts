@@ -55,6 +55,7 @@ export interface BorrowCardData {
     depositedCollateral: BorrowCardMetric;
     id: string;
     liquidationCoverage: number;
+    minCoverage: number;
     liquidationDropPercentage: number;
     maxAvailable: BorrowCardMetric;
     maxWithdrawableCollateral: string;

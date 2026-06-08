@@ -104,6 +104,7 @@ export function useLendingBorrowingData(): LendingBorrowingData {
 
                 const priceCreditUnit = pool?.getPriceCreditUnit ?? WAD;
                 const liquidationCov = pool?.getLiquidationCoverage ?? 0n;
+                const minCov = pool?.getMinCoverage ?? 0n;
                 const borrowFee = pool?.getBorrowFee ?? 0n;
 
                 const vault = userLending.data?.[tp]?.[ca];
@@ -285,6 +286,7 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                     maxAvailable: { value: fmtBigInt(maxAvailableTP, 18, borrowMeta.visibleDecimals), ticker: bTicker, valueUsd: fmtBigInt(maxAvailableUsd) },
                     maxWithdrawableCollateral: fmtBigInt(maxWithdrawableCA, 18, collMeta.visibleDecimals),
                     liquidationCoverage: Number(liquidationCov) / 1e18,
+                    minCoverage: Number(minCov) / 1e18,
                     liquidationDropPercentage: liqDropPct,
                     systemMaxBorrow: userLending.data != null
                         ? fmtBigInt(maxBorrow, 18, borrowMeta.visibleDecimals)

@@ -65,12 +65,14 @@ export default function BorrowOperation({
         (hasCollateralTyped && !collateralAmountValue.isValid);
     // When user is also depositing collateral in the same TX, compute the
     // effective borrow limit from (existing deposited + new collateral).
-    // When no new collateral, use the chain-reported max to avoid CoverageBelowMin reverts.
+    // The contract uses minCoverage (borrow constraint) not liquidationCoverage (liquidation
+    // threshold) — using the wrong constant causes a ~10% overestimate in the UI.
+    // When no new collateral, use the chain-reported max directly.
     const effectiveMaxBorrowNum = React.useMemo(() => {
         if (!isMaxBorrowLoaded || systemMaxBorrowNum === null) return null;
         const addingCollateral = collateralAmountValue.isValid && collateralAmountValue.value > 0;
         if (!addingCollateral) return systemMaxBorrowNum;
-        if (!contractProtocolStatus.data || card.liquidationCoverage <= 0) return systemMaxBorrowNum;
+        if (!contractProtocolStatus.data || card.minCoverage <= 0) return systemMaxBorrowNum;
         const totalCA = depositedCollateralAmount + collateralAmountValue.value;
         if (totalCA <= 0) return systemMaxBorrowNum;
         const totalTP = Number(ConvertAmount(
@@ -81,11 +83,11 @@ export default function BorrowOperation({
             card.caIndex
         )) / 1e18;
         const existingDebt = parseAmount(card.currentDebt.value).value;
-        return Math.max(0, totalTP / card.liquidationCoverage - existingDebt);
+        return Math.max(0, totalTP / card.minCoverage - existingDebt);
     }, [
         isMaxBorrowLoaded, systemMaxBorrowNum,
         collateralAmountValue.isValid, collateralAmountValue.value,
-        depositedCollateralAmount, card.liquidationCoverage,
+        depositedCollateralAmount, card.minCoverage,
         card.collateralTokenCode, card.borrowTokenCode, card.caIndex,
         card.currentDebt.value, contractProtocolStatus,
     ]);
@@ -277,7 +279,7 @@ export default function BorrowOperation({
                 const totalCapacity = existingDebt + currentMaxBorrow;
                 usageNum = totalCapacity > 0 ? Math.min(100, (newDebt / totalCapacity) * 100) : 0;
             } else {
-                // Adding collateral: formula-based with liquidationCoverage.
+                // Adding collateral: formula-based with minCoverage (same constraint the contract uses).
                 const totalTP = Number(ConvertAmount(
                     contractProtocolStatus,
                     card.collateralTokenCode,
@@ -285,8 +287,8 @@ export default function BorrowOperation({
                     toBigIntPrecision(totalCA),
                     card.caIndex
                 )) / 1e18;
-                if (totalTP > 0 && card.liquidationCoverage > 0) {
-                    const effectiveTP = totalTP / card.liquidationCoverage;
+                if (totalTP > 0 && card.minCoverage > 0) {
+                    const effectiveTP = totalTP / card.minCoverage;
                     availableNum = Math.max(0, effectiveTP - newDebt);
                     usageNum = effectiveTP > 0 ? Math.min(100, (newDebt / effectiveTP) * 100) : 0;
                 }
@@ -330,6 +332,7 @@ export default function BorrowOperation({
         card.borrowTokenDecimals,
         card.currentDebt.value,
         card.liquidationCoverage,
+        card.minCoverage,
         borrowAvailableMetric,
         borrowUsageMetric,
         liquidationPriceMetric,
