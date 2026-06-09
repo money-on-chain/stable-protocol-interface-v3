@@ -1,11 +1,12 @@
 import React from "react";
 
 import { useWalletContext } from "../../context/Wallet";
-import { TokenSettings } from "../../helpers/currencies";
 import { CheckStatusGlobal } from "../../helpers/checkStatus";
+import { TokenSettings } from "../../helpers/currencies";
 import { divPrecision, mulPrecision } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings";
+import type { TokenConfig } from "../../types/hooks";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 
 export default function MultiCollateral(): JSX.Element {
@@ -25,24 +26,30 @@ export default function MultiCollateral(): JSX.Element {
         : t("performance.pegged.redeemableNoLimit", {
               defaultValue: "No Limit",
           });
-    const tpMintableTotals = settings.tokens.TP.map((tpToken) => {
-        const total = settings.tokens.CA.reduce((sum, _caToken, caIndex) => {
-            let mintable =
-                contractProtocolStatus.data?.[caIndex]
-                    ?.getRealTPAvailableToMint?.[tpToken.key] ?? 0n;
+    const tpMintableTotals = settings.tokens.TP.reduce<
+        Array<{ token: TokenConfig; total: bigint }>
+    >((totals, tpToken) => {
+        const tokenKey = tpToken.key;
+        if (tokenKey === undefined) return totals;
 
-            if (mintable < 0n) {
-                mintable = 0n;
-            }
+        const total = settings.tokens.CA.reduce<bigint>(
+            (sum, _caToken, caIndex) => {
+                const mintable =
+                    contractProtocolStatus.data?.[caIndex]
+                        ?.getRealTPAvailableToMint?.[tokenKey] ?? 0n;
 
-            return sum + mintable;
-        }, 0n);
+                return sum + (mintable < 0n ? 0n : mintable);
+            },
+            0n
+        );
 
-        return {
+        totals.push({
             token: tpToken,
             total,
-        };
-    });
+        });
+
+        return totals;
+    }, []);
     const tpRedeemableLimits = useCombinedOperationsRedeemableLimit
         ? settings.tokens.TP.filter((tpToken) => tpToken.peggedUSD === true)
         : [];
@@ -123,6 +130,7 @@ export default function MultiCollateral(): JSX.Element {
                                       decimals: 4,
                                       i18n: i18n,
                                       compact: true,
+                                      useNoLimit: true,
                                   })
                                 : "--"}
                         </div>
@@ -148,6 +156,7 @@ export default function MultiCollateral(): JSX.Element {
                                       decimals: 4,
                                       i18n: i18n,
                                       compact: true,
+                                      useNoLimit: true,
                                   })
                                 : "--"}
                         </div>
@@ -172,6 +181,7 @@ export default function MultiCollateral(): JSX.Element {
                                       decimals: 4,
                                       i18n: i18n,
                                       compact: true,
+                                      useNoLimit: true,
                                   })
                                 : "--"}
                         </div>
@@ -197,9 +207,11 @@ export default function MultiCollateral(): JSX.Element {
                                     ? PrecisionNumbers({
                                           amount: total,
                                           token,
-                                          decimals: token.visibleBalanceDecimals,
+                                          decimals:
+                                              token.visibleBalanceDecimals,
                                           i18n: i18n,
                                           compact: true,
+                                          useNoLimit: true,
                                       })
                                     : "--"}
                             </div>
@@ -223,9 +235,7 @@ export default function MultiCollateral(): JSX.Element {
                             />
                         </div>
                         <div className="info">
-                            <div className="amount">
-                                {redeemableLimitLabel}
-                            </div>
+                            <div className="amount">{redeemableLimitLabel}</div>
                             <div className="label">
                                 {t("performance.metrics.tpRedeemable", {
                                     ticker: token.name,
@@ -237,7 +247,9 @@ export default function MultiCollateral(): JSX.Element {
             </div>
             {showRedeemableFootnote && (
                 <div className="token-table__footnote perfGlobalMetrics__footnote">
-                    {t("performance.pegged.redeemableCombinedOperationsFootnote")}
+                    {t(
+                        "performance.pegged.redeemableCombinedOperationsFootnote"
+                    )}
                 </div>
             )}
         </div>

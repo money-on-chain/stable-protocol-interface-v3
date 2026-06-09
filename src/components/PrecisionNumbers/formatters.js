@@ -73,26 +73,24 @@ const formatTinyValue = (value, locale) => {
 export const formatFullLocaleValue = (
     value,
     locale,
-    noLimitLabel = DEFAULT_NO_LIMIT_LABEL
+    noLimitLabel = DEFAULT_NO_LIMIT_LABEL,
+    useNoLimit = false
 ) => {
     if (!Number.isFinite(value)) {
         return String(value);
     }
 
-    if (value > MAX_COMPACT_VALUE) {
+    if (useNoLimit && value > MAX_COMPACT_VALUE) {
         return noLimitLabel;
     }
 
-    if (value < -MAX_COMPACT_VALUE) {
+    if (useNoLimit && value < -MAX_COMPACT_VALUE) {
         return noLimitLabel;
     }
 
     const absoluteValue = Math.abs(value);
 
-    if (
-        absoluteValue > 0 &&
-        absoluteValue < MIN_EXTENDED_PRECISION_VALUE
-    ) {
+    if (absoluteValue > 0 && absoluteValue < MIN_EXTENDED_PRECISION_VALUE) {
         return formatTinyValue(value, locale);
     }
 
@@ -108,7 +106,8 @@ export const formatFullLocaleValue = (
 export const formatSignificantCompactValue = (
     value,
     locale,
-    noLimitLabel = DEFAULT_NO_LIMIT_LABEL
+    noLimitLabel = DEFAULT_NO_LIMIT_LABEL,
+    useNoLimit = false
 ) => {
     if (!Number.isFinite(value)) {
         return String(value);
@@ -116,18 +115,15 @@ export const formatSignificantCompactValue = (
 
     const absoluteValue = Math.abs(value);
 
-    if (value > MAX_COMPACT_VALUE) {
+    if (useNoLimit && value > MAX_COMPACT_VALUE) {
         return noLimitLabel;
     }
 
-    if (value < -MAX_COMPACT_VALUE) {
+    if (useNoLimit && value < -MAX_COMPACT_VALUE) {
         return noLimitLabel;
     }
 
-    if (
-        absoluteValue > 0 &&
-        absoluteValue < MIN_EXTENDED_PRECISION_VALUE
-    ) {
+    if (absoluteValue > 0 && absoluteValue < MIN_EXTENDED_PRECISION_VALUE) {
         return formatTinyValue(value, locale);
     }
 

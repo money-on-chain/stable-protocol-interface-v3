@@ -9,7 +9,6 @@ import {
 } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings";
-import type { TokenConfig } from "../../types/hooks";
 import DistributionPieChart, {
     type DistributionPieSlice,
 } from "../Charts/DistributionPieChart";
@@ -128,12 +127,11 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                           amount: acBalance,
                                           token: TokenSettings(`CA_${caIndex}`),
                                           decimals:
-                                              (
-                                                  settings.tokens
-                                                      .CA as TokenConfig[]
-                                              )[caIndex]?.visibleDecimals || 6,
+                                              settings.tokens.CA[caIndex]
+                                                  ?.visibleDecimals || 6,
                                           i18n: i18n,
                                           compact: true,
+                                          useNoLimit: true,
                                       })
                                     : "--"}
                             </div>
@@ -160,6 +158,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                           decimals: 2,
                                           i18n: i18n,
                                           compact: true,
+                                          useNoLimit: true,
                                       })
                                     : "--"}
                             </div>
@@ -189,6 +188,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                           decimals: 4,
                                           i18n: i18n,
                                           compact: true,
+                                          useNoLimit: true,
                                       })
                                     : "--"}
                             </div>
@@ -219,6 +219,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                           decimals: 4,
                                           i18n: i18n,
                                           compact: true,
+                                          useNoLimit: true,
                                       })
                                     : "--"}
                             </div>
@@ -243,6 +244,7 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                           decimals: 4,
                                           i18n: i18n,
                                           compact: true,
+                                          useNoLimit: true,
                                       })
                                     : "--"}
                             </div>
@@ -265,11 +267,11 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                       amount: lckAC,
                                       token: TokenSettings(`CA_${caIndex}`),
                                       decimals:
-                                          (settings.tokens.CA as TokenConfig[])[
-                                              caIndex
-                                          ]?.visibleDecimals || 6,
+                                          settings.tokens.CA[caIndex]
+                                              ?.visibleDecimals || 6,
                                       i18n: i18n,
                                       compact: true,
+                                      useNoLimit: true,
                                   })
                                 : "--"}
                         </div>

@@ -5,7 +5,6 @@ import { TokenSettings } from "../../helpers/currencies";
 import { mulPrecision, normalizeToBigInt } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings";
-import type { TokenConfig } from "../../types/hooks";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 
 export default function TVL(): JSX.Element {
@@ -17,7 +16,7 @@ export default function TVL(): JSX.Element {
 
         let total = 0n;
 
-        for (const dataItem of settings.tokens.CA as TokenConfig[]) {
+        for (const dataItem of settings.tokens.CA) {
             if (dataItem.key == null) continue;
 
             const entry = contractProtocolStatus.data[dataItem.key];
@@ -46,6 +45,7 @@ export default function TVL(): JSX.Element {
                         decimals: 2,
                         i18n: i18n,
                         compact: true,
+                        useNoLimit: true,
                     })}
                 </div>
                 <div className="caption">

@@ -24,6 +24,7 @@ interface PrecisionNumbersProps {
     isUSD?: boolean;
     compact?: boolean;
     tooltipVariant?: "raw" | "formatted";
+    useNoLimit?: boolean;
 }
 
 export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
@@ -35,6 +36,7 @@ export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
     isUSD = false,
     compact = false,
     tooltipVariant,
+    useNoLimit = false,
 }) => {
     if (typeof amount !== "bigint") {
         console.warn("❌ amount must be bigint:", amount);
@@ -66,7 +68,12 @@ export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
         "No limit";
 
     const displayValue = compact
-        ? formatSignificantCompactValue(floatValue, NUMBER_LOCALE, noLimitLabel)
+        ? formatSignificantCompactValue(
+              floatValue,
+              NUMBER_LOCALE,
+              noLimitLabel,
+              useNoLimit
+          )
         : new Intl.NumberFormat(NUMBER_LOCALE, {
               notation: "standard",
               maximumFractionDigits: precision,
@@ -74,7 +81,12 @@ export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
           }).format(floatValue);
     const tooltipValue =
         effectiveTooltipVariant === "formatted"
-            ? formatFullLocaleValue(floatValue, NUMBER_LOCALE, noLimitLabel)
+            ? formatFullLocaleValue(
+                  floatValue,
+                  NUMBER_LOCALE,
+                  noLimitLabel,
+                  useNoLimit
+              )
             : formattedString;
 
     return isUSD ? (
