@@ -8,7 +8,7 @@ import {
     normalizeToBigInt,
 } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
-import settings from "../../settings/settings.json";
+import settings from "../../settings";
 import type { TokenConfig } from "../../types/hooks";
 import DistributionPieChart, {
     type DistributionPieSlice,

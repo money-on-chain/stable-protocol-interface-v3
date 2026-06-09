@@ -1,5 +1,5 @@
 import { useWalletContext } from "../context/Wallet";
-import settings from "../settings/settings.json";
+import settings from "../settings";
 import type { ContractProtocolStatusResult } from "../types/status";
 import { useProjectTranslation } from "./translations";
 

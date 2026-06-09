@@ -1,4 +1,4 @@
-import settings from "../settings/settings.json";
+import settings from "../settings";
 import type { TokenConfig } from "../types/hooks";
 import type {
     ContractProtocolStatusResult,
@@ -36,10 +36,10 @@ export function getPortfolioTokenUsdBalance(
                 ? balance
                 : ConvertAmount(
                       contractProtocolStatus,
-                      "TP",
+                      `TP_${token.key || 0}`,
                       "USD",
                       balance,
-                      token.key || 0
+                      0
                   );
         default:
             return 0n;
@@ -61,13 +61,21 @@ export function getPortfolioTotalUsd(
 
     let totalUSD = 0n;
     const tfTokenNames = new Set<string>();
+    const portfolioTable = settings.portfolio_table;
 
     Object.entries(settings.tokens).forEach(([type, tokens]) => {
         (tokens as TokenConfig[]).forEach((baseToken, index) => {
+            const tokenKey = baseToken.key !== undefined ? baseToken.key : index;
+
+            if (portfolioTable) {
+                const typeKeyEntry = `${type}_${tokenKey}`;
+                if (!portfolioTable.includes(type) && !portfolioTable.includes(typeKeyEntry)) return;
+            }
+
             const token: TokenConfig = {
                 ...baseToken,
                 type,
-                key: baseToken.key !== undefined ? baseToken.key : index,
+                key: tokenKey,
             };
 
             if (type === "TF") {

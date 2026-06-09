@@ -45,137 +45,29 @@
             "peggedUSD": false
         }
     },
+    "portfolio_table": ["COINBASE", "CA_0", "CA_1", "TC_0", "TC_1", "TP_0", "TP_1", "TF", "MOC"],
     "tokens": {
         "COINBASE": [
-            {
-                "key": 0,
-                "name": "RBTC",
-                "fullName": "Smart Bitcoin",
-                "decimals": 18,
-                "visibleDecimals": 6,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 8,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            }
+            {"key": 0, "token": "RBTC"}
         ],
         "CA": [
-            {
-                "key": 0,
-                "collateralType": "rc20",
-                "name": "BPRO",
-                "fullName": "BPro",
-                "decimals": 18,
-                "visibleDecimals": 6,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 8,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            },
-            {
-                "key": 1,
-                "collateralType": "rc20",
-                "name": "DOC",
-                "fullName": "Dollar on Chain",
-                "decimals": 18,
-                "visibleDecimals": 2,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 2,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            }
+            {"key": 0, "token": "BPRO"},
+            {"key": 1, "token": "DOC"}
         ],
         "TP": [
-            {
-                "key": 0,
-                "name": "ArsFlip",
-                "fullName": "Argentine Peso Flip",
-                "decimals": 18,
-                "visibleDecimals": 2,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 2,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            },
-            {
-                "key": 1,
-                "name": "CopFlip",
-                "fullName": "Colombian Peso Flip",
-                "decimals": 18,
-                "visibleDecimals": 2,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 2,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            }
+            {"key": 0, "token": "ARSFLIP"},
+            {"key": 1, "token": "COPFLIP"}
         ],
         "TC": [
-            {
-                "key": 0,
-                "name": "BPROX",
-                "fullName": "BPro X",
-                "decimals": 18,
-                "visibleDecimals": 6,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 8,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            },
-            {
-                "key": 1,
-                "name": "DOCX",
-                "fullName": "Dollar on Chain X",
-                "decimals": 18,
-                "visibleDecimals": 2,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 8,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            }
+            {"key": 0, "token": "BPROX"},
+            {"key": 1, "token": "DOCX"}
         ],
         "TF": [
-            {
-                "key": 0,
-                "name": "FLIP",
-                "decimals": 18,
-                "visibleDecimals": 8,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 4,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            },
-            {
-                "key": 1,
-                "name": "FLIP",
-                "decimals": 18,
-                "visibleDecimals": 8,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 4,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            }
+            {"key": 0, "token": "FLIP"},
+            {"key": 1, "token": "FLIP"}
         ],
         "TG": [
-            {
-                "key": 0,
-                "name": "FLIP",
-                "decimals": 18,
-                "visibleDecimals": 8,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 4,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            }
+            {"key": 0, "token": "FLIP"}
         ]
     }
 }

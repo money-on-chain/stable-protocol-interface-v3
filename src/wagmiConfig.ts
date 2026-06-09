@@ -5,7 +5,7 @@ import { localhost, rootstock, rootstockTestnet } from "wagmi/chains";
 import { coinbaseWallet, injected, walletConnect } from "wagmi/connectors";
 
 import { ALLOWED_CHAIN, CHAINS } from "./constants/chain";
-import settings from "./settings/settings.json";
+import settings from "./settings";
 
 // Re-export so existing consumers of wagmiConfig still work
 export { ALLOWED_CHAIN, CHAINS };

@@ -7,8 +7,8 @@
     "showPriceVariation": false,
     "useCombinedOperationsRedeemableLimit": true,
     "slippage": {
-        "autoDefault": 0.5,
-        "presets": [0.3, 0.5, 1.0],
+        "autoDefault": 0.25,
+        "presets": [0.2, 0.25, 0.35],
         "max": 5.0
     },
     "exchange": {

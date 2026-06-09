@@ -4,7 +4,7 @@ import React from "react";
 import { useWalletContext } from "../../../context/Wallet";
 import { formatTimestamp } from "../../../helpers/staking";
 import { useProjectTranslation } from "../../../helpers/translations";
-import settings from "../../../settings/settings.json";
+import settings from "../../../settings";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 
 interface VestingDataItem {

@@ -5,7 +5,7 @@ import { TokenSettings } from "../../helpers/currencies";
 import { CheckStatusGlobal } from "../../helpers/checkStatus";
 import { divPrecision, mulPrecision } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
-import settings from "../../settings/settings.json";
+import settings from "../../settings";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 
 export default function MultiCollateral(): JSX.Element {

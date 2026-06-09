@@ -3,7 +3,7 @@ import axios from "axios";
 import { parseUnits } from "viem";
 
 import mapPricesOffchain from "../settings/prices-offchain.json";
-import settings from "../settings/settings.json";
+import settings from "../settings";
 import type { ParsedPrices } from "../types/hooks";
 
 /**

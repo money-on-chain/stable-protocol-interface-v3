@@ -31,7 +31,7 @@ import {
     toBigIntPrecision,
 } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
-import settings from "../../settings/settings.json";
+import settings from "../../settings";
 import type { Settings } from "../../types/hooks";
 import type { CommissionItem, CommissionsState } from "../../types/status";
 import CommissionsSelector from "../CommissionsSelector";
@@ -528,21 +528,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
             setInputValidationError(true);
             return;
         }
-
-        if (
-            currencyYouExchange.startsWith("CA_") &&
-            selectedFeeCurrency.startsWith("CA_")
-        ) {
-            const feeCA = commissionsByKey[`CA_${caIndex}`]?.commission ?? 0n;
-            const needed = amountYouExchange + feeCA;
-            const bal = TokenBalance(userBalance, currencyYouExchange);
-            if (needed > bal) {
-                setInputValidationErrorText(t("exchange.errors.notBalance"));
-                setInputValidationError(true);
-                return;
-            }
-        }
-
+        
         // No Validations Errors
         setInputValidationErrorText("");
         setGlobalValidationErrorText("");
@@ -1177,24 +1163,13 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
 
     const setAddTotalAvailable = (): void => {
         const totalbalance = TokenBalance(userBalance, currencyYouExchange);
-        const convertAmountReceive = ConvertAmount(
-            contractProtocolStatus,
-            currencyYouExchange,
-            currencyYouReceive,
-            totalbalance,
-            caIndex
-        );
-        setValueExchange(
-            totalbalance === 0n
-                ? ""
-                : bigIntToInputValue(
-                      totalbalance,
-                      currencyYouExchange,
-                      totalbalance < 10n ** 17n ? 12 : 8
-                  )
-        );
-        setAmountYouExchange(totalbalance);
-        void onChangeAmounts(totalbalance, convertAmountReceive, "exchange");
+        onChangeAmountYouExchange(totalbalance === 0n
+            ? ""
+            : bigIntToInputValue(
+                  totalbalance,
+                  currencyYouExchange,
+                  totalbalance < 10n ** 17n ? 12 : 8
+              ));        
     };
 
     const onChangeFee = (e: RadioChangeEvent): void => {

@@ -1,5 +1,6 @@
 import "antd/dist/antd.css";
 import "./assets/css/icons.scss";
+import "./assets/css/icons-tokens.scss";
 import "./assets/css/customize1Defaults.scss";
 import "./assets/css/customize2Light.scss";
 import "./assets/css/customize3Dark.scss";

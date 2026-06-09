@@ -368,7 +368,8 @@
                 "label": "Flip",
                 "abbr": "FLIP"
             },
-            "TG": { "label": "Flip", "abbr": "FLIP" }
+            "TG": { "label": "Flip", "abbr": "FLIP" },
+            "CUSTOM_MOC": { "label": "Money on Chain", "abbr": "MOC" }
         },
         "cardTitle": "Send",
         "labelSending": "Sending",
