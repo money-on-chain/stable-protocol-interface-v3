@@ -122,7 +122,8 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
         amount: bigint | null,
         token: CollateralDistributionRow["mintedToken"],
         decimals: number,
-        showZero = false
+        showZero = false,
+        useNoLimit = false
     ): React.ReactNode =>
         amount === null || (!showZero && amount === 0n)
             ? "--"
@@ -132,6 +133,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                   decimals,
                   i18n,
                   compact: true,
+                  useNoLimit,
               });
 
     const bucketRows = buildCollateralDistributionRows(
@@ -145,6 +147,9 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
             DEBUG_FORCE_BUCKET_REDEEMABLE_FOOTNOTE &&
             settings.useCombinedOperationsRedeemableLimit === true &&
             row.redeemableToken.peggedUSD === true;
+        const useMintableNoLimit =
+            settings.useCombinedOperationsRedeemableLimit === true &&
+            row.mintableToken.peggedUSD === true;
 
         return {
             name: (
@@ -170,7 +175,9 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                 : renderAmount(
                       row.mintable,
                       row.mintableToken,
-                      row.mintableDecimals
+                      row.mintableDecimals,
+                      false,
+                      useMintableNoLimit
                   ),
             redeemable: forceRedeemableFootnote
                 ? redeemableNoLimitWithFootnoteLabel
