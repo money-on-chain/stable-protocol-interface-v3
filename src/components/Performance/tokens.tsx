@@ -64,10 +64,10 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
             key: "ema",
             title: t("performance.pegged.colEMA"),
         },
-        {
-            key: "caUsed",
-            title: t("performance.pegged.colCAUsed"),
-        },
+        // {
+        //     key: "caUsed",
+        //     title: t("performance.pegged.colCAUsed"),
+        // },
         {
             key: "minted",
             title: t("performance.pegged.colMinted"),
@@ -164,7 +164,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                 row.ema === null
                     ? "--"
                     : renderPriceInCollateral(row.ema, row.emaDecimals),
-            caUsed: renderPercent(row.collateralUsedRatio),
+            // caUsed: renderPercent(row.collateralUsedRatio),
             minted: renderAmount(
                 row.minted,
                 row.mintedToken,
