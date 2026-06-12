@@ -1,6 +1,6 @@
 import { ConvertPeggedTokenPrice } from "../../helpers/currencies";
 import { divPrecision, normalizeToBigInt } from "../../helpers/precision";
-import settings from "../../settings/settings.json";
+import settings from "../../settings";
 import type { TokenConfig } from "../../types/hooks";
 import type {
     ContractProtocolStatusResult,
@@ -34,11 +34,12 @@ export interface CollateralDistributionRow {
     coverageDecimals: number;
 }
 
-const {
-    visiblePriceDecimals: defaultVisiblePriceDecimals,
-    visibleDecimals: defaultVisibleDecimals,
-    visibleBalanceDecimals: defaultVisibleBalanceDecimals,
-} = settings.defaults.tokens;
+const defaultTokenSettings = settings.defaults?.tokens ?? {};
+const defaultVisiblePriceDecimals =
+    defaultTokenSettings.visiblePriceDecimals ?? 2;
+const defaultVisibleDecimals = defaultTokenSettings.visibleDecimals ?? 6;
+const defaultVisibleBalanceDecimals =
+    defaultTokenSettings.visibleBalanceDecimals ?? 8;
 
 export const RATIO_PRECISION = 10n ** 18n;
 
@@ -59,7 +60,7 @@ export function buildCollateralDistributionRows(
     const totalBucketAC = normalizeToBigInt(bucketData.nACcb) ?? 0n;
     const totalLockedAC = normalizeToBigInt(bucketData.getLckAC) ?? 0n;
     const tcSettings = settings.tokens.TC[caIndex];
-    const caSettings = settings.tokens.CA[caIndex] as TokenConfig;
+    const caSettings = settings.tokens.CA[caIndex];
     const tcCAUsed =
         totalBucketAC !== 0n && totalBucketAC >= totalLockedAC
             ? divPrecision(totalBucketAC - totalLockedAC, totalBucketAC)

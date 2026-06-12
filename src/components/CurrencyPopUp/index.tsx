@@ -48,8 +48,11 @@ export default function CurrencyPopUp(props: CurrencyPopUpProps): JSX.Element {
         abbreviation: t(`${action}.tokens.${currency.value}.abbr`, { ns }),
     }));
 
+    const allowedOptions: CurrencyOption[] = options.filter((currency) =>
+        currencyOptions.includes(currency.value)
+    );
     const arrayAdded: string[] = [];
-    const optionsFiltered: CurrencyOption[] = options.filter((item) => {
+    const optionsFiltered: CurrencyOption[] = allowedOptions.filter((item) => {
         if (!arrayAdded.includes(item.abbreviation)) {
             if (!(action === "exchange" && item.value === "COINBASE")) {
                 arrayAdded.push(item.abbreviation);
@@ -61,10 +64,6 @@ export default function CurrencyPopUp(props: CurrencyPopUpProps): JSX.Element {
 
     const selectedCurrency: CurrencyOption | undefined = optionsFiltered.find(
         (currency) => currency.value === value
-    );
-
-    const filteredOptions: CurrencyOption[] = optionsFiltered.filter(
-        (currency) => currencyOptions.includes(currency.value)
     );
 
     const openModal = (): void => {
@@ -131,7 +130,7 @@ export default function CurrencyPopUp(props: CurrencyPopUpProps): JSX.Element {
                     className="select__token__modal"
                 >
                     <div className="token-list">
-                        {filteredOptions.map((currency) => (
+                        {optionsFiltered.map((currency) => (
                             <div
                                 key={currency.value}
                                 data-testid={`token-list-select-${currency.abbreviation}`}

@@ -9,8 +9,8 @@ import {
 } from "../../helpers/currencies";
 import { mulPrecision, normalizeToBigInt, WAD } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
-import settings from "../../settings/settings.json";
-import type { Settings, TokenConfig } from "../../types/hooks";
+import settings from "../../settings";
+import type { TokenConfig } from "../../types/hooks";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 
 interface TokenPriceItem {
@@ -29,7 +29,7 @@ interface TokenPriceStripContentProps {
 const getFirstToken = (tokens: TokenConfig[] | undefined): TokenConfig | null =>
     tokens?.[0] ?? null;
 
-const appSettings = settings as Settings;
+const appSettings = settings;
 
 export default function TokenPriceStrip(): JSX.Element | null {
     const configuredTokens = Array.isArray(appSettings.tokenPriceStrip?.tokens)

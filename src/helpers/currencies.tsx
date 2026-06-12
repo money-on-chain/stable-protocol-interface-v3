@@ -85,11 +85,13 @@ const buildCurrencies = (): Currency[] => {
         )
     );
 
-    // TF and TG: deduplicate by token name (same token can appear under multiple keys)
+    // TF and TG: deduplicate by token name within each type, but keep both
+    // entries when the same token can be used as fee and governance token.
     (["TF", "TG"] as const).forEach((type) =>
         settings.tokens[type]?.forEach((t) => {
-            if (!seenNames.has(t.name)) {
-                seenNames.add(t.name);
+            const tokenKey = `${type}:${t.name}`;
+            if (!seenNames.has(tokenKey)) {
+                seenNames.add(tokenKey);
                 entries.push({ value: type, image: getTokenIcon(t.name) });
             }
         })

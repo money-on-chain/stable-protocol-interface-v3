@@ -3,7 +3,7 @@ import React from "react";
 import { useWalletContext } from "../../context/Wallet";
 import { TokenSettings } from "../../helpers/currencies";
 import { useProjectTranslation } from "../../helpers/translations";
-import settings from "../../settings/settings.json";
+import settings from "../../settings";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import {
     buildCollateralDistributionRows,
@@ -164,7 +164,7 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
                 row.ema === null
                     ? "--"
                     : renderPriceInCollateral(row.ema, row.emaDecimals),
-            // caUsed: renderPercent(row.collateralUsedRatio),
+            caUsed: renderPercent(row.collateralUsedRatio),
             minted: renderAmount(
                 row.minted,
                 row.mintedToken,
