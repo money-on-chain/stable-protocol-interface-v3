@@ -42,7 +42,6 @@ export type ProtocolStatusEntry = {
     getCtargemaCA: bigint;
     getLckAC: bigint;
     getLckACByTP: bigint[];
-    getLckACOnchain: bigint;
     getPTCac: bigint;
     getRealTCAvailableToRedeem: bigint;
     getRealTPAvailableToMint: bigint[];

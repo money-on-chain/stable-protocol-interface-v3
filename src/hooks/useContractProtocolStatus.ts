@@ -319,14 +319,6 @@ export function useContractProtocolStatus(
 
             callRequest.push({
                 contract: Moc,
-                functionName: "getLckAC",
-                args: [],
-                resultType: "uint256",
-                keys: [ca, "getLckACOnchain"],
-            });
-
-            callRequest.push({
-                contract: Moc,
                 functionName: parsedPrices
                     ? "calcTCAvailableToRedeem"
                     : "getTCAvailableToRedeem",

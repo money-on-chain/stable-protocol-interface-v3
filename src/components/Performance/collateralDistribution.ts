@@ -57,7 +57,7 @@ export function buildCollateralDistributionRows(
 
     const rows: CollateralDistributionRow[] = [];
     const totalBucketAC = normalizeToBigInt(bucketData.nACcb) ?? 0n;
-    const totalLockedAC = normalizeToBigInt(bucketData.getLckACOnchain) ?? 0n;
+    const totalLockedAC = normalizeToBigInt(bucketData.getLckAC) ?? 0n;
     const tcSettings = settings.tokens.TC[caIndex];
     const caSettings = settings.tokens.CA[caIndex] as TokenConfig;
     const tcCAUsed =
