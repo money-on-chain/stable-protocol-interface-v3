@@ -20,6 +20,31 @@
             "blacklist": []
         }
     },
+    "tokenPriceStrip": {
+        "tokens": [
+            "COINBASE",
+            "CA_0",
+            "CA_1",
+            "TC_0",
+            "TC_1",
+            "TP_0",
+            "TP_1",
+            "TG_0"
+        ]
+    },
+    "defaults": {
+        "tokens": {
+            "name": "TICKER",
+            "fullName": "Token Name",
+            "decimals": 18,
+            "visibleDecimals": 6,
+            "visiblePriceDecimals": 2,
+            "visiblePriceUSD": 8,
+            "visibleBalanceDecimals": 8,
+            "visibleBalanceUSDDecimals": 2,
+            "peggedUSD": false
+        }
+    },
     "portfolio_table": ["COINBASE", "CA_0", "CA_1", "TC_0", "TC_1", "TP_0", "TP_1", "TF", "MOC"],
     "tokens": {
         "COINBASE": [

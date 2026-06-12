@@ -127,6 +127,10 @@ export interface Settings {
         max?: number;
     };
     showPriceVariation: boolean;
+    useCombinedOperationsRedeemableLimit?: boolean;
+    tokenPriceStrip?: {
+        tokens: string[];
+    };
     tokens: SettingsTokens;
     portfolio_table?: string[];
     exchange?: SettingsTokenMap;

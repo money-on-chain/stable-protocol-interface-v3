@@ -264,6 +264,17 @@
             "cardTitle": "Valor Total Bloqueado",
             "expressedIn": "Expresado en USD"
         },
+        "metrics": {
+            "globalCardTitle": "Métricas Globales",
+            "tvlInCollateral": "TVL en {{ticker}}",
+            "tvlInUsd": "TVL en USD",
+            "currentCoverage": "Cobertura Actual",
+            "targetCoverage": "Cobertura Objetivo",
+            "leverage": "Apalancamiento",
+            "lockedCollateral": "Colateral Bloqueado",
+            "tpMintable": "{{ticker}} Minteable",
+            "tpRedeemable": "{{ticker}} Redimible"
+        },
 
         "tc": {
             "priceIn": "Precio en USD",
@@ -274,6 +285,7 @@
 
         "collateral": {
             "cardTitle": "Colateral",
+            "distributionTitle": "Distribución del colateral ({{ticker}})",
             "totalIn": "Colateral total en USD",
             "globalCoverage": "Cobertura Global"
         },
@@ -281,12 +293,18 @@
         "pegged": {
             "cardTitle": "Rendimiento del USDRIF",
             "colName": "Nombre",
+            "colPriceIn": "Precio en {{ticker}}",
             "colTokensPer": "Tokens por USD",
             "colMinted": "Minteados",
             "colMintable": "Minteables",
+            "colRedeemable": "Redimible",
             "colTargetCoverage": "Cobertura Obj.",
             "colEMA": "EMA",
-            "colTargetEMA": "EMA Objetivo"
+            "colCAUsed": "Colateral usado",
+            "colTargetEMA": "EMA Objetivo",
+            "redeemableNoLimit": "Sin límite",
+            "redeemableNoLimitWithFootnote": "Sin límite*",
+            "redeemableCombinedOperationsFootnote": "* Sin límite mediante operaciones combinadas únicamente."
         }
     },
 
@@ -399,7 +417,8 @@
 
     "numberFormat": {
         "thousandsSeparator": ",",
-        "decimalSeparator": "."
+        "decimalSeparator": ".",
+        "noLimit": "Sin límite"
     },
 
     "swapModal": {

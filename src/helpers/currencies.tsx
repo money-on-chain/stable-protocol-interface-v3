@@ -54,7 +54,9 @@ interface FeeInfo {
 const globalTokens = globalData.tokens as Record<string, TokenConfig>;
 
 function getCustomPPEntries(): string[] {
-    const raw = import.meta.env.REACT_APP_CONTRACT_PRICE_PROVIDER_CUSTOM as string | undefined;
+    const raw = import.meta.env.REACT_APP_CONTRACT_PRICE_PROVIDER_CUSTOM as
+        | string
+        | undefined;
     if (!raw) return [];
     return raw.split(",").flatMap((entry) => {
         const parts = entry.trim().split(":");
@@ -70,21 +72,26 @@ const buildCurrencies = (): Currency[] => {
     const entries: Currency[] = [];
     const seenNames = new Set<string>();
 
-    settings.tokens.COINBASE?.forEach(t =>
+    settings.tokens.COINBASE?.forEach((t) =>
         entries.push({ value: "COINBASE", image: getTokenIcon(t.name) })
     );
 
-    (["CA", "TC", "TP"] as const).forEach(type =>
+    (["CA", "TC", "TP"] as const).forEach((type) =>
         settings.tokens[type]?.forEach((t, i) =>
-            entries.push({ value: `${type}_${t.key ?? i}`, image: getTokenIcon(t.name) })
+            entries.push({
+                value: `${type}_${t.key ?? i}`,
+                image: getTokenIcon(t.name),
+            })
         )
     );
 
-    // TF and TG: deduplicate by token name (same token can appear under multiple keys)
-    (["TF", "TG"] as const).forEach(type =>
-        settings.tokens[type]?.forEach(t => {
-            if (!seenNames.has(t.name)) {
-                seenNames.add(t.name);
+    // TF and TG: deduplicate by token name within each type, but keep both
+    // entries when the same token can be used as fee and governance token.
+    (["TF", "TG"] as const).forEach((type) =>
+        settings.tokens[type]?.forEach((t) => {
+            const tokenKey = `${type}:${t.name}`;
+            if (!seenNames.has(tokenKey)) {
+                seenNames.add(tokenKey);
                 entries.push({ value: type, image: getTokenIcon(t.name) });
             }
         })
@@ -94,7 +101,10 @@ const buildCurrencies = (): Currency[] => {
     getCustomPPEntries().forEach((tokenName) => {
         if (!seenNames.has(tokenName)) {
             seenNames.add(tokenName);
-            entries.push({ value: `CUSTOM_${tokenName}`, image: getTokenIcon(tokenName) });
+            entries.push({
+                value: `CUSTOM_${tokenName}`,
+                image: getTokenIcon(tokenName),
+            });
         }
     });
 
@@ -105,7 +115,6 @@ const currencies: Currency[] = buildCurrencies();
 
 const getCurrenciesDetail = (): Currency[] => currencies;
 
-export type Rounding = "down" | "halfUp" | "up";
 type CoreToken = "CA" | "TC" | "TP" | "TG" | "COINBASE";
 type AnyToken = CoreToken | "USD";
 
@@ -399,7 +408,10 @@ function TokenSettings(tokenName: string): TokenConfig {
             break;
         case "CUSTOM": {
             const cfg = globalTokens[aTokenName[1]];
-            if (!cfg) throw new Error(`Custom token "${aTokenName[1]}" not found in global.json`);
+            if (!cfg)
+                throw new Error(
+                    `Custom token "${aTokenName[1]}" not found in global.json`
+                );
             return cfg;
         }
         default:
@@ -476,7 +488,11 @@ function ConvertPeggedTokenPrice(
     inverted: boolean = false
 ): bigint {
     if (settings.tokens.TP[tpIndex].peggedUSD) {
-        return price;
+        return inverted
+            ? price === 0n
+                ? 0n
+                : divPrecision(1000000000000000000n, price)
+            : price;
     } else {
         const priceCA =
             normalizeToBigInt(

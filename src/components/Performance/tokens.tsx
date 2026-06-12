@@ -1,12 +1,16 @@
 import React from "react";
 
 import { useWalletContext } from "../../context/Wallet";
-import { ConvertPeggedTokenPrice } from "../../helpers/currencies";
-import { mulPrecision, normalizeToBigInt } from "../../helpers/precision";
+import { TokenSettings } from "../../helpers/currencies";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings";
-import type { TokenConfig } from "../../types/hooks";
 import { PrecisionNumbers } from "../PrecisionNumbers";
+import {
+    buildCollateralDistributionRows,
+    type CollateralDistributionRow,
+} from "./collateralDistribution";
+
+const DEBUG_FORCE_BUCKET_REDEEMABLE_FOOTNOTE = false;
 
 // Type definitions
 interface TokensProps {
@@ -22,9 +26,11 @@ interface TokenData {
     name: JSX.Element;
     price: React.ReactNode;
     ema: string | React.ReactNode;
+    caUsed: React.ReactNode;
     minted: React.ReactNode;
     mintable: string | React.ReactNode;
     redeemable: React.ReactNode;
+    hasRedeemableFootnote: boolean;
     coverage: React.ReactNode;
     [key: string]: React.ReactNode | string;
 }
@@ -32,13 +38,16 @@ interface TokenData {
 export default function Tokens({ caIndex }: TokensProps): JSX.Element {
     const { t, i18n, ns } = useProjectTranslation();
     const { contractProtocolStatus } = useWalletContext();
-    const tokensData: TokenData[] = [];
-
-    const {
-        visiblePriceDecimals: defaultVisiblePriceDecimals,
-        visibleDecimals: defaultVisibleDecimals,
-        visibleBalanceDecimals: defaultVisibleBalanceDecimals,
-    } = settings.defaults?.tokens ?? {};
+    const noLimitLabel = t("numberFormat.noLimit", {
+        defaultValue: "No limit",
+    });
+    const redeemableNoLimitWithFootnoteLabel = t(
+        "performance.pegged.redeemableNoLimitWithFootnote",
+        {
+            defaultValue: "No Limit*",
+        }
+    );
+    const collateralTicker = settings.tokens.CA[caIndex]?.name ?? "";
 
     const columns: Column[] = [
         {
@@ -47,12 +56,18 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
         },
         {
             key: "price",
-            title: "Price",
+            title: t("performance.pegged.colPriceIn", {
+                ticker: collateralTicker,
+            }),
         },
         {
             key: "ema",
             title: t("performance.pegged.colEMA"),
         },
+        // {
+        //     key: "caUsed",
+        //     title: t("performance.pegged.colCAUsed"),
+        // },
         {
             key: "minted",
             title: t("performance.pegged.colMinted"),
@@ -63,244 +78,172 @@ export default function Tokens({ caIndex }: TokensProps): JSX.Element {
         },
         {
             key: "redeemable",
-            title: "Redeem",
+            title: t("performance.pegged.colRedeemable", {
+                defaultValue: "Redeemable",
+            }),
         },
-        {
-            key: "coverage",
-            title: t("performance.pegged.colTargetCoverage"),
-        },
+        // {
+        //     key: "coverage",
+        //     title: t("performance.pegged.colTargetCoverage"),
+        // },
     ];
 
-    const renderTokenRow = (token: TokenData, index: number): JSX.Element => (
-        <tr key={index}>
-            {columns.map((col) => (
-                <td key={col.key}>{token[col.key]}</td>
-            ))}
-        </tr>
+    const renderPriceInCollateral = (
+        amount: bigint,
+        decimals: number
+    ): React.ReactNode =>
+        !amount ? (
+            "--"
+        ) : (
+            <>
+                {PrecisionNumbers({
+                    amount,
+                    token: TokenSettings(`CA_${caIndex}`),
+                    decimals,
+                    i18n,
+                    compact: true,
+                })}{" "}
+                {collateralTicker}
+            </>
+        );
+
+    const renderPercent = (ratio: bigint | null): React.ReactNode => {
+        if (ratio === null) return "--";
+
+        const precision = 10n ** 18n;
+        const basisPoints = (ratio * 10000n + precision / 2n) / precision;
+        const integer = basisPoints / 100n;
+        const decimals = (basisPoints % 100n).toString().padStart(2, "0");
+
+        return `${integer.toString()}.${decimals}%`;
+    };
+
+    const renderAmount = (
+        amount: bigint | null,
+        token: CollateralDistributionRow["mintedToken"],
+        decimals: number,
+        showZero = false,
+        useNoLimit = false
+    ): React.ReactNode =>
+        amount === null || (!showZero && amount === 0n)
+            ? "--"
+            : PrecisionNumbers({
+                  amount,
+                  token,
+                  decimals,
+                  i18n,
+                  compact: true,
+                  useNoLimit,
+              });
+
+    const bucketRows = buildCollateralDistributionRows(
+        contractProtocolStatus.data?.[caIndex],
+        caIndex,
+        contractProtocolStatus
     );
 
-    if (
-        contractProtocolStatus.data &&
-        contractProtocolStatus.data[caIndex] &&
-        contractProtocolStatus.data[caIndex].getPTCac
-    ) {
-        // TC row
-        const priceTEC =
-            normalizeToBigInt(contractProtocolStatus.data[caIndex].getPTCac) ??
-            0n;
-        const priceCA =
-            normalizeToBigInt(
-                contractProtocolStatus.data[caIndex].PP_CA?.[0]
-            ) ?? 0n;
-        const price = mulPrecision(priceTEC, priceCA);
+    const tokensData: TokenData[] = bucketRows.map((row) => {
+        const forceRedeemableFootnote =
+            DEBUG_FORCE_BUCKET_REDEEMABLE_FOOTNOTE &&
+            settings.useCombinedOperationsRedeemableLimit === true &&
+            row.redeemableToken.peggedUSD === true;
+        const useMintableNoLimit =
+            settings.useCombinedOperationsRedeemableLimit === true &&
+            row.mintableToken.peggedUSD === true;
 
-        tokensData.push({
+        return {
             name: (
                 <div className="token">
-                    <div className={`icon-token-tc_${caIndex} token__icon`} />
-                    <span className="token__name">
-                        {settings.tokens.TC[caIndex].fullName}
-                    </span>
-                    <span className="token__ticker">
-                        {settings.tokens.TC[caIndex].name}
-                    </span>
+                    <div className={`${row.iconClassName} token__icon`} />
+                    <span className="token__name">{row.fullName}</span>
+                    <span className="token__ticker">{row.symbol}</span>
                 </div>
             ),
-            price: !price
-                ? "--"
-                : PrecisionNumbers({
-                      amount: price,
-                      token: settings.tokens.TC[caIndex],
-                      decimals:
-                          settings.tokens.TC[caIndex]?.visiblePriceDecimals ??
-                          defaultVisiblePriceDecimals,
-                      i18n,
-                      compact: true,
-                  }),
-            ema: "--",
-            minted: !contractProtocolStatus.data[caIndex]?.nTCcb
-                ? "--"
-                : PrecisionNumbers({
-                      amount: contractProtocolStatus.data[caIndex].nTCcb,
-                      token: settings.tokens.TC[caIndex],
-                      decimals:
-                          (settings.tokens.CA as TokenConfig[])[caIndex]
-                              ?.visibleDecimals || 6,
-                      i18n,
-                      compact: true,
-                  }),
-            mintable: "No limit",
-            redeemable: !contractProtocolStatus.data[caIndex]
-                ?.getRealTCAvailableToRedeem
-                ? "--"
-                : PrecisionNumbers({
-                      amount: contractProtocolStatus.data[caIndex]
-                          .getRealTCAvailableToRedeem,
-                      token: settings.tokens.TC[caIndex],
-                      decimals:
-                          (settings.tokens.CA as TokenConfig[])[caIndex]
-                              ?.visibleDecimals || 6,
-                      i18n,
-                      compact: true,
-                  }),
-            coverage: <div className="item-usd">--</div>,
-        });
-
-        // TP rows
-        settings.tokens.TP.forEach((dataItem) => {
-            if (!contractProtocolStatus.data) return;
-            if (!contractProtocolStatus.data[caIndex]) return;
-
-            // Check if the required data exists before accessing it
-            if (
-                !contractProtocolStatus.data[caIndex].PP_TP?.[dataItem.key] ||
-                !contractProtocolStatus.data[caIndex].getRealTPAvailableToMint
-            ) {
-                return;
-            }
-
-            let price =
-                normalizeToBigInt(
-                    contractProtocolStatus.data[caIndex].PP_TP?.[
-                        dataItem.key
-                    ]?.[0]
-                ) || 0n;
-            price = ConvertPeggedTokenPrice(
-                contractProtocolStatus,
-                caIndex,
-                dataItem.key,
-                price,
-                true
-            );
-
-            if (dataItem.peggedUSD) price = 1n * 10n ** 18n; // 1 USD
-
-            let tpAvailableToMint =
-                contractProtocolStatus.data[caIndex].getRealTPAvailableToMint?.[
-                    dataItem.key
-                ] || 0n;
-            if (tpAvailableToMint < 0) tpAvailableToMint = 0n;
-
-            const tpEMARaw =
-                contractProtocolStatus.data[caIndex].tpEma?.[dataItem.key];
-
-            const tpEMA = tpEMARaw?.[0]
-                ? ConvertPeggedTokenPrice(
-                      contractProtocolStatus,
-                      caIndex,
-                      dataItem.key,
-                      tpEMARaw[0], // 0: EMA 1: SF
-                      true
-                  )
-                : 0n;
-
-            tokensData.push({
-                name: (
-                    <div className="token">
-                        <div
-                            className={`icon-token-tp_${dataItem.key} token__icon`}
-                        />
-                        <span className="token__name">
-                            {settings.tokens.TP[dataItem.key].fullName}
-                        </span>
-                        <span className="token__ticker">
-                            {settings.tokens.TP[dataItem.key].name}
-                        </span>
-                    </div>
+            price: renderPriceInCollateral(row.price, row.priceDecimals),
+            ema:
+                row.ema === null
+                    ? "--"
+                    : renderPriceInCollateral(row.ema, row.emaDecimals),
+            caUsed: renderPercent(row.collateralUsedRatio),
+            minted: renderAmount(
+                row.minted,
+                row.mintedToken,
+                row.mintedDecimals
+            ),
+            mintable: row.isMintableUnlimited
+                ? noLimitLabel
+                : renderAmount(
+                      row.mintable,
+                      row.mintableToken,
+                      row.mintableDecimals,
+                      false,
+                      useMintableNoLimit
+                  ),
+            redeemable: forceRedeemableFootnote
+                ? redeemableNoLimitWithFootnoteLabel
+                : row.isRedeemableUnlimited
+                  ? noLimitLabel
+                  : renderAmount(
+                        row.redeemable,
+                        row.redeemableToken,
+                        row.redeemableDecimals,
+                        row.showZeroRedeemable
+                    ),
+            hasRedeemableFootnote: forceRedeemableFootnote,
+            coverage:
+                row.coverage === null ? (
+                    <div className="item-usd">--</div>
+                ) : (
+                    renderAmount(
+                        row.coverage,
+                        row.coverageToken,
+                        row.coverageDecimals
+                    )
                 ),
-                price: !price
-                    ? "--"
-                    : PrecisionNumbers({
-                          amount: price,
-                          token: settings.tokens.TP[dataItem.key],
-                          decimals:
-                              settings.tokens.TP[dataItem.key]
-                                  .visiblePriceDecimals,
-                          i18n,
-                          compact: true,
-                      }),
-                ema: !tpEMARaw?.[0]
-                    ? "--"
-                    : PrecisionNumbers({
-                          amount: tpEMA,
-                          token: settings.tokens.TP[dataItem.key],
-                          decimals:
-                              settings.tokens.TP[dataItem.key]
-                                  .visiblePriceDecimals,
-                          i18n,
-                          compact: true,
-                      }),
-                minted: !contractProtocolStatus.data[caIndex]?.pegContainer?.[
-                    dataItem.key
-                ]?.[0]
-                    ? "--"
-                    : PrecisionNumbers({
-                          amount: contractProtocolStatus.data[caIndex]
-                              .pegContainer[dataItem.key][0],
-                          token: settings.tokens.TP[dataItem.key],
-                          decimals:
-                              settings.tokens.TP[dataItem.key]
-                                  .visibleBalanceDecimals,
-                          i18n,
-                          compact: true,
-                      }),
-                mintable: !tpAvailableToMint
-                    ? "--"
-                    : PrecisionNumbers({
-                          amount: tpAvailableToMint,
-                          token: settings.tokens.TP[dataItem.key],
-                          decimals:
-                              settings.tokens.TP[dataItem.key]
-                                  .visibleBalanceDecimals,
-                          i18n,
-                          compact: true,
-                      }),
-                redeemable: "No limit",
-                coverage: !contractProtocolStatus.data[caIndex]?.tpCtarg?.[
-                    dataItem.key
-                ]
-                    ? "--"
-                    : PrecisionNumbers({
-                          amount: contractProtocolStatus.data[caIndex].tpCtarg[
-                              dataItem.key
-                          ],
-                          token: settings.tokens.TP[dataItem.key],
-                          decimals: 2,
-                          i18n,
-                          compact: true,
-                      }),
-            });
-        });
-    }
+        };
+    });
+
+    const showRedeemableFootnote = tokensData.some(
+        (token) => token.hasRedeemableFootnote
+    );
 
     return (
-        <table className="token-table">
-            <thead>
-                <tr className="token-table__header-row">
-                    {columns.map((col) => (
-                        <th
-                            key={col.key}
-                            className={`token-table__header token-table__header--${col.key}`}
-                        >
-                            {col.title}
-                        </th>
-                    ))}
-                </tr>
-            </thead>
-            <tbody>
-                {tokensData.map((token, index) => (
-                    <tr key={index} className="token-table__row">
+        <>
+            <table className="token-table">
+                <thead>
+                    <tr className="token-table__header-row">
                         {columns.map((col) => (
-                            <td
+                            <th
                                 key={col.key}
-                                className={`token-table__cell token-table__cell--${col.key}`}
+                                className={`token-table__header token-table__header--${col.key}`}
                             >
-                                {token[col.key]}
-                            </td>
+                                {col.title}
+                            </th>
                         ))}
                     </tr>
-                ))}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {tokensData.map((token, index) => (
+                        <tr key={index} className="token-table__row">
+                            {columns.map((col) => (
+                                <td
+                                    key={col.key}
+                                    className={`token-table__cell token-table__cell--${col.key}`}
+                                >
+                                    {token[col.key]}
+                                </td>
+                            ))}
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+            {showRedeemableFootnote && (
+                <div className="token-table__footnote">
+                    {t(
+                        "performance.pegged.redeemableCombinedOperationsFootnote"
+                    )}
+                </div>
+            )}
+        </>
     );
 }

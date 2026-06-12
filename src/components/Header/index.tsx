@@ -9,6 +9,7 @@ import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings";
 import DappVersion from "../DappVersion";
 import ThemeMode from "../ThemeMode";
+import TokenPriceStrip from "../TokenPriceStrip";
 import Brand from "./Brand";
 import menuOptionsData from "./menuOptions.json";
 
@@ -143,7 +144,8 @@ export default function SectionHeader(): JSX.Element {
     }, []);
 
     return (
-        <Header>
+        <Header className="app-header">
+            <TokenPriceStrip />
             <div className="header-container">
                 <Brand />
                 <div className="central-menu">

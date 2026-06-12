@@ -566,6 +566,14 @@ export function useContractProtocolStatus(
 
                 callRequest.push({
                     contract: Moc,
+                    functionName: "getLckACByTP",
+                    args: [tp],
+                    resultType: "uint256",
+                    keys: [ca, "getLckACByTP", tp],
+                });
+
+                callRequest.push({
+                    contract: Moc,
                     functionName: "pegContainer",
                     args: [tp],
                     resultType: "uint256",
