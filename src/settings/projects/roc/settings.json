@@ -39,123 +39,25 @@
     },
     "tokens": {
         "COINBASE": [
-            {
-                "key": 0,
-                "name": "RBTC",
-                "fullName": "Smart Bitcoin",
-                "decimals": 18,
-                "visibleDecimals": 6,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 8,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            }
+            {"key": 0, "token": "RBTC"}
         ],
         "CA": [
-            {
-                "key": 0,
-                "collateralType": "rc20",
-                "name": "RIF",
-                "fullName": "RIF",
-                "decimals": 18,
-                "visibleDecimals": 4,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 4,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            },
-            {
-                "key": 1,
-                "collateralType": "rc20",
-                "name": "DOC",
-                "fullName": "Dollar on Chain",
-                "decimals": 18,
-                "visibleDecimals": 2,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 2,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            }
+            {"key": 0, "token": "RIF"},
+            {"key": 1, "token": "DOC"}
         ],
         "TP": [
-            {
-                "key": 0,
-                "name": "USDRIF",
-                "fullName": "RIF US Dollar",
-                "decimals": 18,
-                "visibleDecimals": 2,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 2,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": true
-            }
+            {"key": 0, "token": "USDRIF"}
         ],
         "TC": [
-            {
-                "key": 0,
-                "name": "RIFP",
-                "fullName": "RIF Pro",
-                "decimals": 18,
-                "visibleDecimals": 6,
-                "visiblePriceDecimals": 4,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 8,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            },
-            {
-                "key": 1,
-                "name": "ROCR",
-                "fullName": "ROC Reserve",
-                "decimals": 18,
-                "visibleDecimals": 2,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 8,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            }
+            {"key": 0, "token": "RIFP"},
+            {"key": 1, "token": "ROCR"}
         ],
         "TF": [
-            {
-                "key": 0,
-                "name": "MOC",
-                "decimals": 18,
-                "visibleDecimals": 8,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 4,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            },
-            {
-                "key": 1,
-                "name": "MOC",
-                "decimals": 18,
-                "visibleDecimals": 8,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 4,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            }
+            {"key": 0, "token": "MOC"},
+            {"key": 1, "token": "MOC"}
         ],
         "TG": [
-            {
-                "key": 0,
-                "name": "MOC",
-                "decimals": 18,
-                "visibleDecimals": 8,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 4,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            }
+            {"key": 0, "token": "MOC"}
         ]
     }
 }
