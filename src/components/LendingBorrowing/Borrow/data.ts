@@ -54,6 +54,7 @@ export interface BorrowCardData {
     currentDebt: BorrowCardMetric;
     depositedCollateral: BorrowCardMetric;
     id: string;
+    isVaultLiquidating: boolean;
     liquidationCoverage: number;
     minCoverage: number;
     liquidationDropPercentage: number;

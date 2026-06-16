@@ -60,6 +60,8 @@ export default function Borrow({
                             const isActionDisabled = (
                                 actionId: BorrowCardActionId
                             ) => {
+                                if (card.isVaultLiquidating) return true;
+
                                 if (
                                     actionId === "repay" ||
                                     actionId === "repay-with-collateral"
@@ -129,6 +131,12 @@ export default function Borrow({
                                             </div>
                                         </div>
                                     </div>
+
+                                    {card.isVaultLiquidating ? (
+                                        <div className="borrow-card-liquidating-banner">
+                                            {t("borrowing.liquidating.banner")}
+                                        </div>
+                                    ) : null}
 
                                     <div className="borrow-card-primary-metrics">
                                         <div

@@ -3,6 +3,7 @@ import { formatUnits } from "viem";
 
 import { useWalletContext } from "../../context/Wallet";
 import { ConvertAmount } from "../../helpers/currencies";
+import { useLiquidationHistory } from "../../hooks/useLiquidationHistory";
 import settings from "../../settings/settings.json";
 import type { LendingPoolStatus } from "../../types/status";
 import type { SettingsTokens } from "../../types/hooks";
@@ -39,12 +40,15 @@ function mulWad(a: bigint, b: bigint): bigint {
 
 export function useLendingBorrowingData(): LendingBorrowingData {
     const {
+        address,
         contractsAddress,
         contractLendingStatus,
         contractProtocolStatus,
         userLending,
         userBalance,
     } = useWalletContext();
+
+    const liquidationHistory = useLiquidationHistory(address);
 
     const tokens = (settings as { tokens?: unknown }).tokens as SettingsTokens | undefined;
     const lmData = contractLendingStatus.data?.lendingmanager;
@@ -90,6 +94,7 @@ export function useLendingBorrowingData(): LendingBorrowingData {
     const borrowCards: BorrowCardData[] = React.useMemo((): BorrowCardData[] => {
         if (!contractsAddress?.TP || !contractsAddress?.Moc || !tokens) return [];
 
+
         const tpCount = Math.min(contractsAddress.TP.length, tokens.TP?.length ?? 0);
         const caCount = Math.min(contractsAddress.Moc.length, tokens.CA?.length ?? 0);
         const cards: BorrowCardData[] = [];
@@ -106,6 +111,10 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                 const liquidationCov = pool?.getLiquidationCoverage ?? 0n;
                 const minCov = pool?.getMinCoverage ?? 0n;
                 const borrowFee = pool?.getBorrowFee ?? 0n;
+
+                const tpAddress = contractsAddress.TP[tp].address.toLowerCase();
+                const mocAddress = contractsAddress.Moc[ca].address.toLowerCase();
+                const liqKey = `${tpAddress}-${mocAddress}`;
 
                 const vault = userLending.data?.[tp]?.[ca];
                 const creditUnits = vault?.getUserVaultCreditBalance ?? 0n;
@@ -265,9 +274,25 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                     },
                 ];
 
+                // Only show previous liquidation when the vault is currently empty
+                // (no collateral, no debt). If the user has restarted a position
+                // after a liquidation, the notification should disappear.
+                const vaultIsEmpty = acBalance === 0n && creditUnits === 0n;
+                const liqRecord = vaultIsEmpty ? liquidationHistory.get(liqKey) : undefined;
+                const previousLiquidation = liqRecord
+                    ? {
+                          amount: fmtBigInt(liqRecord.acSeized, 18, collMeta.visibleDecimals),
+                          amountTicker: cTicker,
+                          liquidationPrice: liqRecord.acSeized > 0n
+                              ? fmtBigInt((liqRecord.tpPaid * WAD) / liqRecord.acSeized)
+                              : "0.00",
+                      }
+                    : undefined;
+
                 cards.push({
                     id: `borrow-tp-${tp}-ca-${ca}`,
                     caIndex: ca,
+                    isVaultLiquidating: vault?.isVaultLiquidating ?? false,
                     borrowTokenCode,
                     borrowTokenDecimals: borrowMeta.visibleDecimals,
                     borrowTokenIconClassName: borrowMeta.iconClassName,
@@ -291,6 +316,7 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                     systemMaxBorrow: userLending.data != null
                         ? fmtBigInt(maxBorrow, 18, borrowMeta.visibleDecimals)
                         : null,
+                    previousLiquidation,
                     borrowOperationMetrics,
                     depositCollateralOperationMetrics,
                     repayOperationMetrics,
@@ -306,7 +332,7 @@ export function useLendingBorrowingData(): LendingBorrowingData {
             }
         }
         return cards;
-    }, [contractsAddress, contractProtocolStatus, pools, userLending.data, userBalance.data, tokens]);
+    }, [contractsAddress, contractProtocolStatus, pools, userLending.data, userBalance.data, tokens, liquidationHistory]);
 
     const refetch = React.useCallback(() => {
         void contractLendingStatus.refetch?.();
