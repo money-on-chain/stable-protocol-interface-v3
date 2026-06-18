@@ -79,6 +79,7 @@ import { useUserOmocBalance } from "../hooks/useUserOmocBalance";
 import { useUserVesting } from "../hooks/useUserVesting";
 import { useUserVeto } from "../hooks/useUserVeto";
 import api from "../services/api";
+import { API_OPERATIONS_BASE } from "../services/apiConfig";
 import type { DContracts, ParsedPrices } from "../types/hooks";
 import type {
     InterfaceContext,
@@ -417,16 +418,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     };
 
     const readUserVesting = (): void => {
-        const apiBase = import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS as
-            | string
-            | undefined;
-        if (!apiBase) {
+        if (!API_OPERATIONS_BASE) {
             console.warn(
                 "readUserVesting: REACT_APP_ENVIRONMENT_API_OPERATIONS is not set"
             );
             return;
         }
-        const url = new URL(apiBase);
+        const url = new URL(API_OPERATIONS_BASE);
         url.pathname = "/v1/omoc/vesting_created/";
         url.search = new URLSearchParams({
             holder: address || "",

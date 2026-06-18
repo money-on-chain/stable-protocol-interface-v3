@@ -6,6 +6,7 @@ import type { TransactionReceipt } from "viem";
 
 import { decodeEvents } from "../../backend/transaction";
 import { useWalletContext } from "../../context/Wallet";
+import { API_OPERATIONS_BASE } from "../../services/apiConfig";
 import { TokenSettings } from "../../helpers/currencies";
 import { UserTokenAllowance } from "../../helpers/exchange";
 import { calculateLimit } from "../../helpers/exchange";
@@ -154,6 +155,7 @@ export default function ConfirmOperation(
     const opIDRef = useRef<number | null>(opID);
     const caIndexRef = useRef<number>(caIndex);
     const userBalanceRefetchRef = useRef(userBalance.refetch);
+    const pollAttemptRef = useRef<number>(0);
 
     const anotherTokenName: string =
         operationType === "COMBINED_MINT" ? `TC_${caIndex}` : `TP_${tpIndex}`;
@@ -180,9 +182,7 @@ export default function ConfirmOperation(
             console.warn("Operation Status: Checking... NO.");
             return;
         }
-        const apiUrl = new URL(
-            String(import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS)
-        );
+        const apiUrl = new URL(API_OPERATIONS_BASE);
         apiUrl.pathname = "/v1/operations/oper_id/";
 
         axios
@@ -252,27 +252,29 @@ export default function ConfirmOperation(
     }, []);
 
     useEffect(() => {
-        //console.log("Polling useEffect triggered:", { opID, status, shouldPoll: opID && opID >= 0 && (status === "QUEUED" || status === "QUEUING") });
-
-        // Only poll if we have an opID and are in a state that requires polling
         if (
             opID === null ||
             opID < 0 ||
             (status !== "QUEUED" && status !== "QUEUING")
         ) {
-            //console.log("Polling skipped - conditions not met", opID, status);
             return;
         }
 
-        //console.log("Setting up polling interval for opStatus");
-        const interval: NodeJS.Timeout = setInterval(() => {
-            //console.log("Interval tick - calling opStatus", opID, status);
-            opStatus();
-        }, 5000);
-        return () => {
-            //console.log("Clearing polling interval");
-            clearInterval(interval);
+        pollAttemptRef.current = 0;
+        let timeoutId: NodeJS.Timeout;
+
+        const scheduleNext = () => {
+            const attempt = pollAttemptRef.current++;
+            const base = Math.min(5000 * Math.pow(2, attempt), 30000);
+            const delay = base * (0.8 + Math.random() * 0.4);
+            timeoutId = setTimeout(() => {
+                opStatus();
+                scheduleNext();
+            }, delay);
         };
+
+        scheduleNext();
+        return () => clearTimeout(timeoutId);
     }, [opStatus, opID, status]);
 
     const onHideModalAllowancePayCurrencyExchange = (): void => {
