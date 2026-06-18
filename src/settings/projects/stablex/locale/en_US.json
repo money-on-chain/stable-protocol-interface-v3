@@ -222,6 +222,17 @@
             "cardTitle": "Total Value Locked",
             "expressedIn": "Expressed in USD"
         },
+        "metrics": {
+            "globalCardTitle": "Global Metrics",
+            "tvlInCollateral": "TVL in {{ticker}}",
+            "tvlInUsd": "TVL in USD",
+            "currentCoverage": "Current Coverage",
+            "targetCoverage": "Target Coverage",
+            "leverage": "Leverage",
+            "lockedCollateral": "Locked Collateral",
+            "tpMintable": "{{ticker}} Mintable",
+            "tpRedeemable": "{{ticker}} Redeemable"
+        },
 
         "tc": {
             "priceIn": "Price in USD",
@@ -232,6 +243,7 @@
 
         "collateral": {
             "cardTitle": "Collateral",
+            "distributionTitle": "Collateral distribution ({{ticker}})",
             "totalIn": "Total collateral in USD",
             "globalCoverage": "Global coverage"
         },
@@ -239,12 +251,18 @@
         "pegged": {
             "cardTitle": "Pegged tokens Performance",
             "colName": "Name",
+            "colPriceIn": "Price in {{ticker}}",
             "colTokensPer": "Tokens per USD",
             "colMinted": "Minted",
             "colMintable": "Mintable",
+            "colRedeemable": "Redeemable",
             "colTargetCoverage": "T. Coverage",
             "colEMA": "EMA",
-            "colTargetEMA": "Target EMA"
+            "colCAUsed": "Collateral used",
+            "colTargetEMA": "Target EMA",
+            "redeemableNoLimit": "No Limit",
+            "redeemableNoLimitWithFootnote": "No Limit*",
+            "redeemableCombinedOperationsFootnote": "* No limit through combined operations only."
         }
     },
 
@@ -360,7 +378,8 @@
 
     "numberFormat": {
         "thousandsSeparator": ",",
-        "decimalSeparator": "."
+        "decimalSeparator": ".",
+        "noLimit": "No limit"
     },
 
     "swapModal": {

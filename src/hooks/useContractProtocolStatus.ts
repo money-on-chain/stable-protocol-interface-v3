@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { checksumAddress } from "viem";
 
 import { normalizeToBigInt } from "../helpers/precision";
-import settings from "../settings/settings.json";
+import settings from "../settings";
 import type {
     ContractInfo,
     DContracts,
@@ -588,6 +588,14 @@ export function useContractProtocolStatus(
                     args: [tp],
                     resultType: "uint256",
                     keys: [ca, "tpCtarg", tp],
+                });
+
+                callRequest.push({
+                    contract: Moc,
+                    functionName: "getLckACByTP",
+                    args: [tp],
+                    resultType: "uint256",
+                    keys: [ca, "getLckACByTP", tp],
                 });
 
                 callRequest.push({

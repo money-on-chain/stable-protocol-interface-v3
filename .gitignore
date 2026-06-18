@@ -15,9 +15,10 @@ src/assets/css/customize1Defaults.scss
 src/assets/css/customize2Light.scss
 src/assets/css/customize3Dark.scss
 src/assets/css/customize4Overwrites.scss
+src/assets/css/icons-tokens.scss
 src/assets/css/logout.scss
 src/assets/css/pages.scss
-src/assets/tokens/*.svg
+
 # settings
 src/settings/locale/en_US.json
 src/settings/locale/es_ES.json

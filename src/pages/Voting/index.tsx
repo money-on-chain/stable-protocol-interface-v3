@@ -6,7 +6,7 @@ import React, { Fragment, useMemo } from "react";
 import VestingStatusAlert from "../../components/Notification/VestingStatusAlert";
 import Voting from "../../components/Voting";
 import { useWalletContext } from "../../context/Wallet";
-import settings from "../../settings/settings.json";
+import settings from "../../settings";
 
 export default function SectionVoting(): React.ReactElement {
     const {
@@ -30,7 +30,8 @@ export default function SectionVoting(): React.ReactElement {
             <div className="section-container">
                 <div className="content-page">
                     {(settings.project === "moc" ||
-                        settings.project === "voting") && (
+                        settings.project === "voting" ||
+                        settings.project === "roc") && (
                         <VestingStatusAlert />
                     )}
                 </div>

@@ -1,0 +1,160 @@
+{
+    "tokens": {
+        "DOC": {
+            "collateralType": "rc20",
+            "name": "DOC",
+            "fullName": "Dollar on Chain",
+            "decimals": 18,
+            "visibleDecimals": 2,
+            "visiblePriceDecimals": 2,
+            "visiblePriceUSD": 8,
+            "visibleBalanceDecimals": 2,
+            "visibleBalanceUSDDecimals": 2,
+            "peggedUSD": false
+        },
+        "BPRO": {
+            "collateralType": "rc20",
+            "name": "BPRO",
+            "fullName": "BPro",
+            "decimals": 18,
+            "visibleDecimals": 6,
+            "visiblePriceDecimals": 2,
+            "visiblePriceUSD": 8,
+            "visibleBalanceDecimals": 8,
+            "visibleBalanceUSDDecimals": 2,
+            "peggedUSD": false
+        },
+        "BPROX": {
+            "collateralType": "rc20",
+            "name": "BPROX",
+            "fullName": "BProX",
+            "decimals": 18,
+            "visibleDecimals": 6,
+            "visiblePriceDecimals": 2,
+            "visiblePriceUSD": 8,
+            "visibleBalanceDecimals": 8,
+            "visibleBalanceUSDDecimals": 2,
+            "peggedUSD": false
+        },                
+        "MOC": {
+            "collateralType": "rc20",
+            "name": "MOC",
+            "fullName": "MOC",
+            "decimals": 18,
+            "visibleDecimals": 8,
+            "visiblePriceDecimals": 2,
+            "visiblePriceUSD": 8,
+            "visibleBalanceDecimals": 4,
+            "visibleBalanceUSDDecimals": 2,
+            "peggedUSD": false
+        },
+        "ROCR": {
+            "collateralType": "rc20",
+            "name": "ROCR",
+            "fullName": "ROC Reserve",
+            "decimals": 18,
+            "visibleDecimals": 2,
+            "visiblePriceDecimals": 2,
+            "visiblePriceUSD": 8,
+            "visibleBalanceDecimals": 8,
+            "visibleBalanceUSDDecimals": 2,
+            "peggedUSD": false
+        },
+        "RIF": {
+            "collateralType": "rc20",
+            "name": "RIF",
+            "fullName": "RIF",
+            "decimals": 18,
+            "visibleDecimals": 4,
+            "visiblePriceDecimals": 2,
+            "visiblePriceUSD": 8,
+            "visibleBalanceDecimals": 4,
+            "visibleBalanceUSDDecimals": 2,
+            "peggedUSD": false
+        },
+        "DOCX": {
+            "collateralType": "rc20",
+            "name": "DOCX",
+            "fullName": "DOCX",
+            "decimals": 18,
+            "visibleDecimals": 2,
+            "visiblePriceDecimals": 2,
+            "visiblePriceUSD": 8,
+            "visibleBalanceDecimals": 8,
+            "visibleBalanceUSDDecimals": 2,
+            "peggedUSD": false
+        },
+        "USDRIF": {
+            "collateralType": "rc20",
+            "name": "USDRIF",
+            "fullName": "RIF US Dollar",
+            "decimals": 18,
+            "visibleDecimals": 2,
+            "visiblePriceDecimals": 2,
+            "visiblePriceUSD": 8,
+            "visibleBalanceDecimals": 2,
+            "visibleBalanceUSDDecimals": 2,
+            "peggedUSD": true
+        },
+        "RIFP": {
+            "collateralType": "rc20",
+            "name": "RIFP",
+            "fullName": "RIF Pro",
+            "decimals": 18,
+            "visibleDecimals": 6,
+            "visiblePriceDecimals": 2,
+            "visiblePriceUSD": 8,
+            "visibleBalanceDecimals": 8,
+            "visibleBalanceUSDDecimals": 2,
+            "peggedUSD": false
+        },
+        "RBTC": {
+            "collateralType": "coinbase",
+            "name": "RBTC",
+            "fullName": "RBTC",
+            "decimals": 18,
+            "visibleDecimals": 6,
+            "visiblePriceDecimals": 2,
+            "visiblePriceUSD": 8,
+            "visibleBalanceDecimals": 8,
+            "visibleBalanceUSDDecimals": 2,
+            "peggedUSD": false
+        },
+        "ARSFLIP": {
+            "collateralType": "rc20",
+            "name": "ARSFLIP",
+            "fullName": "ARS Flip",
+            "decimals": 18,
+            "visibleDecimals": 2,
+            "visiblePriceDecimals": 2,
+            "visiblePriceUSD": 8,
+            "visibleBalanceDecimals": 2,
+            "visibleBalanceUSDDecimals": 2,
+            "peggedUSD": false
+        },
+        "COPFLIP": {
+            "collateralType": "rc20",
+            "name": "COPFLIP",
+            "fullName": "COP Flip",
+            "decimals": 18,
+            "visibleDecimals": 2,
+            "visiblePriceDecimals": 2,
+            "visiblePriceUSD": 8,
+            "visibleBalanceDecimals": 2,
+            "visibleBalanceUSDDecimals": 2,
+            "peggedUSD": false
+        },
+        "FLIP": {
+            "collateralType": "rc20",
+            "name": "FLIP",
+            "fullName": "FLIP",
+            "decimals": 18,
+            "visibleDecimals": 8,
+            "visiblePriceDecimals": 2,
+            "visiblePriceUSD": 8,
+            "visibleBalanceDecimals": 4,
+            "visibleBalanceUSDDecimals": 2,
+            "peggedUSD": false
+        }
+    }
+}

@@ -5,6 +5,7 @@ import type { useConnect } from "wagmi";
 
 import type { useContractOmocStatus } from "../hooks/useContractOmocStatus";
 import type { useContractProtocolStatus } from "../hooks/useContractProtocolStatus";
+import type { UsePriceProviderResult } from "../hooks/usePriceProvider";
 import type { useIncentiveV2 } from "../hooks/useIncentiveV2";
 // import type { useProposalCount } from "../hooks/useProposalCount";
 import type { useUserVeto } from "../hooks/useUserVeto";
@@ -60,6 +61,7 @@ export type WalletContextType = {
 
     blockNumber?: bigint;
     offChainPrices: unknown;
+    priceProvider: UsePriceProviderResult;
     // proposalCount?: ReturnType<typeof useProposalCount>;
 
     publicClient: ReturnType<typeof usePublicClient> | undefined;

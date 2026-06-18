@@ -19,7 +19,7 @@ import { useWalletContext } from "../../../context/Wallet";
 import { CheckStatusGlobal } from "../../../helpers/checkStatus";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { isSomeTCLockedByVeto } from "../../../helpers/veto";
-import settings from "../../../settings/settings.json";
+import settings from "../../../settings";
 import { ALLOWED_CHAIN } from "../../../wagmiConfig";
 
 // Local notification state is based on AppNotification props to avoid duplicating types

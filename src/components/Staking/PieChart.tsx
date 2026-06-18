@@ -4,7 +4,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { bigIntToInputValue } from "../../helpers/currencies";
 import { toBigIntPrecision } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
-import settings from "../../settings/settings.json";
+import settings from "../../settings";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 
 interface UserInfoStaking {

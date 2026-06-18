@@ -60,7 +60,8 @@
         "path": "/vesting",
         "allowedProjects": [
             "moc",
-            "voting"
+            "voting",
+            "roc"
         ]
     },
     {
