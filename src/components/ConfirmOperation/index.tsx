@@ -103,10 +103,7 @@ export default function ConfirmOperation(
     const [txID, setTxID] = useState<string>("");
     const [opID, setOpID] = useState<number | null>(null);
 
-    const amountYouExchangeLimit =
-        operationType === "COMBINED_REDEEM"
-            ? calculateLimit(amountYouExchange, slippageTolerance / 100)
-            : amountYouExchange;
+    const amountYouExchangeLimit = amountYouExchange;
 
     useEffect(() => {
         let timerId: NodeJS.Timeout;

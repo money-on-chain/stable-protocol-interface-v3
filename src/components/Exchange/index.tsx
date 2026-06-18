@@ -713,14 +713,6 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                 caIndex,
                 tpIndex
             );
-            otherTokenAmount.qAC = calculateLimit(
-                otherTokenAmount.qAC,
-                +(slippageTolerance / 100)
-            );
-            otherTokenAmount.amount = calculateLimit(
-                otherTokenAmount.amount,
-                +(slippageTolerance / 100)
-            );
             setAmountAnotherToken(otherTokenAmount);
             combinedFeeCA = amountInCA + otherTokenAmount.qAC;
         }
@@ -1532,9 +1524,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                         </div>
                                         <InputAmount
                                             displayOnly
-                                            action={t(
-                                                "exchange.LabelSendingUpTo"
-                                            )}
+                                            action={t("exchange.labelSending")}
                                             placeholder="--"
                                             inputValue={
                                                 !contractProtocolStatus.data
