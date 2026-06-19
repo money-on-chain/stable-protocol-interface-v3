@@ -14,7 +14,6 @@ COPY .env.flipmoneyMainnet ./
 COPY .env.flipmoneyTestnet ./
 COPY .env.rocMainnet ./
 COPY .env.rocTestnet ./
-COPY .env.stablexTestnet ./
 COPY .env.votingMainnet ./
 COPY .env.votingTestnet ./
 

@@ -21,9 +21,6 @@ const RouterRoc: LazyRouterComponent = React.lazy(
 const RouterMoc: LazyRouterComponent = React.lazy(
     () => import("./projects/moc")
 );
-const RouterStableX: LazyRouterComponent = React.lazy(
-    () => import("./projects/stablex")
-);
 const RouterVoting: LazyRouterComponent = React.lazy(
     () => import("./projects/voting")
 );
@@ -38,8 +35,6 @@ const Router = (): LazyRouterComponent => {
             return RouterMoc;
         case "voting":
             return RouterVoting;
-        case "stablex":
-            return RouterStableX;
         default:
             return RouterFlipmoney;
     }
