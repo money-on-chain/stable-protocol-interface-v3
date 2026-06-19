@@ -25,13 +25,14 @@ function validateAndGetApiBase(): string {
         const msg = `[apiConfig] REACT_APP_ENVIRONMENT_API_OPERATIONS is not a valid URL: "${raw}"`;
         if (import.meta.env.DEV) throw new Error(msg);
         console.error(msg);
-        return raw;
+        return "";
     }
 
     if (!ALLOWED_API_ORIGINS.has(url.origin)) {
         const msg = `[apiConfig] API origin "${url.origin}" is not in the allowlist`;
         if (import.meta.env.DEV) throw new Error(msg);
         console.error(msg);
+        return "";
     }
 
     return raw;
