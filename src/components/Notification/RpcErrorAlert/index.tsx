@@ -54,6 +54,7 @@ export default function RpcErrorAlert({
                 </div>
             }            
             dismissible={!!onDismiss}
+            onDismiss={onDismiss}
             deliveryMode="center"
             notificationId="rpc-error-alert"
             lingerMs={4000}
