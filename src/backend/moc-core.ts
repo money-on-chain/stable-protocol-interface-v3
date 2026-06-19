@@ -27,6 +27,7 @@ const mintTC = async (
     const { address, contractProtocolStatus, userBalance, vendorAddress } =
         context;
 
+    if (qTC === 0n) throw new Error("qTC must be > 0");
     if (!userBalance.data.CA) throw new Error("CA not found");
 
     const userReserveBalance = userBalance.data.CA[caIndex].balance;
@@ -120,6 +121,7 @@ const mintTP = async (
     if (!contracts.TP) throw new Error("TP not found");
     if (!contracts.TP[tpIndex]) throw new Error(`TP not found for ${tpIndex}`);
     if (!userBalance.data.CA) throw new Error("CA not found");
+    if (qTP === 0n) throw new Error("qTP must be > 0");
 
     const tpAddress = contracts.TP[tpIndex].address;
 
@@ -273,6 +275,11 @@ const swapTPforTP = async (
     if (!contracts.TP[iToTP]) throw new Error(`TP not found for ${iToTP}`);
     if (!userBalance.data) throw new Error("User balance not found");
     if (!userBalance.data.CA) throw new Error("CA not found");
+    if (qTP === 0n) throw new Error("qTP must be > 0");
+    if (limitAmount === 0n)
+        throw new Error(
+            "limitAmount must be > 0 — a zero minimum would accept receiving nothing"
+        );
 
     const tpAddressFrom = contracts.TP[iFromTP].address;
     const tpAddressTo = contracts.TP[iToTP].address;
@@ -368,6 +375,11 @@ const swapTCforTP = async (
     if (!contracts.TP[tpIndex]) throw new Error(`TP not found for ${tpIndex}`);
     if (!userBalance.data) throw new Error("User balance not found");
     if (!userBalance.data.CA) throw new Error("CA not found");
+    if (qTC === 0n) throw new Error("qTC must be > 0");
+    if (limitAmount === 0n)
+        throw new Error(
+            "limitAmount must be > 0 — a zero minimum would accept receiving nothing"
+        );
 
     const tpAddress = contracts.TP[tpIndex].address;
 
@@ -461,6 +473,11 @@ const swapTPforTC = async (
     if (!contracts.TP[tpIndex]) throw new Error(`TP not found for ${tpIndex}`);
     if (!userBalance.data) throw new Error("User balance not found");
     if (!userBalance.data.CA) throw new Error("CA not found");
+    if (qTP === 0n) throw new Error("qTP must be > 0");
+    if (limitAmount === 0n)
+        throw new Error(
+            "limitAmount must be > 0 — a zero minimum would accept receiving nothing"
+        );
 
     const tpAddress = contracts.TP[tpIndex].address;
 
@@ -551,6 +568,7 @@ const mintTCandTP = async (
     if (!contracts.TP) throw new Error("TP not found");
     if (!contracts.TP[tpIndex]) throw new Error(`TP not found for ${tpIndex}`);
     if (!userBalance.data.CA) throw new Error("CA not found");
+    if (qTP === 0n) throw new Error("qTP must be > 0");
 
     const tpAddress = contracts.TP[tpIndex].address;
 
@@ -704,6 +722,10 @@ const coreOpContext = (
     if (!publicClient) throw new Error("Public client not found");
     if (!contracts) throw new Error("Contracts not found");
     if (!contracts.Moc) throw new Error("Moc not found");
+    if (caIndex < 0 || caIndex >= settings.tokens.CA.length)
+        throw new Error(
+            `caIndex ${caIndex} is out of range (0–${settings.tokens.CA.length - 1})`
+        );
     if (!contracts.Moc[caIndex])
         throw new Error(`Moc not found for ${caIndex}`);
     if (!userBalance.data) throw new Error("User balance not found");
