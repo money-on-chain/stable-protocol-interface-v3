@@ -255,6 +255,11 @@ export default function LastOperations(props: LastOperationsProps) {
             !isLoadingRef.current
         ) {
             isLoadingRef.current = true;
+            if (!API_OPERATIONS_BASE) {
+                console.error("[LastOperations] API_OPERATIONS_BASE is not configured or failed allowlist validation");
+                isLoadingRef.current = false;
+                return;
+            }
             const skip = (currentRef.current - 1) * pageSizeRef.current;
 
             const url = new URL(API_OPERATIONS_BASE);
