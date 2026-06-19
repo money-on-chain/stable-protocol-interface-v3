@@ -6,6 +6,10 @@ import DappFooter from "../../../components/Footer/index";
 import SectionHeader from "../../../components/Header";
 import NotificationBody from "../../../components/Notification";
 import RpcErrorAlert from "../../../components/Notification/RpcErrorAlert";
+import {
+    GlobalNotificationCenter,
+    NotificationProvider,
+} from "../../../components/Notifications";
 import { useWalletContext } from "../../../context/Wallet";
 import { CheckStatusGlobal } from "../../../helpers/checkStatus";
 import { useProjectTranslation } from "../../../helpers/translations";
@@ -116,8 +120,10 @@ export default function Skeleton(): JSX.Element {
     };
 
     return (
+        <NotificationProvider>
         <Layout>
             <SectionHeader />
+            <GlobalNotificationCenter />
             <Content>
                 {rpcError.hasError && (
                     <RpcErrorAlert
@@ -142,5 +148,6 @@ export default function Skeleton(): JSX.Element {
                 </div>
             </Footer>
         </Layout>
+        </NotificationProvider>
     );
 }
