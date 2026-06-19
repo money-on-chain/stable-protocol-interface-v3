@@ -18,6 +18,7 @@ import date from "../../../helpers/date";
 import { wadDiv } from "../../../helpers/precision";
 import { useProjectTranslation } from "../../../helpers/translations";
 import api from "../../../services/api";
+import { API_OPERATIONS_BASE } from "../../../services/apiConfig";
 import settings from "../../../settings";
 import type { TokenConfig } from "../../../types/hooks";
 import AboutQueue from "../../Modals/AboutQueue";
@@ -256,9 +257,7 @@ export default function LastOperations(props: LastOperationsProps) {
             isLoadingRef.current = true;
             const skip = (currentRef.current - 1) * pageSizeRef.current;
 
-            const url = new URL(
-                String(import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS)
-            );
+            const url = new URL(API_OPERATIONS_BASE);
             url.pathname = "/v1/operations/list/";
             url.search = new URLSearchParams({
                 recipient: addressRef.current || "",
