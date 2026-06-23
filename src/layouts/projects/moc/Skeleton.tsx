@@ -5,6 +5,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import DappFooter from "../../../components/Footer/index";
 import SectionHeader from "../../../components/Header";
 import NotificationBody from "../../../components/Notification";
+import UpdateToast from "../../../components/UpdateToast";
 import { useWalletContext } from "../../../context/Wallet";
 import { CheckStatusGlobal } from "../../../helpers/checkStatus";
 import { useProjectTranslation } from "../../../helpers/translations";
@@ -115,6 +116,7 @@ export default function Skeleton(): JSX.Element {
         <Layout>
             <SectionHeader />
             <Content>
+                <UpdateToast />
                 {/* TODO load an array of notifStatus items, and load a mapping for showing notifs here in this section , interact with a React Context */}
                 {notifStatus && <NotificationBody notifStatus={notifStatus} />}
                 {vetoWithdraw && (
