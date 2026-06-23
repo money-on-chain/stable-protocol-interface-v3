@@ -12,7 +12,7 @@ RUN npm ci
 # Source and configuration
 COPY src/ ./src/
 COPY public/ ./public/
-COPY index.html vite.config.ts tsconfig.json tsconfig.node.json tsconfig.eslint.json eslint.config.js ./
+COPY vite.config.ts tsconfig.json tsconfig.node.json tsconfig.eslint.json eslint.config.js ./
 
 # Build scripts
 COPY build_target.sh prepare_target.sh remove_build.sh ./
