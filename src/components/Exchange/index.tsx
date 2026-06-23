@@ -2142,9 +2142,6 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                     onInteractionChange={
                                         onSlippageInteractionChange
                                     }
-                                    onInteractionChange={
-                                        onSlippageInteractionChange
-                                    }
                                 />
                             </div>
                         </div>

@@ -256,5 +256,5 @@ export type WalletContextType = {
     retryConnection: () => Promise<void>;
     clearRpcError: () => void;
     isRpcHealthy: boolean;
-    checkConnectivityNow: () => Promise<void>;
+    checkConnectivityNow: () => void;
 };

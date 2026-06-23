@@ -870,7 +870,7 @@ export default function ConfirmOperation(
                                 type="button"
                                 className="button"
                                 data-testid="confirm-operation-submit"
-                                onClick={onSendTransaction}
+                                onClick={() => onSendTransaction()}
                             >
                                 {t("exchange.buttonConfirm")}
                             </button>

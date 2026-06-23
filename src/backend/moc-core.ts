@@ -6,7 +6,7 @@ import {
 import { type Abi, type TransactionReceipt } from "viem";
 
 import settings from "../settings";
-import type { TokenConfig } from "../types/hooks";
+import type { ContractInfo, TokenConfig } from "../types/hooks";
 import type {
     InterfaceContext,
     OnReceipt,
@@ -697,7 +697,7 @@ const redeemTCandTP = async (
 interface CoreOpContext
     extends Omit<InterfaceContext, "contracts" | "address"> {
     vendorAddress: string;
-    mocContract: { address: `0x${string}`; abi: Abi };
+    mocContract: ContractInfo;
     contracts: NonNullable<InterfaceContext["contracts"]>;
     address: NonNullable<InterfaceContext["address"]>;
     publicClient: NonNullable<InterfaceContext["publicClient"]>;
@@ -764,7 +764,7 @@ const sendWithExecFee = async (
         value?: bigint;
     } = {
         address: mocContract.address,
-        abi: mocContract.abi,
+        abi: mocContract.abi as Abi,
         functionName,
         args,
         account: address,

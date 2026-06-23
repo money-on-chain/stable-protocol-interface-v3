@@ -695,8 +695,8 @@ export default function LastOperations(props: LastOperationsProps) {
                         action: "TPSwapForTP",
                         amount:
                             status === "executed"
-                                ? row_operation.executed?.qTPto_ || undefined
-                                : undefined,
+                                ? row_operation.executed?.qTPto_ ?? 0
+                                : 0,
                         name: settings.tokens.TP[tp_to_index].name,
                         token: settings.tokens.TP[tp_to_index],
                         icon: `TP_${tp_to_index}`,
@@ -910,8 +910,8 @@ export default function LastOperations(props: LastOperationsProps) {
                         action: "TCandTPMint",
                         amount:
                             status === "executed"
-                                ? row_operation.executed?.qTC_ || undefined
-                                : row_operation.params?.qTC || undefined,
+                                ? row_operation.executed?.qTC_ ?? 0
+                                : row_operation.params?.qTC ?? 0,
                         name: settings.tokens.TC[caIndex].name,
                         token: settings.tokens.TC[caIndex],
                         icon: `TC_${caIndex}`,
@@ -2032,7 +2032,7 @@ export default function LastOperations(props: LastOperationsProps) {
                         }
                         onRow={(_record, index) => ({
                             "data-testid": `last-operations-row-${index ?? 0}`,
-                        })}
+                        } as React.HTMLAttributes<HTMLTableRowElement>)}
                         scroll={{ y: lastOperationsHeight }}
                         style={{}}
                         loading={!ready && processedData.length === 0}
