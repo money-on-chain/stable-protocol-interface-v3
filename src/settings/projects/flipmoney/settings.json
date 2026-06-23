@@ -45,29 +45,35 @@
             "peggedUSD": false
         }
     },
-    "portfolio_table": ["COINBASE", "CA_0", "CA_1", "TC_0", "TC_1", "TP_0", "TP_1", "TF", "MOC"],
+    "portfolio_table": [
+        "COINBASE",
+        "CA_0",
+        "CA_1",
+        "TC_0",
+        "TC_1",
+        "TP_0",
+        "TP_1",
+        "TF",
+        "MOC"
+    ],
     "tokens": {
-        "COINBASE": [
-            {"key": 0, "token": "RBTC"}
-        ],
+        "COINBASE": [{ "key": 0, "token": "RBTC" }],
         "CA": [
-            {"key": 0, "token": "BPRO"},
-            {"key": 1, "token": "DOC"}
+            { "key": 0, "token": "BPRO" },
+            { "key": 1, "token": "DOC" }
         ],
         "TP": [
-            {"key": 0, "token": "ARSFLIP"},
-            {"key": 1, "token": "COPFLIP"}
+            { "key": 0, "token": "ARSFLIP" },
+            { "key": 1, "token": "COPFLIP" }
         ],
         "TC": [
-            {"key": 0, "token": "BPROX"},
-            {"key": 1, "token": "DOCX"}
+            { "key": 0, "token": "BPROX" },
+            { "key": 1, "token": "DOCX" }
         ],
         "TF": [
-            {"key": 0, "token": "FLIP"},
-            {"key": 1, "token": "FLIP"}
+            { "key": 0, "token": "FLIP" },
+            { "key": 1, "token": "FLIP" }
         ],
-        "TG": [
-            {"key": 0, "token": "FLIP"}
-        ]
+        "TG": [{ "key": 0, "token": "FLIP" }]
     }
 }

@@ -183,7 +183,9 @@ export default function ConfirmOperation(
             return;
         }
         if (!API_OPERATIONS_BASE) {
-            console.error("[ConfirmOperation] API_OPERATIONS_BASE is not configured or failed allowlist validation");
+            console.error(
+                "[ConfirmOperation] API_OPERATIONS_BASE is not configured or failed allowlist validation"
+            );
             return;
         }
         const apiUrl = new URL(API_OPERATIONS_BASE);

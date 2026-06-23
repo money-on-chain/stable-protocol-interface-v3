@@ -20,14 +20,19 @@ import { PrecisionNumbers } from "../PrecisionNumbers";
 export default function Send(): JSX.Element {
     const { t, i18n } = useProjectTranslation();
 
-    const { contractProtocolStatus, userBalance, userBaseCoinBalance, priceProvider } =
-        useWalletContext();
+    const {
+        contractProtocolStatus,
+        userBalance,
+        userBaseCoinBalance,
+        priceProvider,
+    } = useWalletContext();
 
     const tokenSend: string[] = tokenExchange();
     // Add Token Govern
     tokenSend.push("TG");
     // Add custom tokens from REACT_APP_CONTRACT_PRICE_PROVIDER_CUSTOM
-    const ppCustomRaw = import.meta.env.REACT_APP_CONTRACT_PRICE_PROVIDER_CUSTOM as string | undefined;
+    const ppCustomRaw = import.meta.env
+        .REACT_APP_CONTRACT_PRICE_PROVIDER_CUSTOM as string | undefined;
     if (ppCustomRaw) {
         for (const entry of ppCustomRaw.split(",")) {
             const pair = entry.trim().split(":")[0]?.trim() ?? "";
@@ -124,7 +129,10 @@ export default function Send(): JSX.Element {
             const hasMixedCase = /[A-F]/.test(hex) && /[a-f]/.test(hex);
             if (hasMixedCase) {
                 const addr = destinationAddress as `0x${string}`;
-                if (destinationAddress !== checksumAddress(addr, ALLOWED_CHAIN.id)) {
+                if (
+                    destinationAddress !==
+                    checksumAddress(addr, ALLOWED_CHAIN.id)
+                ) {
                     addressChecksumWarning = true;
                 }
             }

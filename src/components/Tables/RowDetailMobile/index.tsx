@@ -55,8 +55,7 @@ function RowDetail(props: RowDetailProps): React.ReactElement {
             ? `${explorerUrl}/tx/${props.detail.tx_hash}`
             : undefined;
     const executedTxLink =
-        props.detail.executed_tx_hash &&
-        props.detail.executed_tx_hash !== "--"
+        props.detail.executed_tx_hash && props.detail.executed_tx_hash !== "--"
             ? `${explorerUrl}/tx/${props.detail.executed_tx_hash}`
             : undefined;
     const recipientLink =
@@ -192,7 +191,9 @@ function RowDetail(props: RowDetailProps): React.ReactElement {
                     })}
                     text={
                         <div className="LastOp__expanded__status-lines">
-                            {shouldShowStatus && <div>{props.detail.status}</div>}
+                            {shouldShowStatus && (
+                                <div>{props.detail.status}</div>
+                            )}
                             {shouldShowErrorCode && (
                                 <div>
                                     {t(

@@ -388,7 +388,7 @@ const readContracts = async (
             }
         }
     }
-    
+
     // ---- Custom price providers (pair:ppAddress[:tokenAddress],...) ----
     // Format: "MOC/USD:0xPPAddress:0xTokenAddress" (token address is optional)
     const ppCustomRaw = import.meta.env

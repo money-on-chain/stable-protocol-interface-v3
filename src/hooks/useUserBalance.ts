@@ -34,7 +34,6 @@ export function useUserBalance(
 
         // ---- Voting app special-case (uses the first CollateralToken)
         if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting") {
-            
             const firstCT = Array.isArray(contracts.CollateralToken)
                 ? contracts.CollateralToken[0]
                 : undefined;
@@ -221,7 +220,7 @@ export function useUserBalance(
                 keys: ["tpLegacy", "allowance"],
             });
         }
-        
+
         return calls;
     }, [contracts, userAddress]);
 

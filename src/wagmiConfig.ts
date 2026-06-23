@@ -82,7 +82,10 @@ const getRpcEndpoints = (chainId: number) => {
     }
 };
 
-const HTTPS_REQUIRED_CHAIN_IDS = new Set<number>([rootstock.id, rootstockTestnet.id]);
+const HTTPS_REQUIRED_CHAIN_IDS = new Set<number>([
+    rootstock.id,
+    rootstockTestnet.id,
+]);
 
 const validateRpcUrl = (url: string, chainId: number): boolean => {
     try {

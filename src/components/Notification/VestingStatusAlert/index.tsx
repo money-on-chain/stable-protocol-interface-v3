@@ -66,7 +66,7 @@ export default function VestingStatusAlert({
                     type: "primary",
                     onClick: openWalletSettings,
                 },
-            ]}            
+            ]}
             notificationId="vesting-status-alert"
             lingerMs={4000}
         />

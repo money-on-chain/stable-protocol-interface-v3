@@ -64,7 +64,7 @@
         "build:voting-mainnet": "bash ./prepare_target.sh voting && export REACT_APP_VERSION=$npm_package_version && export NODE_OPTIONS=--max_old_space_size=4096 && env-cmd -f .env.votingMainnet vite build && bash ./remove_build.sh",
         "reload:voting-localhost": "export REACT_APP_VERSION=$npm_package_version && env-cmd -f .env.votingLocalhost vite",
         "start:voting-localhost": "bash ./prepare_target.sh voting && export REACT_APP_VERSION=$npm_package_version && env-cmd -f .env.votingLocalhost vite",
-        "build:voting-localhost": "bash ./prepare_target.sh voting && export REACT_APP_VERSION=$npm_package_version && export NODE_OPTIONS=--max_old_space_size=4096 && env-cmd -f .env.votingLocalhost vite build && bash ./remove_build.sh"        
+        "build:voting-localhost": "bash ./prepare_target.sh voting && export REACT_APP_VERSION=$npm_package_version && export NODE_OPTIONS=--max_old_space_size=4096 && env-cmd -f .env.votingLocalhost vite build && bash ./remove_build.sh"
     },
     "devDependencies": {
         "@eslint/js": "^9.35.0",

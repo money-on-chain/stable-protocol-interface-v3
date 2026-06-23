@@ -90,7 +90,7 @@ export default function Skeleton(): JSX.Element {
     const priceNotValidStatus: InlineNotificationState | null =
         React.useMemo(() => {
             const data = contractProtocolStatus.data;
-            
+
             if (!data || !data.PP_COINBASE) {
                 return null;
             }
@@ -98,8 +98,7 @@ export default function Skeleton(): JSX.Element {
             let valid = true;
 
             for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
-                
-                if (                 
+                if (
                     !data[ca] ||
                     !data[ca].PP_CA ||
                     !data[ca].PP_FeeToken ||
@@ -107,7 +106,7 @@ export default function Skeleton(): JSX.Element {
                 ) {
                     return null;
                 }
-                
+
                 if (!data[ca].PP_CA[1]) {
                     valid = false;
                     break;

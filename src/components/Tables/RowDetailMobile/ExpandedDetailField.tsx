@@ -9,7 +9,9 @@ interface ExpandedDetailFieldProps {
     copyText?: string;
 }
 
-function ExpandedDetailField(props: ExpandedDetailFieldProps): React.ReactElement {
+function ExpandedDetailField(
+    props: ExpandedDetailFieldProps
+): React.ReactElement {
     const copyValue =
         props.copyText || (typeof props.text === "string" ? props.text : "");
     const canCopy = Boolean(

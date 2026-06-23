@@ -49,7 +49,7 @@ export default function CommissionsSelector(
                             value={"TF"}
                             disabled={
                                 commissionsByKey["FeeToken"]?.commission >
-                                commissionsByKey["FeeToken"]?.balance || 
+                                    commissionsByKey["FeeToken"]?.balance ||
                                 commissionsByKey["FeeToken"]?.commission === 0n
                             }
                         >
@@ -107,9 +107,12 @@ export default function CommissionsSelector(
                                 disabled={
                                     operationType === "REDEEM"
                                         ? false
-                                        : commissionsByKey[`CA_${ca}`]?.commission >
-                                              commissionsByKey[`CA_${ca}`]?.balance ||
-                                          commissionsByKey[`CA_${ca}`]?.commission === 0n
+                                        : commissionsByKey[`CA_${ca}`]
+                                              ?.commission >
+                                              commissionsByKey[`CA_${ca}`]
+                                                  ?.balance ||
+                                          commissionsByKey[`CA_${ca}`]
+                                              ?.commission === 0n
                                 }
                             >
                                 <span className={"token_exchange"}>
