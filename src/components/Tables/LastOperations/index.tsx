@@ -148,7 +148,7 @@ interface TokenExchangeResult {
     };
     receive: {
         action?: string;
-        amount: string | number;
+        amount: string | number | undefined;
         name: string;
         token: unknown;
         icon: string;
@@ -156,7 +156,7 @@ interface TokenExchangeResult {
     };
     another: {
         action?: string;
-        amount: string | number;
+        amount: string | number | undefined;
         name: string;
         token: unknown;
         icon: string;
@@ -695,8 +695,8 @@ export default function LastOperations(props: LastOperationsProps) {
                         action: "TPSwapForTP",
                         amount:
                             status === "executed"
-                                ? row_operation.executed?.qTPto_ ?? 0
-                                : 0,
+                                ? row_operation.executed?.qTPto_
+                                : undefined,
                         name: settings.tokens.TP[tp_to_index].name,
                         token: settings.tokens.TP[tp_to_index],
                         icon: `TP_${tp_to_index}`,
@@ -910,8 +910,8 @@ export default function LastOperations(props: LastOperationsProps) {
                         action: "TCandTPMint",
                         amount:
                             status === "executed"
-                                ? row_operation.executed?.qTC_ ?? 0
-                                : row_operation.params?.qTC ?? 0,
+                                ? row_operation.executed?.qTC_
+                                : row_operation.params?.qTC,
                         name: settings.tokens.TC[caIndex].name,
                         token: settings.tokens.TC[caIndex],
                         icon: `TC_${caIndex}`,
