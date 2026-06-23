@@ -528,6 +528,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         onTransaction: OnTransaction,
         onReceipt: OnReceipt
     ): Promise<unknown> => {
+        if (!isOnCorrectChain)
+            throw new Error(
+                `Wrong network — please switch your wallet to ${ALLOWED_CHAIN.name} before signing`
+            );
         const interfaceContext = buildInterfaceContext();
         if (
             operationType === "COMBINED_MINT" ||
