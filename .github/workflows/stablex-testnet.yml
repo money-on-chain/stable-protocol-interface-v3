@@ -2,10 +2,14 @@ name: Stablex-Testnet
 on:
     workflow_dispatch:
 
+permissions: {}
+
 jobs:
     bump_version:
         name: Bump Version
         runs-on: ubuntu-22.04
+        permissions:
+            contents: write
         outputs:
             new_tag: ${{ steps.github_tag_action.outputs.new_tag }}
             changelog: ${{ steps.github_tag_action.outputs.changelog }}
@@ -26,7 +30,7 @@ jobs:
               id: github_tag_action
               uses: mathieudutour/github-tag-action@fcfbdceb3093f6d85a3b194740f8c6cec632f4e2 # v6.1
               with:
-                  github_token: ${{ secrets.PERSONAL_TOKEN }}
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
                   release_branches: master, develop
                   default_bump: patch
 
@@ -35,6 +39,8 @@ jobs:
         runs-on: ubuntu-22.04
         needs: bump_version
         if: ${{ needs.bump_version.outputs.new_tag != null }}
+        permissions:
+            contents: write
         steps:
             - name: Checkout
               uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # v3.2.0
@@ -48,12 +54,13 @@ jobs:
             - name: Install setup
               run: npm ci
 
-            # Target Testnet
+            - name: Audit dependencies
+              run: npm audit --audit-level=high
 
-            - name: Build setup Testnet
-              run: CI=false npm run build:stablex-testnet
+            - name: Build
+              run: npm run build:stablex-testnet
 
-            - name: Pin to IPFS Testnet
+            - name: Pin to IPFS
               id: upload
               uses: anantaramdas/ipfs-pinata-deploy-action@39bbda1ce1fe24c69c6f57861b8038278d53688d
               with:
@@ -62,18 +69,17 @@ jobs:
                   pinata-api-key: ${{ secrets.PINATA_API_KEY }}
                   pinata-secret-api-key: ${{ secrets.PINATA_API_SECRET_KEY }}
 
-            - name: Convert CIDv0 to CIDv1 Testnet
+            - name: Convert CIDv0 to CIDv1
               id: convert_cidv0
               uses: money-on-chain/convert-cidv0-cidv1@v1.0.0
               with:
                   cidv0: ${{ steps.upload.outputs.hash }}
 
-            # Create the release
             - name: Create GitHub Release
               id: create_release
               uses: actions/create-release@v1.1.0
               env:
-                  GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+                  GITHUB_TOKEN: ${{ github.token }}
               with:
                   tag_name: ${{ needs.bump_version.outputs.new_tag }}
                   release_name: Stablex Testnet ${{ needs.bump_version.outputs.new_tag }}
@@ -83,7 +89,7 @@ jobs:
 
                       - CIDv0: `${{ steps.upload.outputs.hash }}`
                       - CIDv1: `${{ steps.convert_cidv0.outputs.cidv1 }}`
-                                              
+
                       **Primary Testnet gateways (SEPOLIA)**:
                       - https://dapp.stablex.pro/ipfs/${{ steps.upload.outputs.hash }}
 
