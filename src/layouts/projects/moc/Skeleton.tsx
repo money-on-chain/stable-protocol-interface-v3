@@ -5,11 +5,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import DappFooter from "../../../components/Footer/index";
 import SectionHeader from "../../../components/Header";
 import NotificationBody from "../../../components/Notification";
-import RpcErrorAlert from "../../../components/Notification/RpcErrorAlert";
-import {
-    GlobalNotificationCenter,
-    NotificationProvider,
-} from "../../../components/Notifications";
+import UpdateToast from "../../../components/UpdateToast";
 import { useWalletContext } from "../../../context/Wallet";
 import { CheckStatusGlobal } from "../../../helpers/checkStatus";
 import { useProjectTranslation } from "../../../helpers/translations";
@@ -39,9 +35,6 @@ export default function Skeleton(): JSX.Element {
         userVeto,
         contractStatusOmoc,
         address,
-        rpcError,
-        retryConnection,
-        clearRpcError,
     } = useWalletContext();
     const navigate = useNavigate();
     const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(
@@ -120,18 +113,10 @@ export default function Skeleton(): JSX.Element {
     };
 
     return (
-        <NotificationProvider>
         <Layout>
             <SectionHeader />
-            <GlobalNotificationCenter />
             <Content>
-                {rpcError.hasError && (
-                    <RpcErrorAlert
-                        error={rpcError}
-                        onRetry={() => void retryConnection()}
-                        onDismiss={clearRpcError}
-                    />
-                )}
+                <UpdateToast />
                 {/* TODO load an array of notifStatus items, and load a mapping for showing notifs here in this section , interact with a React Context */}
                 {notifStatus && <NotificationBody notifStatus={notifStatus} />}
                 {vetoWithdraw && (
@@ -148,6 +133,5 @@ export default function Skeleton(): JSX.Element {
                 </div>
             </Footer>
         </Layout>
-        </NotificationProvider>
     );
 }

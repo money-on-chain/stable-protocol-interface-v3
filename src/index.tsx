@@ -13,7 +13,6 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { I18nextProvider } from "react-i18next";
 import { HashRouter } from "react-router-dom";
-import { registerSW } from "virtual:pwa-register";
 import { WagmiProvider } from "wagmi";
 
 import IconLoading from "./assets/icons/LoaderAnim.svg";
@@ -24,8 +23,6 @@ import es_ES from "./settings/locale/es_ES.json";
 import { config } from "./wagmiConfig";
 
 console.warn(`Starting app version: ${import.meta.env.REACT_APP_VERSION}`);
-
-registerSW({ immediate: true });
 
 const queryClient = new QueryClient();
 
