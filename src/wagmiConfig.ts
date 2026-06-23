@@ -82,6 +82,24 @@ const getRpcEndpoints = (chainId: number) => {
     }
 };
 
+const HTTPS_REQUIRED_CHAIN_IDS = new Set<number>([rootstock.id, rootstockTestnet.id]);
+
+const validateRpcUrl = (url: string, chainId: number): boolean => {
+    try {
+        const { protocol } = new URL(url);
+        if (HTTPS_REQUIRED_CHAIN_IDS.has(chainId) && protocol !== "https:") {
+            console.error(
+                `[wagmiConfig] RPC URL "${url}" must use HTTPS for chain ${chainId}`
+            );
+            return false;
+        }
+        return true;
+    } catch (_e: unknown) {
+        console.error(`[wagmiConfig] Invalid RPC URL: "${url}"`);
+        return false;
+    }
+};
+
 // ─── Active-connector transport ───────────────────────────────────────────────
 //
 // Why not unstable_connector(injected)?
@@ -153,16 +171,35 @@ const activeConnectorTransport = (
 // Build an ordered list of transports for a given chain:
 //   1. activeConnectorTransport — the wallet the user connected with
 //   2. env-var HTTP endpoints — explicitly configured RPCs
-//   3. http() with no URL — chain's built-in default RPC (last-resort safety net so
-//      fallback() always receives at least one transport and createConfig never throws)
+//   3. http() with no URL — chain-default RPC, only for testnet/localhost;
+//      mainnet requires an explicit endpoint via REACT_APP_RSK_MAINNET_RPC
 const chainTransports = (chainId: number) => {
-    const envTransports = getRpcEndpoints(chainId).map((url) =>
+    const validatedEndpoints = getRpcEndpoints(chainId).filter((url) =>
+        validateRpcUrl(url as string, chainId)
+    );
+    const envTransports = validatedEndpoints.map((url) =>
         http(url as string, { retryCount: 3, retryDelay: 1000 })
     );
+
+    const isMainnet = chainId === rootstock.id;
+
+    if (isMainnet && validatedEndpoints.length === 0) {
+        console.error(
+            "[wagmiConfig] REACT_APP_RSK_MAINNET_RPC is not set. " +
+                "Unauthenticated reads will fall back to the chain-default RPC " +
+                "(https://public-node.rsk.co). Set an explicit endpoint for production."
+        );
+    }
+
     return [
         activeConnectorTransport,
         ...envTransports,
-        http(undefined, { retryCount: 1, retryDelay: 500 }),
+        // Omit the generic fallback on mainnet when an explicit RPC is configured —
+        // a misconfigured or unavailable env RPC should surface as an error, not
+        // silently route to an unapproved public node.
+        ...(isMainnet && validatedEndpoints.length > 0
+            ? []
+            : [http(undefined, { retryCount: 1, retryDelay: 500 })]),
     ] as Parameters<typeof fallback>[0];
 };
 

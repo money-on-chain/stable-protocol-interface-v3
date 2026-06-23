@@ -21,7 +21,6 @@ COPY build_target.sh prepare_target.sh remove_build.sh ./
 COPY .env ./
 COPY .env.flipmoneyMainnet .env.flipmoneyTestnet ./
 COPY .env.rocMainnet .env.rocTestnet ./
-COPY .env.stablexTestnet ./
 COPY .env.votingMainnet .env.votingTestnet ./
 
 # Pass TARGET_BUILD at runtime: docker run -e TARGET_BUILD=build:roc-mainnet <image>

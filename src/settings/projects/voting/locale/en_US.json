@@ -5,7 +5,13 @@
     "invalidValueDescription": "No value to display",
     "invalidValuePlaceholder": "--",
     "notification": {
-        "dismiss": "Dismiss"
+        "dismiss": "Dismiss",
+        "rpcError": {
+            "title": "Network Connection Error",
+            "description": "Unable to connect to the blockchain network. This may be due to network congestion or RPC server issues. The system will automatically retry, or you can try again manually.",
+            "retry": "Retry Connection",
+            "dismiss": "Dismiss"
+        }
     },
     "txFeedback": { "txIdLabel": "Transaction ID" },
     "button": { "inputMaxValue": "max" },
