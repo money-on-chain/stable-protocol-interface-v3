@@ -3,7 +3,6 @@ import { Space } from "antd";
 import { useAccount, useChainId, useSwitchChain } from "wagmi";
 import { AppNotification } from "../Notifications";
 
-
 import { ALLOWED_CHAIN } from "../../wagmiConfig";
 
 export function NetworkGuard() {
@@ -25,7 +24,7 @@ export function NetworkGuard() {
                     <span>
                         You are connected to the wrong network. This environment
                         only allows <strong>{ALLOWED_CHAIN.name}</strong>.
-                    </span>                    
+                    </span>
                 </Space>
             }
             actions={[
@@ -35,7 +34,7 @@ export function NetworkGuard() {
                     type: "primary",
                     loading: isPending,
                     onClick: () => {
-                        switchChain({ chainId: ALLOWED_CHAIN.id })
+                        switchChain({ chainId: ALLOWED_CHAIN.id });
                     },
                 },
             ]}

@@ -52,7 +52,7 @@ export default function RpcErrorAlert({
                         )}
                     </div>
                 </div>
-            }            
+            }
             dismissible={!!onDismiss}
             onDismiss={onDismiss}
             deliveryMode="center"

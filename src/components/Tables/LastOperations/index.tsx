@@ -256,7 +256,9 @@ export default function LastOperations(props: LastOperationsProps) {
         ) {
             isLoadingRef.current = true;
             if (!API_OPERATIONS_BASE) {
-                console.error("[LastOperations] API_OPERATIONS_BASE is not configured or failed allowlist validation");
+                console.error(
+                    "[LastOperations] API_OPERATIONS_BASE is not configured or failed allowlist validation"
+                );
                 isLoadingRef.current = false;
                 hasInitialLoadRef.current = true;
                 setReady(true);
@@ -440,7 +442,7 @@ export default function LastOperations(props: LastOperationsProps) {
             }
 
             const caIndex = row_operation.bucket_index ?? 0;
-            
+
             if (!status) {
                 return {
                     exchange: {
@@ -1103,39 +1105,96 @@ export default function LastOperations(props: LastOperationsProps) {
             let exchangeTokenName: string | null = null;
             let receiveTokenName: string | null = null;
             let token: TokenConfig | null = null;
-            if (row_operation["operation"] === "TPMint" && row_executed && row_executed.qTP_ && row_executed.qAC_) {                
+            if (
+                row_operation["operation"] === "TPMint" &&
+                row_executed &&
+                row_executed.qTP_ &&
+                row_executed.qAC_
+            ) {
                 let tp_index =
                     row_executed?.tpIndex_ ||
                     (row_executed as { tpIndex?: number })?.tpIndex;
                 tp_index = tp_index ?? 0;
-                exchangeTokenName = (settings.tokens.CA as TokenConfig[])[caIndex]?.name;
-                receiveTokenName = (settings.tokens.TP as TokenConfig[])[tp_index]?.name;
-                value = wadDiv(BigInt(row_executed.qTP_), BigInt(row_executed.qAC_), "halfUp");
+                exchangeTokenName = (settings.tokens.CA as TokenConfig[])[
+                    caIndex
+                ]?.name;
+                receiveTokenName = (settings.tokens.TP as TokenConfig[])[
+                    tp_index
+                ]?.name;
+                value = wadDiv(
+                    BigInt(row_executed.qTP_),
+                    BigInt(row_executed.qAC_),
+                    "halfUp"
+                );
                 currency = `${exchangeTokenName}/${receiveTokenName}`;
                 token = (settings.tokens.TP as TokenConfig[])[tp_index];
-            } else if (row_operation["operation"] === "TPRedeem" && row_executed && row_executed.qTP_ && row_executed.qAC_) {                
+            } else if (
+                row_operation["operation"] === "TPRedeem" &&
+                row_executed &&
+                row_executed.qTP_ &&
+                row_executed.qAC_
+            ) {
                 let tp_index =
                     row_executed?.tpIndex_ ||
                     (row_executed as { tpIndex?: number })?.tpIndex;
                 tp_index = tp_index ?? 0;
-                exchangeTokenName = (settings.tokens.TP as TokenConfig[])[tp_index]?.name;
-                receiveTokenName = (settings.tokens.CA as TokenConfig[])[caIndex]?.name;
-                value = wadDiv(BigInt(row_executed.qTP_), BigInt(row_executed.qAC_), "halfUp");
-                currency = `${receiveTokenName}/${exchangeTokenName}`;                
-                token = (settings.tokens.CA as TokenConfig[])[caIndex];
-            } else if (row_operation["operation"] === "TCMint" && row_executed && row_executed.qTC_ && row_executed.qAC_) {
-                exchangeTokenName = (settings.tokens.CA as TokenConfig[])[caIndex]?.name;
-                receiveTokenName = (settings.tokens.TC as TokenConfig[])[caIndex]?.name;
-                value = wadDiv(BigInt(row_executed.qTC_), BigInt(row_executed.qAC_), "halfUp");
-                currency = `${exchangeTokenName}/${receiveTokenName}`;
-                token = (settings.tokens.TC as TokenConfig[])[caIndex];
-            } else if (row_operation["operation"] === "TCRedeem" && row_executed && row_executed.qTC_ && row_executed.qAC_) {
-                exchangeTokenName = (settings.tokens.TC as TokenConfig[])[caIndex]?.name;
-                receiveTokenName = (settings.tokens.CA as TokenConfig[])[caIndex]?.name;
-                value = wadDiv(BigInt(row_executed.qTC_), BigInt(row_executed.qAC_), "halfUp");
+                exchangeTokenName = (settings.tokens.TP as TokenConfig[])[
+                    tp_index
+                ]?.name;
+                receiveTokenName = (settings.tokens.CA as TokenConfig[])[
+                    caIndex
+                ]?.name;
+                value = wadDiv(
+                    BigInt(row_executed.qTP_),
+                    BigInt(row_executed.qAC_),
+                    "halfUp"
+                );
                 currency = `${receiveTokenName}/${exchangeTokenName}`;
                 token = (settings.tokens.CA as TokenConfig[])[caIndex];
-            } else if (row_operation["operation"] === "TPSwapForTP" && row_executed && row_executed.qTPfrom_ && row_executed.qTPto_) {
+            } else if (
+                row_operation["operation"] === "TCMint" &&
+                row_executed &&
+                row_executed.qTC_ &&
+                row_executed.qAC_
+            ) {
+                exchangeTokenName = (settings.tokens.CA as TokenConfig[])[
+                    caIndex
+                ]?.name;
+                receiveTokenName = (settings.tokens.TC as TokenConfig[])[
+                    caIndex
+                ]?.name;
+                value = wadDiv(
+                    BigInt(row_executed.qTC_),
+                    BigInt(row_executed.qAC_),
+                    "halfUp"
+                );
+                currency = `${exchangeTokenName}/${receiveTokenName}`;
+                token = (settings.tokens.TC as TokenConfig[])[caIndex];
+            } else if (
+                row_operation["operation"] === "TCRedeem" &&
+                row_executed &&
+                row_executed.qTC_ &&
+                row_executed.qAC_
+            ) {
+                exchangeTokenName = (settings.tokens.TC as TokenConfig[])[
+                    caIndex
+                ]?.name;
+                receiveTokenName = (settings.tokens.CA as TokenConfig[])[
+                    caIndex
+                ]?.name;
+                value = wadDiv(
+                    BigInt(row_executed.qTC_),
+                    BigInt(row_executed.qAC_),
+                    "halfUp"
+                );
+                currency = `${receiveTokenName}/${exchangeTokenName}`;
+                token = (settings.tokens.CA as TokenConfig[])[caIndex];
+            } else if (
+                row_operation["operation"] === "TPSwapForTP" &&
+                row_executed &&
+                row_executed.qTPfrom_ &&
+                row_executed.qTPto_
+            ) {
                 const sd = row_executed as
                     | {
                           tpFromIndex_?: number;
@@ -1148,45 +1207,105 @@ export default function LastOperations(props: LastOperationsProps) {
                     sd?.tpFromIndex_ ?? sd?.tpFromIndex ?? 0;
                 const tp_to_index: number =
                     sd?.tpToIndex_ ?? sd?.tpToIndex ?? 0;
-                exchangeTokenName = (settings.tokens.TP as TokenConfig[])[tp_from_index]?.name;
-                receiveTokenName = (settings.tokens.TP as TokenConfig[])[tp_to_index]?.name;
-                value = wadDiv(BigInt(row_executed.qTPfrom_), BigInt(row_executed.qTPto_), "halfUp");
+                exchangeTokenName = (settings.tokens.TP as TokenConfig[])[
+                    tp_from_index
+                ]?.name;
+                receiveTokenName = (settings.tokens.TP as TokenConfig[])[
+                    tp_to_index
+                ]?.name;
+                value = wadDiv(
+                    BigInt(row_executed.qTPfrom_),
+                    BigInt(row_executed.qTPto_),
+                    "halfUp"
+                );
                 currency = `${exchangeTokenName}/${receiveTokenName}`;
                 token = (settings.tokens.TP as TokenConfig[])[tp_from_index];
-            } else if (row_operation["operation"] === "TCSwapForTP" && row_executed && row_executed.qTC_ && row_executed.qTP_) {
+            } else if (
+                row_operation["operation"] === "TCSwapForTP" &&
+                row_executed &&
+                row_executed.qTC_ &&
+                row_executed.qTP_
+            ) {
                 let tp_index =
                     row_executed?.tpIndex_ ||
                     (row_executed as { tpIndex?: number })?.tpIndex;
                 tp_index = tp_index ?? 0;
-                exchangeTokenName = (settings.tokens.TC as TokenConfig[])[caIndex]?.name;
-                receiveTokenName = (settings.tokens.TP as TokenConfig[])[tp_index]?.name;
-                value = wadDiv(BigInt(row_executed.qTP_), BigInt(row_executed.qTC_), "halfUp");
+                exchangeTokenName = (settings.tokens.TC as TokenConfig[])[
+                    caIndex
+                ]?.name;
+                receiveTokenName = (settings.tokens.TP as TokenConfig[])[
+                    tp_index
+                ]?.name;
+                value = wadDiv(
+                    BigInt(row_executed.qTP_),
+                    BigInt(row_executed.qTC_),
+                    "halfUp"
+                );
                 currency = `${exchangeTokenName}/${receiveTokenName}`;
                 token = (settings.tokens.TP as TokenConfig[])[tp_index];
-            } else if (row_operation["operation"] === "TPSwapForTC" && row_executed && row_executed.qTP_ && row_executed.qTC_) {
+            } else if (
+                row_operation["operation"] === "TPSwapForTC" &&
+                row_executed &&
+                row_executed.qTP_ &&
+                row_executed.qTC_
+            ) {
                 let tp_index =
                     row_executed?.tpIndex_ ||
                     (row_executed as { tpIndex?: number })?.tpIndex;
                 tp_index = tp_index ?? 0;
-                exchangeTokenName = (settings.tokens.TP as TokenConfig[])[tp_index]?.name;
-                receiveTokenName = (settings.tokens.TC as TokenConfig[])[caIndex]?.name;
-                value = wadDiv(BigInt(row_executed.qTP_), BigInt(row_executed.qTC_), "halfUp");
+                exchangeTokenName = (settings.tokens.TP as TokenConfig[])[
+                    tp_index
+                ]?.name;
+                receiveTokenName = (settings.tokens.TC as TokenConfig[])[
+                    caIndex
+                ]?.name;
+                value = wadDiv(
+                    BigInt(row_executed.qTP_),
+                    BigInt(row_executed.qTC_),
+                    "halfUp"
+                );
                 currency = `${receiveTokenName}/${exchangeTokenName}`;
                 token = (settings.tokens.TC as TokenConfig[])[caIndex];
-            } else if (row_operation["operation"] === "TCandTPRedeem" && row_executed && row_executed.qTC_ && row_executed.qACtoRedeemTC_) {
-                exchangeTokenName = (settings.tokens.TC as TokenConfig[])[caIndex]?.name;
-                receiveTokenName = (settings.tokens.CA as TokenConfig[])[caIndex]?.name;
-                value = wadDiv(BigInt(row_executed.qTC_), BigInt(row_executed.qACtoRedeemTC_), "halfUp");
+            } else if (
+                row_operation["operation"] === "TCandTPRedeem" &&
+                row_executed &&
+                row_executed.qTC_ &&
+                row_executed.qACtoRedeemTC_
+            ) {
+                exchangeTokenName = (settings.tokens.TC as TokenConfig[])[
+                    caIndex
+                ]?.name;
+                receiveTokenName = (settings.tokens.CA as TokenConfig[])[
+                    caIndex
+                ]?.name;
+                value = wadDiv(
+                    BigInt(row_executed.qTC_),
+                    BigInt(row_executed.qACtoRedeemTC_),
+                    "halfUp"
+                );
                 currency = `${receiveTokenName}/${exchangeTokenName}`;
                 token = (settings.tokens.CA as TokenConfig[])[caIndex];
-            } else if (row_operation["operation"] === "TCandTPMint" && row_executed && row_executed.qACtoMintTP_ && row_executed.qTP_) { 
+            } else if (
+                row_operation["operation"] === "TCandTPMint" &&
+                row_executed &&
+                row_executed.qACtoMintTP_ &&
+                row_executed.qTP_
+            ) {
                 let tp_index =
                     row_executed?.tpIndex_ ||
                     (row_executed as { tpIndex?: number })?.tpIndex;
                 tp_index = tp_index ?? 0;
-                exchangeTokenName = (settings.tokens.CA as TokenConfig[])[caIndex]?.name;
-                receiveTokenName = (settings.tokens.TP as TokenConfig[])[tp_index]?.name;
-                value = wadDiv(BigInt(row_executed.qTP_), BigInt(row_executed.qACtoMintTP_),  "halfUp");
+                exchangeTokenName = (settings.tokens.CA as TokenConfig[])[
+                    caIndex
+                ]?.name;
+                receiveTokenName = (settings.tokens.TP as TokenConfig[])[
+                    tp_index
+                ]?.name;
+                value = wadDiv(
+                    BigInt(row_executed.qTP_),
+                    BigInt(row_executed.qACtoMintTP_),
+                    "halfUp"
+                );
                 currency = `${exchangeTokenName}/${receiveTokenName}`;
                 token = (settings.tokens.TP as TokenConfig[])[tp_index];
             }
@@ -1203,24 +1322,50 @@ export default function LastOperations(props: LastOperationsProps) {
             let exchangeTokenName: string | null = null;
             let receiveTokenName: string | null = null;
             let token: TokenConfig | null = null;
-            if (row_operation["operation"] === "TCandTPRedeem" && row_executed && row_executed.qTP_ && row_executed.qACtoRedeemTP_) {
+            if (
+                row_operation["operation"] === "TCandTPRedeem" &&
+                row_executed &&
+                row_executed.qTP_ &&
+                row_executed.qACtoRedeemTP_
+            ) {
                 let tp_index =
                     row_executed?.tpIndex_ ||
                     (row_executed as { tpIndex?: number })?.tpIndex;
                 tp_index = tp_index ?? 0;
-                exchangeTokenName = (settings.tokens.TP as TokenConfig[])[tp_index]?.name;
-                receiveTokenName = (settings.tokens.CA as TokenConfig[])[caIndex]?.name;
-                value = wadDiv(BigInt(row_executed.qTP_), BigInt(row_executed.qACtoRedeemTP_), "halfUp");
+                exchangeTokenName = (settings.tokens.TP as TokenConfig[])[
+                    tp_index
+                ]?.name;
+                receiveTokenName = (settings.tokens.CA as TokenConfig[])[
+                    caIndex
+                ]?.name;
+                value = wadDiv(
+                    BigInt(row_executed.qTP_),
+                    BigInt(row_executed.qACtoRedeemTP_),
+                    "halfUp"
+                );
                 currency = `${receiveTokenName}/${exchangeTokenName}`;
                 token = (settings.tokens.CA as TokenConfig[])[caIndex];
-            } else if (row_operation["operation"] === "TCandTPMint" && row_executed && row_executed.qACtoMintTC_ && row_executed.qTC_) { 
+            } else if (
+                row_operation["operation"] === "TCandTPMint" &&
+                row_executed &&
+                row_executed.qACtoMintTC_ &&
+                row_executed.qTC_
+            ) {
                 let tp_index =
                     row_executed?.tpIndex_ ||
                     (row_executed as { tpIndex?: number })?.tpIndex;
                 tp_index = tp_index ?? 0;
-                exchangeTokenName = (settings.tokens.TC as TokenConfig[])[caIndex]?.name;
-                receiveTokenName = (settings.tokens.CA as TokenConfig[])[caIndex]?.name;
-                value = wadDiv(BigInt(row_executed.qTC_), BigInt(row_executed.qACtoMintTC_), "halfUp");
+                exchangeTokenName = (settings.tokens.TC as TokenConfig[])[
+                    caIndex
+                ]?.name;
+                receiveTokenName = (settings.tokens.CA as TokenConfig[])[
+                    caIndex
+                ]?.name;
+                value = wadDiv(
+                    BigInt(row_executed.qTC_),
+                    BigInt(row_executed.qACtoMintTC_),
+                    "halfUp"
+                );
                 currency = `${receiveTokenName}/${exchangeTokenName}`;
                 token = (settings.tokens.TC as TokenConfig[])[caIndex];
             }
@@ -1481,7 +1626,11 @@ export default function LastOperations(props: LastOperationsProps) {
                                                         )}
                                                         token={exchangeToken}
                                                         decimals={
-                                                            exchangeToken === undefined ? 2 : exchangeToken.visibleDecimals ?? 2
+                                                            exchangeToken ===
+                                                            undefined
+                                                                ? 2
+                                                                : (exchangeToken.visibleDecimals ??
+                                                                  2)
                                                         }
                                                         i18n={i18n}
                                                         compact={true}
@@ -1540,7 +1689,11 @@ export default function LastOperations(props: LastOperationsProps) {
                                                               ),
                                                               token: receiveToken,
                                                               decimals:
-                                                                 receiveToken === undefined ? 2 : receiveToken.visibleDecimals ?? 2,
+                                                                  receiveToken ===
+                                                                  undefined
+                                                                      ? 2
+                                                                      : (receiveToken.visibleDecimals ??
+                                                                        2),
                                                               i18n: i18n,
                                                               compact: true,
                                                           });

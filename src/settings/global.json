@@ -35,7 +35,7 @@
             "visibleBalanceDecimals": 8,
             "visibleBalanceUSDDecimals": 2,
             "peggedUSD": false
-        },                
+        },
         "MOC": {
             "collateralType": "rc20",
             "name": "MOC",

@@ -519,16 +519,18 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         // Not enough balance to pay fees
         const notEnoughBalanceToPayFees =
             Object.values(commissionsByKey).length > 0 &&
-            Object.values(commissionsByKey).every(
-                (item, index) => (operationType === "REDEEM" && index > 0) ? false : (item.commission > item.balance)
+            Object.values(commissionsByKey).every((item, index) =>
+                operationType === "REDEEM" && index > 0
+                    ? false
+                    : item.commission > item.balance
             );
-        
+
         if (notEnoughBalanceToPayFees) {
             setGlobalValidationErrorText(t("exchange.errors.noBalanceForFees"));
             setInputValidationError(true);
             return;
         }
-        
+
         // No Validations Errors
         setInputValidationErrorText("");
         setGlobalValidationErrorText("");
@@ -1097,9 +1099,18 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         }
 
         setCommissionForKey("FeeToken", {
-            commission: calculateLimit(baseForFeeToken.totalFeeToken, +(slippageTolerance / 100)),
-            commissionUSD: calculateLimit(baseForFeeToken.totalFeeTokenUSD, +(slippageTolerance / 100)),
-            commissionPercent: calculateLimit(baseForFeeToken.feeTokenPercent, +(slippageTolerance / 100)),
+            commission: calculateLimit(
+                baseForFeeToken.totalFeeToken,
+                +(slippageTolerance / 100)
+            ),
+            commissionUSD: calculateLimit(
+                baseForFeeToken.totalFeeTokenUSD,
+                +(slippageTolerance / 100)
+            ),
+            commissionPercent: calculateLimit(
+                baseForFeeToken.feeTokenPercent,
+                +(slippageTolerance / 100)
+            ),
             balance: userBalance.data[choosenCAIndex].FeeToken.balance,
         });
 
@@ -1163,13 +1174,15 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
 
     const setAddTotalAvailable = (): void => {
         const totalbalance = TokenBalance(userBalance, currencyYouExchange);
-        onChangeAmountYouExchange(totalbalance === 0n
-            ? ""
-            : bigIntToInputValue(
-                  totalbalance,
-                  currencyYouExchange,
-                  totalbalance < 10n ** 17n ? 12 : 8
-              ));        
+        onChangeAmountYouExchange(
+            totalbalance === 0n
+                ? ""
+                : bigIntToInputValue(
+                      totalbalance,
+                      currencyYouExchange,
+                      totalbalance < 10n ** 17n ? 12 : 8
+                  )
+        );
     };
 
     const onChangeFee = (e: RadioChangeEvent): void => {

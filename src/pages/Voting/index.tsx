@@ -31,9 +31,7 @@ export default function SectionVoting(): React.ReactElement {
                 <div className="content-page">
                     {(settings.project === "moc" ||
                         settings.project === "voting" ||
-                        settings.project === "roc") && (
-                        <VestingStatusAlert />
-                    )}
+                        settings.project === "roc") && <VestingStatusAlert />}
                 </div>
                 {ready ? <Voting /> : <Skeleton active />}
             </div>

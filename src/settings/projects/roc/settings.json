@@ -38,26 +38,20 @@
         }
     },
     "tokens": {
-        "COINBASE": [
-            {"key": 0, "token": "RBTC"}
-        ],
+        "COINBASE": [{ "key": 0, "token": "RBTC" }],
         "CA": [
-            {"key": 0, "token": "RIF"},
-            {"key": 1, "token": "DOC"}
+            { "key": 0, "token": "RIF" },
+            { "key": 1, "token": "DOC" }
         ],
-        "TP": [
-            {"key": 0, "token": "USDRIF"}
-        ],
+        "TP": [{ "key": 0, "token": "USDRIF" }],
         "TC": [
-            {"key": 0, "token": "RIFP"},
-            {"key": 1, "token": "ROCR"}
+            { "key": 0, "token": "RIFP" },
+            { "key": 1, "token": "ROCR" }
         ],
         "TF": [
-            {"key": 0, "token": "MOC"},
-            {"key": 1, "token": "MOC"}
+            { "key": 0, "token": "MOC" },
+            { "key": 1, "token": "MOC" }
         ],
-        "TG": [
-            {"key": 0, "token": "MOC"}
-        ]
+        "TG": [{ "key": 0, "token": "MOC" }]
     }
 }

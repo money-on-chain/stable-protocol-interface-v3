@@ -41,9 +41,7 @@ export default function SectionStaking(): React.ReactElement {
                 <div className="sectionStaking">
                     {(settings.project === "moc" ||
                         settings.project === "voting" ||
-                        settings.project === "roc") && (
-                        <VestingStatusAlert />
-                    )}
+                        settings.project === "roc") && <VestingStatusAlert />}
                     {ready ? <Staking /> : <Skeleton active />}
                 </div>
             </div>

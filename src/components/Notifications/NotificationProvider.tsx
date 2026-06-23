@@ -61,37 +61,40 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
         }
     }, []);
 
-    const notify = useCallback((options: CreateNotificationOptions): string => {
-        const { id: providedId, onDismiss, ...rest } = options;
-        const id = providedId ?? generateNotificationId();
+    const notify = useCallback(
+        (options: CreateNotificationOptions): string => {
+            const { id: providedId, onDismiss, ...rest } = options;
+            const id = providedId ?? generateNotificationId();
 
-        cancelPendingDismiss(id);
+            cancelPendingDismiss(id);
 
-        setNotifications((prev) => {
-            const nextNotification: NotificationCenterItem = {
-                id,
-                ...rest,
-                itemOnDismiss: onDismiss,
-            };
-
-            const existingIndex = prev.findIndex(
-                (notification) => notification.id === id
-            );
-
-            if (providedId && existingIndex !== -1) {
-                const next = [...prev];
-                next[existingIndex] = {
-                    ...next[existingIndex],
-                    ...nextNotification,
+            setNotifications((prev) => {
+                const nextNotification: NotificationCenterItem = {
+                    id,
+                    ...rest,
+                    itemOnDismiss: onDismiss,
                 };
-                return next;
-            }
 
-            return [...prev, nextNotification];
-        });
+                const existingIndex = prev.findIndex(
+                    (notification) => notification.id === id
+                );
 
-        return id;
-    }, [cancelPendingDismiss]);
+                if (providedId && existingIndex !== -1) {
+                    const next = [...prev];
+                    next[existingIndex] = {
+                        ...next[existingIndex],
+                        ...nextNotification,
+                    };
+                    return next;
+                }
+
+                return [...prev, nextNotification];
+            });
+
+            return id;
+        },
+        [cancelPendingDismiss]
+    );
 
     const dismiss = useCallback(
         (id: string, reason?: AppNotificationVisibilityChangeReason) => {
@@ -99,7 +102,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
                 (item) => item.id === id
             );
             const lingerMs =
-                reason === undefined ? notification?.lingerMs ?? 0 : 0;
+                reason === undefined ? (notification?.lingerMs ?? 0) : 0;
 
             cancelPendingDismiss(id);
 

@@ -3,7 +3,7 @@
     "dapp": {
         "name": "Voting UI",
         "description": "Voting UI"
-    },    
+    },
     "tokens": {
         "COINBASE": [
             {
