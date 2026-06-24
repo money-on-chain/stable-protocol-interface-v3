@@ -69,6 +69,10 @@
         "start:voting-localhost": "bash ./prepare_target.sh voting && export REACT_APP_VERSION=$npm_package_version && env-cmd -f .env.votingLocalhost vite",
         "build:voting-localhost": "bash ./prepare_target.sh voting && export REACT_APP_VERSION=$npm_package_version && export NODE_OPTIONS=--max_old_space_size=4096 && env-cmd -f .env.votingLocalhost vite build && bash ./remove_build.sh"
     },
+    "overrides": {
+        "ws": "^8.21.0",
+        "uuid": "^11.1.1"
+    },
     "devDependencies": {
         "@eslint/js": "^9.35.0",
         "@types/node": "^24.0.7",
