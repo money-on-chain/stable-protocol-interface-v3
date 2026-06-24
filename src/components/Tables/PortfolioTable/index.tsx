@@ -9,8 +9,8 @@ import { tokenMapBlacklist } from "../../../helpers/exchange";
 import { getPortfolioTokenUsdBalance } from "../../../helpers/portfolio";
 import { normalizeToBigInt } from "../../../helpers/precision";
 import { useProjectTranslation } from "../../../helpers/translations";
-import globalData from "../../../settings/global.json";
 import settings from "../../../settings";
+import globalData from "../../../settings/global.json";
 import type { Settings, TokenConfig } from "../../../types/hooks";
 import { generateTokenRow } from "./renderHelpers";
 

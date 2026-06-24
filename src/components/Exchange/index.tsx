@@ -32,7 +32,6 @@ import {
 } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings";
-import type { Settings } from "../../types/hooks";
 import type { CommissionItem, CommissionsState } from "../../types/status";
 import CommissionsSelector from "../CommissionsSelector";
 import CurrencyPopUp from "../CurrencyPopUp";
@@ -40,7 +39,7 @@ import InputAmount from "../InputAmount/";
 import ModalConfirmOperation from "../Modals/ConfirmOperation";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import { SlippageTolerance } from "../SlippageTolerance";
-const { slippage } = settings as Settings;
+const { slippage } = settings;
 import "./Styles.scss";
 
 // Type definitions
@@ -545,7 +544,6 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         currencyYouExchange,
         currencyYouReceive,
         operationType,
-        selectedFeeCurrency,
         t,
         userBalance,
         valueExchange,
@@ -613,7 +611,9 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         };
 
         void run();
-        // eslint--next-line react-hooks/exhaustive-deps -- onChangeAmounts is intentionally excluded: it is redeclared every render but its behaviour only changes when its captured state changes, which is already covered by the explicit deps below
+        // onChangeAmounts is intentionally excluded: it is redeclared every render but its
+        // behaviour only changes when its captured state changes, covered by the deps below.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         slippageTolerance,
         // depends on these because if they change and the user adjusts slippage, you want to recalculate properly

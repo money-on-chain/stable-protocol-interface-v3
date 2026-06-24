@@ -24,8 +24,8 @@ import VetoMachine from "../contracts/omoc/VetoMachine.json";
 import VotingMachine from "../contracts/omoc/VotingMachine.json";
 import TokenMigrator from "../contracts/TokenMigrator.json";
 import TokenPegged from "../contracts/TokenPegged.json";
-import omoc from "../settings/omoc/omoc.json";
 import settings from "../settings";
+import omoc from "../settings/omoc/omoc.json";
 import type {
     Address,
     CallRequest,
@@ -34,7 +34,6 @@ import type {
     DContracts,
     MocAddressesData,
     RegistryAddressesData,
-    Settings,
     SyncMulticallInput,
 } from "../types/hooks";
 
@@ -74,7 +73,7 @@ const readContracts = async (
     publicClient: PublicClient
 ): Promise<DContracts> => {
     // Settings slice used here with proper typing
-    const s = (settings as Settings).tokens;
+    const s = (settings).tokens;
     if (!s) return {};
 
     const contracts: DContracts = {
@@ -595,7 +594,7 @@ const mocAddresses = async (
     );
 
     // tpTokens[i]
-    for (let i = 0; i < (settings as Settings).tokens.TP.length; i++) {
+    for (let i = 0; i < (settings).tokens.TP.length; i++) {
         calls.push({
             contract: contractMoc,
             functionName: "tpTokens",
@@ -612,7 +611,7 @@ const mocAddresses = async (
     );
     // Normalize tpTokens array if your multicall flattens keys
     const tpTokens: Address[] = [];
-    for (let i = 0; i < (settings as Settings).tokens.TP.length; i++) {
+    for (let i = 0; i < (settings).tokens.TP.length; i++) {
         const key = ["tpTokens", i].join(",");
         const addr: Address | undefined =
             (res.data?.tpTokens as Address[] | undefined)?.[i] ??

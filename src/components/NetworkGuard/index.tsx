@@ -1,9 +1,9 @@
 // NetworkGuard.tsx
 import { Space } from "antd";
 import { useAccount, useChainId, useSwitchChain } from "wagmi";
-import { AppNotification } from "../Notifications";
 
 import { ALLOWED_CHAIN } from "../../wagmiConfig";
+import { AppNotification } from "../Notifications";
 
 export function NetworkGuard() {
     const { isConnected } = useAccount();
