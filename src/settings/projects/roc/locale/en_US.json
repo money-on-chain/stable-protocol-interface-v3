@@ -395,7 +395,7 @@
         "cardTitle": "Authorize using",
         "disallowanceTitle": "Revoke allowance of",
         "statusText1": "Before continuing with the operation, you must authorize token allowance so the protocol can execute the transaction.",
-        "statusText2": "The recommended allowance can be higher than the estimated fee for reliability. This does not mean the fee charged will equal the allowance. Optionally, you can set an unlimited allowance by checking the checkbox, but consider the security implications before doing so.",
+        "statusText2": "The recommended allowance may be higher than the exact amount needed for this operation to improve reliability. This does not mean the full allowance will be used. Optionally, you can set an unlimited allowance by checking the checkbox, but consider the security implications before doing so.",
         "statusDisallowanceText": "Before continuing with the operation, you must authorize the revoke so that the system can no longer access the tokens.",
         "setUnlimited": "Set unlimited allowance. Don't ask me again.",
         "confirm": {
