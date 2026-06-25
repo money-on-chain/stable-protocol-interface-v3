@@ -76,6 +76,14 @@ jobs:
               with:
                   cidv0: ${{ steps.upload.outputs.hash }}
 
+            - name: Update Cloudflare Worker KV
+              run: |
+                  curl --fail -X PUT \
+                    "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CF_ACCOUNT_ID }}/storage/kv/namespaces/${{ secrets.CF_KV_NAMESPACE_ID_FLIPMONEY }}/values/current_cid" \
+                    -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN }}" \
+                    -H "Content-Type: text/plain" \
+                    --data "${{ steps.upload.outputs.hash }}"
+
             - name: Create GitHub Release
               id: create_release
               uses: actions/create-release@v1.1.0
