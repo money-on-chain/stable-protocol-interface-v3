@@ -54,3 +54,6 @@ yarn-error.log*
 .vscode
 /src/settings/prices-offchain.json
 /dist
+
+.wrangler
+IPFS_DEPLOYMENT_NOTES.md

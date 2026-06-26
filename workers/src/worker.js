@@ -1,6 +1,9 @@
 // Static asset extensions — 404s on these are real errors, not SPA routes
 const STATIC_ASSET_RE = /\.(?:js|mjs|css|png|jpg|jpeg|gif|svg|ico|woff2?|ttf|eot|webp|avif|json|map|txt|xml)(\?.*)?$/i;
 
+// Unversioned PWA files must not be cached — browsers use them to detect SW updates
+const NO_CACHE_RE = /^\/(sw\.js|manifest\.webmanifest|manifest\.json)([\?#].*)?$/i;
+
 export default {
   async fetch(request, env) {
     const cid = await env.DAPP_KV.get("current_cid");
@@ -35,6 +38,9 @@ export default {
 
     const headers = new Headers(response.headers);
     headers.delete("location"); // strip upstream redirect hints so the hash never leaks
+    if (NO_CACHE_RE.test(url.pathname)) {
+      headers.set("cache-control", "no-cache");
+    }
     return new Response(response.body, { status: response.status, headers });
   },
 };
