@@ -100,12 +100,10 @@ jobs:
                       - CIDv1: `${{ steps.convert_cidv0.outputs.cidv1 }}`
 
                       **Primary Mainnet gateways**:
-                      - https://dapp.rifonchain.com/ipfs/${{ steps.upload.outputs.hash }}
+                      - [https://dapp.rifonchain.com/](https://dapp.rifonchain.com/).
 
                       **Alternative Mainnet gateways**:
                       - https://rifonchain.mypinata.cloud/ipfs/${{ steps.upload.outputs.hash }}
                       - https://cloudflare-ipfs.com/ipfs/${{ steps.upload.outputs.hash }}
-
-                      **Note:** You can always get redirected to the latest release by going to [https://dapp.rifonchain.com/](https://dapp.rifonchain.com/).
 
                       ${{ needs.bump_version.outputs.changelog }}
