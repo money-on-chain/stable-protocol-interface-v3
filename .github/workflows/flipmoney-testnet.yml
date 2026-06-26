@@ -20,7 +20,7 @@ jobs:
             - name: setup Node
               uses: actions/setup-node@8c91899e586c5b171469028077307d293428b516 # v3.5.1
               with:
-                  node-version: 20.11.0
+                  node-version: 22.23.1
                   registry-url: "https://npm.pkg.github.com"
 
             - name: package-version
@@ -48,7 +48,7 @@ jobs:
             - name: setup Node
               uses: actions/setup-node@8c91899e586c5b171469028077307d293428b516 # v3.5.1
               with:
-                  node-version: 20.11.0
+                  node-version: 22.23.1
                   registry-url: "https://npm.pkg.github.com"
 
             - name: Install setup
