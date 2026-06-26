@@ -28,6 +28,8 @@ export default {
       headers.delete("content-encoding"); // body is now raw (decompressed) text
       headers.delete("content-length");   // length changed after patching
       headers.set("content-type", "text/html; charset=utf-8");
+      // HTML must never be served from browser cache — the CID can change on next deploy
+      headers.set("cache-control", "no-cache");
       return new Response(patched, { status: response.status, headers });
     }
 

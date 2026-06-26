@@ -65,7 +65,7 @@ id = "19c9b65254c7457aa90067abac0ee0c0"
 pattern = "dapp.flipmoney.io/*"
 zone_name = "flipmoney.io"
 
-# ─── Money on Chain / Voting (dapp.moneyonchain.com) ─────────────────────────
+# ─── Money on Chain / Voting (manage.moneyonchain.com) ───────────────────────
 [env.moc]
 name = "dapp-proxy-moc"
 
@@ -77,7 +77,7 @@ binding = "DAPP_KV"
 id = "c86625e5a1f543a89017c69c26afc76f"
 
 [[env.moc.routes]]
-pattern = "dapp.moneyonchain.com/*"
+pattern = "manage.moneyonchain.com/*"
 zone_name = "moneyonchain.com"
 
 # ─── ROC Testnet (dapp-testnet.rifonchain.com) ───────────────────────────────

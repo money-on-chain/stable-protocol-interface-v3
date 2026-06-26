@@ -14,7 +14,7 @@ Each worker sits in front of a Pinata IPFS gateway and serves the latest dapp bu
 |-----|-------------|--------|
 | `roc` | dapp-proxy-roc | dapp.rifonchain.com |
 | `roc-testnet` | dapp-proxy-roc-testnet | dapp-testnet.rifonchain.com |
-| `moc` | dapp-proxy-moc | dapp.moneyonchain.com |
+| `moc` | dapp-proxy-moc | manage.moneyonchain.com |
 | `moc-testnet` | dapp-proxy-moc-testnet | manage-testnet.moneyonchain.com |
 
 ## Prerequisites
