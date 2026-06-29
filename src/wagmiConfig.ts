@@ -142,7 +142,7 @@ const activeConnectorTransport = (
 ) => {
     const { chain } = params ?? {};
     return custom({
-        request: async ({ method, params: rpcParams }) => {
+        request: async ({ method, params: rpcParams }: { method: string; params?: unknown }) => {
             const cfg = _wagmiConfig;
             if (!cfg) throw new Error("transport: wagmi config not ready");
 
@@ -161,11 +161,9 @@ const activeConnectorTransport = (
             });
             if (!provider) throw new Error("transport: provider unavailable");
 
-            // rpcParams comes from viem's custom() callback which types it as any
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             return provider.request({
                 method,
-                params: rpcParams as unknown,
+                params: rpcParams,
             }) as unknown;
         },
     })(params);

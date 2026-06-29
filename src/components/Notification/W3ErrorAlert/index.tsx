@@ -1,7 +1,8 @@
 import "./Styles.scss";
 
-import { AppNotification } from "../../Notifications";
 import React from "react";
+
+import { AppNotification } from "../../Notifications";
 
 export default function W3ErrorAlert(): React.ReactElement {
     return (

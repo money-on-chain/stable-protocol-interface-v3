@@ -3,9 +3,8 @@ import "./index.scss";
 import React, { useEffect, useMemo, useState } from "react";
 
 import settings from "../../settings";
-import type { Settings } from "../../types/hooks";
 
-const slippage = (settings as Settings).slippage;
+const slippage = (settings).slippage;
 export type SlippageMode = "auto" | "custom";
 
 export interface SlippageState {

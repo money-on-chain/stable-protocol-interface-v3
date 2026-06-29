@@ -179,7 +179,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const offChainPrices =
         (offChainPricesAPI.parsedPrices as ParsedPrices[]) ?? undefined;
     const onChainPrices =
-        (onChainPricesHook.data as ParsedPrices[]) ?? undefined;
+        (onChainPricesHook.data as unknown as ParsedPrices[]) ?? undefined;
 
     const contractProtocolStatus = useContractProtocolStatus(
         contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,

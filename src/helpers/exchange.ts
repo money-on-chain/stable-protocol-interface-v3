@@ -67,12 +67,12 @@ const showAllTokens = new URLSearchParams(window.location.search).has(
 
 const tokenMapBlacklist: Set<string> = showAllTokens
     ? new Set()
-    : new Set((settings.exchange?.tokenMap?.blacklist ?? []) as string[]);
+    : new Set((settings.exchange?.tokenMap?.blacklist ?? []));
 
 const tokenMapCombinedBlacklist: Set<string> = showAllTokens
     ? new Set()
     : new Set(
-          (settings.combinedOperations?.tokenMap?.blacklist ?? []) as string[]
+          (settings.combinedOperations?.tokenMap?.blacklist ?? [])
       );
 
 function loadTokenMap(): TokenMap {
