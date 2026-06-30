@@ -1,6 +1,6 @@
 import { Space } from "antd";
 import { Trans } from "react-i18next";
-import { useAccount, useChainId, useSwitchChain } from "wagmi";
+import { useAccount, useSwitchChain } from "wagmi";
 
 import { useProjectTranslation } from "../../helpers/translations";
 import { ALLOWED_CHAIN } from "../../wagmiConfig";
@@ -8,11 +8,13 @@ import { AppNotification } from "../Notifications";
 
 export function NetworkGuard() {
     const { t } = useProjectTranslation();
-    const { isConnected } = useAccount();
-    const chainId = useChainId();
+    // useAccount().chainId is the actual chain reported by the wallet,
+    // whereas useChainId() is clamped to wagmi's configured chains and
+    // would mask wrong-network when CHAINS only contains ALLOWED_CHAIN.
+    const { isConnected, chainId } = useAccount();
     const { switchChain, isPending } = useSwitchChain();
 
-    const isWrongNetwork = isConnected && chainId !== ALLOWED_CHAIN.id;
+    const isWrongNetwork = isConnected && chainId !== undefined && chainId !== ALLOWED_CHAIN.id;
 
     if (!isWrongNetwork) return null;
 
