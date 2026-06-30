@@ -40,20 +40,18 @@ if (!WC_PROJECT_ID) {
     );
 }
 
-// Coinbase Wallet SDK injects an inline telemetry script via script.textContent,
-// which violates CSP script-src 'self'. The SDK skips injection when
-// window.ClientAnalytics is already defined, so we stub it here.
-if (typeof window !== "undefined") {
-    (window as unknown as { ClientAnalytics?: object }).ClientAnalytics ??= {};
-}
-
 // IMPORTANT: do NOT add metaMask() here — with multiInjectedProviderDiscovery:true,
 // MetaMask is auto-discovered via EIP-6963. Adding metaMask() creates a duplicate.
 // injected() is kept as a fallback for wallets that set window.ethereum but do NOT
 // announce themselves via EIP-6963 (older extensions).
 const connectors = [
     injected({ shimDisconnect: true }),
-    coinbaseWallet({ appName: settings.dapp.name }),
+    coinbaseWallet({
+        appName: settings.dapp.name,
+        // Disable Coinbase's inline telemetry script, which would violate
+        // CSP script-src 'self' by injecting script.textContent at runtime.
+        preference: { options: "all", telemetry: false },
+    }),
     walletConnect({
         projectId: WC_PROJECT_ID,
         showQrModal: true,
