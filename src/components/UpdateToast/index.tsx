@@ -1,6 +1,7 @@
-// src/UpdateToast.tsx
 import { useState } from "react";
 import { useRegisterSW } from "virtual:pwa-register/react";
+
+import { AppNotification } from "../Notifications";
 
 export default function UpdateToast() {
     const [show, setShow] = useState(false);
@@ -9,26 +10,25 @@ export default function UpdateToast() {
             setShow(true);
         },
     });
+
     if (!show) return null;
+
     return (
-        <div
-            style={{
-                position: "fixed",
-                right: 16,
-                bottom: 16,
-                padding: 12,
-                background: "#141a2e",
-                color: "#fff",
-                borderRadius: 12,
-            }}
-        >
-            New version available. Click the button below to update the app.
-            <button
-                style={{ marginLeft: 8 }}
-                onClick={() => void updateServiceWorker(true)}
-            >
-                Update
-            </button>
-        </div>
+        <AppNotification
+            type="info"
+            title="New version available"
+            content="A new version of the app has been deployed."
+            actions={[
+                {
+                    key: "update",
+                    label: "Update",
+                    type: "primary",
+                    onClick: () => void updateServiceWorker(true),
+                },
+            ]}
+            notificationId="pwa-update"
+            dismissible
+            onDismiss={() => setShow(false)}
+        />
     );
 }
