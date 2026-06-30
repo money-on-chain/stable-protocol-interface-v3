@@ -6,6 +6,16 @@
     "invalidValuePlaceholder": "--",
     "notification": {
         "dismiss": "Dismiss",
+        "update": {
+            "title": "New version available",
+            "content": "A new version of the app has been deployed.",
+            "update": "Update"
+        },
+        "networkGuard": {
+            "title": "Wrong network",
+            "content": "You are connected to the wrong network. This environment only allows <strong>{{chainName}}</strong>.",
+            "switch": "Switch to {{chainName}}"
+        },
         "rpcError": {
             "title": "Network Connection Error",
             "description": "Unable to connect to the blockchain network. This may be due to network congestion or RPC server issues. The system will automatically retry, or you can try again manually.",

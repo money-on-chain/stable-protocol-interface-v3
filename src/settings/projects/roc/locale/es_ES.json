@@ -6,6 +6,16 @@
     "invalidValuePlaceholder": "--",
     "notification": {
         "dismiss": "Descartar",
+        "update": {
+            "title": "Nueva versión disponible",
+            "content": "Se ha desplegado una nueva versión de la aplicación.",
+            "update": "Actualizar"
+        },
+        "networkGuard": {
+            "title": "Red incorrecta",
+            "content": "Estás conectado a una red incorrecta. Este entorno solo permite <strong>{{chainName}}</strong>.",
+            "switch": "Cambiar a {{chainName}}"
+        },
         "rpcError": {
             "title": "Error de Conexión de Red",
             "description": "No se puede conectar a la red blockchain. Esto puede deberse a congestión de red o problemas del servidor RPC. El sistema reintentará automáticamente, o puedes intentar nuevamente manualmente.",
