@@ -215,11 +215,9 @@ export const config = createConfig({
     chains: CHAINS,
     multiInjectedProviderDiscovery: true,
     connectors,
-    transports: {
-        [rootstock.id]: fallback(chainTransports(rootstock.id)),
-        [rootstockTestnet.id]: fallback(chainTransports(rootstockTestnet.id)),
-        [localhost.id]: fallback(chainTransports(localhost.id)),
-    },
+    transports: Object.fromEntries(
+        CHAINS.map((chain) => [chain.id, fallback(chainTransports(chain.id))])
+    ) as Record<(typeof CHAINS)[number]["id"], ReturnType<typeof fallback>>,
     ssr: false,
 });
 
