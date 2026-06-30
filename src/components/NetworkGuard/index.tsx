@@ -1,16 +1,17 @@
-// NetworkGuard.tsx
 import { Space } from "antd";
+import { Trans } from "react-i18next";
 import { useAccount, useChainId, useSwitchChain } from "wagmi";
 
+import { useProjectTranslation } from "../../helpers/translations";
 import { ALLOWED_CHAIN } from "../../wagmiConfig";
 import { AppNotification } from "../Notifications";
 
 export function NetworkGuard() {
+    const { t } = useProjectTranslation();
     const { isConnected } = useAccount();
     const chainId = useChainId();
     const { switchChain, isPending } = useSwitchChain();
 
-    // Only warn when connected AND on a different chain than allowed
     const isWrongNetwork = isConnected && chainId !== ALLOWED_CHAIN.id;
 
     if (!isWrongNetwork) return null;
@@ -18,19 +19,24 @@ export function NetworkGuard() {
     return (
         <AppNotification
             type="error"
-            title="Wrong network"
+            title={t("notification.networkGuard.title")}
             content={
                 <Space direction="vertical" size={8}>
                     <span>
-                        You are connected to the wrong network. This environment
-                        only allows <strong>{ALLOWED_CHAIN.name}</strong>.
+                        <Trans
+                            i18nKey="notification.networkGuard.content"
+                            values={{ chainName: ALLOWED_CHAIN.name }}
+                            components={{ strong: <strong /> }}
+                        />
                     </span>
                 </Space>
             }
             actions={[
                 {
                     key: "switch-network",
-                    label: `Switch to ${ALLOWED_CHAIN.name}`,
+                    label: t("notification.networkGuard.switch", {
+                        chainName: ALLOWED_CHAIN.name,
+                    }),
                     type: "primary",
                     loading: isPending,
                     onClick: () => {

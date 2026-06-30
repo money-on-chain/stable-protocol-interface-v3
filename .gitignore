@@ -2,6 +2,7 @@ node_modules
 .idea
 build
 .DS_Store
+IPFS_DEPLOYMENT_NOTES.md
 public/*.*
 index.html
 dist/
@@ -53,3 +54,6 @@ yarn-error.log*
 .vscode
 /src/settings/prices-offchain.json
 /dist
+
+.wrangler
+IPFS_DEPLOYMENT_NOTES.md
