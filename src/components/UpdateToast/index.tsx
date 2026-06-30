@@ -22,7 +22,7 @@ export default function UpdateToast() {
                 borderRadius: 12,
             }}
         >
-            New version available.
+            New version available. Click the button below to update the app.
             <button
                 style={{ marginLeft: 8 }}
                 onClick={() => void updateServiceWorker(true)}
