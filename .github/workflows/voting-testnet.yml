@@ -15,10 +15,10 @@ jobs:
             changelog: ${{ steps.github_tag_action.outputs.changelog }}
         steps:
             - name: Checkout
-              uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # v3.2.0
+              uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
             - name: setup Node
-              uses: actions/setup-node@8c91899e586c5b171469028077307d293428b516 # v3.5.1
+              uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
               with:
                   node-version: 22.23.1
                   registry-url: "https://npm.pkg.github.com"
@@ -28,7 +28,7 @@ jobs:
 
             - name: Bump version and push tag
               id: github_tag_action
-              uses: mathieudutour/github-tag-action@fcfbdceb3093f6d85a3b194740f8c6cec632f4e2 # v6.1
+              uses: mathieudutour/github-tag-action@d28fa2ccfbd16e871a4bdf35e11b3ad1bd56c0c1 # v6.2
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
                   release_branches: master, develop
@@ -43,10 +43,10 @@ jobs:
             contents: write
         steps:
             - name: Checkout
-              uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # v3.2.0
+              uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
             - name: setup Node
-              uses: actions/setup-node@8c91899e586c5b171469028077307d293428b516 # v3.5.1
+              uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
               with:
                   node-version: 22.23.1
                   registry-url: "https://npm.pkg.github.com"
