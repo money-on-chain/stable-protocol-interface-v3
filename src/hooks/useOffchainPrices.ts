@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { parseUnits } from "viem";
 
-import mapPricesOffchain from "../settings/prices-offchain.json";
 import settings from "../settings";
+import mapPricesOffchain from "../settings/prices-offchain.json";
 import type { ParsedPrices } from "../types/hooks";
 
 /**

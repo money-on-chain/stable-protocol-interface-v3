@@ -1,7 +1,7 @@
 import type { TokenConfig } from "../types/hooks";
 import globalData from "./global.json";
-import rawSettings from "./settings.json";
 import { resolveSettings } from "./resolveSettings";
+import rawSettings from "./settings.json";
 
 const globalTokens = globalData.tokens as Record<string, TokenConfig>;
 

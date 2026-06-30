@@ -414,7 +414,7 @@
         "cardTitle": "Authorize using",
         "disallowanceTitle": "Revoke allowance of",
         "statusText1": "Before continuing with the operation, you must authorize the allowance so that the system can access the tokens.",
-        "statusText2": "Optionally you can set an unlimited allowance checking the checkbox. Warning: if you don't know the implicances of doing this, leave it unchecked.",
+        "statusText2": "The recommended allowance may be higher than the exact amount needed for this operation to improve reliability. This does not mean the full allowance will be used. Optionally, you can set an unlimited allowance by checking the checkbox, but consider the security implications before doing so.",
         "statusDisallowanceText": "Before continuing with the operation, you must authorize the revoke so that the system can no longer access the tokens.",
         "setUnlimited": "Set unlimited allowance. Don't ask me again.",
         "confirm": {

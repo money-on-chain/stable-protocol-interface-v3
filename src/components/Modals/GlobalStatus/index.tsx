@@ -20,7 +20,7 @@ export default function GlobalStatusModal(
     return (
         <div className="detailedGlobalStatusModal">
             <div className="collateralContainer">
-                {(settings.tokens.CA as TokenConfig[])
+                {(settings.tokens.CA)
                     .filter(
                         (dataItem): dataItem is TokenConfig & { key: number } =>
                             dataItem && typeof dataItem.key === "number"

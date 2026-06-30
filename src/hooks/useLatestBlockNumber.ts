@@ -7,7 +7,7 @@ import { getBlockNumber } from "viem/actions";
  * Updates automatically every `refetchInterval` milliseconds.
  */
 export function useLatestBlockNumber(
-    publicClient: PublicClient,
+    publicClient: PublicClient | undefined,
     refetchInterval = 10_000
 ) {
     const {

@@ -338,7 +338,7 @@
         "cardTitle": "Autorizar uso de",
         "disallowanceTitle": "Revocar autorización de gasto de",
         "statusText1": "Antes de continuar con la operación, firma una transacción de autorización para que el sistema pueda acceder a los tokens.",
-        "statusText2": "Opcionalmente, puedes establecer un permiso de gasto ilimitado marcando la casilla de verificación. Advertencia: si no conoces las implicaciones de hacer esto, déjalo sin seleccionar.",
+        "statusText2": "La autorización recomendada puede ser superior al monto exacto necesario para esta operación para mejorar la fiabilidad. Esto no significa que se utilizará toda la autorización. Opcionalmente, puedes establecer una autorización ilimitada marcando la casilla de verificación, pero considera las implicaciones de seguridad antes de hacerlo.",
         "statusDisallowanceText": "Antes de continuar con la operación, firma una transacción para revocar la autorización de gasto.",
         "setUnlimited": "Configurar autorización ilimitada. No preguntarme nuevamente.",
         "confirm": {

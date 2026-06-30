@@ -84,10 +84,11 @@ export default function Skeleton(): JSX.Element {
     };
 
     const readWithdrawStatus = (): void => {
+        if (!userVeto.data || !contractStatusOmoc.data || !address) return;
         if (
             isSomeTCLockedByVeto(
-                userVeto.data,
-                contractStatusOmoc.data,
+                userVeto.data as Parameters<typeof isSomeTCLockedByVeto>[0],
+                contractStatusOmoc.data as unknown as Parameters<typeof isSomeTCLockedByVeto>[1],
                 address
             )
         ) {
