@@ -40,6 +40,13 @@ if (!WC_PROJECT_ID) {
     );
 }
 
+// Coinbase Wallet SDK injects an inline telemetry script via script.textContent,
+// which violates CSP script-src 'self'. The SDK skips injection when
+// window.ClientAnalytics is already defined, so we stub it here.
+if (typeof window !== "undefined") {
+    (window as unknown as { ClientAnalytics?: object }).ClientAnalytics ??= {};
+}
+
 // IMPORTANT: do NOT add metaMask() here — with multiInjectedProviderDiscovery:true,
 // MetaMask is auto-discovered via EIP-6963. Adding metaMask() creates a duplicate.
 // injected() is kept as a fallback for wallets that set window.ethereum but do NOT
@@ -184,7 +191,7 @@ const chainTransports = (chainId: number) => {
 
     const isMainnet = chainId === rootstock.id;
 
-    if (isMainnet && validatedEndpoints.length === 0) {
+    if (isMainnet && validatedEndpoints.length === 0 && ALLOWED_CHAIN.id === rootstock.id) {
         console.error(
             "[wagmiConfig] REACT_APP_RSK_MAINNET_RPC is not set. " +
                 "Unauthenticated reads will fall back to the chain-default RPC " +
