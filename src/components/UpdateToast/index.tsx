@@ -15,6 +15,7 @@ export default function UpdateToast() {
 
     return (
         <AppNotification
+            deliveryMode="center"
             type="info"
             title="New version available"
             content="A new version of the app has been deployed."
