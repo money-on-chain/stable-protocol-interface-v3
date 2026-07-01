@@ -45,7 +45,7 @@ jobs:
                   MINOR=$(echo "$LATEST_TAG" | cut -d. -f2)
                   PATCH=$(echo "$LATEST_TAG" | cut -d. -f3)
 
-                  COMMITS=$(git log "${LATEST_TAG}..HEAD" --pretty=format:"%s" 2>/dev/null || echo "")
+                  COMMITS=$(git log "${LATEST_TAG}..HEAD" --pretty=format:"%B" 2>/dev/null || echo "")
 
                   BUMP="$BUMP_TYPE"
                   if [ "$BUMP" = "auto" ]; then
