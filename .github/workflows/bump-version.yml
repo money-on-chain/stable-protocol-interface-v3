@@ -41,7 +41,8 @@ jobs:
 
                   if [ -z "$LATEST_TAG" ]; then
                     MAJOR=0; MINOR=0; PATCH=0
-                    LOG_RANGE="HEAD"
+                    FIRST_COMMIT=$(git rev-list --max-parents=0 HEAD)
+                    LOG_RANGE="${FIRST_COMMIT}..HEAD"
                     echo "Latest tag: none (first release)"
                   else
                     echo "Latest tag: $LATEST_TAG"
