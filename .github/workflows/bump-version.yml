@@ -37,12 +37,6 @@ jobs:
               run: |
                   set -e
 
-                  # Only allow releases from master or develop
-                  if [ "$GITHUB_REF_NAME" != "master" ] && [ "$GITHUB_REF_NAME" != "develop" ]; then
-                    echo "::error::Releases can only be triggered from 'master' or 'develop' (current: $GITHUB_REF_NAME)"
-                    exit 1
-                  fi
-
                   LATEST_TAG=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
 
                   if [ -z "$LATEST_TAG" ]; then
