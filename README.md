@@ -22,6 +22,7 @@ Also you can access with this primary gateways, always point to the latest relea
 | ROC Testnet        | [https://dapp-testnet.rifonchain.com](https://dapp-testnet.rifonchain.com) |
 | ROC Mainnet        | [https://dapp.rifonchain.com](https://dapp.rifonchain.com)                 |
 | MOC Manage Mainnet | [https://manage.moneyonchain.com](https://manage.moneyonchain.com)         |
+| MOC Manage Testnet | [https://manage-testnet.moneyonchain.com](https://manage-testnet.moneyonchain.com)         |
 
 ## DEVELOP
 
