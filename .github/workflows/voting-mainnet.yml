@@ -1,6 +1,17 @@
 name: Voting-Mainnet
 on:
     workflow_dispatch:
+        inputs:
+            bump_type:
+                description: 'Version bump type (auto = detect from commits)'
+                required: false
+                default: 'auto'
+                type: choice
+                options:
+                    - auto
+                    - patch
+                    - minor
+                    - major
 
 permissions: {}
 
@@ -11,28 +22,65 @@ jobs:
         permissions:
             contents: write
         outputs:
-            new_tag: ${{ steps.github_tag_action.outputs.new_tag }}
-            changelog: ${{ steps.github_tag_action.outputs.changelog }}
+            new_tag: ${{ steps.bump_version_step.outputs.new_tag }}
+            changelog: ${{ steps.bump_version_step.outputs.changelog }}
         steps:
             - name: Checkout
               uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
-
-            - name: setup Node
-              uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
               with:
-                  node-version: 22.23.1
-                  registry-url: "https://npm.pkg.github.com"
-
-            - name: package-version
-              run: node -p -e '`PACKAGE_VERSION=${require("./package.json").version}`' >> $GITHUB_ENV
+                  fetch-depth: 0
 
             - name: Bump version and push tag
-              id: github_tag_action
-              uses: mathieudutour/github-tag-action@9d35d648e836d5db77936aa35a3a5c7bc16092c8 # master (post-v6.2, set-output fix)
-              with:
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
-                  release_branches: master, develop
-                  default_bump: patch
+              id: bump_version_step
+              env:
+                  BUMP_TYPE: ${{ inputs.bump_type || 'auto' }}
+              run: |
+                  git fetch --tags
+
+                  LATEST_TAG=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
+                  [ -z "$LATEST_TAG" ] && LATEST_TAG="v0.0.0"
+                  echo "Latest tag: $LATEST_TAG"
+
+                  MAJOR=$(echo "$LATEST_TAG" | cut -d. -f1 | tr -d 'v')
+                  MINOR=$(echo "$LATEST_TAG" | cut -d. -f2)
+                  PATCH=$(echo "$LATEST_TAG" | cut -d. -f3)
+
+                  COMMITS=$(git log "${LATEST_TAG}..HEAD" --pretty=format:"%s" 2>/dev/null || echo "")
+
+                  BUMP="$BUMP_TYPE"
+                  if [ "$BUMP" = "auto" ]; then
+                    if echo "$COMMITS" | grep -qE "(BREAKING CHANGE|!:)"; then
+                      BUMP="major"
+                    elif echo "$COMMITS" | grep -qE "^feat(\([^)]*\))?:"; then
+                      BUMP="minor"
+                    else
+                      BUMP="patch"
+                    fi
+                  fi
+                  echo "Bump type: $BUMP"
+
+                  case "$BUMP" in
+                    major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+                    minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+                    patch) PATCH=$((PATCH + 1)) ;;
+                  esac
+
+                  NEW_TAG="v${MAJOR}.${MINOR}.${PATCH}"
+                  echo "New tag: $NEW_TAG"
+
+                  CHANGELOG=$(git log "${LATEST_TAG}..HEAD" --pretty=format:"- %s (%h)" 2>/dev/null || echo "- Initial release")
+
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+                  git tag "$NEW_TAG"
+                  git push origin "$NEW_TAG"
+
+                  echo "new_tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
+                  {
+                    echo "changelog<<CHANGELOG_EOF"
+                    echo "$CHANGELOG"
+                    echo "CHANGELOG_EOF"
+                  } >> "$GITHUB_OUTPUT"
 
     create_release:
         name: Create Release
