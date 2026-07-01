@@ -55,16 +55,15 @@ jobs:
                     LOG_RANGE="${LATEST_TAG}..HEAD"
                   fi
 
-                  if [ -z "$(git log "$LOG_RANGE" --oneline)" ]; then
-                    echo "No commits since ${LATEST_TAG:-the beginning}. Nothing to release."
-                    exit 0
-                  fi
-
                   BUMP="$BUMP_TYPE"
                   if [ "$BUMP" = "auto" ]; then
+                    if [ -z "$(git log "$LOG_RANGE" --oneline)" ]; then
+                      echo "No commits since ${LATEST_TAG:-the beginning}. Nothing to release."
+                      exit 0
+                    fi
                     FULL_MESSAGES=$(git log "$LOG_RANGE" --pretty=format:"%B")
                     SUBJECTS=$(git log "$LOG_RANGE" --pretty=format:"%s")
-                    if echo "$FULL_MESSAGES" | grep -qE "^BREAKING CHANGE:" || \
+                    if echo "$FULL_MESSAGES" | grep -qE "^BREAKING[- ]CHANGE:" || \
                        echo "$SUBJECTS" | grep -qE "^[a-z]+(\([^)]*\))?!:"; then
                       BUMP="major"
                     elif echo "$SUBJECTS" | grep -qE "^feat(\([^)]*\))?:"; then
