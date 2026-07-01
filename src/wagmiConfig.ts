@@ -46,7 +46,12 @@ if (!WC_PROJECT_ID) {
 // announce themselves via EIP-6963 (older extensions).
 const connectors = [
     injected({ shimDisconnect: true }),
-    coinbaseWallet({ appName: settings.dapp.name }),
+    coinbaseWallet({
+        appName: settings.dapp.name,
+        // Disable Coinbase's inline telemetry script, which would violate
+        // CSP script-src 'self' by injecting script.textContent at runtime.
+        preference: { options: "all", telemetry: false },
+    }),
     walletConnect({
         projectId: WC_PROJECT_ID,
         showQrModal: true,
@@ -184,7 +189,7 @@ const chainTransports = (chainId: number) => {
 
     const isMainnet = chainId === rootstock.id;
 
-    if (isMainnet && validatedEndpoints.length === 0) {
+    if (isMainnet && validatedEndpoints.length === 0 && ALLOWED_CHAIN.id === rootstock.id) {
         console.error(
             "[wagmiConfig] REACT_APP_RSK_MAINNET_RPC is not set. " +
                 "Unauthenticated reads will fall back to the chain-default RPC " +
@@ -208,11 +213,9 @@ export const config = createConfig({
     chains: CHAINS,
     multiInjectedProviderDiscovery: true,
     connectors,
-    transports: {
-        [rootstock.id]: fallback(chainTransports(rootstock.id)),
-        [rootstockTestnet.id]: fallback(chainTransports(rootstockTestnet.id)),
-        [localhost.id]: fallback(chainTransports(localhost.id)),
-    },
+    transports: Object.fromEntries(
+        CHAINS.map((chain) => [chain.id, fallback(chainTransports(chain.id))])
+    ) as Record<(typeof CHAINS)[number]["id"], ReturnType<typeof fallback>>,
     ssr: false,
 });
 
