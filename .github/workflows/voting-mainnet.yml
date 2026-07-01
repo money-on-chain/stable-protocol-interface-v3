@@ -28,7 +28,7 @@ jobs:
 
             - name: Bump version and push tag
               id: github_tag_action
-              uses: mathieudutour/github-tag-action@a22cf08638b34d5badda920f9daf6e72c477b07b # v6.2
+              uses: mathieudutour/github-tag-action@9d35d648e836d5db77936aa35a3a5c7bc16092c8 # master (post-v6.2, set-output fix)
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
                   release_branches: master, develop
