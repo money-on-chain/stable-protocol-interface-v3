@@ -33,6 +33,7 @@ export default {
       headers.set("content-type", "text/html; charset=utf-8");
       // HTML must never be served from browser cache — the CID can change on next deploy
       headers.set("cache-control", "no-cache");
+      headers.set("x-ipfs-cid", cid);
       return new Response(patched, { status: response.status, headers });
     }
 
@@ -41,6 +42,7 @@ export default {
     if (NO_CACHE_RE.test(url.pathname)) {
       headers.set("cache-control", "no-cache");
     }
+    headers.set("x-ipfs-cid", cid);
     return new Response(response.body, { status: response.status, headers });
   },
 };
