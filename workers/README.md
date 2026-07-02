@@ -14,26 +14,30 @@ Each worker sits in front of a Pinata IPFS gateway and serves the latest dapp bu
 |-----|-------------|--------|
 | `roc` | dapp-proxy-roc | dapp.rifonchain.com |
 | `roc-testnet` | dapp-proxy-roc-testnet | dapp-testnet.rifonchain.com |
+| `flipmoney` | dapp-proxy-flipmoney | dapp.flipmoney.io |
+| `flipmoney-testnet` | dapp-proxy-flipmoney-testnet | dapp-testnet.flipmoney.io |
 | `moc` | dapp-proxy-moc | manage.moneyonchain.com |
 | `moc-testnet` | dapp-proxy-moc-testnet | manage-testnet.moneyonchain.com |
 
 ## Prerequisites
 
 - Node.js v22+
-- Wrangler: `npx wrangler@4 login`
+- Wrangler: `npx wrangler login`
 
 ## Deploy
 
 ```bash
 # Deploy a single environment
-npx wrangler@4 deploy --env roc
-npx wrangler@4 deploy --env roc-testnet
-npx wrangler@4 deploy --env moc
-npx wrangler@4 deploy --env moc-testnet
+npx wrangler deploy --env roc
+npx wrangler deploy --env roc-testnet
+npx wrangler deploy --env flipmoney
+npx wrangler deploy --env flipmoney-testnet
+npx wrangler deploy --env moc
+npx wrangler deploy --env moc-testnet
 
 # Deploy all at once
-for env in roc roc-testnet moc moc-testnet; do
-  npx wrangler@4 deploy --env $env
+for env in roc roc-testnet flipmoney flipmoney-testnet moc moc-testnet; do
+  npx wrangler deploy --env $env
 done
 ```
 
@@ -45,16 +49,20 @@ done
 | `CF_API_TOKEN` | API token with **Workers KV Storage:Edit** permission |
 | `CF_KV_NAMESPACE_ID_ROC` | KV namespace ID for roc mainnet |
 | `CF_KV_NAMESPACE_ID_ROC_TESTNET` | KV namespace ID for roc testnet |
+| `CF_KV_NAMESPACE_ID_FLIPMONEY` | KV namespace ID for flipmoney mainnet |
+| `CF_KV_NAMESPACE_ID_FLIPMONEY_TESTNET` | KV namespace ID for flipmoney testnet |
 | `CF_KV_NAMESPACE_ID_MOC` | KV namespace ID for moc mainnet |
 | `CF_KV_NAMESPACE_ID_MOC_TESTNET` | KV namespace ID for moc testnet |
 
 ## Creating new KV namespaces (first-time setup)
 
 ```bash
-npx wrangler@4 kv namespace create DAPP_KV --env roc
-npx wrangler@4 kv namespace create DAPP_KV --env roc-testnet
-npx wrangler@4 kv namespace create DAPP_KV --env moc
-npx wrangler@4 kv namespace create DAPP_KV --env moc-testnet
+npx wrangler kv namespace create DAPP_KV --env roc
+npx wrangler kv namespace create DAPP_KV --env roc-testnet
+npx wrangler kv namespace create DAPP_KV --env flipmoney
+npx wrangler kv namespace create DAPP_KV --env flipmoney-testnet
+npx wrangler kv namespace create DAPP_KV --env moc
+npx wrangler kv namespace create DAPP_KV --env moc-testnet
 ```
 
 Copy the returned IDs into `wrangler.toml` and add them as GitHub secrets.
