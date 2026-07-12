@@ -61,15 +61,19 @@ const tokenMap = {
     TP_1: ['TP_0'],
 };*/
 
-const showAllTokens = new URLSearchParams(window.location.search).has("showAllTokens");
+const showAllTokens = new URLSearchParams(window.location.search).has(
+    "showAllTokens"
+);
 
 const tokenMapBlacklist: Set<string> = showAllTokens
     ? new Set()
-    : new Set((settings.exchange?.tokenMap?.blacklist ?? []) as string[]);
+    : new Set((settings.exchange?.tokenMap?.blacklist ?? []));
 
 const tokenMapCombinedBlacklist: Set<string> = showAllTokens
     ? new Set()
-    : new Set((settings.combinedOperations?.tokenMap?.blacklist ?? []) as string[]);
+    : new Set(
+          (settings.combinedOperations?.tokenMap?.blacklist ?? [])
+      );
 
 function loadTokenMap(): TokenMap {
     const tMap: TokenMap = {};
@@ -87,21 +91,27 @@ function loadTokenMap(): TokenMap {
     const TP = (i: number) => `TP_${i}`;
 
     const bl = tokenMapBlacklist;
-    const allTP: string[] = Array.from({ length: tpLen }, (_, i) => TP(i)).filter(t => !bl.has(t));
-    const allCA: string[] = Array.from({ length: caLen }, (_, i) => CA(i)).filter(t => !bl.has(t));
-    const allTC: string[] = Array.from({ length: caLen }, (_, i) => TC(i)).filter(t => !bl.has(t));
+    const allTP: string[] = Array.from({ length: tpLen }, (_, i) =>
+        TP(i)
+    ).filter((t) => !bl.has(t));
+    const allCA: string[] = Array.from({ length: caLen }, (_, i) =>
+        CA(i)
+    ).filter((t) => !bl.has(t));
+    const allTC: string[] = Array.from({ length: caLen }, (_, i) =>
+        TC(i)
+    ).filter((t) => !bl.has(t));
 
     // Exchange CA -> (TC_i + all TP)
     for (let i = 0; i < caLen; i++) {
         if (bl.has(CA(i))) continue;
-        const receive = [TC(i), ...allTP].filter(t => !bl.has(t));
+        const receive = [TC(i), ...allTP].filter((t) => !bl.has(t));
         if (receive.length > 0) tMap[CA(i)] = receive;
     }
 
     // Exchange TC -> (all TP + CA_i)
     for (let i = 0; i < caLen; i++) {
         if (bl.has(TC(i))) continue;
-        const receive = [...allTP, CA(i)].filter(t => !bl.has(t));
+        const receive = [...allTP, CA(i)].filter((t) => !bl.has(t));
         if (receive.length > 0) tMap[TC(i)] = receive;
     }
 
@@ -109,7 +119,8 @@ function loadTokenMap(): TokenMap {
     for (let i = 0; i < tpLen; i++) {
         if (bl.has(TP(i))) continue;
         const otherTP: string[] = [];
-        for (let j = 0; j < tpLen; j++) if (j !== i && !bl.has(TP(j))) otherTP.push(TP(j));
+        for (let j = 0; j < tpLen; j++)
+            if (j !== i && !bl.has(TP(j))) otherTP.push(TP(j));
 
         const receive = [...allCA, ...allTC, ...otherTP];
         if (receive.length > 0) tMap[TP(i)] = receive;
@@ -134,12 +145,14 @@ function loadTokenMapCombined(): TokenMap {
     const TP = (i: number) => `TP_${i}`;
 
     const bl = tokenMapCombinedBlacklist;
-    const allTP: string[] = Array.from({ length: tpLen }, (_, i) => TP(i)).filter(t => !bl.has(t));
+    const allTP: string[] = Array.from({ length: tpLen }, (_, i) =>
+        TP(i)
+    ).filter((t) => !bl.has(t));
 
     // Exchange CA -> all TP
     for (let i = 0; i < caLen; i++) {
         if (bl.has(CA(i))) continue;
-        const receive = allTP.filter(t => !bl.has(t));
+        const receive = allTP.filter((t) => !bl.has(t));
         if (receive.length > 0) tMap[CA(i)] = receive;
     }
 
@@ -450,9 +463,17 @@ function TokenContract(
             };
         case "CUSTOM": {
             const pair = `${aTokenMap[1]}/USD`;
-            const customToken = contracts.CUSTOM_TOKENS?.find((t) => t.name === pair);
-            if (!customToken) throw new Error(`CUSTOM_TOKENS contract not found for pair: ${pair}`);
-            return { token: customToken, decimals: tokenExchangeSettings.decimals };
+            const customToken = contracts.CUSTOM_TOKENS?.find(
+                (t) => t.name === pair
+            );
+            if (!customToken)
+                throw new Error(
+                    `CUSTOM_TOKENS contract not found for pair: ${pair}`
+                );
+            return {
+                token: customToken,
+                decimals: tokenExchangeSettings.decimals,
+            };
         }
         default:
             throw new Error("Invalid token name");

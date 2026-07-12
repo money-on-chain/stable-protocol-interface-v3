@@ -1,17 +1,9 @@
-import {
-    simulateContract,
-    waitForTransactionReceipt,
-    writeContract,
-} from "@wagmi/core";
+import { simulateContract, waitForTransactionReceipt, writeContract } from "@wagmi/core";
 import { type Abi, type TransactionReceipt } from "viem";
 
 import settings from "../settings";
-import type { TokenConfig } from "../types/hooks";
-import type {
-    InterfaceContext,
-    OnReceipt,
-    OnTransaction,
-} from "../types/wallets";
+import type { ContractInfo } from "../types/hooks";
+import type { InterfaceContext, OnReceipt, OnTransaction } from "../types/wallets";
 import { config } from "../wagmiConfig";
 import { getExecutionFee, SLIPPAGE_EXECUTION } from "./utils";
 
@@ -24,17 +16,14 @@ const mintTC = async (
     onReceipt: OnReceipt
 ): Promise<TransactionReceipt | undefined> => {
     const context = coreOpContext(caIndex, interfaceContext);
-    const { address, contractProtocolStatus, userBalance, vendorAddress } =
-        context;
+    const { address, contractProtocolStatus, userBalance, vendorAddress } = context;
 
+    if (qTC === 0n) throw new Error("qTC must be > 0");
     if (!userBalance.data.CA) throw new Error("CA not found");
 
     const userReserveBalance = userBalance.data.CA[caIndex].balance;
 
-    if (limitAmount > userReserveBalance)
-        throw new Error(
-            `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} balance`
-        );
+    if (limitAmount > userReserveBalance) throw new Error(`Insufficient ${settings.tokens.CA[caIndex].name} balance`);
 
     return await sendWithExecFee(
         context,
@@ -57,36 +46,25 @@ const redeemTC = async (
     onReceipt: OnReceipt
 ): Promise<TransactionReceipt | undefined> => {
     const context = coreOpContext(caIndex, interfaceContext);
-    const { address, contractProtocolStatus, userBalance, vendorAddress } =
-        context;
+    const { address, contractProtocolStatus, userBalance, vendorAddress } = context;
 
-    if (limitAmount === 0n)
-        throw new Error(
-            "limitAmount must be > 0 — a zero minimum would accept receiving nothing"
-        );
+    if (limitAmount === 0n) throw new Error("limitAmount must be > 0 — a zero minimum would accept receiving nothing");
 
-    if (!userBalance.data[caIndex])
-        throw new Error(`Bucket index not found for ${caIndex}`);
+    if (!userBalance.data[caIndex]) throw new Error(`Bucket index not found for ${caIndex}`);
 
     const userTCBalance = userBalance.data[caIndex].TC.balance;
-    if (qTC > userTCBalance)
-        throw new Error(
-            `Insufficient ${(settings.tokens.TC[caIndex] as TokenConfig).name} user balance`
-        );
+    if (qTC > userTCBalance) throw new Error(`Insufficient ${settings.tokens.TC[caIndex].name} user balance`);
 
     // There are sufficient TC in the contracts to redeem?
-    const tcAvailableToRedeem =
-        contractProtocolStatus.data[caIndex].getTCAvailableToRedeem;
+    const tcAvailableToRedeem = contractProtocolStatus.data[caIndex].getTCAvailableToRedeem;
     if (qTC > tcAvailableToRedeem)
-        throw new Error(
-            `Insufficient ${(settings.tokens.TC[caIndex] as TokenConfig).name}available to redeem in contract`
-        );
+        throw new Error(`Insufficient ${settings.tokens.TC[caIndex].name}available to redeem in contract`);
 
     // There are sufficient CA in the contract
     const caBalance = contractProtocolStatus.data[caIndex].getACBalance;
     if (limitAmount > caBalance)
         throw new Error(
-            `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} in the contract. Balance: ${caBalance} ${(settings.tokens.CA[caIndex] as TokenConfig).name}`
+            `Insufficient ${settings.tokens.CA[caIndex].name} in the contract. Balance: ${caBalance} ${settings.tokens.CA[caIndex].name}`
         );
 
     return await sendWithExecFee(
@@ -111,17 +89,12 @@ const mintTP = async (
     onReceipt: OnReceipt
 ): Promise<TransactionReceipt | undefined> => {
     const context = coreOpContext(caIndex, interfaceContext);
-    const {
-        contracts,
-        address,
-        contractProtocolStatus,
-        userBalance,
-        vendorAddress,
-    } = context;
+    const { contracts, address, contractProtocolStatus, userBalance, vendorAddress } = context;
 
     if (!contracts.TP) throw new Error("TP not found");
     if (!contracts.TP[tpIndex]) throw new Error(`TP not found for ${tpIndex}`);
     if (!userBalance.data.CA) throw new Error("CA not found");
+    if (qTP === 0n) throw new Error("qTP must be > 0");
 
     const tpAddress = contracts.TP[tpIndex].address;
 
@@ -135,10 +108,7 @@ const mintTP = async (
         } in your balance`
     );*/
     const userReserveBalance = userBalance.data.CA[caIndex].balance;
-    if (limitAmount > userReserveBalance)
-        throw new Error(
-            `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} balance`
-        );
+    if (limitAmount > userReserveBalance) throw new Error(`Insufficient ${settings.tokens.CA[caIndex].name} balance`);
 
     // Allowance
     /*console.log(
@@ -163,13 +133,9 @@ const mintTP = async (
      */
 
     // There are sufficient PEGGED in the contracts to mint?
-    const tpAvailableToMint =
-        contractProtocolStatus.data[caIndex].getTPAvailableToMint[tpIndex];
+    const tpAvailableToMint = contractProtocolStatus.data[caIndex].getTPAvailableToMint[tpIndex];
 
-    if (qTP > tpAvailableToMint)
-        throw new Error(
-            `Insufficient ${(settings.tokens.TP[tpIndex] as TokenConfig).name} available to mint`
-        );
+    if (qTP > tpAvailableToMint) throw new Error(`Insufficient ${settings.tokens.TP[tpIndex].name} available to mint`);
 
     return await sendWithExecFee(
         context,
@@ -193,18 +159,9 @@ const redeemTP = async (
     onReceipt: OnReceipt
 ): Promise<TransactionReceipt | undefined> => {
     const context = coreOpContext(caIndex, interfaceContext);
-    const {
-        contracts,
-        address,
-        contractProtocolStatus,
-        userBalance,
-        vendorAddress,
-    } = context;
+    const { contracts, address, contractProtocolStatus, userBalance, vendorAddress } = context;
 
-    if (limitAmount === 0n)
-        throw new Error(
-            "limitAmount must be > 0 — a zero minimum would accept receiving nothing"
-        );
+    if (limitAmount === 0n) throw new Error("limitAmount must be > 0 — a zero minimum would accept receiving nothing");
 
     // Verifications
     if (!contracts.TP) throw new Error("TP not found");
@@ -218,10 +175,7 @@ const redeemTP = async (
         `Redeeming ${qTP} ${(settings.tokens.TP[tpIndex] as TokenConfig).name} ... getting approx: ${limitAmount} ${(settings.tokens.CA[caIndex] as TokenConfig).name}... `
     );*/
     const userTPBalance = userBalance.data.TP[caIndex][tpIndex].balance;
-    if (qTP > userTPBalance)
-        throw new Error(
-            `Insufficient ${(settings.tokens.TP[tpIndex] as TokenConfig).name}  user balance`
-        );
+    if (qTP > userTPBalance) throw new Error(`Insufficient ${settings.tokens.TP[tpIndex].name}  user balance`);
 
     // // There are sufficient Free Pegged Token in the contracts to redeem?
     // const tpAvailableToRedeem = new BigNumber(
@@ -236,7 +190,7 @@ const redeemTP = async (
     const caBalance = contractProtocolStatus.data[caIndex].getACBalance;
     if (limitAmount > caBalance)
         throw new Error(
-            `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} in the contract. Balance: ${caBalance} ${(settings.tokens.CA[caIndex] as TokenConfig).name}`
+            `Insufficient ${settings.tokens.CA[caIndex].name} in the contract. Balance: ${caBalance} ${settings.tokens.CA[caIndex].name}`
         );
 
     return await sendWithExecFee(
@@ -264,19 +218,15 @@ const swapTPforTP = async (
 ): Promise<TransactionReceipt | undefined> => {
     const context = coreOpContext(caIndex, interfaceContext);
 
-    const {
-        contracts,
-        address,
-        contractProtocolStatus,
-        userBalance,
-        vendorAddress,
-    } = context;
+    const { contracts, address, contractProtocolStatus, userBalance, vendorAddress } = context;
 
     if (!contracts.TP) throw new Error("TP not found");
     if (!contracts.TP[iFromTP]) throw new Error(`TP not found for ${iFromTP}`);
     if (!contracts.TP[iToTP]) throw new Error(`TP not found for ${iToTP}`);
     if (!userBalance.data) throw new Error("User balance not found");
     if (!userBalance.data.CA) throw new Error("CA not found");
+    if (qTP === 0n) throw new Error("qTP must be > 0");
+    if (limitAmount === 0n) throw new Error("limitAmount must be > 0 — a zero minimum would accept receiving nothing");
 
     const tpAddressFrom = contracts.TP[iFromTP].address;
     const tpAddressTo = contracts.TP[iToTP].address;
@@ -335,15 +285,7 @@ const swapTPforTP = async (
         onTransaction,
         onReceipt,
         "swapTPforTP",
-        [
-            tpAddressFrom,
-            tpAddressTo,
-            qTP,
-            limitAmount,
-            qAssetMaxFees,
-            address,
-            vendorAddress,
-        ] as const,
+        [tpAddressFrom, tpAddressTo, qTP, limitAmount, qAssetMaxFees, address, vendorAddress] as const,
         contractProtocolStatus.data[caIndex].swapTPforTPExecCost,
         SLIPPAGE_EXECUTION
     );
@@ -361,18 +303,14 @@ const swapTCforTP = async (
 ): Promise<TransactionReceipt | undefined> => {
     const context = coreOpContext(caIndex, interfaceContext);
 
-    const {
-        contracts,
-        address,
-        contractProtocolStatus,
-        userBalance,
-        vendorAddress,
-    } = context;
+    const { contracts, address, contractProtocolStatus, userBalance, vendorAddress } = context;
 
     if (!contracts.TP) throw new Error("TP not found");
     if (!contracts.TP[tpIndex]) throw new Error(`TP not found for ${tpIndex}`);
     if (!userBalance.data) throw new Error("User balance not found");
     if (!userBalance.data.CA) throw new Error("CA not found");
+    if (qTC === 0n) throw new Error("qTC must be > 0");
+    if (limitAmount === 0n) throw new Error("limitAmount must be > 0 — a zero minimum would accept receiving nothing");
 
     const tpAddress = contracts.TP[tpIndex].address;
 
@@ -430,14 +368,7 @@ const swapTCforTP = async (
         onTransaction,
         onReceipt,
         "swapTCforTP",
-        [
-            tpAddress,
-            qTC,
-            limitAmount,
-            qAssetMaxFees,
-            address,
-            vendorAddress,
-        ] as const,
+        [tpAddress, qTC, limitAmount, qAssetMaxFees, address, vendorAddress] as const,
         contractProtocolStatus.data[caIndex].swapTCforTPExecCost,
         SLIPPAGE_EXECUTION
     );
@@ -455,18 +386,14 @@ const swapTPforTC = async (
 ): Promise<TransactionReceipt | undefined> => {
     const context = coreOpContext(caIndex, interfaceContext);
 
-    const {
-        contracts,
-        address,
-        contractProtocolStatus,
-        userBalance,
-        vendorAddress,
-    } = context;
+    const { contracts, address, contractProtocolStatus, userBalance, vendorAddress } = context;
 
     if (!contracts.TP) throw new Error("TP not found");
     if (!contracts.TP[tpIndex]) throw new Error(`TP not found for ${tpIndex}`);
     if (!userBalance.data) throw new Error("User balance not found");
     if (!userBalance.data.CA) throw new Error("CA not found");
+    if (qTP === 0n) throw new Error("qTP must be > 0");
+    if (limitAmount === 0n) throw new Error("limitAmount must be > 0 — a zero minimum would accept receiving nothing");
 
     const tpAddress = contracts.TP[tpIndex].address;
 
@@ -524,14 +451,7 @@ const swapTPforTC = async (
         onTransaction,
         onReceipt,
         "swapTPforTC",
-        [
-            tpAddress,
-            qTP,
-            limitAmount,
-            qAssetMaxFees,
-            address,
-            vendorAddress,
-        ] as const,
+        [tpAddress, qTP, limitAmount, qAssetMaxFees, address, vendorAddress] as const,
         contractProtocolStatus.data[caIndex].swapTPforTCExecCost,
         SLIPPAGE_EXECUTION
     );
@@ -547,17 +467,12 @@ const mintTCandTP = async (
     onReceipt: OnReceipt
 ): Promise<TransactionReceipt | undefined> => {
     const context = coreOpContext(caIndex, interfaceContext);
-    const {
-        contracts,
-        address,
-        contractProtocolStatus,
-        userBalance,
-        vendorAddress,
-    } = context;
+    const { contracts, address, contractProtocolStatus, userBalance, vendorAddress } = context;
 
     if (!contracts.TP) throw new Error("TP not found");
     if (!contracts.TP[tpIndex]) throw new Error(`TP not found for ${tpIndex}`);
     if (!userBalance.data.CA) throw new Error("CA not found");
+    if (qTP === 0n) throw new Error("qTP must be > 0");
 
     const tpAddress = contracts.TP[tpIndex].address;
 
@@ -571,10 +486,7 @@ const mintTCandTP = async (
         } in your balance`
     );*/
     const userReserveBalance = userBalance.data.CA[caIndex].balance;
-    if (limitAmount > userReserveBalance)
-        throw new Error(
-            `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} balance`
-        );
+    if (limitAmount > userReserveBalance) throw new Error(`Insufficient ${settings.tokens.CA[caIndex].name} balance`);
 
     // Allowance
     /*console.log(
@@ -630,18 +542,9 @@ const redeemTCandTP = async (
     onReceipt: OnReceipt
 ): Promise<TransactionReceipt | undefined> => {
     const context = coreOpContext(caIndex, interfaceContext);
-    const {
-        contracts,
-        address,
-        contractProtocolStatus,
-        userBalance,
-        vendorAddress,
-    } = context;
+    const { contracts, address, contractProtocolStatus, userBalance, vendorAddress } = context;
 
-    if (limitAmount === 0n)
-        throw new Error(
-            "limitAmount must be > 0 — a zero minimum would accept receiving nothing"
-        );
+    if (limitAmount === 0n) throw new Error("limitAmount must be > 0 — a zero minimum would accept receiving nothing");
 
     if (!contracts.TP) throw new Error("TP not found");
     if (!contracts.TP[tpIndex]) throw new Error(`TP not found for ${tpIndex}`);
@@ -649,14 +552,10 @@ const redeemTCandTP = async (
 
     const tpAddress = contracts.TP[tpIndex].address;
 
-    if (!userBalance.data[caIndex])
-        throw new Error(`Bucket index not found for ${caIndex}`);
+    if (!userBalance.data[caIndex]) throw new Error(`Bucket index not found for ${caIndex}`);
 
     const userTCBalance = userBalance.data[caIndex].TC.balance;
-    if (qTC > userTCBalance)
-        throw new Error(
-            `Insufficient ${(settings.tokens.TC[caIndex] as TokenConfig).name} user balance`
-        );
+    if (qTC > userTCBalance) throw new Error(`Insufficient ${settings.tokens.TC[caIndex].name} user balance`);
 
     // There are sufficient TC in the contracts to redeem?
     /*const tcAvailableToRedeem =
@@ -670,7 +569,7 @@ const redeemTCandTP = async (
     const caBalance = contractProtocolStatus.data[caIndex].getACBalance;
     if (limitAmount > caBalance)
         throw new Error(
-            `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} in the contract. Balance: ${caBalance} ${(settings.tokens.CA[caIndex] as TokenConfig).name}`
+            `Insufficient ${settings.tokens.CA[caIndex].name} in the contract. Balance: ${caBalance} ${settings.tokens.CA[caIndex].name}`
         );
 
     return await sendWithExecFee(
@@ -685,41 +584,29 @@ const redeemTCandTP = async (
     );
 };
 
-interface CoreOpContext
-    extends Omit<InterfaceContext, "contracts" | "address"> {
+interface CoreOpContext extends Omit<InterfaceContext, "contracts" | "address"> {
     vendorAddress: string;
-    mocContract: NonNullable<NonNullable<InterfaceContext["contracts"]>["Moc"]>[number];
+    mocContract: ContractInfo;
     contracts: NonNullable<InterfaceContext["contracts"]>;
     address: NonNullable<InterfaceContext["address"]>;
     publicClient: NonNullable<InterfaceContext["publicClient"]>;
 }
-const coreOpContext = (
-    caIndex: number,
-    interfaceContext: InterfaceContext
-): CoreOpContext => {
-    const {
-        address,
-        contracts,
-        contractProtocolStatus,
-        userBalance,
-        publicClient,
-    } = interfaceContext;
+const coreOpContext = (caIndex: number, interfaceContext: InterfaceContext): CoreOpContext => {
+    const { address, contracts, contractProtocolStatus, userBalance, publicClient } = interfaceContext;
 
-    const vendorAddress = (import.meta.env
-        .REACT_APP_ENVIRONMENT_VENDOR_ADDRESS ||
+    const vendorAddress = (import.meta.env.REACT_APP_ENVIRONMENT_VENDOR_ADDRESS ||
         "0x0000000000000000000000000000000000000000") as `0x${string}`;
 
     if (!address) throw new Error("Address not found");
     if (!publicClient) throw new Error("Public client not found");
     if (!contracts) throw new Error("Contracts not found");
     if (!contracts.Moc) throw new Error("Moc not found");
-    if (!contracts.Moc[caIndex])
-        throw new Error(`Moc not found for ${caIndex}`);
+    if (caIndex < 0 || caIndex >= settings.tokens.CA.length)
+        throw new Error(`caIndex ${caIndex} is out of range (0–${settings.tokens.CA.length - 1})`);
+    if (!contracts.Moc[caIndex]) throw new Error(`Moc not found for ${caIndex}`);
     if (!userBalance.data) throw new Error("User balance not found");
-    if (!contractProtocolStatus.data)
-        throw new Error("Contract protocol status not found");
-    if (!contractProtocolStatus.data[caIndex])
-        throw new Error("Contract protocol status not found");
+    if (!contractProtocolStatus.data) throw new Error("Contract protocol status not found");
+    if (!contractProtocolStatus.data[caIndex]) throw new Error("Contract protocol status not found");
 
     return {
         ...interfaceContext,
@@ -758,14 +645,9 @@ const sendWithExecFee = async (
         account: address,
     };
 
-    const totalExecCost =
-        execCost + contractProtocolStatus.data[caIndex].priceUpdatesCost;
+    const totalExecCost = execCost + contractProtocolStatus.data[caIndex].priceUpdatesCost;
 
-    const executionFee = await getExecutionFee(
-        publicClient,
-        totalExecCost,
-        execFeeSlippage
-    );
+    const executionFee = await getExecutionFee(publicClient, totalExecCost, execFeeSlippage);
 
     configParams.value = executionFee;
 
@@ -815,14 +697,4 @@ const sendWithExecFee = async (
     return receipt;
 };
 
-export {
-    mintTC,
-    mintTCandTP,
-    mintTP,
-    redeemTC,
-    redeemTCandTP,
-    redeemTP,
-    swapTCforTP,
-    swapTPforTC,
-    swapTPforTP,
-};
+export { mintTC, mintTCandTP, mintTP, redeemTC, redeemTCandTP, redeemTP, swapTCforTP, swapTPforTC, swapTPforTP };

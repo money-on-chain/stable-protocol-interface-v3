@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { parseUnits } from "viem";
 
-import mapPricesOffchain from "../settings/prices-offchain.json";
 import settings from "../settings";
+import mapPricesOffchain from "../settings/prices-offchain.json";
 import type { ParsedPrices } from "../types/hooks";
 
 /**
@@ -29,11 +29,10 @@ export function useOffchainPrices(
         enabled,
         refetchInterval,
         queryFn: async () => {
-
             // Voting project does not use this hook
-            if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting") 
+            if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting")
                 return [];
-            
+
             const mapPrices = mapPricesOffchain.prices;
             const coinpairs: string[] = [];
 

@@ -9,8 +9,8 @@ import { tokenMapBlacklist } from "../../../helpers/exchange";
 import { getPortfolioTokenUsdBalance } from "../../../helpers/portfolio";
 import { normalizeToBigInt } from "../../../helpers/precision";
 import { useProjectTranslation } from "../../../helpers/translations";
-import globalData from "../../../settings/global.json";
 import settings from "../../../settings";
+import globalData from "../../../settings/global.json";
 import type { Settings, TokenConfig } from "../../../types/hooks";
 import { generateTokenRow } from "./renderHelpers";
 
@@ -43,8 +43,12 @@ const serializeWithBigInt = (obj: unknown): string => {
 
 export default function PortfolioTable() {
     const { t, i18n } = useProjectTranslation();
-    const { contractProtocolStatus, userBalance, userBaseCoinBalance, priceProvider } =
-        useWalletContext();
+    const {
+        contractProtocolStatus,
+        userBalance,
+        userBaseCoinBalance,
+        priceProvider,
+    } = useWalletContext();
     const [ready, setReady] = useState<boolean>(false);
 
     // Refs to track previous values and prevent infinite loops
@@ -90,7 +94,11 @@ export default function PortfolioTable() {
         const allTheTokens: TokenConfig[] = [];
         const seenNames = new Set<string>();
 
-        const pushToken = (type: string, token: TokenConfig, resolvedKey: number) => {
+        const pushToken = (
+            type: string,
+            token: TokenConfig,
+            resolvedKey: number
+        ) => {
             if (seenNames.has(token.name)) return;
             allTheTokens.push({
                 uniqueKey: uniqueKeyCounter++,
@@ -102,7 +110,8 @@ export default function PortfolioTable() {
                 visiblePriceDecimals: token.visiblePriceDecimals,
                 visibleBalanceDecimals: token.visibleBalanceDecimals,
                 visibleBalanceUSDDecimals: token.visibleBalanceUSDDecimals,
-                peggedUSD: token.peggedUSD !== undefined ? token.peggedUSD : false,
+                peggedUSD:
+                    token.peggedUSD !== undefined ? token.peggedUSD : false,
                 collateralType: token.collateralType,
             });
             seenNames.add(token.name);
@@ -112,21 +121,36 @@ export default function PortfolioTable() {
             // portfolio_table drives both selection and order
             for (const entry of settings.portfolio_table) {
                 const lastUnderscore = entry.lastIndexOf("_");
-                const suffix = lastUnderscore !== -1 ? entry.slice(lastUnderscore + 1) : "";
+                const suffix =
+                    lastUnderscore !== -1
+                        ? entry.slice(lastUnderscore + 1)
+                        : "";
                 if (lastUnderscore !== -1 && /^\d+$/.test(suffix)) {
                     // Entry like "CA_0" — pick the specific token by key
                     const type = entry.slice(0, lastUnderscore);
                     const key = parseInt(suffix, 10);
-                    const typeTokens = settings.tokens[type as keyof typeof settings.tokens] as TokenConfig[] | undefined;
+                    const typeTokens = settings.tokens[
+                        type as keyof typeof settings.tokens
+                    ] as TokenConfig[] | undefined;
                     if (typeTokens) {
-                        const token = typeTokens.find((t, i) => (t.key !== undefined ? t.key : i) === key);
+                        const token = typeTokens.find(
+                            (t, i) => (t.key !== undefined ? t.key : i) === key
+                        );
                         if (token) pushToken(type, token, key);
                     }
                 } else {
                     // Entry like "COINBASE" or "TF" — include all tokens of this type in their defined order
-                    const typeTokens = settings.tokens[entry as keyof typeof settings.tokens] as TokenConfig[] | undefined;
+                    const typeTokens = settings.tokens[
+                        entry as keyof typeof settings.tokens
+                    ] as TokenConfig[] | undefined;
                     if (typeTokens) {
-                        typeTokens.forEach((token, i) => pushToken(entry, token, token.key !== undefined ? token.key : i));
+                        typeTokens.forEach((token, i) =>
+                            pushToken(
+                                entry,
+                                token,
+                                token.key !== undefined ? token.key : i
+                            )
+                        );
                     } else {
                         // Entry is a token name (e.g. "MOC") — look it up in global.json as a CUSTOM token
                         const globalToken = globalTokens[entry];
@@ -138,7 +162,11 @@ export default function PortfolioTable() {
             // No portfolio_table — include all tokens in settings order
             Object.entries(settings.tokens).forEach(([type, tokens]) => {
                 (tokens as TokenConfig[]).forEach((token, i) =>
-                    pushToken(type, token, token.key !== undefined ? token.key : i)
+                    pushToken(
+                        type,
+                        token,
+                        token.key !== undefined ? token.key : i
+                    )
                 );
             });
         }
@@ -172,33 +200,42 @@ export default function PortfolioTable() {
                     balanceLoaded = userBaseCoinBalance.balance != null;
                     break;
                 case "CA": {
-                    if (!token.collateralType || token.collateralType === "coinbase") break;
-                    const rawBalanceCA = userBalance.data?.CA?.[token.key || 0]?.balance;
+                    if (
+                        !token.collateralType ||
+                        token.collateralType === "coinbase"
+                    )
+                        break;
+                    const rawBalanceCA =
+                        userBalance.data?.CA?.[token.key || 0]?.balance;
                     balanceLoaded = rawBalanceCA != null;
                     balance = normalizeToBigInt(rawBalanceCA) || 0n;
                     break;
                 }
                 case "TP": {
-                    const rawBalanceTP = userBalance.data?.TP?.[0]?.[token.key || 0]?.balance;
+                    const rawBalanceTP =
+                        userBalance.data?.TP?.[0]?.[token.key || 0]?.balance;
                     balanceLoaded = rawBalanceTP != null;
                     balance = normalizeToBigInt(rawBalanceTP) || 0n;
                     break;
                 }
                 case "TC": {
-                    const rawBalanceTC = userBalance.data?.[token.key || 0]?.TC?.balance;
+                    const rawBalanceTC =
+                        userBalance.data?.[token.key || 0]?.TC?.balance;
                     balanceLoaded = rawBalanceTC != null;
                     balance = normalizeToBigInt(rawBalanceTC) || 0n;
                     break;
                 }
                 case "TF": {
-                    const rawBalanceTF = userBalance.data[token.key || 0]?.FeeToken?.balance;
+                    const rawBalanceTF =
+                        userBalance.data[token.key || 0]?.FeeToken?.balance;
                     balanceLoaded = rawBalanceTF != null;
                     balance = normalizeToBigInt(rawBalanceTF) || 0n;
                     break;
                 }
                 case "CUSTOM": {
                     const pair = `${token.name}/USD`;
-                    const rawBalanceCustom = userBalance.data?.CUSTOM?.[pair]?.balance;
+                    const rawBalanceCustom =
+                        userBalance.data?.CUSTOM?.[pair]?.balance;
                     balanceLoaded = rawBalanceCustom != null;
                     balance = normalizeToBigInt(rawBalanceCustom) ?? 0n;
                     break;
@@ -220,14 +257,38 @@ export default function PortfolioTable() {
                 balanceUSD = price > 0n ? (balance * price) / 10n ** 18n : 0n;
             } else if (token.type === "TP" && token.peggedUSD) {
                 price = 10n ** 18n;
-                balanceUSD = getPortfolioTokenUsdBalance(contractProtocolStatus, token, balance);
+                balanceUSD = getPortfolioTokenUsdBalance(
+                    contractProtocolStatus,
+                    token,
+                    balance
+                );
             } else if (token.type === "TP") {
                 // non-pegged TP: display tokens-per-USD
-                price = ConvertAmount(contractProtocolStatus, "USD", tokenId, 10n ** 18n, 0);
-                balanceUSD = getPortfolioTokenUsdBalance(contractProtocolStatus, token, balance);
+                price = ConvertAmount(
+                    contractProtocolStatus,
+                    "USD",
+                    tokenId,
+                    10n ** 18n,
+                    0
+                );
+                balanceUSD = getPortfolioTokenUsdBalance(
+                    contractProtocolStatus,
+                    token,
+                    balance
+                );
             } else {
-                price = ConvertAmount(contractProtocolStatus, tokenId, "USD", 10n ** 18n, tokenKey);
-                balanceUSD = getPortfolioTokenUsdBalance(contractProtocolStatus, token, balance);
+                price = ConvertAmount(
+                    contractProtocolStatus,
+                    tokenId,
+                    "USD",
+                    10n ** 18n,
+                    tokenKey
+                );
+                balanceUSD = getPortfolioTokenUsdBalance(
+                    contractProtocolStatus,
+                    token,
+                    balance
+                );
             }
 
             // CUSTOM tokens always render as USD-priced rows (no non-USD section)

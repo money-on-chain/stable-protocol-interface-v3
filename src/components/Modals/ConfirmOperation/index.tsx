@@ -22,6 +22,8 @@ interface ModalConfirmOperationProps {
     slippageTolerance: number;
     amountAnotherToken: { qAC: bigint; amount: bigint };
     tpIndex: number;
+    totalAmountExchangeInFiat: bigint;
+    totalAmountReceiveInFiat: bigint;
 }
 
 export default function ModalConfirmOperation(

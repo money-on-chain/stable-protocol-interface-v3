@@ -10,6 +10,7 @@ import { TokenSettings } from "../../helpers/currencies";
 import { UserTokenAllowance } from "../../helpers/exchange";
 import { calculateLimit } from "../../helpers/exchange";
 import { useProjectTranslation } from "../../helpers/translations";
+import { API_OPERATIONS_BASE } from "../../services/apiConfig";
 import type { AllowanceStep, CommissionsState } from "../../types/status";
 import { ALLOWANCE_STEPS } from "../../types/status";
 import CopyAddress from "../CopyAddress";
@@ -156,6 +157,7 @@ export default function ConfirmOperation(
     const opIDRef = useRef<number | null>(opID);
     const caIndexRef = useRef<number>(caIndex);
     const userBalanceRefetchRef = useRef(userBalance.refetch);
+    const pollAttemptRef = useRef<number>(0);
 
     const anotherTokenName: string =
         operationType === "COMBINED_MINT" ? `TC_${caIndex}` : `TP_${tpIndex}`;
@@ -182,9 +184,13 @@ export default function ConfirmOperation(
             console.warn("Operation Status: Checking... NO.");
             return;
         }
-        const apiUrl = new URL(
-            String(import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS)
-        );
+        if (!API_OPERATIONS_BASE) {
+            console.error(
+                "[ConfirmOperation] API_OPERATIONS_BASE is not configured or failed allowlist validation"
+            );
+            return;
+        }
+        const apiUrl = new URL(API_OPERATIONS_BASE);
         apiUrl.pathname = "/v1/operations/oper_id/";
 
         axios
@@ -254,27 +260,29 @@ export default function ConfirmOperation(
     }, []);
 
     useEffect(() => {
-        //console.log("Polling useEffect triggered:", { opID, status, shouldPoll: opID && opID >= 0 && (status === "QUEUED" || status === "QUEUING") });
-
-        // Only poll if we have an opID and are in a state that requires polling
         if (
             opID === null ||
             opID < 0 ||
             (status !== "QUEUED" && status !== "QUEUING")
         ) {
-            //console.log("Polling skipped - conditions not met", opID, status);
             return;
         }
 
-        //console.log("Setting up polling interval for opStatus");
-        const interval: NodeJS.Timeout = setInterval(() => {
-            //console.log("Interval tick - calling opStatus", opID, status);
-            opStatus();
-        }, 5000);
-        return () => {
-            //console.log("Clearing polling interval");
-            clearInterval(interval);
+        pollAttemptRef.current = 0;
+        let timeoutId: NodeJS.Timeout;
+
+        const scheduleNext = () => {
+            const attempt = pollAttemptRef.current++;
+            const base = Math.min(5000 * Math.pow(2, attempt), 30000);
+            const delay = base * (0.8 + Math.random() * 0.4);
+            timeoutId = setTimeout(() => {
+                opStatus();
+                scheduleNext();
+            }, delay);
         };
+
+        scheduleNext();
+        return () => clearTimeout(timeoutId);
     }, [opStatus, opID, status]);
 
     const onHideModalAllowancePayCurrencyExchange = (): void => {
@@ -864,7 +872,7 @@ export default function ConfirmOperation(
                                 type="button"
                                 className="button"
                                 data-testid="confirm-operation-submit"
-                                onClick={onSendTransaction}
+                                onClick={() => onSendTransaction()}
                             >
                                 {t("exchange.buttonConfirm")}
                             </button>

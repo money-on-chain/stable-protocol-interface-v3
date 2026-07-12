@@ -32,7 +32,6 @@ import {
 } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings";
-import type { Settings } from "../../types/hooks";
 import type { CommissionItem, CommissionsState } from "../../types/status";
 import CommissionsSelector from "../CommissionsSelector";
 import CurrencyPopUp from "../CurrencyPopUp";
@@ -40,7 +39,7 @@ import InputAmount from "../InputAmount/";
 import ModalConfirmOperation from "../Modals/ConfirmOperation";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import { SlippageTolerance } from "../SlippageTolerance";
-const { slippage } = settings as Settings;
+const { slippage } = settings;
 import "./Styles.scss";
 
 // Type definitions
@@ -519,16 +518,18 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         // Not enough balance to pay fees
         const notEnoughBalanceToPayFees =
             Object.values(commissionsByKey).length > 0 &&
-            Object.values(commissionsByKey).every(
-                (item, index) => (operationType === "REDEEM" && index > 0) ? false : (item.commission > item.balance)
+            Object.values(commissionsByKey).every((item, index) =>
+                operationType === "REDEEM" && index > 0
+                    ? false
+                    : item.commission > item.balance
             );
-        
+
         if (notEnoughBalanceToPayFees) {
             setGlobalValidationErrorText(t("exchange.errors.noBalanceForFees"));
             setInputValidationError(true);
             return;
         }
-        
+
         // No Validations Errors
         setInputValidationErrorText("");
         setGlobalValidationErrorText("");
@@ -543,7 +544,6 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         currencyYouExchange,
         currencyYouReceive,
         operationType,
-        selectedFeeCurrency,
         t,
         userBalance,
         valueExchange,
@@ -611,7 +611,9 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         };
 
         void run();
-        // eslint--next-line react-hooks/exhaustive-deps -- onChangeAmounts is intentionally excluded: it is redeclared every render but its behaviour only changes when its captured state changes, which is already covered by the explicit deps below
+        // onChangeAmounts is intentionally excluded: it is redeclared every render but its
+        // behaviour only changes when its captured state changes, covered by the deps below.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         slippageTolerance,
         // depends on these because if they change and the user adjusts slippage, you want to recalculate properly
@@ -1089,9 +1091,18 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         }
 
         setCommissionForKey("FeeToken", {
-            commission: calculateLimit(baseForFeeToken.totalFeeToken, +(slippageTolerance / 100)),
-            commissionUSD: calculateLimit(baseForFeeToken.totalFeeTokenUSD, +(slippageTolerance / 100)),
-            commissionPercent: calculateLimit(baseForFeeToken.feeTokenPercent, +(slippageTolerance / 100)),
+            commission: calculateLimit(
+                baseForFeeToken.totalFeeToken,
+                +(slippageTolerance / 100)
+            ),
+            commissionUSD: calculateLimit(
+                baseForFeeToken.totalFeeTokenUSD,
+                +(slippageTolerance / 100)
+            ),
+            commissionPercent: calculateLimit(
+                baseForFeeToken.feeTokenPercent,
+                +(slippageTolerance / 100)
+            ),
             balance: userBalance.data[choosenCAIndex].FeeToken.balance,
         });
 
@@ -1155,13 +1166,15 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
 
     const setAddTotalAvailable = (): void => {
         const totalbalance = TokenBalance(userBalance, currencyYouExchange);
-        onChangeAmountYouExchange(totalbalance === 0n
-            ? ""
-            : bigIntToInputValue(
-                  totalbalance,
-                  currencyYouExchange,
-                  totalbalance < 10n ** 17n ? 12 : 8
-              ));        
+        onChangeAmountYouExchange(
+            totalbalance === 0n
+                ? ""
+                : bigIntToInputValue(
+                      totalbalance,
+                      currencyYouExchange,
+                      totalbalance < 10n ** 17n ? 12 : 8
+                  )
+        );
     };
 
     const onChangeFee = (e: RadioChangeEvent): void => {
@@ -2115,9 +2128,6 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                     }}
                                     onChange={(next) =>
                                         onChangeSlippageTolerance(next.value)
-                                    }
-                                    onInteractionChange={
-                                        onSlippageInteractionChange
                                     }
                                     onInteractionChange={
                                         onSlippageInteractionChange

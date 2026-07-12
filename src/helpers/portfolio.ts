@@ -65,11 +65,16 @@ export function getPortfolioTotalUsd(
 
     Object.entries(settings.tokens).forEach(([type, tokens]) => {
         (tokens as TokenConfig[]).forEach((baseToken, index) => {
-            const tokenKey = baseToken.key !== undefined ? baseToken.key : index;
+            const tokenKey =
+                baseToken.key !== undefined ? baseToken.key : index;
 
             if (portfolioTable) {
                 const typeKeyEntry = `${type}_${tokenKey}`;
-                if (!portfolioTable.includes(type) && !portfolioTable.includes(typeKeyEntry)) return;
+                if (
+                    !portfolioTable.includes(type) &&
+                    !portfolioTable.includes(typeKeyEntry)
+                )
+                    return;
             }
 
             const token: TokenConfig = {
@@ -104,8 +109,7 @@ export function getPortfolioTotalUsd(
                 case "TP":
                     balance =
                         normalizeToBigInt(
-                            userBalance.data?.TP?.[0]?.[token.key || 0]
-                                ?.balance
+                            userBalance.data?.TP?.[0]?.[token.key || 0]?.balance
                         ) || 0n;
                     break;
                 case "TC":
