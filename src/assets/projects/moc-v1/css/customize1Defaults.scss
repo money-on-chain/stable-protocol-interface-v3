@@ -1,0 +1,16 @@
+//@import "~antd/dist/antd.css";
+
+/* #region COMMON */
+:root {
+    // Theme used by default. Use "light" or "dark"
+    --default-theme: "light";
+}
+#root {
+    font-family: var(--main-font);
+    background-color: var(--surface-color-0) !important;
+    background-image: var(--surface-background-image);
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
+}
+/* #endregion COMMON */

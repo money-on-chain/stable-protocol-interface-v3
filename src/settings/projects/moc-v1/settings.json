@@ -1,0 +1,82 @@
+{
+    "collateral": "coinbase",
+    "project": "moc-v1",
+    "dapp": {
+        "name": "MOC UI (Legacy)",
+        "description": "MOC UI - Legacy v1 contracts"
+    },
+    "showPriceVariation": true,
+    "slippage": {
+        "autoDefault": 1.0,
+        "presets": [0.3, 1.0, 2.0],
+        "max": 5.0
+    },
+    "exchange": {
+        "tokenMap": {
+            "blacklist": []
+        }
+    },
+    "tokens": {
+        "COINBASE": [
+            {
+                "name": "RBTC",
+                "fullName": "Smart Bitcoin",
+                "decimals": 18,
+                "visibleDecimals": 6,
+                "visiblePriceDecimals": 2,
+                "visibleBalanceDecimals": 8,
+                "visibleBalanceUSDDecimals": 2
+            }
+        ],
+        "CA": [
+            {
+                "key": 0,
+                "name": "RBTC",
+                "fullName": "Smart Bitcoin",
+                "decimals": 18,
+                "visibleDecimals": 6,
+                "visiblePriceDecimals": 2,
+                "visibleBalanceDecimals": 8,
+                "visibleBalanceUSDDecimals": 2
+            }
+        ],
+        "TC": [
+            {
+                "name": "BPRO",
+                "fullName": "Bpro",
+                "decimals": 18,
+                "visibleDecimals": 6,
+                "visiblePriceDecimals": 2,
+                "visibleBalanceDecimals": 8,
+                "visibleBalanceUSDDecimals": 2
+            }
+        ],
+        "TP": [
+            {
+                "key": 0,
+                "name": "DOC",
+                "fullName": "Dollar On Chain",
+                "decimals": 18,
+                "visibleDecimals": 2,
+                "visiblePriceDecimals": 2,
+                "visibleBalanceDecimals": 2,
+                "visibleBalanceUSDDecimals": 2,
+                "peggedUSD": true
+            }
+        ],
+        "TG": [
+            {
+                "name": "MOC",
+                "fullName": "MOC",
+                "decimals": 18,
+                "visibleDecimals": 6,
+                "visiblePriceDecimals": 4,
+                "visibleBalanceDecimals": 2,
+                "visibleBalanceUSDDecimals": 2
+            }
+        ]
+    },
+    "performance": {
+        "hidePanels": ["execution-queue", "multi-collateral", "liquidity-mining"]
+    }
+}
