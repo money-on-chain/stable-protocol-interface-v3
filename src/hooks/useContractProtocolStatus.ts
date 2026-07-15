@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { checksumAddress } from "viem";
 
 import { normalizeToBigInt } from "../helpers/precision";
-import settings from "../settings/settings.json";
+import settings from "../settings";
 import type {
     ContractInfo,
     DContracts,
@@ -64,7 +64,7 @@ export function useContractProtocolStatus(
                     PP_CA: parsedPrices[ca]?.CA,
                     PP_TP: {},
                     PP_FeeToken: parsedPrices[ca]?.TF,
-                };                
+                };
                 for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
                     data[ca].PP_TP[tp] = parsedPrices[ca]?.TP[tp];
                 }
@@ -79,7 +79,7 @@ export function useContractProtocolStatus(
         if (!currentBlockNumber) return [];
 
         // Voting project does not use this hook
-        if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting") 
+        if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting")
             return [];
 
         let parsedPrices: ParsedPrices[] = [];
@@ -562,6 +562,14 @@ export function useContractProtocolStatus(
                     args: [tp],
                     resultType: "uint256",
                     keys: [ca, "tpCtarg", tp],
+                });
+
+                callRequest.push({
+                    contract: Moc,
+                    functionName: "getLckACByTP",
+                    args: [tp],
+                    resultType: "uint256",
+                    keys: [ca, "getLckACByTP", tp],
                 });
 
                 callRequest.push({

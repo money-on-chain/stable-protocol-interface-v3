@@ -6,6 +6,16 @@
     "invalidValuePlaceholder": "--",
     "notification": {
         "dismiss": "Dismiss",
+        "update": {
+            "title": "New version available",
+            "content": "A new version of the app has been deployed.",
+            "update": "Update"
+        },
+        "networkGuard": {
+            "title": "Wrong network",
+            "content": "You are connected to the wrong network. This environment only allows <strong>{{chainName}}</strong>.",
+            "switch": "Switch to {{chainName}}"
+        },
         "rpcError": {
             "title": "Network Connection Error",
             "description": "Unable to connect to the blockchain network. This may be due to network congestion or RPC server issues. The system will automatically retry, or you can try again manually.",
@@ -66,7 +76,9 @@
             "fee": "Fee",
             "gas": "Gas Fee",
             "msg": "Message",
-            "reason": "Reason"
+            "reason": "Reason",
+            "price": "Price",
+            "price_another_token": "Price"
         },
         "errors": {
             "qACBelow1": "Price variation for",
@@ -75,7 +87,8 @@
             "insufficientQAC2": "exceeded your slippage tolerance. Try increasing tolerance or retry.",
             "lowCoverage": "Operation failed due to low system coverage.",
             "fluxCapacitor": "Operation rejected: system limit reached.",
-            "noMessage": "Transaction failed."
+            "noMessage": "Transaction failed.",
+            "failedBeforeExecution": "Failed before execution"
         },
         "table": {
             "itemsPerPage": "Page"
@@ -283,6 +296,17 @@
             "cardTitle": "Total Value Locked",
             "expressedIn": "Expressed in USD"
         },
+        "metrics": {
+            "globalCardTitle": "Global Metrics",
+            "tvlInCollateral": "TVL in {{ticker}}",
+            "tvlInUsd": "TVL in USD",
+            "currentCoverage": "Current Coverage",
+            "targetCoverage": "Target Coverage",
+            "leverage": "Leverage",
+            "lockedCollateral": "Locked Collateral",
+            "tpMintable": "{{ticker}} Mintable",
+            "tpRedeemable": "{{ticker}} Redeemable"
+        },
 
         "tc": {
             "priceIn": "Price in USD",
@@ -293,6 +317,7 @@
 
         "collateral": {
             "cardTitle": "Collateral",
+            "distributionTitle": "Collateral distribution ({{ticker}})",
             "totalIn": "Total collateral in USD",
             "globalCoverage": "Global coverage"
         },
@@ -300,12 +325,18 @@
         "pegged": {
             "cardTitle": "Pegged-Tokens Performance",
             "colName": "Name",
+            "colPriceIn": "Price in {{ticker}}",
             "colTokensPer": "Tokens per USD",
             "colMinted": "Minted",
             "colMintable": "Mintable",
+            "colRedeemable": "Redeemable",
             "colTargetCoverage": "T. Coverage",
             "colEMA": "EMA",
-            "colTargetEMA": "Target EMA"
+            "colCAUsed": "Collateral used",
+            "colTargetEMA": "Target EMA",
+            "redeemableNoLimit": "No Limit",
+            "redeemableNoLimitWithFootnote": "No Limit*",
+            "redeemableCombinedOperationsFootnote": "* No limit through combined operations only."
         }
     },
 
@@ -359,6 +390,7 @@
         "noNegativeValues": "Value must be greater than 0",
         "infoAddressEmpty": "Destination address not specified",
         "infoAddressInvalid": "Invalid address",
+        "infoAddressChecksumInvalid": "This address uses a different format than the current network. It should still work—just make sure it was copied correctly.",
         "feedback": {
             "submit": "Wait for transaction confirmation",
             "sign": "Sign the transaction in your wallet",
@@ -372,8 +404,8 @@
     "allowance": {
         "cardTitle": "Authorize using",
         "disallowanceTitle": "Revoke allowance of",
-        "statusText1": "Before continuing with the operation, you must authorize the allowance so that the system can access the tokens.",
-        "statusText2": "Optionally you can set an unlimited allowance checking the checkbox. Warning: if you don't know the implicances of doing this, leave it unchecked.",
+        "statusText1": "Before continuing with the operation, you must authorize token allowance so the protocol can execute the transaction.",
+        "statusText2": "The recommended allowance may be higher than the exact amount needed for this operation to improve reliability. This does not mean the full allowance will be used. Optionally, you can set an unlimited allowance by checking the checkbox, but consider the security implications before doing so.",
         "statusDisallowanceText": "Before continuing with the operation, you must authorize the revoke so that the system can no longer access the tokens.",
         "setUnlimited": "Set unlimited allowance. Don't ask me again.",
         "confirm": {
@@ -428,7 +460,8 @@
 
     "numberFormat": {
         "thousandsSeparator": ",",
-        "decimalSeparator": "."
+        "decimalSeparator": ".",
+        "noLimit": "No limit"
     },
 
     "swapModal": {

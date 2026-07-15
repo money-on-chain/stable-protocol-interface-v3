@@ -1,0 +1,126 @@
+name = "dapp-proxy"
+main = "src/worker.js"
+compatibility_date = "2024-09-23"
+
+# Deploy steps (run once from your machine with `wrangler login` first):
+#
+# 1. Create a KV namespace for each domain:
+#      wrangler kv namespace create DAPP_KV --env roc
+#      wrangler kv namespace create DAPP_KV --env flipmoney
+#      wrangler kv namespace create DAPP_KV --env moc
+#      wrangler kv namespace create DAPP_KV --env roc-testnet
+#      wrangler kv namespace create DAPP_KV --env flipmoney-testnet
+#      wrangler kv namespace create DAPP_KV --env moc-testnet
+#    Copy the `id` values printed by each command into the placeholders below.
+#
+# 2. Deploy each worker:
+#      wrangler deploy --env roc
+#      wrangler deploy --env flipmoney
+#      wrangler deploy --env moc
+#      wrangler deploy --env roc-testnet
+#      wrangler deploy --env flipmoney-testnet
+#      wrangler deploy --env moc-testnet
+#
+# 3. In Cloudflare dashboard → Workers & Pages → each worker → Settings → Triggers,
+#    confirm the route is active. The DNS CNAME to Pinata can stay as-is;
+#    the Worker route intercepts requests before they reach the origin.
+#
+# GitHub Actions secrets required (Settings → Secrets → Actions):
+#   CF_ACCOUNT_ID                       — Cloudflare account ID (same for all workflows)
+#   CF_API_TOKEN                        — API token with "Workers KV Storage:Edit" permission
+#   CF_KV_NAMESPACE_ID_ROC              — id of the KV namespace created for the roc env
+#   CF_KV_NAMESPACE_ID_FLIPMONEY        — id of the KV namespace created for the flipmoney env
+#   CF_KV_NAMESPACE_ID_MOC              — id of the KV namespace created for the moc env
+#   CF_KV_NAMESPACE_ID_ROC_TESTNET      — id of the KV namespace created for the roc-testnet env
+#   CF_KV_NAMESPACE_ID_FLIPMONEY_TESTNET — id of the KV namespace created for the flipmoney-testnet env
+#   CF_KV_NAMESPACE_ID_MOC_TESTNET      — id of the KV namespace created for the moc-testnet env
+
+# ─── ROC (dapp.rifonchain.com) ───────────────────────────────────────────────
+[env.roc]
+name = "dapp-proxy-roc"
+
+[env.roc.vars]
+PINATA_GATEWAY = "https://rifonchain.mypinata.cloud"
+
+[[env.roc.kv_namespaces]]
+binding = "DAPP_KV"
+id = "a4e86b88ef684d06912dcb5eefe098a4"
+
+[[env.roc.routes]]
+pattern = "dapp.rifonchain.com/*"
+zone_name = "rifonchain.com"
+
+# ─── Flipmoney (dapp.flipmoney.io) ───────────────────────────────────────────
+[env.flipmoney]
+name = "dapp-proxy-flipmoney"
+
+[env.flipmoney.vars]
+PINATA_GATEWAY = "https://flipmoney.mypinata.cloud"
+
+[[env.flipmoney.kv_namespaces]]
+binding = "DAPP_KV"
+id = "19c9b65254c7457aa90067abac0ee0c0"
+
+[[env.flipmoney.routes]]
+pattern = "dapp.flipmoney.io/*"
+zone_name = "flipmoney.io"
+
+# ─── Money on Chain / Voting (manage.moneyonchain.com) ───────────────────────
+[env.moc]
+name = "dapp-proxy-moc"
+
+[env.moc.vars]
+PINATA_GATEWAY = "https://moneyonchain.mypinata.cloud"
+
+[[env.moc.kv_namespaces]]
+binding = "DAPP_KV"
+id = "c86625e5a1f543a89017c69c26afc76f"
+
+[[env.moc.routes]]
+pattern = "manage.moneyonchain.com/*"
+zone_name = "moneyonchain.com"
+
+# ─── ROC Testnet (dapp-testnet.rifonchain.com) ───────────────────────────────
+[env.roc-testnet]
+name = "dapp-proxy-roc-testnet"
+
+[env.roc-testnet.vars]
+PINATA_GATEWAY = "https://rifonchain.mypinata.cloud"
+
+[[env.roc-testnet.kv_namespaces]]
+binding = "DAPP_KV"
+id = "22ea181286944002acebe5252e3fadc5"
+
+[[env.roc-testnet.routes]]
+pattern = "dapp-testnet.rifonchain.com/*"
+zone_name = "rifonchain.com"
+
+# ─── Flipmoney Testnet (dapp-testnet.flipmoney.io) ───────────────────────────
+[env.flipmoney-testnet]
+name = "dapp-proxy-flipmoney-testnet"
+
+[env.flipmoney-testnet.vars]
+PINATA_GATEWAY = "https://flipmoney.mypinata.cloud"
+
+[[env.flipmoney-testnet.kv_namespaces]]
+binding = "DAPP_KV"
+id = "6570d69ffa304e2d8eed32d83969b392"
+
+[[env.flipmoney-testnet.routes]]
+pattern = "dapp-testnet.flipmoney.io/*"
+zone_name = "flipmoney.io"
+
+# ─── Money on Chain / Voting Testnet (manage-testnet.moneyonchain.com) ───────
+[env.moc-testnet]
+name = "dapp-proxy-moc-testnet"
+
+[env.moc-testnet.vars]
+PINATA_GATEWAY = "https://moneyonchain.mypinata.cloud"
+
+[[env.moc-testnet.kv_namespaces]]
+binding = "DAPP_KV"
+id = "318db92ab6b9477bab82d72774b1df7f"
+
+[[env.moc-testnet.routes]]
+pattern = "manage-testnet.moneyonchain.com/*"
+zone_name = "moneyonchain.com"

@@ -8,7 +8,7 @@ import Moment from "react-moment";
 import { useWalletContext } from "../../context/Wallet";
 import date from "../../helpers/date";
 import { useProjectTranslation } from "../../helpers/translations";
-import settings from "../../settings/settings.json";
+import settings from "../../settings";
 import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
 import StakingOptionsModal from "../Modals/StakingOptionsModal/index";
 import { PrecisionNumbers } from "../PrecisionNumbers";

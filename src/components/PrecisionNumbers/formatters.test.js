@@ -9,11 +9,17 @@ import {
 const locale = "en-US";
 
 test("keeps values below one million unscaled", () => {
-    assert.equal(formatSignificantCompactValue(999999.9999, locale), "999,999.99");
+    assert.equal(
+        formatSignificantCompactValue(999999.9999, locale),
+        "999,999.99"
+    );
 });
 
 test("never shows decimals above ten thousand when unscaled", () => {
-    assert.equal(formatSignificantCompactValue(12345.6789, locale), "12,345.67");
+    assert.equal(
+        formatSignificantCompactValue(12345.6789, locale),
+        "12,345.67"
+    );
 });
 
 test("shows two decimals for unscaled values from ten up to ten thousand", () => {
@@ -40,8 +46,14 @@ test("keeps two decimals for unscaled values from one hundred upward", () => {
 });
 
 test("shows up to eight significant decimals for tiny values above the minimum threshold", () => {
-    assert.equal(formatSignificantCompactValue(0.00009999, locale), "0.00009999");
-    assert.equal(formatSignificantCompactValue(0.00000001, locale), "0.00000001");
+    assert.equal(
+        formatSignificantCompactValue(0.00009999, locale),
+        "0.00009999"
+    );
+    assert.equal(
+        formatSignificantCompactValue(0.00000001, locale),
+        "0.00000001"
+    );
 });
 
 test("shows less-than marker for values below the minimum tiny-value threshold", () => {
@@ -49,8 +61,14 @@ test("shows less-than marker for values below the minimum tiny-value threshold",
 });
 
 test("shows up to eight significant decimals for tiny values above the minimum threshold", () => {
-    assert.equal(formatSignificantCompactValue(0.00009999, locale), "0.00009999");
-    assert.equal(formatSignificantCompactValue(0.00000001, locale), "0.00000001");
+    assert.equal(
+        formatSignificantCompactValue(0.00009999, locale),
+        "0.00009999"
+    );
+    assert.equal(
+        formatSignificantCompactValue(0.00000001, locale),
+        "0.00000001"
+    );
 });
 
 test("shows less-than marker for values below the minimum tiny-value threshold", () => {
@@ -58,8 +76,14 @@ test("shows less-than marker for values below the minimum tiny-value threshold",
 });
 
 test("shows up to eight significant decimals for tiny values above the minimum threshold", () => {
-    assert.equal(formatSignificantCompactValue(0.00009999, locale), "0.00009999");
-    assert.equal(formatSignificantCompactValue(0.00000001, locale), "0.00000001");
+    assert.equal(
+        formatSignificantCompactValue(0.00009999, locale),
+        "0.00009999"
+    );
+    assert.equal(
+        formatSignificantCompactValue(0.00000001, locale),
+        "0.00000001"
+    );
 });
 
 test("shows less-than marker for values below the minimum tiny-value threshold", () => {
@@ -71,12 +95,39 @@ test("scales values from one million upward with two decimals and truncation", (
     assert.equal(formatSignificantCompactValue(3200200, locale), "3.20M");
     assert.equal(formatSignificantCompactValue(12999999.99, locale), "12.99M");
     assert.equal(formatSignificantCompactValue(1234567890.12, locale), "1.23B");
-    assert.equal(formatSignificantCompactValue(1234567890123.45, locale), "1.23T");
-    assert.equal(formatSignificantCompactValue(1000000000000000, locale), "1.00Q");
+    assert.equal(
+        formatSignificantCompactValue(1234567890123.45, locale),
+        "1.23T"
+    );
+    assert.equal(
+        formatSignificantCompactValue(1000000000000000, locale),
+        "1.00Q"
+    );
+    assert.equal(
+        formatSignificantCompactValue(1000000000000001, locale),
+        "1.00Q"
+    );
 });
 
-test("shows greater-than marker for values above one quadrillion", () => {
-    assert.equal(formatSignificantCompactValue(1000000000000001, locale), "> 1Q");
+test("shows no-limit label for values above one quadrillion when enabled", () => {
+    assert.equal(
+        formatSignificantCompactValue(
+            1000000000000001,
+            locale,
+            "No limit",
+            true
+        ),
+        "No limit"
+    );
+    assert.equal(
+        formatSignificantCompactValue(
+            1000000000000001,
+            locale,
+            "Sin límite",
+            true
+        ),
+        "Sin límite"
+    );
 });
 
 test("formats tooltip values without scaling and with two or four decimals", () => {
@@ -84,11 +135,28 @@ test("formats tooltip values without scaling and with two or four decimals", () 
     assert.equal(formatFullLocaleValue(1.12, locale), "1.12");
     assert.equal(formatFullLocaleValue(1.1234, locale), "1.1234");
     assert.equal(formatFullLocaleValue(1234567.8, locale), "1,234,567.80");
-    assert.equal(formatFullLocaleValue(1234567.89129, locale), "1,234,567.8912");
+    assert.equal(
+        formatFullLocaleValue(1234567.89129, locale),
+        "1,234,567.8912"
+    );
 });
 
-test("formats tooltip values for tiny and huge numbers using the same guardrails", () => {
+test("formats tooltip values for tiny values and large numbers by default", () => {
     assert.equal(formatFullLocaleValue(0.00009999, locale), "0.00009999");
     assert.equal(formatFullLocaleValue(0.000000001, locale), "<0.0001");
-    assert.equal(formatFullLocaleValue(1000000000000001, locale), "> 1Q");
+    assert.equal(
+        formatFullLocaleValue(1000000000000001, locale),
+        "1,000,000,000,000,001.0000"
+    );
+});
+
+test("formats tooltip values with no-limit guardrails when enabled", () => {
+    assert.equal(
+        formatFullLocaleValue(1000000000000001, locale, "No limit", true),
+        "No limit"
+    );
+    assert.equal(
+        formatFullLocaleValue(1000000000000001, locale, "Sin límite", true),
+        "Sin límite"
+    );
 });

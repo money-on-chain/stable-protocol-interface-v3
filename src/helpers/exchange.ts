@@ -15,7 +15,7 @@ import {
     swapTPforTC,
     swapTPforTP,
 } from "../backend/moc-rc20";
-import settings from "../settings/settings.json";
+import settings from "../settings";
 import type { ContractInfo, DContracts } from "../types/hooks";
 import type {
     ContractProtocolStatusResult,
@@ -61,11 +61,25 @@ const tokenMap = {
     TP_1: ['TP_0'],
 };*/
 
+const showAllTokens = new URLSearchParams(window.location.search).has(
+    "showAllTokens"
+);
+
+const tokenMapBlacklist: Set<string> = showAllTokens
+    ? new Set()
+    : new Set((settings.exchange?.tokenMap?.blacklist ?? []));
+
+const tokenMapCombinedBlacklist: Set<string> = showAllTokens
+    ? new Set()
+    : new Set(
+          (settings.combinedOperations?.tokenMap?.blacklist ?? [])
+      );
+
 function loadTokenMap(): TokenMap {
     const tMap: TokenMap = {};
 
     // Voting project does not use this function
-    if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting") 
+    if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting")
         return tMap;
 
     const caLen = settings.tokens.CA.length;
@@ -76,27 +90,40 @@ function loadTokenMap(): TokenMap {
     const TC = (i: number) => `TC_${i}`;
     const TP = (i: number) => `TP_${i}`;
 
-    const allTP: string[] = Array.from({ length: tpLen }, (_, i) => TP(i));
-    const allCA: string[] = Array.from({ length: caLen }, (_, i) => CA(i));
-    const allTC: string[] = Array.from({ length: caLen }, (_, i) => TC(i));
+    const bl = tokenMapBlacklist;
+    const allTP: string[] = Array.from({ length: tpLen }, (_, i) =>
+        TP(i)
+    ).filter((t) => !bl.has(t));
+    const allCA: string[] = Array.from({ length: caLen }, (_, i) =>
+        CA(i)
+    ).filter((t) => !bl.has(t));
+    const allTC: string[] = Array.from({ length: caLen }, (_, i) =>
+        TC(i)
+    ).filter((t) => !bl.has(t));
 
     // Exchange CA -> (TC_i + all TP)
     for (let i = 0; i < caLen; i++) {
-        tMap[CA(i)] = [TC(i), ...allTP];
+        if (bl.has(CA(i))) continue;
+        const receive = [TC(i), ...allTP].filter((t) => !bl.has(t));
+        if (receive.length > 0) tMap[CA(i)] = receive;
     }
 
     // Exchange TC -> (all TP + CA_i)
     for (let i = 0; i < caLen; i++) {
-        tMap[TC(i)] = [...allTP, CA(i)];
+        if (bl.has(TC(i))) continue;
+        const receive = [...allTP, CA(i)].filter((t) => !bl.has(t));
+        if (receive.length > 0) tMap[TC(i)] = receive;
     }
 
     // Exchange TP_i -> (all CA + all TC + all TP except self)
     for (let i = 0; i < tpLen; i++) {
-        // avoid creating the list with filter (more GC) and keep order
+        if (bl.has(TP(i))) continue;
         const otherTP: string[] = [];
-        for (let j = 0; j < tpLen; j++) if (j !== i) otherTP.push(TP(j));
+        for (let j = 0; j < tpLen; j++)
+            if (j !== i && !bl.has(TP(j))) otherTP.push(TP(j));
 
-        tMap[TP(i)] = [...allCA, ...allTC, ...otherTP];
+        const receive = [...allCA, ...allTC, ...otherTP];
+        if (receive.length > 0) tMap[TP(i)] = receive;
     }
 
     return tMap;
@@ -106,7 +133,7 @@ function loadTokenMapCombined(): TokenMap {
     const tMap: TokenMap = {};
 
     // Voting project does not use this function
-    if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting") 
+    if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting")
         return tMap;
 
     const caLen = settings.tokens.CA.length;
@@ -117,16 +144,22 @@ function loadTokenMapCombined(): TokenMap {
     const TC = (i: number) => `TC_${i}`;
     const TP = (i: number) => `TP_${i}`;
 
-    const allTP: string[] = Array.from({ length: tpLen }, (_, i) => TP(i));
+    const bl = tokenMapCombinedBlacklist;
+    const allTP: string[] = Array.from({ length: tpLen }, (_, i) =>
+        TP(i)
+    ).filter((t) => !bl.has(t));
 
     // Exchange CA -> all TP
     for (let i = 0; i < caLen; i++) {
-        tMap[CA(i)] = [...allTP];
+        if (bl.has(CA(i))) continue;
+        const receive = allTP.filter((t) => !bl.has(t));
+        if (receive.length > 0) tMap[CA(i)] = receive;
     }
 
     // Exchange TC -> CA_i
     for (let i = 0; i < caLen; i++) {
-        tMap[TC(i)] = [CA(i)];
+        if (bl.has(TC(i))) continue;
+        if (!bl.has(CA(i))) tMap[TC(i)] = [CA(i)];
     }
     return tMap;
 }
@@ -428,6 +461,20 @@ function TokenContract(
                 token: contracts.TG,
                 decimals: tokenExchangeSettings.decimals,
             };
+        case "CUSTOM": {
+            const pair = `${aTokenMap[1]}/USD`;
+            const customToken = contracts.CUSTOM_TOKENS?.find(
+                (t) => t.name === pair
+            );
+            if (!customToken)
+                throw new Error(
+                    `CUSTOM_TOKENS contract not found for pair: ${pair}`
+                );
+            return {
+                token: customToken,
+                decimals: tokenExchangeSettings.decimals,
+            };
+        }
         default:
             throw new Error("Invalid token name");
     }
@@ -698,6 +745,7 @@ export {
     TokenContract,
     tokenExchange,
     tokenExchangeCombined,
+    tokenMapBlacklist,
     tokenReceive,
     tokenReceiveCombined,
     typeOperation,

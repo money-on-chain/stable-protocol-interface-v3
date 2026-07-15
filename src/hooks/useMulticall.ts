@@ -134,78 +134,80 @@ export function useMultiCall(
         },
     });
 
-    // Step 3: Structure result into a nested dictionary, with optional transforms
-    let storage: Record<string | number, unknown> | undefined = {};
+    // Step 3: Structure results into a nested dictionary, with optional transforms.
+    // Wrapped in useMemo so the transform + deepMerge only re-run when results,
+    // calls, or externalData actually change — not on every parent render.
+    const storage = useMemo(() => {
+        let next: Record<string | number, unknown> | undefined = {};
 
-    // Only process results that have corresponding calls
-    const safeLength = Math.min(results?.length || 0, calls.length);
-    results?.slice(0, safeLength).forEach((item, i) => {
-        // Safety check: ensure calls[i] exists (should always be true now)
-        if (!calls[i]) {
-            console.warn(
-                `Multicall: results[${i}] exists but calls[${i}] is undefined. Skipping.`
-            );
-            return;
+        // Return undefined while calls are pending so consumers can distinguish
+        // loading from empty.
+        if (calls.length > 0 && (!results || results.length === 0)) {
+            return undefined;
         }
 
-        const { resultType, keys, transform, onError } = calls[i];
+        const safeLength = Math.min(results?.length || 0, calls.length);
+        results?.slice(0, safeLength).forEach((item, i) => {
+            if (!calls[i]) {
+                console.warn(
+                    `Multicall: results[${i}] exists but calls[${i}] is undefined. Skipping.`
+                );
+                return;
+            }
 
-        let value: unknown;
+            const { resultType, keys, transform, onError } = calls[i];
+            let value: unknown;
 
-        if (item.status === "success") {
-            value = item.result;
-            if (transform) {
-                try {
-                    value = transform(value);
-                } catch (e) {
+            if (item.status === "success") {
+                value = item.result;
+                if (transform) {
+                    try {
+                        value = transform(value);
+                    } catch (e) {
+                        console.warn(
+                            `Transform failed for keys [${keys.join(".")}]`,
+                            e
+                        );
+                    }
+                }
+            } else {
+                if (onError) {
+                    value = onError().value;
+                } else {
+                    switch (resultType) {
+                        case "uint256":
+                        case "int256":
+                            value = "0";
+                            break;
+                        case "address":
+                            value = "0x";
+                            break;
+                        case "bool":
+                            value = false;
+                            break;
+                        default:
+                            value = null;
+                    }
                     console.warn(
-                        `Transform failed for keys [${keys.join(".")}]`,
-                        e
+                        `Multicall failed for keys [${keys.join(".")}] at index ${i}`
                     );
                 }
             }
-        } else {
-            if (onError) {
-                const fallback = onError();
-                value = fallback.value;
-            } else {
-                switch (resultType) {
-                    case "uint256":
-                    case "int256":
-                        value = "0";
-                        break;
-                    case "address":
-                        value = "0x";
-                        break;
-                    case "bool":
-                        value = false;
-                        break;
-                    default:
-                        value = null;
-                }
-                console.warn(
-                    `Multicall failed for keys [${keys.join(".")}] at index ${i}`
-                );
+
+            if (next) {
+                assignNestedValue(next, keys, value);
             }
+        });
+
+        if (next && externalData) {
+            next = deepMerge(
+                next,
+                externalData as Record<string | number, unknown>
+            );
         }
 
-        if (storage) {
-            assignNestedValue(storage, keys, value);
-        }
-    });
-
-    // Return undefined while calls are pending so consumers can distinguish loading from empty
-    if (calls.length > 0 && (!results || results.length === 0)) {
-        storage = undefined;
-    }
-
-    // Merge with external data
-    if (storage && externalData) {
-        storage = deepMerge(
-            storage,
-            externalData as Record<string | number, unknown>
-        );
-    }
+        return next;
+    }, [results, calls, externalData]);
 
     return {
         data: storage,

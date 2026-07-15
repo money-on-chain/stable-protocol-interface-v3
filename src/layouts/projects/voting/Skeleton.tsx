@@ -1,7 +1,7 @@
 import { Layout } from "antd";
 import React, { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { useChainId } from "wagmi";
+
 
 import DappFooter from "../../../components/Footer/index";
 import SectionHeader from "../../../components/Header";
@@ -18,8 +18,8 @@ import { useWalletContext } from "../../../context/Wallet";
 import { CheckStatusGlobal } from "../../../helpers/checkStatus";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { isSomeTCLockedByVeto } from "../../../helpers/veto";
-import settings from "../../../settings/settings.json";
-import { ALLOWED_CHAIN } from "../../../wagmiConfig";
+import settings from "../../../settings";
+
 
 const { Content, Footer } = Layout;
 
@@ -34,6 +34,7 @@ export default function Skeleton(): JSX.Element {
 
     const {
         isConnected,
+        isOnCorrectChain,
         contractProtocolStatus,
         userBalance,
         userOmocBalance,
@@ -48,8 +49,7 @@ export default function Skeleton(): JSX.Element {
     // Hook preserved to keep room for potential RPC error logging in the future
     useEffect(() => {}, [rpcError]);
 
-    const chainId = useChainId();
-    const isWrongNetwork = isConnected && chainId !== ALLOWED_CHAIN.id;
+    const isWrongNetwork = isConnected && !isOnCorrectChain;
 
     const { checkerStatus } = CheckStatusGlobal();
     const navigate = useNavigate();
@@ -213,6 +213,8 @@ export default function Skeleton(): JSX.Element {
                             {...protocolNotification}
                             deliveryMode="center"
                             dismissible={false}
+                            notificationId="protocol-health-alert"
+                            lingerMs={4000}
                         />
                     )}
                     {priceNotValidStatus && (
@@ -220,6 +222,8 @@ export default function Skeleton(): JSX.Element {
                             {...priceNotValidStatus}
                             deliveryMode="center"
                             dismissible={false}
+                            notificationId="price-not-valid-alert"
+                            lingerMs={4000}
                         />
                     )}
                     {/* Veto withdrawal notification with primary CTA */}
@@ -228,6 +232,8 @@ export default function Skeleton(): JSX.Element {
                             {...vetoNotification}
                             deliveryMode="center"
                             dismissible={false}
+                            notificationId="veto-withdrawal-alert"
+                            lingerMs={4000}
                         />
                     )}
                     {isConnected && !isWrongNetwork ? (

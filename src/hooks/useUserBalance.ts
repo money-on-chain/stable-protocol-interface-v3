@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import settings from "../settings/settings.json";
+import settings from "../settings";
 import type {
     Address,
     CallRequest,
@@ -34,7 +34,6 @@ export function useUserBalance(
 
         // ---- Voting app special-case (uses the first CollateralToken)
         if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting") {
-            
             const firstCT = Array.isArray(contracts.CollateralToken)
                 ? contracts.CollateralToken[0]
                 : undefined;
@@ -177,6 +176,30 @@ export function useUserBalance(
             }
         }
 
+        // ---- Custom tokens (from REACT_APP_CONTRACT_PRICE_PROVIDER_CUSTOM) ----
+        if (contracts.CUSTOM_TOKENS?.length) {
+            const spender = contracts.Moc?.[0]?.address;
+            for (const token of contracts.CUSTOM_TOKENS) {
+                const pair = token.name!;
+                calls.push({
+                    contract: token,
+                    functionName: "balanceOf",
+                    args: [userAddress],
+                    resultType: "uint256",
+                    keys: ["CUSTOM", pair, "balance"],
+                });
+                if (spender) {
+                    calls.push({
+                        contract: token,
+                        functionName: "allowance",
+                        args: [userAddress, spender],
+                        resultType: "uint256",
+                        keys: ["CUSTOM", pair, "allowance"],
+                    });
+                }
+            }
+        }
+
         // ---- Token migrator (tp_legacy + token_migrator) ----
         if (contracts.tp_legacy && contracts.token_migrator) {
             const tpLegacy = contracts.tp_legacy;
@@ -197,7 +220,7 @@ export function useUserBalance(
                 keys: ["tpLegacy", "allowance"],
             });
         }
-        
+
         return calls;
     }, [contracts, userAddress]);
 

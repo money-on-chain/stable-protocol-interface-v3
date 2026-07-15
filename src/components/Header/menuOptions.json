@@ -3,19 +3,19 @@
         "nameKey": "menuOptions.portfolio",
         "className": "logo-portfolio",
         "path": "/",
-        "allowedProjects": ["flipmoney", "roc", "stablex", "moc"]
+        "allowedProjects": ["flipmoney", "roc", "moc"]
     },
     {
         "nameKey": "menuOptions.send",
         "className": "logo-send",
         "path": "/send",
-        "allowedProjects": ["flipmoney", "roc", "stablex", "moc"]
+        "allowedProjects": ["flipmoney", "roc", "moc"]
     },
     {
         "nameKey": "menuOptions.exchange",
         "className": "logo-exchange",
         "path": "/exchange",
-        "allowedProjects": ["flipmoney", "roc", "stablex", "moc"]
+        "allowedProjects": ["flipmoney", "roc", "moc"]
     },
     {
         "nameKey": "menuOptions.staking",
@@ -27,13 +27,13 @@
         "nameKey": "menuOptions.performance",
         "className": "logo-performance",
         "path": "/performance",
-        "allowedProjects": ["flipmoney", "roc", "stablex", "moc"]
+        "allowedProjects": ["flipmoney", "roc", "moc"]
     },
     {
         "nameKey": "menuOptions.vesting",
         "className": "logo-vesting",
         "path": "/vesting",
-        "allowedProjects": ["moc", "voting"]
+        "allowedProjects": ["moc", "voting", "roc"]
     },
     {
         "nameKey": "menuOptions.liquidityMining",

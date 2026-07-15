@@ -1,12 +1,22 @@
-import React from "react";
+import React, { useMemo } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
 import { TokenSettings } from "../../helpers/currencies";
-import { divPrecision, normalizeToBigInt } from "../../helpers/precision";
+import {
+    divPrecision,
+    mulPrecision,
+    normalizeToBigInt,
+} from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
-import settings from "../../settings/settings.json";
-import type { TokenConfig } from "../../types/hooks";
+import settings from "../../settings";
+import DistributionPieChart, {
+    type DistributionPieSlice,
+} from "../Charts/DistributionPieChart";
 import { PrecisionNumbers } from "../PrecisionNumbers";
+import {
+    buildCollateralDistributionRows,
+    ratioToPercentNumber,
+} from "./collateralDistribution";
 import Tokens from "./tokens";
 
 // Type definitions
@@ -19,10 +29,52 @@ export default function Buckets(props: BucketsProps): JSX.Element {
     const { t, i18n, ns } = useProjectTranslation();
     const { contractProtocolStatus } = useWalletContext();
     const space = "\u00A0";
+    const collateralTicker = settings.tokens.CA[caIndex]?.name ?? "";
 
     let lckAC: bigint = 0n;
     let nACcb: bigint = 0n;
     let leverage: bigint = 0n;
+    let tvlUsd: bigint = 0n;
+
+    const acBalance =
+        normalizeToBigInt(
+            contractProtocolStatus.data?.[caIndex]?.getACBalance
+        ) ?? 0n;
+    const priceCA =
+        normalizeToBigInt(contractProtocolStatus.data?.[caIndex]?.PP_CA?.[0]) ??
+        0n;
+    const collateralDistributionRows = useMemo(
+        () =>
+            buildCollateralDistributionRows(
+                contractProtocolStatus.data?.[caIndex],
+                caIndex,
+                contractProtocolStatus
+            ),
+        [caIndex, contractProtocolStatus]
+    );
+    const collateralDistributionSlices: DistributionPieSlice[] = useMemo(
+        () =>
+            collateralDistributionRows.map((row, index) => ({
+                id: row.id,
+                label:
+                    row.fullName && row.fullName !== row.symbol
+                        ? `${row.fullName} (${row.symbol})`
+                        : row.symbol,
+                value: ratioToPercentNumber(row.collateralUsedRatio),
+                color: [
+                    "var(--brand-color-base)",
+                    "var(--brand-color-light)",
+                    "var(--brand-color-dark)",
+                    "var(--color-semantic-positive)",
+                    "var(--color-semantic-neutral-alt)",
+                ][index % 5],
+            })),
+        [collateralDistributionRows]
+    );
+
+    if (acBalance !== 0n && priceCA !== 0n) {
+        tvlUsd = mulPrecision(acBalance, priceCA);
+    }
 
     if (
         contractProtocolStatus.data &&
@@ -53,121 +105,155 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                     {t(`exchange.tokens.CA_${caIndex}.label`, {
                         ns: ns,
                     })}
-                    {space} Collateral
+                    {space}
+                    {t("performance.collateral.cardTitle")}
                 </h1>
             </div>
             {/* </div> */}
 
-            <div className="metrics">
-                <div
-                    data-testid={`performance-bucket-${caIndex}-group-amount-in-protocol`}
-                    className="dataGroup"
-                >
-                    <div className="icon__back">
-                        <div className="icon icon__Total"></div>
-                    </div>
-                    <div className="info">
-                        <div className="amount">
-                            {contractProtocolStatus.data?.[caIndex]
-                                ?.getACBalance
-                                ? PrecisionNumbers({
-                                      amount:
-                                          normalizeToBigInt(
-                                              contractProtocolStatus.data[
-                                                  caIndex
-                                              ].getACBalance
-                                          ) ?? 0n,
-                                      token: TokenSettings(`CA_${caIndex}`),
-                                      decimals:
-                                          (settings.tokens.CA as TokenConfig[])[
-                                              caIndex
-                                          ]?.visibleDecimals || 6,
-                                      i18n: i18n,
-                                      compact: true,
-                                  })
-                                : "--"}
+            <div className="collateralMetricsArea">
+                <div className="metrics">
+                    <div
+                        data-testid={`performance-bucket-${caIndex}-group-amount-in-protocol`}
+                        className="dataGroup"
+                    >
+                        <div className="icon__back">
+                            <div className="icon icon__Total"></div>
                         </div>
-                        <div className="label">Amount in protocol</div>
-                    </div>
-                </div>
-                <div
-                    data-testid={`performance-bucket-${caIndex}-group-coverage`}
-                    className="dataGroup"
-                >
-                    <div className="icon__back">
-                        <div className="icon icon__CoverageActual"></div>
-                    </div>
-                    <div className="info">
-                        <div className="amount">
-                            {contractProtocolStatus.data?.[caIndex]?.getCglb
-                                ? PrecisionNumbers({
-                                      amount:
-                                          normalizeToBigInt(
-                                              contractProtocolStatus.data[
-                                                  caIndex
-                                              ].getCglb
-                                          ) ?? 0n,
-                                      token: settings.tokens.CA[caIndex],
-                                      decimals: 4,
-                                      i18n: i18n,
-                                      compact: true,
-                                  })
-                                : "--"}
+                        <div className="info">
+                            <div className="amount">
+                                {acBalance !== 0n
+                                    ? PrecisionNumbers({
+                                          amount: acBalance,
+                                          token: TokenSettings(`CA_${caIndex}`),
+                                          decimals:
+                                              settings.tokens.CA[caIndex]
+                                                  ?.visibleDecimals || 6,
+                                          i18n: i18n,
+                                          compact: true,
+                                          useNoLimit: true,
+                                      })
+                                    : "--"}
+                            </div>
+                            <div className="label">
+                                {t("performance.metrics.tvlInCollateral", {
+                                    ticker: collateralTicker,
+                                })}
+                            </div>
                         </div>
-                        <div className="label">Coverage</div>
                     </div>
-                </div>
-                <div
-                    data-testid={`performance-bucket-${caIndex}-group-target-coverage-adjusted`}
-                    className="dataGroup"
-                >
-                    <div className="icon__back">
-                        <div className="icon icon__CoverageTarget"></div>
-                    </div>
-                    <div className="info">
-                        <div className="amount">
-                            {contractProtocolStatus.data?.[caIndex]
-                                ?.getCtargemaCA
-                                ? PrecisionNumbers({
-                                      amount:
-                                          normalizeToBigInt(
-                                              contractProtocolStatus.data[
-                                                  caIndex
-                                              ].getCtargemaCA
-                                          ) ?? 0n,
-                                      token: TokenSettings(`CA_${caIndex}`),
-                                      decimals: 4,
-                                      i18n: i18n,
-                                      compact: true,
-                                  })
-                                : "--"}
+                    <div
+                        data-testid={`performance-bucket-${caIndex}-group-tvl-usd`}
+                        className="dataGroup"
+                    >
+                        <div className="icon__back">
+                            <div className="icon icon__TotalUsd"></div>
                         </div>
-                        <div className="label">Target Coverage Adjusted</div>
-                    </div>
-                </div>
-                <div
-                    data-testid={`performance-bucket-${caIndex}-group-leverage`}
-                    className="dataGroup"
-                >
-                    <div className="icon__back">
-                        <div className="icon icon__Leverage"></div>
-                    </div>
-                    <div className="info">
-                        <div className="amount">
-                            {leverage !== 0n
-                                ? PrecisionNumbers({
-                                      amount: leverage,
-                                      token: TokenSettings(`CA_${caIndex}`),
-                                      decimals: 4,
-                                      i18n: i18n,
-                                      compact: true,
-                                  })
-                                : "--"}
+                        <div className="info">
+                            <div className="amount">
+                                {tvlUsd !== 0n
+                                    ? PrecisionNumbers({
+                                          amount: tvlUsd,
+                                          token: settings.tokens.COINBASE[0],
+                                          decimals: 2,
+                                          i18n: i18n,
+                                          compact: true,
+                                          useNoLimit: true,
+                                      })
+                                    : "--"}
+                            </div>
+                            <div className="label">
+                                {t("performance.metrics.tvlInUsd")}
+                            </div>
                         </div>
-                        <div className="label">Leverage</div>
                     </div>
-                </div>
-                <div
+                    <div
+                        data-testid={`performance-bucket-${caIndex}-group-coverage`}
+                        className="dataGroup"
+                    >
+                        <div className="icon__back">
+                            <div className="icon icon__CoverageActual"></div>
+                        </div>
+                        <div className="info">
+                            <div className="amount">
+                                {contractProtocolStatus.data?.[caIndex]?.getCglb
+                                    ? PrecisionNumbers({
+                                          amount:
+                                              normalizeToBigInt(
+                                                  contractProtocolStatus.data[
+                                                      caIndex
+                                                  ].getCglb
+                                              ) ?? 0n,
+                                          token: settings.tokens.CA[caIndex],
+                                          decimals: 4,
+                                          i18n: i18n,
+                                          compact: true,
+                                          useNoLimit: true,
+                                      })
+                                    : "--"}
+                            </div>
+                            <div className="label">
+                                {t("performance.metrics.currentCoverage")}
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        data-testid={`performance-bucket-${caIndex}-group-target-coverage-adjusted`}
+                        className="dataGroup"
+                    >
+                        <div className="icon__back">
+                            <div className="icon icon__CoverageTarget"></div>
+                        </div>
+                        <div className="info">
+                            <div className="amount">
+                                {contractProtocolStatus.data?.[caIndex]
+                                    ?.getCtargemaCA
+                                    ? PrecisionNumbers({
+                                          amount:
+                                              normalizeToBigInt(
+                                                  contractProtocolStatus.data[
+                                                      caIndex
+                                                  ].getCtargemaCA
+                                              ) ?? 0n,
+                                          token: TokenSettings(`CA_${caIndex}`),
+                                          decimals: 4,
+                                          i18n: i18n,
+                                          compact: true,
+                                          useNoLimit: true,
+                                      })
+                                    : "--"}
+                            </div>
+                            <div className="label">
+                                {t("performance.metrics.targetCoverage")}
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        data-testid={`performance-bucket-${caIndex}-group-leverage`}
+                        className="dataGroup"
+                    >
+                        <div className="icon__back">
+                            <div className="icon icon__Leverage"></div>
+                        </div>
+                        <div className="info">
+                            <div className="amount">
+                                {leverage !== 0n
+                                    ? PrecisionNumbers({
+                                          amount: leverage,
+                                          token: TokenSettings(`CA_${caIndex}`),
+                                          decimals: 4,
+                                          i18n: i18n,
+                                          compact: true,
+                                          useNoLimit: true,
+                                      })
+                                    : "--"}
+                            </div>
+                            <div className="label">
+                                {t("performance.metrics.leverage")}
+                            </div>
+                        </div>
+                    </div>
+                    {/* <div
                     data-testid={`performance-bucket-${caIndex}-group-locked-collateral`}
                     className="dataGroup"
                 >
@@ -181,16 +267,38 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                                       amount: lckAC,
                                       token: TokenSettings(`CA_${caIndex}`),
                                       decimals:
-                                          (settings.tokens.CA as TokenConfig[])[
-                                              caIndex
-                                          ]?.visibleDecimals || 6,
+                                          settings.tokens.CA[caIndex]
+                                              ?.visibleDecimals || 6,
                                       i18n: i18n,
                                       compact: true,
+                                      useNoLimit: true,
                                   })
                                 : "--"}
                         </div>
-                        <div className="label">Locked Collateral</div>
+                        <div className="label">
+                            {t("performance.metrics.lockedCollateral")}
+                        </div>
                     </div>
+                </div> */}
+                </div>
+                <div className="collateralDistribution">
+                    <h2 className="collateralDistribution__title">
+                        {t("performance.collateral.distributionTitle", {
+                            ticker: collateralTicker,
+                        })}
+                    </h2>
+                    <DistributionPieChart
+                        slices={collateralDistributionSlices}
+                        size={224}
+                        displaySize="45%"
+                        gap={16}
+                        sliceGap={1}
+                        legendPosition="bottom"
+                        legendLayout="column"
+                        legendMaxWidth="80%"
+                        justifyContent="center"
+                        valueFormatter={(value) => `${value.toFixed(2)}%`}
+                    />
                 </div>
             </div>
             {/* </div> */}

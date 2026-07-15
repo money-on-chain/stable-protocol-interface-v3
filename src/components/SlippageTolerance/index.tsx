@@ -2,9 +2,9 @@ import "./index.scss";
 
 import React, { useEffect, useMemo, useState } from "react";
 
-import settings from "../../settings/settings.json";
+import settings from "../../settings";
 
-const { slippage } = settings;
+const slippage = (settings).slippage;
 export type SlippageMode = "auto" | "custom";
 
 export interface SlippageState {
@@ -48,7 +48,7 @@ const DEFAULT_AUTO_SLIPPAGE = slippage.autoDefault;
 const DEFAULT_PRESETS = slippage.presets;
 
 const MIN_CUSTOM_SLIPPAGE = 0; // 0%
-const MAX_CUSTOM_SLIPPAGE = 100; // 100%
+const MAX_CUSTOM_SLIPPAGE = slippage.max ?? 100;
 
 export const SlippageTolerance: React.FC<SlippageToleranceProps> = ({
     pairId,

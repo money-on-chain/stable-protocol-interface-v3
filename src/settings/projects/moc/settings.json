@@ -8,7 +8,18 @@
     "showPriceVariation": true,
     "slippage": {
         "autoDefault": 1.0,
-        "presets": [0.3, 1.0, 2.0]
+        "presets": [0.3, 1.0, 2.0],
+        "max": 5.0
+    },
+    "exchange": {
+        "tokenMap": {
+            "blacklist": []
+        }
+    },
+    "combinedOperations": {
+        "tokenMap": {
+            "blacklist": []
+        }
     },
     "tokens": {
         "COINBASE": [

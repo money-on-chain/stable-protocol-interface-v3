@@ -1,6 +1,8 @@
 import { Input } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
+import { checksumAddress } from "viem";
 
+import { ALLOWED_CHAIN } from "../../constants/chain";
 import { useWalletContext } from "../../context/Wallet";
 import {
     ConvertAmount,
@@ -18,12 +20,27 @@ import { PrecisionNumbers } from "../PrecisionNumbers";
 export default function Send(): JSX.Element {
     const { t, i18n } = useProjectTranslation();
 
-    const { contractProtocolStatus, userBalance, userBaseCoinBalance } =
-        useWalletContext();
+    const {
+        contractProtocolStatus,
+        userBalance,
+        userBaseCoinBalance,
+        priceProvider,
+    } = useWalletContext();
 
     const tokenSend: string[] = tokenExchange();
     // Add Token Govern
     tokenSend.push("TG");
+    // Add custom tokens from REACT_APP_CONTRACT_PRICE_PROVIDER_CUSTOM
+    const ppCustomRaw = import.meta.env
+        .REACT_APP_CONTRACT_PRICE_PROVIDER_CUSTOM as string | undefined;
+    if (ppCustomRaw) {
+        for (const entry of ppCustomRaw.split(",")) {
+            const pair = entry.trim().split(":")[0]?.trim() ?? "";
+            const slashIdx = pair.indexOf("/");
+            const name = slashIdx > 0 ? pair.slice(0, slashIdx) : pair;
+            if (name) tokenSend.push(`CUSTOM_${name}`);
+        }
+    }
     // Add Coinbase support at index 0
     tokenSend.splice(0, 0, "COINBASE");
 
@@ -98,18 +115,38 @@ export default function Send(): JSX.Element {
         }
 
         // 2. Input address valid
+        let addressChecksumWarning: boolean = false;
         if (!destinationAddress) {
             addressInputError = true;
         } else if (!/^0x[0-9a-fA-F]{40}$/.test(destinationAddress)) {
             setInputValidationAddressErrorText(t("send.infoAddressInvalid"));
             addressInputError = true;
+        } else {
+            // For mixed-case addresses, warn if EIP-1191 checksum doesn't match,
+            // but still allow the operation to proceed.
+            // All-lowercase / all-uppercase addresses carry no checksum claim and are accepted as-is.
+            const hex = destinationAddress.slice(2);
+            const hasMixedCase = /[A-F]/.test(hex) && /[a-f]/.test(hex);
+            if (hasMixedCase) {
+                const addr = destinationAddress as `0x${string}`;
+                if (
+                    destinationAddress !==
+                    checksumAddress(addr, ALLOWED_CHAIN.id)
+                ) {
+                    addressChecksumWarning = true;
+                }
+            }
         }
 
         if (!amountInputError) {
             setInputValidationErrorText("");
         }
 
-        if (!addressInputError) {
+        if (addressChecksumWarning) {
+            setInputValidationAddressErrorText(
+                t("send.infoAddressChecksumInvalid")
+            );
+        } else if (!addressInputError) {
             setInputValidationAddressErrorText("");
         }
 
@@ -159,10 +196,6 @@ export default function Send(): JSX.Element {
     const onChangeDestinationAddress = (
         event: React.ChangeEvent<HTMLInputElement>
     ): void => {
-        if (event.target.value.length < 42) {
-            setInputValidationAddressErrorText(t("send.infoAddressInvalid"));
-            setInputValidationError(true);
-        }
         setDestinationAddress(event.target.value);
     };
 
@@ -183,26 +216,39 @@ export default function Send(): JSX.Element {
         onChangeAmountYouSend(totalYouSend, true);
     };
 
-    const sendingUSD = ConvertAmount(
-        contractProtocolStatus,
-        currencyYouSend,
-        "USD",
-        toBigIntPrecision(amountYouSend),
-        caIndex
-    );
+    const sendingUSD: bigint = (() => {
+        if (currencyYouSend.split("_")[0] === "CUSTOM") {
+            const tokenName = currencyYouSend.replace(/^CUSTOM_/, "");
+            const price = priceProvider.data?.[`${tokenName}/USD`]?.[0] ?? 0n;
+            const amt = toBigIntPrecision(amountYouSend);
+            return price > 0n ? (amt * price) / 10n ** 18n : 0n;
+        }
+        return ConvertAmount(
+            contractProtocolStatus,
+            currencyYouSend,
+            "USD",
+            toBigIntPrecision(amountYouSend),
+            caIndex
+        );
+    })();
 
     return (
         <div>
             <div className="sectionSend__Content">
                 <div className="inputFields">
-                    <div className="tokenSelector">
+                    <div
+                        className="tokenSelector"
+                        data-testid="send-input-token"
+                    >
                         <CurrencyPopUp
                             value={currencyYouSend}
+                            data-testid="send-input-token-popup"
                             currencyOptions={tokenSend}
                             onChange={onChangeCurrencyYouSend}
                             action={"send"}
                         />
                         <InputAmount
+                            testId="send-input-amount"
                             inputValue={amountYouSend.toString()}
                             placeholder={"0.0"}
                             onValueChange={onChangeAmountYouSend}
@@ -244,6 +290,7 @@ export default function Send(): JSX.Element {
                                 </div>
                             </div>
                             <Input
+                                data-testid="send-input-destination"
                                 type="text"
                                 placeholder={t("send.placeholder")}
                                 className="input-addressOLD amountInput__value "

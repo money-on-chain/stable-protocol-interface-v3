@@ -5,7 +5,23 @@
     "invalidValueDescription": "No hay ningún valor para mostrar",
     "invalidValuePlaceholder": "--",
     "notification": {
-        "dismiss": "Descartar"
+        "dismiss": "Descartar",
+        "update": {
+            "title": "Nueva versión disponible",
+            "content": "Se ha desplegado una nueva versión de la aplicación.",
+            "update": "Actualizar"
+        },
+        "networkGuard": {
+            "title": "Red incorrecta",
+            "content": "Estás conectado a una red incorrecta. Este entorno solo permite <strong>{{chainName}}</strong>.",
+            "switch": "Cambiar a {{chainName}}"
+        },
+        "rpcError": {
+            "title": "Error de Conexión de Red",
+            "description": "No se puede conectar a la red blockchain. Esto puede deberse a congestión de red o problemas del servidor RPC. El sistema reintentará automáticamente, o puedes intentar nuevamente manualmente.",
+            "retry": "Reintentar Conexión",
+            "dismiss": "Descartar"
+        }
     },
     "txFeedback": { "txIdLabel": "ID de transacción" },
     "button": { "inputMaxValue": "max" },
@@ -60,7 +76,9 @@
             "fee": "Tasa",
             "gas": "Tasa de Gas",
             "msg": "Mensaje",
-            "reason": "Motivo"
+            "reason": "Motivo",
+            "price": "Precio",
+            "price_another_token": "Precio"
         },
         "errors": {
             "qACBelow1": "La variación de precio para",
@@ -69,7 +87,8 @@
             "insufficientQAC2": "excedió el Slippage Tolerance. Intenta aumentar la tolerancia o reintentar.",
             "lowCoverage": "La operación falló debido a baja cobertura del sistema.",
             "fluxCapacitor": "Operación rechazada: se alcanzó el límite del sistema.",
-            "noMessage": "La transacción falló."
+            "noMessage": "La transacción falló.",
+            "failedBeforeExecution": "Falló antes de la ejecución"
         },
         "table": {
             "itemsPerPage": "Página"
@@ -219,6 +238,17 @@
             "cardTitle": "Valor Total Bloqueado",
             "expressedIn": "Expresado en USD"
         },
+        "metrics": {
+            "globalCardTitle": "Métricas Globales",
+            "tvlInCollateral": "TVL en {{ticker}}",
+            "tvlInUsd": "TVL en USD",
+            "currentCoverage": "Cobertura Actual",
+            "targetCoverage": "Cobertura Objetivo",
+            "leverage": "Apalancamiento",
+            "lockedCollateral": "Colateral Bloqueado",
+            "tpMintable": "{{ticker}} Minteable",
+            "tpRedeemable": "{{ticker}} Redimible"
+        },
 
         "tc": {
             "priceIn": "Precio en USD",
@@ -229,6 +259,7 @@
 
         "collateral": {
             "cardTitle": "Colateral",
+            "distributionTitle": "Distribución del colateral ({{ticker}})",
             "totalIn": "Colateral total en USD",
             "globalCoverage": "Cobertura Global"
         },
@@ -236,12 +267,18 @@
         "pegged": {
             "cardTitle": "Dollar On Chain",
             "colName": "Nombre",
+            "colPriceIn": "Precio en {{ticker}}",
             "colTokensPer": "Tokens por USD",
             "colMinted": "Minteados",
             "colMintable": "Minteables",
+            "colRedeemable": "Redimible",
             "colTargetCoverage": "Cobertura Obj.",
             "colEMA": "EMA",
-            "colTargetEMA": "EMA Objetivo"
+            "colCAUsed": "Colateral usado",
+            "colTargetEMA": "EMA Objetivo",
+            "redeemableNoLimit": "Sin límite",
+            "redeemableNoLimitWithFootnote": "Sin límite*",
+            "redeemableCombinedOperationsFootnote": "* Sin límite mediante operaciones combinadas únicamente."
         }
     },
 
@@ -286,6 +323,7 @@
         "noNegativeValues": "El valor debe ser mayor a cero",
         "infoAddressEmpty": "Falta la dirección de destino",
         "infoAddressInvalid": "Dirección de destino inválida",
+        "infoAddressChecksumInvalid": "Esta dirección usa un formato diferente al de la red actual. Debería funcionar igual; solo asegurate de que se haya copiado correctamente.",
         "feedback": {
             "submit": "Espera la confirmación de la transacción",
             "sign": "Firma la transacción en tu billetera",
@@ -300,7 +338,7 @@
         "cardTitle": "Autorizar uso de",
         "disallowanceTitle": "Revocar autorización de gasto de",
         "statusText1": "Antes de continuar con la operación, firma una transacción de autorización para que el sistema pueda acceder a los tokens.",
-        "statusText2": "Opcionalmente, puedes establecer un permiso de gasto ilimitado marcando la casilla de verificación. Advertencia: si no conoces las implicaciones de hacer esto, déjalo sin seleccionar.",
+        "statusText2": "La autorización recomendada puede ser superior al monto exacto necesario para esta operación para mejorar la fiabilidad. Esto no significa que se utilizará toda la autorización. Opcionalmente, puedes establecer una autorización ilimitada marcando la casilla de verificación, pero considera las implicaciones de seguridad antes de hacerlo.",
         "statusDisallowanceText": "Antes de continuar con la operación, firma una transacción para revocar la autorización de gasto.",
         "setUnlimited": "Configurar autorización ilimitada. No preguntarme nuevamente.",
         "confirm": {
@@ -352,7 +390,8 @@
 
     "numberFormat": {
         "thousandsSeparator": ",",
-        "decimalSeparator": "."
+        "decimalSeparator": ".",
+        "noLimit": "Sin límite"
     },
 
     "swapModal": {

@@ -1,44 +1,53 @@
-// NetworkGuard.tsx
 import { Space } from "antd";
-import { useAccount, useChainId, useSwitchChain } from "wagmi";
+import { Trans } from "react-i18next";
+import { useAccount, useSwitchChain } from "wagmi";
+
+import { useProjectTranslation } from "../../helpers/translations";
+import { ALLOWED_CHAIN } from "../../wagmiConfig";
 import { AppNotification } from "../Notifications";
 
-
-import { ALLOWED_CHAIN } from "../../wagmiConfig";
-
 export function NetworkGuard() {
-    const { isConnected } = useAccount();
-    const chainId = useChainId();
+    const { t } = useProjectTranslation();
+    // useAccount().chainId is the actual chain reported by the wallet,
+    // whereas useChainId() is clamped to wagmi's configured chains and
+    // would mask wrong-network when CHAINS only contains ALLOWED_CHAIN.
+    const { isConnected, chainId } = useAccount();
     const { switchChain, isPending } = useSwitchChain();
 
-    // Only warn when connected AND on a different chain than allowed
-    const isWrongNetwork = isConnected && chainId !== ALLOWED_CHAIN.id;
+    const isWrongNetwork = isConnected && chainId !== undefined && chainId !== ALLOWED_CHAIN.id;
 
     if (!isWrongNetwork) return null;
 
     return (
         <AppNotification
             type="error"
-            title="Wrong network"
+            title={t("notification.networkGuard.title")}
             content={
                 <Space direction="vertical" size={8}>
                     <span>
-                        You are connected to the wrong network. This environment
-                        only allows <strong>{ALLOWED_CHAIN.name}</strong>.
-                    </span>                    
+                        <Trans
+                            i18nKey="notification.networkGuard.content"
+                            values={{ chainName: ALLOWED_CHAIN.name }}
+                            components={{ strong: <strong /> }}
+                        />
+                    </span>
                 </Space>
             }
             actions={[
                 {
                     key: "switch-network",
-                    label: `Switch to ${ALLOWED_CHAIN.name}`,
+                    label: t("notification.networkGuard.switch", {
+                        chainName: ALLOWED_CHAIN.name,
+                    }),
                     type: "primary",
                     loading: isPending,
                     onClick: () => {
-                        switchChain({ chainId: ALLOWED_CHAIN.id })
+                        switchChain({ chainId: ALLOWED_CHAIN.id });
                     },
                 },
             ]}
+            notificationId="network-guard"
+            lingerMs={4000}
         />
     );
 }
