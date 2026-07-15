@@ -1,5 +1,4 @@
 {
-    "collateral": "coinbase",
     "project": "moc-v1",
     "dapp": {
         "name": "MOC UI (Legacy)",
@@ -17,62 +16,17 @@
         }
     },
     "tokens": {
-        "COINBASE": [
-            {
-                "name": "RBTC",
-                "fullName": "Smart Bitcoin",
-                "decimals": 18,
-                "visibleDecimals": 6,
-                "visiblePriceDecimals": 2,
-                "visibleBalanceDecimals": 8,
-                "visibleBalanceUSDDecimals": 2
-            }
-        ],
-        "CA": [
-            {
-                "key": 0,
-                "name": "RBTC",
-                "fullName": "Smart Bitcoin",
-                "decimals": 18,
-                "visibleDecimals": 6,
-                "visiblePriceDecimals": 2,
-                "visibleBalanceDecimals": 8,
-                "visibleBalanceUSDDecimals": 2
-            }
-        ],
-        "TC": [
-            {
-                "name": "BPRO",
-                "fullName": "Bpro",
-                "decimals": 18,
-                "visibleDecimals": 6,
-                "visiblePriceDecimals": 2,
-                "visibleBalanceDecimals": 8,
-                "visibleBalanceUSDDecimals": 2
-            }
-        ],
-        "TP": [
-            {
-                "key": 0,
-                "name": "DOC",
-                "fullName": "Dollar On Chain",
-                "decimals": 18,
-                "visibleDecimals": 2,
-                "visiblePriceDecimals": 2,
-                "visibleBalanceDecimals": 2,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": true
-            }
-        ],
+        "COINBASE": [{ "key": 0, "token": "RBTC", "fullName": "Smart Bitcoin" }],
+        "CA": [{ "key": 0, "token": "RBTC", "fullName": "Smart Bitcoin" }],
+        "TC": [{ "key": 0, "token": "BPRO" }],
+        "TP": [{ "key": 0, "token": "DOC", "peggedUSD": true }],
         "TG": [
             {
-                "name": "MOC",
-                "fullName": "MOC",
-                "decimals": 18,
+                "key": 0,
+                "token": "MOC",
                 "visibleDecimals": 6,
                 "visiblePriceDecimals": 4,
-                "visibleBalanceDecimals": 2,
-                "visibleBalanceUSDDecimals": 2
+                "visibleBalanceDecimals": 2
             }
         ]
     },

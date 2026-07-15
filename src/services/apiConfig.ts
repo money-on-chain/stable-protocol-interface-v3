@@ -4,6 +4,8 @@ const ALLOWED_API_ORIGINS = new Set([
     "https://api-v2.rifonchain.com",
     "https://api-v2-testnet.rifonchain.com",
     "https://api-testnet.stablex.pro",
+    "https://api-operations.moneyonchain.com",
+    "https://api-operations-testnet.moneyonchain.com",
 ]);
 
 function validateAndGetApiBase(): string {

@@ -13,6 +13,11 @@ import type { useUserVeto } from "../hooks/useUserVeto";
 import type { UseBaseCoinBalanceResult } from "../types/status";
 import type { DContracts } from "./hooks";
 import type {
+    ContractProtocolStatusV1Result,
+    DContractsV1,
+    UserBalanceV1Result,
+} from "./hooks-v1";
+import type {
     ContractProtocolStatusResult,
     UserBalanceResult,
     UserLendingResult,
@@ -60,6 +65,14 @@ export type WalletContextType = {
     userBalance: UserBalanceResult;
     userOmocBalance: UserOmocBalanceResult;
     userBaseCoinBalance: UseBaseCoinBalanceResult;
+
+    // moc-v1 (legacy) — populated only when
+    // REACT_APP_ENVIRONMENT_APP_PROJECT === "moc-v1"; see feedback memory
+    // "shared wallet context": these live alongside the v3 fields above rather
+    // than replacing them, so v3 components keep their existing types untouched.
+    contractsAddressV1: DContractsV1 | null;
+    contractProtocolStatusV1: ContractProtocolStatusV1Result;
+    userBalanceV1: UserBalanceV1Result;
     userVesting: UserVestingResult;
     userIncentiveV2: ReturnType<typeof useIncentiveV2>;
     userVeto: ReturnType<typeof useUserVeto>;

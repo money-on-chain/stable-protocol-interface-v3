@@ -28,6 +28,7 @@ export type ContractProtocolStatusV1Data = {
     getBitcoinMovingAverage: bigint;
     bproTecPrice: bigint;
     bproUsdPrice: bigint;
+    mocUsdPrice: bigint;
     getBucketNBTC: bigint;
     getBucketNDoc: bigint;
     getBucketNBPro: bigint;

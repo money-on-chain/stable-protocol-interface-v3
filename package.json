@@ -35,6 +35,7 @@
         "typecheck:roc": "bash ./prepare_target.sh roc && tsc --noEmit",
         "typecheck:flipmoney": "bash ./prepare_target.sh flipmoney && tsc --noEmit",
         "typecheck:voting": "bash ./prepare_target.sh voting && tsc --noEmit",
+        "typecheck:moc-v1": "bash ./prepare_target.sh moc-v1 && tsc --noEmit",
         "dev:from-env": "bash ./prepare_target.sh $REACT_APP_ENVIRONMENT_APP_PROJECT && export REACT_APP_VERSION=$npm_package_version && vite --host=$VITE_HOST --port=$VITE_PORT",
         "format": "prettier \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml,css,scss,html}\" --write",
         "format:check": "prettier \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml,css,scss,html}\" --check",
@@ -71,7 +72,15 @@
         "build:voting-mainnet": "bash ./prepare_target.sh voting && export REACT_APP_VERSION=$npm_package_version && export NODE_OPTIONS=--max_old_space_size=4096 && env-cmd -f .env.votingMainnet vite build && bash ./remove_build.sh",
         "reload:voting-localhost": "export REACT_APP_VERSION=$npm_package_version && env-cmd -f .env.votingLocalhost vite",
         "start:voting-localhost": "bash ./prepare_target.sh voting && export REACT_APP_VERSION=$npm_package_version && env-cmd -f .env.votingLocalhost vite",
-        "build:voting-localhost": "bash ./prepare_target.sh voting && export REACT_APP_VERSION=$npm_package_version && export NODE_OPTIONS=--max_old_space_size=4096 && env-cmd -f .env.votingLocalhost vite build && bash ./remove_build.sh"
+        "build:voting-localhost": "bash ./prepare_target.sh voting && export REACT_APP_VERSION=$npm_package_version && export NODE_OPTIONS=--max_old_space_size=4096 && env-cmd -f .env.votingLocalhost vite build && bash ./remove_build.sh",
+        "reload:moc-v1-testnet": "export REACT_APP_VERSION=$npm_package_version && env-cmd -f .env.mocV1Testnet vite",
+        "start:moc-v1-testnet": "bash ./prepare_target.sh moc-v1 && export REACT_APP_VERSION=$npm_package_version && env-cmd -f .env.mocV1Testnet vite",
+        "build:moc-v1-testnet": "bash ./prepare_target.sh moc-v1 && export REACT_APP_VERSION=$npm_package_version && export NODE_OPTIONS=--max_old_space_size=4096 && env-cmd -f .env.mocV1Testnet vite build && bash ./remove_build.sh",
+        "preview:moc-v1-testnet": "bash ./prepare_target.sh moc-v1 && export REACT_APP_VERSION=$npm_package_version && env-cmd -f .env.mocV1Testnet vite preview",
+        "reload:moc-v1-mainnet": "export REACT_APP_VERSION=$npm_package_version && env-cmd -f .env.mocV1Mainnet vite",
+        "start:moc-v1-mainnet": "bash ./prepare_target.sh moc-v1 && export REACT_APP_VERSION=$npm_package_version && env-cmd -f .env.mocV1Mainnet vite",
+        "build:moc-v1-mainnet": "bash ./prepare_target.sh moc-v1 && export REACT_APP_VERSION=$npm_package_version && export NODE_OPTIONS=--max_old_space_size=4096 && env-cmd -f .env.mocV1Mainnet vite build && bash ./remove_build.sh",
+        "preview:moc-v1-mainnet": "bash ./prepare_target.sh moc-v1 && export REACT_APP_VERSION=$npm_package_version && env-cmd -f .env.mocV1Mainnet vite preview"
     },
     "overrides": {
         "ws": "^8.21.0",

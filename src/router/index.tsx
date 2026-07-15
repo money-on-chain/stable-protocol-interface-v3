@@ -24,6 +24,9 @@ const RouterLendBorrow: LazyRouterComponent = React.lazy(
 const RouterMoc: LazyRouterComponent = React.lazy(
     () => import("./projects/moc")
 );
+const RouterMocV1: LazyRouterComponent = React.lazy(
+    () => import("./projects/moc-v1")
+);
 const RouterVoting: LazyRouterComponent = React.lazy(
     () => import("./projects/voting")
 );
@@ -38,6 +41,8 @@ const Router = (): LazyRouterComponent => {
             return RouterLendBorrow;
         case "moc":
             return RouterMoc;
+        case "moc-v1":
+            return RouterMocV1;
         case "voting":
             return RouterVoting;
         default:

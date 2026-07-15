@@ -103,6 +103,13 @@ export function useContractProtocolStatusV1(
             },
             {
                 contract: MoCState,
+                functionName: "getMoCPrice",
+                args: [],
+                resultType: "uint256",
+                keys: ["mocUsdPrice"],
+            },
+            {
+                contract: MoCState,
                 functionName: "getBucketNBTC",
                 args: [BUCKET_C0],
                 resultType: "uint256",

@@ -64,32 +64,35 @@ import {
     saveVestingAddressesToLocalStorage,
 } from "../helpers/vesting";
 import { useBaseCoinBalance } from "../hooks/useBaseCoinBalance";
+import { useContractLendingStatus } from "../hooks/useContractLendingStatus";
 import { useContractOmocStatus } from "../hooks/useContractOmocStatus";
 import { useContractProtocolStatus } from "../hooks/useContractProtocolStatus";
-import { useContractLendingStatus } from "../hooks/useContractLendingStatus";
+import { useContractProtocolStatusV1 } from "../hooks/useContractProtocolStatusV1";
 import { useIncentiveV2 } from "../hooks/useIncentiveV2";
 import { useLatestBlockNumber } from "../hooks/useLatestBlockNumber";
 import { useOffchainPrices } from "../hooks/useOffchainPrices";
 import { useOnchainPrices } from "../hooks/useOnchainPrices";
 import { usePriceProvider } from "../hooks/usePriceProvider";
 import { readContracts } from "../hooks/useReadContracts";
+import { readContractsV1 } from "../hooks/useReadContractsV1";
 import { useRpcErrorHandler } from "../hooks/useRpcErrorHandler";
 import { useRpcErrorIntegration } from "../hooks/useRpcErrorIntegration";
 import { useUserBalance } from "../hooks/useUserBalance";
+import { useUserBalanceV1 } from "../hooks/useUserBalanceV1";
+import { useUserLending } from "../hooks/useUserLending";
 import { useUserOmocBalance } from "../hooks/useUserOmocBalance";
 import { useUserVesting } from "../hooks/useUserVesting";
 import { useUserVeto } from "../hooks/useUserVeto";
-import { useUserLending } from "../hooks/useUserLending";
 import api from "../services/api";
 import { API_OPERATIONS_BASE } from "../services/apiConfig";
 import type { DContracts, ParsedPrices } from "../types/hooks";
+import type { DContractsV1 } from "../types/hooks-v1";
 import type {
     InterfaceContext,
     OnReceipt,
     OnTransaction,
     WalletContextType,
 } from "../types/wallets";
-
 
 // Callback types — avoid `any`
 
@@ -121,6 +124,13 @@ const REFRESH_INTERVAL_CONTRACT_STATUS_OMOC = 30_000;
 const REFRESH_INTERVAL_USER_BALANCE = 30_000;
 const REFRESH_INTERVAL_CONTRACT_LENDING_MANAGER = 30_000;
 
+// moc-v1 (legacy) uses a different, incompatible contract generation (no
+// caIndex/MocQueue) — see feedback memory "shared wallet context". Rather than
+// forking this provider, contract discovery/status/balance branch on this flag
+// and expose their results as separate fields alongside the v3 ones.
+const IS_MOC_V1 =
+    import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "moc-v1";
+
 export function WalletProvider({ children }: { children: React.ReactNode }) {
     const { address, isConnected, chainId } = useAccount();
     const isOnCorrectChain = isConnected && chainId === ALLOWED_CHAIN.id;
@@ -135,6 +145,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const [contractsAddress, setContractsAddress] = useState<DContracts | null>(
         null
     );
+    const [contractsAddressV1, setContractsAddressV1] =
+        useState<DContractsV1 | null>(null);
     const [contractsAddressLoaded, setContractsAddressLoaded] = useState(false);
     const [contractsLoadRetryCount, setContractsLoadRetryCount] = useState(0);
     const MAX_CONTRACTS_LOAD_RETRIES = 3;
@@ -186,10 +198,19 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         (onChainPricesHook.data as unknown as ParsedPrices[]) ?? undefined;
 
     const contractProtocolStatus = useContractProtocolStatus(
-        contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
+        contractsAddressLoaded && !IS_MOC_V1
+            ? (contractsAddress ?? undefined)
+            : undefined,
         Number(blockNumber),
         offChainPrices,
         onChainPrices,
+        REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS
+    );
+
+    const contractProtocolStatusV1 = useContractProtocolStatusV1(
+        contractsAddressLoaded && IS_MOC_V1
+            ? (contractsAddressV1 ?? undefined)
+            : undefined,
         REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS
     );
 
@@ -223,7 +244,17 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     );
 
     const userBalance = useUserBalance(
-        contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
+        contractsAddressLoaded && !IS_MOC_V1
+            ? (contractsAddress ?? undefined)
+            : undefined,
+        address,
+        REFRESH_INTERVAL_USER_BALANCE
+    );
+
+    const userBalanceV1 = useUserBalanceV1(
+        contractsAddressLoaded && IS_MOC_V1
+            ? (contractsAddressV1 ?? undefined)
+            : undefined,
         address,
         REFRESH_INTERVAL_USER_BALANCE
     );
@@ -277,8 +308,14 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             return;
 
         try {
-            const contractsAddresses = await readContracts(publicClient);
-            setContractsAddress(contractsAddresses);
+            if (IS_MOC_V1) {
+                const contractsAddressesV1 =
+                    await readContractsV1(publicClient);
+                setContractsAddressV1(contractsAddressesV1);
+            } else {
+                const contractsAddresses = await readContracts(publicClient);
+                setContractsAddress(contractsAddresses);
+            }
             setContractsAddressLoaded(true);
         } catch (e) {
             console.error("Error loading contracts:", e);
@@ -310,6 +347,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (isConnected && !isOnCorrectChain) {
             setContractsAddress(null);
+            setContractsAddressV1(null);
             setContractsAddressLoaded(false);
             setContractsLoadRetryCount(0);
         }
@@ -343,6 +381,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     refetchBaseCoinBalanceRef.current = userBaseCoinBalance?.refetch;
     const refetchUserBalanceRef = useRef(userBalance?.refetch);
     refetchUserBalanceRef.current = userBalance?.refetch;
+    const refetchUserBalanceV1Ref = useRef(userBalanceV1?.refetch);
+    refetchUserBalanceV1Ref.current = userBalanceV1?.refetch;
     const refetchOmocBalanceRef = useRef(userOmocBalance?.refetch);
     refetchOmocBalanceRef.current = userOmocBalance?.refetch;
     const refetchVestingRef = useRef(userVesting?.refetch);
@@ -357,6 +397,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         if (!address) return;
         void refetchBaseCoinBalanceRef.current?.();
         void refetchUserBalanceRef.current?.();
+        void refetchUserBalanceV1Ref.current?.();
         void refetchOmocBalanceRef.current?.();
         void refetchVestingRef.current?.();
         void refetchIncentiveV2Ref.current?.();
@@ -993,6 +1034,9 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 contractProtocolStatus,
                 contractLendingStatus,
                 userBalance,
+                contractsAddressV1,
+                contractProtocolStatusV1,
+                userBalanceV1,
                 blockNumber,
                 offChainPrices,
                 priceProvider,
