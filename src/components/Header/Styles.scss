@@ -343,6 +343,13 @@ $breakpoint-mobile: 600px;
         width: 32px;
         height: 32px;
     }
+    .logo-lending-borrowing {
+        filter: var(--color-nav-icon-filter-hover);
+        background-size: 32px 32px;
+        background-repeat: no-repeat;
+        width: 32px;
+        height: 32px;
+    }
 }
 .menu-nav-item-more:hover {
     color: var(--color-nav-txt-hover);
@@ -590,6 +597,22 @@ $breakpoint-mobile: 600px;
 .logo-exchange-combined-selected {
     filter: var(--color-nav-icon-filter-active);
     background-image: url("../../assets/icons/ExchangeCombined.svg");
+    background-size: 32px 32px;
+    background-repeat: no-repeat;
+    width: 32px;
+    height: 32px;
+}
+.logo-lending-borrowing {
+    filter: var(--color-nav-icon-filter-default);
+    background-image: url("../../assets/icons/LendingBorrowing.svg");
+    background-size: 32px 32px;
+    background-repeat: no-repeat;
+    width: 32px;
+    height: 32px;
+}
+.logo-lending-borrowing-selected {
+    filter: var(--color-nav-icon-filter-active);
+    background-image: url("../../assets/icons/LendingBorrowing.svg");
     background-size: 32px 32px;
     background-repeat: no-repeat;
     width: 32px;

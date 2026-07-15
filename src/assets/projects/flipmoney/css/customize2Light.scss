@@ -170,9 +170,9 @@
         hue-rotate(300deg) brightness(103%) contrast(110%);
 
     --notification-warning-background: #0d0d0d;
-    --notification-error-text: #0c0c08;
-    --notification-error-filter: invert(0%) sepia(8%) saturate(7469%)
-        hue-rotate(300deg) brightness(103%) contrast(110%);
+    --notification-warning-text: #ffffff;
+    --notification-warning-filter: invert(100%) sepia(6%) saturate(1546%)
+        hue-rotate(227deg) brightness(122%) contrast(100%);
 
     --notification-info-background: #b5b5b5;
     --notification-info-text: #0c0c08;
@@ -230,7 +230,7 @@
         hue-rotate(300deg) brightness(103%) contrast(110%);
 
     --color-language-background-active: transparent;
-    --color-language-txt-active: #3db2a4; //over hover color
+    --color-language-txt-active: #00767A; //over hover color
     --color-language-icon-filter-active: invert(100%) sepia(100%) saturate(0%)
         hue-rotate(288deg) brightness(102%) contrast(102%);
 

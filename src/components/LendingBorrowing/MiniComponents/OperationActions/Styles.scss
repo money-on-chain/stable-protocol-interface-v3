@@ -1,0 +1,21 @@
+.operation-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 24px;
+}
+
+.operation-actions > * {
+    width: min(320px, 100%);
+}
+
+@media (max-width: 960px) {
+    .operation-actions {
+        flex-direction: column;
+    }
+
+    .operation-actions > * {
+        width: 100%;
+    }
+}

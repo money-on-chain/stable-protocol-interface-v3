@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Icon/Loan</title>
+    <g id="Icon/Loan" stroke="none" fill="none" fill-rule="nonzero">
+        <rect id="Area" x="0" y="0" width="24" height="24"></rect>
+        <g id="Group" stroke-width="1" fill-rule="evenodd" transform="translate(0, 1)" stroke="#000000">
+            <path d="M9.10001,17 L14.5,17 L14.5,16.5 C14.5,14.8431 13.1569,13.5 11.5,13.5 L10,13.5 L9.17157,12.6716 C8.42143,11.9214 7.40401,11.5 6.34315,11.5 L6.14074,11.5 C4.80332,11.5 3.5544,12.1684 2.81253,13.2812 L2,14.5 L2.33333,14 M18.5,15 L21.1178,14.4183 C22.0837,14.2036 23,14.9386 23,15.9281 L23,15.9281 C23,16.5729 22.6001,17.15 21.9964,17.3764 L12.2198,21.0426 C11.4271,21.3398 10.5605,21.3779 9.74476,21.1513 L2,19 L2.5,19.1389" id="Shape" stroke-width="2"></path>
+            <line x1="2" y1="21" x2="2" y2="11" id="Path" stroke-width="2"></line>
+            <path d="M20,10 C21.6569,10 23,8.65685 23,7 C23,5.34315 21.6569,4 20,4 C18.3431,4 17,5.34315 17,7 C17,8.65685 18.3431,10 20,10 Z" id="Path" stroke-width="2"></path>
+            <path d="M10,7 C11.6569,7 13,5.65685 13,4 C13,2.34315 11.6569,1 10,1 C8.34315,1 7,2.34315 7,4 C7,5.65685 8.34315,7 10,7 Z" id="Path" stroke-width="2"></path>
+        </g>
+    </g>
+</svg>

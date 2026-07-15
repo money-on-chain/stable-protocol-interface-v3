@@ -283,3 +283,82 @@ export const ALLOWANCE_STEPS = [
 ] as const;
 
 export type AllowanceStep = (typeof ALLOWANCE_STEPS)[number];
+
+export type LendingPoolStatus = {
+    getPoolCreditSupply: bigint;
+    getPoolDepositSupply: bigint;
+    getPoolLiquidity: bigint;
+    getPoolReserve: bigint;
+    getPriceCreditUnit: bigint;
+    getPriceDepositUnit: bigint;
+    getBorrowFee: bigint;
+    getMinCoverage: bigint;
+    getLiquidationCoverage: bigint;
+    getInjectionRate: bigint;
+    getDeltaPCU: bigint;
+    getFeeAccrued: bigint;
+    getNextInjectionTime: bigint;
+    getLastUpdateTime: bigint;
+    getUKinkPoint: bigint;
+    getUSoftSlope: bigint;
+    getUMaxSlope: bigint;
+    getInjectionTimeSpan: bigint;
+    getInjectionBaseFactor: bigint;
+    getBrakeFirstKink: bigint;
+    getBrakeSecondKink: bigint;
+    // LendingReader
+    getUtilizationRate: bigint;
+};
+
+export type LendingManagerStatus = {
+    paused: boolean;
+    useQueue: boolean;
+    isEmpty: boolean;
+    getPendingOperationsCount: bigint;
+    getPoolsCount: bigint;
+    firstOperId: bigint;
+    operIdCount: bigint;
+    maxOperWaitingBlk: bigint;
+    minOperWaitingBlk: bigint;
+    maxOperationPerBatch: bigint;
+    maxSlippage: bigint;
+    coinbaseForPayExecutions: bigint;
+    pools: LendingPoolStatus[];
+};
+
+export type ContractStatusLending = {
+    lendingmanager: LendingManagerStatus;
+};
+
+export type ContractStatusLendingResult = Omit<
+    UseStorageResult<unknown>,
+    "data"
+> & {
+    data: ContractStatusLending;
+};
+
+export type UserLendingVaultStatus = {
+    getUserVaultACBalance: bigint;
+    getUserVaultCreditBalance: bigint;
+    isVaultLiquidating: boolean;
+    getCoverage: bigint;
+    getLiquidationPrice: bigint;
+    getMaxACToRemove: bigint;
+    getMaxTPToBorrow: bigint;
+    getPACtp: bigint;
+    isVaultLiquidable: boolean;
+};
+
+export type UserLendingTPStatus = {
+    getUserDepositBalance: bigint;
+    tpAllowance: bigint;
+    [ca: number]: UserLendingVaultStatus;
+};
+
+export type UserLendingStatus = {
+    [tp: number]: UserLendingTPStatus;
+};
+
+export type UserLendingResult = Omit<UseStorageResult<unknown>, "data"> & {
+    data: UserLendingStatus;
+};

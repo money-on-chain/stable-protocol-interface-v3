@@ -1,0 +1,26 @@
+.rate-display {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0px;
+}
+
+.rate-display__value {
+    color: var(--color-txt-primary);
+    font-size: 22px;
+    font-weight: 600;
+    font-family: var(--brand-font);
+}
+
+.rate-display__label {
+    font-size: 10px;
+    line-height: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+@media (max-width: 960px) {
+    .rate-display {
+        align-items: flex-start;
+    }
+}

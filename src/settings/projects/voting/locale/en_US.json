@@ -573,11 +573,11 @@
             "StakingOptionsModal_ReviewYourWalletDescription": "Please review your wallet",
             "StakingOptionsModal_Authorize": "Authorize",
             "StakingOptionsModal_AllowanceDescription": "Before continuing with the staking you must set the allowance so that the staking system can access the tokens. This has to be done only once and it doesn't lock any tokens from your wallet.",
-            "StakingOptionsModal_ProccessingAllowance": "Processing Allowance, please wait.",
+            "StakingOptionsModal_ProcessingAllowance": "Processing Allowance, please wait.",
             "StakingOptionsModal_StakingDescription": "Staked MoCs will receive rewards from the MoC Staking Rewards Program. You can unstake your MoC's whenever you want, the withdraw process will take 30 days",
             "StakingOptionsModal_AmountToStake": "Amount to Stake",
             "StakingOptionsModal_Title": "Stake",
-            "StakingOptionsModal_Comfirm": "Confirm",
+            "StakingOptionsModal_Confirm": "Confirm",
             "StakingOptionsModal_Cancel": "Cancel",
 
             "StakingOptionsModal_UnstakeTitle": "Unstake",
@@ -789,6 +789,43 @@
             "status": "Status",
             "statusReceived": "Received",
             "statusInProgress": "In progress"
+        }
+    },
+    "operationProgressList": {
+        "transaction": "Transaction",
+        "openLink": "Open details",
+        "copyHash": "Copy hash",
+        "status": {
+            "pending": "Pending",
+            "waiting": "Waiting",
+            "processing": "Processing",
+            "completed": "Completed",
+            "failed": "Failed"
+        },
+        "example": {
+            "runSuccess": "Run success flow",
+            "runFailure": "Run failed flow",
+            "reset": "Reset",
+            "failureMessage": "The parent received an error and kept the remaining steps pending.",
+            "approveTokenA": {
+                "title": "Approve token A",
+                "description": "User approval is required before the operation can continue."
+            },
+            "approveTokenB": {
+                "title": "Approve token B",
+                "description": "This step can complete or fail independently."
+            },
+            "depositCollateral": {
+                "title": "Deposit collateral",
+                "description": "The parent decides when this step starts."
+            },
+            "borrowToken": {
+                "title": "Borrow token",
+                "description": "The list only renders the status it receives."
+            },
+            "operationCompleted": {
+                "title": "Operation completed"
+            }
         }
     }
 }

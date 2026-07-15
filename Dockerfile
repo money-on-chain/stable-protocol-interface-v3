@@ -22,6 +22,7 @@ COPY .env ./
 COPY .env.flipmoneyMainnet .env.flipmoneyTestnet ./
 COPY .env.rocMainnet .env.rocTestnet ./
 COPY .env.votingMainnet .env.votingTestnet ./
+COPY .env.lendborrowTestnet ./
 
 # Pass TARGET_BUILD at runtime: docker run -e TARGET_BUILD=build:roc-mainnet <image>
 CMD ["/bin/bash", "-c", "bash ./build_target.sh"]

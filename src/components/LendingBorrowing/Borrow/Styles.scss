@@ -1,0 +1,225 @@
+.borrow-items {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px;
+
+    .borrow-card {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid var(--dividers);
+        border-radius: var(--card-border-radius);
+        padding: 16px;
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .borrow-card-assets {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 16px;
+    }
+
+    .borrow-card-asset {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .borrow-card-asset-label {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .borrow-card-asset:last-child {
+        align-items: flex-end;
+        text-align: right;
+
+        .token {
+            justify-content: flex-end;
+        }
+
+        .token-name {
+            justify-content: flex-end;
+        }
+    }
+
+    .borrow-card-primary-metrics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px 24px;
+        margin-top: 16px;
+    }
+
+    .borrow-card-primary-metric--full {
+        grid-column: 1 / -1;
+    }
+
+    .borrow-card-primary-spacer {
+        min-height: 1px;
+    }
+
+    .borrow-card-primary-action {
+        width: 100%;
+    }
+
+    .borrow-card-primary-action--single {
+        grid-column: 1;
+    }
+
+    .borrow-card-metrics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px 24px;
+        margin-top: 16px;
+    }
+
+    .borrow-card-previous-liquidation {
+        margin-top: auto;
+        padding-top: 16px;
+        border-top: 1px solid var(--dividers);
+    }
+
+    .borrow-card-previous-liquidation__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .borrow-card-previous-liquidation__title {
+        color: var(--color-semantic-negative);
+        font-size: 22px;
+        font-weight: 600;
+        font-family: var(--brand-font);
+        line-height: 1;
+    }
+
+    .borrow-card-previous-liquidation__cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--color-txt-highlight);
+        font-size: 16px;
+        font-weight: 600;
+        font-family: var(--brand-font);
+        white-space: nowrap;
+    }
+
+    .borrow-card-previous-liquidation__cta-icon {
+        width: 18px;
+        height: 18px;
+        background-size: 18px 18px;
+        filter: var(--color-icon-link-hover-filter);
+    }
+
+    .borrow-card-previous-liquidation__metrics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px 24px;
+        margin-top: 16px;
+    }
+
+    .borrow-card-previous-liquidation__metric {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .borrow-card-previous-liquidation__metric--right {
+        align-items: flex-end;
+        text-align: right;
+    }
+
+    .borrow-card-previous-liquidation__metric-value {
+        color: var(--color-txt-primary);
+        font-size: 16px;
+        font-weight: 700;
+        font-family: var(--brand-font);
+        line-height: 19px;
+    }
+
+    .borrow-card-previous-liquidation__metric-label {
+        color: var(--color-txt-secondary);
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1.1;
+        text-transform: uppercase;
+    }
+
+    .borrow-card-footer {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-top: 16px;
+    }
+
+    .borrow-card-liquidation {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        border-radius: var(--card-border-radius);
+        background-color: var(--surface-color-2);
+    }
+
+    .borrow-card-liquidation-value {
+        color: var(--color-txt-primary);
+        font-size: 12px;
+        font-weight: 600;
+        font-family: var(--brand-font);
+        text-align: center;
+    }
+
+    .borrow-card-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px 24px;
+    }
+
+    .button--compact:disabled,
+    .button--compact:disabled:hover,
+    .button--compact:disabled:focus {
+        cursor: not-allowed;
+        box-shadow: none;
+        border-color: var(--color-btn-primary-background-disabled);
+        background-color: var(--color-btn-primary-background-disabled);
+        color: var(--color-btn-primary-txt-disabled);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 960px) {
+    .borrow-items {
+        grid-template-columns: 1fr;
+
+        .borrow-card-primary-metrics,
+        .borrow-card-assets,
+        .borrow-card-metrics,
+        .borrow-card-actions,
+        .borrow-card-previous-liquidation__metrics {
+            grid-template-columns: 1fr;
+        }
+
+        .borrow-card-previous-liquidation__header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .borrow-card-previous-liquidation__metric--right {
+            align-items: flex-start;
+            text-align: left;
+        }
+
+        .borrow-card-primary-spacer {
+            display: none;
+        }
+    }
+}

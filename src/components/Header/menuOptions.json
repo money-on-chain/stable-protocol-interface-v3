@@ -52,5 +52,11 @@
         "className": "logo-exchange-combined",
         "path": "/combined-operations",
         "allowedProjects": ["flipmoney", "roc"]
+    },
+    {
+        "nameKey": "menuOptions.lendingBorrowing",
+        "className": "logo-lending-borrowing",
+        "path": "/lending-borrowing",
+        "allowedProjects": ["flipmoney", "lendborrow"]
     }
 ]

@@ -441,7 +441,8 @@
         "vesting": "Vesting",
         "voting": "Voting",
         "more": "More",
-        "combinedOperations": "Combined Ops."
+        "combinedOperations": "Combined Ops.",
+        "lendingBorrowing": "Lend & Borrow"
     },
 
     "language": {
@@ -598,11 +599,11 @@
             "StakingOptionsModal_ReviewYourWalletDescription": "Please review your wallet",
             "StakingOptionsModal_Authorize": "Authorize",
             "StakingOptionsModal_AllowanceDescription": "Before continuing with the staking you must set the allowance so that the staking system can access the tokens. This has to be done only once and it doesn't lock any tokens from your wallet.",
-            "StakingOptionsModal_ProccessingAllowance": "Processing Allowance, please wait.",
+            "StakingOptionsModal_ProcessingAllowance": "Processing Allowance, please wait.",
             "StakingOptionsModal_StakingDescription": "Staked MoCs will receive rewards from the MoC Staking Rewards Program. You can unstake your MoC's whenever you want, the withdraw process will take 30 days",
             "StakingOptionsModal_AmountToStake": "Amount to Stake",
             "StakingOptionsModal_Title": "Stake",
-            "StakingOptionsModal_Comfirm": "Confirm",
+            "StakingOptionsModal_Confirm": "Confirm",
             "StakingOptionsModal_Cancel": "Cancel",
 
             "StakingOptionsModal_UnstakeTitle": "Unstake",
@@ -816,5 +817,217 @@
             "statusInProgress": "In progress"
         }
     },
-    "slippageTolerance": { "title": "Slippage Tolerance" }
+    "slippageTolerance": { "title": "Slippage Tolerance" },
+    "beforeAfterCard": {
+        "before": "Current",
+        "after": "Next"
+    },
+    "tokenAmountInput": {
+        "noEnoughBalance": "Not enough balance in your wallet.",
+        "labelBalance": "Balance"
+    },
+    "lendingBorrowing": { "backLink": "Back to Lending & Borrowing" },
+    "lending": {
+        "cardTitle": "Lend",
+        "labelInterest": "Variable Supply APY",
+        "labelDeposits": "Your Deposits + Earnings",
+        "cta": { "earn": "Earn", "withdraw": "Withdraw" },
+        "sectionEarn": {
+            "cardTitle": "Earn",
+            "apy": "Variable APY",
+            "labelAmountToLend": "Amount to Lend",
+            "summary": {
+                "titleBalanceError": "Not enough Balance",
+                "titleAmountOK": "Ready to lend",
+                "titleNoAmount": "No lend amount selected",
+                "txtExceedsBalance": "The amount exceeds your wallet balance.",
+                "txtAboutToLend": "You are about to lend",
+                "txtEnterAmount": "Enter an amount to lend."
+            },
+            "cta": { "ok": "Lend", "noAmount": "Enter an amount" }
+        },
+        "sectionWithdraw": {
+            "cardTitle": "Withdraw",
+            "apy": "Variable APY",
+            "available": "Available to withdraw",
+            "labelAmountToWithdraw": "Amount to Withdraw",
+            "exceedsWithdrawBalance": "Amount exceeds your available withdraw balance",
+            "summary": {
+                "titleBalanceError": "Amount exceeds available balance",
+                "titleAmountOK": "Ready to withdraw",
+                "titleNoAmount": "No withdraw amount selected",
+                "txtExceedsBalance": "The amount exceeds what you can currently withdraw.",
+                "txtAboutToWithdraw": "You are about to withdraw",
+                "txtEnterAmount": "Enter amount to withdraw or select Withdraw All",
+                "txtRemaining": "Remaining deposit"
+            },
+            "cta": {
+                "ok": "Withdraw",
+                "noAmount": "Enter an amount",
+                "withdrawAll": "Withdraw All"
+            }
+        }
+    },
+    "borrowing": {
+        "cardTitle": {
+            "section": "Borrow"
+        },
+        "labelInterest": "Variable Borrow APY",
+        "labelDeposits": "Your Deposits + Earnings",
+        "labelMaxAvailable": "Max Available (Wallet + Collateral)",
+        "labelCurrentDebt": "Current Debt",
+        "labelDepositedCollateral": "Deposited Collateral",
+        "labelLoanToken": "Loan Token",
+        "labelCollateralToken": "Collateral Token",
+        "labelLiquidationPercentage": "Loan is liquidated if collateral price drops",
+        "labelLiquidationPrice": "Liquidation Price",
+        "labelDistanceToLiquidation": "Distance to Liquidation",
+        "labelMinRequieredCollateral": "Min Required Collateral",
+        "labelAvailableWithCollateral": "Borrow Available W/Collateral",
+        "labelBorrowUsage": "Borrow Usage",
+        "liquidated": {
+            "title": "Liquidated",
+            "ctaDetails": "Details",
+            "labelAmount": "Amount Liquidated",
+            "labelLiquidationPrice": "Liquidation Price"
+        },
+        "cta": { "confirm": "Confirm" },
+        "risk": {
+            "decrease": "Risk will decrease if you proceed.",
+            "increase": "Risk will increase if you proceed.",
+            "neutral": "Risk will remain neutral if you proceed."
+        },
+        "actions": {
+            "borrow": "Borrow",
+            "repay": "Repay",
+            "repayWithCollateral": "Repay with Collateral",
+            "depositCollateral": "Deposit Collateral",
+            "withdrawCollateral": "Withdraw Collateral"
+        },
+        "sectionBorrow": {
+            "cardTitle": "Borrow",
+            "apy": "Variable APY",
+            "feedbackBorrowLimit": "Amount exceeds your available borrow limit",
+            "labelAmountToBorrow": "Amount to Borrow",
+            "labelAddToCollateral": "Add to Collateral",
+            "summary": {
+                "titleBorrowLimit": "Borrow amount exceeds limit",
+                "titleNoBalance": "Not enough balance",
+                "titleReady": "Ready to continue",
+                "titleNoAmount": "No amount selected",
+                "txtBorrowing": "Borrowing",
+                "txtDepositingCollateral": "Depositing collateral",
+                "txtBorrowAvailableWithDepositedCollateral": "Borrow available with deposited collateral",
+                "txtBorrowLimit": "The borrow amount exceeds your available borrow limit.",
+                "txtCollateralBalance": "The collateral amount exceeds your wallet balance.",
+                "txtEnterAmounts": "Enter borrow and/or collateral amounts to continue.",
+                "titleInsufficientCollateral": "Insufficient collateral",
+                "txtMinCollateralNeeded": "Minimum collateral required"
+            }
+        },
+        "operationProgress": {
+            "approveTP": "Approve Token",
+            "approveCA": "Approve Collateral",
+            "depositLend": "Deposit",
+            "withdrawLend": "Withdraw",
+            "borrow": "Borrow",
+            "repay": "Repay",
+            "repayWithCollateral": "Repay with Collateral",
+            "depositCollateral": "Deposit Collateral",
+            "withdrawCollateral": "Withdraw Collateral"
+        },
+        "sectionRepay": {
+            "cardTitle": "Repay",
+            "feedbackDebtLimit": "Amount exceeds your current debt",
+            "feedbackWalletBalance": "Amount exceeds your wallet balance",
+            "labelAmountToRepay": "Amount to Repay",
+            "summary": {
+                "titleDebtLimit": "Repay amount exceeds current debt",
+                "titleWalletBalance": "Insufficient wallet balance",
+                "titleReady": "Ready to repay",
+                "titleNoAmount": "Repay amount not specified",
+                "txtRepaying": "Repaying",
+                "txtDebtLimit": "The repay amount exceeds your current debt.",
+                "txtWalletBalance": "The repay amount exceeds your wallet balance of the borrow token.",
+                "txtEnterAmount": "Enter an amount to repay or use \"Repay in Full\"."
+            },
+            "cta": {
+                "ok": "Repay",
+                "noAmount": "Enter an Amount",
+                "repayInFull": "Repay in Full"
+            }
+        },
+        "sectionRepayCollateral": {
+            "cardTitle": "Repay with Collateral",
+            "feedbackCollateralLimit": "Amount exceeds your deposited collateral",
+            "labelCollateralForRepay": "Collateral for Repay",
+            "labelDepositedCollateralAfterRepayment": "Deposited Collateral After Repayment",
+            "summary": {
+                "titleReady": "Ready to continue",
+                "titleNoAmount": "Repay with collateral amount not specified",
+                "txtUsingCollateral": "Using collateral for repay",
+                "txtDepositedCollateralAfterRepayment": "Deposited collateral after repayment",
+                "txtEnterAmount": "Enter an amount to repay with collateral or use \"MAX\"."
+            }
+        },
+        "sectionDepositCollateral": {
+            "cardTitle": "Deposit Collateral",
+            "labelAmountToDeposit": "Amount to Deposit",
+            "summary": {
+                "titleReady": "Ready to continue",
+                "titleNoAmount": "Deposit amount not specified",
+                "txtDepositingCollateral": "Depositing collateral",
+                "txtEnterAmount": "Enter a collateral amount to deposit."
+            }
+        },
+        "sectionWithdrawCollateral": {
+            "cardTitle": "Withdraw Collateral",
+            "feedbackCollateralLimit": "Amount exceeds your deposited collateral",
+            "feedbackWithdrawLimit": "Amount exceeds your withdrawable collateral (minimum required to cover debt)",
+            "labelAmountToWithdraw": "Amount to Withdraw",
+            "summary": {
+                "titleReady": "Ready to continue",
+                "titleNoAmount": "Withdraw amount not specified",
+                "txtWithdrawingCollateral": "Withdrawing collateral",
+                "txtEnterAmount": "Enter a collateral amount to withdraw."
+            }
+        }
+    },
+    "operationProgressList": {
+        "transaction": "Transaction",
+        "openLink": "Open details",
+        "copyHash": "Copy hash",
+        "status": {
+            "pending": "Pending",
+            "waiting": "Waiting",
+            "processing": "Processing",
+            "completed": "Completed",
+            "failed": "Failed"
+        },
+        "example": {
+            "runSuccess": "Run success flow",
+            "runFailure": "Run failed flow",
+            "reset": "Reset",
+            "failureMessage": "The parent received an error and kept the remaining steps pending.",
+            "approveTokenA": {
+                "title": "Approve token A",
+                "description": "User approval is required before the operation can continue."
+            },
+            "approveTokenB": {
+                "title": "Approve token B",
+                "description": "This step can complete or fail independently."
+            },
+            "depositCollateral": {
+                "title": "Deposit collateral",
+                "description": "The parent decides when this step starts."
+            },
+            "borrowToken": {
+                "title": "Borrow token",
+                "description": "The list only renders the status it receives."
+            },
+            "operationCompleted": {
+                "title": "Operation completed"
+            }
+        }
+    }
 }

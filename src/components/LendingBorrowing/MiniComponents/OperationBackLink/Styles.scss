@@ -1,0 +1,41 @@
+.operation-back-link {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: 2px;
+    opacity: 0.9;
+    transition:
+        color 0.2s ease,
+        opacity 0.2s ease;
+    cursor: pointer;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: var(--color-txt-secondary);
+    font-weight: 500;
+    font-size: 12px;
+    margin-bottom: 16px;
+}
+
+.operation-back-link:hover,
+.operation-back-link:focus-visible {
+    opacity: 1;
+    color: var(--color-txt-link);
+}
+
+.operation-back-link__icon {
+    transition: filter 0.2s ease;
+    color: inherit;
+    font-size: 14px;
+    line-height: 1;
+}
+
+.operation-back-link__label {
+    padding-top: 1px;
+    color: inherit;
+}
+
+.operation-back-link:hover .operation-back-link__icon,
+.operation-back-link:focus-visible .operation-back-link__icon {
+    filter: var(--color-icon-link-hover-filter);
+}

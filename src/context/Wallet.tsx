@@ -66,6 +66,7 @@ import {
 import { useBaseCoinBalance } from "../hooks/useBaseCoinBalance";
 import { useContractOmocStatus } from "../hooks/useContractOmocStatus";
 import { useContractProtocolStatus } from "../hooks/useContractProtocolStatus";
+import { useContractLendingStatus } from "../hooks/useContractLendingStatus";
 import { useIncentiveV2 } from "../hooks/useIncentiveV2";
 import { useLatestBlockNumber } from "../hooks/useLatestBlockNumber";
 import { useOffchainPrices } from "../hooks/useOffchainPrices";
@@ -78,6 +79,7 @@ import { useUserBalance } from "../hooks/useUserBalance";
 import { useUserOmocBalance } from "../hooks/useUserOmocBalance";
 import { useUserVesting } from "../hooks/useUserVesting";
 import { useUserVeto } from "../hooks/useUserVeto";
+import { useUserLending } from "../hooks/useUserLending";
 import api from "../services/api";
 import { API_OPERATIONS_BASE } from "../services/apiConfig";
 import type { DContracts, ParsedPrices } from "../types/hooks";
@@ -87,6 +89,7 @@ import type {
     OnTransaction,
     WalletContextType,
 } from "../types/wallets";
+
 
 // Callback types — avoid `any`
 
@@ -116,6 +119,7 @@ const REFRESH_INTERVAL_ONCHAIN_PRICES = 20_000;
 const REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS = 30_000;
 const REFRESH_INTERVAL_CONTRACT_STATUS_OMOC = 30_000;
 const REFRESH_INTERVAL_USER_BALANCE = 30_000;
+const REFRESH_INTERVAL_CONTRACT_LENDING_MANAGER = 30_000;
 
 export function WalletProvider({ children }: { children: React.ReactNode }) {
     const { address, isConnected, chainId } = useAccount();
@@ -204,6 +208,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         REFRESH_INTERVAL_CONTRACT_STATUS_OMOC
     );
 
+    const contractLendingStatus = useContractLendingStatus(
+        contractsAddressLoaded && contractsAddress
+            ? contractsAddress
+            : undefined,
+        REFRESH_INTERVAL_CONTRACT_LENDING_MANAGER
+    );
+
     // Hooks for user data
 
     const userBaseCoinBalance = useBaseCoinBalance(
@@ -244,6 +255,14 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             : undefined,
         userBalance.data,
         contractStatusOmoc.data,
+        address,
+        REFRESH_INTERVAL_USER_BALANCE
+    );
+
+    const userLending = useUserLending(
+        contractsAddressLoaded && contractsAddress
+            ? contractsAddress
+            : undefined,
         address,
         REFRESH_INTERVAL_USER_BALANCE
     );
@@ -330,6 +349,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     refetchVestingRef.current = userVesting?.refetch;
     const refetchIncentiveV2Ref = useRef(userIncentiveV2?.refetch);
     refetchIncentiveV2Ref.current = userIncentiveV2?.refetch;
+    const refetchLendingRef = useRef(userLending?.refetch);
+    refetchLendingRef.current = userLending?.refetch;
 
     useEffect(() => {
         // Refetch user data when address changes
@@ -339,6 +360,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         void refetchOmocBalanceRef.current?.();
         void refetchVestingRef.current?.();
         void refetchIncentiveV2Ref.current?.();
+        void refetchLendingRef.current?.();
     }, [address]); // refs are intentionally omitted — they never change identity
 
     const onDisconnect = (): void => {
@@ -969,6 +991,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 contractsAddressLoaded,
                 contractStatusOmoc,
                 contractProtocolStatus,
+                contractLendingStatus,
                 userBalance,
                 blockNumber,
                 offChainPrices,
@@ -981,6 +1004,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 userOmocBalance,
                 userIncentiveV2,
                 userVeto,
+                userLending,
                 connect,
                 disconnect,
                 readContractsAddresses,
