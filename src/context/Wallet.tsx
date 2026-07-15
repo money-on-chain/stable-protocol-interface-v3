@@ -71,6 +71,7 @@ import { useIncentiveV2 } from "../hooks/useIncentiveV2";
 import { useLatestBlockNumber } from "../hooks/useLatestBlockNumber";
 import { useOffchainPrices } from "../hooks/useOffchainPrices";
 import { useOnchainPrices } from "../hooks/useOnchainPrices";
+import { usePriceProvider } from "../hooks/usePriceProvider";
 import { readContracts } from "../hooks/useReadContracts";
 import { useRpcErrorHandler } from "../hooks/useRpcErrorHandler";
 import { useRpcErrorIntegration } from "../hooks/useRpcErrorIntegration";
@@ -80,6 +81,7 @@ import { useUserVesting } from "../hooks/useUserVesting";
 import { useUserVeto } from "../hooks/useUserVeto";
 import { useUserLending } from "../hooks/useUserLending";
 import api from "../services/api";
+import { API_OPERATIONS_BASE } from "../services/apiConfig";
 import type { DContracts, ParsedPrices } from "../types/hooks";
 import type {
     InterfaceContext,
@@ -181,13 +183,21 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const offChainPrices =
         (offChainPricesAPI.parsedPrices as ParsedPrices[]) ?? undefined;
     const onChainPrices =
-        (onChainPricesHook.data as ParsedPrices[]) ?? undefined;
+        (onChainPricesHook.data as unknown as ParsedPrices[]) ?? undefined;
 
     const contractProtocolStatus = useContractProtocolStatus(
         contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
         Number(blockNumber),
         offChainPrices,
         onChainPrices,
+        REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS
+    );
+
+    const priceProvider = usePriceProvider(
+        contractsAddressLoaded && contractsAddress
+            ? contractsAddress
+            : undefined,
+        undefined, // pass PriceProviderData here to override with offchain prices
         REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS
     );
 
@@ -430,16 +440,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     };
 
     const readUserVesting = (): void => {
-        const apiBase = import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS as
-            | string
-            | undefined;
-        if (!apiBase) {
+        if (!API_OPERATIONS_BASE) {
             console.warn(
                 "readUserVesting: REACT_APP_ENVIRONMENT_API_OPERATIONS is not set"
             );
             return;
         }
-        const url = new URL(apiBase);
+        const url = new URL(API_OPERATIONS_BASE);
         url.pathname = "/v1/omoc/vesting_created/";
         url.search = new URLSearchParams({
             holder: address || "",
@@ -541,6 +548,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         onTransaction: OnTransaction,
         onReceipt: OnReceipt
     ): Promise<unknown> => {
+        if (!isOnCorrectChain)
+            throw new Error(
+                `Wrong network — please switch your wallet to ${ALLOWED_CHAIN.name} before signing`
+            );
         const interfaceContext = buildInterfaceContext();
         if (
             operationType === "COMBINED_MINT" ||
@@ -984,6 +995,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 userBalance,
                 blockNumber,
                 offChainPrices,
+                priceProvider,
                 userBaseCoinBalance,
                 vestingAddress,
                 publicClient,

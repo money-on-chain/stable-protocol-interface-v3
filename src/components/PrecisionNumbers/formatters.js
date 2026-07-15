@@ -7,6 +7,7 @@ const SCALE_SUFFIXES = [
 const MAX_COMPACT_VALUE = 1e15;
 const MIN_EXTENDED_PRECISION_VALUE = 1e-4;
 const MIN_DISPLAYABLE_EXTENDED_VALUE = 1e-8;
+const DEFAULT_NO_LIMIT_LABEL = "No limit";
 
 export const truncateToDecimals = (value, decimals) => {
     const factor = 10 ** decimals;
@@ -69,25 +70,27 @@ const formatTinyValue = (value, locale) => {
     return `${sign}${formatLocalizedNumberUpToDecimals(absoluteValue, locale, 8)}`;
 };
 
-export const formatFullLocaleValue = (value, locale) => {
+export const formatFullLocaleValue = (
+    value,
+    locale,
+    noLimitLabel = DEFAULT_NO_LIMIT_LABEL,
+    useNoLimit = false
+) => {
     if (!Number.isFinite(value)) {
         return String(value);
     }
 
-    if (value > MAX_COMPACT_VALUE) {
-        return "> 1Q";
+    if (useNoLimit && value > MAX_COMPACT_VALUE) {
+        return noLimitLabel;
     }
 
-    if (value < -MAX_COMPACT_VALUE) {
-        return "< -1Q";
+    if (useNoLimit && value < -MAX_COMPACT_VALUE) {
+        return noLimitLabel;
     }
 
     const absoluteValue = Math.abs(value);
 
-    if (
-        absoluteValue > 0 &&
-        absoluteValue < MIN_EXTENDED_PRECISION_VALUE
-    ) {
+    if (absoluteValue > 0 && absoluteValue < MIN_EXTENDED_PRECISION_VALUE) {
         return formatTinyValue(value, locale);
     }
 
@@ -100,25 +103,27 @@ export const formatFullLocaleValue = (value, locale) => {
     return `${sign}${formatLocalizedNumber(absoluteValue, locale, decimals)}`;
 };
 
-export const formatSignificantCompactValue = (value, locale) => {
+export const formatSignificantCompactValue = (
+    value,
+    locale,
+    noLimitLabel = DEFAULT_NO_LIMIT_LABEL,
+    useNoLimit = false
+) => {
     if (!Number.isFinite(value)) {
         return String(value);
     }
 
     const absoluteValue = Math.abs(value);
 
-    if (value > MAX_COMPACT_VALUE) {
-        return "> 1Q";
+    if (useNoLimit && value > MAX_COMPACT_VALUE) {
+        return noLimitLabel;
     }
 
-    if (value < -MAX_COMPACT_VALUE) {
-        return "< -1Q";
+    if (useNoLimit && value < -MAX_COMPACT_VALUE) {
+        return noLimitLabel;
     }
 
-    if (
-        absoluteValue > 0 &&
-        absoluteValue < MIN_EXTENDED_PRECISION_VALUE
-    ) {
+    if (absoluteValue > 0 && absoluteValue < MIN_EXTENDED_PRECISION_VALUE) {
         return formatTinyValue(value, locale);
     }
 

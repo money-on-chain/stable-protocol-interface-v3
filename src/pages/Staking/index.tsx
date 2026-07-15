@@ -6,7 +6,7 @@ import React, { Fragment, useEffect, useState } from "react";
 import VestingStatusAlert from "../../components/Notification/VestingStatusAlert";
 import Staking from "../../components/Staking";
 import { useWalletContext } from "../../context/Wallet";
-import settings from "../../settings/settings.json";
+import settings from "../../settings";
 
 export default function SectionStaking(): React.ReactElement {
     const {
@@ -40,9 +40,8 @@ export default function SectionStaking(): React.ReactElement {
             <div className="section-container">
                 <div className="sectionStaking">
                     {(settings.project === "moc" ||
-                        settings.project === "voting") && (
-                        <VestingStatusAlert />
-                    )}
+                        settings.project === "voting" ||
+                        settings.project === "roc") && <VestingStatusAlert />}
                     {ready ? <Staking /> : <Skeleton active />}
                 </div>
             </div>

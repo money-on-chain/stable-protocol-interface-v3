@@ -7,6 +7,7 @@ import type { useContractLendingStatus } from "../hooks/useContractLendingStatus
 import type { useContractOmocStatus } from "../hooks/useContractOmocStatus";
 import type { useContractProtocolStatus } from "../hooks/useContractProtocolStatus";
 import type { useIncentiveV2 } from "../hooks/useIncentiveV2";
+import type { UsePriceProviderResult } from "../hooks/usePriceProvider";
 // import type { useProposalCount } from "../hooks/useProposalCount";
 import type { useUserVeto } from "../hooks/useUserVeto";
 import type { UseBaseCoinBalanceResult } from "../types/status";
@@ -65,6 +66,7 @@ export type WalletContextType = {
 
     blockNumber?: bigint;
     offChainPrices: unknown;
+    priceProvider: UsePriceProviderResult;
     // proposalCount?: ReturnType<typeof useProposalCount>;
 
     publicClient: ReturnType<typeof usePublicClient> | undefined;
@@ -259,5 +261,5 @@ export type WalletContextType = {
     retryConnection: () => Promise<void>;
     clearRpcError: () => void;
     isRpcHealthy: boolean;
-    checkConnectivityNow: () => Promise<void>;
+    checkConnectivityNow: () => void;
 };

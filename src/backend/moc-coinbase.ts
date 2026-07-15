@@ -5,8 +5,7 @@ import {
 } from "@wagmi/core";
 import { type Abi, type TransactionReceipt } from "viem";
 
-import settings from "../settings/settings.json";
-import type { TokenConfig } from "../types/hooks";
+import settings from "../settings";
 import type {
     InterfaceContext,
     OnReceipt,
@@ -73,7 +72,7 @@ const mintTC = async (
     const userReserveBalance = userBalance.data.CA[caIndex].balance;
     if (limitAmount > userReserveBalance)
         throw new Error(
-            `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} balance`
+            `Insufficient ${(settings.tokens.CA[caIndex]).name} balance`
         );
 
     // Allowance    reserveAllowance
@@ -208,7 +207,7 @@ const mintTP = async (
     const userReserveBalance = userBalance.data.CA[caIndex].balance;
     if (limitAmount > userReserveBalance)
         throw new Error(
-            `Insufficient ${(settings.tokens.CA[caIndex] as TokenConfig).name} balance`
+            `Insufficient ${(settings.tokens.CA[caIndex]).name} balance`
         );
 
     // Allowance
@@ -239,7 +238,7 @@ const mintTP = async (
 
     if (qTP > tpAvailableToMint)
         throw new Error(
-            `Insufficient ${(settings.tokens.TP[tpIndex] as TokenConfig).name} available to mint`
+            `Insufficient ${(settings.tokens.TP[tpIndex]).name} available to mint`
         );
 
     const configParams: {

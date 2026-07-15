@@ -12,6 +12,7 @@ const NUMBER_LOCALE = "en-US";
 
 interface I18n {
     languages: readonly string[];
+    t?: (key: string, options?: { defaultValue?: string }) => string;
 }
 
 interface PrecisionNumbersProps {
@@ -23,6 +24,7 @@ interface PrecisionNumbersProps {
     isUSD?: boolean;
     compact?: boolean;
     tooltipVariant?: "raw" | "formatted";
+    useNoLimit?: boolean;
 }
 
 export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
@@ -34,6 +36,7 @@ export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
     isUSD = false,
     compact = false,
     tooltipVariant,
+    useNoLimit = false,
 }) => {
     if (typeof amount !== "bigint") {
         console.warn("❌ amount must be bigint:", amount);
@@ -60,9 +63,17 @@ export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
     const floatValue = parseFloat(formattedString);
     const effectiveTooltipVariant =
         tooltipVariant ?? (compact ? "formatted" : "raw");
+    const noLimitLabel =
+        i18n.t?.("numberFormat.noLimit", { defaultValue: "No limit" }) ??
+        "No limit";
 
     const displayValue = compact
-        ? formatSignificantCompactValue(floatValue, NUMBER_LOCALE)
+        ? formatSignificantCompactValue(
+              floatValue,
+              NUMBER_LOCALE,
+              noLimitLabel,
+              useNoLimit
+          )
         : new Intl.NumberFormat(NUMBER_LOCALE, {
               notation: "standard",
               maximumFractionDigits: precision,
@@ -70,7 +81,12 @@ export const PrecisionNumbers: React.FC<PrecisionNumbersProps> = ({
           }).format(floatValue);
     const tooltipValue =
         effectiveTooltipVariant === "formatted"
-            ? formatFullLocaleValue(floatValue, NUMBER_LOCALE)
+            ? formatFullLocaleValue(
+                  floatValue,
+                  NUMBER_LOCALE,
+                  noLimitLabel,
+                  useNoLimit
+              )
             : formattedString;
 
     return isUSD ? (

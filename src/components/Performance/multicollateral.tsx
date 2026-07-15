@@ -1,17 +1,61 @@
 import React from "react";
 
 import { useWalletContext } from "../../context/Wallet";
+import { CheckStatusGlobal } from "../../helpers/checkStatus";
 import { TokenSettings } from "../../helpers/currencies";
 import { divPrecision, mulPrecision } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
-import settings from "../../settings/settings.json";
+import settings from "../../settings";
+import type { TokenConfig } from "../../types/hooks";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 
 export default function MultiCollateral(): JSX.Element {
-    const { i18n } = useProjectTranslation();
+    const { t, i18n } = useProjectTranslation();
     const { contractProtocolStatus } = useWalletContext();
+    const { checkerStatus } = CheckStatusGlobal();
 
     let leverage = 0n;
+    const useCombinedOperationsRedeemableLimit =
+        settings.useCombinedOperationsRedeemableLimit === true;
+    const globalStatus = checkerStatus().globalStatus;
+    const isProtectedMode = globalStatus === 3;
+    const redeemableLimitLabel = isProtectedMode
+        ? t("performance.pegged.redeemableNoLimitWithFootnote", {
+              defaultValue: "No Limit*",
+          })
+        : t("performance.pegged.redeemableNoLimit", {
+              defaultValue: "No Limit",
+          });
+    const tpMintableTotals = settings.tokens.TP.reduce<
+        Array<{ token: TokenConfig; total: bigint }>
+    >((totals, tpToken) => {
+        const tokenKey = tpToken.key;
+        if (tokenKey === undefined) return totals;
+
+        const total = settings.tokens.CA.reduce<bigint>(
+            (sum, _caToken, caIndex) => {
+                const mintable =
+                    contractProtocolStatus.data?.[caIndex]
+                        ?.getRealTPAvailableToMint?.[tokenKey] ?? 0n;
+
+                return sum + (mintable < 0n ? 0n : mintable);
+            },
+            0n
+        );
+
+        totals.push({
+            token: tpToken,
+            total,
+        });
+
+        return totals;
+    }, []);
+    const tpRedeemableLimits = useCombinedOperationsRedeemableLimit
+        ? settings.tokens.TP.filter((tpToken) => tpToken.peggedUSD === true)
+        : [];
+    const showRedeemableFootnote =
+        tpRedeemableLimits.length > 0 && isProtectedMode;
+
     if (
         contractProtocolStatus.data &&
         contractProtocolStatus.data.getNormalizationFactors
@@ -65,7 +109,7 @@ export default function MultiCollateral(): JSX.Element {
     return (
         <div className="layout-card section__innerCard--big perfGlobalMetrics">
             <div className="layout-card-title">
-                <h1>Global Metrics</h1>
+                <h1>{t("performance.metrics.globalCardTitle")}</h1>
             </div>
 
             <div className="metrics">
@@ -86,10 +130,13 @@ export default function MultiCollateral(): JSX.Element {
                                       decimals: 4,
                                       i18n: i18n,
                                       compact: true,
+                                      useNoLimit: true,
                                   })
                                 : "--"}
                         </div>
-                        <div className="label">Coverage</div>
+                        <div className="label">
+                            {t("performance.metrics.currentCoverage")}
+                        </div>
                     </div>
                 </div>
                 <div
@@ -109,10 +156,13 @@ export default function MultiCollateral(): JSX.Element {
                                       decimals: 4,
                                       i18n: i18n,
                                       compact: true,
+                                      useNoLimit: true,
                                   })
                                 : "--"}
                         </div>
-                        <div className="label">Target Coverage Adjusted</div>
+                        <div className="label">
+                            {t("performance.metrics.targetCoverage")}
+                        </div>
                     </div>
                 </div>
                 <div
@@ -131,13 +181,77 @@ export default function MultiCollateral(): JSX.Element {
                                       decimals: 4,
                                       i18n: i18n,
                                       compact: true,
+                                      useNoLimit: true,
                                   })
                                 : "--"}
                         </div>
-                        <div className="label">Leverage</div>
+                        <div className="label">
+                            {t("performance.metrics.leverage")}
+                        </div>
                     </div>
                 </div>
+                {tpMintableTotals.map(({ token, total }) => (
+                    <div
+                        data-testid={`performance-global-group-tp-${token.key}-mintable`}
+                        className="dataGroup"
+                        key={token.key}
+                    >
+                        <div className="icon__back">
+                            <div
+                                className={`icon-token-tp_${token.key} token__icon`}
+                            />
+                        </div>
+                        <div className="info">
+                            <div className="amount">
+                                {total !== 0n
+                                    ? PrecisionNumbers({
+                                          amount: total,
+                                          token,
+                                          decimals:
+                                              token.visibleBalanceDecimals,
+                                          i18n: i18n,
+                                          compact: true,
+                                          useNoLimit: true,
+                                      })
+                                    : "--"}
+                            </div>
+                            <div className="label">
+                                {t("performance.metrics.tpMintable", {
+                                    ticker: token.name,
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                ))}
+                {tpRedeemableLimits.map((token) => (
+                    <div
+                        data-testid={`performance-global-group-tp-${token.key}-redeemable`}
+                        className="dataGroup"
+                        key={`redeemable-${token.key}`}
+                    >
+                        <div className="icon__back">
+                            <div
+                                className={`icon-token-tp_${token.key} token__icon`}
+                            />
+                        </div>
+                        <div className="info">
+                            <div className="amount">{redeemableLimitLabel}</div>
+                            <div className="label">
+                                {t("performance.metrics.tpRedeemable", {
+                                    ticker: token.name,
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                ))}
             </div>
+            {showRedeemableFootnote && (
+                <div className="token-table__footnote perfGlobalMetrics__footnote">
+                    {t(
+                        "performance.pegged.redeemableCombinedOperationsFootnote"
+                    )}
+                </div>
+            )}
         </div>
     );
 }

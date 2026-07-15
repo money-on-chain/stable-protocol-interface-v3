@@ -114,7 +114,7 @@ export const generateTokenRow = ({
                 </div>
                 {/* Token balance in USD */}
                 <div className="table__cell table__cell__usdBalance">
-                    {balanceLoaded && balanceUSD ? (
+                    {balanceLoaded ? (
                         <PrecisionNumbers
                             amount={balanceUSD}
                             token={{

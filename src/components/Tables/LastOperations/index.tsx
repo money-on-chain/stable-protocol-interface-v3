@@ -15,11 +15,12 @@ import Moment from "react-moment";
 import { useWalletContext } from "../../../context/Wallet";
 import { TokenSettings } from "../../../helpers/currencies";
 import date from "../../../helpers/date";
+import { wadDiv } from "../../../helpers/precision";
 import { useProjectTranslation } from "../../../helpers/translations";
 import api from "../../../services/api";
-import settings from "../../../settings/settings.json";
+import { API_OPERATIONS_BASE } from "../../../services/apiConfig";
+import settings from "../../../settings";
 import type { TokenConfig } from "../../../types/hooks";
-import Copy from "../../Copy";
 import AboutQueue from "../../Modals/AboutQueue";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 import RowDetailMobile from "../RowDetailMobile";
@@ -27,6 +28,12 @@ import RowDetailMobile from "../RowDetailMobile";
 // Type definitions
 interface LastOperationsProps {
     token: string;
+}
+
+interface DetailPriceData {
+    value: bigint | null;
+    currency: string | null;
+    token: TokenConfig | null;
 }
 
 interface DetailData {
@@ -42,10 +49,13 @@ interface DetailData {
     executed_tx_hash: string;
     executed_tx_hash_truncate: string;
     fee: React.ReactNode | string;
+    recipient_truncate: string;
     tx_hash: string;
     tx_hash_truncate: string;
     msg: string;
     reason: string;
+    price: DetailPriceData | null;
+    price_another_token: DetailPriceData | null;
     exchange?: {
         action?: string;
         amount: string | number;
@@ -82,6 +92,10 @@ interface OperationData {
         tpFromIndex_?: number;
         tpToIndex_?: number;
         blockNumber?: number;
+        qACtoRedeemTC_?: string;
+        qACtoRedeemTP_?: string;
+        qACtoMintTC_?: string;
+        qACtoMintTP_?: string;
     };
     params?: {
         qAC_?: string;
@@ -134,7 +148,7 @@ interface TokenExchangeResult {
     };
     receive: {
         action?: string;
-        amount: string | number;
+        amount: string | number | undefined;
         name: string;
         token: unknown;
         icon: string;
@@ -142,7 +156,7 @@ interface TokenExchangeResult {
     };
     another: {
         action?: string;
-        amount: string | number;
+        amount: string | number | undefined;
         name: string;
         token: unknown;
         icon: string;
@@ -241,11 +255,18 @@ export default function LastOperations(props: LastOperationsProps) {
             !isLoadingRef.current
         ) {
             isLoadingRef.current = true;
+            if (!API_OPERATIONS_BASE) {
+                console.error(
+                    "[LastOperations] API_OPERATIONS_BASE is not configured or failed allowlist validation"
+                );
+                isLoadingRef.current = false;
+                hasInitialLoadRef.current = true;
+                setReady(true);
+                return;
+            }
             const skip = (currentRef.current - 1) * pageSizeRef.current;
 
-            const url = new URL(
-                String(import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS)
-            );
+            const url = new URL(API_OPERATIONS_BASE);
             url.pathname = "/v1/operations/list/";
             url.search = new URLSearchParams({
                 recipient: addressRef.current || "",
@@ -303,6 +324,23 @@ export default function LastOperations(props: LastOperationsProps) {
             hidden: false,
         },
     ].filter((item) => !item.hidden);
+
+    const getDetailsLayoutClass = useCallback((event: string) => {
+        if (event === "TCandTPRedeem") {
+            return "LastOp__group__details--two-one-split";
+        }
+
+        if (event === "TCandTPMint") {
+            return "LastOp__group__details--one-two-split";
+        }
+
+        if (event === "Transfer") {
+            return "LastOp__group__details--one-two-merged";
+        }
+
+        return "LastOp__group__details--single-single";
+    }, []);
+
     // Initial load - immediate, no delay
     useEffect(() => {
         if (
@@ -379,7 +417,7 @@ export default function LastOperations(props: LastOperationsProps) {
             const index = parseInt(indexStr, 10);
             const arr =
                 prefix === "CA"
-                    ? (settings.tokens.CA as TokenConfig[])
+                    ? (settings.tokens.CA)
                     : prefix === "TC"
                       ? settings.tokens.TC
                       : settings.tokens.TP;
@@ -404,20 +442,20 @@ export default function LastOperations(props: LastOperationsProps) {
             }
 
             const caIndex = row_operation.bucket_index ?? 0;
-            
+
             if (!status) {
                 return {
                     exchange: {
                         amount: 0,
                         name: "",
-                        token: (settings.tokens.CA as TokenConfig[])[caIndex],
+                        token: (settings.tokens.CA)[caIndex],
                         icon: `CA_${caIndex}`,
                         title: t("operations.actions.exchanged"),
                     },
                     receive: {
                         amount: 0,
                         name: "",
-                        token: (settings.tokens.CA as TokenConfig[])[caIndex],
+                        token: (settings.tokens.CA)[caIndex],
                         icon: `CA_${caIndex}`,
                         title: t("operations.actions.received"),
                     },
@@ -426,8 +464,8 @@ export default function LastOperations(props: LastOperationsProps) {
                         name: "",
                         token:
                             row_operation["operation"] === "TCandTPMint"
-                                ? (settings.tokens.TC as TokenConfig[])[caIndex]
-                                : (settings.tokens.TP as TokenConfig[])[
+                                ? (settings.tokens.TC)[caIndex]
+                                : (settings.tokens.TP)[
                                       caIndex
                                   ],
                         icon:
@@ -451,9 +489,9 @@ export default function LastOperations(props: LastOperationsProps) {
                                 ? row_operation.executed?.qAC_ || 0
                                 : row_operation.params?.qACmax || 0,
                         name:
-                            (settings.tokens.CA as TokenConfig[])[caIndex]
+                            (settings.tokens.CA)[caIndex]
                                 ?.name || "",
-                        token: (settings.tokens.CA as TokenConfig[])[caIndex],
+                        token: (settings.tokens.CA)[caIndex],
                         icon: `CA_${caIndex}`,
                         title:
                             status === "executed"
@@ -477,7 +515,7 @@ export default function LastOperations(props: LastOperationsProps) {
                     another: {
                         amount: 0,
                         name: "",
-                        token: (settings.tokens.TC as TokenConfig[])[caIndex],
+                        token: (settings.tokens.TC)[caIndex],
                         icon: `TC_${caIndex}`,
                         title: t("operations.actions.received"),
                     },
@@ -505,9 +543,9 @@ export default function LastOperations(props: LastOperationsProps) {
                                 ? row_operation.executed?.qAC_ || 0
                                 : row_operation.params?.qACmin || 0,
                         name:
-                            (settings.tokens.CA as TokenConfig[])[caIndex]
+                            (settings.tokens.CA)[caIndex]
                                 ?.name || "",
-                        token: (settings.tokens.CA as TokenConfig[])[caIndex],
+                        token: (settings.tokens.CA)[caIndex],
                         icon: `CA_${caIndex}`,
                         title:
                             status === "executed"
@@ -517,7 +555,7 @@ export default function LastOperations(props: LastOperationsProps) {
                     another: {
                         amount: 0,
                         name: "",
-                        token: (settings.tokens.TP as TokenConfig[])[caIndex],
+                        token: (settings.tokens.TP)[caIndex],
                         icon: `TP_${caIndex}`,
                         title: t("operations.actions.received"),
                     },
@@ -540,9 +578,9 @@ export default function LastOperations(props: LastOperationsProps) {
                                 ? row_operation.executed?.qAC_ || 0
                                 : row_operation.params?.qACmax || 0,
                         name:
-                            (settings.tokens.CA as TokenConfig[])[caIndex]
+                            (settings.tokens.CA)[caIndex]
                                 ?.name || "",
-                        token: (settings.tokens.CA as TokenConfig[])[caIndex],
+                        token: (settings.tokens.CA)[caIndex],
                         icon: `CA_${caIndex}`,
                         title:
                             status === "executed"
@@ -566,7 +604,7 @@ export default function LastOperations(props: LastOperationsProps) {
                     another: {
                         amount: 0,
                         name: "",
-                        token: (settings.tokens.TC as TokenConfig[])[caIndex],
+                        token: (settings.tokens.TC)[caIndex],
                         icon: `TC_${caIndex}`,
                         title: t("operations.actions.received"),
                     },
@@ -603,9 +641,9 @@ export default function LastOperations(props: LastOperationsProps) {
                                 ? row_operation.executed?.qAC_ || 0
                                 : row_operation.params?.qACmin || 0,
                         name:
-                            (settings.tokens.CA as TokenConfig[])[caIndex]
+                            (settings.tokens.CA)[caIndex]
                                 ?.name || "",
-                        token: (settings.tokens.CA as TokenConfig[])[caIndex],
+                        token: (settings.tokens.CA)[caIndex],
                         icon: `CA_${caIndex}`,
                         title:
                             status === "executed"
@@ -615,7 +653,7 @@ export default function LastOperations(props: LastOperationsProps) {
                     another: {
                         amount: 0,
                         name: "",
-                        token: (settings.tokens.TC as TokenConfig[])[caIndex],
+                        token: (settings.tokens.TC)[caIndex],
                         icon: `TC_${caIndex}`,
                         title: t("operations.actions.received"),
                     },
@@ -657,7 +695,7 @@ export default function LastOperations(props: LastOperationsProps) {
                         action: "TPSwapForTP",
                         amount:
                             status === "executed"
-                                ? row_operation.executed?.qTPto_ || undefined
+                                ? row_operation.executed?.qTPto_
                                 : undefined,
                         name: settings.tokens.TP[tp_to_index].name,
                         token: settings.tokens.TP[tp_to_index],
@@ -670,7 +708,7 @@ export default function LastOperations(props: LastOperationsProps) {
                     another: {
                         amount: 0,
                         name: "",
-                        token: (settings.tokens.TC as TokenConfig[])[caIndex],
+                        token: (settings.tokens.TC)[caIndex],
                         icon: `TC_${caIndex}`,
                         title: t("operations.actions.received"),
                     },
@@ -717,7 +755,7 @@ export default function LastOperations(props: LastOperationsProps) {
                     another: {
                         amount: 0,
                         name: "",
-                        token: (settings.tokens.TC as TokenConfig[])[caIndex],
+                        token: (settings.tokens.TC)[caIndex],
                         icon: `TC_${caIndex}`,
                         title: t("operations.actions.received"),
                     },
@@ -764,7 +802,7 @@ export default function LastOperations(props: LastOperationsProps) {
                     another: {
                         amount: 0,
                         name: "",
-                        token: (settings.tokens.TP as TokenConfig[])[caIndex],
+                        token: (settings.tokens.TP)[caIndex],
                         icon: `TP_${caIndex}`,
                         title: t("operations.actions.received"),
                     },
@@ -787,9 +825,9 @@ export default function LastOperations(props: LastOperationsProps) {
                                 ? row_operation.executed?.qTC_ || 0
                                 : row_operation.params?.qTC || 0,
                         name:
-                            (settings.tokens.TC as TokenConfig[])[caIndex]
+                            (settings.tokens.TC)[caIndex]
                                 ?.name || "",
-                        token: (settings.tokens.TC as TokenConfig[])[caIndex],
+                        token: (settings.tokens.TC)[caIndex],
                         icon: `TC_${caIndex}`,
                         title:
                             status === "executed"
@@ -803,9 +841,9 @@ export default function LastOperations(props: LastOperationsProps) {
                                 ? row_operation.executed?.qAC_ || 0
                                 : row_operation.params?.qACmin || 0,
                         name:
-                            (settings.tokens.CA as TokenConfig[])[caIndex]
+                            (settings.tokens.CA)[caIndex]
                                 ?.name || "",
-                        token: (settings.tokens.CA as TokenConfig[])[caIndex],
+                        token: (settings.tokens.CA)[caIndex],
                         icon: `CA_${caIndex}`,
                         title:
                             status === "executed"
@@ -845,9 +883,9 @@ export default function LastOperations(props: LastOperationsProps) {
                                 ? row_operation.executed?.qAC_ || 0
                                 : row_operation.params?.qACmax || 0,
                         name:
-                            (settings.tokens.CA as TokenConfig[])[caIndex]
+                            (settings.tokens.CA)[caIndex]
                                 ?.name || "",
-                        token: (settings.tokens.CA as TokenConfig[])[caIndex],
+                        token: (settings.tokens.CA)[caIndex],
                         icon: `CA_${caIndex}`,
                         title:
                             status === "executed"
@@ -872,8 +910,8 @@ export default function LastOperations(props: LastOperationsProps) {
                         action: "TCandTPMint",
                         amount:
                             status === "executed"
-                                ? row_operation.executed?.qTC_ || undefined
-                                : row_operation.params?.qTC || undefined,
+                                ? row_operation.executed?.qTC_
+                                : row_operation.params?.qTC,
                         name: settings.tokens.TC[caIndex].name,
                         token: settings.tokens.TC[caIndex],
                         icon: `TC_${caIndex}`,
@@ -916,7 +954,7 @@ export default function LastOperations(props: LastOperationsProps) {
                     another: {
                         amount: 0,
                         name: "",
-                        token: (settings.tokens.TC as TokenConfig[])[0],
+                        token: (settings.tokens.TC)[0],
                         icon: `TC_${0}`,
                         title: t("operations.actions.received"),
                     },
@@ -927,7 +965,7 @@ export default function LastOperations(props: LastOperationsProps) {
                         action: "Error",
                         amount: 0,
                         name: "",
-                        token: (settings.tokens.CA as TokenConfig[])[caIndex],
+                        token: (settings.tokens.CA)[caIndex],
                         icon: `CA_${caIndex}`,
                         title: "Revert",
                     },
@@ -935,14 +973,14 @@ export default function LastOperations(props: LastOperationsProps) {
                         action: "Error",
                         amount: 0,
                         name: "",
-                        token: (settings.tokens.CA as TokenConfig[])[caIndex],
+                        token: (settings.tokens.CA)[caIndex],
                         icon: `CA_${caIndex}`,
                         title: "Revert",
                     },
                     another: {
                         amount: 0,
                         name: "",
-                        token: (settings.tokens.CA as TokenConfig[])[caIndex],
+                        token: (settings.tokens.CA)[caIndex],
                         icon: `CA_${caIndex}`,
                         title: "Revert",
                     },
@@ -960,7 +998,7 @@ export default function LastOperations(props: LastOperationsProps) {
                 case "qAC below minimum required":
                     return `${t("operations.errors.qACBelow1")} ${token} ${t("operations.errors.qACBelow2")}`;
                 case "Insufficient qac sent":
-                    return ` ${t("operations.errors.insufficientQAC1")} ${(settings.tokens.CA as TokenConfig[])[0]?.name || ""} ${t("operations.errors.insufficientQAC2")}`;
+                    return ` ${t("operations.errors.insufficientQAC1")} ${(settings.tokens.CA)[0]?.name || ""} ${t("operations.errors.insufficientQAC2")}`;
                 case "Low coverage":
                     return t("operations.errors.lowCoverage");
                 case "Invalid Flux Capacitor Operation":
@@ -995,7 +1033,7 @@ export default function LastOperations(props: LastOperationsProps) {
                 token: string | null;
                 decimals: number;
             } = { amount: 0n, token: null, decimals: 18 };
-            const caIndex = row_operation["bucket_index"];
+            const caIndex = row_operation["bucket_index"] ?? 0;
 
             if (
                 row_operation["executed"] &&
@@ -1027,7 +1065,7 @@ export default function LastOperations(props: LastOperationsProps) {
                 fee["amount"] = qACfee + qACVendorMarkup;
                 fee["token"] = `CA_${caIndex}`;
                 fee["decimals"] =
-                    (settings.tokens.CA as TokenConfig[])[caIndex]?.decimals ||
+                    (settings.tokens.CA)[caIndex]?.decimals ||
                     18;
             }
 
@@ -1057,6 +1095,283 @@ export default function LastOperations(props: LastOperationsProps) {
             }
         },
         [i18n, t, ns]
+    );
+    const getPrice = useCallback(
+        (row_operation: OperationData) => {
+            let value: bigint | null = null;
+            let currency: string | null = null;
+            const caIndex = row_operation["bucket_index"] ?? 0;
+            const row_executed = row_operation.executed;
+            let exchangeTokenName: string | null = null;
+            let receiveTokenName: string | null = null;
+            let token: TokenConfig | null = null;
+            if (
+                row_operation["operation"] === "TPMint" &&
+                row_executed &&
+                row_executed.qTP_ &&
+                row_executed.qAC_
+            ) {
+                let tp_index =
+                    row_executed?.tpIndex_ ||
+                    (row_executed as { tpIndex?: number })?.tpIndex;
+                tp_index = tp_index ?? 0;
+                exchangeTokenName = (settings.tokens.CA)[
+                    caIndex
+                ]?.name;
+                receiveTokenName = (settings.tokens.TP)[
+                    tp_index
+                ]?.name;
+                value = wadDiv(
+                    BigInt(row_executed.qTP_),
+                    BigInt(row_executed.qAC_),
+                    "halfUp"
+                );
+                currency = `${exchangeTokenName}/${receiveTokenName}`;
+                token = (settings.tokens.TP)[tp_index];
+            } else if (
+                row_operation["operation"] === "TPRedeem" &&
+                row_executed &&
+                row_executed.qTP_ &&
+                row_executed.qAC_
+            ) {
+                let tp_index =
+                    row_executed?.tpIndex_ ||
+                    (row_executed as { tpIndex?: number })?.tpIndex;
+                tp_index = tp_index ?? 0;
+                exchangeTokenName = (settings.tokens.TP)[
+                    tp_index
+                ]?.name;
+                receiveTokenName = (settings.tokens.CA)[
+                    caIndex
+                ]?.name;
+                value = wadDiv(
+                    BigInt(row_executed.qTP_),
+                    BigInt(row_executed.qAC_),
+                    "halfUp"
+                );
+                currency = `${receiveTokenName}/${exchangeTokenName}`;
+                token = (settings.tokens.CA)[caIndex];
+            } else if (
+                row_operation["operation"] === "TCMint" &&
+                row_executed &&
+                row_executed.qTC_ &&
+                row_executed.qAC_
+            ) {
+                exchangeTokenName = (settings.tokens.CA)[
+                    caIndex
+                ]?.name;
+                receiveTokenName = (settings.tokens.TC)[
+                    caIndex
+                ]?.name;
+                value = wadDiv(
+                    BigInt(row_executed.qTC_),
+                    BigInt(row_executed.qAC_),
+                    "halfUp"
+                );
+                currency = `${exchangeTokenName}/${receiveTokenName}`;
+                token = (settings.tokens.TC)[caIndex];
+            } else if (
+                row_operation["operation"] === "TCRedeem" &&
+                row_executed &&
+                row_executed.qTC_ &&
+                row_executed.qAC_
+            ) {
+                exchangeTokenName = (settings.tokens.TC)[
+                    caIndex
+                ]?.name;
+                receiveTokenName = (settings.tokens.CA)[
+                    caIndex
+                ]?.name;
+                value = wadDiv(
+                    BigInt(row_executed.qTC_),
+                    BigInt(row_executed.qAC_),
+                    "halfUp"
+                );
+                currency = `${receiveTokenName}/${exchangeTokenName}`;
+                token = (settings.tokens.CA)[caIndex];
+            } else if (
+                row_operation["operation"] === "TPSwapForTP" &&
+                row_executed &&
+                row_executed.qTPfrom_ &&
+                row_executed.qTPto_
+            ) {
+                const sd = row_executed as
+                    | {
+                          tpFromIndex_?: number;
+                          tpFromIndex?: number;
+                          tpToIndex_?: number;
+                          tpToIndex?: number;
+                      }
+                    | undefined;
+                const tp_from_index: number =
+                    sd?.tpFromIndex_ ?? sd?.tpFromIndex ?? 0;
+                const tp_to_index: number =
+                    sd?.tpToIndex_ ?? sd?.tpToIndex ?? 0;
+                exchangeTokenName = (settings.tokens.TP)[
+                    tp_from_index
+                ]?.name;
+                receiveTokenName = (settings.tokens.TP)[
+                    tp_to_index
+                ]?.name;
+                value = wadDiv(
+                    BigInt(row_executed.qTPfrom_),
+                    BigInt(row_executed.qTPto_),
+                    "halfUp"
+                );
+                currency = `${exchangeTokenName}/${receiveTokenName}`;
+                token = (settings.tokens.TP)[tp_from_index];
+            } else if (
+                row_operation["operation"] === "TCSwapForTP" &&
+                row_executed &&
+                row_executed.qTC_ &&
+                row_executed.qTP_
+            ) {
+                let tp_index =
+                    row_executed?.tpIndex_ ||
+                    (row_executed as { tpIndex?: number })?.tpIndex;
+                tp_index = tp_index ?? 0;
+                exchangeTokenName = (settings.tokens.TC)[
+                    caIndex
+                ]?.name;
+                receiveTokenName = (settings.tokens.TP)[
+                    tp_index
+                ]?.name;
+                value = wadDiv(
+                    BigInt(row_executed.qTP_),
+                    BigInt(row_executed.qTC_),
+                    "halfUp"
+                );
+                currency = `${exchangeTokenName}/${receiveTokenName}`;
+                token = (settings.tokens.TP)[tp_index];
+            } else if (
+                row_operation["operation"] === "TPSwapForTC" &&
+                row_executed &&
+                row_executed.qTP_ &&
+                row_executed.qTC_
+            ) {
+                let tp_index =
+                    row_executed?.tpIndex_ ||
+                    (row_executed as { tpIndex?: number })?.tpIndex;
+                tp_index = tp_index ?? 0;
+                exchangeTokenName = (settings.tokens.TP)[
+                    tp_index
+                ]?.name;
+                receiveTokenName = (settings.tokens.TC)[
+                    caIndex
+                ]?.name;
+                value = wadDiv(
+                    BigInt(row_executed.qTP_),
+                    BigInt(row_executed.qTC_),
+                    "halfUp"
+                );
+                currency = `${receiveTokenName}/${exchangeTokenName}`;
+                token = (settings.tokens.TC)[caIndex];
+            } else if (
+                row_operation["operation"] === "TCandTPRedeem" &&
+                row_executed &&
+                row_executed.qTC_ &&
+                row_executed.qACtoRedeemTC_
+            ) {
+                exchangeTokenName = (settings.tokens.TC)[
+                    caIndex
+                ]?.name;
+                receiveTokenName = (settings.tokens.CA)[
+                    caIndex
+                ]?.name;
+                value = wadDiv(
+                    BigInt(row_executed.qTC_),
+                    BigInt(row_executed.qACtoRedeemTC_),
+                    "halfUp"
+                );
+                currency = `${receiveTokenName}/${exchangeTokenName}`;
+                token = (settings.tokens.CA)[caIndex];
+            } else if (
+                row_operation["operation"] === "TCandTPMint" &&
+                row_executed &&
+                row_executed.qACtoMintTP_ &&
+                row_executed.qTP_
+            ) {
+                let tp_index =
+                    row_executed?.tpIndex_ ||
+                    (row_executed as { tpIndex?: number })?.tpIndex;
+                tp_index = tp_index ?? 0;
+                exchangeTokenName = (settings.tokens.CA)[
+                    caIndex
+                ]?.name;
+                receiveTokenName = (settings.tokens.TP)[
+                    tp_index
+                ]?.name;
+                value = wadDiv(
+                    BigInt(row_executed.qTP_),
+                    BigInt(row_executed.qACtoMintTP_),
+                    "halfUp"
+                );
+                currency = `${exchangeTokenName}/${receiveTokenName}`;
+                token = (settings.tokens.TP)[tp_index];
+            }
+            return { value, currency, token };
+        },
+        []
+    );
+    const getPriceAnotherToken = useCallback(
+        (row_operation: OperationData) => {
+            let value: bigint | null = null;
+            let currency: string | null = null;
+            const caIndex = row_operation["bucket_index"] ?? 0;
+            const row_executed = row_operation.executed;
+            let exchangeTokenName: string | null = null;
+            let receiveTokenName: string | null = null;
+            let token: TokenConfig | null = null;
+            if (
+                row_operation["operation"] === "TCandTPRedeem" &&
+                row_executed &&
+                row_executed.qTP_ &&
+                row_executed.qACtoRedeemTP_
+            ) {
+                let tp_index =
+                    row_executed?.tpIndex_ ||
+                    (row_executed as { tpIndex?: number })?.tpIndex;
+                tp_index = tp_index ?? 0;
+                exchangeTokenName = (settings.tokens.TP)[
+                    tp_index
+                ]?.name;
+                receiveTokenName = (settings.tokens.CA)[
+                    caIndex
+                ]?.name;
+                value = wadDiv(
+                    BigInt(row_executed.qTP_),
+                    BigInt(row_executed.qACtoRedeemTP_),
+                    "halfUp"
+                );
+                currency = `${receiveTokenName}/${exchangeTokenName}`;
+                token = (settings.tokens.CA)[caIndex];
+            } else if (
+                row_operation["operation"] === "TCandTPMint" &&
+                row_executed &&
+                row_executed.qACtoMintTC_ &&
+                row_executed.qTC_
+            ) {
+                let tp_index =
+                    row_executed?.tpIndex_ ||
+                    (row_executed as { tpIndex?: number })?.tpIndex;
+                tp_index = tp_index ?? 0;
+                exchangeTokenName = (settings.tokens.TC)[
+                    caIndex
+                ]?.name;
+                receiveTokenName = (settings.tokens.CA)[
+                    caIndex
+                ]?.name;
+                value = wadDiv(
+                    BigInt(row_executed.qTC_),
+                    BigInt(row_executed.qACtoMintTC_),
+                    "halfUp"
+                );
+                currency = `${receiveTokenName}/${exchangeTokenName}`;
+                token = (settings.tokens.TC)[caIndex];
+            }
+            return { value, currency, token };
+        },
+        []
     );
     const getTransferAction = useCallback(
         (row_operation: OperationData) => {
@@ -1255,16 +1570,13 @@ export default function LastOperations(props: LastOperationsProps) {
                     "--"
                 ),
                 recipient:
-                    data.params?.recipient !== "--" ? (
-                        <Copy
-                            textToShow={TruncatedAddress(
-                                data.params?.recipient || ""
-                            )}
-                            textToCopy={data.params?.recipient || ""}
-                        />
-                    ) : (
-                        "--"
-                    ),
+                    data.params?.recipient !== "--"
+                        ? data.params?.recipient || ""
+                        : "--",
+                recipient_truncate:
+                    data.params?.recipient !== "--"
+                        ? TruncatedAddress(data.params?.recipient || "") || "--"
+                        : "--",
                 block: data["blockNumber"] || "--",
                 tx_hash_truncate: TruncatedAddress(data["hash"] || "") || "--",
                 tx_hash: data["hash"] || "--",
@@ -1282,6 +1594,8 @@ export default function LastOperations(props: LastOperationsProps) {
                 executed_tx_hash: data.params?.hash || "--",
                 status: getStatus(data) || "--",
                 fee: getFee(data) || "--",
+                price: getPrice(data),
+                price_another_token: getPriceAnotherToken(data),
             };
 
             received_row.push({
@@ -1312,7 +1626,11 @@ export default function LastOperations(props: LastOperationsProps) {
                                                         )}
                                                         token={exchangeToken}
                                                         decimals={
-                                                            exchangeToken === undefined ? 2 : exchangeToken.visibleDecimals ?? 2
+                                                            exchangeToken ===
+                                                            undefined
+                                                                ? 2
+                                                                : (exchangeToken.visibleDecimals ??
+                                                                  2)
                                                         }
                                                         i18n={i18n}
                                                         compact={true}
@@ -1371,7 +1689,11 @@ export default function LastOperations(props: LastOperationsProps) {
                                                               ),
                                                               token: receiveToken,
                                                               decimals:
-                                                                 receiveToken === undefined ? 2 : receiveToken.visibleDecimals ?? 2,
+                                                                  receiveToken ===
+                                                                  undefined
+                                                                      ? 2
+                                                                      : (receiveToken.visibleDecimals ??
+                                                                        2),
                                                               i18n: i18n,
                                                               compact: true,
                                                           });
@@ -1545,22 +1867,44 @@ export default function LastOperations(props: LastOperationsProps) {
                             />
                         </div>
 
-                        <div className="LastOp__group__details">
-                            <div className="LastOp__divider"></div>
-                            <div className="LastOp__origin">
-                                {element.exchange}
-                                {element.detail.event === "TCandTPRedeem" && (
-                                    <>{element.another}</>
-                                )}
-                            </div>
+                        <div
+                            className={`LastOp__group__details ${getDetailsLayoutClass(element.detail.event)}`}
+                        >
+                            <div className="LastOp__divider LastOp__divider--details-start"></div>
+                            {element.detail.event === "ERROR" ? (
+                                <div className="LastOp__revert">
+                                    <span className="table-amount">
+                                        {t(
+                                            "operations.errors.failedBeforeExecution"
+                                        )}
+                                    </span>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="LastOp__origin">
+                                        {element.exchange}
+                                        {element.detail.event ===
+                                            "TCandTPRedeem" && (
+                                            <>
+                                                <div className="LastOp__divider LastOp__divider--opaciti"></div>
+                                                {element.another}
+                                            </>
+                                        )}
+                                    </div>
 
-                            <div className="LastOp__divider"></div>
-                            <div className="LastOp__destination">
-                                {element.receive}
-                                {element.detail.event === "TCandTPMint" && (
-                                    <>{element.another}</>
-                                )}
-                            </div>
+                                    <div className="LastOp__divider LastOp__divider--details-middle"></div>
+                                    <div className="LastOp__destination">
+                                        {element.receive}
+                                        {element.detail.event ===
+                                            "TCandTPMint" && (
+                                            <>
+                                                <div className="LastOp__divider LastOp__divider--opaciti"></div>
+                                                {element.another}
+                                            </>
+                                        )}
+                                    </div>
+                                </>
+                            )}
                         </div>
                         <div className="LastOp__group__dateStatus">
                             <div className="LastOp__divider"></div>
@@ -1603,6 +1947,9 @@ export default function LastOperations(props: LastOperationsProps) {
         tokenExchange,
         TruncatedAddress,
         getAsset,
+        getDetailsLayoutClass,
+        getPrice,
+        getPriceAnotherToken,
     ]);
 
     const tableColumns = useMemo(
@@ -1687,7 +2034,7 @@ export default function LastOperations(props: LastOperationsProps) {
                         }
                         onRow={(_record, index) => ({
                             "data-testid": `last-operations-row-${index ?? 0}`,
-                        })}
+                        } as React.HTMLAttributes<HTMLTableRowElement>)}
                         scroll={{ y: lastOperationsHeight }}
                         style={{}}
                         loading={!ready && processedData.length === 0}

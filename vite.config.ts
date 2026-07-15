@@ -16,9 +16,10 @@ export default defineConfig({
         react(),
         svgr({ svgrOptions: {} }),
         VitePWA({
-            registerType: "autoUpdate",
+            registerType: "prompt",
             workbox: {
                 navigateFallbackDenylist: [/^\/api\//],
+                cleanupOutdatedCaches: true,
             },
             manifest: manifestFromPublic,
         }),

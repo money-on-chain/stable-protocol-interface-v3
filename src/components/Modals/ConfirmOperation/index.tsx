@@ -16,12 +16,14 @@ interface ModalConfirmOperationProps {
     amountYouReceive: bigint;
     executionFee: bigint;
     executionFeeUSD: bigint;
-    radioSelectFee: number;
+    selectedFeeCurrency: string;
     caIndex: number;
     operationType: string;
     slippageTolerance: number;
     amountAnotherToken: { qAC: bigint; amount: bigint };
     tpIndex: number;
+    totalAmountExchangeInFiat: bigint;
+    totalAmountReceiveInFiat: bigint;
 }
 
 export default function ModalConfirmOperation(

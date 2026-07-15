@@ -4,7 +4,7 @@ import React, { useMemo, useState } from "react";
 import { useWalletContext } from "../../context/Wallet";
 import { CheckStatusGlobal } from "../../helpers/checkStatus";
 import { useProjectTranslation } from "../../helpers/translations";
-import settings from "../../settings/settings.json";
+import settings from "../../settings";
 import GlobalStatusModal from "../Modals/GlobalStatus";
 import Buckets from "./buckets";
 import MultiCollateral from "./multicollateral";

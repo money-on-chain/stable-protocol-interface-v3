@@ -22,13 +22,6 @@ export const ENV_CHAIN_ID = Number(
         31
 );
 
-export const ALLOWED_CHAIN =
-    ENV_CHAIN_ID === rootstock.id
-        ? rootstock
-        : ENV_CHAIN_ID === rootstockTestnet.id
-          ? rootstockTestnet
-          : localhost;
-
 // Patch localhost with the multicall3 address used on RSK dev nodes.
 // Creating a new object avoids mutating the shared wagmi/chains export.
 const localhostWithMulticall = {
@@ -42,8 +35,15 @@ const localhostWithMulticall = {
     },
 } as const;
 
-export const CHAINS = [
-    rootstock,
-    rootstockTestnet,
-    localhostWithMulticall,
-] as const;
+export const ALLOWED_CHAIN =
+    ENV_CHAIN_ID === rootstock.id
+        ? rootstock
+        : ENV_CHAIN_ID === rootstockTestnet.id
+          ? rootstockTestnet
+          : localhostWithMulticall;
+
+// Only include the active chain. Each extra chain causes wagmi to create an
+// additional internal PublicClient with its own subscriptions, which adds
+// ~3-4 "close" listeners to the injected provider per chain and triggers
+// MaxListenersExceededWarning from wallet extensions (MetaMask, etc.).
+export const CHAINS = [ALLOWED_CHAIN] as const;

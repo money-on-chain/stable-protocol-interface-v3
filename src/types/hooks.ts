@@ -45,6 +45,13 @@ export type DContracts = {
     LendingManager?: ContractInfo;
     LendingReader?: ContractInfo;
 
+    // Custom price providers (from REACT_APP_CONTRACT_PRICE_PROVIDER_CUSTOM)
+    // Each ContractInfo.name holds the pair label, e.g. "MOC/USD"
+    PP_CUSTOM?: ContractInfo[];
+    // ERC-20 token contracts for custom PP tokens (third field in the env var)
+    // Each ContractInfo.name holds the same pair label as the matching PP_CUSTOM entry
+    CUSTOM_TOKENS?: ContractInfo[];
+
     // Extras contracts
     tp_legacy?: ContractInfo;
     token_migrator?: ContractInfo;
@@ -106,6 +113,12 @@ export interface SettingsTokens {
     TG: TokenConfig[];
 }
 
+export interface SettingsTokenMap {
+    tokenMap?: {
+        blacklist?: string[];
+    };
+}
+
 export interface Settings {
     project: string;
     dapp: {
@@ -115,9 +128,20 @@ export interface Settings {
     slippage: {
         autoDefault: number;
         presets: number[];
+        max?: number;
     };
     showPriceVariation: boolean;
+    useCombinedOperationsRedeemableLimit?: boolean;
+    tokenPriceStrip?: {
+        tokens: string[];
+    };
     tokens: SettingsTokens;
+    portfolio_table?: string[];
+    exchange?: SettingsTokenMap;
+    combinedOperations?: SettingsTokenMap;
+    defaults?: {
+        tokens?: Partial<TokenConfig>;
+    };
 }
 
 /** Multicall response shapes we consume */

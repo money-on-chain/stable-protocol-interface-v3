@@ -223,76 +223,6 @@ icons.css contains all the css code for Icons across the Dapp
 .item-usd {
     padding-right: 8px;
 }
-.icon-token-coinbase {
-    width: var(--icon-token-size);
-    height: var(--icon-token-size);
-    background-image: url("../tokens/coinbase.svg");
-    background-size: var(--icon-token-size) var(--icon-token-size);
-    background-repeat: no-repeat;
-}
-
-.icon-token-ca_0 {
-    width: var(--icon-token-size);
-    height: var(--icon-token-size);
-    background-image: url("../tokens/ca_0.svg");
-    background-size: var(--icon-token-size) var(--icon-token-size);
-    background-repeat: no-repeat;
-}
-
-.icon-token-ca_1 {
-    width: var(--icon-token-size);
-    height: var(--icon-token-size);
-    background-image: url("../tokens/ca_1.svg");
-    background-size: var(--icon-token-size) var(--icon-token-size);
-    background-repeat: no-repeat;
-}
-
-.icon-token-tc_0 {
-    width: var(--icon-token-size);
-    height: var(--icon-token-size);
-    background-image: url("../tokens/tc_0.svg");
-    background-size: var(--icon-token-size) var(--icon-token-size);
-    background-repeat: no-repeat;
-}
-.icon-token-tc_1 {
-    width: var(--icon-token-size);
-    height: var(--icon-token-size);
-    background-image: url("../tokens/tc_1.svg");
-    background-size: var(--icon-token-size) var(--icon-token-size);
-    background-repeat: no-repeat;
-}
-
-.icon-token-tf {
-    width: var(--icon-token-size);
-    height: var(--icon-token-size);
-    background-image: url("../tokens/tf.svg");
-    background-size: var(--icon-token-size) var(--icon-token-size);
-    background-repeat: no-repeat;
-}
-
-.icon-token-tp_0 {
-    width: var(--icon-token-size);
-    height: var(--icon-token-size);
-    background-image: url("../tokens/tp_0.svg");
-    background-size: var(--icon-token-size) var(--icon-token-size);
-    background-repeat: no-repeat;
-}
-
-.icon-token-tp_1 {
-    width: var(--icon-token-size);
-    height: var(--icon-token-size);
-    background-image: url("../tokens/tp_1.svg");
-    background-size: var(--icon-token-size) var(--icon-token-size);
-    background-repeat: no-repeat;
-}
-
-.icon-token-tx {
-    width: var(--icon-token-size);
-    height: var(--icon-token-size);
-    background-image: url("../tokens/tx.svg");
-    background-size: var(--icon-token-size) var(--icon-token-size);
-    background-repeat: no-repeat;
-}
 
 .icon-status-info {
     width: 24px;
@@ -431,6 +361,24 @@ icons.css contains all the css code for Icons across the Dapp
     width: 16px;
     height: 16px;
 }
+.icon__scroll__left {
+    display: block;
+    filter: var(--color-nav-icon-filter-default);
+    background-image: url("../icons/ScrollLeft.svg");
+    background-size: 20px 20px;
+    background-repeat: no-repeat;
+    width: 20px;
+    height: 20px;
+}
+.icon__scroll__right {
+    display: block;
+    filter: var(--color-nav-icon-filter-default);
+    background-image: url("../icons/ScrollRight.svg");
+    background-size: 20px 20px;
+    background-repeat: no-repeat;
+    width: 20px;
+    height: 20px;
+}
 .icon__addProposal {
     background-image: url("../icons/AddProposalOutline.svg");
     background-size: 48px 48px;
@@ -493,8 +441,24 @@ icons.css contains all the css code for Icons across the Dapp
     width: 24px;
     height: 24px;
 }
+.icon__Ema {
+    background-image: url("../icons/GlobalMetrics_EMA.svg");
+    filter: var(--color-icon-link-secondary-filter);
+    background-size: 24px 24px;
+    background-repeat: no-repeat;
+    width: 24px;
+    height: 24px;
+}
 .icon__Total {
     background-image: url("../icons/Total.svg");
+    filter: var(--color-icon-link-secondary-filter);
+    background-size: 24px 24px;
+    background-repeat: no-repeat;
+    width: 24px;
+    height: 24px;
+}
+.icon__TotalUsd {
+    background-image: url("../icons/GlobalMetrics_TotalUSD.svg");
     filter: var(--color-icon-link-secondary-filter);
     background-size: 24px 24px;
     background-repeat: no-repeat;

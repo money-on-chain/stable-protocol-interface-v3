@@ -5,7 +5,7 @@ import { localhost, rootstock, rootstockTestnet } from "wagmi/chains";
 import { coinbaseWallet, injected, walletConnect } from "wagmi/connectors";
 
 import { ALLOWED_CHAIN, CHAINS } from "./constants/chain";
-import settings from "./settings/settings.json";
+import settings from "./settings";
 
 // Re-export so existing consumers of wagmiConfig still work
 export { ALLOWED_CHAIN, CHAINS };
@@ -46,7 +46,12 @@ if (!WC_PROJECT_ID) {
 // announce themselves via EIP-6963 (older extensions).
 const connectors = [
     injected({ shimDisconnect: true }),
-    coinbaseWallet({ appName: settings.dapp.name }),
+    coinbaseWallet({
+        appName: settings.dapp.name,
+        // Disable Coinbase's inline telemetry script, which would violate
+        // CSP script-src 'self' by injecting script.textContent at runtime.
+        preference: { options: "all", telemetry: false },
+    }),
     walletConnect({
         projectId: WC_PROJECT_ID,
         showQrModal: true,
@@ -79,6 +84,27 @@ const getRpcEndpoints = (chainId: number) => {
             ].filter(Boolean);
         default:
             return [];
+    }
+};
+
+const HTTPS_REQUIRED_CHAIN_IDS = new Set<number>([
+    rootstock.id,
+    rootstockTestnet.id,
+]);
+
+const validateRpcUrl = (url: string, chainId: number): boolean => {
+    try {
+        const { protocol } = new URL(url);
+        if (HTTPS_REQUIRED_CHAIN_IDS.has(chainId) && protocol !== "https:") {
+            console.error(
+                `[wagmiConfig] RPC URL "${url}" must use HTTPS for chain ${chainId}`
+            );
+            return false;
+        }
+        return true;
+    } catch (_e: unknown) {
+        console.error(`[wagmiConfig] Invalid RPC URL: "${url}"`);
+        return false;
     }
 };
 
@@ -121,7 +147,7 @@ const activeConnectorTransport = (
 ) => {
     const { chain } = params ?? {};
     return custom({
-        request: async ({ method, params: rpcParams }) => {
+        request: async ({ method, params: rpcParams }: { method: string; params?: unknown }) => {
             const cfg = _wagmiConfig;
             if (!cfg) throw new Error("transport: wagmi config not ready");
 
@@ -140,11 +166,9 @@ const activeConnectorTransport = (
             });
             if (!provider) throw new Error("transport: provider unavailable");
 
-            // rpcParams comes from viem's custom() callback which types it as any
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             return provider.request({
                 method,
-                params: rpcParams as unknown,
+                params: rpcParams,
             }) as unknown;
         },
     })(params);
@@ -153,16 +177,35 @@ const activeConnectorTransport = (
 // Build an ordered list of transports for a given chain:
 //   1. activeConnectorTransport — the wallet the user connected with
 //   2. env-var HTTP endpoints — explicitly configured RPCs
-//   3. http() with no URL — chain's built-in default RPC (last-resort safety net so
-//      fallback() always receives at least one transport and createConfig never throws)
+//   3. http() with no URL — chain-default RPC, only for testnet/localhost;
+//      mainnet requires an explicit endpoint via REACT_APP_RSK_MAINNET_RPC
 const chainTransports = (chainId: number) => {
-    const envTransports = getRpcEndpoints(chainId).map((url) =>
+    const validatedEndpoints = getRpcEndpoints(chainId).filter((url) =>
+        validateRpcUrl(url as string, chainId)
+    );
+    const envTransports = validatedEndpoints.map((url) =>
         http(url as string, { retryCount: 3, retryDelay: 1000 })
     );
+
+    const isMainnet = chainId === rootstock.id;
+
+    if (isMainnet && validatedEndpoints.length === 0 && ALLOWED_CHAIN.id === rootstock.id) {
+        console.error(
+            "[wagmiConfig] REACT_APP_RSK_MAINNET_RPC is not set. " +
+                "Unauthenticated reads will fall back to the chain-default RPC " +
+                "(https://public-node.rsk.co). Set an explicit endpoint for production."
+        );
+    }
+
     return [
         activeConnectorTransport,
         ...envTransports,
-        http(undefined, { retryCount: 1, retryDelay: 500 }),
+        // Omit the generic fallback on mainnet when an explicit RPC is configured —
+        // a misconfigured or unavailable env RPC should surface as an error, not
+        // silently route to an unapproved public node.
+        ...(isMainnet && validatedEndpoints.length > 0
+            ? []
+            : [http(undefined, { retryCount: 1, retryDelay: 500 })]),
     ] as Parameters<typeof fallback>[0];
 };
 
@@ -170,11 +213,9 @@ export const config = createConfig({
     chains: CHAINS,
     multiInjectedProviderDiscovery: true,
     connectors,
-    transports: {
-        [rootstock.id]: fallback(chainTransports(rootstock.id)),
-        [rootstockTestnet.id]: fallback(chainTransports(rootstockTestnet.id)),
-        [localhost.id]: fallback(chainTransports(localhost.id)),
-    },
+    transports: Object.fromEntries(
+        CHAINS.map((chain) => [chain.id, fallback(chainTransports(chain.id))])
+    ) as Record<(typeof CHAINS)[number]["id"], ReturnType<typeof fallback>>,
     ssr: false,
 });
 

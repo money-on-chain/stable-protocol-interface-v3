@@ -301,6 +301,11 @@
         width: 130px;
         text-align: right;
     }
+    .token-table__cell--caUsed,
+    .token-table__header--caUsed {
+        width: 180px;
+        text-align: right;
+    }
     .token-table__cell--minted,
     .token-table__header--minted {
         width: 170px;
@@ -311,8 +316,8 @@
         width: 170px;
         text-align: right;
     }
-    .token-table__cell--redeem,
-    .token-table__header--redeem {
+    .token-table__cell--redeemable,
+    .token-table__header--redeemable {
         width: 170px;
         text-align: right;
     }
@@ -321,20 +326,64 @@
         width: 100px;
         text-align: right;
     }
+
+    .token-table__footnote {
+        margin-top: 24px;
+        color: var(--color-txt-secondary);
+        font-family: var(--main-font);
+        font-size: 12px;
+        line-height: 1.35;
+        text-align: right;
+    }
 }
 
 .perfGlobalMetrics {
+    .collateralMetricsArea {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(360px, 42%);
+        gap: 32px;
+        align-items: stretch;
+        margin-top: 32px;
+    }
+
     .metrics {
         display: flex;
         flex-wrap: wrap;
         gap: 32px;
-        margin-top: 32px;
+        margin-top: 0;
     }
+
+    .collateralDistribution {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        min-width: 0;
+        min-height: 180px;
+    }
+
+    .collateralDistribution__title {
+        margin: 0;
+        color: var(--color-txt-secondary);
+        font-family: var(--main-font);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        line-height: 1.2;
+        text-align: center;
+        text-transform: uppercase;
+    }
+
     .dataGroup {
         display: flex;
         gap: 16px;
         min-width: 256px;
         // outline: 1px dashed green;
+    }
+
+    .perfGlobalMetrics__footnote {
+        text-align: left;
     }
     .icon__back {
         display: flex;
@@ -344,6 +393,10 @@
         background-color: var(--icon-background-color);
         width: 48px;
         height: 48px;
+
+        .token__icon {
+            margin-right: 0;
+        }
     }
     .amount {
         display: flex;
@@ -360,12 +413,25 @@
     .label {
         color: var(--color-txt-secondary);
         font-style: normal;
-        font-weight: 400;
-        font-size: 14px;
+        font-weight: 700;
+        font-size: 10px;
+        letter-spacing: 0.5px;
         font-family: var(--main-font);
+        text-transform: uppercase;
     }
     .buckets {
         margin-top: 40px;
+    }
+
+    @media (max-width: 900px) {
+        .collateralMetricsArea {
+            grid-template-columns: 1fr;
+        }
+
+        .collateralDistribution {
+            justify-content: center;
+            min-height: 260px;
+        }
     }
 }
 

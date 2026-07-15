@@ -1,0 +1,58 @@
+@mixin token-icon($filename) {
+    width: var(--icon-token-size);
+    height: var(--icon-token-size);
+    background-image: url("../tokens/#{$filename}.svg");
+    background-size: var(--icon-token-size) var(--icon-token-size);
+    background-repeat: no-repeat;
+}
+
+// Fallback
+.icon-token-tx {
+    @include token-icon("tx");
+}
+
+// Token icons by name
+.icon-token-RBTC {
+    @include token-icon("RBTC");
+}
+.icon-token-RIF {
+    @include token-icon("RIF");
+}
+.icon-token-DOC {
+    @include token-icon("DOC");
+}
+.icon-token-USDRIF {
+    @include token-icon("USDRIF");
+}
+.icon-token-RIFP {
+    @include token-icon("RIFP");
+}
+.icon-token-ROCR {
+    @include token-icon("ROCR");
+}
+.icon-token-MOC {
+    @include token-icon("MOC");
+}
+
+// Legacy type-based aliases (used by Performance and GlobalStatus components)
+.icon-token-coinbase {
+    @include token-icon("RBTC");
+}
+.icon-token-ca_0 {
+    @include token-icon("RIF");
+}
+.icon-token-ca_1 {
+    @include token-icon("DOC");
+}
+.icon-token-tc_0 {
+    @include token-icon("RIFP");
+}
+.icon-token-tc_1 {
+    @include token-icon("ROCR");
+}
+.icon-token-tp_0 {
+    @include token-icon("USDRIF");
+}
+.icon-token-tf {
+    @include token-icon("MOC");
+}

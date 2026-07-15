@@ -1,7 +1,7 @@
 import React from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
-import settings from "../../../settings/settings.json";
+import settings from "../../../settings";
 import type { TokenConfig } from "../../../types/hooks";
 import StatusBucket from "./bucket";
 
@@ -20,7 +20,7 @@ export default function GlobalStatusModal(
     return (
         <div className="detailedGlobalStatusModal">
             <div className="collateralContainer">
-                {(settings.tokens.CA as TokenConfig[])
+                {(settings.tokens.CA)
                     .filter(
                         (dataItem): dataItem is TokenConfig & { key: number } =>
                             dataItem && typeof dataItem.key === "number"

@@ -26,8 +26,8 @@ import TokenMigrator from "../contracts/TokenMigrator.json";
 import TokenPegged from "../contracts/TokenPegged.json";
 import LendingReader from "../contracts/lending/LendingReader.json";
 import LendingManager from "../contracts/lending/LendingManager.json";
+import settings from "../settings";
 import omoc from "../settings/omoc/omoc.json";
-import settings from "../settings/settings.json";
 import type {
     Address,
     CallRequest,
@@ -36,7 +36,6 @@ import type {
     DContracts,
     MocAddressesData,
     RegistryAddressesData,
-    Settings,
     SyncMulticallInput,
 } from "../types/hooks";
 
@@ -77,7 +76,7 @@ const readContracts = async (
     publicClient: PublicClient
 ): Promise<DContracts> => {
     // Settings slice used here with proper typing
-    const s = (settings as Settings).tokens;
+    const s = (settings).tokens;
     if (!s) return {};
 
     const contracts: DContracts = {
@@ -391,7 +390,39 @@ const readContracts = async (
             }
         }
     }
-    
+
+    // ---- Custom price providers (pair:ppAddress[:tokenAddress],...) ----
+    // Format: "MOC/USD:0xPPAddress:0xTokenAddress" (token address is optional)
+    const ppCustomRaw = import.meta.env
+        .REACT_APP_CONTRACT_PRICE_PROVIDER_CUSTOM as string | undefined;
+    if (ppCustomRaw) {
+        contracts.PP_CUSTOM = [];
+        contracts.CUSTOM_TOKENS = [];
+        for (const entry of ppCustomRaw.split(",")) {
+            const parts = entry.split(":");
+            // parts[0] = pair, parts[1] = PP address, parts[2] = token address (optional)
+            if (parts.length < 2) continue;
+            const pair = parts[0].trim();
+            const ppAddr = parts[1].trim();
+            const tokenAddr = parts[2]?.trim();
+            if (!pair || !EVM_ADDR_RE.test(ppAddr)) continue;
+            contracts.PP_CUSTOM.push({
+                address: ppAddr as Address,
+                abi: ABI_IPriceProvider,
+                name: pair,
+                type: "custom",
+            });
+            if (tokenAddr && EVM_ADDR_RE.test(tokenAddr)) {
+                contracts.CUSTOM_TOKENS.push({
+                    address: tokenAddr as Address,
+                    abi: IERC20.abi as readonly unknown[],
+                    name: pair,
+                    type: "custom",
+                });
+            }
+        }
+    }
+
     // ---- Token migrator & legacy TP ----
     if (import.meta.env.REACT_APP_CONTRACT_LEGACY_TP) {
         contracts.tp_legacy = {
@@ -594,7 +625,7 @@ const mocAddresses = async (
     );
 
     // tpTokens[i]
-    for (let i = 0; i < (settings as Settings).tokens.TP.length; i++) {
+    for (let i = 0; i < (settings).tokens.TP.length; i++) {
         calls.push({
             contract: contractMoc,
             functionName: "tpTokens",
@@ -611,7 +642,7 @@ const mocAddresses = async (
     );
     // Normalize tpTokens array if your multicall flattens keys
     const tpTokens: Address[] = [];
-    for (let i = 0; i < (settings as Settings).tokens.TP.length; i++) {
+    for (let i = 0; i < (settings).tokens.TP.length; i++) {
         const key = ["tpTokens", i].join(",");
         const addr: Address | undefined =
             (res.data?.tpTokens as Address[] | undefined)?.[i] ??

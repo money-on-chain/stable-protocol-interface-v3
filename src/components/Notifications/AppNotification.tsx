@@ -16,6 +16,10 @@ export interface AppNotificationProps extends BaseAppNotificationProps {
      * - "center": sent to the NotificationCenter via NotificationProvider.
      */
     deliveryMode?: NotificationDeliveryMode;
+    /** Stable id so a center notification can be updated instead of recreated. */
+    notificationId?: string;
+    /** Optional delay before dismissing a center notification on unmount. */
+    lingerMs?: number;
 }
 
 /**
@@ -28,36 +32,101 @@ export interface AppNotificationProps extends BaseAppNotificationProps {
  */
 export const AppNotification: React.FC<AppNotificationProps> = ({
     deliveryMode = "inline",
+    notificationId,
+    lingerMs,
     ...baseProps
 }) => {
-    const { notify } = useOptionalNotifications();
-
-    // This ref prevents multiple notifications being sent
-    // when React StrictMode mounts the component twice in development.
-    const hasNotifiedRef = useRef(false);
+    const { notify, dismiss } = useOptionalNotifications();
+    const notificationIdRef = useRef<string | null>(null);
+    const {
+        type,
+        icon,
+        noIcon,
+        title,
+        content,
+        details,
+        detailsInitiallyOpen,
+        detailsToggleLabels,
+        actions,
+        dismissible,
+        onDismiss,
+        autoCloseAfterMs,
+        compact,
+        className,
+        style,
+        visible,
+        defaultVisible,
+        onVisibleChange,
+        role,
+    } = baseProps;
 
     useEffect(() => {
-        // If we are not in "center" mode, reset the flag and do nothing.
         if (deliveryMode !== "center") {
-            hasNotifiedRef.current = false;
-            return;
-        }
-
-        // If a notification was already sent for this component instance, skip.
-        if (hasNotifiedRef.current) {
+            if (notificationIdRef.current) {
+                dismiss(notificationIdRef.current);
+                notificationIdRef.current = null;
+            }
             return;
         }
 
         const options: CreateNotificationOptions = {
-            ...baseProps,
+            type,
+            icon,
+            noIcon,
+            title,
+            content,
+            details,
+            detailsInitiallyOpen,
+            detailsToggleLabels,
+            actions,
+            dismissible,
+            autoCloseAfterMs,
+            compact,
+            className,
+            style,
+            role,
+            lingerMs,
+            id: notificationId ?? notificationIdRef.current ?? undefined,
             // Map onDismiss from props to center-level itemOnDismiss
-            onDismiss: baseProps.onDismiss,
+            onDismiss,
         };
 
-        notify(options);
-        hasNotifiedRef.current = true;
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [deliveryMode, notify]);
+        notificationIdRef.current = notify(options);
+    }, [
+        deliveryMode,
+        notify,
+        dismiss,
+        type,
+        icon,
+        noIcon,
+        title,
+        content,
+        details,
+        detailsInitiallyOpen,
+        detailsToggleLabels,
+        actions,
+        dismissible,
+        onDismiss,
+        autoCloseAfterMs,
+        compact,
+        className,
+        style,
+        visible,
+        defaultVisible,
+        onVisibleChange,
+        role,
+        notificationId,
+        lingerMs,
+    ]);
+
+    useEffect(() => {
+        return () => {
+            if (notificationIdRef.current) {
+                dismiss(notificationIdRef.current);
+                notificationIdRef.current = null;
+            }
+        };
+    }, [dismiss]);
 
     if (deliveryMode === "center") {
         // Do not render anything inline, the center will show it.

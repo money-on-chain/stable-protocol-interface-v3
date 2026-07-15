@@ -2,6 +2,7 @@ node_modules
 .idea
 build
 .DS_Store
+IPFS_DEPLOYMENT_NOTES.md
 public/*.*
 index.html
 dist/
@@ -15,9 +16,10 @@ src/assets/css/customize1Defaults.scss
 src/assets/css/customize2Light.scss
 src/assets/css/customize3Dark.scss
 src/assets/css/customize4Overwrites.scss
+src/assets/css/icons-tokens.scss
 src/assets/css/logout.scss
 src/assets/css/pages.scss
-src/assets/tokens/*.svg
+
 # settings
 src/settings/locale/en_US.json
 src/settings/locale/es_ES.json
@@ -34,11 +36,16 @@ src/settings/es_ES.json
 # testing
 /coverage
 
-# misc
+# env files
+# .env.* deployment configs are intentionally tracked — all REACT_APP_* values are
+# inlined into the JS bundle by Vite and are therefore public. Do NOT add private keys,
+# API tokens, or passwords to any REACT_APP_* variable. See .env.example for the
+# full variable reference and notes on REACT_APP_WALLET_CONNECT_PROJECT_ID.
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env.*.local
 
 npm-debug.log*
 yarn-debug.log*
@@ -47,3 +54,6 @@ yarn-error.log*
 .vscode
 /src/settings/prices-offchain.json
 /dist
+
+.wrangler
+IPFS_DEPLOYMENT_NOTES.md

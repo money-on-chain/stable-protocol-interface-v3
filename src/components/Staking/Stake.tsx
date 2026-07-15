@@ -7,7 +7,7 @@ import { bigIntToInputValue } from "../../helpers/currencies";
 import { toBigIntPrecision } from "../../helpers/precision";
 import { tokenStake } from "../../helpers/staking";
 import { useProjectTranslation } from "../../helpers/translations";
-import settings from "../../settings/settings.json";
+import settings from "../../settings";
 import CurrencyPopUp from "../CurrencyPopUp";
 import InputAmount from "../InputAmount";
 import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";

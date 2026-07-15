@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
 import { normalizeToBigInt } from "../helpers/precision";
-import settings from "../settings/settings.json";
+import settings from "../settings";
 import type { ContractInfo, DContracts, MultiCallInput } from "../types/hooks";
 import type { OnchainPricesResult } from "../types/status";
 import { useMultiCall } from "./useMulticall";
@@ -27,7 +27,7 @@ export function useOnchainPrices(
         if (!contracts) return [];
 
         // Voting project does not use this hook
-        if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting") 
+        if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting")
             return [];
 
         const callRequest: MultiCallInput[] = [];
