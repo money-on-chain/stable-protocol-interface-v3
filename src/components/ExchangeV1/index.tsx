@@ -1,9 +1,9 @@
 import "../Exchange/Styles.scss";
-import "./Styles.scss";
 
 import { Button } from "antd";
 import React, { useState } from "react";
 
+import { previewFeesV1 } from "../../backend/v1/fees-v1";
 import { useWalletContext } from "../../context/Wallet";
 import { bigIntToInputValue, TokenSettings } from "../../helpers/currencies";
 import { typeOperation } from "../../helpers/exchange";
@@ -13,7 +13,7 @@ import {
     tokenExchangeV1,
     tokenReceiveV1,
 } from "../../helpers/exchangeV1";
-import { toBigIntPrecision } from "../../helpers/precision";
+import { mulPrecision, toBigIntPrecision, WAD } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import CurrencyPopUp from "../CurrencyPopUp";
 import InputAmount from "../InputAmount";
@@ -27,9 +27,23 @@ interface OperationModalInfo {
     txHash: string;
 }
 
+function getModeV1(
+    isMint: boolean,
+    currencyYouExchange: string,
+    currencyYouReceive: string
+): ExchangeModeV1 {
+    if (isMint) {
+        return currencyYouReceive === "TC_0" ? "mintBPro" : "mintDoc";
+    }
+    return currencyYouExchange === "TC_0" ? "redeemBPro" : "redeemDoc";
+}
+
 // v1's exchange surface has the same "you exchange" / "you receive" token-pair
 // structure as components/Exchange, but over a fixed, symmetric pair set (no
-// caIndex/swap-pairs/execution-fee) — see helpers/exchangeV1.ts.
+// caIndex/swap-pairs/execution-fee) — see helpers/exchangeV1.ts. Layout mirrors
+// components/Exchange too: an "inputFields" column (both token selectors + the
+// swap button) beside a sibling "info" panel (conversion rate + fee-currency
+// info), both generic shared classes from assets/css/global.scss.
 export default function ExchangeV1(): React.ReactElement {
     const { t, i18n } = useProjectTranslation();
     const { contractProtocolStatusV1, userBalanceV1, userBaseCoinBalance } =
@@ -40,6 +54,7 @@ export default function ExchangeV1(): React.ReactElement {
     const [currencyYouReceive, setCurrencyYouReceive] =
         useState<string>("TC_0");
     const [amountYouExchange, setAmountYouExchange] = useState<string>("");
+    const [amountYouReceive, setAmountYouReceive] = useState<string>("");
     const [modalMode, setModalMode] = useState<ExchangeModeV1 | null>(null);
     const [modalAmount, setModalAmount] = useState<bigint>(0n);
     const [operationModalInfo, setOperationModalInfo] =
@@ -56,14 +71,21 @@ export default function ExchangeV1(): React.ReactElement {
         currencyYouReceive
     );
     const isMint = operationType === "MINT";
+    const mode = getModeV1(isMint, currencyYouExchange, currencyYouReceive);
+
+    const onClearAmounts = (): void => {
+        setAmountYouExchange("");
+        setAmountYouReceive("");
+    };
 
     const onChangeCurrencyYouExchange = (value: string): void => {
+        onClearAmounts();
         setCurrencyYouExchange(value);
         setCurrencyYouReceive(tokenReceiveV1(value)[0]);
-        setAmountYouExchange("");
     };
 
     const onChangeCurrencyYouReceive = (value: string): void => {
+        onClearAmounts();
         setCurrencyYouReceive(value);
     };
 
@@ -72,7 +94,45 @@ export default function ExchangeV1(): React.ReactElement {
         const newReceive = currencyYouExchange;
         setCurrencyYouExchange(newExchange);
         setCurrencyYouReceive(newReceive);
-        setAmountYouExchange("");
+        onClearAmounts();
+    };
+
+    // Both fields are editable, mirroring components/Exchange — whichever side
+    // the user types into drives the other via the same conversion, just
+    // called with from/to swapped (v1's mint<->redeem math is a pure
+    // reciprocal, see estimateExchangeOutputV1's doc comment).
+    const onChangeAmountYouExchange = (newAmount: string): void => {
+        setAmountYouExchange(newAmount);
+        if (!status || newAmount === "") {
+            setAmountYouReceive("");
+            return;
+        }
+        const receiveBigInt = estimateExchangeOutputV1(
+            currencyYouExchange,
+            currencyYouReceive,
+            toBigIntPrecision(newAmount),
+            status
+        );
+        setAmountYouReceive(
+            bigIntToInputValue(receiveBigInt, currencyYouReceive, 8)
+        );
+    };
+
+    const onChangeAmountYouReceive = (newAmount: string): void => {
+        setAmountYouReceive(newAmount);
+        if (!status || newAmount === "") {
+            setAmountYouExchange("");
+            return;
+        }
+        const exchangeBigInt = estimateExchangeOutputV1(
+            currencyYouReceive,
+            currencyYouExchange,
+            toBigIntPrecision(newAmount),
+            status
+        );
+        setAmountYouExchange(
+            bigIntToInputValue(exchangeBigInt, currencyYouExchange, 8)
+        );
     };
 
     const amountBigInt =
@@ -84,15 +144,6 @@ export default function ExchangeV1(): React.ReactElement {
         rbtcBalance
     );
 
-    const estimatedReceive = status
-        ? estimateExchangeOutputV1(
-              currencyYouExchange,
-              currencyYouReceive,
-              amountBigInt,
-              status
-          )
-        : 0n;
-
     const receiveUpToBalance = status
         ? estimateExchangeOutputV1(
               currencyYouExchange,
@@ -101,6 +152,59 @@ export default function ExchangeV1(): React.ReactElement {
               status
           )
         : 0n;
+
+    // "1 you-exchange ≈ X you-receive" and its inverse, at unit (1 token) scale.
+    const rateForward = status
+        ? estimateExchangeOutputV1(
+              currencyYouExchange,
+              currencyYouReceive,
+              WAD,
+              status
+          )
+        : 0n;
+    const rateBackward = status
+        ? estimateExchangeOutputV1(
+              currencyYouReceive,
+              currencyYouExchange,
+              WAD,
+              status
+          )
+        : 0n;
+
+    // Fee preview — MoCInrate.calcCommissionValue is always computed off the
+    // RBTC-denominated amount, whether minting (the RBTC sent) or redeeming
+    // (the RBTC-equivalent of the token burned) — see MoCExchange.sol's
+    // redeemBPro/redeemFreeDoc, both set `params.amount` to the RBTC value.
+    const feeBasisRbtc =
+        !status || amountBigInt <= 0n
+            ? 0n
+            : currencyYouExchange === "CA_0"
+              ? amountBigInt
+              : estimateExchangeOutputV1(
+                    currencyYouExchange,
+                    "CA_0",
+                    amountBigInt,
+                    status
+                );
+
+    const commissionRate = (): bigint => {
+        if (!status) return 0n;
+        switch (mode) {
+            case "mintBPro":
+                return status.mintBProFeesRbtc;
+            case "mintDoc":
+                return status.mintDocFeesRbtc;
+            case "redeemBPro":
+                return status.redeemBProFeesRbtc;
+            case "redeemDoc":
+                return status.redeemDocFeesRbtc;
+        }
+    };
+
+    const feePreview =
+        status && feeBasisRbtc > 0n
+            ? previewFeesV1(feeBasisRbtc, commissionRate(), status.vendorMarkup)
+            : null;
 
     const paused = status?.paused ?? false;
     const overFreeDocLimit =
@@ -121,20 +225,15 @@ export default function ExchangeV1(): React.ReactElement {
         errorText !== "" || amountBigInt <= 0n || !status || !balances;
 
     const setAddTotalAvailable = (): void => {
-        setAmountYouExchange(
-            bigIntToInputValue(sourceBalance, currencyYouExchange, 8)
+        onChangeAmountYouExchange(
+            sourceBalance === 0n
+                ? ""
+                : bigIntToInputValue(sourceBalance, currencyYouExchange, 8)
         );
     };
 
     const onSubmitButton = (): void => {
         if (hasError) return;
-
-        let mode: ExchangeModeV1;
-        if (isMint) {
-            mode = currencyYouReceive === "TC_0" ? "mintBPro" : "mintDoc";
-        } else {
-            mode = currencyYouExchange === "TC_0" ? "redeemBPro" : "redeemDoc";
-        }
         setModalAmount(amountBigInt);
         setModalMode(mode);
     };
@@ -142,7 +241,7 @@ export default function ExchangeV1(): React.ReactElement {
     const onModalConfirm = (operationStatus: string, txHash: string): void => {
         setOperationModalInfo({ operationStatus, txHash });
         setIsOperationModalVisible(true);
-        setAmountYouExchange("");
+        onClearAmounts();
     };
 
     const buttonLabelKey = isMint
@@ -152,8 +251,11 @@ export default function ExchangeV1(): React.ReactElement {
     return (
         <div>
             <div className="sectionExchange__Content">
-                <div>
-                    <div className="tokenSelector" data-testid="exchange-v1-input-from">
+                <div className="inputFields">
+                    <div
+                        className="tokenSelector"
+                        data-testid="exchange-v1-input-from"
+                    >
                         <CurrencyPopUp
                             value={currencyYouExchange}
                             data-testid="exchange-v1-input-from-popup"
@@ -165,7 +267,7 @@ export default function ExchangeV1(): React.ReactElement {
                             testId="exchange-v1-amount-exchange"
                             inputValue={amountYouExchange}
                             placeholder={"0.0"}
-                            onValueChange={setAmountYouExchange}
+                            onValueChange={onChangeAmountYouExchange}
                             validateError={errorText !== ""}
                             balance={PrecisionNumbers({
                                 amount: sourceBalance,
@@ -186,14 +288,15 @@ export default function ExchangeV1(): React.ReactElement {
                             {errorText}
                         </div>
                     </div>
-                </div>
 
-                <div className="buttonSwap" onClick={handleSwapCurrencies}>
-                    <div className="icon-swap"></div>
-                </div>
+                    <div className="buttonSwap" onClick={handleSwapCurrencies}>
+                        <div className="icon-swap"></div>
+                    </div>
 
-                <div>
-                    <div className="tokenSelector" data-testid="exchange-v1-input-to">
+                    <div
+                        className="tokenSelector"
+                        data-testid="exchange-v1-input-to"
+                    >
                         <CurrencyPopUp
                             value={currencyYouReceive}
                             data-testid="exchange-v1-input-to-popup"
@@ -205,17 +308,10 @@ export default function ExchangeV1(): React.ReactElement {
                         />
                         <InputAmount
                             testId="exchange-v1-amount-receive"
-                            inputValue={bigIntToInputValue(
-                                estimatedReceive,
-                                currencyYouReceive,
-                                8
-                            )}
+                            inputValue={amountYouReceive}
                             placeholder={"0.0"}
-                            onValueChange={() => {
-                                /* displayOnly: no reverse-direction entry */
-                            }}
+                            onValueChange={onChangeAmountYouReceive}
                             validateError={false}
-                            displayOnly
                             balance={PrecisionNumbers({
                                 amount: receiveUpToBalance,
                                 token: TokenSettings(currencyYouReceive),
@@ -223,9 +319,17 @@ export default function ExchangeV1(): React.ReactElement {
                                 i18n: i18n,
                                 compact: true,
                             })}
-                            setAddTotalAvailable={() => {
-                                /* displayOnly: no-op */
-                            }}
+                            setAddTotalAvailable={() =>
+                                onChangeAmountYouReceive(
+                                    receiveUpToBalance === 0n
+                                        ? ""
+                                        : bigIntToInputValue(
+                                              receiveUpToBalance,
+                                              currencyYouReceive,
+                                              8
+                                          )
+                                )
+                            }
                             action={
                                 isMint
                                     ? t("exchange.labelReceiving")
@@ -235,13 +339,102 @@ export default function ExchangeV1(): React.ReactElement {
                         />
                     </div>
                 </div>
-            </div>
 
-            {isMint && (
-                <div className="exchangeV1__disclaimer">
-                    {t("exchange.v1.estimatedMaxRbtc")}
+                <div className="info">
+                    <div className="tx-amount-container">
+                        <div className="tx-fees-container">
+                            <div className="tx-fees-data">
+                                <div className="tx-fees-item">
+                                    1{" "}
+                                    {t(
+                                        `exchange.tokens.${currencyYouExchange}.abbr`
+                                    )}
+                                    {" ≈ "}
+                                    {status
+                                        ? PrecisionNumbers({
+                                              amount: rateForward,
+                                              token: TokenSettings(
+                                                  currencyYouReceive
+                                              ),
+                                              decimals: 8,
+                                              i18n: i18n,
+                                              compact: true,
+                                          })
+                                        : "--"}{" "}
+                                    {t(
+                                        `exchange.tokens.${currencyYouReceive}.abbr`
+                                    )}
+                                </div>
+                                <div className="tx-fees-item">
+                                    1{" "}
+                                    {t(
+                                        `exchange.tokens.${currencyYouReceive}.abbr`
+                                    )}
+                                    {" ≈ "}
+                                    {status
+                                        ? PrecisionNumbers({
+                                              amount: rateBackward,
+                                              token: TokenSettings(
+                                                  currencyYouExchange
+                                              ),
+                                              decimals: 8,
+                                              i18n: i18n,
+                                              compact: true,
+                                          })
+                                        : "--"}{" "}
+                                    {t(
+                                        `exchange.tokens.${currencyYouExchange}.abbr`
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="tx-fee-options">
+                                <div className="tx-fees-item">
+                                    {t("fees.labelFee")}
+                                    {": "}
+                                    {feePreview
+                                        ? PrecisionNumbers({
+                                              amount: feePreview.total,
+                                              token: TokenSettings("CA_0"),
+                                              decimals: 8,
+                                              i18n: i18n,
+                                              compact: true,
+                                          })
+                                        : "--"}{" "}
+                                    {t("exchange.tokens.CA_0.abbr")}
+                                    {feePreview && status && (
+                                        <>
+                                            {" (~ "}
+                                            {PrecisionNumbers({
+                                                amount: mulPrecision(
+                                                    feePreview.total,
+                                                    status.getBitcoinPrice
+                                                ),
+                                                token: TokenSettings("CA_0"),
+                                                decimals: 2,
+                                                i18n: i18n,
+                                                isUSD: true,
+                                                compact: true,
+                                            })}
+                                            {" USD)"}
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="tx-fees-info">
+                                {t("exchange.v1.feeCurrencyNote")}
+                                {isMint && (
+                                    <>
+                                        <br />
+                                        {t("exchange.v1.estimatedMaxRbtc")}
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            )}
+            </div>
 
             <div className="cta-container">
                 <div className="cta-options-group">

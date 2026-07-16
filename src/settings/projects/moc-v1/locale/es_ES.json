@@ -151,7 +151,8 @@
             "confirmMintTitle": "Confirmar Minteo",
             "confirmRedeemTitle": "Confirmar Redención",
             "confirmDescriptionMint": "La tasa real puede ser menor a la mostrada — cualquier excedente de RBTC se reembolsa automáticamente a tu billetera.",
-            "confirmDescriptionRedeem": "Este monto será quemado y el RBTC equivalente enviado a tu billetera."
+            "confirmDescriptionRedeem": "Este monto será quemado y el RBTC equivalente enviado a tu billetera.",
+            "feeCurrencyNote": "Las comisiones se pagan automáticamente en RBTC, o en MOC si tenés suficiente balance y allowance de MOC"
         },
 
         "limit": {
