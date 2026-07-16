@@ -50,6 +50,12 @@ import {
     vote,
     voteStep,
 } from "../backend/omoc/voting";
+import {
+    mintBPro as mintBProV1,
+    mintDoc as mintDocV1,
+    redeemBPro as redeemBProV1,
+    redeemFreeDoc as redeemFreeDocV1,
+} from "../backend/v1/moc-v1";
 import ModalAccount from "../components/Modals/Account";
 import ModalProviders from "../components/Modals/Providers";
 import { ALLOWED_CHAIN } from "../constants/chain";
@@ -86,7 +92,7 @@ import { useUserVeto } from "../hooks/useUserVeto";
 import api from "../services/api";
 import { API_OPERATIONS_BASE } from "../services/apiConfig";
 import type { DContracts, ParsedPrices } from "../types/hooks";
-import type { DContractsV1 } from "../types/hooks-v1";
+import type { DContractsV1, InterfaceContextV1 } from "../types/hooks-v1";
 import type {
     InterfaceContext,
     OnReceipt,
@@ -438,6 +444,61 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             address: address,
             contracts: contractsAddress,
         };
+    };
+
+    const buildInterfaceContextV1 = (): InterfaceContextV1 => {
+        return {
+            publicClient,
+            address,
+            contracts: contractsAddressV1,
+            contractProtocolStatus: contractProtocolStatusV1,
+        };
+    };
+
+    const interfaceMintBProV1 = async (
+        btcAmount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ): Promise<TransactionReceipt | undefined> => {
+        const interfaceContext = buildInterfaceContextV1();
+        return mintBProV1(interfaceContext, btcAmount, onTransaction, onReceipt);
+    };
+
+    const interfaceMintDocV1 = async (
+        btcAmount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ): Promise<TransactionReceipt | undefined> => {
+        const interfaceContext = buildInterfaceContextV1();
+        return mintDocV1(interfaceContext, btcAmount, onTransaction, onReceipt);
+    };
+
+    const interfaceRedeemBProV1 = async (
+        bproAmount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ): Promise<TransactionReceipt | undefined> => {
+        const interfaceContext = buildInterfaceContextV1();
+        return redeemBProV1(
+            interfaceContext,
+            bproAmount,
+            onTransaction,
+            onReceipt
+        );
+    };
+
+    const interfaceRedeemFreeDocV1 = async (
+        docAmount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ): Promise<TransactionReceipt | undefined> => {
+        const interfaceContext = buildInterfaceContextV1();
+        return redeemFreeDocV1(
+            interfaceContext,
+            docAmount,
+            onTransaction,
+            onReceipt
+        );
     };
 
     /* VESTING */
@@ -1037,6 +1098,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 contractsAddressV1,
                 contractProtocolStatusV1,
                 userBalanceV1,
+                interfaceMintBProV1,
+                interfaceMintDocV1,
+                interfaceRedeemBProV1,
+                interfaceRedeemFreeDocV1,
                 blockNumber,
                 offChainPrices,
                 priceProvider,

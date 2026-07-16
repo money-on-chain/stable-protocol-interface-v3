@@ -10,6 +10,7 @@ const Skeleton = React.lazy(
     () => import("../../../layouts/projects/moc/Skeleton")
 );
 const HomeV1 = React.lazy(() => import("../../../pages/HomeV1/index"));
+const ExchangeV1 = React.lazy(() => import("../../../pages/ExchangeV1/index"));
 
 export default function Router(): React.ReactElement | null {
     return useRoutes([
@@ -20,6 +21,10 @@ export default function Router(): React.ReactElement | null {
                 {
                     path: "/",
                     element: <HomeV1 />,
+                },
+                {
+                    path: "exchange",
+                    element: <ExchangeV1 />,
                 },
                 { path: "404", element: <NotFound /> },
                 { path: "*", element: <Navigate to="/404" /> },

@@ -1,4 +1,5 @@
 // Generic interface context consumed by backend helpers
+import type { TransactionReceipt } from "viem";
 import type { usePublicClient } from "wagmi";
 import type { useWalletClient } from "wagmi";
 import type { useConnect } from "wagmi";
@@ -73,6 +74,26 @@ export type WalletContextType = {
     contractsAddressV1: DContractsV1 | null;
     contractProtocolStatusV1: ContractProtocolStatusV1Result;
     userBalanceV1: UserBalanceV1Result;
+    interfaceMintBProV1: (
+        btcAmount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ) => Promise<TransactionReceipt | undefined>;
+    interfaceMintDocV1: (
+        btcAmount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ) => Promise<TransactionReceipt | undefined>;
+    interfaceRedeemBProV1: (
+        bproAmount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ) => Promise<TransactionReceipt | undefined>;
+    interfaceRedeemFreeDocV1: (
+        docAmount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ) => Promise<TransactionReceipt | undefined>;
     userVesting: UserVestingResult;
     userIncentiveV2: ReturnType<typeof useIncentiveV2>;
     userVeto: ReturnType<typeof useUserVeto>;

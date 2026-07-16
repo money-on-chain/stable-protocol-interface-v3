@@ -3,7 +3,7 @@
         "nameKey": "menuOptions.portfolio",
         "className": "logo-portfolio",
         "path": "/",
-        "allowedProjects": ["flipmoney", "roc", "moc"]
+        "allowedProjects": ["flipmoney", "roc", "moc", "moc-v1"]
     },
     {
         "nameKey": "menuOptions.send",
@@ -15,7 +15,7 @@
         "nameKey": "menuOptions.exchange",
         "className": "logo-exchange",
         "path": "/exchange",
-        "allowedProjects": ["flipmoney", "roc", "moc"]
+        "allowedProjects": ["flipmoney", "roc", "moc", "moc-v1"]
     },
     {
         "nameKey": "menuOptions.staking",
