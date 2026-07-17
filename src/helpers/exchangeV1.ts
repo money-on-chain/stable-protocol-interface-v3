@@ -10,7 +10,7 @@ import type {
     ContractProtocolStatusV1Data,
     UserBalanceV1Data,
 } from "../types/hooks-v1";
-import { wadDiv, wadMul } from "./precision";
+import { WAD, wadDiv, wadMul } from "./precision";
 
 export type MintTokenV1 = "BPRO" | "DOC";
 
@@ -68,6 +68,24 @@ export function estimateRedeemOutput(
     return status.getBitcoinPrice === 0n
         ? 0n
         : wadDiv(tokenAmount, status.getBitcoinPrice);
+}
+
+// USD price (WAD) for a token — DOC is a stablecoin pegged 1:1 to USD, so
+// its price is just WAD rather than a status field.
+export function tokenUsdPriceV1(
+    token: string,
+    status: ContractProtocolStatusV1Data
+): bigint {
+    switch (token) {
+        case "CA_0":
+            return status.getBitcoinPrice;
+        case "TC_0":
+            return status.bproUsdPrice;
+        case "TP_0":
+            return WAD;
+        default:
+            return 0n;
+    }
 }
 
 // Unified estimate over a (from, to) token pair — dispatches to

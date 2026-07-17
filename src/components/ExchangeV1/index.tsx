@@ -12,6 +12,7 @@ import {
     tokenBalanceV1,
     tokenExchangeV1,
     tokenReceiveV1,
+    tokenUsdPriceV1,
 } from "../../helpers/exchangeV1";
 import { mulPrecision, toBigIntPrecision, WAD } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
@@ -223,6 +224,25 @@ export default function ExchangeV1(): React.ReactElement {
 
     const hasError =
         errorText !== "" || amountBigInt <= 0n || !status || !balances;
+
+    // USD value of the exchange, for the cta-info-group summary — mirrors
+    // components/Exchange's totalExchangingInFiat (larger of the two sides,
+    // since amountYouExchange/amountYouReceive track each other 1:1 anyway).
+    const amountReceiveBigInt =
+        amountYouReceive === "" ? 0n : toBigIntPrecision(amountYouReceive);
+    const totalExchangingInFiat = status
+        ? (() => {
+              const exchangeUsd = mulPrecision(
+                  amountBigInt,
+                  tokenUsdPriceV1(currencyYouExchange, status)
+              );
+              const receiveUsd = mulPrecision(
+                  amountReceiveBigInt,
+                  tokenUsdPriceV1(currencyYouReceive, status)
+              );
+              return exchangeUsd > receiveUsd ? exchangeUsd : receiveUsd;
+          })()
+        : 0n;
 
     const setAddTotalAvailable = (): void => {
         onChangeAmountYouExchange(
@@ -437,6 +457,37 @@ export default function ExchangeV1(): React.ReactElement {
             </div>
 
             <div className="cta-container">
+                <div className="cta-info-group">
+                    <div className="cta-info-summary">
+                        {t("exchange.exchangingSummary")}
+                        <div className={""}> ≈ </div>
+                        {totalExchangingInFiat.toString() !== "NaN" ? (
+                            <div className={""}>
+                                {!totalExchangingInFiat
+                                    ? "--"
+                                    : PrecisionNumbers({
+                                          amount: totalExchangingInFiat,
+                                          token: TokenSettings("CA_0"),
+                                          decimals: 2,
+                                          i18n: i18n,
+                                          isUSD: true,
+                                          compact: true,
+                                      })}
+                            </div>
+                        ) : (
+                            <div>0</div>
+                        )}
+                        <span className={""}>
+                            {t("exchange.exchangingCurrency")}
+                        </span>
+                    </div>
+                    <div className="cta-info-global-error">
+                        <div className="amountInput__feedback--error">
+                            {errorText}
+                        </div>
+                    </div>
+                </div>
+
                 <div className="cta-options-group">
                     <Button
                         data-testid="exchange-v1-submit"
