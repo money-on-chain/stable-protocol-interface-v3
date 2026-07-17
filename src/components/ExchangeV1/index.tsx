@@ -244,6 +244,24 @@ export default function ExchangeV1(): React.ReactElement {
           })()
         : 0n;
 
+    // Per-field fiat equivalents for InputAmount's getFiatEquivalent — mirrors
+    // components/Exchange's onFiatEquivalentYouExchange/onFiatEquivalentYouReceive.
+    const onFiatEquivalentYouExchange = (amount: number): bigint => {
+        if (!status || amount < 0) return 0n;
+        return mulPrecision(
+            toBigIntPrecision(amount),
+            tokenUsdPriceV1(currencyYouExchange, status)
+        );
+    };
+
+    const onFiatEquivalentYouReceive = (amount: number): bigint => {
+        if (!status || amount < 0) return 0n;
+        return mulPrecision(
+            toBigIntPrecision(amount),
+            tokenUsdPriceV1(currencyYouReceive, status)
+        );
+    };
+
     const setAddTotalAvailable = (): void => {
         onChangeAmountYouExchange(
             sourceBalance === 0n
@@ -303,6 +321,7 @@ export default function ExchangeV1(): React.ReactElement {
                                     : t("exchange.labelSending")
                             }
                             balanceText={t("exchange.labelBalance")}
+                            getFiatEquivalent={onFiatEquivalentYouExchange}
                         />
                         <div className="amountInput__feedback amountInput__feedback--error">
                             {errorText}
@@ -356,6 +375,7 @@ export default function ExchangeV1(): React.ReactElement {
                                     : t("exchange.labelReceivingRedeem")
                             }
                             balanceText={t("exchange.labelUpTo")}
+                            getFiatEquivalent={onFiatEquivalentYouReceive}
                         />
                     </div>
                 </div>
