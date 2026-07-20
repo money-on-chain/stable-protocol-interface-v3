@@ -1,3 +1,5 @@
+import "../Send/Styles.scss";
+
 import { Skeleton } from "antd";
 import React from "react";
 

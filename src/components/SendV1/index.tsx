@@ -1,5 +1,3 @@
-import "../Exchange/Styles.scss";
-
 import { Input } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
 import { checksumAddress } from "viem";
@@ -145,7 +143,7 @@ export default function SendV1(): React.ReactElement {
 
     return (
         <div>
-            <div className="sectionExchange__Content">
+            <div className="sectionSend__Content">
                 <div className="inputFields">
                     <div
                         className="tokenSelector"
