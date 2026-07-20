@@ -9,7 +9,7 @@
         "nameKey": "menuOptions.send",
         "className": "logo-send",
         "path": "/send",
-        "allowedProjects": ["flipmoney", "roc", "moc"]
+        "allowedProjects": ["flipmoney", "roc", "moc", "moc-v1"]
     },
     {
         "nameKey": "menuOptions.exchange",

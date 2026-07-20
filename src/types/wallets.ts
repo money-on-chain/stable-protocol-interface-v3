@@ -99,6 +99,19 @@ export type WalletContextType = {
         onTransaction: OnTransaction,
         onReceipt: OnReceipt
     ) => Promise<TransactionReceipt | undefined>;
+    interfaceTransferTokenV1: (
+        currencyYouExchange: string,
+        amount: bigint,
+        destinationAddress: string,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ) => Promise<TransactionReceipt | undefined>;
+    interfaceTransferCoinbaseV1: (
+        amount: bigint,
+        destinationAddress: string,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ) => Promise<TransactionReceipt | undefined>;
     userVesting: UserVestingResult;
     userIncentiveV2: ReturnType<typeof useIncentiveV2>;
     userVeto: ReturnType<typeof useUserVeto>;

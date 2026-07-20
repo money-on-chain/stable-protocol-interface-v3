@@ -56,6 +56,8 @@ import {
     mintDoc as mintDocV1,
     redeemBPro as redeemBProV1,
     redeemFreeDoc as redeemFreeDocV1,
+    transferCoinbase as transferCoinbaseV1,
+    transferToken as transferTokenV1,
 } from "../backend/v1/moc-v1";
 import ModalAccount from "../components/Modals/Account";
 import ModalProviders from "../components/Modals/Providers";
@@ -509,6 +511,61 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     ): Promise<TransactionReceipt | undefined> => {
         const interfaceContext = buildInterfaceContextV1();
         return allowanceMocV1(interfaceContext, amount, onTransaction, onReceipt);
+    };
+
+    // Resolves which v1 ERC20 contract backs a given Send token symbol —
+    // v1's flat DContractsV1 has no caIndex to dispatch on, unlike TokenContract
+    // (helpers/exchange.ts) which is tied to the v3 CA-indexed contracts bag.
+    const interfaceTransferTokenV1 = async (
+        currencyYouExchange: string,
+        amount: bigint,
+        destinationAddress: string,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ): Promise<TransactionReceipt | undefined> => {
+        const interfaceContext = buildInterfaceContextV1();
+        const { contracts } = interfaceContext;
+        if (!contracts) throw new Error("Contracts not found");
+
+        let token;
+        switch (currencyYouExchange) {
+            case "TC_0":
+                token = contracts.BProToken;
+                break;
+            case "TP_0":
+                token = contracts.DocToken;
+                break;
+            case "TG":
+                token = contracts.MoCToken;
+                break;
+            default:
+                throw new Error(`Unsupported token: ${currencyYouExchange}`);
+        }
+
+        return transferTokenV1(
+            interfaceContext,
+            token,
+            destinationAddress,
+            amount,
+            onTransaction,
+            onReceipt
+        );
+    };
+
+    const interfaceTransferCoinbaseV1 = async (
+        amount: bigint,
+        destinationAddress: string,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ): Promise<TransactionReceipt | undefined> => {
+        const interfaceContext = buildInterfaceContextV1();
+        return transferCoinbaseV1(
+            interfaceContext,
+            destinationAddress,
+            amount,
+            onTransaction,
+            onReceipt
+        );
     };
 
     /* VESTING */
@@ -1113,6 +1170,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 interfaceRedeemBProV1,
                 interfaceRedeemFreeDocV1,
                 interfaceAllowanceMocV1,
+                interfaceTransferTokenV1,
+                interfaceTransferCoinbaseV1,
                 blockNumber,
                 offChainPrices,
                 priceProvider,

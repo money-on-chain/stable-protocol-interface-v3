@@ -11,6 +11,7 @@ const Skeleton = React.lazy(
 );
 const HomeV1 = React.lazy(() => import("../../../pages/HomeV1/index"));
 const ExchangeV1 = React.lazy(() => import("../../../pages/ExchangeV1/index"));
+const SendV1 = React.lazy(() => import("../../../pages/SendV1/index"));
 
 export default function Router(): React.ReactElement | null {
     return useRoutes([
@@ -25,6 +26,10 @@ export default function Router(): React.ReactElement | null {
                 {
                     path: "exchange",
                     element: <ExchangeV1 />,
+                },
+                {
+                    path: "send",
+                    element: <SendV1 />,
                 },
                 { path: "404", element: <NotFound /> },
                 { path: "*", element: <Navigate to="/404" /> },

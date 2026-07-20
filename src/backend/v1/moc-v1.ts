@@ -2,6 +2,7 @@
 // No caIndex, no MocQueue — mint/redeem execute synchronously in one transaction
 // directly against MoC.sol (see src/hooks/useReadContractsV1.ts for discovery).
 import {
+    sendTransaction,
     simulateContract,
     waitForTransactionReceipt,
     writeContract,
@@ -9,6 +10,7 @@ import {
 import { type Abi, type TransactionReceipt } from "viem";
 
 import { VENDOR_ADDRESS_V1 } from "../../constants/v1";
+import type { ContractInfo } from "../../types/hooks";
 import type { InterfaceContextV1 } from "../../types/hooks-v1";
 import type { OnReceipt, OnTransaction } from "../../types/wallets";
 import { config } from "../../wagmiConfig";
@@ -184,4 +186,69 @@ const allowanceMoc = async (
     return receipt;
 };
 
-export { allowanceMoc, mintBPro, mintDoc, redeemBPro, redeemFreeDoc };
+// Plain ERC20 transfer for any v1 token (BPro/DOC/MOC) — the caller resolves
+// which ContractInfo to pass (see interfaceTransferTokenV1 in context/Wallet.tsx),
+// since v1's flat DContractsV1 has no caIndex to dispatch on here.
+const transferToken = async (
+    interfaceContext: InterfaceContextV1,
+    token: ContractInfo,
+    to: string,
+    amount: bigint,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    const { address } = interfaceContext;
+
+    if (!address) throw new Error("Address not found");
+
+    const { request } = await simulateContract(config, {
+        address: token.address,
+        abi: token.abi as Abi,
+        functionName: "transfer",
+        args: [to, amount] as const,
+        account: address,
+    });
+
+    const txHash = await writeContract(config, request);
+    if (onTransaction) onTransaction(txHash);
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
+    if (onReceipt) onReceipt(receipt);
+
+    return receipt;
+};
+
+// Native RBTC transfer — no contract involved.
+const transferCoinbase = async (
+    interfaceContext: InterfaceContextV1,
+    to: string,
+    amount: bigint,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    const { address } = interfaceContext;
+
+    if (!address) throw new Error("Address not found");
+
+    const txHash = await sendTransaction(config, {
+        to: to as `0x${string}`,
+        account: address,
+        value: amount,
+    });
+    if (onTransaction) onTransaction(txHash);
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
+    if (onReceipt) onReceipt(receipt);
+
+    return receipt;
+};
+
+export {
+    allowanceMoc,
+    mintBPro,
+    mintDoc,
+    redeemBPro,
+    redeemFreeDoc,
+    transferCoinbase,
+    transferToken,
+};

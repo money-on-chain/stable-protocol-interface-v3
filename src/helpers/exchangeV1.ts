@@ -25,6 +25,10 @@ export const tokenExchangeV1 = (): string[] => Object.keys(TOKEN_MAP_V1);
 export const tokenReceiveV1 = (from: string): string[] =>
     TOKEN_MAP_V1[from] ?? [];
 
+// Send operates over the full fixed token set, including MOC (TG) — unlike
+// Exchange, which only ever mints/redeems the CA_0<->TC_0/TP_0 pairs above.
+export const tokenSendV1 = (): string[] => ["CA_0", "TC_0", "TP_0", "TG"];
+
 export function tokenBalanceV1(
     token: string,
     balances: UserBalanceV1Data | undefined,
@@ -37,6 +41,8 @@ export function tokenBalanceV1(
             return balances?.BPro?.balance ?? 0n;
         case "TP_0":
             return balances?.DOC?.balance ?? 0n;
+        case "TG":
+            return balances?.MOC?.balance ?? 0n;
         default:
             return 0n;
     }
