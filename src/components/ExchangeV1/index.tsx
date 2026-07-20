@@ -1,6 +1,7 @@
 import "../Exchange/Styles.scss";
 
-import { Button } from "antd";
+import type { RadioChangeEvent } from "antd";
+import { Button, Radio, Space } from "antd";
 import React, { useState } from "react";
 
 import { previewFeesV1 } from "../../backend/v1/fees-v1";
@@ -9,6 +10,7 @@ import { bigIntToInputValue, TokenSettings } from "../../helpers/currencies";
 import { typeOperation } from "../../helpers/exchange";
 import {
     estimateExchangeOutputV1,
+    feeMocEquivalentV1,
     tokenBalanceV1,
     tokenExchangeV1,
     tokenReceiveV1,
@@ -62,6 +64,11 @@ export default function ExchangeV1(): React.ReactElement {
         useState<OperationModalInfo>({ operationStatus: "", txHash: "" });
     const [isOperationModalVisible, setIsOperationModalVisible] =
         useState<boolean>(false);
+    // Informational only — mirrors CommissionsSelector's UX, but the contract
+    // (not the frontend) decides RBTC-vs-MOC at call time based on live MOC
+    // balance/allowance, so this choice isn't sent on-chain (see feeCurrencyNote).
+    const [selectedFeeCurrency, setSelectedFeeCurrency] =
+        useState<string>("CA_0");
 
     const status = contractProtocolStatusV1.data;
     const balances = userBalanceV1.data;
@@ -206,6 +213,19 @@ export default function ExchangeV1(): React.ReactElement {
         status && feeBasisRbtc > 0n
             ? previewFeesV1(feeBasisRbtc, commissionRate(), status.vendorMarkup)
             : null;
+
+    // Fee-currency selector data: same USD cost, priced in RBTC or MOC.
+    const feeUsd =
+        feePreview && status
+            ? mulPrecision(feePreview.total, status.getBitcoinPrice)
+            : 0n;
+    const feeMoc =
+        feePreview && status
+            ? feeMocEquivalentV1(feePreview.total, status)
+            : 0n;
+    const feePercentWad = status
+        ? (commissionRate() + status.vendorMarkup) * 100n
+        : 0n;
 
     const paused = status?.paused ?? false;
     const overFreeDocLimit =
@@ -429,36 +449,128 @@ export default function ExchangeV1(): React.ReactElement {
                             </div>
 
                             <div className="tx-fee-options">
-                                <div className="tx-fees-item">
-                                    {t("fees.labelFee")}
-                                    {": "}
-                                    {feePreview
-                                        ? PrecisionNumbers({
-                                              amount: feePreview.total,
-                                              token: TokenSettings("CA_0"),
-                                              decimals: 8,
-                                              i18n: i18n,
-                                              compact: true,
-                                          })
-                                        : "--"}{" "}
-                                    {t("exchange.tokens.CA_0.abbr")}
-                                    {feePreview && status && (
-                                        <>
-                                            {" (~ "}
-                                            {PrecisionNumbers({
-                                                amount: mulPrecision(
-                                                    feePreview.total,
-                                                    status.getBitcoinPrice
-                                                ),
-                                                token: TokenSettings("CA_0"),
-                                                decimals: 2,
-                                                i18n: i18n,
-                                                isUSD: true,
-                                                compact: true,
-                                            })}
-                                            {" USD)"}
-                                        </>
-                                    )}
+                                <div className="radioButton">
+                                    <Radio.Group
+                                        onChange={(e: RadioChangeEvent) =>
+                                            setSelectedFeeCurrency(
+                                                String(e.target.value)
+                                            )
+                                        }
+                                        value={selectedFeeCurrency}
+                                    >
+                                        <Space direction="vertical">
+                                            <Radio value="CA_0">
+                                                <span>
+                                                    {t("fees.labelFee")} (
+                                                    {PrecisionNumbers({
+                                                        amount: feePercentWad,
+                                                        token: TokenSettings(
+                                                            "CA_0"
+                                                        ),
+                                                        decimals: 2,
+                                                        i18n: i18n,
+                                                        compact: true,
+                                                    })}
+                                                    %)
+                                                </span>
+                                                <span> ≈ </span>
+                                                <span>
+                                                    {feePreview
+                                                        ? PrecisionNumbers({
+                                                              amount: feePreview.total,
+                                                              token: TokenSettings(
+                                                                  "CA_0"
+                                                              ),
+                                                              decimals: 8,
+                                                              i18n: i18n,
+                                                              compact: true,
+                                                          })
+                                                        : "--"}
+                                                </span>
+                                                <span>
+                                                    {" "}
+                                                    {t(
+                                                        "exchange.tokens.CA_0.abbr"
+                                                    )}
+                                                </span>
+                                                <span> (</span>
+                                                <span>
+                                                    {PrecisionNumbers({
+                                                        amount: feeUsd,
+                                                        decimals: 6,
+                                                        token: TokenSettings(
+                                                            "CA_0"
+                                                        ),
+                                                        i18n: i18n,
+                                                        isUSD: true,
+                                                        compact: true,
+                                                    })}
+                                                </span>
+                                                <span>
+                                                    {" "}
+                                                    {t(
+                                                        "exchange.exchangingCurrency"
+                                                    )}
+                                                </span>
+                                                <span>) </span>
+                                            </Radio>
+                                            <Radio value="TG">
+                                                <span>
+                                                    {t("fees.labelFee")} (
+                                                    {PrecisionNumbers({
+                                                        amount: feePercentWad,
+                                                        token: TokenSettings(
+                                                            "CA_0"
+                                                        ),
+                                                        decimals: 2,
+                                                        i18n: i18n,
+                                                        compact: true,
+                                                    })}
+                                                    %)
+                                                </span>
+                                                <span> ≈ </span>
+                                                <span>
+                                                    {feePreview
+                                                        ? PrecisionNumbers({
+                                                              amount: feeMoc,
+                                                              token: TokenSettings(
+                                                                  "TG"
+                                                              ),
+                                                              decimals: 8,
+                                                              i18n: i18n,
+                                                              compact: true,
+                                                          })
+                                                        : "--"}
+                                                </span>
+                                                <span>
+                                                    {" "}
+                                                    {t(
+                                                        "exchange.tokens.TG.abbr"
+                                                    )}
+                                                </span>
+                                                <span> (</span>
+                                                <span>
+                                                    {PrecisionNumbers({
+                                                        amount: feeUsd,
+                                                        decimals: 6,
+                                                        token: TokenSettings(
+                                                            "CA_0"
+                                                        ),
+                                                        i18n: i18n,
+                                                        isUSD: true,
+                                                        compact: true,
+                                                    })}
+                                                </span>
+                                                <span>
+                                                    {" "}
+                                                    {t(
+                                                        "exchange.exchangingCurrency"
+                                                    )}
+                                                </span>
+                                                <span>) </span>
+                                            </Radio>
+                                        </Space>
+                                    </Radio.Group>
                                 </div>
                             </div>
 

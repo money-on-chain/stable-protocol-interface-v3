@@ -83,9 +83,24 @@ export function tokenUsdPriceV1(
             return status.bproUsdPrice;
         case "TP_0":
             return WAD;
+        case "TG":
+            return status.mocUsdPrice;
         default:
             return 0n;
     }
+}
+
+// MOC-equivalent of an RBTC-denominated fee amount — same USD value, just
+// priced in MOC instead. Informational only: the contract itself decides
+// RBTC-vs-MOC at call time based on the caller's live MOC balance/allowance
+// (see fees-v1.ts), there's no on-chain parameter to force one or the other.
+export function feeMocEquivalentV1(
+    feeRbtc: bigint,
+    status: ContractProtocolStatusV1Data
+): bigint {
+    if (status.mocUsdPrice === 0n) return 0n;
+    const feeUsd = wadMul(feeRbtc, status.getBitcoinPrice);
+    return wadDiv(feeUsd, status.mocUsdPrice);
 }
 
 // Unified estimate over a (from, to) token pair — dispatches to
