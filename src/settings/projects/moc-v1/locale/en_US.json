@@ -145,8 +145,6 @@
             "estimatedMaxRbtc": "Estimated max RBTC required — any excess is automatically refunded",
             "limitReachedDoc": "Redeem limit for DOC reached at this time",
             "systemPaused": "The contract is paused. Operations are disabled",
-            "buttonMint": "Mint",
-            "buttonRedeem": "Redeem",
             "confirmMintTitle": "Confirm Mint",
             "confirmRedeemTitle": "Confirm Redeem",
             "confirmDescriptionMint": "Actual fee may be lower than shown — any RBTC excess is automatically refunded to your wallet.",

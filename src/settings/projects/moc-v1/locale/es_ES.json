@@ -146,8 +146,6 @@
             "estimatedMaxRbtc": "Máximo estimado de RBTC requerido — el excedente se reembolsa automáticamente",
             "limitReachedDoc": "Límite de redención de DOC alcanzado en este momento",
             "systemPaused": "El contrato está pausado. Las operaciones están deshabilitadas",
-            "buttonMint": "Mintear",
-            "buttonRedeem": "Redimir",
             "confirmMintTitle": "Confirmar Minteo",
             "confirmRedeemTitle": "Confirmar Redención",
             "confirmDescriptionMint": "La tasa real puede ser menor a la mostrada — cualquier excedente de RBTC se reembolsa automáticamente a tu billetera.",

@@ -388,9 +388,7 @@ export default function ExchangeV1(): React.ReactElement {
         onClearAmounts();
     };
 
-    const buttonLabelKey = isMint
-        ? "exchange.v1.buttonMint"
-        : "exchange.v1.buttonRedeem";
+    const buttonLabelKey = "exchange.buttonExchange";
 
     return (
         <div>
