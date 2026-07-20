@@ -388,7 +388,7 @@ export default function ExchangeV1(): React.ReactElement {
         onClearAmounts();
     };
 
-    const buttonLabelKey = "exchange.buttonExchange";
+    const buttonLabelKey = "defaultCTA.buttonExchange";
 
     return (
         <div>
