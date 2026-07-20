@@ -38,6 +38,13 @@ export type ContractProtocolStatusV1Data = {
     redeemBProFeesRbtc: bigint;
     mintDocFeesRbtc: bigint;
     redeemDocFeesRbtc: bigint;
+    // MOC-denominated commission rates — genuinely different from the RBTC
+    // ones above, not just a currency relabeling (see MoCExchange.sol's
+    // calculateCommissionsWithPrices).
+    mintBProFeesMoc: bigint;
+    redeemBProFeesMoc: bigint;
+    mintDocFeesMoc: bigint;
+    redeemDocFeesMoc: bigint;
 };
 
 export type ContractProtocolStatusV1Result = Omit<

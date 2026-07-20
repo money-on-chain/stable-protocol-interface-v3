@@ -94,6 +94,11 @@ export type WalletContextType = {
         onTransaction: OnTransaction,
         onReceipt: OnReceipt
     ) => Promise<TransactionReceipt | undefined>;
+    interfaceAllowanceMocV1: (
+        amount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ) => Promise<TransactionReceipt | undefined>;
     userVesting: UserVestingResult;
     userIncentiveV2: ReturnType<typeof useIncentiveV2>;
     userVeto: ReturnType<typeof useUserVeto>;

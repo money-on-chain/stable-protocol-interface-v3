@@ -31,3 +31,10 @@ export const MINT_BPRO_FEES_RBTC = 1;
 export const REDEEM_BPRO_FEES_RBTC = 2;
 export const MINT_DOC_FEES_RBTC = 3;
 export const REDEEM_DOC_FEES_RBTC = 4;
+// MOC-denominated counterparts — a genuinely different rate from the RBTC ones
+// above (see MoCExchange.calculateCommissionsWithPrices, which picks one set or
+// the other depending on the caller's MOC balance/allowance).
+export const MINT_BPRO_FEES_MOC = 7;
+export const REDEEM_BPRO_FEES_MOC = 8;
+export const MINT_DOC_FEES_MOC = 9;
+export const REDEEM_DOC_FEES_MOC = 10;

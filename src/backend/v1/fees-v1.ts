@@ -48,3 +48,32 @@ export const previewFeesV1 = (
         valueToSend: rbtcAmount + total,
     };
 };
+
+// MOC-denominated fee preview — mirrors MoCExchange.calculateCommissionsWithPrices'
+// MOC branch exactly: rate * rbtcAmount is worked out in BTC terms first (using the
+// MOC-specific commission rate, which is NOT the same rate as the RBTC path — see
+// MoCInrate.sol's *_FEES_MOC vs *_FEES_RBTC constants), then that BTC-denominated
+// value is converted to MOC via btcPrice/mocPrice. Vendor markup uses the same rate
+// as the RBTC path (there's only one vendor-markup rate), just converted the same way.
+export const previewFeesMocV1 = (
+    rbtcAmount: bigint,
+    mocCommissionRate: bigint,
+    vendorMarkupRate: bigint,
+    btcPrice: bigint,
+    mocPrice: bigint
+): FeePreviewV1 => {
+    if (mocPrice === 0n) {
+        return { commission: 0n, markup: 0n, total: 0n, valueToSend: 0n };
+    }
+    const commissionInBtc = applyRate(rbtcAmount, mocCommissionRate);
+    const markupInBtc = applyRate(rbtcAmount, vendorMarkupRate);
+    const commission = (commissionInBtc * btcPrice) / mocPrice;
+    const markup = (markupInBtc * btcPrice) / mocPrice;
+    const total = commission + markup;
+    return {
+        commission,
+        markup,
+        total,
+        valueToSend: rbtcAmount,
+    };
+};

@@ -51,6 +51,7 @@ import {
     voteStep,
 } from "../backend/omoc/voting";
 import {
+    allowanceMoc as allowanceMocV1,
     mintBPro as mintBProV1,
     mintDoc as mintDocV1,
     redeemBPro as redeemBProV1,
@@ -499,6 +500,15 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             onTransaction,
             onReceipt
         );
+    };
+
+    const interfaceAllowanceMocV1 = async (
+        amount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ): Promise<TransactionReceipt | undefined> => {
+        const interfaceContext = buildInterfaceContextV1();
+        return allowanceMocV1(interfaceContext, amount, onTransaction, onReceipt);
     };
 
     /* VESTING */
@@ -1102,6 +1112,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 interfaceMintDocV1,
                 interfaceRedeemBProV1,
                 interfaceRedeemFreeDocV1,
+                interfaceAllowanceMocV1,
                 blockNumber,
                 offChainPrices,
                 priceProvider,

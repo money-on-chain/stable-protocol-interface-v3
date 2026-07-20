@@ -3,9 +3,13 @@ import { checksumAddress } from "viem";
 
 import {
     BUCKET_C0,
+    MINT_BPRO_FEES_MOC,
     MINT_BPRO_FEES_RBTC,
+    MINT_DOC_FEES_MOC,
     MINT_DOC_FEES_RBTC,
+    REDEEM_BPRO_FEES_MOC,
     REDEEM_BPRO_FEES_RBTC,
+    REDEEM_DOC_FEES_MOC,
     REDEEM_DOC_FEES_RBTC,
     VENDOR_ADDRESS_V1,
 } from "../constants/v1";
@@ -179,6 +183,34 @@ export function useContractProtocolStatusV1(
                 args: [REDEEM_DOC_FEES_RBTC],
                 resultType: "uint256",
                 keys: ["redeemDocFeesRbtc"],
+            },
+            {
+                contract: MoCInrate,
+                functionName: "commissionRatesByTxType",
+                args: [MINT_BPRO_FEES_MOC],
+                resultType: "uint256",
+                keys: ["mintBProFeesMoc"],
+            },
+            {
+                contract: MoCInrate,
+                functionName: "commissionRatesByTxType",
+                args: [REDEEM_BPRO_FEES_MOC],
+                resultType: "uint256",
+                keys: ["redeemBProFeesMoc"],
+            },
+            {
+                contract: MoCInrate,
+                functionName: "commissionRatesByTxType",
+                args: [MINT_DOC_FEES_MOC],
+                resultType: "uint256",
+                keys: ["mintDocFeesMoc"],
+            },
+            {
+                contract: MoCInrate,
+                functionName: "commissionRatesByTxType",
+                args: [REDEEM_DOC_FEES_MOC],
+                resultType: "uint256",
+                keys: ["redeemDocFeesMoc"],
             }
         );
 

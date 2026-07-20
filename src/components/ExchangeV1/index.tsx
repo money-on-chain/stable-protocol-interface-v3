@@ -4,13 +4,12 @@ import type { RadioChangeEvent } from "antd";
 import { Button, Radio, Space } from "antd";
 import React, { useState } from "react";
 
-import { previewFeesV1 } from "../../backend/v1/fees-v1";
+import { previewFeesMocV1, previewFeesV1 } from "../../backend/v1/fees-v1";
 import { useWalletContext } from "../../context/Wallet";
 import { bigIntToInputValue, TokenSettings } from "../../helpers/currencies";
 import { typeOperation } from "../../helpers/exchange";
 import {
     estimateExchangeOutputV1,
-    feeMocEquivalentV1,
     tokenBalanceV1,
     tokenExchangeV1,
     tokenReceiveV1,
@@ -20,6 +19,7 @@ import { mulPrecision, toBigIntPrecision, WAD } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import CurrencyPopUp from "../CurrencyPopUp";
 import InputAmount from "../InputAmount";
+import ModalAllowanceMocV1 from "../Modals/AllowanceMocV1";
 import type { ExchangeModeV1 } from "../Modals/ExchangeOptionsModalV1";
 import ExchangeOptionsModalV1 from "../Modals/ExchangeOptionsModalV1";
 import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
@@ -64,11 +64,19 @@ export default function ExchangeV1(): React.ReactElement {
         useState<OperationModalInfo>({ operationStatus: "", txHash: "" });
     const [isOperationModalVisible, setIsOperationModalVisible] =
         useState<boolean>(false);
-    // Informational only — mirrors CommissionsSelector's UX, but the contract
-    // (not the frontend) decides RBTC-vs-MOC at call time based on live MOC
-    // balance/allowance, so this choice isn't sent on-chain (see feeCurrencyNote).
+    // Mirrors CommissionsSelector's UX. The contract still auto-picks
+    // RBTC-vs-MOC based on live MOC balance/allowance at call time (see
+    // feeCurrencyNote) — but unlike v3, this choice now drives a real allowance
+    // step before submit: selecting "TG" grants a MOC allowance if one isn't
+    // already in place (needsMocAllowance), and selecting "CA_0" revokes any
+    // leftover MOC allowance that would otherwise make the contract auto-charge
+    // in MOC despite the user's choice (needsMocRevoke).
     const [selectedFeeCurrency, setSelectedFeeCurrency] =
         useState<string>("CA_0");
+    const [showAllowanceModal, setShowAllowanceModal] =
+        useState<boolean>(false);
+    const [allowanceDisAllow, setAllowanceDisAllow] =
+        useState<boolean>(false);
 
     const status = contractProtocolStatusV1.data;
     const balances = userBalanceV1.data;
@@ -195,6 +203,10 @@ export default function ExchangeV1(): React.ReactElement {
                     status
                 );
 
+    // RBTC-path and MOC-path commission rates are genuinely different values
+    // on-chain (MoCInrate.sol's *_FEES_RBTC vs *_FEES_MOC constants) — not the
+    // same rate just relabeled — so each fee-currency option needs its own rate
+    // lookup and its own preview computation below.
     const commissionRate = (): bigint => {
         if (!status) return 0n;
         switch (mode) {
@@ -209,23 +221,80 @@ export default function ExchangeV1(): React.ReactElement {
         }
     };
 
+    const commissionRateMoc = (): bigint => {
+        if (!status) return 0n;
+        switch (mode) {
+            case "mintBPro":
+                return status.mintBProFeesMoc;
+            case "mintDoc":
+                return status.mintDocFeesMoc;
+            case "redeemBPro":
+                return status.redeemBProFeesMoc;
+            case "redeemDoc":
+                return status.redeemDocFeesMoc;
+        }
+    };
+
     const feePreview =
         status && feeBasisRbtc > 0n
             ? previewFeesV1(feeBasisRbtc, commissionRate(), status.vendorMarkup)
             : null;
 
-    // Fee-currency selector data: same USD cost, priced in RBTC or MOC.
-    const feeUsd =
+    const feePreviewMoc =
+        status && feeBasisRbtc > 0n
+            ? previewFeesMocV1(
+                  feeBasisRbtc,
+                  commissionRateMoc(),
+                  status.vendorMarkup,
+                  status.getBitcoinPrice,
+                  status.mocUsdPrice
+              )
+            : null;
+
+    // Fee-currency selector data — each option shows its own rate/amount/USD,
+    // since the RBTC and MOC fee paths are priced independently on-chain.
+    const feeUsdRbtc =
         feePreview && status
             ? mulPrecision(feePreview.total, status.getBitcoinPrice)
             : 0n;
-    const feeMoc =
-        feePreview && status
-            ? feeMocEquivalentV1(feePreview.total, status)
+    const feeMoc = feePreviewMoc ? feePreviewMoc.total : 0n;
+    const feeUsdMoc =
+        feePreviewMoc && status
+            ? mulPrecision(feePreviewMoc.total, status.mocUsdPrice)
             : 0n;
-    const feePercentWad = status
+    const feePercentWadRbtc = status
         ? (commissionRate() + status.vendorMarkup) * 100n
         : 0n;
+    const feePercentWadMoc = status
+        ? (commissionRateMoc() + status.vendorMarkup) * 100n
+        : 0n;
+
+    // Each option is only disabled when the user can't actually afford it in
+    // that currency — matching CommissionsSelector's balance check — never on
+    // allowance, since choosing MOC now triggers its own allowance step at
+    // submit time (see needsMocAllowance) instead of silently falling back.
+    const mocBalance = balances?.MOC?.balance ?? 0n;
+    const mocAllowance = balances?.MOC?.allowance ?? 0n;
+    const rbtcFeeDisabled =
+        operationType === "REDEEM"
+            ? false
+            : !feePreview || feePreview.total === 0n || feePreview.total > rbtcBalance;
+    const mocFeeDisabled = !feePreviewMoc || feeMoc === 0n || feeMoc > mocBalance;
+
+    const needsMocAllowance =
+        selectedFeeCurrency === "TG" && feeMoc > 0n && mocAllowance < feeMoc;
+
+    // MoC.sol auto-charges the fee in MOC whenever the caller's live MOC
+    // balance+allowance both cover it (MoCExchange.calculateCommissionsWithPrices)
+    // — it doesn't ask the frontend. So picking RBTC here isn't enough on its own
+    // if a large-enough MOC allowance is still sitting there from earlier; it has
+    // to be revoked first, same as v3's ConfirmOperation does for its FeeToken
+    // (see showAllowancePayCommissionFeeToken's disallow branch).
+    const needsMocRevoke =
+        selectedFeeCurrency === "CA_0" &&
+        feeMoc > 0n &&
+        mocAllowance >= feeMoc &&
+        mocBalance >= feeMoc;
 
     const paused = status?.paused ?? false;
     const overFreeDocLimit =
@@ -292,6 +361,23 @@ export default function ExchangeV1(): React.ReactElement {
 
     const onSubmitButton = (): void => {
         if (hasError) return;
+        if (needsMocAllowance) {
+            setAllowanceDisAllow(false);
+            setShowAllowanceModal(true);
+            return;
+        }
+        if (needsMocRevoke) {
+            setAllowanceDisAllow(true);
+            setShowAllowanceModal(true);
+            return;
+        }
+        setModalAmount(amountBigInt);
+        setModalMode(mode);
+    };
+
+    const onAllowanceApproved = (): void => {
+        setShowAllowanceModal(false);
+        void userBalanceV1.refetch();
         setModalAmount(amountBigInt);
         setModalMode(mode);
     };
@@ -459,11 +545,14 @@ export default function ExchangeV1(): React.ReactElement {
                                         value={selectedFeeCurrency}
                                     >
                                         <Space direction="vertical">
-                                            <Radio value="CA_0">
+                                            <Radio
+                                                value="CA_0"
+                                                disabled={rbtcFeeDisabled}
+                                            >
                                                 <span>
                                                     {t("fees.labelFee")} (
                                                     {PrecisionNumbers({
-                                                        amount: feePercentWad,
+                                                        amount: feePercentWadRbtc,
                                                         token: TokenSettings(
                                                             "CA_0"
                                                         ),
@@ -496,7 +585,7 @@ export default function ExchangeV1(): React.ReactElement {
                                                 <span> (</span>
                                                 <span>
                                                     {PrecisionNumbers({
-                                                        amount: feeUsd,
+                                                        amount: feeUsdRbtc,
                                                         decimals: 6,
                                                         token: TokenSettings(
                                                             "CA_0"
@@ -514,11 +603,14 @@ export default function ExchangeV1(): React.ReactElement {
                                                 </span>
                                                 <span>) </span>
                                             </Radio>
-                                            <Radio value="TG">
+                                            <Radio
+                                                value="TG"
+                                                disabled={mocFeeDisabled}
+                                            >
                                                 <span>
                                                     {t("fees.labelFee")} (
                                                     {PrecisionNumbers({
-                                                        amount: feePercentWad,
+                                                        amount: feePercentWadMoc,
                                                         token: TokenSettings(
                                                             "CA_0"
                                                         ),
@@ -530,7 +622,7 @@ export default function ExchangeV1(): React.ReactElement {
                                                 </span>
                                                 <span> ≈ </span>
                                                 <span>
-                                                    {feePreview
+                                                    {feePreviewMoc
                                                         ? PrecisionNumbers({
                                                               amount: feeMoc,
                                                               token: TokenSettings(
@@ -551,7 +643,7 @@ export default function ExchangeV1(): React.ReactElement {
                                                 <span> (</span>
                                                 <span>
                                                     {PrecisionNumbers({
-                                                        amount: feeUsd,
+                                                        amount: feeUsdMoc,
                                                         decimals: 6,
                                                         token: TokenSettings(
                                                             "CA_0"
@@ -575,13 +667,13 @@ export default function ExchangeV1(): React.ReactElement {
                             </div>
 
                             <div className="tx-fees-info">
-                                {t("exchange.v1.feeCurrencyNote")}
                                 {isMint && (
                                     <>
-                                        <br />
                                         {t("exchange.v1.estimatedMaxRbtc")}
+                                        <br />
                                     </>
                                 )}
+                                {t("fees.disclaimer2")}
                             </div>
                         </div>
                     </div>
@@ -633,6 +725,13 @@ export default function ExchangeV1(): React.ReactElement {
                 </div>
             </div>
 
+            <ModalAllowanceMocV1
+                visible={showAllowanceModal}
+                amount={feeMoc}
+                disAllowance={allowanceDisAllow}
+                onClose={() => setShowAllowanceModal(false)}
+                onApproved={onAllowanceApproved}
+            />
             <ExchangeOptionsModalV1
                 mode={modalMode}
                 visible={modalMode !== null}

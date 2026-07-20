@@ -152,4 +152,36 @@ const redeemFreeDoc = async (
     return receipt;
 };
 
-export { mintBPro, mintDoc, redeemBPro, redeemFreeDoc };
+// Approves the Moc contract to spend the caller's MOC (MoCToken) — needed so
+// MoC.sol's transferCommissions() picks the MOC-fee path instead of RBTC (see
+// fees-v1.ts's header comment: the contract chooses based on live MOC
+// balance/allowance, there's no explicit "pay fee in MOC" contract parameter).
+const allowanceMoc = async (
+    interfaceContext: InterfaceContextV1,
+    amount: bigint,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    const { address, contracts } = interfaceContext;
+
+    if (!address) throw new Error("Address not found");
+    if (!contracts) throw new Error("Contracts not found");
+
+    const { request } = await simulateContract(config, {
+        address: contracts.MoCToken.address,
+        abi: contracts.MoCToken.abi as Abi,
+        functionName: "approve",
+        args: [contracts.Moc.address, amount] as const,
+        account: address,
+    });
+
+    const txHash = await writeContract(config, request);
+    if (onTransaction) onTransaction(txHash);
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
+    if (onReceipt) onReceipt(receipt);
+
+    return receipt;
+};
+
+export { allowanceMoc, mintBPro, mintDoc, redeemBPro, redeemFreeDoc };
