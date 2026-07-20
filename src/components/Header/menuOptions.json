@@ -21,7 +21,7 @@
         "nameKey": "menuOptions.staking",
         "className": "logo-staking",
         "path": "/staking",
-        "allowedProjects": ["moc", "flipmoney", "voting", "roc"]
+        "allowedProjects": ["moc", "flipmoney", "voting", "roc", "moc-v1"]
     },
     {
         "nameKey": "menuOptions.performance",
@@ -33,7 +33,7 @@
         "nameKey": "menuOptions.vesting",
         "className": "logo-vesting",
         "path": "/vesting",
-        "allowedProjects": ["moc", "voting", "roc"]
+        "allowedProjects": ["moc", "voting", "roc", "moc-v1"]
     },
     {
         "nameKey": "menuOptions.liquidityMining",
@@ -45,7 +45,7 @@
         "nameKey": "menuOptions.voting",
         "className": "logo-voting",
         "path": "/voting",
-        "allowedProjects": ["flipmoney", "moc", "voting", "roc"]
+        "allowedProjects": ["flipmoney", "moc", "voting", "roc", "moc-v1"]
     },
     {
         "nameKey": "menuOptions.combinedOperations",
