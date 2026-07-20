@@ -31,6 +31,12 @@ const getFirstToken = (tokens: TokenConfig[] | undefined): TokenConfig | null =>
 
 const appSettings = settings;
 
+// v1 (moc-v1) has no caIndex — its protocol status is a flat set of fields,
+// not the CA-indexed multicall shape the v3 branch below reads from. See
+// project_v1_support_plan memory's Epic 0 fork boundary.
+const IS_MOC_V1 =
+    import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "moc-v1";
+
 export default function TokenPriceStrip(): JSX.Element | null {
     const configuredTokens = Array.isArray(appSettings.tokenPriceStrip?.tokens)
         ? appSettings.tokenPriceStrip.tokens
@@ -44,9 +50,11 @@ export default function TokenPriceStrip(): JSX.Element | null {
 function TokenPriceStripContent({
     configuredTokens,
 }: TokenPriceStripContentProps): JSX.Element | null {
-    const { contractProtocolStatus } = useWalletContext();
+    const { contractProtocolStatus, contractProtocolStatusV1 } =
+        useWalletContext();
     const { i18n } = useProjectTranslation();
     const data = contractProtocolStatus.data;
+    const dataV1 = contractProtocolStatusV1.data;
     const viewportRef = useRef<HTMLDivElement>(null);
     const [scrollState, setScrollState] = useState({
         hasOverflow: false,
@@ -65,7 +73,81 @@ function TokenPriceStripContent({
         return tokens[index] ?? null;
     };
 
+    // v1's protocol status is a flat set of fields (getBitcoinPrice/
+    // bproUsdPrice/mocUsdPrice, DOC pegged to WAD) — no caIndex, no per-token
+    // multicall lookup, unlike the v3 branch below. Mirrors the price sourcing
+    // already used by helpers/exchangeV1.ts's tokenUsdPriceV1.
+    const getTokenPriceItemV1 = (tokenId: string): TokenPriceItem | null => {
+        const [type] = tokenId.split("_");
+
+        switch (type) {
+            case "COINBASE":
+            case "CA": {
+                const token =
+                    type === "COINBASE"
+                        ? getFirstToken(appSettings.tokens.COINBASE)
+                        : getFirstToken(appSettings.tokens.CA);
+                if (!token) return null;
+
+                return {
+                    key: tokenId,
+                    iconClassName:
+                        type === "COINBASE"
+                            ? "icon-token-coinbase"
+                            : "icon-token-ca_0",
+                    price: dataV1?.getBitcoinPrice ?? 0n,
+                    pricePrefix: "$",
+                    priceCurrency: "USD",
+                    token,
+                };
+            }
+            case "TC": {
+                const token = getFirstToken(appSettings.tokens.TC);
+                if (!token) return null;
+
+                return {
+                    key: tokenId,
+                    iconClassName: "icon-token-tc_0",
+                    price: dataV1?.bproUsdPrice ?? 0n,
+                    pricePrefix: "$",
+                    priceCurrency: "USD",
+                    token,
+                };
+            }
+            case "TP": {
+                const token = getFirstToken(appSettings.tokens.TP);
+                if (!token) return null;
+
+                return {
+                    key: tokenId,
+                    iconClassName: "icon-token-tp_0",
+                    price: WAD,
+                    pricePrefix: "$",
+                    priceCurrency: "USD",
+                    token,
+                };
+            }
+            case "TG": {
+                const token = getFirstToken(appSettings.tokens.TG);
+                if (!token) return null;
+
+                return {
+                    key: tokenId,
+                    iconClassName: "icon-token-tg",
+                    price: dataV1?.mocUsdPrice ?? 0n,
+                    pricePrefix: "$",
+                    priceCurrency: "USD",
+                    token,
+                };
+            }
+            default:
+                return null;
+        }
+    };
+
     const getTokenPriceItem = (tokenId: string): TokenPriceItem | null => {
+        if (IS_MOC_V1) return getTokenPriceItemV1(tokenId);
+
         const [type, indexValue] = tokenId.split("_");
         const index = Number(indexValue);
 

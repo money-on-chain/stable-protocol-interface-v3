@@ -5,6 +5,9 @@
         "description": "MOC UI - Legacy v1 contracts"
     },
     "showPriceVariation": true,
+    "tokenPriceStrip": {
+        "tokens": ["CA_0", "TC_0", "TP_0", "TG"]
+    },
     "slippage": {
         "autoDefault": 1.0,
         "presets": [0.3, 1.0, 2.0],
