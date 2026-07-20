@@ -1,20 +1,27 @@
-const ALLOWED_API_ORIGINS = new Set([
+const defaultApiOrigins = [
     "https://api-v2.flipmoney.io",
     "https://api-testnet.flipmoney.io",
     "https://api-v2.rifonchain.com",
     "https://api-v2-testnet.rifonchain.com",
     "https://api-testnet.stablex.pro",
-]);
+];
+
+const configuredApiOrigins = import.meta.env.ALLOWED_API_ORIGINS;
+
+const ALLOWED_API_ORIGINS = new Set(
+    configuredApiOrigins === undefined
+        ? defaultApiOrigins
+        : configuredApiOrigins
+              .split(",")
+              .map((origin: string) => origin.trim())
+              .filter(Boolean)
+);
 
 function validateAndGetApiBase(): string {
-    const raw = import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS as
-        | string
-        | undefined;
+    const raw = import.meta.env.REACT_APP_ENVIRONMENT_API_OPERATIONS as string | undefined;
 
     if (!raw) {
-        console.error(
-            "[apiConfig] REACT_APP_ENVIRONMENT_API_OPERATIONS is not configured"
-        );
+        console.error("[apiConfig] REACT_APP_ENVIRONMENT_API_OPERATIONS is not configured");
         return "";
     }
 
