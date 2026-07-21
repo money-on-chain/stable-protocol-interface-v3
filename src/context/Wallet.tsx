@@ -318,9 +318,22 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
         try {
             if (IS_MOC_V1) {
-                const contractsAddressesV1 =
-                    await readContractsV1(publicClient);
+                // moc-v1's own Exchange/Send flow needs the v1-shaped bag, but
+                // Staking/Vesting/Voting are reused as-is from the v3 flavors
+                // (see router/projects/moc-v1) and read exclusively from the
+                // v3 `contractsAddress` state — so both must be loaded. With
+                // no REACT_APP_CONTRACT_MULTICOLLATERAL_GUARD configured for
+                // moc-v1, readContracts()'s caIndex/bucket-discovery loop is
+                // skipped entirely; it only resolves the IRegistry-derived
+                // governance contracts (StakingMachine, VestingFactory,
+                // VotingMachine, VetoMachine, TG/MOC token, etc.).
+                const [contractsAddressesV1, contractsAddresses] =
+                    await Promise.all([
+                        readContractsV1(publicClient),
+                        readContracts(publicClient),
+                    ]);
                 setContractsAddressV1(contractsAddressesV1);
+                setContractsAddress(contractsAddresses);
             } else {
                 const contractsAddresses = await readContracts(publicClient);
                 setContractsAddress(contractsAddresses);
