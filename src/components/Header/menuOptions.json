@@ -39,7 +39,7 @@
         "nameKey": "menuOptions.liquidityMining",
         "className": "logo-liquidity-mining",
         "path": "/liquidity-mining",
-        "allowedProjects": ["moc"]
+        "allowedProjects": ["moc", "moc-v1"]
     },
     {
         "nameKey": "menuOptions.voting",
