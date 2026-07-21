@@ -25,13 +25,7 @@ import type {
     ExchangeModeV1,
 } from "../Modals/ExchangeOptionsModalV1";
 import ExchangeOptionsModalV1 from "../Modals/ExchangeOptionsModalV1";
-import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
 import { PrecisionNumbers } from "../PrecisionNumbers";
-
-interface OperationModalInfo {
-    operationStatus: string;
-    txHash: string;
-}
 
 function getModeV1(
     isMint: boolean,
@@ -64,10 +58,6 @@ export default function ExchangeV1(): React.ReactElement {
     const [modalData, setModalData] = useState<ExchangeConfirmDataV1 | null>(
         null
     );
-    const [operationModalInfo, setOperationModalInfo] =
-        useState<OperationModalInfo>({ operationStatus: "", txHash: "" });
-    const [isOperationModalVisible, setIsOperationModalVisible] =
-        useState<boolean>(false);
     // Mirrors CommissionsSelector's UX. The contract still auto-picks
     // RBTC-vs-MOC based on live MOC balance/allowance at call time (see
     // feeCurrencyNote) — but unlike v3, this choice now drives a real allowance
@@ -400,9 +390,11 @@ export default function ExchangeV1(): React.ReactElement {
         setModalData(buildModalData());
     };
 
-    const onModalConfirm = (operationStatus: string, txHash: string): void => {
-        setOperationModalInfo({ operationStatus, txHash });
-        setIsOperationModalVisible(true);
+    // The confirm modal now tracks sign/pending/success/error itself (see
+    // ExchangeOptionsModalV1) so the amount/fee summary stays visible while
+    // the user waits — this only needs to clear the (hidden) form fields
+    // once the transaction is under way.
+    const onModalConfirm = (): void => {
         onClearAmounts();
     };
 
@@ -754,14 +746,6 @@ export default function ExchangeV1(): React.ReactElement {
                 onClose={() => setModalData(null)}
                 onConfirm={onModalConfirm}
             />
-            {isOperationModalVisible && (
-                <OperationStatusModal
-                    visible={isOperationModalVisible}
-                    onCancel={() => setIsOperationModalVisible(false)}
-                    operationStatus={operationModalInfo.operationStatus}
-                    txHash={operationModalInfo.txHash}
-                />
-            )}
         </div>
     );
 }

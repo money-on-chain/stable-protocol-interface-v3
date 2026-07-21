@@ -1,10 +1,11 @@
 import { Button, Modal } from "antd";
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import type { TransactionReceipt } from "viem";
 
 import { useWalletContext } from "../../../context/Wallet";
 import { TokenSettings } from "../../../helpers/currencies";
 import { useProjectTranslation } from "../../../helpers/translations";
+import CopyAddress from "../../CopyAddress";
 import DisplayAmount from "../../DisplayAmount";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 
@@ -24,6 +25,8 @@ export interface ExchangeConfirmDataV1 {
     feePercent: bigint;
     feeUSD: bigint;
 }
+
+type TxStatus = "confirm" | "sign" | "pending" | "success" | "error";
 
 interface ExchangeOptionsModalV1Props {
     data: ExchangeConfirmDataV1 | null;
@@ -50,6 +53,13 @@ const MODE_RECEIVE_TOKEN: Record<ExchangeModeV1, string> = {
     redeemDoc: "CA_0",
 };
 
+const STATUS_ICON: Record<Exclude<TxStatus, "confirm">, string> = {
+    sign: "icon-tx-signWallet",
+    pending: "icon-tx-waiting",
+    success: "icon-tx-success",
+    error: "icon-tx-error",
+};
+
 export default function ExchangeOptionsModalV1(
     props: ExchangeOptionsModalV1Props
 ): React.ReactElement | null {
@@ -64,6 +74,20 @@ export default function ExchangeOptionsModalV1(
         userBaseCoinBalance,
     } = useWalletContext();
 
+    const [status, setStatus] = useState<TxStatus>("confirm");
+    const [txHash, setTxHash] = useState<string>("");
+
+    // Each new confirm attempt hands in a fresh `data` snapshot (see
+    // ExchangeV1's buildModalData) — reset back to the confirm step whenever
+    // that happens, so a previous operation's SUCCESS/ERROR screen never
+    // bleeds into the next one.
+    useEffect(() => {
+        if (data) {
+            setStatus("confirm");
+            setTxHash("");
+        }
+    }, [data]);
+
     if (!data) return null;
 
     const { mode, amount, receiveAmount, exchangingUSD, feeAmount, feeToken, feePercent, feeUSD } =
@@ -73,12 +97,21 @@ export default function ExchangeOptionsModalV1(
     const sourceToken = MODE_TOKEN[mode];
     const receiveToken = MODE_RECEIVE_TOKEN[mode];
 
+    const statusLabels: Record<Exclude<TxStatus, "confirm">, string> = {
+        sign: t("staking.modal.StatusModal_Modal_TxStatus_sign"),
+        pending: t("staking.modal.StatusModal_Modal_TxStatus_pending"),
+        success: t("staking.modal.StatusModal_Modal_TxStatus_success"),
+        error: t("staking.modal.StatusModal_Modal_TxStatus_failed"),
+    };
+
     const onSubmit = async (): Promise<void> => {
-        onClose();
+        setStatus("sign");
         onConfirm("sign", "");
 
-        const onTransaction = (txHash: string): void => {
-            onConfirm("pending", txHash);
+        const onTransaction = (hash: string): void => {
+            setTxHash(hash);
+            setStatus("pending");
+            onConfirm("pending", hash);
         };
         const onReceipt = (): void => {
             // no-op — status/balance are refreshed after the receipt below
@@ -118,14 +151,16 @@ export default function ExchangeOptionsModalV1(
             }
         } catch (error) {
             console.error(error);
+            setStatus("error");
             onConfirm("error", "");
             return;
         }
 
         if (!receipt) return;
 
-        const status = receipt.status === "success" ? "success" : "error";
-        onConfirm(status, receipt.transactionHash);
+        const finalStatus = receipt.status === "success" ? "success" : "error";
+        setStatus(finalStatus);
+        onConfirm(finalStatus, receipt.transactionHash);
 
         void userBalanceV1.refetch();
         void userBaseCoinBalance.refetch();
@@ -139,6 +174,7 @@ export default function ExchangeOptionsModalV1(
             onCancel={onClose}
             footer={null}
             centered={true}
+            closable={false}
             maskClosable={false}
         >
             <Fragment>
@@ -188,11 +224,11 @@ export default function ExchangeOptionsModalV1(
 
                 <div className="divider-horizontal"></div>
 
-                <div className="cta-info-detail">
-                    {isMint
-                        ? t("exchange.v1.confirmDescriptionMint")
-                        : t("exchange.v1.confirmDescriptionRedeem")}
-                </div>
+                {!isMint && (
+                    <div className="cta-info-detail">
+                        {t("exchange.v1.confirmDescriptionRedeem")}
+                    </div>
+                )}
 
                 <div className="tx-fees-container">
                     <div className="tx-fees-data">
@@ -248,50 +284,103 @@ export default function ExchangeOptionsModalV1(
                     </div>
                 </div>
 
-                <div className="cta-container">
-                    <div className="cta-info-group">
-                        <div className="cta-info-summary">
-                            <div className="token_exchange">
-                                {t("exchange.exchangingSummary")}
+                {status === "confirm" && (
+                    <div className="cta-container">
+                        <div className="cta-info-group">
+                            <div className="cta-info-summary">
+                                <div className="token_exchange">
+                                    {t("exchange.exchangingSummary")}
+                                </div>
+                                <div className="symbol">
+                                    {t("exchange.exchangingSign")}
+                                </div>
+                                <div className="token_receive">
+                                    {PrecisionNumbers({
+                                        amount: exchangingUSD,
+                                        token: TokenSettings("CA_0"),
+                                        decimals: 2,
+                                        i18n: i18n,
+                                        isUSD: true,
+                                        compact: true,
+                                    })}
+                                </div>
+                                <div className="token_receive_name">
+                                    {" "}
+                                    {t("exchange.exchangingCurrency")}
+                                </div>
                             </div>
-                            <div className="symbol">
-                                {t("exchange.exchangingSign")}
+                        </div>
+                        <div className="cta-options-group">
+                            <Button
+                                data-testid="exchange-v1-modal-cancel"
+                                type="default"
+                                className="button secondary"
+                                onClick={onClose}
+                            >
+                                {t("exchange.buttonCancel")}
+                            </Button>
+                            <Button
+                                data-testid="exchange-v1-modal-confirm"
+                                type="primary"
+                                className="button"
+                                onClick={() => void onSubmit()}
+                            >
+                                {t("exchange.buttonConfirm")}
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
+                {status !== "confirm" && (
+                    <div className="conditional-wrapper">
+                        {(status === "pending" ||
+                            status === "success" ||
+                            status === "error") &&
+                            txHash !== "" && (
+                                <div className="tx-id-container">
+                                    <div className="tx-id-data">
+                                        <div className="tx-id-label">
+                                            {t("txFeedback.txIdLabel")}
+                                        </div>
+                                        <div className="tx-id-address">
+                                            <CopyAddress
+                                                address={txHash}
+                                                type={"tx"}
+                                            ></CopyAddress>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                        <div className="cta-container">
+                            <div className="tx-feedback-container">
+                                <div className="tx-feedback-icon tx-logo-status">
+                                    <div
+                                        className={STATUS_ICON[status]}
+                                    ></div>
+                                </div>
+                                <p
+                                    className="tx-feedback-text"
+                                    data-testid={`exchange-v1-modal-status-${status}`}
+                                >
+                                    {statusLabels[status]}
+                                </p>
                             </div>
-                            <div className="token_receive">
-                                {PrecisionNumbers({
-                                    amount: exchangingUSD,
-                                    token: TokenSettings("CA_0"),
-                                    decimals: 2,
-                                    i18n: i18n,
-                                    isUSD: true,
-                                    compact: true,
-                                })}
-                            </div>
-                            <div className="token_receive_name">
-                                {" "}
-                                {t("exchange.exchangingCurrency")}
+                            <div className="cta-options-group">
+                                <button
+                                    type="button"
+                                    className="button secondary"
+                                    onClick={onClose}
+                                    data-testid="exchange-v1-modal-close"
+                                >
+                                    {t(
+                                        "staking.modal.StatusModal_Modal_Close"
+                                    )}
+                                </button>
                             </div>
                         </div>
                     </div>
-                    <div className="cta-options-group">
-                        <Button
-                            data-testid="exchange-v1-modal-cancel"
-                            type="default"
-                            className="button secondary"
-                            onClick={onClose}
-                        >
-                            {t("exchange.buttonCancel")}
-                        </Button>
-                        <Button
-                            data-testid="exchange-v1-modal-confirm"
-                            type="primary"
-                            className="button"
-                            onClick={() => void onSubmit()}
-                        >
-                            {t("exchange.buttonConfirm")}
-                        </Button>
-                    </div>
-                </div>
+                )}
             </Fragment>
         </Modal>
     );

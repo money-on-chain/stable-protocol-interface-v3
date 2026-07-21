@@ -147,7 +147,6 @@
             "systemPaused": "The contract is paused. Operations are disabled",
             "confirmMintTitle": "Confirm Mint",
             "confirmRedeemTitle": "Confirm Redeem",
-            "confirmDescriptionMint": "Actual fee may be lower than shown — any RBTC excess is automatically refunded to your wallet.",
             "confirmDescriptionRedeem": "This amount will be burned and the equivalent RBTC sent to your wallet."
         },
 

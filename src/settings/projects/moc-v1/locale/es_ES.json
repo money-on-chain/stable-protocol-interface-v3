@@ -148,7 +148,6 @@
             "systemPaused": "El contrato está pausado. Las operaciones están deshabilitadas",
             "confirmMintTitle": "Confirmar Minteo",
             "confirmRedeemTitle": "Confirmar Redención",
-            "confirmDescriptionMint": "La tasa real puede ser menor a la mostrada — cualquier excedente de RBTC se reembolsa automáticamente a tu billetera.",
             "confirmDescriptionRedeem": "Este monto será quemado y el RBTC equivalente enviado a tu billetera."
         },
 
