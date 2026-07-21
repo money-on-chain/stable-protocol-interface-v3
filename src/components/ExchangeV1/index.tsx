@@ -20,7 +20,10 @@ import { useProjectTranslation } from "../../helpers/translations";
 import CurrencyPopUp from "../CurrencyPopUp";
 import InputAmount from "../InputAmount";
 import ModalAllowanceMocV1 from "../Modals/AllowanceMocV1";
-import type { ExchangeModeV1 } from "../Modals/ExchangeOptionsModalV1";
+import type {
+    ExchangeConfirmDataV1,
+    ExchangeModeV1,
+} from "../Modals/ExchangeOptionsModalV1";
 import ExchangeOptionsModalV1 from "../Modals/ExchangeOptionsModalV1";
 import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
 import { PrecisionNumbers } from "../PrecisionNumbers";
@@ -58,8 +61,9 @@ export default function ExchangeV1(): React.ReactElement {
         useState<string>("TC_0");
     const [amountYouExchange, setAmountYouExchange] = useState<string>("");
     const [amountYouReceive, setAmountYouReceive] = useState<string>("");
-    const [modalMode, setModalMode] = useState<ExchangeModeV1 | null>(null);
-    const [modalAmount, setModalAmount] = useState<bigint>(0n);
+    const [modalData, setModalData] = useState<ExchangeConfirmDataV1 | null>(
+        null
+    );
     const [operationModalInfo, setOperationModalInfo] =
         useState<OperationModalInfo>({ operationStatus: "", txHash: "" });
     const [isOperationModalVisible, setIsOperationModalVisible] =
@@ -359,6 +363,22 @@ export default function ExchangeV1(): React.ReactElement {
         );
     };
 
+    // Snapshots everything the confirm modal displays at the moment the user
+    // commits to the operation, so its numbers stay stable even though the
+    // live state they're derived from (amounts, selectedFeeCurrency) keeps
+    // reacting to the (now hidden) form behind the modal.
+    const buildModalData = (): ExchangeConfirmDataV1 => ({
+        mode,
+        amount: amountBigInt,
+        receiveAmount: amountReceiveBigInt,
+        exchangingUSD: totalExchangingInFiat,
+        feeAmount: selectedFeeCurrency === "TG" ? feeMoc : (feePreview?.total ?? 0n),
+        feeToken: selectedFeeCurrency,
+        feePercent:
+            selectedFeeCurrency === "TG" ? feePercentWadMoc : feePercentWadRbtc,
+        feeUSD: selectedFeeCurrency === "TG" ? feeUsdMoc : feeUsdRbtc,
+    });
+
     const onSubmitButton = (): void => {
         if (hasError) return;
         if (needsMocAllowance) {
@@ -371,15 +391,13 @@ export default function ExchangeV1(): React.ReactElement {
             setShowAllowanceModal(true);
             return;
         }
-        setModalAmount(amountBigInt);
-        setModalMode(mode);
+        setModalData(buildModalData());
     };
 
     const onAllowanceApproved = (): void => {
         setShowAllowanceModal(false);
         void userBalanceV1.refetch();
-        setModalAmount(amountBigInt);
-        setModalMode(mode);
+        setModalData(buildModalData());
     };
 
     const onModalConfirm = (operationStatus: string, txHash: string): void => {
@@ -731,10 +749,9 @@ export default function ExchangeV1(): React.ReactElement {
                 onApproved={onAllowanceApproved}
             />
             <ExchangeOptionsModalV1
-                mode={modalMode}
-                visible={modalMode !== null}
-                onClose={() => setModalMode(null)}
-                amount={modalAmount}
+                data={modalData}
+                visible={modalData !== null}
+                onClose={() => setModalData(null)}
                 onConfirm={onModalConfirm}
             />
             {isOperationModalVisible && (
