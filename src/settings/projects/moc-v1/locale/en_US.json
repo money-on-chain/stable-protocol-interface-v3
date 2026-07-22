@@ -301,9 +301,15 @@
             "statusDescriptionOpportunity": "BPro is available at a discount price",
             "statusTitleSettlement": "Settlement in progress",
             "statusDescriptionSettlement": "No operations allowed during settlement",
-            "systemOperationsTitle": "System Operations",
-            "operationMint": "Mint {{ticker}}",
-            "operationRedeem": "Redeem {{ticker}}",
+            "buttonDetails": "View Status by Collateral",
+            "detailedStatus": {
+                "modalTitle": "System Status by Collateral",
+                "headerOperations": {
+                    "token": "Token",
+                    "mint": "Mint",
+                    "redeem": "Redeem"
+                }
+            },
             "rbtcPrice": "RBTC Price",
             "rbtcEma": "RBTC EMA (120)",
             "totalRbtc": "Total RBTC in the system",

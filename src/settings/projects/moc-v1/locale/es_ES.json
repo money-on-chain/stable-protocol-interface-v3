@@ -302,9 +302,15 @@
             "statusDescriptionOpportunity": "BPro está disponible a precio de descuento",
             "statusTitleSettlement": "Liquidación en curso",
             "statusDescriptionSettlement": "No hay operaciones permitidas durante la liquidación",
-            "systemOperationsTitle": "Operaciones del Sistema",
-            "operationMint": "Mintear {{ticker}}",
-            "operationRedeem": "Redimir {{ticker}}",
+            "buttonDetails": "Ver Estado por Colateral",
+            "detailedStatus": {
+                "modalTitle": "Estado del Sistema por Colateral",
+                "headerOperations": {
+                    "token": "Token",
+                    "mint": "Mintear",
+                    "redeem": "Redimir"
+                }
+            },
             "rbtcPrice": "Precio de RBTC",
             "rbtcEma": "EMA de RBTC (120)",
             "totalRbtc": "Total de RBTC en el sistema",

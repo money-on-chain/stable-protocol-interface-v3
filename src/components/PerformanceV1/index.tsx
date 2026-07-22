@@ -1,10 +1,10 @@
-import "./Styles.scss";
-
-import React, { useMemo } from "react";
+import { Modal } from "antd";
+import React, { useMemo, useState } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
 import { systemStatusV1 } from "../../helpers/performanceV1";
 import { useProjectTranslation } from "../../helpers/translations";
+import GlobalStatusModalV1 from "../Modals/GlobalStatusV1";
 import CollateralV1 from "./collateral";
 import GlobalMetricsV1 from "./globalMetrics";
 import TokensV1 from "./tokens";
@@ -12,13 +12,14 @@ import TVLV1 from "./tvl";
 
 // v1 port of components/Performance, following the same card layout (system
 // status + dataGroup metric cards) but sourced from contractProtocolStatusV1's
-// flat, single-bucket data instead of v3's caIndex-indexed one. The legacy
-// dapp's Metrics page had no details modal for system status — it listed
-// available operations inline instead — so that's kept here too (see
-// helpers/performanceV1.ts's systemStatusV1 for the mint/redeem availability
-// per coverage band).
+// flat, single-bucket data instead of v3's caIndex-indexed one. The details
+// modal mirrors v3's GlobalStatusModal (see components/Modals/GlobalStatusV1),
+// scaled down to v1's single collateral bucket (see helpers/performanceV1.ts's
+// systemStatusV1 for the mint/redeem availability per coverage band).
 export default function PerformanceV1(): React.ReactElement {
-    const space = " ";
+    const space = " ";
+    const [showGlobalStatusModal, setShowGlobalStatusModal] =
+        useState<boolean>(false);
     const { t } = useProjectTranslation();
     const { contractProtocolStatusV1, blockNumber } = useWalletContext();
 
@@ -26,6 +27,14 @@ export default function PerformanceV1(): React.ReactElement {
         () => systemStatusV1(contractProtocolStatusV1.data),
         [contractProtocolStatusV1.data]
     );
+
+    const showModal = (): void => {
+        setShowGlobalStatusModal(true);
+    };
+
+    const hideModal = (): void => {
+        setShowGlobalStatusModal(false);
+    };
 
     return (
         <div className="section sectionPerformance">
@@ -63,41 +72,35 @@ export default function PerformanceV1(): React.ReactElement {
                             <div className="status-text">
                                 {t(status.descriptionKey)}
                             </div>
-                        </div>
-                    </div>
-
-                    <div className="systemOperationsV1">
-                        <h2 className="systemOperationsV1__title">
-                            {t("performance.v1.systemOperationsTitle")}
-                        </h2>
-                        <div className="systemOperationsV1__list">
-                            {status.operations.map((op) => (
-                                <div
-                                    key={`${op.action}-${op.token}`}
-                                    className="systemOperationsV1__item"
-                                    data-testid={`performance-v1-operation-${op.action}-${op.token}`}
-                                >
-                                    <div
-                                        className={
-                                            op.available
-                                                ? "icon-status-success"
-                                                : "icon-status-error"
-                                        }
-                                    ></div>
-                                    <span>
-                                        {t(
-                                            op.action === "mint"
-                                                ? "performance.v1.operationMint"
-                                                : "performance.v1.operationRedeem",
-                                            {
-                                                ticker: t(
-                                                    `exchange.tokens.${op.token}.abbr`
-                                                ),
-                                            }
-                                        )}
-                                    </span>
+                            <button
+                                className="aboutShowModal__button"
+                                onClick={showModal}
+                            >
+                                <div className="icon__button__arrow buttonArrow"></div>
+                                <div className="buttonText">
+                                    {t("performance.v1.buttonDetails")}
                                 </div>
-                            ))}
+                            </button>
+                            {showGlobalStatusModal && (
+                                <Modal
+                                    title={t(
+                                        "performance.v1.detailedStatus.modalTitle"
+                                    )}
+                                    width={505}
+                                    open={true}
+                                    onCancel={hideModal}
+                                    footer={null}
+                                    closable={false}
+                                    className="aboutGlobalStatus__modal ModalAccount "
+                                    centered={true}
+                                    maskStyle={{}}
+                                >
+                                    <GlobalStatusModalV1
+                                        hideModal={hideModal}
+                                        status={status}
+                                    />
+                                </Modal>
+                            )}
                         </div>
                     </div>
                 </div>
