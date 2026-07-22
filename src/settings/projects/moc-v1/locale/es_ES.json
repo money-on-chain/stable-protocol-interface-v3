@@ -295,6 +295,30 @@
             "redeemableNoLimit": "Sin límite",
             "redeemableNoLimitWithFootnote": "Sin límite*",
             "redeemableCombinedOperationsFootnote": "* Sin límite mediante operaciones combinadas únicamente."
+        },
+
+        "v1": {
+            "statusTitleOpportunity": "Modo Oportunidad",
+            "statusDescriptionOpportunity": "BPro está disponible a precio de descuento",
+            "statusTitleSettlement": "Liquidación en curso",
+            "statusDescriptionSettlement": "No hay operaciones permitidas durante la liquidación",
+            "systemOperationsTitle": "Operaciones del Sistema",
+            "operationMint": "Mintear {{ticker}}",
+            "operationRedeem": "Redimir {{ticker}}",
+            "rbtcPrice": "Precio de RBTC",
+            "rbtcEma": "EMA de RBTC (120)",
+            "totalRbtc": "Total de RBTC en el sistema",
+            "docCardTitle": "Dollar on Chain",
+            "totalDoc": "Total de DOC en el sistema",
+            "availableRedeemDoc": "Disponible para redimir",
+            "availableMintDoc": "Disponible para mintear",
+            "bproCardTitle": "BPro",
+            "bproPrice": "Precio de BPro",
+            "bproDiscountPrice": "Precio de descuento",
+            "totalBpro": "Total de BPro en el sistema",
+            "availableRedeemBpro": "Disponible para redimir",
+            "mocCardTitle": "MOC",
+            "mocPrice": "Precio de MOC"
         }
     },
 

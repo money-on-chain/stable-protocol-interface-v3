@@ -12,6 +12,9 @@ const Skeleton = React.lazy(
 const HomeV1 = React.lazy(() => import("../../../pages/HomeV1/index"));
 const ExchangeV1 = React.lazy(() => import("../../../pages/ExchangeV1/index"));
 const SendV1 = React.lazy(() => import("../../../pages/SendV1/index"));
+const PerformanceV1 = React.lazy(
+    () => import("../../../pages/PerformanceV1/index")
+);
 
 const Staking = React.lazy(() => import("../../../pages/Staking/index"));
 const Vesting = React.lazy(() => import("../../../pages/Vesting/index"));
@@ -38,6 +41,10 @@ export default function Router(): React.ReactElement | null {
                 {
                     path: "send",
                     element: <SendV1 />,
+                },
+                {
+                    path: "performance",
+                    element: <PerformanceV1 />,
                 },
                 {
                     path: "staking",

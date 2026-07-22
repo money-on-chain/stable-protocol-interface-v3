@@ -27,7 +27,7 @@
         "nameKey": "menuOptions.performance",
         "className": "logo-performance",
         "path": "/performance",
-        "allowedProjects": ["flipmoney", "roc", "moc"]
+        "allowedProjects": ["flipmoney", "roc", "moc", "moc-v1"]
     },
     {
         "nameKey": "menuOptions.vesting",

@@ -1,0 +1,28 @@
+.systemOperationsV1 {
+    margin-top: 24px;
+
+    &__title {
+        margin: 0 0 12px;
+        color: var(--color-txt-secondary);
+        font-family: var(--main-font);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    &__list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px 32px;
+    }
+
+    &__item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--color-txt-primary);
+        font-family: var(--main-font);
+        font-size: 14px;
+    }
+}

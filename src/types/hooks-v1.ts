@@ -33,6 +33,11 @@ export type ContractProtocolStatusV1Data = {
     getBucketNDoc: bigint;
     getBucketNBPro: bigint;
     paused: boolean;
+    // Target coverage (MoCState.cobj) and bucket C0 leverage — used to build
+    // the Performance/Metrics status + reserve cards (see components/PerformanceV1).
+    cobj: bigint;
+    b0Leverage: bigint;
+    bproDiscountPrice: bigint;
     vendorMarkup: bigint;
     mintBProFeesRbtc: bigint;
     redeemBProFeesRbtc: bigint;

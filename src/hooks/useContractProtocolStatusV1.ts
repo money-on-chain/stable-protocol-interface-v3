@@ -140,6 +140,27 @@ export function useContractProtocolStatusV1(
                 resultType: "bool",
                 keys: ["paused"],
             },
+            {
+                contract: MoCState,
+                functionName: "cobj",
+                args: [],
+                resultType: "uint256",
+                keys: ["cobj"],
+            },
+            {
+                contract: MoCState,
+                functionName: "leverage",
+                args: [BUCKET_C0],
+                resultType: "uint256",
+                keys: ["b0Leverage"],
+            },
+            {
+                contract: MoCState,
+                functionName: "bproDiscountPrice",
+                args: [],
+                resultType: "uint256",
+                keys: ["bproDiscountPrice"],
+            },
         ];
 
         if (VENDOR_ADDRESS_V1) {
