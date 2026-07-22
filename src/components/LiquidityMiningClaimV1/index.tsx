@@ -1,4 +1,5 @@
 import "../LiquidityMiningClaim/Styles.scss";
+import "./Styles.scss";
 
 import { Button } from "antd";
 import React, { Fragment, useMemo, useState } from "react";
@@ -10,6 +11,7 @@ import {
     AGENT_SIGNAL_VALUE_WEI,
     getRewardedTodayV1,
     hasClaimedToday,
+    truncateHash,
 } from "../../helpers/incentives";
 import { useProjectTranslation } from "../../helpers/translations";
 import {
@@ -172,14 +174,20 @@ export default function LiquidityMiningClaimV1(): React.ReactElement {
                                         ></div>
                                         {statusLabels[status]}
                                     </div>
-                                    {txHash && explorerUrl && (
-                                        <a
-                                            href={`${explorerUrl}/tx/${txHash}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            {txHash}
-                                        </a>
+                                    {txHash && (
+                                        <div className="claimStatusV1__hash">
+                                            {explorerUrl ? (
+                                                <a
+                                                    href={`${explorerUrl}/tx/${txHash}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    {truncateHash(txHash)}
+                                                </a>
+                                            ) : (
+                                                truncateHash(txHash)
+                                            )}
+                                        </div>
                                     )}
                                 </div>
                             )}

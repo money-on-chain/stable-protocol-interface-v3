@@ -10,7 +10,7 @@ import { useWalletContext } from "../../../context/Wallet";
 import { TokenSettings } from "../../../helpers/currencies";
 import date from "../../../helpers/date";
 import type { IncentiveClaimStatus } from "../../../helpers/incentives";
-import { claimStatus } from "../../../helpers/incentives";
+import { claimStatus, truncateHash } from "../../../helpers/incentives";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { useIncentivesClaims } from "../../../hooks/useIncentives";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
@@ -131,11 +131,11 @@ export default function LiquidityMiningClaimsV1(): React.ReactElement {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                 >
-                                    {claim.sentHash}
+                                    {truncateHash(claim.sentHash)}
                                 </a>
                             ) : (
                                 <span className="claimDetailV1__value">
-                                    {claim.sentHash}
+                                    {truncateHash(claim.sentHash)}
                                 </span>
                             )}
                         </div>
@@ -151,11 +151,11 @@ export default function LiquidityMiningClaimsV1(): React.ReactElement {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                 >
-                                    {claim.hash}
+                                    {truncateHash(claim.hash)}
                                 </a>
                             ) : (
                                 <span className="claimDetailV1__value">
-                                    {claim.hash}
+                                    {truncateHash(claim.hash)}
                                 </span>
                             )}
                         </div>

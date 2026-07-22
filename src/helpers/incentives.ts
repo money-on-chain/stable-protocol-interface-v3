@@ -134,3 +134,11 @@ export function hasClaimedToday(claims: IncentiveClaimRecord[]): boolean {
         return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}` === todayKey;
     });
 }
+
+// Shortens a tx hash for display (full hash stays available via the
+// explorer link/href) so it never overflows a fixed-width card/table cell.
+export function truncateHash(hash: string): string {
+    if (hash.length <= 14) return hash;
+
+    return `${hash.substring(0, 8)}...${hash.substring(hash.length - 6)}`;
+}
