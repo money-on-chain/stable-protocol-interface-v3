@@ -781,6 +781,19 @@
             "status": "Status",
             "statusReceived": "Received",
             "statusInProgress": "In progress"
+        },
+        "v1": {
+            "earnedToday": "Earned Today",
+            "claimEvent": "Claim",
+            "gasCost": "Gas cost",
+            "sentTx": "Claim request tx",
+            "payoutTx": "Payout tx",
+            "status": {
+                "sent": "Sent",
+                "confirming": "Confirming",
+                "processing": "Processing",
+                "failed": "Failed"
+            }
         }
     },
     "operationProgressList": {

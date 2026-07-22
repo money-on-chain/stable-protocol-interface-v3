@@ -1,0 +1,25 @@
+.claimDetailV1 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 32px;
+    padding: 8px 0;
+
+    &__field {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 160px;
+        word-break: break-all;
+    }
+
+    &__label {
+        color: var(--color-txt-secondary);
+        font-size: 12px;
+        text-transform: uppercase;
+    }
+
+    &__value {
+        color: var(--color-txt-primary);
+        font-size: 14px;
+    }
+}
