@@ -1,4 +1,4 @@
-import { Button, Modal } from "antd";
+import { Button, Checkbox, Modal } from "antd";
 import React, { Fragment, useEffect, useState } from "react";
 import type { TransactionReceipt } from "viem";
 
@@ -12,9 +12,9 @@ import { PrecisionNumbers } from "../../PrecisionNumbers";
 export type ExchangeModeV1 = "mintBPro" | "mintDoc" | "redeemBPro" | "redeemDoc";
 
 // Snapshot of everything the confirm dialog needs to render, captured by
-// ExchangeV1 at submit time (see its onSubmitButton/onAllowanceApproved) so
-// the modal's numbers stay frozen even though the values it's built from
-// (amountYouExchange, selectedFeeCurrency, etc.) are live component state.
+// ExchangeV1 at submit time (see its onSubmitButton) so the modal's numbers
+// stay frozen even though the values it's built from (amountYouExchange,
+// selectedFeeCurrency, etc.) are live component state.
 export interface ExchangeConfirmDataV1 {
     mode: ExchangeModeV1;
     amount: bigint;
@@ -26,7 +26,20 @@ export interface ExchangeConfirmDataV1 {
     feeUSD: bigint;
 }
 
-type TxStatus = "confirm" | "sign" | "pending" | "success" | "error";
+// "allowance" is the checkbox+authorize step itself (mirrors the old
+// ModalAllowanceMocV1's SUBMIT state); allowanceSign/allowancePending/
+// allowanceError are that same dialog's SIGN/WAITING/ERROR states, now folded
+// into this modal instead of a separate popup — see onAuthorizeAllowance.
+type TxStatus =
+    | "confirm"
+    | "allowance"
+    | "allowanceSign"
+    | "allowancePending"
+    | "allowanceError"
+    | "sign"
+    | "pending"
+    | "success"
+    | "error";
 
 interface ExchangeOptionsModalV1Props {
     data: ExchangeConfirmDataV1 | null;
@@ -34,13 +47,13 @@ interface ExchangeOptionsModalV1Props {
     onClose: () => void;
     onConfirm: (status: string, txHash: string) => void;
     // Set when paying the fee in MOC requires granting (or revoking) an
-    // allowance first. When true, clicking "Confirm" runs onRequestAllowance
-    // and awaits it before sending the real mint/redeem transaction — the
-    // parent owns showing/hiding the allowance dialog itself (see ExchangeV1's
-    // onRequestAllowance), this modal just waits on the promise it returns.
-    needsAllowance?: boolean;
-    onRequestAllowance?: () => Promise<boolean>;
+    // allowance first — clicking "Confirm" then shows the allowance step
+    // in-place instead of sending the real mint/redeem transaction directly.
+    needsMocAllowance?: boolean;
+    needsMocRevoke?: boolean;
 }
+
+const MAX_UINT256 = (1n << 256n) - 1n;
 
 // The source ("you exchange") token — RBTC for mint, BPro/DOC for redeem —
 // matching what interfaceMintBProV1/etc. actually take as their first
@@ -60,7 +73,13 @@ const MODE_RECEIVE_TOKEN: Record<ExchangeModeV1, string> = {
     redeemDoc: "CA_0",
 };
 
-const STATUS_ICON: Record<Exclude<TxStatus, "confirm">, string> = {
+const STATUS_ICON: Record<
+    Exclude<TxStatus, "confirm" | "allowance">,
+    string
+> = {
+    allowanceSign: "icon-tx-signWallet",
+    allowancePending: "icon-tx-waiting",
+    allowanceError: "icon-tx-error",
     sign: "icon-tx-signWallet",
     pending: "icon-tx-waiting",
     success: "icon-tx-success",
@@ -75,11 +94,12 @@ export default function ExchangeOptionsModalV1(
         visible,
         onClose,
         onConfirm,
-        needsAllowance,
-        onRequestAllowance,
+        needsMocAllowance,
+        needsMocRevoke,
     } = props;
-    const { t, i18n } = useProjectTranslation();
+    const { t, i18n, ns } = useProjectTranslation();
     const {
+        interfaceAllowanceMocV1,
         interfaceMintBProV1,
         interfaceMintDocV1,
         interfaceRedeemBProV1,
@@ -90,6 +110,7 @@ export default function ExchangeOptionsModalV1(
 
     const [status, setStatus] = useState<TxStatus>("confirm");
     const [txHash, setTxHash] = useState<string>("");
+    const [infinityAllowance, setInfinityAllowance] = useState(false);
 
     // Each new confirm attempt hands in a fresh `data` snapshot (see
     // ExchangeV1's buildModalData) — reset back to the confirm step whenever
@@ -99,6 +120,7 @@ export default function ExchangeOptionsModalV1(
         if (data) {
             setStatus("confirm");
             setTxHash("");
+            setInfinityAllowance(false);
         }
     }, [data]);
 
@@ -111,19 +133,22 @@ export default function ExchangeOptionsModalV1(
     const sourceToken = MODE_TOKEN[mode];
     const receiveToken = MODE_RECEIVE_TOKEN[mode];
 
-    const statusLabels: Record<Exclude<TxStatus, "confirm">, string> = {
+    const statusLabels: Record<
+        Exclude<TxStatus, "confirm" | "allowance">,
+        string
+    > = {
+        allowanceSign: t("allowance.feedback.sign"),
+        allowancePending: t("allowance.feedback.waiting"),
+        allowanceError: t("allowance.feedback.error"),
         sign: t("staking.modal.StatusModal_Modal_TxStatus_sign"),
         pending: t("staking.modal.StatusModal_Modal_TxStatus_pending"),
         success: t("staking.modal.StatusModal_Modal_TxStatus_success"),
         error: t("staking.modal.StatusModal_Modal_TxStatus_failed"),
     };
 
-    const onSubmit = async (): Promise<void> => {
-        if (needsAllowance && onRequestAllowance) {
-            const approved = await onRequestAllowance();
-            if (!approved) return;
-        }
-
+    // The real mint/redeem transaction — runs directly from "Confirm" when no
+    // allowance is needed, or right after onAuthorizeAllowance succeeds.
+    const runOperation = async (): Promise<void> => {
         setStatus("sign");
         onConfirm("sign", "");
 
@@ -183,6 +208,48 @@ export default function ExchangeOptionsModalV1(
 
         void userBalanceV1.refetch();
         void userBaseCoinBalance.refetch();
+    };
+
+    const onSubmit = async (): Promise<void> => {
+        if (needsMocAllowance || needsMocRevoke) {
+            setStatus("allowance");
+            return;
+        }
+        await runOperation();
+    };
+
+    // amount is 0 for the revoke case (disAllowance) — mirrors the old
+    // ModalAllowanceMocV1's onAuthorize. `feeAmount` here is exactly the MOC
+    // fee amount whenever needsMocAllowance is true, since that's only ever
+    // set when the selected fee currency (and so data.feeToken) is "TG" — see
+    // ExchangeV1's buildModalData.
+    const onAuthorizeAllowance = async (): Promise<void> => {
+        const amountAllowance = needsMocRevoke
+            ? 0n
+            : infinityAllowance
+              ? MAX_UINT256
+              : feeAmount;
+
+        setStatus("allowanceSign");
+        const onTransaction = (): void => setStatus("allowancePending");
+        const onReceipt = (): void => {
+            // no-op — balance is refetched after the allowance settles below
+        };
+
+        try {
+            await interfaceAllowanceMocV1(
+                amountAllowance,
+                onTransaction,
+                onReceipt
+            );
+        } catch (error) {
+            console.error("Allowance error:", error);
+            setStatus("allowanceError");
+            return;
+        }
+
+        void userBalanceV1.refetch();
+        await runOperation();
     };
 
     return (
@@ -350,7 +417,70 @@ export default function ExchangeOptionsModalV1(
                     </div>
                 )}
 
-                {status !== "confirm" && (
+                {status === "allowance" && (
+                    <div className="cta-container">
+                        <div className="tx-feedback-container">
+                            {needsMocRevoke ? (
+                                <div className="tx-feedback-text">
+                                    {t("allowance.statusDisallowanceText")}
+                                    <br />
+                                    {t("exchange.v1.allowanceMocRevokeReason", {
+                                        ns,
+                                    })}
+                                </div>
+                            ) : (
+                                <div className="tx-feedback-text">
+                                    {t("allowance.statusText1")}
+                                    <br />
+                                    {t("exchange.v1.allowanceMocReason", {
+                                        ns,
+                                    })}
+                                    <br />
+                                    {t("allowance.statusText2")}
+                                </div>
+                            )}
+                            {!needsMocRevoke && (
+                                <div className="option-checkbox">
+                                    <Checkbox
+                                        className="check-unlimited"
+                                        checked={infinityAllowance}
+                                        onChange={(e: {
+                                            target: { checked: boolean };
+                                        }) =>
+                                            setInfinityAllowance(
+                                                e.target.checked
+                                            )
+                                        }
+                                    >
+                                        {t("allowance.setUnlimited")}
+                                    </Checkbox>
+                                </div>
+                            )}
+                        </div>
+                        <div className="cta-options-group">
+                            <Button
+                                data-testid="exchange-v1-modal-allowance-cancel"
+                                type="default"
+                                className="button secondary"
+                                onClick={onClose}
+                            >
+                                {t("allowance.confirm.cancel")}
+                            </Button>
+                            <Button
+                                data-testid="exchange-v1-modal-allowance-authorize"
+                                type="primary"
+                                className="button"
+                                onClick={() => void onAuthorizeAllowance()}
+                            >
+                                {needsMocRevoke
+                                    ? t("allowance.confirm.revoke")
+                                    : t("allowance.confirm.authorize")}
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
+                {status !== "confirm" && status !== "allowance" && (
                     <div className="conditional-wrapper">
                         {(status === "pending" ||
                             status === "success" ||

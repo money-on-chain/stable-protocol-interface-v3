@@ -2,7 +2,7 @@ import "../Exchange/Styles.scss";
 
 import type { RadioChangeEvent } from "antd";
 import { Button, Radio, Space } from "antd";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 
 import { previewFeesMocV1, previewFeesV1 } from "../../backend/v1/fees-v1";
 import { useWalletContext } from "../../context/Wallet";
@@ -17,7 +17,6 @@ import {
 } from "../../helpers/exchangeV1";
 import { mulPrecision, toBigIntPrecision, WAD } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
-import ModalAllowanceMocV1 from "../Modals/AllowanceMocV1";
 import type {
     ExchangeConfirmDataV1,
     ExchangeModeV1,
@@ -63,13 +62,11 @@ export default function ExchangeV1(): React.ReactElement {
     // step before submit: selecting "TG" grants a MOC allowance if one isn't
     // already in place (needsMocAllowance), and selecting "CA_0" revokes any
     // leftover MOC allowance that would otherwise make the contract auto-charge
-    // in MOC despite the user's choice (needsMocRevoke).
+    // in MOC despite the user's choice (needsMocRevoke). Both the allowance
+    // step and the actual mint/redeem tx now happen inside
+    // ExchangeOptionsModalV1 itself — see its onAuthorizeAllowance/onSubmit.
     const [selectedFeeCurrency, setSelectedFeeCurrency] =
         useState<string>("CA_0");
-    const [showAllowanceModal, setShowAllowanceModal] =
-        useState<boolean>(false);
-    const [allowanceDisAllow, setAllowanceDisAllow] =
-        useState<boolean>(false);
 
     const status = contractProtocolStatusV1.data;
     const balances = userBalanceV1.data;
@@ -369,43 +366,16 @@ export default function ExchangeV1(): React.ReactElement {
     });
 
     // Confirm dialog opens first now, no matter what — the allowance step (if
-    // any) is only surfaced once the user actually clicks "Confirm" inside it
-    // (see onRequestAllowance/ExchangeOptionsModalV1's onSubmit), rather than
-    // gating the confirm dialog behind it like before.
+    // any) and the actual transaction both happen inside it once the user
+    // clicks "Confirm" (see ExchangeOptionsModalV1's onSubmit/
+    // onAuthorizeAllowance), rather than gating the confirm dialog behind a
+    // separate allowance popup like before.
     const onSubmitButton = (): void => {
         if (hasError) return;
         setModalData(buildModalData());
     };
 
-    // Resolved by onAllowanceApproved/onAllowanceModalClose — lets
-    // ExchangeOptionsModalV1's onSubmit `await` the allowance step before it
-    // fires the real mint/redeem transaction.
-    const allowanceResolverRef = useRef<((approved: boolean) => void) | null>(
-        null
-    );
-
-    const onRequestAllowance = (): Promise<boolean> => {
-        return new Promise((resolve) => {
-            allowanceResolverRef.current = resolve;
-            setAllowanceDisAllow(needsMocRevoke);
-            setShowAllowanceModal(true);
-        });
-    };
-
-    const onAllowanceApproved = (): void => {
-        setShowAllowanceModal(false);
-        void userBalanceV1.refetch();
-        allowanceResolverRef.current?.(true);
-        allowanceResolverRef.current = null;
-    };
-
-    const onAllowanceModalClose = (): void => {
-        setShowAllowanceModal(false);
-        allowanceResolverRef.current?.(false);
-        allowanceResolverRef.current = null;
-    };
-
-    // The confirm modal now tracks sign/pending/success/error itself (see
+    // The confirm modal now tracks allowance/sign/pending/success/error itself (see
     // ExchangeOptionsModalV1) so the amount/fee summary stays visible while
     // the user waits — this only needs to clear the (hidden) form fields
     // once the transaction is under way.
@@ -742,20 +712,13 @@ export default function ExchangeV1(): React.ReactElement {
                 </div>
             </div>
 
-            <ModalAllowanceMocV1
-                visible={showAllowanceModal}
-                amount={feeMoc}
-                disAllowance={allowanceDisAllow}
-                onClose={onAllowanceModalClose}
-                onApproved={onAllowanceApproved}
-            />
             <ExchangeOptionsModalV1
                 data={modalData}
-                visible={modalData !== null && !showAllowanceModal}
+                visible={modalData !== null}
                 onClose={() => setModalData(null)}
                 onConfirm={onModalConfirm}
-                needsAllowance={needsMocAllowance || needsMocRevoke}
-                onRequestAllowance={onRequestAllowance}
+                needsMocAllowance={needsMocAllowance}
+                needsMocRevoke={needsMocRevoke}
             />
         </div>
     );

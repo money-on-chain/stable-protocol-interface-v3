@@ -148,7 +148,8 @@
             "confirmMintTitle": "Confirm Mint",
             "confirmRedeemTitle": "Confirm Redeem",
             "confirmDescriptionRedeem": "This amount will be burned and the equivalent RBTC sent to your wallet.",
-            "allowanceMocReason": "This allowance lets the protocol charge the operation's fee in MOC instead of RBTC."
+            "allowanceMocReason": "This allowance lets the protocol charge the operation's fee in MOC instead of RBTC.",
+            "allowanceMocRevokeReason": "This revokes the protocol's permission to charge the operation's fee in MOC, since you're paying the fee in RBTC instead."
         },
 
         "limit": {
@@ -389,7 +390,8 @@
         "setUnlimited": "Set unlimited allowance. Don't ask me again.",
         "confirm": {
             "cancel": "Cancel",
-            "authorize": "Authorize"
+            "authorize": "Authorize",
+            "revoke": "Revoke"
         },
         "feedback": {
             "submit": "",

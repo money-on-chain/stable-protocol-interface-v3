@@ -149,7 +149,8 @@
             "confirmMintTitle": "Confirmar Minteo",
             "confirmRedeemTitle": "Confirmar Redención",
             "confirmDescriptionRedeem": "Este monto será quemado y el RBTC equivalente enviado a tu billetera.",
-            "allowanceMocReason": "Esta autorización permite que el protocolo cobre la comisión de la operación en MOC en lugar de RBTC."
+            "allowanceMocReason": "Esta autorización permite que el protocolo cobre la comisión de la operación en MOC en lugar de RBTC.",
+            "allowanceMocRevokeReason": "Esto revoca el permiso del protocolo para cobrar la comisión de la operación en MOC, ya que estás pagando la comisión en RBTC."
         },
 
         "limit": {
@@ -390,7 +391,8 @@
         "setUnlimited": "Configurar autorización ilimitada. No preguntarme nuevamente.",
         "confirm": {
             "cancel": "Cancelar",
-            "authorize": "Autorizar"
+            "authorize": "Autorizar",
+            "revoke": "Revocar"
         },
         "feedback": {
             "submit": "",
