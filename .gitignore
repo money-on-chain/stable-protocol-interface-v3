@@ -5,6 +5,7 @@ build
 IPFS_DEPLOYMENT_NOTES.md
 public/*.*
 index.html
+!public/projects/lendborrow/index.html
 dist/
 # assets
 src/assets/branding/logo-app.svg
