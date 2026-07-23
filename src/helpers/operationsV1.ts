@@ -132,7 +132,10 @@ export function parseOperationV1(
             break;
         case "Transfer": {
             kind = "transfer";
-            const isBpro = raw.tokenInvolved === "TC";
+            // raw.tokenInvolved comes straight off the legacy backend, which
+            // still uses its own old naming (RISKPRO/STABLE), not the new
+            // TC/TP identifiers — see the old dapp's TokenNameOldToNew.
+            const isBpro = raw.tokenInvolved === "RISKPRO";
             const transferToken = isBpro ? tc : tp;
             const transferTokenId = isBpro ? "TC_0" : "TP_0";
             exchange = { amount, token: transferToken, tokenId: transferTokenId };

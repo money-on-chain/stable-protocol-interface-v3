@@ -148,7 +148,8 @@
             "systemPaused": "El contrato está pausado. Las operaciones están deshabilitadas",
             "confirmMintTitle": "Confirmar Minteo",
             "confirmRedeemTitle": "Confirmar Redención",
-            "confirmDescriptionRedeem": "Este monto será quemado y el RBTC equivalente enviado a tu billetera."
+            "confirmDescriptionRedeem": "Este monto será quemado y el RBTC equivalente enviado a tu billetera.",
+            "allowanceMocReason": "Esta autorización permite que el protocolo cobre la comisión de la operación en MOC en lugar de RBTC."
         },
 
         "limit": {

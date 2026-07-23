@@ -30,7 +30,7 @@ export default function ModalAllowanceMocV1(
     props: ModalAllowanceMocV1Props
 ): React.ReactElement {
     const { visible, amount, onClose, onApproved, disAllowance } = props;
-    const { t } = useProjectTranslation();
+    const { t, ns } = useProjectTranslation();
     const { interfaceAllowanceMocV1 } = useWalletContext();
 
     const [status, setStatus] = useState<StatusType>("SUBMIT");
@@ -94,6 +94,9 @@ export default function ModalAllowanceMocV1(
     return (
         <Modal
             className="ModalAllowance"
+            title={`${t(
+                disAllowance ? "allowance.disallowanceTitle" : "allowance.cardTitle"
+            )}  ${t("exchange.tokens.TG.abbr", { ns })}`}
             width={505}
             open={visible}
             onCancel={onCloseModal}
@@ -113,6 +116,10 @@ export default function ModalAllowanceMocV1(
                             ) : (
                                 <div className="tx-feedback-text">
                                     {t("allowance.statusText1")}
+                                    <br />
+                                    {t("exchange.v1.allowanceMocReason", {
+                                        ns,
+                                    })}
                                     <br />
                                     {t("allowance.statusText2")}
                                 </div>

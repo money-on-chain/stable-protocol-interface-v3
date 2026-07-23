@@ -187,13 +187,21 @@ export default function ListOperationsV1(
                 executed_tx_hash: "--",
                 executed_tx_hash_truncate: "--",
                 fee: parsed.fee ? (
-                    <PrecisionNumbers
-                        amount={parsed.fee.amount}
-                        token={parsed.fee.token}
-                        decimals={parsed.fee.token.visibleDecimals ?? 6}
-                        i18n={i18n}
-                        compact={true}
-                    />
+                    <div className="LastOp__expanded__fee">
+                        <PrecisionNumbers
+                            amount={parsed.fee.amount}
+                            token={parsed.fee.token}
+                            decimals={parsed.fee.token.visibleDecimals ?? 6}
+                            i18n={i18n}
+                            compact={true}
+                        />
+                        <span className="token">
+                            {"  "}
+                            {t(`exchange.tokens.${parsed.fee.tokenId}.abbr`, {
+                                ns,
+                            })}
+                        </span>
+                    </div>
                 ) : (
                     "--"
                 ),

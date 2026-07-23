@@ -147,7 +147,8 @@
             "systemPaused": "The contract is paused. Operations are disabled",
             "confirmMintTitle": "Confirm Mint",
             "confirmRedeemTitle": "Confirm Redeem",
-            "confirmDescriptionRedeem": "This amount will be burned and the equivalent RBTC sent to your wallet."
+            "confirmDescriptionRedeem": "This amount will be burned and the equivalent RBTC sent to your wallet.",
+            "allowanceMocReason": "This allowance lets the protocol charge the operation's fee in MOC instead of RBTC."
         },
 
         "limit": {
