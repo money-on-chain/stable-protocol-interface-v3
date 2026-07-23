@@ -140,9 +140,14 @@ export function useMultiCall(
     const storage = useMemo(() => {
         let next: Record<string | number, unknown> | undefined = {};
 
-        // Return undefined while calls are pending so consumers can distinguish
-        // loading from empty.
-        if (calls.length > 0 && (!results || results.length === 0)) {
+        // Return undefined while calls are pending, AND while there are no
+        // calls at all yet — every caller builds `calls` from something like
+        // `if (!contracts) return []`, so an empty `calls` array on the first
+        // render(s) means "prerequisites (wallet/contracts) not ready yet",
+        // not "legitimately nothing to fetch". Treating it as ready-with-{}
+        // let consumers' `data != null` checks pass prematurely against a
+        // hollow object — see estimateExchangeOutputV1's reload-only crash.
+        if (calls.length === 0 || !results || results.length === 0) {
             return undefined;
         }
 
@@ -160,6 +165,23 @@ export function useMultiCall(
 
             if (item.status === "success") {
                 value = item.result;
+                // A live decode always hands back a native bigint for
+                // uint256/int256, but on a cold page load `results` can
+                // briefly reflect cached/rehydrated query state instead of a
+                // fresh decode, which can't carry a raw bigint the same way
+                // (e.g. round-tripped through JSON) — coerce defensively so
+                // downstream bigint math (wadDiv/mulDiv) never sees anything
+                // else and throws "Cannot mix BigInt and other types".
+                if (
+                    (resultType === "uint256" || resultType === "int256") &&
+                    typeof value !== "bigint"
+                ) {
+                    try {
+                        value = BigInt(value as string | number | boolean);
+                    } catch {
+                        value = 0n;
+                    }
+                }
                 if (transform) {
                     try {
                         value = transform(value);
@@ -177,7 +199,12 @@ export function useMultiCall(
                     switch (resultType) {
                         case "uint256":
                         case "int256":
-                            value = "0";
+                            // Successful uint256/int256 decodes come back as
+                            // native bigint (viem) — the fallback must match
+                            // that type, or downstream bigint arithmetic
+                            // (e.g. wadDiv/mulDiv) throws "Cannot mix BigInt
+                            // and other types" the moment a call fails.
+                            value = 0n;
                             break;
                         case "address":
                             value = "0x";
