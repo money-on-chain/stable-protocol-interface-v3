@@ -2,7 +2,7 @@ import "../Exchange/Styles.scss";
 
 import type { RadioChangeEvent } from "antd";
 import { Button, Radio, Space } from "antd";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 
 import { previewFeesMocV1, previewFeesV1 } from "../../backend/v1/fees-v1";
 import { useWalletContext } from "../../context/Wallet";
@@ -368,25 +368,41 @@ export default function ExchangeV1(): React.ReactElement {
         feeUSD: selectedFeeCurrency === "TG" ? feeUsdMoc : feeUsdRbtc,
     });
 
+    // Confirm dialog opens first now, no matter what — the allowance step (if
+    // any) is only surfaced once the user actually clicks "Confirm" inside it
+    // (see onRequestAllowance/ExchangeOptionsModalV1's onSubmit), rather than
+    // gating the confirm dialog behind it like before.
     const onSubmitButton = (): void => {
         if (hasError) return;
-        if (needsMocAllowance) {
-            setAllowanceDisAllow(false);
-            setShowAllowanceModal(true);
-            return;
-        }
-        if (needsMocRevoke) {
-            setAllowanceDisAllow(true);
-            setShowAllowanceModal(true);
-            return;
-        }
         setModalData(buildModalData());
+    };
+
+    // Resolved by onAllowanceApproved/onAllowanceModalClose — lets
+    // ExchangeOptionsModalV1's onSubmit `await` the allowance step before it
+    // fires the real mint/redeem transaction.
+    const allowanceResolverRef = useRef<((approved: boolean) => void) | null>(
+        null
+    );
+
+    const onRequestAllowance = (): Promise<boolean> => {
+        return new Promise((resolve) => {
+            allowanceResolverRef.current = resolve;
+            setAllowanceDisAllow(needsMocRevoke);
+            setShowAllowanceModal(true);
+        });
     };
 
     const onAllowanceApproved = (): void => {
         setShowAllowanceModal(false);
         void userBalanceV1.refetch();
-        setModalData(buildModalData());
+        allowanceResolverRef.current?.(true);
+        allowanceResolverRef.current = null;
+    };
+
+    const onAllowanceModalClose = (): void => {
+        setShowAllowanceModal(false);
+        allowanceResolverRef.current?.(false);
+        allowanceResolverRef.current = null;
     };
 
     // The confirm modal now tracks sign/pending/success/error itself (see
@@ -730,14 +746,16 @@ export default function ExchangeV1(): React.ReactElement {
                 visible={showAllowanceModal}
                 amount={feeMoc}
                 disAllowance={allowanceDisAllow}
-                onClose={() => setShowAllowanceModal(false)}
+                onClose={onAllowanceModalClose}
                 onApproved={onAllowanceApproved}
             />
             <ExchangeOptionsModalV1
                 data={modalData}
-                visible={modalData !== null}
+                visible={modalData !== null && !showAllowanceModal}
                 onClose={() => setModalData(null)}
                 onConfirm={onModalConfirm}
+                needsAllowance={needsMocAllowance || needsMocRevoke}
+                onRequestAllowance={onRequestAllowance}
             />
         </div>
     );

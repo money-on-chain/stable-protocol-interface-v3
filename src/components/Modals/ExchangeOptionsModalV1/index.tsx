@@ -33,6 +33,13 @@ interface ExchangeOptionsModalV1Props {
     visible: boolean;
     onClose: () => void;
     onConfirm: (status: string, txHash: string) => void;
+    // Set when paying the fee in MOC requires granting (or revoking) an
+    // allowance first. When true, clicking "Confirm" runs onRequestAllowance
+    // and awaits it before sending the real mint/redeem transaction — the
+    // parent owns showing/hiding the allowance dialog itself (see ExchangeV1's
+    // onRequestAllowance), this modal just waits on the promise it returns.
+    needsAllowance?: boolean;
+    onRequestAllowance?: () => Promise<boolean>;
 }
 
 // The source ("you exchange") token — RBTC for mint, BPro/DOC for redeem —
@@ -63,7 +70,14 @@ const STATUS_ICON: Record<Exclude<TxStatus, "confirm">, string> = {
 export default function ExchangeOptionsModalV1(
     props: ExchangeOptionsModalV1Props
 ): React.ReactElement | null {
-    const { data, visible, onClose, onConfirm } = props;
+    const {
+        data,
+        visible,
+        onClose,
+        onConfirm,
+        needsAllowance,
+        onRequestAllowance,
+    } = props;
     const { t, i18n } = useProjectTranslation();
     const {
         interfaceMintBProV1,
@@ -105,6 +119,11 @@ export default function ExchangeOptionsModalV1(
     };
 
     const onSubmit = async (): Promise<void> => {
+        if (needsAllowance && onRequestAllowance) {
+            const approved = await onRequestAllowance();
+            if (!approved) return;
+        }
+
         setStatus("sign");
         onConfirm("sign", "");
 
