@@ -22,22 +22,22 @@ Each worker sits in front of a Pinata IPFS gateway and serves the latest dapp bu
 ## Prerequisites
 
 - Node.js v22+
-- Wrangler: `npx wrangler login`
+- Wrangler: `corepack pnpm dlx wrangler login`
 
 ## Deploy
 
 ```bash
 # Deploy a single environment
-npx wrangler deploy --env roc
-npx wrangler deploy --env roc-testnet
-npx wrangler deploy --env flipmoney
-npx wrangler deploy --env flipmoney-testnet
-npx wrangler deploy --env moc
-npx wrangler deploy --env moc-testnet
+corepack pnpm dlx wrangler deploy --env roc
+corepack pnpm dlx wrangler deploy --env roc-testnet
+corepack pnpm dlx wrangler deploy --env flipmoney
+corepack pnpm dlx wrangler deploy --env flipmoney-testnet
+corepack pnpm dlx wrangler deploy --env moc
+corepack pnpm dlx wrangler deploy --env moc-testnet
 
 # Deploy all at once
 for env in roc roc-testnet flipmoney flipmoney-testnet moc moc-testnet; do
-  npx wrangler deploy --env $env
+  corepack pnpm dlx wrangler deploy --env $env
 done
 ```
 
@@ -57,12 +57,12 @@ done
 ## Creating new KV namespaces (first-time setup)
 
 ```bash
-npx wrangler kv namespace create DAPP_KV --env roc
-npx wrangler kv namespace create DAPP_KV --env roc-testnet
-npx wrangler kv namespace create DAPP_KV --env flipmoney
-npx wrangler kv namespace create DAPP_KV --env flipmoney-testnet
-npx wrangler kv namespace create DAPP_KV --env moc
-npx wrangler kv namespace create DAPP_KV --env moc-testnet
+corepack pnpm dlx wrangler kv namespace create DAPP_KV --env roc
+corepack pnpm dlx wrangler kv namespace create DAPP_KV --env roc-testnet
+corepack pnpm dlx wrangler kv namespace create DAPP_KV --env flipmoney
+corepack pnpm dlx wrangler kv namespace create DAPP_KV --env flipmoney-testnet
+corepack pnpm dlx wrangler kv namespace create DAPP_KV --env moc
+corepack pnpm dlx wrangler kv namespace create DAPP_KV --env moc-testnet
 ```
 
 Copy the returned IDs into `wrangler.toml` and add them as GitHub secrets.
