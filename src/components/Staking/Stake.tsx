@@ -8,11 +8,10 @@ import { toBigIntPrecision } from "../../helpers/precision";
 import { tokenStake } from "../../helpers/staking";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings";
-import CurrencyPopUp from "../CurrencyPopUp";
-import InputAmount from "../InputAmount";
 import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
 import StakingOptionsModal from "../Modals/StakingOptionsModal/index";
 import { PrecisionNumbers } from "../PrecisionNumbers";
+import TokenAmountInput from "../TokenAmountInput";
 
 interface StakeProps {
     activeTab: string;
@@ -117,10 +116,6 @@ const Stake = (props: StakeProps): JSX.Element => {
         onValidate,
     ]);
 
-    const onChangeCurrency = (/*newCurrency*/): void => {
-        onClear();
-    };
-
     const onClear = (): void => {
         setAmountToStake("");
         setAmountToUnstake("");
@@ -182,26 +177,19 @@ const Stake = (props: StakeProps): JSX.Element => {
             <div className="sectionStaking__Content">
                 <div className="inputFields">
                     <div className="tokenSelector">
-                        <CurrencyPopUp
-                            value={defaultTokenStake}
-                            currencyOptions={tokenStake()}
-                            onChange={onChangeCurrency}
-                            action={"staking"}
-                            disabled={true}
-                        />
-                        <InputAmount
+                        <TokenAmountInput
                             testId={
                                 isUnstaking
                                     ? "staking-unstake-amount"
                                     : "staking-stake-amount"
                             }
-                            balanceText={t("staking.staking.inputAvailable")}
-                            action={
+                            label={
                                 isUnstaking
                                     ? t("staking.staking.inputUnstake")
                                     : t("staking.staking.inputStake")
                             }
-                            balance={PrecisionNumbers({
+                            balanceLabel={t("staking.staking.inputAvailable")}
+                            balanceValue={PrecisionNumbers({
                                 amount: isUnstaking
                                     ? userInfoStaking["unstakeBalance"] || 0n
                                     : userInfoStaking["tgBalance"] || 0n,
@@ -221,12 +209,15 @@ const Stake = (props: StakeProps): JSX.Element => {
                                     ? setAmountToUnstake
                                     : setAmountToStake
                             }
-                            setAddTotalAvailable={setAddTotalAvailable}
+                            onMaxClick={setAddTotalAvailable}
                             validateError={false}
+                            feedbackMessage={inputValidationErrorText || undefined}
+                            feedbackState="negative"
+                            preserveSpaceWhenNoFeedback
+                            currencyOptions={tokenStake()}
+                            action="staking"
+                            selectedTokenValue={defaultTokenStake}
                         />
-                        <div className="amountInput__feedback amountInput__feedback--error">
-                            {inputValidationErrorText}
-                        </div>
                     </div>
                 </div>
             </div>
