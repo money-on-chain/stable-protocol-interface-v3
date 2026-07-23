@@ -10,6 +10,7 @@ import date from "../../../helpers/date";
 import {
     getAssetV1,
     parseOperationV1,
+    roundToVisibleDecimalsV1,
     statusIconV1,
     statusLabelKeyV1,
     truncateAddressV1,
@@ -93,11 +94,15 @@ export default function ListOperationsV1(
                     <div className="table-amount">
                         {side.token ? (
                             <PrecisionNumbers
-                                amount={side.amount}
+                                amount={roundToVisibleDecimalsV1(
+                                    side.amount,
+                                    side.token.decimals,
+                                    side.token.visibleDecimals ?? 2
+                                )}
                                 token={side.token}
                                 decimals={side.token.visibleDecimals ?? 2}
                                 i18n={i18n}
-                                compact={true}
+                                compact={false}
                             />
                         ) : (
                             "--"

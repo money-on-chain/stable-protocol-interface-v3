@@ -229,3 +229,24 @@ export function getAssetV1(tokenId: string): { iconClass: string } {
 
     return { iconClass: "icon-token-MOC" };
 }
+
+// PrecisionNumbers always truncates (never rounds) so balances never look
+// bigger than they really are — fine for live balances, but it makes a
+// historical operation amount that's a hair under a round number (e.g.
+// 1.9997 DOC) look odd/imprecise in this read-only list. Round the raw
+// bigint to the token's own visibleDecimals first so the (still-truncating)
+// display renders the already-rounded value cleanly, e.g. "2.00 DOC".
+export function roundToVisibleDecimalsV1(
+    amount: bigint,
+    tokenDecimals: number,
+    visibleDecimals: number
+): bigint {
+    if (visibleDecimals >= tokenDecimals) return amount;
+
+    const scale = 10n ** BigInt(tokenDecimals - visibleDecimals);
+    const half = scale / 2n;
+
+    return amount >= 0n
+        ? ((amount + half) / scale) * scale
+        : ((amount - half) / scale) * scale;
+}
