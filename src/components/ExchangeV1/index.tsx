@@ -17,8 +17,6 @@ import {
 } from "../../helpers/exchangeV1";
 import { mulPrecision, toBigIntPrecision, WAD } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
-import CurrencyPopUp from "../CurrencyPopUp";
-import InputAmount from "../InputAmount";
 import ModalAllowanceMocV1 from "../Modals/AllowanceMocV1";
 import type {
     ExchangeConfirmDataV1,
@@ -26,6 +24,7 @@ import type {
 } from "../Modals/ExchangeOptionsModalV1";
 import ExchangeOptionsModalV1 from "../Modals/ExchangeOptionsModalV1";
 import { PrecisionNumbers } from "../PrecisionNumbers";
+import TokenAmountInput from "../TokenAmountInput";
 
 function getModeV1(
     isMint: boolean,
@@ -327,7 +326,7 @@ export default function ExchangeV1(): React.ReactElement {
           })()
         : 0n;
 
-    // Per-field fiat equivalents for InputAmount's getFiatEquivalent — mirrors
+    // Per-field fiat equivalents for TokenAmountInput's getFiatEquivalent — mirrors
     // components/Exchange's onFiatEquivalentYouExchange/onFiatEquivalentYouReceive.
     const onFiatEquivalentYouExchange = (amount: number): bigint => {
         if (!status || amount < 0) return 0n;
@@ -408,38 +407,35 @@ export default function ExchangeV1(): React.ReactElement {
                         className="tokenSelector"
                         data-testid="exchange-v1-input-from"
                     >
-                        <CurrencyPopUp
-                            value={currencyYouExchange}
-                            data-testid="exchange-v1-input-from-popup"
-                            currencyOptions={tokenExchangeV1()}
-                            onChange={onChangeCurrencyYouExchange}
-                            action={"exchange"}
-                        />
-                        <InputAmount
+                        <TokenAmountInput
                             testId="exchange-v1-amount-exchange"
                             inputValue={amountYouExchange}
                             placeholder={"0.0"}
                             onValueChange={onChangeAmountYouExchange}
                             validateError={errorText !== ""}
-                            balance={PrecisionNumbers({
+                            feedbackMessage={errorText || undefined}
+                            feedbackState="negative"
+                            preserveSpaceWhenNoFeedback
+                            balanceValue={PrecisionNumbers({
                                 amount: sourceBalance,
                                 token: TokenSettings(currencyYouExchange),
                                 decimals: 8,
                                 i18n: i18n,
                                 compact: true,
                             })}
-                            setAddTotalAvailable={setAddTotalAvailable}
-                            action={
+                            onMaxClick={setAddTotalAvailable}
+                            label={
                                 isMint
                                     ? t("exchange.labelSendingMint")
                                     : t("exchange.labelSending")
                             }
-                            balanceText={t("exchange.labelBalance")}
+                            balanceLabel={t("exchange.labelBalance")}
                             getFiatEquivalent={onFiatEquivalentYouExchange}
+                            action="exchange"
+                            currencyOptions={tokenExchangeV1()}
+                            selectedTokenValue={currencyYouExchange}
+                            onTokenSelect={onChangeCurrencyYouExchange}
                         />
-                        <div className="amountInput__feedback amountInput__feedback--error">
-                            {errorText}
-                        </div>
                     </div>
 
                     <div className="buttonSwap" onClick={handleSwapCurrencies}>
@@ -450,29 +446,20 @@ export default function ExchangeV1(): React.ReactElement {
                         className="tokenSelector"
                         data-testid="exchange-v1-input-to"
                     >
-                        <CurrencyPopUp
-                            value={currencyYouReceive}
-                            data-testid="exchange-v1-input-to-popup"
-                            currencyOptions={tokenReceiveV1(
-                                currencyYouExchange
-                            )}
-                            onChange={onChangeCurrencyYouReceive}
-                            action={"exchange"}
-                        />
-                        <InputAmount
+                        <TokenAmountInput
                             testId="exchange-v1-amount-receive"
                             inputValue={amountYouReceive}
                             placeholder={"0.0"}
                             onValueChange={onChangeAmountYouReceive}
                             validateError={false}
-                            balance={PrecisionNumbers({
+                            balanceValue={PrecisionNumbers({
                                 amount: receiveUpToBalance,
                                 token: TokenSettings(currencyYouReceive),
                                 decimals: 8,
                                 i18n: i18n,
                                 compact: true,
                             })}
-                            setAddTotalAvailable={() =>
+                            onMaxClick={() =>
                                 onChangeAmountYouReceive(
                                     receiveUpToBalance === 0n
                                         ? ""
@@ -483,13 +470,19 @@ export default function ExchangeV1(): React.ReactElement {
                                           )
                                 )
                             }
-                            action={
+                            label={
                                 isMint
                                     ? t("exchange.labelReceiving")
                                     : t("exchange.labelReceivingRedeem")
                             }
-                            balanceText={t("exchange.labelUpTo")}
+                            balanceLabel={t("exchange.labelUpTo")}
                             getFiatEquivalent={onFiatEquivalentYouReceive}
+                            action="exchange"
+                            currencyOptions={tokenReceiveV1(
+                                currencyYouExchange
+                            )}
+                            selectedTokenValue={currencyYouReceive}
+                            onTokenSelect={onChangeCurrencyYouReceive}
                         />
                     </div>
                 </div>
