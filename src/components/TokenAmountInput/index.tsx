@@ -136,19 +136,23 @@ export default function TokenAmountInput({
             return [];
         }
 
-        const currencies = getCurrenciesDetail().map((currency) => ({
-            abbreviation: String(
-                t(`${action}.tokens.${currency.value}.abbr`, { ns })
-            ),
-            label: String(t(`${action}.tokens.${currency.value}.abbr`, { ns })),
-            displayLabel: String(
-                t(`${action}.tokens.${currency.value}.label`, {
-                    ns,
-                })
-            ),
-            icon: currency.image,
-            value: currency.value,
-        }));
+        const currencies = getCurrenciesDetail()
+            .filter((currency) => currencyOptions.includes(currency.value))
+            .map((currency) => ({
+                abbreviation: String(
+                    t(`${action}.tokens.${currency.value}.abbr`, { ns })
+                ),
+                label: String(
+                    t(`${action}.tokens.${currency.value}.abbr`, { ns })
+                ),
+                displayLabel: String(
+                    t(`${action}.tokens.${currency.value}.label`, {
+                        ns,
+                    })
+                ),
+                icon: currency.image,
+                value: currency.value,
+            }));
 
         const alreadyAdded: string[] = [];
 
@@ -157,11 +161,8 @@ export default function TokenAmountInput({
                 return false;
             }
 
-            if (!(action === "exchange" && currency.value === "COINBASE")) {
-                alreadyAdded.push(currency.abbreviation);
-            }
-
-            return currencyOptions.includes(currency.value);
+            alreadyAdded.push(currency.abbreviation);
+            return true;
         });
     }, [action, currencyOptions, ns, t]);
     const resolvedTokenOptions = tokenOptions.length

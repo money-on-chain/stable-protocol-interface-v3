@@ -8,10 +8,9 @@ import { TokenSettings } from "../../helpers/currencies";
 import { tokenBalanceV1, tokenSendV1, tokenUsdPriceV1 } from "../../helpers/exchangeV1";
 import { fromWei, mulPrecision, toBigIntPrecision } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
-import CurrencyPopUp from "../CurrencyPopUp";
-import InputAmount from "../InputAmount";
 import ModalConfirmSendV1 from "../Modals/ConfirmSendV1";
 import { PrecisionNumbers } from "../PrecisionNumbers";
+import TokenAmountInput from "../TokenAmountInput";
 
 // v1's Send surface, mirroring components/Send's UX (token picker + amount +
 // destination address, USD summary, confirm modal), but over v1's fixed
@@ -149,20 +148,18 @@ export default function SendV1(): React.ReactElement {
                         className="tokenSelector"
                         data-testid="send-v1-input-token"
                     >
-                        <CurrencyPopUp
-                            value={currencyYouSend}
-                            data-testid="send-v1-input-token-popup"
-                            currencyOptions={tokenSend}
-                            onChange={onChangeCurrencyYouSend}
-                            action={"send"}
-                        />
-                        <InputAmount
+                        <TokenAmountInput
                             testId="send-v1-input-amount"
                             inputValue={amountYouSend}
                             placeholder={"0.0"}
                             onValueChange={onChangeAmountYouSend}
-                            validateError={false}
-                            balance={PrecisionNumbers({
+                            validateError={inputValidationErrorText !== ""}
+                            feedbackMessage={
+                                inputValidationErrorText || undefined
+                            }
+                            feedbackState="negative"
+                            preserveSpaceWhenNoFeedback
+                            balanceValue={PrecisionNumbers({
                                 amount: sendBalance,
                                 token: TokenSettings(currencyYouSend),
                                 decimals:
@@ -171,13 +168,14 @@ export default function SendV1(): React.ReactElement {
                                 i18n: i18n,
                                 compact: true,
                             })}
-                            setAddTotalAvailable={setAddTotalAvailable}
-                            action={t("send.labelSending")}
-                            balanceText={t("send.labelBalance")}
+                            onMaxClick={setAddTotalAvailable}
+                            label={t("send.labelSending")}
+                            balanceLabel={t("send.labelBalance")}
+                            action="send"
+                            currencyOptions={tokenSend}
+                            selectedTokenValue={currencyYouSend}
+                            onTokenSelect={onChangeCurrencyYouSend}
                         />
-                        <div className="amountInput__feedback amountInput__feedback--error">
-                            {inputValidationErrorText}
-                        </div>
                     </div>
                     <div className="tx-direction">
                         <div className="icon-arrow-down"></div>
