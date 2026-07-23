@@ -107,7 +107,7 @@ export default function ListOperationsV1(
                 <div className="lastOp__detail__token__container">
                     <div className={`${iconClass} icon-token-modif`} />
                     <div className="lastOp__detail__token__ticker">
-                        {side.tokenId}
+                        {side.token?.name ?? side.tokenId}
                     </div>
                 </div>
             </div>

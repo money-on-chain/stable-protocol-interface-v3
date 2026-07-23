@@ -2,6 +2,7 @@ import { Skeleton } from "antd";
 import React from "react";
 
 import ExchangeV1 from "../../components/ExchangeV1";
+import ListOperationsV1 from "../../components/Tables/ListOperationsV1";
 import { useWalletContext } from "../../context/Wallet";
 import { useProjectTranslation } from "../../helpers/translations";
 
@@ -21,6 +22,10 @@ export default function SectionExchangeV1(): React.ReactElement {
                 <div className="content-body layout-card-content">
                     {ready ? <ExchangeV1 /> : <Skeleton active />}
                 </div>
+            </div>
+
+            <div className="section__innerCard--big content-last-operations">
+                <ListOperationsV1 token="all" />
             </div>
         </div>
     );
