@@ -221,6 +221,14 @@
             "liquidityMining": "Liquidity Mining",
             "readyToClaim": "Listo para Claim"
         },
+        "dashboard": {
+            "readyToClaim": "MoC listo para claim",
+            "earnedToday": "MoC ganado hoy",
+            "balance": "MoC balance",
+            "staked": "MoC en staking",
+            "unstaking": "MoC en proceso de unstaking",
+            "readyToWithdraw": "MoC para retirar"
+        },
         "sectionTitle": "Portafolio",
         "totalCurrency": "USD",
         "totalBalance": "Balance Total",
@@ -477,7 +485,7 @@
             "balance": "Balance",
             "staked": "MOC en Stake",
             "unstaking": "Sacando de Stake",
-            "ready": "Listos para retirar",
+            "ready": "MoC para retirar",
             "lockedVoting": "Bloqueados por voto"
         },
         "staking": {

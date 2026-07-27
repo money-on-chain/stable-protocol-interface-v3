@@ -261,6 +261,25 @@ $breakpoint-mobile: 600px;
     }
 
     .portfolio-table--v1 {
+        width: 100%;
+
+        .table__body {
+            width: 100%;
+        }
+
+        .table__row {
+            display: grid;
+            grid-template-areas:
+                "name name"
+                "price amount"
+                ". usd-balance";
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            column-gap: 16px;
+            row-gap: 12px;
+            margin-bottom: 16px;
+            width: 100%;
+        }
+
         .table__cell__claim--empty {
             display: none;
         }
@@ -268,22 +287,34 @@ $breakpoint-mobile: 600px;
         .table__cell__claim {
             justify-content: flex-start;
             align-items: flex-start;
-            order: 1;
+            grid-column: 1 / -1;
             margin-bottom: 12px;
             width: 100%;
             text-align: left;
         }
 
+        .table__cell__name {
+            grid-area: name;
+            margin-bottom: 0;
+            width: 100%;
+        }
+
         .table__cell__price {
-            order: 2;
+            grid-area: price;
+            margin-bottom: 0;
+            width: 100%;
         }
 
         .table__cell__amount {
-            order: 3;
+            grid-area: amount;
+            margin-bottom: 0;
+            width: 100%;
         }
 
         .table__cell__usdBalance {
-            order: 4;
+            grid-area: usd-balance;
+            margin-bottom: 0;
+            width: 100%;
         }
     }
 }

@@ -2,8 +2,8 @@
 $breakpoint-mobile: 600px;
 
 :root {
-    --layout-module-gap-vertical: 8px;
-    --layout-module-gap-horizontal: 8px;
+    --layout-module-gap-vertical: 16px;
+    --layout-module-gap-horizontal: 16px;
 }
 
 html {
@@ -802,6 +802,10 @@ h2 {
 /* #endregion MODAL GENERIC CUSTOMIZATION */
 
 /* #region CTA - CALL TO ACTION */
+.cta-info-detail {
+    color: var(--color-txt-secondary);
+}
+
 .cta-container {
     // CTA container
     display: flex;
@@ -836,9 +840,6 @@ h2 {
         font-weight: 700;
         font-size: 16px;
         font-family: var(--brand-font);
-    }
-    .cta-info-detail {
-        color: var(--color-txt-primary);
     }
     .cta-options-group {
         display: flex;

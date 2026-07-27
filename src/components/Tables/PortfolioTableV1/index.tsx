@@ -11,6 +11,9 @@ import { useProjectTranslation } from "../../../helpers/translations";
 import { useIncentivesBalance } from "../../../hooks/useIncentives";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 
+// Temporarily disabled: claim access now lives in the Portfolio dashboard.
+const SHOW_LIQUIDITY_MINING_COLUMN = false;
+
 // v1's portfolio is a fixed 4-token set (RBTC/BPro/DOC/MOC) — no CA-indexed
 // loop or portfolio_table config needed, unlike the v3 PortfolioTable.
 export default function PortfolioTableV1(): React.ReactElement {
@@ -22,7 +25,9 @@ export default function PortfolioTableV1(): React.ReactElement {
         userBalanceV1,
         userBaseCoinBalance,
     } = useWalletContext();
-    const { data: incentivesBalance } = useIncentivesBalance(address);
+    const { data: incentivesBalance } = useIncentivesBalance(
+        SHOW_LIQUIDITY_MINING_COLUMN ? address : undefined
+    );
 
     const ready =
         contractProtocolStatusV1.data != null && userBalanceV1.data != null;
@@ -36,9 +41,9 @@ export default function PortfolioTableV1(): React.ReactElement {
         userBalanceV1,
         userBaseCoinBalance
     );
-    const showLiquidityMiningColumn = rows.some(
-        (row) => row.liquidityMiningEnabled
-    );
+    const showLiquidityMiningColumn =
+        SHOW_LIQUIDITY_MINING_COLUMN &&
+        rows.some((row) => row.liquidityMiningEnabled);
 
     return (
         <div className="portfolio-table portfolio-table--v1">

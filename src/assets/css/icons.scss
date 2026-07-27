@@ -318,6 +318,22 @@ icons.css contains all the css code for Icons across the Dapp
     width: 32px;
     height: 32px;
 }
+.icon__rewardReadyToClaim {
+    filter: var(--color-nav-icon-filter-default);
+    background-image: url("../icons/ReadyToWithdrawOutline.svg");
+    background-size: 32px 32px;
+    background-repeat: no-repeat;
+    width: 32px;
+    height: 32px;
+}
+.icon__rewardedToday {
+    filter: var(--color-nav-icon-filter-default);
+    background-image: url("../icons/RewardedTodayOutline.svg");
+    background-size: 32px 32px;
+    background-repeat: no-repeat;
+    width: 32px;
+    height: 32px;
+}
 .icon__govLockedTokensVoting {
     filter: var(--color-nav-icon-filter-default);
     background-image: url("../icons/govLockedVoting.svg");

@@ -3,6 +3,7 @@ import "./Styles.scss";
 import React from "react";
 
 import Portfolio from "../../components/Dashboards/Portfolio";
+import PortfolioDashboard from "../../components/Dashboards/PortfolioDashboard";
 import HomeTabs from "../../components/PortfolioOperationsTabs";
 import LastOperations from "../../components/Tables/LastOperations";
 
@@ -17,6 +18,7 @@ export default function Home(): React.ReactElement {
                 </div>
             ) : (
                 <div className="section-container notification-container desktop-only ">
+                    <PortfolioDashboard />
                     <Portfolio />
                     <div className="content-last-operations">
                         <LastOperations token={"all"} />

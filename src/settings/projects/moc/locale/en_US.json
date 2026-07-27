@@ -202,6 +202,14 @@
             "tokensPerUSD": "Tokens per USD",
             "readyToClaim": "Ready to claim"
         },
+        "dashboard": {
+            "readyToClaim": "MoC ready to claim",
+            "earnedToday": "MoC earned today",
+            "balance": "MoC balance",
+            "staked": "MoC staked",
+            "unstaking": "MoC unstaking",
+            "readyToWithdraw": "MoC withdrawable"
+        },
         "sectionTitle": "Portfolio",
         "totalCurrency": "USD",
         "totalBalance": "Total Balance",
@@ -427,7 +435,7 @@
             "balance": "MOC Balance",
             "staked": "MOC Staked",
             "unstaking": "Unstaking",
-            "ready": "Ready to Withdraw",
+            "ready": "MoC withdrawable",
             "lockedVoting": "Locked while Voting"
         },
         "staking": {
