@@ -46,13 +46,13 @@ jobs:
                   registry-url: "https://npm.pkg.github.com"
 
             - name: Install setup
-              run: npm ci
+              run: corepack pnpm install --frozen-lockfile
 
             - name: Audit dependencies
-              run: npm audit --audit-level=high
+              run: corepack pnpm audit --audit-level=high
 
             - name: Build
-              run: npm run build:flipmoney-mainnet
+              run: corepack pnpm run build:flipmoney-mainnet
 
             - name: Pin to IPFS
               id: upload

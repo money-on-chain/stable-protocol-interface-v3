@@ -1,6 +1,8 @@
 #!/bin/bash
 
-PROJECT_NAME=$1
+set -euo pipefail
+
+PROJECT_NAME=${1:-}
 
 if [ -z "$PROJECT_NAME" ]; then
     echo "Error: No project name specified."
