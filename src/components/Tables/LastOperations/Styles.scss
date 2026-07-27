@@ -5,7 +5,7 @@
 
 /* #region LAST OPERATIONS TABLE */
 .content-last-operations {
-    margin-top: 24px;
+    margin-top: var(--layout-module-gap-vertical);
     box-shadow: var(--surface-shadow-1);
     border-radius: var(--card-border-radius);
     background: var(--surface-color-1);

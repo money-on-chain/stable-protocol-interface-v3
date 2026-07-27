@@ -239,7 +239,8 @@
             "balance": "Balance",
             "usdBalance": "Balance in USD",
             "priceInUSD": "Price in USD",
-            "tokensPerUSD": "Tokens per USD"
+            "tokensPerUSD": "Tokens per USD",
+            "readyToClaim": "Ready to claim"
         },
         "sectionTitle": "Portfolio",
         "totalCurrency": "USD",

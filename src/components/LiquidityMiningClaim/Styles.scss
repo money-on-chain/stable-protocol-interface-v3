@@ -5,7 +5,7 @@ $breakpoint-mobile: 600px;
 }
 @media (max-width: #{$breakpoint-mobile}) {
     .firstCardsGroup {
-        gap: 24px;
+        gap: var(--layout-module-gap-vertical);
     }
     .tab-content {
         flex-direction: column-reverse;

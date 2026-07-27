@@ -51,7 +51,7 @@
     --surface-color-0: #ffffff00;
     --surface-color-1: rgba(255, 255, 255, 0.95);
     --surface-shadow-1: 0px 1px 4px rgba(0, 0, 0, 0.1);
-    --surface-color-2: rgba(255, 255, 255, 0.8);
+    --surface-color-2: rgba(244, 245, 245, 0.6);
     --surface-shadow-2: 0px 1px 4px rgba(0, 0, 0, 0.1499125874125874);
     --surface-color-3: #ffffff;
     --surface-shadow-3: 0px 1px 4px rgba(0, 0, 0, 0.1499125874125874);
@@ -83,6 +83,9 @@
     --btn-transition: 0.3s;
     --btn-small-height: 32px;
     --btn-small-padding: 16px;
+    --btn-compact-height: 24px;
+    --btn-compact-padding: 16px;
+    --btn-compact-radius: 4px;
 
     // Buttons - Primary
 
@@ -154,6 +157,7 @@
 
     --color-semantic-negative: #ce1717;
     --color-semantic-neutral: #9e9c9c;
+    --color-semantic-neutral-alt: #72c9bf;
     --color-semantic-positive: #1cb900;
     --filter-semantic-negative: invert(21%) sepia(82%) saturate(5552%)
         hue-rotate(353deg) brightness(82%) contrast(98%);
@@ -268,6 +272,7 @@
     --color-txt-link: var(--brand-color-base);
     --color-txt-notification: #ffffff;
     --link-txt-style: underline;
+    --color-txt-inverted: #ffffff;
 
     --color-icon-primary: invert(36%) sepia(25%) saturate(350%)
         hue-rotate(162deg) brightness(94%) contrast(86%);

@@ -177,12 +177,12 @@ export default function TokenAmountInput({
         resolvedToken?.iconClassName || tokenIconClassName;
     const resolvedTokenLabel = resolvedToken?.label || tokenLabel;
     const hasTokenSelector =
-        (tokenSelectable || !!currencyOptions.length) &&
+        tokenSelectable &&
         resolvedTokenOptions.length > 0 &&
         !!resolvedOnTokenSelect;
     const hasInteractiveToken =
         !disabled &&
-        (tokenSelectable || !!currencyOptions.length) &&
+        tokenSelectable &&
         (hasTokenSelector || !!onTokenClick);
     const resolvedFeedbackState =
         feedbackState || (validateError ? "negative" : "default");
@@ -262,7 +262,7 @@ export default function TokenAmountInput({
             <div
                 className={[
                     "tokenAmountInput__token-selectSlot",
-                    !(tokenSelectable || !!currencyOptions.length) &&
+                    !tokenSelectable &&
                         "tokenAmountInput__token-selectSlot--hidden",
                 ]
                     .filter(Boolean)
@@ -297,8 +297,7 @@ export default function TokenAmountInput({
                 displayOnly && "tokenAmountInput--displayOnly",
                 validateError && "tokenAmountInput--error",
                 isNonEditable && "tokenAmountInput--readonly",
-                (tokenSelectable || !!currencyOptions.length) &&
-                    "tokenAmountInput--token-selectable",
+                tokenSelectable && "tokenAmountInput--token-selectable",
             ]
                 .filter(Boolean)
                 .join(" ")}
