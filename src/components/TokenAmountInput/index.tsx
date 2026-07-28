@@ -3,10 +3,7 @@ import "./Styles.scss";
 import { Modal } from "antd";
 import React from "react";
 
-import {
-    getCurrenciesDetail,
-    TokenSettings,
-} from "../../helpers/currencies";
+import { getCurrenciesDetail, TokenSettings } from "../../helpers/currencies";
 import { useProjectTranslation } from "../../helpers/translations";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 
@@ -171,8 +168,7 @@ export default function TokenAmountInput({
     const resolvedToken =
         resolvedTokenOptions.find(
             (option) => option.value === resolvedSelectedTokenValue
-        ) ||
-        null;
+        ) || null;
     const resolvedTokenIconClassName =
         resolvedToken?.iconClassName || tokenIconClassName;
     const resolvedTokenLabel = resolvedToken?.label || tokenLabel;
@@ -181,9 +177,7 @@ export default function TokenAmountInput({
         resolvedTokenOptions.length > 0 &&
         !!resolvedOnTokenSelect;
     const hasInteractiveToken =
-        !disabled &&
-        tokenSelectable &&
-        (hasTokenSelector || !!onTokenClick);
+        !disabled && tokenSelectable && (hasTokenSelector || !!onTokenClick);
     const resolvedFeedbackState =
         feedbackState || (validateError ? "negative" : "default");
     const shouldRenderFeedback =
@@ -424,8 +418,7 @@ export default function TokenAmountInput({
                             ) : null}
                         </div>
 
-                        {(resolvedBalanceLabel ||
-                            resolvedBalanceValue) && (
+                        {(resolvedBalanceLabel || resolvedBalanceValue) && (
                             <div className="tokenAmountInput__balance">
                                 {resolvedBalanceLabel
                                     ? `${resolvedBalanceLabel}: `
@@ -459,7 +452,9 @@ export default function TokenAmountInput({
                     footer={null}
                     onCancel={() => setIsSelectorOpen(false)}
                     open={isSelectorOpen}
-                    title={title && title.trim() !== "" ? title : "Select a token"}
+                    title={
+                        title && title.trim() !== "" ? title : "Select a token"
+                    }
                 >
                     <div className="tokenAmountInput__optionList">
                         {resolvedTokenOptions.map((option) => (

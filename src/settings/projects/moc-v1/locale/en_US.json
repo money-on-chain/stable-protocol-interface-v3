@@ -322,20 +322,17 @@
                     "redeem": "Redeem"
                 }
             },
-            "rbtcPrice": "RBTC Price",
             "rbtcEma": "RBTC EMA (120)",
             "totalRbtc": "Total RBTC in the system",
+            "collateralAsset": "Collateral Asset",
             "docCardTitle": "Dollar on Chain",
             "totalDoc": "Total DOC in the system",
             "availableRedeemDoc": "Available to redeem",
             "availableMintDoc": "Available to mint",
             "bproCardTitle": "BPro",
-            "bproPrice": "BPro price",
-            "bproDiscountPrice": "Discount price",
+            "tokenCollateral": "Token Collateral",
             "totalBpro": "Total BPro in the system",
-            "availableRedeemBpro": "Available to redeem",
-            "mocCardTitle": "MOC",
-            "mocPrice": "MOC price"
+            "availableRedeemBpro": "Available to redeem"
         }
     },
 
