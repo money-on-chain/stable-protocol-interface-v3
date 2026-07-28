@@ -34,15 +34,15 @@ Install nodejs
 
 Install packages
 
-`npm install`
+`corepack pnpm install`
 
 Run
 
-`npm run start:roc-testnet`
+`corepack pnpm run start:roc-testnet`
 
 or
 
-`npm run start:<environment>`
+`corepack pnpm run start:<environment>`
 
 **Note:** Start the environment you want to run ex. **"start:roc-testnet"** to start environment ROC Testnet
 
