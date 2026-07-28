@@ -6,8 +6,8 @@ WORKDIR /usr/src/app
 
 # Install dependencies with locked versions before copying source
 # so this layer is cached as long as the lockfile doesn't change.
-COPY package.json package-lock.json ./
-RUN npm ci
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN corepack pnpm install --frozen-lockfile
 
 # Source and configuration
 COPY src/ ./src/

@@ -5,6 +5,7 @@ build
 IPFS_DEPLOYMENT_NOTES.md
 public/*.*
 index.html
+!public/projects/lendborrow/index.html
 dist/
 # assets
 src/assets/branding/logo-app.svg
@@ -54,6 +55,6 @@ yarn-error.log*
 .vscode
 /src/settings/prices-offchain.json
 /dist
-
+.log
 .wrangler
 IPFS_DEPLOYMENT_NOTES.md

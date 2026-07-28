@@ -113,7 +113,8 @@ const mintTC = async (
 
     const executionFee = await getExecutionFee(
         publicClient,
-        contractProtocolStatus.data[caIndex].tcMintExecCost,
+        contractProtocolStatus.data[caIndex].tcMintExecCost +
+            contractProtocolStatus.data[caIndex].priceUpdatesCost,
         0
     );
 
@@ -258,7 +259,8 @@ const mintTP = async (
 
     const executionFee = await getExecutionFee(
         publicClient,
-        contractProtocolStatus.data[caIndex].tpMintExecCost,
+        contractProtocolStatus.data[caIndex].tpMintExecCost +
+            contractProtocolStatus.data[caIndex].priceUpdatesCost,
         0
     );
 

@@ -11,7 +11,7 @@ const manifestFromPublic = JSON.parse(
 
 export default defineConfig({
     base: "",
-    envPrefix: "REACT_APP_",
+    envPrefix: ["REACT_APP_", "ALLOWED_API_ORIGINS", "HTTPS_REQUIRED_CHAIN_IDS"],
     plugins: [
         react(),
         svgr({ svgrOptions: {} }),
