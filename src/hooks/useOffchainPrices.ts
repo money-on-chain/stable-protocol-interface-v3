@@ -16,7 +16,9 @@ export function useOffchainPrices(
         | string
         | undefined;
 
-    const enabled = typeof priceApi !== "undefined";
+    const appProject = import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT;
+    const enabled =
+        Boolean(priceApi) && appProject !== "voting" && appProject !== "lendborrow";
 
     const {
         data: parsedPrices,
@@ -29,8 +31,10 @@ export function useOffchainPrices(
         enabled,
         refetchInterval,
         queryFn: async () => {
-            // Voting project does not use this hook
-            if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting")
+            // Voting and lending-only projects do not use V3 off-chain prices.
+            if (
+                appProject === "voting" || appProject === "lendborrow"
+            )
                 return [];
 
             const mapPrices = mapPricesOffchain.prices;

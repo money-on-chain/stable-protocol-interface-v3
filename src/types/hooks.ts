@@ -44,6 +44,7 @@ export type DContracts = {
     // Lending contracts
     LendingManager?: ContractInfo;
     LendingReader?: ContractInfo;
+    LendingAdapter?: ContractInfo;
 
     // Custom price providers (from REACT_APP_CONTRACT_PRICE_PROVIDER_CUSTOM)
     // Each ContractInfo.name holds the pair label, e.g. "MOC/USD"

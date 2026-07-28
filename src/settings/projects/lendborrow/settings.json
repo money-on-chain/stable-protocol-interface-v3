@@ -43,20 +43,22 @@
         "CA": [
             {
                 "key": 0,
-                "collateralType": "rc20",
-                "name": "RIF",
-                "fullName": "RIF",
+                "type": "coinbase",
+                "collateralType": "coinbase",
+                "name": "RBTC",
+                "fullName": "Smart Bitcoin",
                 "decimals": 18,
-                "visibleDecimals": 4,
+                "visibleDecimals": 6,
                 "visiblePriceDecimals": 2,
                 "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 4,
+                "visibleBalanceDecimals": 8,
                 "visibleBalanceUSDDecimals": 2,
                 "peggedUSD": false
-            },
+            }
+        ],
+        "TP": [
             {
-                "key": 1,
-                "collateralType": "rc20",
+                "key": 0,
                 "name": "DOC",
                 "fullName": "Dollar on Chain",
                 "decimals": 18,
@@ -65,97 +67,11 @@
                 "visiblePriceUSD": 8,
                 "visibleBalanceDecimals": 2,
                 "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            }
-        ],
-        "TP": [
-            {
-                "key": 0,
-                "name": "USDRIF",
-                "fullName": "RIF US Dollar",
-                "decimals": 18,
-                "visibleDecimals": 2,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 2,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": true
-            },
-            {
-                "key": 1,
-                "name": "USDRIF",
-                "fullName": "RIF US Dollar",
-                "decimals": 18,
-                "visibleDecimals": 2,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 2,
-                "visibleBalanceUSDDecimals": 2,
                 "peggedUSD": true
             }
         ],
-        "TC": [
-            {
-                "key": 0,
-                "name": "RIFP",
-                "fullName": "RIF Pro",
-                "decimals": 18,
-                "visibleDecimals": 6,
-                "visiblePriceDecimals": 4,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 8,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            },
-            {
-                "key": 1,
-                "name": "ROCR",
-                "fullName": "ROC Reserve",
-                "decimals": 18,
-                "visibleDecimals": 2,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 8,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            }
-        ],
-        "TF": [
-            {
-                "key": 0,
-                "name": "MOC",
-                "decimals": 18,
-                "visibleDecimals": 8,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 4,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            },
-            {
-                "key": 1,
-                "name": "MOC",
-                "decimals": 18,
-                "visibleDecimals": 8,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 4,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            }
-        ],
-        "TG": [
-            {
-                "key": 0,
-                "name": "MOC",
-                "decimals": 18,
-                "visibleDecimals": 8,
-                "visiblePriceDecimals": 2,
-                "visiblePriceUSD": 8,
-                "visibleBalanceDecimals": 4,
-                "visibleBalanceUSDDecimals": 2,
-                "peggedUSD": false
-            }
-        ]
+        "TC": [],
+        "TF": [],
+        "TG": []
     }
 }

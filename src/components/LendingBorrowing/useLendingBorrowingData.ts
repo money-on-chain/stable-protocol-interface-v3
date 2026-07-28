@@ -5,8 +5,8 @@ import { useWalletContext } from "../../context/Wallet";
 import { ConvertAmount } from "../../helpers/currencies";
 import { useLiquidationHistory } from "../../hooks/useLiquidationHistory";
 import settings from "../../settings/settings.json";
-import type { LendingPoolStatus } from "../../types/status";
 import type { SettingsTokens } from "../../types/hooks";
+import type { LendingPoolStatus } from "../../types/status";
 import type { BorrowCardData } from "./Borrow/data";
 import type { LendCardData } from "./Lend/data";
 import { getLendingBorrowingTokenMetadata } from "./tokenMetadata";
@@ -46,6 +46,7 @@ export function useLendingBorrowingData(): LendingBorrowingData {
         contractProtocolStatus,
         userLending,
         userBalance,
+        userBaseCoinBalance,
     } = useWalletContext();
 
     const liquidationHistory = useLiquidationHistory(address);
@@ -125,7 +126,10 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                 const maxACToRemove = vault?.getMaxACToRemove ?? 0n;
 
                 const debtTp = mulWad(creditUnits, priceCreditUnit);
-                const caWallet = userBalance.data?.CA?.[ca]?.balance ?? 0n;
+                const caWallet =
+                    tokens.CA?.[ca]?.collateralType === "coinbase"
+                        ? (userBaseCoinBalance.balance ?? 0n)
+                        : (userBalance.data?.CA?.[ca]?.balance ?? 0n);
                 const tpWallet = userBalance.data?.TP?.[0]?.[tp]?.balance ?? 0n;
 
                 const debtTpUsd = ConvertAmount(contractProtocolStatus, borrowTokenCode, "USD", debtTp, ca);
@@ -332,13 +336,14 @@ export function useLendingBorrowingData(): LendingBorrowingData {
             }
         }
         return cards;
-    }, [contractsAddress, contractProtocolStatus, pools, userLending.data, userBalance.data, tokens, liquidationHistory]);
+    }, [contractsAddress, contractProtocolStatus, pools, userLending.data, userBalance.data, userBaseCoinBalance.balance, tokens, liquidationHistory]);
 
     const refetch = React.useCallback(() => {
         void contractLendingStatus.refetch?.();
         void userLending.refetch?.();
         void userBalance.refetch?.();
-    }, [contractLendingStatus, userLending, userBalance]);
+        void userBaseCoinBalance.refetch?.();
+    }, [contractLendingStatus, userLending, userBalance, userBaseCoinBalance]);
 
     return {
         borrowCards,

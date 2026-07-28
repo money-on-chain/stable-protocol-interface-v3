@@ -26,8 +26,10 @@ export function useOnchainPrices(
     const callsRequests = useMemo(() => {
         if (!contracts) return [];
 
-        // Voting project does not use this hook
-        if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting")
+        // Voting and lending-only projects do not use V3 price providers.
+        if (
+            ["voting", "lendborrow"].includes(import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT)
+        )
             return [];
 
         const callRequest: MultiCallInput[] = [];

@@ -69,7 +69,7 @@ export function useContractProtocolStatus(
             parsedPrices = onChainPrices;
         }
 
-        if (isEmptyParsedPrices(parsedPrices)) return {} as ExternalData;
+        if (isEmptyParsedPrices(parsedPrices)) return {};
 
         const data: ExternalData = {};
         if (parsedPrices && !isEmptyParsedPrices(parsedPrices)) {
@@ -92,8 +92,10 @@ export function useContractProtocolStatus(
 
         if (!currentBlockNumber) return [];
 
-        // Voting project does not use this hook
-        if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting")
+        // Voting and lending-only projects do not expose MoC V3 bucket status.
+        if (
+            ["voting", "lendborrow"].includes(import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT)
+        )
             return [];
 
         let parsedPrices: ParsedPrices[] = [];

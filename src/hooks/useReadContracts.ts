@@ -1,5 +1,5 @@
 // src/hooks/userReadContracts.ts
-import type { PublicClient } from "viem";
+import { parseAbi, type PublicClient } from "viem";
 import { readContract } from "viem/actions";
 
 import { runMulticallSync } from "../backend/runMulticallSync";
@@ -7,6 +7,8 @@ import CollateralAsset from "../contracts/CollateralAsset.json";
 import CollateralToken from "../contracts/CollateralToken.json";
 import FeeToken from "../contracts/FeeToken.json";
 import IPriceProvider from "../contracts/IPriceProvider.json";
+import LendingManager from "../contracts/lending/LendingManager.json";
+import LendingReader from "../contracts/lending/LendingReader.json";
 import MocCACoinbase from "../contracts/MocCACoinbase.json";
 import MocCARC20 from "../contracts/MocCARC20.json";
 import MocMultiCollateralGuard from "../contracts/MocMultiCollateralGuard.json";
@@ -24,8 +26,6 @@ import VetoMachine from "../contracts/omoc/VetoMachine.json";
 import VotingMachine from "../contracts/omoc/VotingMachine.json";
 import TokenMigrator from "../contracts/TokenMigrator.json";
 import TokenPegged from "../contracts/TokenPegged.json";
-import LendingReader from "../contracts/lending/LendingReader.json";
-import LendingManager from "../contracts/lending/LendingManager.json";
 import settings from "../settings";
 import omoc from "../settings/omoc/omoc.json";
 import type {
@@ -63,6 +63,10 @@ const ABI_TokenMigrator = TokenMigrator.abi as readonly unknown[];
 const ABI_TokenPegged = TokenPegged.abi as readonly unknown[];
 const ABI_LendingReader = LendingReader.abi as readonly unknown[];
 const ABI_LendingManager = LendingManager.abi as readonly unknown[];
+const ABI_MocAdapter = parseAbi([
+    "function getMocBuckets() view returns (address[])",
+    "function validateAndGetPACtp(address mocBucket, address tpToken) view returns (uint256 pACtp, address acToken)",
+]);
 const EVM_ADDR_RE = /^0x[0-9a-fA-F]{40}$/;
 
 /** onError handler used by some multicall entries */
@@ -91,7 +95,7 @@ const readContracts = async (
         FC_MAX_OP_DIFFERENCE_PROVIDER: [],
         TP: [],
         PP_CA: [],
-        PP_TP: {} as Record<number, ContractInfo[]>,
+        PP_TP: {},
     };
 
     // Single collateral (voting project) convenience
@@ -113,7 +117,7 @@ const readContracts = async (
     if (import.meta.env.REACT_APP_CONTRACT_IREGISTRY) {
         contracts.IRegistry = {
             address: import.meta.env.REACT_APP_CONTRACT_IREGISTRY as Address,
-            abi: IRegistry.abi as readonly unknown[],
+            abi: IRegistry.abi,
             name: "IRegistry",
             type: "",
         };
@@ -194,6 +198,89 @@ const readContracts = async (
     // If voting project, return contracts here because it does not use the price providers
     if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "voting")
         return contracts;
+
+    // The lendborrow project has no MoC V3 buckets. Discover its complete
+    // topology from LendingReader instead of falling through to the generic
+    // multi-collateral discovery below.
+    if (import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "lendborrow") {
+        const lendingReaderAddress = import.meta.env.REACT_APP_LENDING_READER as
+            | Address
+            | undefined;
+        if (!lendingReaderAddress) {
+            throw new Error("REACT_APP_LENDING_READER is required for lendborrow");
+        }
+
+        contracts.LendingReader = {
+            address: lendingReaderAddress,
+            abi: ABI_LendingReader,
+            name: "LendingReader",
+            type: "",
+        };
+
+        const lendingManagerAddress = (await readContract(publicClient, {
+            address: lendingReaderAddress,
+            abi: ABI_LendingReader,
+            functionName: "LENDING_MANAGER",
+        })) as Address;
+        contracts.LendingManager = {
+            address: lendingManagerAddress,
+            abi: ABI_LendingManager,
+            name: "LendingManager",
+            type: "",
+        };
+
+        const [poolsCount, lendingAdapterAddress] = await Promise.all([
+            readContract(publicClient, {
+                address: lendingManagerAddress,
+                abi: ABI_LendingManager,
+                functionName: "getPoolsCount",
+            }) as Promise<bigint>,
+            readContract(publicClient, {
+                address: lendingManagerAddress,
+                abi: ABI_LendingManager,
+                functionName: "mocAdapter",
+            }) as Promise<Address>,
+        ]);
+        contracts.LendingAdapter = {
+            address: lendingAdapterAddress,
+            abi: ABI_MocAdapter,
+            name: "LendingAdapter",
+            type: "",
+        };
+
+        const [tpAddresses, mocBuckets] = await Promise.all([
+            Promise.all(
+                Array.from({ length: Number(poolsCount) }, (_, index) =>
+                    readContract(publicClient, {
+                        address: lendingManagerAddress,
+                        abi: ABI_LendingManager,
+                        functionName: "poolsList",
+                        args: [BigInt(index)],
+                    }) as Promise<Address>
+                )
+            ),
+            readContract(publicClient, {
+                address: lendingAdapterAddress,
+                abi: ABI_MocAdapter,
+                functionName: "getMocBuckets",
+            }) as Promise<readonly Address[]>,
+        ]);
+
+        contracts.TP = tpAddresses.map((address) => ({
+            address,
+            abi: ABI_TokenPegged,
+            name: "TP",
+            type: "",
+        }));
+        contracts.Moc = mocBuckets.map((address) => ({
+            address,
+            abi: [],
+            name: "MocV1",
+            type: "coinbase",
+        }));
+
+        return contracts;
+    }
 
     // ---- Price Providers (CA/USD) from env (comma-separated) ----
     const ppcaRaw = import.meta.env.REACT_APP_CONTRACT_PRICE_PROVIDER_CA as
@@ -415,7 +502,7 @@ const readContracts = async (
             if (tokenAddr && EVM_ADDR_RE.test(tokenAddr)) {
                 contracts.CUSTOM_TOKENS.push({
                     address: tokenAddr as Address,
-                    abi: IERC20.abi as readonly unknown[],
+                    abi: IERC20.abi,
                     name: pair,
                     type: "custom",
                 });

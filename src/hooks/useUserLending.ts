@@ -18,6 +18,7 @@ export function useUserLending(
     const callsRequests: MultiCallInput[] = useMemo(() => {
         if (!contracts?.LendingManager) return [];
         if (!contracts?.LendingReader) return [];
+        if (!contracts?.LendingAdapter) return [];
         if (!userAddress) return [];
 
         const tokens = (settings as { tokens?: unknown }).tokens as
@@ -27,6 +28,7 @@ export function useUserLending(
 
         const lm = contracts.LendingManager;
         const lr = contracts.LendingReader;
+        const adapter = contracts.LendingAdapter;
         const tpTokens = contracts.TP ?? [];
         const mocBuckets = contracts.Moc ?? [];
         const calls: MultiCallInput[] = [];
@@ -120,18 +122,17 @@ export function useUserLending(
                     keys: [tp, ca, "isVaultLiquidable"],
                 });
 
-                // Oracle CA price in TP terms — needed to compute safe withdrawal limit
-                // when dust credit units remain after repay rounding.
-                const mocBucket = mocBuckets[ca];
-                if (mocBucket) {
-                    calls.push({
-                        contract: mocBucket,
-                        functionName: "getPACtp",
-                        args: [tpAddress],
-                        resultType: "uint256",
-                        keys: [tp, ca, "getPACtp"],
-                    });
-                }
+                // Resolve AC/TP through the lending adapter. In the MoC V1
+                // deployment the bucket itself does not expose V3 getPACtp().
+                calls.push({
+                    contract: adapter,
+                    functionName: "validateAndGetPACtp",
+                    args: [mocAddress, tpAddress],
+                    resultType: "uint256",
+                    keys: [tp, ca, "getPACtp"],
+                    transform: (result: unknown) =>
+                        (result as readonly [bigint, Address])[0],
+                });
             }
         }
 
