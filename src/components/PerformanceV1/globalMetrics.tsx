@@ -20,12 +20,15 @@ export default function GlobalMetricsV1(): React.ReactElement {
 
     return (
         <div className="layout-card section__innerCard--big perfGlobalMetrics">
-            <div className="layout-card-title">
+            <div className="layout-card-title perfCardTitleV1">
                 <h1>{t("performance.metrics.globalCardTitle")}</h1>
             </div>
 
             <div className="metrics">
-                <div className="dataGroup" data-testid="performance-v1-coverage">
+                <div
+                    className="dataGroup"
+                    data-testid="performance-v1-coverage"
+                >
                     <div className="icon__back">
                         <div className="icon icon__CoverageActual"></div>
                     </div>
@@ -72,7 +75,10 @@ export default function GlobalMetricsV1(): React.ReactElement {
                     </div>
                 </div>
 
-                <div className="dataGroup" data-testid="performance-v1-leverage">
+                <div
+                    className="dataGroup"
+                    data-testid="performance-v1-leverage"
+                >
                     <div className="icon__back">
                         <div className="icon icon__Leverage"></div>
                     </div>

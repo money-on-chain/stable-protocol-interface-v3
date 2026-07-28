@@ -185,7 +185,7 @@ export default function ListOperationsV1(
                 oper_id: null,
                 confirmation,
                 recipient: parsed.address,
-                recipient_truncate: truncateAddressV1(parsed.address) || "--",
+                recipient_truncate: parsed.address || "--",
                 status: t(statusKey),
                 error_code: "--",
                 block: parsed.blockNumber,
@@ -241,7 +241,7 @@ export default function ListOperationsV1(
                             />
                         </div>
                         <div
-                            className={`LastOp__group__details ${
+                            className={`LastOp__group__details LastOp__group__details--v1-wide-destination ${
                                 parsed.kind === "transfer"
                                     ? "LastOp__group__details--one-two-merged"
                                     : "LastOp__group__details--single-single"
@@ -260,9 +260,7 @@ export default function ListOperationsV1(
                                                 {t("operations.actions.transfer")}
                                             </div>
                                             <div className="lastOp__detail__address">
-                                                {truncateAddressV1(
-                                                    parsed.address
-                                                ) || "--"}
+                                                {parsed.address || "--"}
                                             </div>
                                         </div>
                                     </div>

@@ -78,12 +78,13 @@ $breakpoint-mobile: 600px;
     align-items: center;
     border-radius: var(--card-border-radius);
     background-color: var(--surface-color-2);
-    padding: 16px 0px 16px 0px;
+    padding: 16px 0;
     height: 66px;
     .withdraw__first__column {
         // width: 100%;
         display: flex;
         gap: 32px;
+        padding-left: 16px;
         // justify-content: space-between;
     }
 }
@@ -154,6 +155,7 @@ $breakpoint-mobile: 600px;
     .withdraw__first__column {
         display: flex;
         gap: 32px;
+        padding-left: 16px;
     }
 }
 .withdraw__date {

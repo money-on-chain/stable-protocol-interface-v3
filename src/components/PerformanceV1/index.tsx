@@ -7,7 +7,7 @@ import { useProjectTranslation } from "../../helpers/translations";
 import GlobalStatusModalV1 from "../Modals/GlobalStatusV1";
 import CollateralV1 from "./collateral";
 import GlobalMetricsV1 from "./globalMetrics";
-import TokensV1 from "./tokens";
+import { BproMetricsV1, DocMetricsV1 } from "./tokens";
 import TVLV1 from "./tvl";
 
 // v1 port of components/Performance, following the same card layout (system
@@ -112,11 +112,14 @@ export default function PerformanceV1(): React.ReactElement {
             {/* Coverage / target coverage / leverage */}
             <GlobalMetricsV1 />
 
-            {/* Collateral (RBTC price/EMA/total) */}
-            <CollateralV1 />
+            {/* DOC metrics */}
+            <DocMetricsV1 />
 
-            {/* Per-token metrics (DOC/BPro/MOC) */}
-            <TokensV1 />
+            {/* Collateral assets share a row on desktop */}
+            <div className="perfAssetRowV1">
+                <CollateralV1 />
+                <BproMetricsV1 />
+            </div>
         </div>
     );
 }

@@ -2,7 +2,10 @@
 // v1 has exactly 4 fixed tokens (no CA-indexed/portfolio_table-driven loop like
 // the v3 helper in helpers/portfolio.ts) — RBTC, BPro, DOC (pegged), MOC.
 import { mulPrecision, WAD } from "../helpers/precision";
-import type { ContractProtocolStatusV1Result, UserBalanceV1Result } from "../types/hooks-v1";
+import type {
+    ContractProtocolStatusV1Result,
+    UserBalanceV1Result,
+} from "../types/hooks-v1";
 import type { UseBaseCoinBalanceResult } from "../types/status";
 
 export type PortfolioRowV1 = {
@@ -14,6 +17,7 @@ export type PortfolioRowV1 = {
     balance: bigint;
     balanceLoaded: boolean;
     balanceUSD: bigint;
+    liquidityMiningEnabled: boolean;
     visiblePriceDecimals: number;
     visibleBalanceDecimals: number;
     visibleBalanceUSDDecimals: number;
@@ -42,6 +46,7 @@ export function getPortfolioRowsV1(
             balance: rbtcBalance ?? 0n,
             balanceLoaded: rbtcBalance != null,
             balanceUSD: mulPrecision(rbtcBalance ?? 0n, rbtcPrice),
+            liquidityMiningEnabled: false,
             visiblePriceDecimals: 2,
             visibleBalanceDecimals: 8,
             visibleBalanceUSDDecimals: 2,
@@ -55,6 +60,7 @@ export function getPortfolioRowsV1(
             balance: balances?.BPro?.balance ?? 0n,
             balanceLoaded: balances?.BPro?.balance != null,
             balanceUSD: mulPrecision(balances?.BPro?.balance ?? 0n, bproPrice),
+            liquidityMiningEnabled: true,
             visiblePriceDecimals: 2,
             visibleBalanceDecimals: 8,
             visibleBalanceUSDDecimals: 2,
@@ -68,6 +74,7 @@ export function getPortfolioRowsV1(
             balance: balances?.DOC?.balance ?? 0n,
             balanceLoaded: balances?.DOC?.balance != null,
             balanceUSD: balances?.DOC?.balance ?? 0n,
+            liquidityMiningEnabled: false,
             visiblePriceDecimals: 2,
             visibleBalanceDecimals: 2,
             visibleBalanceUSDDecimals: 2,
@@ -81,6 +88,7 @@ export function getPortfolioRowsV1(
             balance: balances?.MOC?.balance ?? 0n,
             balanceLoaded: balances?.MOC?.balance != null,
             balanceUSD: mulPrecision(balances?.MOC?.balance ?? 0n, mocPrice),
+            liquidityMiningEnabled: false,
             visiblePriceDecimals: 4,
             visibleBalanceDecimals: 2,
             visibleBalanceUSDDecimals: 2,

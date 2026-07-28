@@ -217,7 +217,17 @@
             "balance": "Balance",
             "usdBalance": "Balance en USD",
             "priceInUSD": "Precio en USD",
-            "tokensPerUSD": "Tokens por USD"
+            "tokensPerUSD": "Tokens por USD",
+            "liquidityMining": "Liquidity Mining",
+            "readyToClaim": "Listo para Claim"
+        },
+        "dashboard": {
+            "readyToClaim": "MoC listo para claim",
+            "earnedToday": "MoC ganado hoy",
+            "balance": "MoC balance",
+            "staked": "MoC en staking",
+            "unstaking": "MoC en proceso de unstaking",
+            "readyToWithdraw": "MoC para retirar"
         },
         "sectionTitle": "Portafolio",
         "totalCurrency": "USD",
@@ -313,20 +323,17 @@
                     "redeem": "Redimir"
                 }
             },
-            "rbtcPrice": "Precio de RBTC",
             "rbtcEma": "EMA de RBTC (120)",
             "totalRbtc": "Total de RBTC en el sistema",
+            "collateralAsset": "Activo Colateral",
             "docCardTitle": "Dollar on Chain",
             "totalDoc": "Total de DOC en el sistema",
             "availableRedeemDoc": "Disponible para redimir",
             "availableMintDoc": "Disponible para mintear",
             "bproCardTitle": "BPro",
-            "bproPrice": "Precio de BPro",
-            "bproDiscountPrice": "Precio de descuento",
+            "tokenCollateral": "Token Colateral",
             "totalBpro": "Total de BPro en el sistema",
-            "availableRedeemBpro": "Disponible para redimir",
-            "mocCardTitle": "MOC",
-            "mocPrice": "Precio de MOC"
+            "availableRedeemBpro": "Disponible para redimir"
         }
     },
 
@@ -475,7 +482,7 @@
             "balance": "Balance",
             "staked": "MOC en Stake",
             "unstaking": "Sacando de Stake",
-            "ready": "Listos para retirar",
+            "ready": "MoC para retirar",
             "lockedVoting": "Bloqueados por voto"
         },
         "staking": {

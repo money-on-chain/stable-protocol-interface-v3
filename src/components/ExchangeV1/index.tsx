@@ -419,6 +419,7 @@ export default function ExchangeV1(): React.ReactElement {
                             getFiatEquivalent={onFiatEquivalentYouExchange}
                             action="exchange"
                             currencyOptions={tokenExchangeV1()}
+                            tokenSelectable
                             selectedTokenValue={currencyYouExchange}
                             onTokenSelect={onChangeCurrencyYouExchange}
                         />
@@ -467,6 +468,7 @@ export default function ExchangeV1(): React.ReactElement {
                             currencyOptions={tokenReceiveV1(
                                 currencyYouExchange
                             )}
+                            tokenSelectable
                             selectedTokenValue={currencyYouReceive}
                             onTokenSelect={onChangeCurrencyYouReceive}
                         />
