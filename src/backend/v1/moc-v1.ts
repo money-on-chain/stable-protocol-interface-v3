@@ -2,6 +2,7 @@
 // No caIndex, no MocQueue — mint/redeem execute synchronously in one transaction
 // directly against MoC.sol (see src/hooks/useReadContractsV1.ts for discovery).
 import {
+    getGasPrice,
     sendTransaction,
     simulateContract,
     waitForTransactionReceipt,
@@ -19,6 +20,25 @@ import { previewFeesV1 } from "./fees-v1";
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000" as const;
 
 const vendorAddress = (): `0x${string}` => VENDOR_ADDRESS_V1 ?? ZERO_ADDRESS;
+
+// Moc.sol enforces a protocol-wide gas price ceiling (maxGasPrice) on its
+// mint/redeem entry points — txs sent above it revert on-chain. Mirrors the
+// legacy dapp's getGasPrice() (../stable-protocol-interface/src/lib/integration/utils.js),
+// which sends min(nodeGasPrice, maxGasPrice) instead of leaving fee estimation
+// to the wallet/EIP-1559 defaults.
+const getCappedGasPrice = async (
+    maxGasPrice: bigint | undefined
+): Promise<bigint | undefined> => {
+    try {
+        const nodeGasPrice = await getGasPrice(config);
+        if (maxGasPrice !== undefined && maxGasPrice < nodeGasPrice) {
+            return maxGasPrice;
+        }
+        return nodeGasPrice;
+    } catch {
+        return undefined;
+    }
+};
 
 const mintBPro = async (
     interfaceContext: InterfaceContextV1,
@@ -41,6 +61,10 @@ const mintBPro = async (
         contractProtocolStatus.data.vendorMarkup
     );
 
+    const gasPrice = await getCappedGasPrice(
+        contractProtocolStatus.data.maxGasPrice
+    );
+
     const { request } = await simulateContract(config, {
         address: contracts.Moc.address,
         abi: contracts.Moc.abi as Abi,
@@ -48,6 +72,7 @@ const mintBPro = async (
         args: [btcAmount, vendorAddress()] as const,
         account: address,
         value: valueToSend,
+        ...(gasPrice !== undefined ? { gasPrice } : {}),
     });
 
     const txHash = await writeContract(config, request);
@@ -78,6 +103,10 @@ const mintDoc = async (
         contractProtocolStatus.data.vendorMarkup
     );
 
+    const gasPrice = await getCappedGasPrice(
+        contractProtocolStatus.data.maxGasPrice
+    );
+
     const { request } = await simulateContract(config, {
         address: contracts.Moc.address,
         abi: contracts.Moc.abi as Abi,
@@ -85,6 +114,7 @@ const mintDoc = async (
         args: [btcAmount, vendorAddress()] as const,
         account: address,
         value: valueToSend,
+        ...(gasPrice !== undefined ? { gasPrice } : {}),
     });
 
     const txHash = await writeContract(config, request);
@@ -102,10 +132,14 @@ const redeemBPro = async (
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
 ): Promise<TransactionReceipt | undefined> => {
-    const { address, contracts } = interfaceContext;
+    const { address, contracts, contractProtocolStatus } = interfaceContext;
 
     if (!address) throw new Error("Address not found");
     if (!contracts) throw new Error("Contracts not found");
+
+    const gasPrice = await getCappedGasPrice(
+        contractProtocolStatus.data?.maxGasPrice
+    );
 
     // Redeem burns BPro directly (bproToken.burn) — no ERC20 allowance needed.
     const { request } = await simulateContract(config, {
@@ -114,6 +148,7 @@ const redeemBPro = async (
         functionName: "redeemBProVendors",
         args: [bproAmount, vendorAddress()] as const,
         account: address,
+        ...(gasPrice !== undefined ? { gasPrice } : {}),
     });
 
     const txHash = await writeContract(config, request);
@@ -131,10 +166,14 @@ const redeemFreeDoc = async (
     onTransaction: OnTransaction,
     onReceipt: OnReceipt
 ): Promise<TransactionReceipt | undefined> => {
-    const { address, contracts } = interfaceContext;
+    const { address, contracts, contractProtocolStatus } = interfaceContext;
 
     if (!address) throw new Error("Address not found");
     if (!contracts) throw new Error("Contracts not found");
+
+    const gasPrice = await getCappedGasPrice(
+        contractProtocolStatus.data?.maxGasPrice
+    );
 
     // Redeem burns DOC directly (docToken.burn) — no ERC20 allowance needed.
     const { request } = await simulateContract(config, {
@@ -143,6 +182,7 @@ const redeemFreeDoc = async (
         functionName: "redeemFreeDocVendors",
         args: [docAmount, vendorAddress()] as const,
         account: address,
+        ...(gasPrice !== undefined ? { gasPrice } : {}),
     });
 
     const txHash = await writeContract(config, request);

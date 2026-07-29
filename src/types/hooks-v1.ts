@@ -33,6 +33,9 @@ export type ContractProtocolStatusV1Data = {
     getBucketNDoc: bigint;
     getBucketNBPro: bigint;
     paused: boolean;
+    // Protocol-enforced gas price ceiling (wei) — txs sent above this revert
+    // on-chain. See backend/v1/moc-v1.ts's capped gas price.
+    maxGasPrice: bigint;
     // Target coverage (MoCState.cobj) and bucket C0 leverage — used to build
     // the Performance/Metrics status + reserve cards (see components/PerformanceV1).
     cobj: bigint;

@@ -140,6 +140,15 @@ export function useContractProtocolStatusV1(
                 resultType: "bool",
                 keys: ["paused"],
             },
+            // Protocol-enforced gas price ceiling — v1 txs sent above this
+            // revert on-chain. See backend/v1/moc-v1.ts's capped gas price.
+            {
+                contract: Moc,
+                functionName: "maxGasPrice",
+                args: [],
+                resultType: "uint256",
+                keys: ["maxGasPrice"],
+            },
             {
                 contract: MoCState,
                 functionName: "cobj",
