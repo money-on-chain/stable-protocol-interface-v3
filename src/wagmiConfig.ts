@@ -94,8 +94,16 @@ const HTTPS_REQUIRED_CHAIN_IDS = new Set<number>([
 
 const validateRpcUrl = (url: string, chainId: number): boolean => {
     try {
-        const { protocol } = new URL(url);
-        if (HTTPS_REQUIRED_CHAIN_IDS.has(chainId) && protocol !== "https:") {
+        const { protocol, hostname } = new URL(url);
+        // DEV-only escape hatch: local dev/testing against a local node
+        // (e.g. a mainnet fork on 127.0.0.1) shouldn't require HTTPS.
+        // Production builds (DEV=false) never take this branch.
+        const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
+        if (
+            HTTPS_REQUIRED_CHAIN_IDS.has(chainId) &&
+            protocol !== "https:" &&
+            !(import.meta.env.DEV && isLocalhost)
+        ) {
             console.error(
                 `[wagmiConfig] RPC URL "${url}" must use HTTPS for chain ${chainId}`
             );
