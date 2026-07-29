@@ -20,6 +20,14 @@ const Staking = React.lazy(() => import("../../../pages/Staking/index"));
 const Vesting = React.lazy(() => import("../../../pages/Vesting/index"));
 const Voting = React.lazy(() => import("../../../pages/Voting/index"));
 
+const LendingBorrowing = React.lazy(
+    () => import("../../../pages/LendingBorrowing/index")
+);
+const ComponentTest = React.lazy(
+    () => import("../../../pages/ComponentTest/index")
+);
+
+
 // Forked from pages/LiquidityMining — moc-v1's rewards are a centralized
 // REST-backed accrual (REACT_APP_ENVIRONMENT_API_INCENTIVES), unlike the
 // other flavors which still show the shared page's mocked placeholder.
@@ -64,6 +72,14 @@ export default function Router(): React.ReactElement | null {
                 {
                     path: "liquidity-mining",
                     element: <LiquidityMiningV1 />,
+                },
+                {
+                    path: "lending-borrowing",
+                    element: <LendingBorrowing />,
+                },
+                {
+                    path: "componenttest",
+                    element: <ComponentTest />,
                 },
                 { path: "404", element: <NotFound /> },
                 { path: "*", element: <Navigate to="/404" /> },
