@@ -253,9 +253,12 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     );
 
     const userBalance = useUserBalance(
-        contractsAddressLoaded && !IS_MOC_V1
-            ? (contractsAddress ?? undefined)
-            : undefined,
+        // Was gated to `!IS_MOC_V1` back when contractsAddress.TP/.Moc were
+        // always empty for moc-v1 (no calls would've been generated anyway).
+        // Now that those arrays are bridged from the v1 discovery above,
+        // Lending & Borrowing (useLendingBorrowingData) needs this to run so
+        // DOC/RBTC wallet balances populate for moc-v1 too.
+        contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
         address,
         REFRESH_INTERVAL_USER_BALANCE
     );
