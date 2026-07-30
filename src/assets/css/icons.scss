@@ -441,19 +441,28 @@ icons.css contains all the css code for Icons across the Dapp
     width: 24px;
     height: 24px;
 }
-// moc-v1 metric placeholders. Keep semantic class names so each SVG can be
-// replaced independently as the icon library grows.
 .icon__DocTotal,
 .icon__DocRedeemable,
 .icon__DocMintable,
 .icon__BproTotal,
 .icon__BproRedeemable {
-    background-image: url("../icons/CoverageActual.svg");
     filter: var(--color-icon-link-secondary-filter);
     background-size: 24px 24px;
     background-repeat: no-repeat;
     width: 24px;
     height: 24px;
+}
+.icon__DocTotal,
+.icon__BproTotal {
+    background-image: url("../icons/Total.svg");
+}
+.icon__DocRedeemable,
+.icon__BproRedeemable {
+    background-image: url("../icons/ArrowDown.svg");
+}
+.icon__DocMintable {
+    background-image: url("../icons/ArrowDown.svg");
+    transform: rotate(180deg);
 }
 .icon__CoverageTarget {
     background-image: url("../icons/CoverageTarget.svg");
