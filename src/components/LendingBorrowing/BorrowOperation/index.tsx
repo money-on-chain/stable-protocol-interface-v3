@@ -3,7 +3,7 @@ import "./Styles.scss";
 import React from "react";
 
 import { useWalletContext } from "../../../context/Wallet";
-import { ConvertAmount, TokenSettings } from "../../../helpers/currencies";
+import { ConvertAmountLending, TokenSettings } from "../../../helpers/currencies";
 import { toBigIntPrecision } from "../../../helpers/precision";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
@@ -36,6 +36,9 @@ interface BorrowOperationProps {
 const QUICK_ACTIONS = [25, 50, 75, 100];
 const EPSILON = 0.001;
 
+const IS_MOC_V1 =
+    import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "moc-v1";
+
 export default function BorrowOperation({
     card,
     onConfirm,
@@ -43,7 +46,12 @@ export default function BorrowOperation({
 }: BorrowOperationProps): React.ReactElement {
     const [borrowAmount, setBorrowAmount] = React.useState("");
     const [collateralAmount, setCollateralAmount] = React.useState("");
-    const { contractProtocolStatus } = useWalletContext();
+    const { contractProtocolStatus, contractProtocolStatusV1 } = useWalletContext();
+    // contractProtocolStatus (v3) is never populated for moc-v1 — price data
+    // comes from contractProtocolStatusV1 there instead (see ConvertAmountLending).
+    const hasPriceData = IS_MOC_V1
+        ? !!contractProtocolStatusV1.data
+        : !!contractProtocolStatus.data;
     const { t, i18n } = useProjectTranslation();
     const hasCurrentDebt = parseMetricNumber(card.currentDebt.value) > 0;
     const hasDepositedCollateral =
@@ -72,11 +80,12 @@ export default function BorrowOperation({
         if (!isMaxBorrowLoaded || systemMaxBorrowNum === null) return null;
         const addingCollateral = collateralAmountValue.isValid && collateralAmountValue.value > 0;
         if (!addingCollateral) return systemMaxBorrowNum;
-        if (!contractProtocolStatus.data || card.minCoverage <= 0) return systemMaxBorrowNum;
+        if (!hasPriceData || card.minCoverage <= 0) return systemMaxBorrowNum;
         const totalCA = depositedCollateralAmount + collateralAmountValue.value;
         if (totalCA <= 0) return systemMaxBorrowNum;
-        const totalTP = Number(ConvertAmount(
+        const totalTP = Number(ConvertAmountLending(
             contractProtocolStatus,
+            contractProtocolStatusV1,
             card.collateralTokenCode,
             card.borrowTokenCode,
             toBigIntPrecision(totalCA),
@@ -89,7 +98,7 @@ export default function BorrowOperation({
         collateralAmountValue.isValid, collateralAmountValue.value,
         depositedCollateralAmount, card.minCoverage,
         card.collateralTokenCode, card.borrowTokenCode, card.caIndex,
-        card.currentDebt.value, contractProtocolStatus,
+        card.currentDebt.value, contractProtocolStatus, contractProtocolStatusV1, hasPriceData,
     ]);
     const maxBorrowForCalc = effectiveMaxBorrowNum ?? parseAmount(card.maxAvailable.value).value;
     const hasBorrowLimitError =
@@ -100,17 +109,18 @@ export default function BorrowOperation({
         collateralAmountValue.isValid &&
         collateralAmountValue.value > collateralWalletBalanceValue.value;
     const minRequiredCollateralValue = React.useMemo(() => {
-        if (!borrowAmountValue.isValid || borrowAmountValue.value <= 0 || !contractProtocolStatus.data) return 0;
+        if (!borrowAmountValue.isValid || borrowAmountValue.value <= 0 || !hasPriceData) return 0;
         const borrowBigInt = toBigIntPrecision(borrowAmountValue.value);
-        const minCA = ConvertAmount(
+        const minCA = ConvertAmountLending(
             contractProtocolStatus,
+            contractProtocolStatusV1,
             card.borrowTokenCode,
             card.collateralTokenCode,
             borrowBigInt,
             card.caIndex
         );
         return Number(minCA) / 1e18;
-    }, [borrowAmountValue.isValid, borrowAmountValue.value, card.borrowTokenCode, card.collateralTokenCode, card.caIndex, contractProtocolStatus]);
+    }, [borrowAmountValue.isValid, borrowAmountValue.value, card.borrowTokenCode, card.collateralTokenCode, card.caIndex, contractProtocolStatus, contractProtocolStatusV1, hasPriceData]);
     const minRequiredCollateral = minRequiredCollateralValue > 0 ? formatAmount(minRequiredCollateralValue, card.collateralTokenDecimals) : null;
     const totalCollateral = depositedCollateralAmount + (collateralAmountValue.isValid ? collateralAmountValue.value : 0);
     const hasInsufficientCollateral =
@@ -131,7 +141,7 @@ export default function BorrowOperation({
         (value: number) => {
             const amountBigInt = toBigIntPrecision(value);
 
-            if (amountBigInt < 0n || !contractProtocolStatus.data) {
+            if (amountBigInt < 0n || !hasPriceData) {
                 return PrecisionNumbers({
                     amount: 0n,
                     token: TokenSettings("CA_0"),
@@ -142,8 +152,9 @@ export default function BorrowOperation({
                 });
             }
 
-            const amountUSD = ConvertAmount(
+            const amountUSD = ConvertAmountLending(
                 contractProtocolStatus,
+                contractProtocolStatusV1,
                 card.borrowTokenCode,
                 "USD",
                 amountBigInt,
@@ -159,13 +170,13 @@ export default function BorrowOperation({
                 compact: true,
             });
         },
-        [card.borrowTokenCode, card.caIndex, contractProtocolStatus, i18n]
+        [card.borrowTokenCode, card.caIndex, contractProtocolStatus, contractProtocolStatusV1, hasPriceData, i18n]
     );
     const getCollateralFiatEquivalent = React.useCallback(
         (value: number) => {
             const amountBigInt = toBigIntPrecision(value);
 
-            if (amountBigInt < 0n || !contractProtocolStatus.data) {
+            if (amountBigInt < 0n || !hasPriceData) {
                 return PrecisionNumbers({
                     amount: 0n,
                     token: TokenSettings("CA_0"),
@@ -176,8 +187,9 @@ export default function BorrowOperation({
                 });
             }
 
-            const amountUSD = ConvertAmount(
+            const amountUSD = ConvertAmountLending(
                 contractProtocolStatus,
+                contractProtocolStatusV1,
                 card.collateralTokenCode,
                 "USD",
                 amountBigInt,
@@ -193,7 +205,7 @@ export default function BorrowOperation({
                 compact: true,
             });
         },
-        [card.caIndex, card.collateralTokenCode, contractProtocolStatus, i18n]
+        [card.caIndex, card.collateralTokenCode, contractProtocolStatus, contractProtocolStatusV1, hasPriceData, i18n]
     );
     const overallRiskDelta = getBorrowOperationRiskDelta(
         borrowAmountValue.value,
@@ -238,10 +250,11 @@ export default function BorrowOperation({
         liqPriceAfter, liqPriceAfterTrend,
         liqDistanceAfter, liqDistanceAfterTrend,
     } = React.useMemo(() => {
-        if (!contractProtocolStatus.data) return {};
+        if (!hasPriceData) return {};
 
-        const marketPriceTP = Number(ConvertAmount(
+        const marketPriceTP = Number(ConvertAmountLending(
             contractProtocolStatus,
+            contractProtocolStatusV1,
             card.collateralTokenCode,
             card.borrowTokenCode,
             toBigIntPrecision(1),
@@ -280,8 +293,9 @@ export default function BorrowOperation({
                 usageNum = totalCapacity > 0 ? Math.min(100, (newDebt / totalCapacity) * 100) : 0;
             } else {
                 // Adding collateral: formula-based with minCoverage (same constraint the contract uses).
-                const totalTP = Number(ConvertAmount(
+                const totalTP = Number(ConvertAmountLending(
                     contractProtocolStatus,
+                    contractProtocolStatusV1,
                     card.collateralTokenCode,
                     card.borrowTokenCode,
                     toBigIntPrecision(totalCA),
@@ -337,7 +351,7 @@ export default function BorrowOperation({
         borrowUsageMetric,
         liquidationPriceMetric,
         distanceToLiquidationMetric,
-        contractProtocolStatus,
+        contractProtocolStatus, contractProtocolStatusV1, hasPriceData,
     ]);
 
     const noticeLines = hasPendingChanges

@@ -3,7 +3,7 @@ import "./Styles.scss";
 import React from "react";
 
 import { useWalletContext } from "../../../context/Wallet";
-import { ConvertAmount, TokenSettings } from "../../../helpers/currencies";
+import { ConvertAmountLending, TokenSettings } from "../../../helpers/currencies";
 import { toBigIntPrecision } from "../../../helpers/precision";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
@@ -28,28 +28,37 @@ interface BorrowRepayWithCollateralProps {
 
 const EPSILON = 0.001;
 
+const IS_MOC_V1 =
+    import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "moc-v1";
+
 export default function BorrowRepayWithCollateral({
     card,
     onConfirm,
     onBack,
 }: BorrowRepayWithCollateralProps): React.ReactElement {
-    const { contractProtocolStatus } = useWalletContext();
+    const { contractProtocolStatus, contractProtocolStatusV1 } = useWalletContext();
     const { t, i18n } = useProjectTranslation();
+    // contractProtocolStatus (v3) is never populated for moc-v1 — price data
+    // comes from contractProtocolStatusV1 there instead (see ConvertAmountLending).
+    const hasPriceData = IS_MOC_V1
+        ? !!contractProtocolStatusV1.data
+        : !!contractProtocolStatus.data;
 
     // Auto-compute collateral needed to repay the full debt
     const collateralAmount = React.useMemo(() => {
         const debtValue = parseAmount(card.currentDebt.value).value;
-        if (debtValue <= 0 || !contractProtocolStatus.data) return "0.00";
+        if (debtValue <= 0 || !hasPriceData) return "0.00";
         const debtBigInt = toBigIntPrecision(debtValue);
-        const collateralBigInt = ConvertAmount(
+        const collateralBigInt = ConvertAmountLending(
             contractProtocolStatus,
+            contractProtocolStatusV1,
             card.borrowTokenCode,
             card.collateralTokenCode,
             debtBigInt,
             card.caIndex
         );
         return formatAmount(Number(collateralBigInt) / 1e18, card.collateralTokenDecimals);
-    }, [card, contractProtocolStatus]);
+    }, [card, contractProtocolStatus, contractProtocolStatusV1, hasPriceData]);
 
     const depositedCollateralValue = parseAmount(card.depositedCollateral.value);
     const collateralAmountValue = parseAmount(collateralAmount);
@@ -67,7 +76,7 @@ export default function BorrowRepayWithCollateral({
         (value: number) => {
             const amountBigInt = toBigIntPrecision(value);
 
-            if (amountBigInt < 0n || !contractProtocolStatus.data) {
+            if (amountBigInt < 0n || !hasPriceData) {
                 return PrecisionNumbers({
                     amount: 0n,
                     token: TokenSettings("CA_0"),
@@ -78,8 +87,9 @@ export default function BorrowRepayWithCollateral({
                 });
             }
 
-            const amountUSD = ConvertAmount(
+            const amountUSD = ConvertAmountLending(
                 contractProtocolStatus,
+                contractProtocolStatusV1,
                 card.collateralTokenCode,
                 "USD",
                 amountBigInt,
@@ -95,7 +105,7 @@ export default function BorrowRepayWithCollateral({
                 compact: true,
             });
         },
-        [card.caIndex, card.collateralTokenCode, contractProtocolStatus, i18n]
+        [card.caIndex, card.collateralTokenCode, contractProtocolStatus, contractProtocolStatusV1, hasPriceData, i18n]
     );
 
     const [
@@ -146,9 +156,10 @@ export default function BorrowRepayWithCollateral({
         result.collateralAfter = formatAmount(remainingCA, card.collateralTokenDecimals);
 
         // Borrow available on remaining collateral (formula-based, debt = 0)
-        if (remainingCA > 0 && card.liquidationCoverage > 0 && contractProtocolStatus.data) {
-            const remainingTP = Number(ConvertAmount(
+        if (remainingCA > 0 && card.liquidationCoverage > 0 && hasPriceData) {
+            const remainingTP = Number(ConvertAmountLending(
                 contractProtocolStatus,
+                contractProtocolStatusV1,
                 card.collateralTokenCode,
                 card.borrowTokenCode,
                 toBigIntPrecision(remainingCA),
@@ -173,7 +184,7 @@ export default function BorrowRepayWithCollateral({
         card.liquidationCoverage, card.collateralTokenCode, card.borrowTokenCode,
         card.caIndex, card.borrowTokenDecimals, card.collateralTokenDecimals,
         currentLiqPrice, currentLiqDrop, currentMaxBorrow, currentBorrowUsage,
-        contractProtocolStatus,
+        contractProtocolStatus, contractProtocolStatusV1, hasPriceData,
     ]);
 
     const collateralAfterRepayment = remainingCA;

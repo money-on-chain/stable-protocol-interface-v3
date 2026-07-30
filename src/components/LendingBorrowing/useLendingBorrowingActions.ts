@@ -13,7 +13,7 @@ import {
 } from "../../backend/lending/manager";
 import { useWalletContext } from "../../context/Wallet";
 import { useProjectTranslation } from "../../helpers/translations";
-import settings from "../../settings/settings.json";
+import settings from "../../settings";
 import type { LendingPoolStatus } from "../../types/status";
 import type { InterfaceContext } from "../../types/wallets";
 import type { SettingsTokens } from "../../types/hooks";
@@ -240,16 +240,20 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
             approveStepId: string | null,
             depositStepId: string,
         ) => {
-            const caContract = contractsAddress?.CA?.[caIndex];
-            if (!caContract) return;
-
             const erc20 = isErc20CA(caIndex);
-            if (erc20 && approveStepId) {
-                let approveHash = "";
-                await approveTP(ctx, caContract, acAmount,
-                    (hash) => { approveHash = hash; setStepStatus(approveStepId, "processing", hash); },
-                    () => { setStepStatus(approveStepId, "completed", approveHash); setStepStatus(depositStepId, "waiting"); }
-                );
+
+            // Coinbase collateral (e.g. RBTC) has no ERC-20 contract to approve —
+            // it's sent as native `value` on the addACtoVault call below instead.
+            if (erc20) {
+                const caContract = contractsAddress?.CA?.[caIndex];
+                if (!caContract) return;
+                if (approveStepId) {
+                    let approveHash = "";
+                    await approveTP(ctx, caContract, acAmount,
+                        (hash) => { approveHash = hash; setStepStatus(approveStepId, "processing", hash); },
+                        () => { setStepStatus(approveStepId, "completed", approveHash); setStepStatus(depositStepId, "waiting"); }
+                    );
+                }
             }
 
             const value = erc20 ? 0n : acAmount;

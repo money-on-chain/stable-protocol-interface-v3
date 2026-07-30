@@ -3,6 +3,7 @@ import React from "react";
 import settings from "../settings";
 import globalData from "../settings/global.json";
 import type { TokenConfig } from "../types/hooks";
+import type { ContractProtocolStatusV1Result } from "../types/hooks-v1";
 import type {
     ContractProtocolStatusResult,
     UserBalanceResult,
@@ -360,6 +361,57 @@ function ConvertAmount(
 
     // USD -> USD
     return amount;
+}
+
+const IS_MOC_V1 =
+    import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "moc-v1";
+
+/**
+ * Same contract as ConvertAmount, but usable for moc-v1: contractProtocolStatus
+ * (v3) is never populated there (see context/Wallet.tsx), so price data comes
+ * from contractProtocolStatusV1 instead. moc-v1 has exactly one TP (DOC, pegged
+ * 1:1 to USD) and one CA (RBTC, priced via the oracle's getBitcoinPrice) — the
+ * same invariants helpers/portfolioV1.ts relies on.
+ */
+function ConvertAmountLending(
+    contractProtocolStatus: ContractProtocolStatusResult,
+    contractProtocolStatusV1: ContractProtocolStatusV1Result,
+    tokenExchange: string,
+    tokenReceive: string,
+    amount: bigint,
+    caIndex: number,
+    rounding: Rounding = "halfUp"
+): bigint {
+    if (!IS_MOC_V1) {
+        return ConvertAmount(
+            contractProtocolStatus,
+            tokenExchange,
+            tokenReceive,
+            amount,
+            caIndex,
+            rounding
+        );
+    }
+
+    const ex0 = tokenExchange.split("_")[0];
+    const re0 = tokenReceive.split("_")[0];
+    if (ex0 === re0) return amount;
+
+    const btcPriceUsd = contractProtocolStatusV1.data?.getBitcoinPrice ?? 0n;
+
+    const toUsd = (type: string, amt: bigint): bigint => {
+        if (type === "TP" || type === "USD") return amt;
+        if (type === "CA") return wadMul(amt, btcPriceUsd, rounding);
+        return 0n;
+    };
+    const fromUsd = (type: string, usdAmt: bigint): bigint => {
+        if (type === "TP" || type === "USD") return usdAmt;
+        if (type === "CA")
+            return btcPriceUsd === 0n ? 0n : wadDiv(usdAmt, btcPriceUsd, rounding);
+        return 0n;
+    };
+
+    return fromUsd(re0, toUsd(ex0, amount));
 }
 
 const getCurrencyByValue = (value: string): Currency => {
@@ -737,6 +789,7 @@ export {
     bigIntToInputValue,
     CalcCommission,
     ConvertAmount,
+    ConvertAmountLending,
     ConvertBalance,
     ConvertPeggedTokenPrice,
     getCAIndex,

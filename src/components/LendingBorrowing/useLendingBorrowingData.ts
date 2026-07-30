@@ -2,9 +2,9 @@ import React from "react";
 import { formatUnits } from "viem";
 
 import { useWalletContext } from "../../context/Wallet";
-import { ConvertAmount } from "../../helpers/currencies";
+import { ConvertAmountLending } from "../../helpers/currencies";
 import { useLiquidationHistory } from "../../hooks/useLiquidationHistory";
-import settings from "../../settings/settings.json";
+import settings from "../../settings";
 import type { LendingPoolStatus } from "../../types/status";
 import type { SettingsTokens } from "../../types/hooks";
 import type { BorrowCardData } from "./Borrow/data";
@@ -44,8 +44,10 @@ export function useLendingBorrowingData(): LendingBorrowingData {
         contractsAddress,
         contractLendingStatus,
         contractProtocolStatus,
+        contractProtocolStatusV1,
         userLending,
         userBalance,
+        userBaseCoinBalance,
     } = useWalletContext();
 
     const liquidationHistory = useLiquidationHistory(address);
@@ -54,6 +56,19 @@ export function useLendingBorrowingData(): LendingBorrowingData {
     const lmData = contractLendingStatus.data?.lendingmanager;
     // pools is built as numeric-keyed object by useMultiCall; index access works the same
     const pools = lmData?.pools as unknown as Record<number, LendingPoolStatus> | undefined;
+
+    const toUsd = React.useCallback(
+        (tokenCode: string, amount: bigint, caIndex: number): bigint =>
+            ConvertAmountLending(
+                contractProtocolStatus,
+                contractProtocolStatusV1,
+                tokenCode,
+                "USD",
+                amount,
+                caIndex
+            ),
+        [contractProtocolStatus, contractProtocolStatusV1]
+    );
 
     const lendCards: LendCardData[] = React.useMemo((): LendCardData[] => {
         if (!contractsAddress?.TP || !tokens) return [];
@@ -70,7 +85,7 @@ export function useLendingBorrowingData(): LendingBorrowingData {
 
             const tpBalance = userBalance.data?.TP?.[0]?.[tpIndex]?.balance ?? 0n;
 
-            const depositedTpUsd = ConvertAmount(contractProtocolStatus, tokenCode, "USD", depositedTp, 0);
+            const depositedTpUsd = toUsd(tokenCode, depositedTp, 0);
 
             return {
                 id: `lend-tp-${tpIndex}`,
@@ -89,7 +104,7 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                 walletBalance: fmtBigInt(tpBalance, 18, meta.visibleDecimals),
             };
         });
-    }, [contractsAddress, contractProtocolStatus, pools, userLending.data, userBalance.data, tokens]);
+    }, [contractsAddress, toUsd, pools, userLending.data, userBalance.data, tokens]);
 
     const borrowCards: BorrowCardData[] = React.useMemo((): BorrowCardData[] => {
         if (!contractsAddress?.TP || !contractsAddress?.Moc || !tokens) return [];
@@ -125,19 +140,33 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                 const maxACToRemove = vault?.getMaxACToRemove ?? 0n;
 
                 const debtTp = mulWad(creditUnits, priceCreditUnit);
-                const caWallet = userBalance.data?.CA?.[ca]?.balance ?? 0n;
+                // Coinbase collateral (e.g. RBTC on moc-v1) has no ERC-20 contract,
+                // so useUserBalance never populates `.CA[ca]` for it — the native
+                // balance lives in userBaseCoinBalance instead (same source Send/
+                // Exchange/Portfolio already use for coinbase balances).
+                const isCoinbaseCA = tokens.CA?.[ca]?.collateralType === "coinbase";
+                const caWallet = isCoinbaseCA
+                    ? (userBaseCoinBalance?.balance ?? 0n)
+                    : (userBalance.data?.CA?.[ca]?.balance ?? 0n);
                 const tpWallet = userBalance.data?.TP?.[0]?.[tp]?.balance ?? 0n;
 
-                const debtTpUsd = ConvertAmount(contractProtocolStatus, borrowTokenCode, "USD", debtTp, ca);
-                const acBalanceUsd = ConvertAmount(contractProtocolStatus, collTokenCode, "USD", acBalance, ca);
-                const maxBorrowUsd = ConvertAmount(contractProtocolStatus, borrowTokenCode, "USD", maxBorrow, ca);
+                const debtTpUsd = toUsd(borrowTokenCode, debtTp, ca);
+                const acBalanceUsd = toUsd(collTokenCode, acBalance, ca);
+                const maxBorrowUsd = toUsd(borrowTokenCode, maxBorrow, ca);
 
                 const totalCollateralCA = caWallet + acBalance;
-                const maxAvailableTP = ConvertAmount(contractProtocolStatus, collTokenCode, borrowTokenCode, totalCollateralCA, ca);
+                const maxAvailableTP = ConvertAmountLending(
+                    contractProtocolStatus,
+                    contractProtocolStatusV1,
+                    collTokenCode,
+                    borrowTokenCode,
+                    totalCollateralCA,
+                    ca
+                );
 
                 // Use the contract's own reader to get the exact max removable collateral.
                 const maxWithdrawableCA = maxACToRemove;
-                const maxAvailableUsd = ConvertAmount(contractProtocolStatus, borrowTokenCode, "USD", maxAvailableTP, ca);
+                const maxAvailableUsd = toUsd(borrowTokenCode, maxAvailableTP, ca);
 
                 let liqDropPct = 0;
                 if (coverage > 0n && coverage > liquidationCov) {
@@ -332,7 +361,7 @@ export function useLendingBorrowingData(): LendingBorrowingData {
             }
         }
         return cards;
-    }, [contractsAddress, contractProtocolStatus, pools, userLending.data, userBalance.data, tokens, liquidationHistory]);
+    }, [contractsAddress, toUsd, pools, userLending.data, userBalance.data, userBaseCoinBalance?.balance, tokens, liquidationHistory]);
 
     const refetch = React.useCallback(() => {
         void contractLendingStatus.refetch?.();

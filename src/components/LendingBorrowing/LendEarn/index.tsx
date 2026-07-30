@@ -3,7 +3,7 @@ import "./Styles.scss";
 import React from "react";
 
 import { useWalletContext } from "../../../context/Wallet";
-import { ConvertAmount, TokenSettings } from "../../../helpers/currencies";
+import { ConvertAmountLending, TokenSettings } from "../../../helpers/currencies";
 import { toBigIntPrecision } from "../../../helpers/precision";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
@@ -52,13 +52,21 @@ function parseAmount(rawAmount: string): {
     };
 }
 
+const IS_MOC_V1 =
+    import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "moc-v1";
+
 export default function LendEarn({
     onConfirm,
     onBack,
     token,
 }: LendEarnProps): React.ReactElement {
     const [amount, setAmount] = React.useState("");
-    const { contractProtocolStatus } = useWalletContext();
+    const { contractProtocolStatus, contractProtocolStatusV1 } = useWalletContext();
+    // contractProtocolStatus (v3) is never populated for moc-v1 — price data
+    // comes from contractProtocolStatusV1 there instead (see ConvertAmountLending).
+    const hasPriceData = IS_MOC_V1
+        ? !!contractProtocolStatusV1.data
+        : !!contractProtocolStatus.data;
     const { i18n, t } = useProjectTranslation();
     const { isValid: isAmountValid, value: amountValue } = parseAmount(amount);
     const walletBalanceValue = parseAmount(token.walletBalance);
@@ -72,7 +80,7 @@ export default function LendEarn({
         (value: number) => {
             const amountBigInt = toBigIntPrecision(value);
 
-            if (amountBigInt < 0n || !contractProtocolStatus.data) {
+            if (amountBigInt < 0n || !hasPriceData) {
                 return PrecisionNumbers({
                     amount: 0n,
                     token: TokenSettings("CA_0"),
@@ -83,8 +91,9 @@ export default function LendEarn({
                 });
             }
 
-            const amountUSD = ConvertAmount(
+            const amountUSD = ConvertAmountLending(
                 contractProtocolStatus,
+                contractProtocolStatusV1,
                 token.tokenCode,
                 "USD",
                 amountBigInt,
@@ -100,7 +109,7 @@ export default function LendEarn({
                 compact: true,
             });
         },
-        [contractProtocolStatus, i18n, token.caIndex, token.tokenCode]
+        [contractProtocolStatus, contractProtocolStatusV1, hasPriceData, i18n, token.caIndex, token.tokenCode]
     );
 
     const handleQuickAmountSelection = (percentage: number) => {

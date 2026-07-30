@@ -3,7 +3,7 @@ import "./Styles.scss";
 import React from "react";
 
 import { useWalletContext } from "../../../context/Wallet";
-import { ConvertAmount, TokenSettings } from "../../../helpers/currencies";
+import { ConvertAmountLending, TokenSettings } from "../../../helpers/currencies";
 import { toBigIntPrecision } from "../../../helpers/precision";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
@@ -29,13 +29,21 @@ interface BorrowWithdrawCollateralProps {
 const QUICK_ACTIONS = [25, 50, 75, 100];
 const EPSILON = 0.001;
 
+const IS_MOC_V1 =
+    import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "moc-v1";
+
 export default function BorrowWithdrawCollateral({
     card,
     onConfirm,
     onBack,
 }: BorrowWithdrawCollateralProps): React.ReactElement {
     const [collateralAmount, setCollateralAmount] = React.useState("");
-    const { contractProtocolStatus } = useWalletContext();
+    const { contractProtocolStatus, contractProtocolStatusV1 } = useWalletContext();
+    // contractProtocolStatus (v3) is never populated for moc-v1 — price data
+    // comes from contractProtocolStatusV1 there instead (see ConvertAmountLending).
+    const hasPriceData = IS_MOC_V1
+        ? !!contractProtocolStatusV1.data
+        : !!contractProtocolStatus.data;
     const { t, i18n } = useProjectTranslation();
 
     const depositedCollateralValue = parseAmount(card.depositedCollateral.value);
@@ -62,7 +70,7 @@ export default function BorrowWithdrawCollateral({
         (value: number) => {
             const amountBigInt = toBigIntPrecision(value);
 
-            if (amountBigInt < 0n || !contractProtocolStatus.data) {
+            if (amountBigInt < 0n || !hasPriceData) {
                 return PrecisionNumbers({
                     amount: 0n,
                     token: TokenSettings("CA_0"),
@@ -73,8 +81,9 @@ export default function BorrowWithdrawCollateral({
                 });
             }
 
-            const amountUSD = ConvertAmount(
+            const amountUSD = ConvertAmountLending(
                 contractProtocolStatus,
+                contractProtocolStatusV1,
                 card.collateralTokenCode,
                 "USD",
                 amountBigInt,
@@ -90,7 +99,7 @@ export default function BorrowWithdrawCollateral({
                 compact: true,
             });
         },
-        [card.caIndex, card.collateralTokenCode, contractProtocolStatus, i18n]
+        [card.caIndex, card.collateralTokenCode, contractProtocolStatus, contractProtocolStatusV1, hasPriceData, i18n]
     );
 
     const [
@@ -112,10 +121,11 @@ export default function BorrowWithdrawCollateral({
         borrowAvailableAfter, borrowAvailableAfterTrend,
         borrowUsageAfter, borrowUsageAfterTrend,
     } = React.useMemo(() => {
-        if (!contractProtocolStatus.data || withdrawAmount <= 0 || card.liquidationCoverage <= 0) return {};
+        if (!hasPriceData || withdrawAmount <= 0 || card.liquidationCoverage <= 0) return {};
 
-        const marketPriceTP = Number(ConvertAmount(
+        const marketPriceTP = Number(ConvertAmountLending(
             contractProtocolStatus,
+            contractProtocolStatusV1,
             card.collateralTokenCode,
             card.borrowTokenCode,
             toBigIntPrecision(1),
@@ -157,8 +167,9 @@ export default function BorrowWithdrawCollateral({
         }
 
         if (remainingCA > 0) {
-            const remainingTP = Number(ConvertAmount(
+            const remainingTP = Number(ConvertAmountLending(
                 contractProtocolStatus,
+                contractProtocolStatusV1,
                 card.collateralTokenCode,
                 card.borrowTokenCode,
                 toBigIntPrecision(remainingCA),
@@ -189,7 +200,7 @@ export default function BorrowWithdrawCollateral({
         card.caIndex, card.borrowTokenDecimals,
         liquidationPriceMetric, distanceToLiquidationMetric,
         borrowAvailableMetric, borrowUsageMetric,
-        contractProtocolStatus,
+        contractProtocolStatus, contractProtocolStatusV1, hasPriceData,
     ]);
 
     const maxWithdrawable = maxWithdrawableValue.isValid

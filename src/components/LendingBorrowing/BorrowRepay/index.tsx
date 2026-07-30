@@ -3,7 +3,7 @@ import "./Styles.scss";
 import React from "react";
 
 import { useWalletContext } from "../../../context/Wallet";
-import { ConvertAmount, TokenSettings } from "../../../helpers/currencies";
+import { ConvertAmountLending, TokenSettings } from "../../../helpers/currencies";
 import { toBigIntPrecision } from "../../../helpers/precision";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
@@ -29,13 +29,21 @@ interface BorrowRepayProps {
 const QUICK_ACTIONS = [25, 50, 75, 100];
 const EPSILON = 0.001;
 
+const IS_MOC_V1 =
+    import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "moc-v1";
+
 export default function BorrowRepay({
     card,
     onConfirm,
     onBack,
 }: BorrowRepayProps): React.ReactElement {
     const [repayAmount, setRepayAmount] = React.useState("");
-    const { contractProtocolStatus } = useWalletContext();
+    const { contractProtocolStatus, contractProtocolStatusV1 } = useWalletContext();
+    // contractProtocolStatus (v3) is never populated for moc-v1 — price data
+    // comes from contractProtocolStatusV1 there instead (see ConvertAmountLending).
+    const hasPriceData = IS_MOC_V1
+        ? !!contractProtocolStatusV1.data
+        : !!contractProtocolStatus.data;
     const { t, i18n } = useProjectTranslation();
 
     const currentDebtValue = parseAmount(card.currentDebt.value);
@@ -66,7 +74,7 @@ export default function BorrowRepay({
         (value: number) => {
             const amountBigInt = toBigIntPrecision(value);
 
-            if (amountBigInt < 0n || !contractProtocolStatus.data) {
+            if (amountBigInt < 0n || !hasPriceData) {
                 return PrecisionNumbers({
                     amount: 0n,
                     token: TokenSettings("CA_0"),
@@ -77,8 +85,9 @@ export default function BorrowRepay({
                 });
             }
 
-            const amountUSD = ConvertAmount(
+            const amountUSD = ConvertAmountLending(
                 contractProtocolStatus,
+                contractProtocolStatusV1,
                 card.borrowTokenCode,
                 "USD",
                 amountBigInt,
@@ -94,7 +103,7 @@ export default function BorrowRepay({
                 compact: true,
             });
         },
-        [card.borrowTokenCode, card.caIndex, contractProtocolStatus, i18n]
+        [card.borrowTokenCode, card.caIndex, contractProtocolStatus, contractProtocolStatusV1, hasPriceData, i18n]
     );
 
     const [
@@ -135,9 +144,10 @@ export default function BorrowRepay({
         } = {};
 
         // Liq price and distance — need market price for distance computation
-        if (existingCA > 0 && card.liquidationCoverage > 0 && contractProtocolStatus.data) {
-            const marketPriceTP = Number(ConvertAmount(
+        if (existingCA > 0 && card.liquidationCoverage > 0 && hasPriceData) {
+            const marketPriceTP = Number(ConvertAmountLending(
                 contractProtocolStatus,
+                contractProtocolStatusV1,
                 card.collateralTokenCode,
                 card.borrowTokenCode,
                 toBigIntPrecision(1),
@@ -183,7 +193,7 @@ export default function BorrowRepay({
         card.liquidationCoverage, card.collateralTokenCode, card.borrowTokenCode,
         card.caIndex, card.borrowTokenDecimals,
         liquidationPriceMetric, distanceToLiquidationMetric,
-        borrowUsageMetric, contractProtocolStatus,
+        borrowUsageMetric, contractProtocolStatus, contractProtocolStatusV1, hasPriceData,
     ]);
 
     const handleQuickAction = (percentage: number) => {
