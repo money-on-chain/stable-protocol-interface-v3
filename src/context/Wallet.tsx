@@ -333,6 +333,19 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                         readContracts(publicClient),
                     ]);
                 setContractsAddressV1(contractsAddressesV1);
+
+                // Lending & Borrowing (useContractLendingStatus, useUserLending,
+                // useLendingBorrowingData) reads exclusively from the shared
+                // `contracts.TP`/`.Moc` arrays, never from `contractsAddressV1`.
+                // The MoC V1 lending-and-borrowing-sc adapter (MocAdapterV1)
+                // is deployed against the legacy MoC.sol contract itself as its
+                // single "moc bucket" (see validateAndGetPACtp: mocBucket_ must
+                // equal MOC_V1), so it maps 1:1 onto contracts.Moc[0], and the
+                // legacy DOC token maps onto contracts.TP[0] — matching
+                // settings tokens.TP[0]/CA[0] for the moc-v1 project.
+                contractsAddresses.TP = [contractsAddressesV1.DocToken];
+                contractsAddresses.Moc = [contractsAddressesV1.Moc];
+
                 setContractsAddress(contractsAddresses);
             } else {
                 const contractsAddresses = await readContracts(publicClient);
