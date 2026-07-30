@@ -16,6 +16,11 @@ interface DisplayAmountProps {
     className?: string;
     decimals?: number;
     equivalentDecimals?: number;
+    // Compact formatting caps the fraction at 2-4 digits (see
+    // formatSignificantCompactValue), which silently truncates small values
+    // like 0.00015436 down to 0.0001. Pass false to render the full
+    // `decimals` precision instead.
+    compact?: boolean;
 }
 
 const space = "\u00A0";
@@ -30,6 +35,7 @@ const DisplayAmount: React.FC<DisplayAmountProps> = ({
     className = "",
     decimals = 2,
     equivalentDecimals = 2,
+    compact = true,
 }) => {
     const { i18n } = useProjectTranslation();
 
@@ -49,7 +55,7 @@ const DisplayAmount: React.FC<DisplayAmountProps> = ({
                             token: TokenSettings("CA_0"),
                             decimals: decimals,
                             i18n: i18n,
-                            compact: true,
+                            compact: compact,
                         })}
                     </span>
                 </div>

@@ -145,8 +145,7 @@
             "estimatedMaxRbtc": "Estimated max RBTC required — any excess is automatically refunded",
             "limitReachedDoc": "Redeem limit for DOC reached at this time",
             "systemPaused": "The contract is paused. Operations are disabled",
-            "confirmMintTitle": "Confirm Mint",
-            "confirmRedeemTitle": "Confirm Redeem",
+            "confirmExchangeTitle": "Confirm Exchange",
             "confirmDescriptionRedeem": "This amount will be burned and the equivalent RBTC sent to your wallet.",
             "allowanceMocReason": "This allowance lets the protocol charge the operation's fee in MOC instead of RBTC.",
             "allowanceMocRevokeReason": "This revokes the protocol's permission to charge the operation's fee in MOC, since you're paying the fee in RBTC instead."

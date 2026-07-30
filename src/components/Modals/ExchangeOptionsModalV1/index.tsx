@@ -274,9 +274,7 @@ export default function ExchangeOptionsModalV1(
         >
             <Fragment>
                 <h1 className="StakingOptionsModal_Title">
-                    {isMint
-                        ? t("exchange.v1.confirmMintTitle")
-                        : t("exchange.v1.confirmRedeemTitle")}
+                    {t("exchange.v1.confirmExchangeTitle")}
                 </h1>
 
                 <div className="tx-amount-group">
@@ -291,6 +289,7 @@ export default function ExchangeOptionsModalV1(
                                 value={amount}
                                 token={t(`exchange.tokens.${sourceToken}.abbr`)}
                                 decimals={amount < 1n ? 12 : 8}
+                                compact={false}
                             />
                         </div>
                     </div>
@@ -312,6 +311,7 @@ export default function ExchangeOptionsModalV1(
                                     `exchange.tokens.${receiveToken}.abbr`
                                 )}
                                 decimals={receiveAmount < 1n ? 12 : 8}
+                                compact={false}
                             />
                         </div>
                     </div>

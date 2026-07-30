@@ -146,8 +146,7 @@
             "estimatedMaxRbtc": "Máximo estimado de RBTC requerido — el excedente se reembolsa automáticamente",
             "limitReachedDoc": "Límite de redención de DOC alcanzado en este momento",
             "systemPaused": "El contrato está pausado. Las operaciones están deshabilitadas",
-            "confirmMintTitle": "Confirmar Minteo",
-            "confirmRedeemTitle": "Confirmar Redención",
+            "confirmExchangeTitle": "Confirmar Intercambio",
             "confirmDescriptionRedeem": "Este monto será quemado y el RBTC equivalente enviado a tu billetera.",
             "allowanceMocReason": "Esta autorización permite que el protocolo cobre la comisión de la operación en MOC en lugar de RBTC.",
             "allowanceMocRevokeReason": "Esto revoca el permiso del protocolo para cobrar la comisión de la operación en MOC, ya que estás pagando la comisión en RBTC."
