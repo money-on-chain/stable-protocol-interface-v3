@@ -24,6 +24,9 @@ export default function PortfolioV1(): JSX.Element {
                         <h1>{t("portfolio.sectionTitle")}</h1>
                     </div>
                     <div className="tokens-list-header-balance">
+                        <div className="tokens-list-header-balance-title">
+                            {t("portfolio.totalBalance")}
+                        </div>
                         <div className="tokens-list-header-balance-number">
                             {PrecisionNumbers({
                                 amount: totalUSD,
@@ -34,9 +37,6 @@ export default function PortfolioV1(): JSX.Element {
                             })}
                             {space}
                             {t("portfolio.totalCurrency")}
-                        </div>
-                        <div className="tokens-list-header-balance-title">
-                            {t("portfolio.totalBalance")}
                         </div>
                     </div>
                 </div>

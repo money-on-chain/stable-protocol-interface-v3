@@ -49,6 +49,7 @@
 
     .ant-table-expanded-row > td,
     .ant-table-expanded-row:hover > td {
+        border-bottom: 0 !important;
         background: transparent !important;
         padding: 0 8px 4px !important;
     }
