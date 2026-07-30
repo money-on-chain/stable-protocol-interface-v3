@@ -25,6 +25,8 @@ import ExchangeOptionsModalV1 from "../Modals/ExchangeOptionsModalV1";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import TokenAmountInput from "../TokenAmountInput";
 
+const QUICK_ACTIONS = [25, 50, 75, 100];
+
 function getModeV1(
     isMint: boolean,
     currencyYouExchange: string,
@@ -349,6 +351,30 @@ export default function ExchangeV1(): React.ReactElement {
         );
     };
 
+    const onQuickActionYouExchange = (percentage: number): void => {
+        onChangeAmountYouExchange(
+            sourceBalance === 0n
+                ? ""
+                : bigIntToInputValue(
+                      (sourceBalance * BigInt(percentage)) / 100n,
+                      currencyYouExchange,
+                      8
+                  )
+        );
+    };
+
+    const onQuickActionYouReceive = (percentage: number): void => {
+        onChangeAmountYouReceive(
+            receiveUpToBalance === 0n
+                ? ""
+                : bigIntToInputValue(
+                      (receiveUpToBalance * BigInt(percentage)) / 100n,
+                      currencyYouReceive,
+                      8
+                  )
+        );
+    };
+
     // Snapshots everything the confirm modal displays at the moment the user
     // commits to the operation, so its numbers stay stable even though the
     // live state they're derived from (amounts, selectedFeeCurrency) keeps
@@ -422,6 +448,10 @@ export default function ExchangeV1(): React.ReactElement {
                             tokenSelectable
                             selectedTokenValue={currencyYouExchange}
                             onTokenSelect={onChangeCurrencyYouExchange}
+                            quickActions={QUICK_ACTIONS.filter(
+                                    (percentage) => percentage !== 100
+                                )}
+                            onQuickActionClick={onQuickActionYouExchange}
                         />
                     </div>
 
@@ -471,6 +501,10 @@ export default function ExchangeV1(): React.ReactElement {
                             tokenSelectable
                             selectedTokenValue={currencyYouReceive}
                             onTokenSelect={onChangeCurrencyYouReceive}
+                            quickActions={QUICK_ACTIONS.filter(
+                                    (percentage) => percentage !== 100
+                                )}
+                            onQuickActionClick={onQuickActionYouReceive}
                         />
                     </div>
                 </div>

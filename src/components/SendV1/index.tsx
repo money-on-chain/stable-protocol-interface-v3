@@ -22,6 +22,8 @@ import ModalConfirmSendV1 from "../Modals/ConfirmSendV1";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import TokenAmountInput from "../TokenAmountInput";
 
+const QUICK_ACTIONS = [25, 50, 75, 100];
+
 // v1's Send surface, mirroring components/Send's UX (token picker + amount +
 // destination address, USD summary, confirm modal), but over v1's fixed
 // 4-token set (RBTC/BPro/DOC/MOC — see tokenSendV1) instead of the v3 dynamic
@@ -142,6 +144,14 @@ export default function SendV1(): React.ReactElement {
         setAmountYouSend(totalYouSend.toString());
     };
 
+    const onQuickActionSend = (percentage: number): void => {
+        const partialYouSend = fromWei(
+            (sendBalance * BigInt(percentage)) / 100n,
+            TokenSettings(currencyYouSend).decimals
+        );
+        setAmountYouSend(partialYouSend.toString());
+    };
+
     const sendingUSD: bigint =
         status && amountYouSend !== ""
             ? mulPrecision(
@@ -186,6 +196,10 @@ export default function SendV1(): React.ReactElement {
                             tokenSelectable
                             selectedTokenValue={currencyYouSend}
                             onTokenSelect={onChangeCurrencyYouSend}
+                            quickActions={QUICK_ACTIONS.filter(
+                                (percentage) => percentage !== 100
+                            )}
+                            onQuickActionClick={onQuickActionSend}
                         />
                     </div>
                     <div className="tx-direction">
