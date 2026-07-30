@@ -536,10 +536,10 @@
                 "AVAILABLE": "Unstaked"
             },
             "table": {
-                "expiration": "Expiración",
-                "amount": "Cantidad",
-                "status": "Estado",
-                "actions": "Acciones disponibles"
+                "expiration": "Expiration",
+                "amount": "Amount",
+                "status": "Status",
+                "actions": "Available actions"
             }
         },
         "tokens": {

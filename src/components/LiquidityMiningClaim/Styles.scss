@@ -1,20 +1,11 @@
 $breakpoint-mobile: 600px;
 
-.ChartContainer {
+.sectionClaim .ChartContainer {
     margin-top: 0;
 }
+
 @media (max-width: #{$breakpoint-mobile}) {
-    .firstCardsGroup {
+    .sectionClaim .firstCardsGroup {
         gap: var(--layout-module-gap-vertical);
-    }
-    .tab-content {
-        flex-direction: column-reverse;
-        .ChartContainer {
-            width: 100%;
-        }
-        .stakeCTA {
-            margin-top: 20px;
-            width: 100%;
-        }
     }
 }

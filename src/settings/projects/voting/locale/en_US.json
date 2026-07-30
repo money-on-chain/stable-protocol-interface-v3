@@ -537,7 +537,7 @@
                 "expiration": "Expiration",
                 "amount": "Amount",
                 "status": "Status",
-                "actions": "Options"
+                "actions": "Available actions"
             }
         },
         "history": {

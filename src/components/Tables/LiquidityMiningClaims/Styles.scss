@@ -1,77 +1,92 @@
-// Variables
-$breakpoint-mobile: 600px;
+.liquidityMiningClaims {
+    overflow: hidden;
 
-.ant-table-cell {
-    border: none !important;
-    padding: 0 !important;
-}
-.renderHeader {
-    display: flex;
-    margin-bottom: 8px;
-    border-bottom: 1px solid var(--dividers);
-    padding-bottom: 8px;
-    gap: 32px;
-}
-.renderRow {
-    display: flex;
-    margin-bottom: 16px;
-    gap: 32px;
-}
-.date {
-    width: 180px;
-    text-align: left;
-}
-.asset {
-    width: 100px;
-    text-align: left;
-}
-.amount {
-    width: 150px;
-    text-align: right;
-}
-.event {
-    width: 100px;
-    text-align: left;
-}
-.status {
-    width: auto;
-    text-align: left;
-}
-
-@media (max-width: #{$breakpoint-mobile}) {
-    .ant-table-wrapper {
-        max-width: 100% !important;
+    &__viewport {
+        max-width: 100%;
+        overflow-x: auto;
+        overscroll-behavior-inline: contain;
     }
+
+    .ant-table-wrapper,
+    .ant-spin-nested-loading,
+    .ant-spin-container {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .ant-table {
+        background: transparent;
+        color: var(--color-txt-primary);
+    }
+
+    .ant-table-cell {
+        border: none !important;
+        padding: 0 !important;
+    }
+
     .renderHeader,
     .renderRow {
+        display: grid;
+        grid-template-columns:
+            minmax(150px, 1.2fr) minmax(120px, 1fr) minmax(80px, 0.7fr)
+            minmax(100px, 0.8fr);
+        align-items: center;
+        gap: 24px;
         width: 100%;
-        display: flex;
-        gap: 8px;
-        font-size: 12px;
+        min-width: 0;
     }
-    .date {
-        width: 76px;
+
+    .renderHeader {
+        margin-bottom: 8px;
+        border-bottom: 1px solid var(--dividers);
+        padding-bottom: 8px;
+    }
+
+    .renderRow {
+        margin-bottom: 16px;
+    }
+
+    .date,
+    .amount,
+    .event,
+    .status {
+        min-width: 0;
+        overflow-wrap: anywhere;
         text-align: left;
     }
-    .asset {
-        width: 36px;
-        text-align: left;
-        font-size: 10px;
-    }
+
     .amount {
-        width: 90px;
         text-align: right;
     }
-    .event {
-        width: 40px;
-        text-align: left;
-    }
-    .status {
-        width: auto;
-        text-align: left;
-        font-size: 10px;
-    }
-    .ant-table-cell {
-        padding: 4px 0px !important;
+}
+
+@media (max-width: 600px) {
+    .liquidityMiningClaims {
+        .ant-table {
+            min-width: 464px;
+        }
+
+        .renderHeader,
+        .renderRow {
+            grid-template-columns: 150px 110px 72px 96px;
+            gap: 12px;
+            min-width: 464px;
+            font-size: 12px;
+        }
+
+        .renderHeader {
+            font-size: 10px;
+        }
+
+        .ant-table-cell {
+            padding: 4px 0 !important;
+        }
+
+        .ant-pagination {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 4px 0;
+        }
     }
 }
