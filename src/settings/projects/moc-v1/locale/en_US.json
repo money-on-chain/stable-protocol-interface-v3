@@ -56,7 +56,8 @@
             "statusQueued": "Queued",
             "statusConfirming": "Confirming",
             "statusConfirmed": "Confirmed",
-            "statusFailed": "Failed"
+            "statusFailed": "Failed",
+            "transactionFailed": "Transaction failed"
         },
         "columns": {
             "date": "Date"

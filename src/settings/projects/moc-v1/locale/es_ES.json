@@ -56,7 +56,8 @@
             "statusQueued": "Encolado",
             "statusConfirming": "Confirmando",
             "statusConfirmed": "Confirmado",
-            "statusFailed": "Fallado"
+            "statusFailed": "Fallado",
+            "transactionFailed": "Transacción fallida"
         },
         "columns": {
             "date": "Fecha"
