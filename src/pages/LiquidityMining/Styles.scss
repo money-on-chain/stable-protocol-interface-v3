@@ -1,36 +1,70 @@
 .sectionClaim {
-    .row-section {
-        margin-top: 24px;
+    width: 100%;
+    min-width: 0;
+
+    &,
+    * {
+        box-sizing: border-box;
     }
+
+    .row-section {
+        margin-top: var(--layout-module-gap-vertical);
+        width: 100%;
+        min-width: 0;
+    }
+
     .firstCardsGroup {
         display: flex;
-        column-gap: 32px;
+        gap: var(--layout-module-gap-horizontal);
         width: 100%;
+        min-width: 0;
     }
+
     #claimCard {
-        width: 386px;
         display: flex;
+        flex: 0 1 386px;
         flex-direction: column;
         justify-content: space-between;
+        min-width: 0;
+        width: 386px;
     }
 
     #performanceCard {
-        width: 768px;
+        flex: 1 1 0;
+        min-width: 0;
+        width: auto;
+
         .tab-content {
             display: flex;
             justify-content: space-between;
             gap: 32px;
             align-items: flex-end;
+
             .ChartContainer {
                 padding-bottom: 0px;
+                min-width: 0;
             }
         }
+
         .stakeCTA {
             display: flex;
+            flex: 1 1 0;
             flex-direction: column;
             gap: 24px;
+            min-width: 0;
         }
     }
+
+    .secondCardsGroup {
+        width: 100%;
+        min-width: 0;
+
+        > .layout-card {
+            width: 100%;
+            min-width: 0;
+        }
+    }
+
     .card-content {
         display: flex;
         flex-direction: row;
@@ -38,6 +72,51 @@
     }
 
     .alert {
-        margin-bottom: 24px;
+        margin-bottom: var(--layout-module-gap-vertical);
+    }
+}
+
+@media (max-width: 960px) {
+    .sectionClaim {
+        .firstCardsGroup {
+            flex-direction: column;
+            gap: var(--layout-module-gap-vertical);
+        }
+
+        #claimCard,
+        #performanceCard {
+            flex-basis: auto;
+            width: 100%;
+        }
+    }
+}
+
+@media (max-width: 600px) {
+    .sectionClaim {
+        #performanceCard {
+            .tab-content {
+                flex-direction: column-reverse;
+                align-items: stretch;
+                gap: 24px;
+
+                .ChartContainer,
+                .stakeCTA {
+                    width: 100%;
+                }
+
+                .ChartContainer {
+                    justify-content: center;
+                    margin-top: 16px;
+                    height: auto;
+                    min-height: 300px;
+                }
+            }
+        }
+
+        .cta-info-summary {
+            flex-wrap: wrap;
+            overflow-wrap: anywhere;
+            text-align: center;
+        }
     }
 }

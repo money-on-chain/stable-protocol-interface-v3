@@ -29,6 +29,8 @@ interface OperationModalInfo {
 
 type ModalMode = "staking" | "unstaking" | null;
 
+const QUICK_ACTIONS = [25, 50, 75, 100];
+
 const Stake = (props: StakeProps): JSX.Element => {
     const { activeTab, userInfoStaking } = props;
     const { t, i18n } = useProjectTranslation();
@@ -129,6 +131,15 @@ const Stake = (props: StakeProps): JSX.Element => {
         else setAmountToStake(bigIntToInputValue(total, "TG", 2));
     };
 
+    const onQuickActionClick = (percentage: number): void => {
+        const total: bigint = isUnstaking
+            ? userInfoStaking["unstakeBalance"]
+            : userInfoStaking["tgBalance"];
+        const partial = (total * BigInt(percentage)) / 100n;
+        if (isUnstaking) setAmountToUnstake(bigIntToInputValue(partial, "TG", 2));
+        else setAmountToStake(bigIntToInputValue(partial, "TG", 2));
+    };
+
     const getAmount = (): bigint => {
         if (isUnstaking) {
             if (amountToUnstake === "0") {
@@ -217,6 +228,10 @@ const Stake = (props: StakeProps): JSX.Element => {
                             currencyOptions={tokenStake()}
                             action="staking"
                             selectedTokenValue={defaultTokenStake}
+                            quickActions={QUICK_ACTIONS.filter(
+                                (percentage) => percentage !== 100
+                            )}
+                            onQuickActionClick={onQuickActionClick}
                         />
                     </div>
                 </div>

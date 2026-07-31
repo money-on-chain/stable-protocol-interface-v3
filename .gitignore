@@ -4,8 +4,8 @@ build
 .DS_Store
 IPFS_DEPLOYMENT_NOTES.md
 public/*.*
-index.html
 dist/
+
 # assets
 src/assets/branding/logo-app.svg
 src/assets/branding/logo-app-dark.svg
@@ -54,6 +54,6 @@ yarn-error.log*
 .vscode
 /src/settings/prices-offchain.json
 /dist
-
+.log
 .wrangler
 IPFS_DEPLOYMENT_NOTES.md

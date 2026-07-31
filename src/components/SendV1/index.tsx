@@ -1,3 +1,5 @@
+import "../InputAmount/Styles.scss";
+
 import { Input } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
 import { checksumAddress } from "viem";
@@ -5,12 +7,22 @@ import { checksumAddress } from "viem";
 import { ALLOWED_CHAIN } from "../../constants/chain";
 import { useWalletContext } from "../../context/Wallet";
 import { TokenSettings } from "../../helpers/currencies";
-import { tokenBalanceV1, tokenSendV1, tokenUsdPriceV1 } from "../../helpers/exchangeV1";
-import { fromWei, mulPrecision, toBigIntPrecision } from "../../helpers/precision";
+import {
+    tokenBalanceV1,
+    tokenSendV1,
+    tokenUsdPriceV1,
+} from "../../helpers/exchangeV1";
+import {
+    fromWei,
+    mulPrecision,
+    toBigIntPrecision,
+} from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import ModalConfirmSendV1 from "../Modals/ConfirmSendV1";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import TokenAmountInput from "../TokenAmountInput";
+
+const QUICK_ACTIONS = [25, 50, 75, 100];
 
 // v1's Send surface, mirroring components/Send's UX (token picker + amount +
 // destination address, USD summary, confirm modal), but over v1's fixed
@@ -132,6 +144,14 @@ export default function SendV1(): React.ReactElement {
         setAmountYouSend(totalYouSend.toString());
     };
 
+    const onQuickActionSend = (percentage: number): void => {
+        const partialYouSend = fromWei(
+            (sendBalance * BigInt(percentage)) / 100n,
+            TokenSettings(currencyYouSend).decimals
+        );
+        setAmountYouSend(partialYouSend.toString());
+    };
+
     const sendingUSD: bigint =
         status && amountYouSend !== ""
             ? mulPrecision(
@@ -142,7 +162,7 @@ export default function SendV1(): React.ReactElement {
 
     return (
         <div>
-            <div className="sectionSend__Content">
+            <div className="sectionSend__Content sectionSend__Content--v1">
                 <div className="inputFields">
                     <div
                         className="tokenSelector"
@@ -173,8 +193,13 @@ export default function SendV1(): React.ReactElement {
                             balanceLabel={t("send.labelBalance")}
                             action="send"
                             currencyOptions={tokenSend}
+                            tokenSelectable
                             selectedTokenValue={currencyYouSend}
                             onTokenSelect={onChangeCurrencyYouSend}
+                            quickActions={QUICK_ACTIONS.filter(
+                                (percentage) => percentage !== 100
+                            )}
+                            onQuickActionClick={onQuickActionSend}
                         />
                     </div>
                     <div className="tx-direction">

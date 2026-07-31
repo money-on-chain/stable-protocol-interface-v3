@@ -7,16 +7,11 @@ $breakpoint-mobile: 600px;
 
 .vesting {
     display: flex;
-    flex-direction: column;
-    gap: 24px;
-    color: var(--color-txt-primary);
-    font-family: var(--main-font);
-
-    display: flex;
-    column-gap: 32px;
-    row-gap: 24px;
     flex-direction: row;
     flex-wrap: wrap;
+    gap: var(--layout-module-gap-vertical) var(--layout-module-gap-horizontal);
+    color: var(--color-txt-primary);
+    font-family: var(--main-font);
 
     #vesting-onboarding {
         min-height: 500px;

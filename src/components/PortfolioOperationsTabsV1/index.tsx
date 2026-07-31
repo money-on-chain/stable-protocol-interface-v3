@@ -3,6 +3,7 @@ import "../PortfolioOperationsTabs/Styles.scss";
 import React, { useState } from "react";
 
 import { useProjectTranslation } from "../../helpers/translations";
+import PortfolioDashboardV1 from "../Dashboards/PortfolioDashboardV1";
 import PortfolioV1 from "../Dashboards/PortfolioV1";
 import ListOperationsV1 from "../Tables/ListOperationsV1";
 
@@ -44,6 +45,7 @@ export default function HomeTabsV1(): React.ReactElement {
             <div>
                 {activeTab === tabs[0].id ? (
                     <div className="section-container">
+                        <PortfolioDashboardV1 />
                         <PortfolioV1 />
                     </div>
                 ) : (

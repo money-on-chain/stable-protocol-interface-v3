@@ -1,4 +1,4 @@
-import { Button, Checkbox, Modal } from "antd";
+import { Button, Modal } from "antd";
 import React, { Fragment, useEffect, useState } from "react";
 import type { TransactionReceipt } from "viem";
 
@@ -53,7 +53,8 @@ interface ExchangeOptionsModalV1Props {
     needsMocRevoke?: boolean;
 }
 
-const MAX_UINT256 = (1n << 256n) - 1n;
+// Unlimited allowance temporarily disabled.
+// const MAX_UINT256 = (1n << 256n) - 1n;
 
 // The source ("you exchange") token — RBTC for mint, BPro/DOC for redeem —
 // matching what interfaceMintBProV1/etc. actually take as their first
@@ -110,7 +111,8 @@ export default function ExchangeOptionsModalV1(
 
     const [status, setStatus] = useState<TxStatus>("confirm");
     const [txHash, setTxHash] = useState<string>("");
-    const [infinityAllowance, setInfinityAllowance] = useState(false);
+    // Unlimited allowance temporarily disabled.
+    // const [infinityAllowance, setInfinityAllowance] = useState(false);
 
     // Each new confirm attempt hands in a fresh `data` snapshot (see
     // ExchangeV1's buildModalData) — reset back to the confirm step whenever
@@ -120,7 +122,8 @@ export default function ExchangeOptionsModalV1(
         if (data) {
             setStatus("confirm");
             setTxHash("");
-            setInfinityAllowance(false);
+            // Unlimited allowance temporarily disabled.
+            // setInfinityAllowance(false);
         }
     }, [data]);
 
@@ -224,11 +227,17 @@ export default function ExchangeOptionsModalV1(
     // set when the selected fee currency (and so data.feeToken) is "TG" — see
     // ExchangeV1's buildModalData.
     const onAuthorizeAllowance = async (): Promise<void> => {
-        const amountAllowance = needsMocRevoke
-            ? 0n
-            : infinityAllowance
-              ? MAX_UINT256
-              : feeAmount;
+        const amountAllowance = needsMocRevoke ? 0n : feeAmount;
+        /*
+         * Unlimited allowance temporarily disabled. Keep this branch available
+         * in case the option is restored later.
+         *
+         * const amountAllowance = needsMocRevoke
+         *     ? 0n
+         *     : infinityAllowance
+         *       ? MAX_UINT256
+         *       : feeAmount;
+         */
 
         setStatus("allowanceSign");
         const onTransaction = (): void => setStatus("allowancePending");
@@ -265,9 +274,7 @@ export default function ExchangeOptionsModalV1(
         >
             <Fragment>
                 <h1 className="StakingOptionsModal_Title">
-                    {isMint
-                        ? t("exchange.v1.confirmMintTitle")
-                        : t("exchange.v1.confirmRedeemTitle")}
+                    {t("exchange.v1.confirmExchangeTitle")}
                 </h1>
 
                 <div className="tx-amount-group">
@@ -282,6 +289,7 @@ export default function ExchangeOptionsModalV1(
                                 value={amount}
                                 token={t(`exchange.tokens.${sourceToken}.abbr`)}
                                 decimals={amount < 1n ? 12 : 8}
+                                compact={false}
                             />
                         </div>
                     </div>
@@ -303,6 +311,7 @@ export default function ExchangeOptionsModalV1(
                                     `exchange.tokens.${receiveToken}.abbr`
                                 )}
                                 decimals={receiveAmount < 1n ? 12 : 8}
+                                compact={false}
                             />
                         </div>
                     </div>
@@ -431,31 +440,41 @@ export default function ExchangeOptionsModalV1(
                             ) : (
                                 <div className="tx-feedback-text">
                                     {t("allowance.statusText1")}
-                                    <br />
-                                    {t("exchange.v1.allowanceMocReason", {
-                                        ns,
-                                    })}
-                                    <br />
-                                    {t("allowance.statusText2")}
+                                    {/*
+                                     * Temporarily hidden with the unlimited
+                                     * allowance option. Translation keys are
+                                     * intentionally kept for future use.
+                                     *
+                                     * <br />
+                                     * {t("exchange.v1.allowanceMocReason", {
+                                     *     ns,
+                                     * })}
+                                     * <br />
+                                     * {t("allowance.statusText2")}
+                                     */}
                                 </div>
                             )}
-                            {!needsMocRevoke && (
-                                <div className="option-checkbox">
-                                    <Checkbox
-                                        className="check-unlimited"
-                                        checked={infinityAllowance}
-                                        onChange={(e: {
-                                            target: { checked: boolean };
-                                        }) =>
-                                            setInfinityAllowance(
-                                                e.target.checked
-                                            )
-                                        }
-                                    >
-                                        {t("allowance.setUnlimited")}
-                                    </Checkbox>
-                                </div>
-                            )}
+                            {/*
+                             * Unlimited allowance temporarily disabled.
+                             *
+                             * {!needsMocRevoke && (
+                             *     <div className="option-checkbox">
+                             *         <Checkbox
+                             *             className="check-unlimited"
+                             *             checked={infinityAllowance}
+                             *             onChange={(e: {
+                             *                 target: { checked: boolean };
+                             *             }) =>
+                             *                 setInfinityAllowance(
+                             *                     e.target.checked
+                             *                 )
+                             *             }
+                             *         >
+                             *             {t("allowance.setUnlimited")}
+                             *         </Checkbox>
+                             *     </div>
+                             * )}
+                             */}
                         </div>
                         <div className="cta-options-group">
                             <Button

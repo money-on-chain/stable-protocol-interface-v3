@@ -1,6 +1,11 @@
 // Variables
 $breakpoint-mobile: 600px;
 
+:root {
+    --layout-module-gap-vertical: 16px;
+    --layout-module-gap-horizontal: 16px;
+}
+
 html {
     scrollbar-color: var(--color-controls-foreground-on) transparent;
     // Scrollbars customization for Firefox
@@ -316,7 +321,7 @@ h2 {
     font-size: 16px;
 }
 .section-container {
-    margin-top: 24px;
+    margin-top: var(--layout-module-gap-vertical);
 }
 .mobile-only {
     display: none !important;
@@ -325,7 +330,7 @@ h2 {
     display: block !important;
 }
 .ShowTokenMigration {
-    margin-top: 24px;
+    margin-top: var(--layout-module-gap-vertical);
 }
 /* #endregion GENERAL STYLING*/
 
@@ -575,8 +580,8 @@ h2 {
 }
 .section {
     display: flex;
-    column-gap: 32px;
-    row-gap: 24px;
+    column-gap: var(--layout-module-gap-horizontal);
+    row-gap: var(--layout-module-gap-vertical);
     flex-direction: row;
     flex-wrap: wrap;
     color: var(--color-txt-primary);
@@ -797,6 +802,10 @@ h2 {
 /* #endregion MODAL GENERIC CUSTOMIZATION */
 
 /* #region CTA - CALL TO ACTION */
+.cta-info-detail {
+    color: var(--color-txt-secondary);
+}
+
 .cta-container {
     // CTA container
     display: flex;
@@ -831,9 +840,6 @@ h2 {
         font-weight: 700;
         font-size: 16px;
         font-family: var(--brand-font);
-    }
-    .cta-info-detail {
-        color: var(--color-txt-primary);
     }
     .cta-options-group {
         display: flex;
@@ -883,7 +889,11 @@ h2 {
     // !important should be removed after moving notifications to skeleton
     display: flex !important;
     flex-direction: column;
-    gap: 8px !important;
+    gap: var(--layout-module-gap-vertical) !important;
+}
+
+.notification-container > .content-last-operations {
+    margin-top: 0;
 }
 
 .ant-notification-notice {
@@ -1693,7 +1703,7 @@ h2 {
 
 .footer-container {
     /* Auto layout */
-    margin-top: 24px;
+    margin-top: var(--layout-module-gap-vertical);
     box-shadow: var(--surface-shadow-1);
     border: var(--card-border);
     border-radius: var(--card-border-radius);

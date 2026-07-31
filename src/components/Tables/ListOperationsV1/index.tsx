@@ -185,7 +185,7 @@ export default function ListOperationsV1(
                 oper_id: null,
                 confirmation,
                 recipient: parsed.address,
-                recipient_truncate: truncateAddressV1(parsed.address) || "--",
+                recipient_truncate: parsed.address || "--",
                 status: t(statusKey),
                 error_code: "--",
                 block: parsed.blockNumber,
@@ -241,35 +241,59 @@ export default function ListOperationsV1(
                             />
                         </div>
                         <div
-                            className={`LastOp__group__details ${
-                                parsed.kind === "transfer"
+                            className={`LastOp__group__details LastOp__group__details--v1-wide-destination ${
+                                parsed.kind === "transfer" ||
+                                parsed.kind === "failed"
                                     ? "LastOp__group__details--one-two-merged"
                                     : "LastOp__group__details--single-single"
                             }`}
                         >
                             <div className="LastOp__divider LastOp__divider--details-start"></div>
-                            <div className="LastOp__origin">
-                                {renderSide(parsed.exchange, exchangeTitle)}
-                            </div>
-                            <div className="LastOp__divider LastOp__divider--details-middle"></div>
-                            <div className="LastOp__destination">
-                                {parsed.kind === "transfer" ? (
+                            {parsed.kind === "failed" ? (
+                                <div className="LastOp__origin">
                                     <div className="lastOp__detail__item--double">
                                         <div className="lastOp__detail__transfer">
                                             <div className="lastOp__detail__label">
-                                                {t("operations.actions.transfer")}
-                                            </div>
-                                            <div className="lastOp__detail__address">
-                                                {truncateAddressV1(
-                                                    parsed.address
-                                                ) || "--"}
+                                                {t(
+                                                    "operations.actions.transactionFailed"
+                                                )}
                                             </div>
                                         </div>
                                     </div>
-                                ) : (
-                                    renderSide(parsed.receive, receiveTitle)
-                                )}
-                            </div>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="LastOp__origin">
+                                        {renderSide(
+                                            parsed.exchange,
+                                            exchangeTitle
+                                        )}
+                                    </div>
+                                    <div className="LastOp__divider LastOp__divider--details-middle"></div>
+                                    <div className="LastOp__destination">
+                                        {parsed.kind === "transfer" ? (
+                                            <div className="lastOp__detail__item--double">
+                                                <div className="lastOp__detail__transfer">
+                                                    <div className="lastOp__detail__label">
+                                                        {t(
+                                                            "operations.actions.transfer"
+                                                        )}
+                                                    </div>
+                                                    <div className="lastOp__detail__address">
+                                                        {parsed.address ||
+                                                            "--"}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            renderSide(
+                                                parsed.receive,
+                                                receiveTitle
+                                            )
+                                        )}
+                                    </div>
+                                </>
+                            )}
                         </div>
                         <div className="LastOp__group__dateStatus">
                             <div className="LastOp__divider"></div>

@@ -318,6 +318,22 @@ icons.css contains all the css code for Icons across the Dapp
     width: 32px;
     height: 32px;
 }
+.icon__rewardReadyToClaim {
+    filter: var(--color-nav-icon-filter-default);
+    background-image: url("../icons/ReadyToWithdrawOutline.svg");
+    background-size: 32px 32px;
+    background-repeat: no-repeat;
+    width: 32px;
+    height: 32px;
+}
+.icon__rewardedToday {
+    filter: var(--color-nav-icon-filter-default);
+    background-image: url("../icons/RewardedTodayOutline.svg");
+    background-size: 32px 32px;
+    background-repeat: no-repeat;
+    width: 32px;
+    height: 32px;
+}
 .icon__govLockedTokensVoting {
     filter: var(--color-nav-icon-filter-default);
     background-image: url("../icons/govLockedVoting.svg");
@@ -424,6 +440,29 @@ icons.css contains all the css code for Icons across the Dapp
     background-repeat: no-repeat;
     width: 24px;
     height: 24px;
+}
+.icon__DocTotal,
+.icon__DocRedeemable,
+.icon__DocMintable,
+.icon__BproTotal,
+.icon__BproRedeemable {
+    filter: var(--color-icon-link-secondary-filter);
+    background-size: 24px 24px;
+    background-repeat: no-repeat;
+    width: 24px;
+    height: 24px;
+}
+.icon__DocTotal,
+.icon__BproTotal {
+    background-image: url("../icons/Total.svg");
+}
+.icon__DocRedeemable,
+.icon__BproRedeemable {
+    background-image: url("../icons/ArrowDown.svg");
+}
+.icon__DocMintable {
+    background-image: url("../icons/ArrowDown.svg");
+    transform: rotate(180deg);
 }
 .icon__CoverageTarget {
     background-image: url("../icons/CoverageTarget.svg");

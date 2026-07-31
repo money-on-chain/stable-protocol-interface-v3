@@ -243,7 +243,16 @@
             "balance": "Balance",
             "usdBalance": "Balance en USD",
             "priceInUSD": "Precio en USD",
-            "tokensPerUSD": "Tokens por USD"
+            "tokensPerUSD": "Tokens por USD",
+            "readyToClaim": "Listo para Claim"
+        },
+        "dashboard": {
+            "readyToClaim": "FLIP listo para claim",
+            "earnedToday": "FLIP ganado hoy",
+            "balance": "FLIP balance",
+            "staked": "FLIP en staking",
+            "unstaking": "FLIP en proceso de unstaking",
+            "readyToWithdraw": "FLIP para retirar"
         },
         "sectionTitle": "Portafolio",
         "totalCurrency": "USD",
@@ -505,7 +514,7 @@
             "balance": "Balance",
             "staked": "Flip en Stake",
             "unstaking": "Sacando de Stake",
-            "ready": "Listos para retirar",
+            "ready": "FLIP para retirar",
             "lockedVoting": "Bloqueados por voto"
         },
         "staking": {

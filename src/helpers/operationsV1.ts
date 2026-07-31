@@ -48,7 +48,7 @@ export function tokenNameNewToOldV1(tokenName: string): string {
     }
 }
 
-export type OperationKindV1 = "mint" | "redeem" | "transfer";
+export type OperationKindV1 = "mint" | "redeem" | "transfer" | "failed";
 
 export interface OperationSideV1 {
     amount: bigint;
@@ -142,6 +142,17 @@ export function parseOperationV1(
             receive = { amount, token: transferToken, tokenId: transferTokenId };
             break;
         }
+        // The legacy backend logs reverted/failed txs with event:"ERROR" and
+        // every other field null (no tokenInvolved/amount to build a real
+        // exchange/receive side from). It still counts toward the API's
+        // `total`/pagination though, so this must render a row — dropping it
+        // (like the true default case below) would desync the visible row
+        // count from the pagination total.
+        case "ERROR":
+            kind = "failed";
+            exchange = { amount: 0n, token: ca, tokenId: "CA_0" };
+            receive = { amount: 0n, token: ca, tokenId: "CA_0" };
+            break;
         default:
             return undefined;
     }
@@ -167,7 +178,10 @@ export function parseOperationV1(
         blockNumber: raw.blockNumber ?? "--",
         fee,
         reservePriceUSD: toBigInt(raw.reservePrice),
-        statusRaw: raw.status || "",
+        // event:"ERROR" rows always come back with status:null from the
+        // legacy backend — force the "failed" label rather than falling
+        // through to the "" -> statusQueued default below.
+        statusRaw: kind === "failed" ? "error" : raw.status || "",
         confirmingPercent: raw.confirmingPercent ?? 0,
         exchange,
         receive,

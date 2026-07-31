@@ -24,7 +24,7 @@
     --card-padding-mobile: 8px;
 
     // Data backgrounds
-    --data-background-color: #26272f;
+    --data-background-color: #252a34;
     --data-background-radius: 4px;
     --data-background-padding: 8px 16px;
     --data-shadows-inset: inset 0px 2px 2px -1px rgba(74, 74, 104, 0.1);
@@ -40,40 +40,43 @@
     --modals-backdrop-color: rgba(2, 2, 2, 0.5);
     --modals-backdrop-blur: 2px;
     --modals-padding: 16px 16px 16px 16px;
-    --modals-border-radius: 16px;
+    --modals-border-radius: 4px;
 
     //Surfaces
     --surface-background-image: linear-gradient(
         to right bottom,
-        #292f306e,
-        #252627
+        #0b0d11,
+        #101319,
+        #0c0f14,
+        #171b236e,
+        #0b0d11
     ); // can be set to none
 
-    --surface-color-0: #131215;
-    --surface-color-1: #1a1a1d;
+    --surface-color-0: #12151a;
+    --surface-color-1: #1a1e25;
     --surface-shadow-1: 0px 1px 4px rgba(0, 0, 0, 0.1499125874125874);
-    --surface-color-2: #212128;
+    --surface-color-2: #212630;
     --surface-shadow-2: 0px 1px 4px rgba(0, 0, 0, 0.1499125874125874);
-    --surface-color-3: #212128;
+    --surface-color-3: #212630;
     --surface-shadow-3: 0px 1px 4px rgba(0, 0, 0, 0.1499125874125874);
-    --surface-color-inset: #26272f;
+    --surface-color-inset: #252a34;
     --surface-shadow-inset: inset 0px 2px 8px 0px rgba(0, 0, 0, 0.5);
 
     // Token icons
     --icon-token-size: 32px;
 
     // Dashboard icons background color
-    --icon-background-color: #26272f;
+    --icon-background-color: #252a34;
     --icon-background-radius: 4px;
 
     // UI controls
 
-    --color-controls-background: #26272f;
+    --color-controls-background: #252a34;
     --color-controls-disabled: #494c50;
     --color-controls-foreground-off: #8c8c89;
     --color-controls-foreground-on: #7f8a99;
     --color-controls-active: #edeef7;
-    --dividers: #cbd4da;
+    --dividers: #343b49;
 
     // Buttons - common
 
@@ -84,6 +87,9 @@
     --btn-transition: 0.3s;
     --btn-small-height: 32px;
     --btn-small-padding: 16px;
+    --btn-compact-height: 24px;
+    --btn-compact-padding: 16px;
+    --btn-compact-radius: 4px;
 
     // Buttons - Primary
 
@@ -156,6 +162,7 @@
 
     --color-semantic-negative: #e95e5d;
     --color-semantic-neutral: #b5b5b5;
+    --color-semantic-neutral-alt: #72c9bf;
     --color-semantic-positive: #69e453;
     --filter-semantic-negative: invert(33%) sepia(83%) saturate(710%)
         hue-rotate(320deg) brightness(106%) contrast(97%);
@@ -275,6 +282,7 @@
     --color-txt-link: #5dc9bc;
     --color-txt-notification: #ffffff;
     --link-txt-style: underline;
+    --color-txt-inverted: #0c0c08;
 
     --color-icon-primary: invert(93%) sepia(5%) saturate(859%)
         hue-rotate(185deg) brightness(85%) contrast(99%);
