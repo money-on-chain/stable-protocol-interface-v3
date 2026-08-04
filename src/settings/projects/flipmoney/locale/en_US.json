@@ -964,7 +964,22 @@
             "repay": "Repay",
             "repayWithCollateral": "Repay with Collateral",
             "depositCollateral": "Deposit Collateral",
-            "withdrawCollateral": "Withdraw Collateral"
+            "withdrawCollateral": "Withdraw Collateral",
+            "descriptions": {
+                "pending": "This step will start after the previous transaction is confirmed.",
+                "processing": "Wait while the transaction is confirmed on the blockchain.",
+                "completed": "This step was completed successfully. No further action is required.",
+                "failed": "The transaction could not be completed. Check your wallet and try again.",
+                "approveTP": "Confirm the allowance transaction in your wallet so the protocol can use the required loan token amount.",
+                "approveCA": "Confirm the allowance transaction in your wallet so the protocol can use the required collateral amount.",
+                "depositLend": "Confirm the deposit transaction in your wallet to start earning.",
+                "withdrawLend": "Confirm the withdrawal transaction in your wallet to return the funds to your balance.",
+                "borrow": "Confirm the borrow transaction in your wallet to receive the loan tokens.",
+                "repay": "Confirm the repayment transaction in your wallet to reduce or settle your debt.",
+                "repayWithCollateral": "Confirm the transaction in your wallet to repay the debt using your deposited collateral.",
+                "depositCollateral": "Confirm the transaction in your wallet to add collateral to your position.",
+                "withdrawCollateral": "Confirm the transaction in your wallet to withdraw the available collateral from your position."
+            }
         },
         "sectionRepay": {
             "cardTitle": "Repay",
