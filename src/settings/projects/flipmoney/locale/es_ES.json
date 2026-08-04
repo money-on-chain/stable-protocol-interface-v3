@@ -431,7 +431,7 @@
             "authorize": "Autorizar"
         },
         "feedback": {
-            "submit": "",
+            "submit": "Espera a la confirmación de la transacción",
             "sign": "Por favor, firma la transacción de autorización utilizando tu wallet.",
             "waiting": "Por favor, espera mientras se mina la autorización. Una vez que esté minada, se enviará la transacción a tu wallet.",
             "error": "¡Transacción fallada!",
@@ -614,6 +614,7 @@
             },
             "StakingOptionsModal_SetAllowance": "Autorizar Allowance",
             "StakingOptionsModal_Authorize": "Autorizar",
+            "StakingOptionsModal_ReviewYourWallet": "Billetera",
             "StakingOptionsModal_ReviewYourWalletDescription": "Por favor revise su wallet",
             "StakingOptionsModal_AllowanceDescription": "Antes de continuar con el staking deberás permitir el \"allowance\" para que el sistema pueda acceder a los tokens. Esto solo debe hacerse la primera vez y no bloquea ningún token de tu wallet.",
             "StakingOptionsModal_ProcessingAllowance": "Procesando Allowance, por favor espera",
@@ -707,6 +708,7 @@
         "cardTitle": "Vesting Machine",
         "status": {
             "verified": "Vesting Machine verificada",
+            "verifyCTA": "¡Verificar ahora!",
             "notVerified": "Esta Vesting Machine aún no fue verificada",
             "notFromThisUser": "Esta Vesting Machine no pertenece a esta cuenta"
         },
@@ -943,6 +945,19 @@
             }
         },
         "operationProgress": {
+            "titles": {
+                "lend": "Prestar {{token}}",
+                "lendWithdraw": "Retirar {{token}}",
+                "borrow": "Pedir prestado {{token}}",
+                "repay": "Repagar {{token}}",
+                "repayWithCollateral": "Repagar {{token}} con colateral",
+                "depositCollateral": "Depositar {{token}} como colateral",
+                "withdrawCollateral": "Retirar colateral {{token}}"
+            },
+            "actions": {
+                "cancel": "Cancelar",
+                "close": "Cerrar"
+            },
             "approveTP": "Aprobar Token",
             "approveCA": "Aprobar Colateral",
             "depositLend": "Depositar",

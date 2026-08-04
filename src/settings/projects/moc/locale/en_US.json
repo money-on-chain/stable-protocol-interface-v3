@@ -113,6 +113,22 @@
             "close": "Close"
         }
     },
+    "walletProviders": {
+        "connectWalletButton": "Connect Wallet",
+        "connectYourWallet": "Connect your Wallet",
+        "noBrowserWallets": "No browser wallets detected",
+        "providers": {
+            "injected": "Browser wallet / MetaMask",
+            "metamask": "MetaMask Wallet",
+            "multisig": "Safe (multi-sig)",
+            "walletconnect": "WalletConnect (QR / mobile)"
+        },
+        "toolTip": {
+            "walletConnected": "For hardware wallets like Ledger Live, Keystone, GridPlus: 1) Open your wallet app 2) Select Connect with WalletConnect 3) Scan the QR code shown here.",
+            "injected": "To use Ledger or Trezor: 1) Open MetaMask or Rabby 2) Connect your hardware wallet in settings 3) Select the account here.",
+            "metamask": "To use Ledger or Trezor: 1) Open MetaMask or Rabby 2) Connect your hardware wallet in settings 3) Select the account here. "
+        }
+    },
 
     "exchange": {
         "tokens": {
@@ -355,7 +371,7 @@
             "authorize": "Authorize"
         },
         "feedback": {
-            "submit": "",
+            "submit": "Wait for transaction confirmation",
             "sign": "Please, sign the allowance authorization transaction using your wallet.",
             "waiting": "Please, wait while the allowance authorization is mined in the blockchain. Once it´s done, the transaction will be sent to your wallet.",
             "error": "Operation Failed!",

@@ -39,9 +39,10 @@ function parseBorrowCardIndices(id: string): { tp: number; ca: number } {
 function makeStep(
     id: string,
     title: string,
+    description: string,
     status: OperationStepStatus = "pending"
 ): OperationProgressStep {
-    return { id, title, status };
+    return { id, title, description, status };
 }
 
 export interface OperationProgressState {
@@ -153,13 +154,31 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
 
             const steps: OperationProgressStep[] = [
                 ...(needsApproval
-                    ? [makeStep("approve-tp", t("borrowing.operationProgress.approveTP"), "waiting")]
+                    ? [
+                          makeStep(
+                              "approve-tp",
+                              t("borrowing.operationProgress.approveTP"),
+                              t("borrowing.operationProgress.descriptions.approveTP"),
+                              "waiting"
+                          ),
+                      ]
                     : []),
-                makeStep("deposit-lend", t("borrowing.operationProgress.depositLend"), needsApproval ? "pending" : "waiting"),
+                makeStep(
+                    "deposit-lend",
+                    t("borrowing.operationProgress.depositLend"),
+                    t("borrowing.operationProgress.descriptions.depositLend"),
+                    needsApproval ? "pending" : "waiting"
+                ),
             ];
 
             const run = async () => {
-                setProgressState({ isVisible: true, title: token.tokenTicker, steps });
+                setProgressState({
+                    isVisible: true,
+                    title: t("borrowing.operationProgress.titles.lend", {
+                        token: token.tokenTicker,
+                    }),
+                    steps,
+                });
                 try {
                     const ctx = buildCtx();
 
@@ -200,11 +219,22 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
             if (tpAmount <= 0n) return;
 
             const steps: OperationProgressStep[] = [
-                makeStep("withdraw-lend", t("borrowing.operationProgress.withdrawLend"), "waiting"),
+                makeStep(
+                    "withdraw-lend",
+                    t("borrowing.operationProgress.withdrawLend"),
+                    t("borrowing.operationProgress.descriptions.withdrawLend"),
+                    "waiting"
+                ),
             ];
 
             const run = async () => {
-                setProgressState({ isVisible: true, title: token.tokenTicker, steps });
+                setProgressState({
+                    isVisible: true,
+                    title: t("borrowing.operationProgress.titles.lendWithdraw", {
+                        token: token.tokenTicker,
+                    }),
+                    steps,
+                });
                 try {
                     const ctx = buildCtx();
                     const priceDepositUnit = pools?.[tpIndex]?.getPriceDepositUnit ?? WAD;
@@ -283,13 +313,46 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
             const erc20 = hasCollateral && isErc20CA(ca);
 
             const steps: OperationProgressStep[] = [
-                ...(erc20 ? [makeStep("approve-ca", t("borrowing.operationProgress.approveCA"), "waiting")] : []),
-                ...(hasCollateral ? [makeStep("deposit-collateral", t("borrowing.operationProgress.depositCollateral"), erc20 ? "pending" : "waiting")] : []),
-                ...(hasBorrow ? [makeStep("borrow", t("borrowing.operationProgress.borrow"), hasCollateral ? "pending" : "waiting")] : []),
+                ...(erc20
+                    ? [
+                          makeStep(
+                              "approve-ca",
+                              t("borrowing.operationProgress.approveCA"),
+                              t("borrowing.operationProgress.descriptions.approveCA"),
+                              "waiting"
+                          ),
+                      ]
+                    : []),
+                ...(hasCollateral
+                    ? [
+                          makeStep(
+                              "deposit-collateral",
+                              t("borrowing.operationProgress.depositCollateral"),
+                              t("borrowing.operationProgress.descriptions.depositCollateral"),
+                              erc20 ? "pending" : "waiting"
+                          ),
+                      ]
+                    : []),
+                ...(hasBorrow
+                    ? [
+                          makeStep(
+                              "borrow",
+                              t("borrowing.operationProgress.borrow"),
+                              t("borrowing.operationProgress.descriptions.borrow"),
+                              hasCollateral ? "pending" : "waiting"
+                          ),
+                      ]
+                    : []),
             ];
 
             const run = async () => {
-                setProgressState({ isVisible: true, title: card.borrowTokenTicker, steps });
+                setProgressState({
+                    isVisible: true,
+                    title: t("borrowing.operationProgress.titles.borrow", {
+                        token: card.borrowTokenTicker,
+                    }),
+                    steps,
+                });
                 try {
                     const ctx = buildCtx();
 
@@ -344,13 +407,31 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
 
             const steps: OperationProgressStep[] = [
                 ...(needsApproval
-                    ? [makeStep("approve-tp", t("borrowing.operationProgress.approveTP"), "waiting")]
+                    ? [
+                          makeStep(
+                              "approve-tp",
+                              t("borrowing.operationProgress.approveTP"),
+                              t("borrowing.operationProgress.descriptions.approveTP"),
+                              "waiting"
+                          ),
+                      ]
                     : []),
-                makeStep("repay", t("borrowing.operationProgress.repay"), needsApproval ? "pending" : "waiting"),
+                makeStep(
+                    "repay",
+                    t("borrowing.operationProgress.repay"),
+                    t("borrowing.operationProgress.descriptions.repay"),
+                    needsApproval ? "pending" : "waiting"
+                ),
             ];
 
             const run = async () => {
-                setProgressState({ isVisible: true, title: card.borrowTokenTicker, steps });
+                setProgressState({
+                    isVisible: true,
+                    title: t("borrowing.operationProgress.titles.repay", {
+                        token: card.borrowTokenTicker,
+                    }),
+                    steps,
+                });
                 try {
                     const ctx = buildCtx();
 
@@ -401,11 +482,22 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
             if (creditUnits <= 0n) return;
 
             const steps: OperationProgressStep[] = [
-                makeStep("repay-collateral", t("borrowing.operationProgress.repayWithCollateral"), "waiting"),
+                makeStep(
+                    "repay-collateral",
+                    t("borrowing.operationProgress.repayWithCollateral"),
+                    t("borrowing.operationProgress.descriptions.repayWithCollateral"),
+                    "waiting"
+                ),
             ];
 
             const run = async () => {
-                setProgressState({ isVisible: true, title: card.borrowTokenTicker, steps });
+                setProgressState({
+                    isVisible: true,
+                    title: t("borrowing.operationProgress.titles.repayWithCollateral", {
+                        token: card.borrowTokenTicker,
+                    }),
+                    steps,
+                });
                 try {
                     const ctx = buildCtx();
                     const execFee = getExecutionFee();
@@ -441,12 +533,32 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
 
             const erc20 = isErc20CA(ca);
             const steps: OperationProgressStep[] = [
-                ...(erc20 ? [makeStep("approve-ca", t("borrowing.operationProgress.approveCA"), "waiting")] : []),
-                makeStep("deposit-collateral", t("borrowing.operationProgress.depositCollateral"), erc20 ? "pending" : "waiting"),
+                ...(erc20
+                    ? [
+                          makeStep(
+                              "approve-ca",
+                              t("borrowing.operationProgress.approveCA"),
+                              t("borrowing.operationProgress.descriptions.approveCA"),
+                              "waiting"
+                          ),
+                      ]
+                    : []),
+                makeStep(
+                    "deposit-collateral",
+                    t("borrowing.operationProgress.depositCollateral"),
+                    t("borrowing.operationProgress.descriptions.depositCollateral"),
+                    erc20 ? "pending" : "waiting"
+                ),
             ];
 
             const run = async () => {
-                setProgressState({ isVisible: true, title: card.collateralTokenTicker, steps });
+                setProgressState({
+                    isVisible: true,
+                    title: t("borrowing.operationProgress.titles.depositCollateral", {
+                        token: card.collateralTokenTicker,
+                    }),
+                    steps,
+                });
                 try {
                     const ctx = buildCtx();
                     await depositCollateral(
@@ -480,11 +592,22 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
             if (acAmount <= 0n) return;
 
             const steps: OperationProgressStep[] = [
-                makeStep("withdraw-collateral", t("borrowing.operationProgress.withdrawCollateral"), "waiting"),
+                makeStep(
+                    "withdraw-collateral",
+                    t("borrowing.operationProgress.withdrawCollateral"),
+                    t("borrowing.operationProgress.descriptions.withdrawCollateral"),
+                    "waiting"
+                ),
             ];
 
             const run = async () => {
-                setProgressState({ isVisible: true, title: card.collateralTokenTicker, steps });
+                setProgressState({
+                    isVisible: true,
+                    title: t("borrowing.operationProgress.titles.withdrawCollateral", {
+                        token: card.collateralTokenTicker,
+                    }),
+                    steps,
+                });
                 try {
                     const ctx = buildCtx();
                     const execFee = getExecutionFee();

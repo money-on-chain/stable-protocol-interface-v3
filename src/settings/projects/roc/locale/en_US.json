@@ -350,6 +350,7 @@
     },
 
     "send": {
+        "infoAddressChecksumInvalid": "This address uses a different format than the current network. It should still work—just make sure it was copied correctly.",
         "tokens": {
             "CA_0": {
                 "label": "RIF",
@@ -399,7 +400,6 @@
         "noNegativeValues": "Value must be greater than 0",
         "infoAddressEmpty": "Destination address not specified",
         "infoAddressInvalid": "Invalid address",
-        "infoAddressChecksumInvalid": "This address uses a different format than the current network. It should still work—just make sure it was copied correctly.",
         "feedback": {
             "submit": "Wait for transaction confirmation",
             "sign": "Sign the transaction in your wallet",
@@ -422,7 +422,7 @@
             "authorize": "Authorize"
         },
         "feedback": {
-            "submit": "",
+            "submit": "Wait for transaction confirmation",
             "sign": "Please, sign the allowance authorization transaction using your wallet.",
             "waiting": "Please, wait while the allowance authorization is mined in the blockchain. Once it´s done, the transaction will be sent to your wallet.",
             "error": "Operation Failed!",
@@ -935,6 +935,19 @@
             }
         },
         "operationProgress": {
+            "titles": {
+                "lend": "Lend {{token}}",
+                "lendWithdraw": "Withdraw {{token}}",
+                "borrow": "Borrow {{token}}",
+                "repay": "Repay {{token}}",
+                "repayWithCollateral": "Repay {{token}} with Collateral",
+                "depositCollateral": "Deposit {{token}} as Collateral",
+                "withdrawCollateral": "Withdraw {{token}} Collateral"
+            },
+            "actions": {
+                "cancel": "Cancel",
+                "close": "Close"
+            },
             "approveTP": "Approve Token",
             "approveCA": "Approve Collateral",
             "depositLend": "Deposit",

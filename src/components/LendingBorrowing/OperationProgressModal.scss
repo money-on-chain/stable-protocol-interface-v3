@@ -1,0 +1,39 @@
+.operation-progress-modal {
+    .ant-modal-body {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .operation-progress-modal__title {
+        margin-bottom: 32px;
+    }
+
+    .operation-progress-modal__list {
+        box-sizing: border-box;
+        border: 1px solid var(--dividers);
+        border-radius: var(--card-border-radius);
+        padding: 24px;
+    }
+
+    .operation-progress-modal__actions {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        margin-top: 32px;
+        width: 100%;
+
+        .button {
+            flex: 1;
+            max-width: 100%;
+            min-width: 0;
+        }
+    }
+}
+
+@media (max-width: 600px) {
+    .operation-progress-modal {
+        .operation-progress-modal__list {
+            padding: 16px;
+        }
+    }
+}

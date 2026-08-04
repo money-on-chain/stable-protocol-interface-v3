@@ -55,11 +55,20 @@ const LendingBorrowing: React.FC = () => {
         setSearchParams(nextParams);
     };
 
+    const closeOperationProgress = (): void => {
+        operationProgress.onClose();
+        updateSearchParams((params) => {
+            params.delete("view");
+            params.delete("token");
+        });
+    };
+
     return (
         <div className="section-container">
             <OperationProgressModal
                 visible={operationProgress.isVisible}
-                onClose={operationProgress.onClose}
+                onCancel={operationProgress.onClose}
+                onClose={closeOperationProgress}
                 title={operationProgress.title}
                 steps={operationProgress.steps}
             />

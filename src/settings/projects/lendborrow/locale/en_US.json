@@ -390,7 +390,7 @@
             "authorize": "Authorize"
         },
         "feedback": {
-            "submit": "",
+            "submit": "Wait for transaction confirmation",
             "sign": "Please, sign the allowance authorization transaction using your wallet.",
             "waiting": "Please, wait while the allowance authorization is mined in the blockchain. Once it´s done, the transaction will be sent to your wallet.",
             "error": "Operation Failed!",
@@ -867,6 +867,9 @@
             "labelAmount": "Amount Liquidated",
             "labelLiquidationPrice": "Liquidation Price"
         },
+        "liquidating": {
+            "banner": "Liquidation in progress"
+        },
         "cta": { "confirm": "Confirm" },
         "risk": {
             "decrease": "Risk will decrease if you proceed.",
@@ -896,19 +899,63 @@
                 "txtBorrowAvailableWithDepositedCollateral": "Borrow available with deposited collateral",
                 "txtBorrowLimit": "The borrow amount exceeds your available borrow limit.",
                 "txtCollateralBalance": "The collateral amount exceeds your wallet balance.",
-                "txtEnterAmounts": "Enter borrow and/or collateral amounts to continue."
+                "txtEnterAmounts": "Enter borrow and/or collateral amounts to continue.",
+                "titleInsufficientCollateral": "Insufficient collateral",
+                "txtMinCollateralNeeded": "Minimum collateral required"
+            }
+        },
+        "operationProgress": {
+            "titles": {
+                "lend": "Lend {{token}}",
+                "lendWithdraw": "Withdraw {{token}}",
+                "borrow": "Borrow {{token}}",
+                "repay": "Repay {{token}}",
+                "repayWithCollateral": "Repay {{token}} with Collateral",
+                "depositCollateral": "Deposit {{token}} as Collateral",
+                "withdrawCollateral": "Withdraw {{token}} Collateral"
+            },
+            "actions": {
+                "cancel": "Cancel",
+                "close": "Close"
+            },
+            "approveTP": "Approve Token",
+            "approveCA": "Approve Collateral",
+            "depositLend": "Deposit",
+            "withdrawLend": "Withdraw",
+            "borrow": "Borrow",
+            "repay": "Repay",
+            "repayWithCollateral": "Repay with Collateral",
+            "depositCollateral": "Deposit Collateral",
+            "withdrawCollateral": "Withdraw Collateral",
+            "descriptions": {
+                "pending": "This step will start after the previous transaction is confirmed.",
+                "processing": "Wait while the transaction is confirmed on the blockchain.",
+                "completed": "This step was completed successfully. No further action is required.",
+                "failed": "The transaction could not be completed. Check your wallet and try again.",
+                "approveTP": "Confirm the allowance transaction in your wallet so the protocol can use the required loan token amount.",
+                "approveCA": "Confirm the allowance transaction in your wallet so the protocol can use the required collateral amount.",
+                "depositLend": "Confirm the deposit transaction in your wallet to start earning.",
+                "withdrawLend": "Confirm the withdrawal transaction in your wallet to return the funds to your balance.",
+                "borrow": "Confirm the borrow transaction in your wallet to receive the loan tokens.",
+                "repay": "Confirm the repayment transaction in your wallet to reduce or settle your debt.",
+                "repayWithCollateral": "Confirm the transaction in your wallet to repay the debt using your deposited collateral.",
+                "depositCollateral": "Confirm the transaction in your wallet to add collateral to your position.",
+                "withdrawCollateral": "Confirm the transaction in your wallet to withdraw the available collateral from your position."
             }
         },
         "sectionRepay": {
             "cardTitle": "Repay",
             "feedbackDebtLimit": "Amount exceeds your current debt",
+            "feedbackWalletBalance": "Amount exceeds your wallet balance",
             "labelAmountToRepay": "Amount to Repay",
             "summary": {
                 "titleDebtLimit": "Repay amount exceeds current debt",
+                "titleWalletBalance": "Insufficient wallet balance",
                 "titleReady": "Ready to repay",
                 "titleNoAmount": "Repay amount not specified",
                 "txtRepaying": "Repaying",
                 "txtDebtLimit": "The repay amount exceeds your current debt.",
+                "txtWalletBalance": "The repay amount exceeds your wallet balance of the borrow token.",
                 "txtEnterAmount": "Enter an amount to repay or use \"Repay in Full\"."
             },
             "cta": {
@@ -943,6 +990,7 @@
         "sectionWithdrawCollateral": {
             "cardTitle": "Withdraw Collateral",
             "feedbackCollateralLimit": "Amount exceeds your deposited collateral",
+            "feedbackWithdrawLimit": "Amount exceeds your withdrawable collateral (minimum required to cover debt)",
             "labelAmountToWithdraw": "Amount to Withdraw",
             "summary": {
                 "titleReady": "Ready to continue",

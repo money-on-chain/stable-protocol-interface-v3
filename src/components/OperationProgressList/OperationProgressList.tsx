@@ -158,7 +158,14 @@ export default function OperationProgressList({
                             ></span>
                         </span>
 
-                        <div className="operation-progress-list__content">
+                        <div
+                            className={[
+                                "operation-progress-list__content",
+                                step.description && "operation-progress-list__content--with-description",
+                            ]
+                                .filter(Boolean)
+                                .join(" ")}
+                        >
                             <div className="operation-progress-list__header">
                                 <span className="operation-progress-list__title">
                                     {step.title}

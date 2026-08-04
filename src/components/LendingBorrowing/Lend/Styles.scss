@@ -8,6 +8,12 @@
         border-radius: var(--card-border-radius);
         padding: 16px;
 
+        &:only-child {
+            grid-column: 1 / -1;
+            justify-self: center;
+            width: calc((100% - 32px) / 2);
+        }
+
         &-header {
             display: flex;
             flex-direction: row;
@@ -38,5 +44,9 @@
 @media (max-width: 960px) {
     .lend-items {
         grid-template-columns: 1fr;
+
+        .card:only-child {
+            width: 100%;
+        }
     }
 }

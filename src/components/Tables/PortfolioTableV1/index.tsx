@@ -5,14 +5,10 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useWalletContext } from "../../../context/Wallet";
-import { TokenSettings } from "../../../helpers/currencies";
 import { getPortfolioRowsV1 } from "../../../helpers/portfolioV1";
 import { useProjectTranslation } from "../../../helpers/translations";
-import { useIncentivesBalance } from "../../../hooks/useIncentives";
+import { usePortfolioCurrentDebt } from "../../../hooks/usePortfolioCurrentDebt";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
-
-// Temporarily disabled: claim access now lives in the Portfolio dashboard.
-const SHOW_LIQUIDITY_MINING_COLUMN = false;
 
 // v1's portfolio is a fixed 4-token set (RBTC/BPro/DOC/MOC) — no CA-indexed
 // loop or portfolio_table config needed, unlike the v3 PortfolioTable.
@@ -21,12 +17,14 @@ export default function PortfolioTableV1(): React.ReactElement {
     const navigate = useNavigate();
     const {
         address,
+        contractsAddress,
         contractProtocolStatusV1,
         userBalanceV1,
         userBaseCoinBalance,
     } = useWalletContext();
-    const { data: incentivesBalance } = useIncentivesBalance(
-        SHOW_LIQUIDITY_MINING_COLUMN ? address : undefined
+    const { hasCurrentDebt } = usePortfolioCurrentDebt(
+        contractsAddress,
+        address
     );
 
     const ready =
@@ -41,21 +39,16 @@ export default function PortfolioTableV1(): React.ReactElement {
         userBalanceV1,
         userBaseCoinBalance
     );
-    const showLiquidityMiningColumn =
-        SHOW_LIQUIDITY_MINING_COLUMN &&
-        rows.some((row) => row.liquidityMiningEnabled);
-
     return (
         <div className="portfolio-table portfolio-table--v1">
             <div className="table__header">
                 <div className="table__cell__name">
                     {t("portfolio.tokensTable.tokenName")}
                 </div>
-                {showLiquidityMiningColumn && (
-                    <div className="table__cell__claim">
-                        {t("portfolio.tokensTable.liquidityMining")}
-                    </div>
-                )}
+                <div
+                    aria-hidden="true"
+                    className="table__cell__claim"
+                ></div>
                 <div className="table__cell__price">
                     {t("portfolio.tokensTable.priceInUSD")}
                 </div>
@@ -86,60 +79,35 @@ export default function PortfolioTableV1(): React.ReactElement {
                                 </span>
                             </div>
                         </div>
-                        {showLiquidityMiningColumn && (
-                            <div
-                                className={`table__cell table__cell__claim${
-                                    row.liquidityMiningEnabled
-                                        ? ""
-                                        : " table__cell__claim--empty"
-                                }`}
-                            >
-                                {row.liquidityMiningEnabled ? (
-                                    <>
-                                        <button
-                                            className="portfolioClaimV1__button"
-                                            data-testid={`portfolio-liquidity-mining-${row.tokenTicker}`}
-                                            onClick={() =>
-                                                navigate("/liquidity-mining")
-                                            }
-                                            type="button"
-                                        >
-                                            <span>
-                                                {t(
-                                                    "portfolio.tokensTable.readyToClaim"
-                                                )}
-                                            </span>
-                                            <span className="portfolioClaimV1__amount">
-                                                {incentivesBalance ? (
-                                                    <PrecisionNumbers
-                                                        amount={
-                                                            incentivesBalance.mocBalance
-                                                        }
-                                                        token={TokenSettings(
-                                                            "TG"
-                                                        )}
-                                                        decimals={6}
-                                                        i18n={i18n}
-                                                        compact={true}
-                                                        useNoLimit={true}
-                                                    />
-                                                ) : (
-                                                    "--"
-                                                )}{" "}
-                                                MOC
-                                            </span>
-                                        </button>
-                                        <div className="table__cell__label">
-                                            {t(
-                                                "portfolio.tokensTable.liquidityMining"
-                                            )}
-                                        </div>
-                                    </>
-                                ) : (
-                                    <span aria-hidden="true">&nbsp;</span>
-                                )}
-                            </div>
-                        )}
+                        <div
+                            className={`table__cell table__cell__claim${
+                                row.tokenTicker === "DOC"
+                                    ? ""
+                                    : " table__cell__claim--empty"
+                            }`}
+                        >
+                            {row.tokenTicker === "DOC" &&
+                            hasCurrentDebt === undefined ? (
+                                <Skeleton.Button active size="small" />
+                            ) : row.tokenTicker === "DOC" ? (
+                                <button
+                                    className="portfolioActionV1__button"
+                                    data-testid="portfolio-lending-borrowing-DOC"
+                                    onClick={() =>
+                                        navigate("/lending-borrowing")
+                                    }
+                                    type="button"
+                                >
+                                    {t(
+                                        hasCurrentDebt === true
+                                            ? "portfolio.tokensTable.viewCurrentDebt"
+                                            : "portfolio.tokensTable.lendAndBorrow"
+                                    )}
+                                </button>
+                            ) : (
+                                <span aria-hidden="true">&nbsp;</span>
+                            )}
+                        </div>
                         <div
                             data-testid={`portfolio-price-${row.tokenTicker}`}
                             className="table__cell table__cell__price"
