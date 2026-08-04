@@ -86,7 +86,7 @@ export default function PerformanceV1(): React.ReactElement {
                                     title={t(
                                         "performance.v1.detailedStatus.modalTitle"
                                     )}
-                                    width={505}
+                                    width={800}
                                     open={true}
                                     onCancel={hideModal}
                                     footer={null}

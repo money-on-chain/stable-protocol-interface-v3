@@ -9,6 +9,12 @@
         border: 1px solid var(--dividers);
         border-radius: var(--card-border-radius);
         padding: 16px;
+
+        &:only-child {
+            grid-column: 1 / -1;
+            justify-self: center;
+            width: calc((100% - 32px) / 2);
+        }
     }
 
     .card-header {
@@ -184,9 +190,7 @@
         gap: 8px 24px;
     }
 
-    .button--compact:disabled,
-    .button--compact:disabled:hover,
-    .button--compact:disabled:focus {
+    .button--compact:disabled {
         cursor: not-allowed;
         box-shadow: none;
         border-color: var(--color-btn-primary-background-disabled);
@@ -194,11 +198,21 @@
         color: var(--color-btn-primary-txt-disabled);
         opacity: 1;
     }
+
+    .button--compact--secondary:disabled {
+        border-color: var(--color-btn-secondary-txt-disabled);
+        background-color: var(--color-btn-secondary-background-disabled);
+        color: var(--color-btn-secondary-txt-disabled);
+    }
 }
 
 @media (max-width: 960px) {
     .borrow-items {
         grid-template-columns: 1fr;
+
+        .borrow-card:only-child {
+            width: 100%;
+        }
 
         .borrow-card-primary-metrics,
         .borrow-card-assets,

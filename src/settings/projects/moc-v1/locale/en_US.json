@@ -244,7 +244,9 @@
             "priceInUSD": "Price in USD",
             "tokensPerUSD": "Tokens per USD",
             "liquidityMining": "Liquidity Mining",
-            "readyToClaim": "Ready to claim"
+            "readyToClaim": "Ready to claim",
+            "lendAndBorrow": "Lend & Borrow",
+            "viewCurrentDebt": "View current debt"
         },
         "dashboard": {
             "readyToClaim": "MoC ready to claim",
@@ -414,7 +416,7 @@
             "revoke": "Revoke"
         },
         "feedback": {
-            "submit": "",
+            "submit": "Wait for transaction confirmation",
             "sign": "Please, sign the allowance authorization transaction using your wallet.",
             "waiting": "Please, wait while the allowance authorization is mined in the blockchain. Once it´s done, the transaction will be sent to your wallet.",
             "error": "Operation Failed!",
@@ -933,6 +935,19 @@
             }
         },
         "operationProgress": {
+            "titles": {
+                "lend": "Lend {{token}}",
+                "lendWithdraw": "Withdraw {{token}}",
+                "borrow": "Borrow {{token}}",
+                "repay": "Repay {{token}}",
+                "repayWithCollateral": "Repay {{token}} with Collateral",
+                "depositCollateral": "Deposit {{token}} as Collateral",
+                "withdrawCollateral": "Withdraw {{token}} Collateral"
+            },
+            "actions": {
+                "cancel": "Cancel",
+                "close": "Close"
+            },
             "approveTP": "Approve Token",
             "approveCA": "Approve Collateral",
             "depositLend": "Deposit",

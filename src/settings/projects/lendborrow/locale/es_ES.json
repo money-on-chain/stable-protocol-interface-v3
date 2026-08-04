@@ -390,7 +390,7 @@
             "authorize": "Autorizar"
         },
         "feedback": {
-            "submit": "",
+            "submit": "Espera a la confirmación de la transacción",
             "sign": "Por favor, firma la transacción de autorización utilizando tu wallet.",
             "waiting": "Por favor, espera mientras se mina la autorización. Una vez que esté minada, se enviará la transacción a tu wallet.",
             "error": "¡Transacción fallada!",
@@ -572,6 +572,7 @@
             },
             "StakingOptionsModal_SetAllowance": "Autorizar Allowance",
             "StakingOptionsModal_Authorize": "Autorizar",
+            "StakingOptionsModal_ReviewYourWallet": "Billetera",
             "StakingOptionsModal_ReviewYourWalletDescription": "Por favor revise su wallet",
             "StakingOptionsModal_AllowanceDescription": "Antes de continuar con el staking deberás permitir el \"allowance\" para que el sistema pueda acceder a los tokens. Esto solo debe hacerse la primera vez y no bloquea ningún token de tu wallet.",
             "StakingOptionsModal_ProcessingAllowance": "Procesando Allowance, por favor espera",
@@ -665,6 +666,7 @@
         "cardTitle": "Vesting Machine",
         "status": {
             "verified": "Vesting Machine verificada",
+            "verifyCTA": "¡Verificar ahora!",
             "notVerified": "Esta Vesting Machine aún no fue verificada",
             "notFromThisUser": "Esta Vesting Machine no pertenece a esta cuenta"
         },
@@ -782,16 +784,16 @@
         "stakingCTA": {
             "button": "Ir a Staking",
             "explanation": "Stakea tokens MOC — ¡es rápido y sencillo!"
+        },
+        "claimsTable": {
+            "date": "Fecha",
+            "asset": "Token",
+            "amount": "Cantidad",
+            "event": "Evento",
+            "status": "Estado",
+            "statusReceived": "Recibido",
+            "statusInProgress": "En progreso"
         }
-    },
-    "claimsTable": {
-        "date": "Fecha",
-        "asset": "Token",
-        "amount": "Cantidad",
-        "event": "Evento",
-        "status": "Estado",
-        "statusReceived": "Recibido",
-        "statusInProgress": "En progreso"
     },
     "slippageTolerance": { "title": "Slippage Tolerance" },
     "beforeAfterCard": {
@@ -867,6 +869,9 @@
             "labelAmount": "Monto liquidado",
             "labelLiquidationPrice": "Precio de liquidación"
         },
+        "liquidating": {
+            "banner": "Liquidación en curso"
+        },
         "actions": {
             "borrow": "Pedir prestado",
             "repay": "Repagar",
@@ -896,19 +901,63 @@
                 "txtBorrowAvailableWithDepositedCollateral": "Disponible para pedir con colateral depositado",
                 "txtBorrowLimit": "El monto a pedir prestado excede tu límite disponible.",
                 "txtCollateralBalance": "El monto de colateral excede el balance de tu wallet.",
-                "txtEnterAmounts": "Ingresa montos de préstamo y/o colateral para continuar."
+                "txtEnterAmounts": "Ingresa montos de préstamo y/o colateral para continuar.",
+                "titleInsufficientCollateral": "Colateral insuficiente",
+                "txtMinCollateralNeeded": "Colateral mínimo requerido"
+            }
+        },
+        "operationProgress": {
+            "titles": {
+                "lend": "Prestar {{token}}",
+                "lendWithdraw": "Retirar {{token}}",
+                "borrow": "Pedir prestado {{token}}",
+                "repay": "Repagar {{token}}",
+                "repayWithCollateral": "Repagar {{token}} con colateral",
+                "depositCollateral": "Depositar {{token}} como colateral",
+                "withdrawCollateral": "Retirar colateral {{token}}"
+            },
+            "actions": {
+                "cancel": "Cancelar",
+                "close": "Cerrar"
+            },
+            "approveTP": "Aprobar token",
+            "approveCA": "Aprobar colateral",
+            "depositLend": "Depositar",
+            "withdrawLend": "Retirar",
+            "borrow": "Pedir prestado",
+            "repay": "Repagar",
+            "repayWithCollateral": "Repagar con colateral",
+            "depositCollateral": "Depositar colateral",
+            "withdrawCollateral": "Retirar colateral",
+            "descriptions": {
+                "pending": "Este paso comenzará cuando se confirme la transacción anterior.",
+                "processing": "Espera mientras la transacción se confirma en la blockchain.",
+                "completed": "Este paso se completó correctamente. No necesitas realizar ninguna otra acción.",
+                "failed": "No se pudo completar la transacción. Revisa tu billetera e inténtalo nuevamente.",
+                "approveTP": "Confirma en tu billetera la transacción de allowance para que el protocolo pueda utilizar el monto requerido del token de préstamo.",
+                "approveCA": "Confirma en tu billetera la transacción de allowance para que el protocolo pueda utilizar el monto de colateral requerido.",
+                "depositLend": "Confirma en tu billetera la transacción de depósito para comenzar a generar rendimiento.",
+                "withdrawLend": "Confirma en tu billetera la transacción de retiro para devolver los fondos a tu balance.",
+                "borrow": "Confirma en tu billetera la transacción de préstamo para recibir los tokens.",
+                "repay": "Confirma en tu billetera la transacción de repago para reducir o cancelar tu deuda.",
+                "repayWithCollateral": "Confirma en tu billetera la transacción para repagar la deuda usando el colateral depositado.",
+                "depositCollateral": "Confirma en tu billetera la transacción para agregar colateral a tu posición.",
+                "withdrawCollateral": "Confirma en tu billetera la transacción para retirar el colateral disponible de tu posición."
             }
         },
         "sectionRepay": {
             "cardTitle": "Repagar",
             "feedbackDebtLimit": "El monto excede tu deuda actual",
+            "feedbackWalletBalance": "El monto excede el balance de tu wallet",
             "labelAmountToRepay": "Monto a repagar",
             "summary": {
                 "titleDebtLimit": "El monto excede la deuda actual",
+                "titleWalletBalance": "Balance insuficiente en la wallet",
                 "titleReady": "Listo para repagar",
                 "titleNoAmount": "No se especificó monto a repagar",
                 "txtRepaying": "Repagando",
                 "txtDebtLimit": "El monto a repagar excede tu deuda actual.",
+                "txtWalletBalance": "El monto a repagar excede el balance del token de préstamo en tu wallet.",
                 "txtEnterAmount": "Ingresa un monto a repagar o usa \"Repagar todo\"."
             },
             "cta": {
@@ -943,6 +992,7 @@
         "sectionWithdrawCollateral": {
             "cardTitle": "Retirar colateral",
             "feedbackCollateralLimit": "El monto excede tu colateral depositado",
+            "feedbackWithdrawLimit": "El monto excede el colateral disponible para retirar (se requiere un mínimo para cubrir la deuda)",
             "labelAmountToWithdraw": "Monto a retirar",
             "summary": {
                 "titleReady": "Listo para continuar",

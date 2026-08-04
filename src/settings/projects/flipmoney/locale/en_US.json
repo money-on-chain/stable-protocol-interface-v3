@@ -431,7 +431,7 @@
             "authorize": "Authorize"
         },
         "feedback": {
-            "submit": "",
+            "submit": "Wait for transaction confirmation",
             "sign": "Please, sign the allowance authorization transaction using your wallet.",
             "waiting": "Please, wait while the allowance authorization is mined in the blockchain. Once it´s done, the transaction will be sent to your wallet.",
             "error": "Operation Failed!",
@@ -943,6 +943,19 @@
             }
         },
         "operationProgress": {
+            "titles": {
+                "lend": "Lend {{token}}",
+                "lendWithdraw": "Withdraw {{token}}",
+                "borrow": "Borrow {{token}}",
+                "repay": "Repay {{token}}",
+                "repayWithCollateral": "Repay {{token}} with Collateral",
+                "depositCollateral": "Deposit {{token}} as Collateral",
+                "withdrawCollateral": "Withdraw {{token}} Collateral"
+            },
+            "actions": {
+                "cancel": "Cancel",
+                "close": "Close"
+            },
             "approveTP": "Approve Token",
             "approveCA": "Approve Collateral",
             "depositLend": "Deposit",

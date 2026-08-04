@@ -639,6 +639,10 @@
         font-weight: 600;
     }
 
+    .collateralStatusCard:only-child {
+        margin-inline: auto;
+    }
+
     .collateralTitle {
         display: flex;
         align-items: center;
@@ -707,10 +711,16 @@
         align-items: center;
         gap: 8px;
         color: var(--color-txt-primary);
+
+        > div {
+            flex: 0 0 var(--icon-token-size);
+        }
     }
 
     .tokenLabel {
+        min-width: 0;
         font-weight: 500;
+        white-space: nowrap;
     }
 
     .icon-status-success,
@@ -721,9 +731,19 @@
     }
 
     .cta {
+        align-items: center;
         margin-top: 32px;
         width: 100%;
         text-align: center;
+    }
+}
+
+.aboutGlobalStatus__modal {
+    width: 800px !important;
+    max-width: calc(100vw - 32px);
+
+    .ant-modal-header {
+        margin-bottom: 48px;
     }
 }
 
@@ -732,6 +752,10 @@
         .collateralStatusCard {
             max-width: 100%;
             flex: 1 1 100%;
+        }
+
+        .tokenLabel {
+            white-space: normal;
         }
     }
 }

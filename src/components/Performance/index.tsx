@@ -91,7 +91,7 @@ export default function Performance(): JSX.Element {
                                     title={t(
                                         "performance.detailedStatus.modalTitle"
                                     )}
-                                    width={505}
+                                    width={800}
                                     open={true}
                                     onCancel={hideModal}
                                     footer={null}

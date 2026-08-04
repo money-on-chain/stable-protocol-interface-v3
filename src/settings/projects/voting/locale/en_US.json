@@ -398,7 +398,7 @@
             "authorize": "Authorize"
         },
         "feedback": {
-            "submit": "",
+            "submit": "Wait for transaction confirmation",
             "sign": "Please, sign the allowance authorization transaction using your wallet.",
             "waiting": "Please, wait while the allowance authorization is mined in the blockchain. Once it´s done, the transaction will be sent to your wallet.",
             "error": "Operation Failed!",

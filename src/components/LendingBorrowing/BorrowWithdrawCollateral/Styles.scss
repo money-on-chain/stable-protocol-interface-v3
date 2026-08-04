@@ -16,8 +16,8 @@
 }
 
 .borrow-withdraw-collateral-main {
-    width: fit-content;
-    max-width: 100%;
+    width: 100%;
+    max-width: var(--borrow-metrics-content-width);
     margin: 0 auto;
     display: flex;
     flex-direction: column;
@@ -28,14 +28,14 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    width: 832px;
+    width: 100%;
     max-width: 100%;
 }
 
 .borrow-withdraw-collateral-panel__columns {
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 400px));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 32px;
     align-items: start;
 }
@@ -53,7 +53,7 @@
 .borrow-withdraw-collateral-panel__column > .compact-metric-display,
 .borrow-withdraw-collateral-panel__column > .tokenAmountInput {
     width: 100%;
-    max-width: 400px;
+    max-width: none;
 }
 
 .borrow-withdraw-collateral-metrics {

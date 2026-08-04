@@ -126,8 +126,8 @@
     --color-btn-secondary-background-active: transparent;
     --color-btn-secondary-txt-active: #c1bc3f;
 
-    --color-btn-secondary-background-disabled: #000000;
-    --color-btn-secondary-txt-disabled: #000000;
+    --color-btn-secondary-background-disabled: transparent;
+    --color-btn-secondary-txt-disabled: var(--color-btn-primary-txt-disabled);
 
     --color-btn-secondary-background-default-shadow: 0px 4px 8px
         rgba(147, 144, 25, 0.2);
