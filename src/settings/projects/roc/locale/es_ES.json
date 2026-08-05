@@ -958,7 +958,22 @@
             "repay": "Repagar",
             "repayWithCollateral": "Repagar con Colateral",
             "depositCollateral": "Depositar Colateral",
-            "withdrawCollateral": "Retirar Colateral"
+            "withdrawCollateral": "Retirar Colateral",
+            "descriptions": {
+                "pending": "Este paso comenzará cuando se confirme la transacción anterior.",
+                "processing": "Espera mientras la transacción se confirma en la blockchain.",
+                "completed": "Este paso se completó correctamente. No necesitas realizar ninguna otra acción.",
+                "failed": "No se pudo completar la transacción. Revisa tu billetera e inténtalo nuevamente.",
+                "approveTP": "Confirma en tu billetera la transacción de allowance para que el protocolo pueda utilizar el monto requerido del token de préstamo.",
+                "approveCA": "Confirma en tu billetera la transacción de allowance para que el protocolo pueda utilizar el monto de colateral requerido.",
+                "depositLend": "Confirma en tu billetera la transacción de depósito para comenzar a generar rendimiento.",
+                "withdrawLend": "Confirma en tu billetera la transacción de retiro para devolver los fondos a tu balance.",
+                "borrow": "Confirma en tu billetera la transacción de préstamo para recibir los tokens.",
+                "repay": "Confirma en tu billetera la transacción de repago para reducir o cancelar tu deuda.",
+                "repayWithCollateral": "Confirma en tu billetera la transacción para repagar la deuda usando el colateral depositado.",
+                "depositCollateral": "Confirma en tu billetera la transacción para agregar colateral a tu posición.",
+                "withdrawCollateral": "Confirma en tu billetera la transacción para retirar el colateral disponible de tu posición."
+            }
         },
         "sectionRepay": {
             "cardTitle": "Repagar",
