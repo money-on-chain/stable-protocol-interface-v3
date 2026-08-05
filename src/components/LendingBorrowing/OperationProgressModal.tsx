@@ -45,15 +45,29 @@ export default function OperationProgressModal({
             keyboard={false}
             maskClosable={false}
         >
-            <h1 className="operation-progress-modal__title">{title}</h1>
-            <OperationProgressList className="operation-progress-modal__list" steps={contextualSteps} />
-            <div className="operation-progress-modal__actions">
-                <button className="button secondary" disabled={isDone} onClick={handleCancel} type="button">
-                    {t("borrowing.operationProgress.actions.cancel")}
-                </button>
-                <button className="button" disabled={!isDone} onClick={onClose} type="button">
-                    {t("borrowing.operationProgress.actions.close")}
-                </button>
+            <div data-done={isDone} data-testid="lending-operation-progress-modal">
+                <h1 className="operation-progress-modal__title">{title}</h1>
+                <OperationProgressList className="operation-progress-modal__list" steps={contextualSteps} />
+                <div className="operation-progress-modal__actions">
+                    <button
+                        className="button secondary"
+                        data-testid="lending-operation-progress-cancel"
+                        disabled={isDone}
+                        onClick={handleCancel}
+                        type="button"
+                    >
+                        {t("borrowing.operationProgress.actions.cancel")}
+                    </button>
+                    <button
+                        className="button"
+                        data-testid="lending-operation-progress-close"
+                        disabled={!isDone}
+                        onClick={onClose}
+                        type="button"
+                    >
+                        {t("borrowing.operationProgress.actions.close")}
+                    </button>
+                </div>
             </div>
         </Modal>
     );

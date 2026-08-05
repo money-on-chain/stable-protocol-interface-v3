@@ -27,7 +27,7 @@ export default function Lend({
             </div>
             <div className="lend-items">
                 {cards.map((card) => (
-                    <div className={"card"} key={card.id}>
+                    <div className={"card"} data-testid={`lend-card-${card.id}`} key={card.id}>
                         <div className="card-header">
                             <div className="token">
                                 <div className={card.tokenIconClassName}></div>
@@ -53,6 +53,7 @@ export default function Lend({
                             <div className="cta">
                                 <button
                                     className="button--compact"
+                                    data-testid={`lend-card-earn-${card.id}`}
                                     onClick={() => onEarn(card)}
                                     type="button"
                                 >
@@ -60,6 +61,7 @@ export default function Lend({
                                 </button>
                                 <button
                                     className="button--compact button--compact--secondary"
+                                    data-testid={`lend-card-withdraw-${card.id}`}
                                     onClick={() => onWithdraw(card)}
                                     type="button"
                                 >

@@ -206,6 +206,7 @@ export default function LendEarn({
                 <OperationActions>
                     <button
                         className="button"
+                        data-testid="lend-earn-confirm"
                         disabled={!hasSelectedAmount || hasValidationError}
                         onClick={() => onConfirm(token, amount, () => setAmount(""))}
                         type="button"
