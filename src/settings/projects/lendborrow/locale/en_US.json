@@ -802,7 +802,35 @@
         "noEnoughBalance": "Not enough balance in your wallet.",
         "labelBalance": "Balance"
     },
-    "lendingBorrowing": { "backLink": "Back to Lending & Borrowing" },
+    "lendingBorrowing": {
+        "backLink": "Back to Lending & Borrowing",
+        "operations": {
+            "title": "Activity",
+            "description": "Your latest lending and borrowing transactions.",
+            "filterLabel": "Filter activity",
+            "empty": "No transactions to display.",
+            "filters": { "all": "All", "lending": "Lending", "borrowing": "Borrowing" },
+            "columns": {
+                "date": "Date",
+                "operation": "Operation",
+                "market": "Market",
+                "movement": "Movement",
+                "status": "Status",
+                "transaction": "Transaction"
+            },
+            "status": { "pending": "Pending", "confirmed": "Confirmed", "failed": "Failed" },
+            "types": {
+                "deposit": "Deposit",
+                "withdraw": "Withdraw",
+                "borrow": "Borrow",
+                "repay": "Repay",
+                "repay-with-collateral": "Repay with collateral",
+                "deposit-collateral": "Deposit collateral",
+                "withdraw-collateral": "Withdraw collateral",
+                "liquidation": "Liquidation"
+            }
+        }
+    },
     "lending": {
         "cardTitle": "Lend",
         "labelInterest": "Variable Supply APY",

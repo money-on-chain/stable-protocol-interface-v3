@@ -804,7 +804,35 @@
         "noEnoughBalance": "No hay balance suficiente en tu wallet.",
         "labelBalance": "Balance"
     },
-    "lendingBorrowing": { "backLink": "Volver a Lending & Borrowing" },
+    "lendingBorrowing": {
+        "backLink": "Volver a Lending & Borrowing",
+        "operations": {
+            "title": "Actividad",
+            "description": "Tus transacciones recientes de lending y borrowing.",
+            "filterLabel": "Filtrar actividad",
+            "empty": "No hay transacciones para mostrar.",
+            "filters": { "all": "Todas", "lending": "Lending", "borrowing": "Borrowing" },
+            "columns": {
+                "date": "Fecha",
+                "operation": "Operación",
+                "market": "Mercado",
+                "movement": "Movimiento",
+                "status": "Estado",
+                "transaction": "Transacción"
+            },
+            "status": { "pending": "Pendiente", "confirmed": "Confirmada", "failed": "Fallida" },
+            "types": {
+                "deposit": "Depositar",
+                "withdraw": "Retirar",
+                "borrow": "Pedir prestado",
+                "repay": "Repagar",
+                "repay-with-collateral": "Repagar con colateral",
+                "deposit-collateral": "Depositar colateral",
+                "withdraw-collateral": "Retirar colateral",
+                "liquidation": "Liquidación"
+            }
+        }
+    },
     "lending": {
         "cardTitle": "Prestar",
         "labelInterest": "APY variable de suministro",
