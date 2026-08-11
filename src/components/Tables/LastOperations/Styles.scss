@@ -546,6 +546,11 @@
     border-radius: var(--card-border-radius);
 }
 
+.content-last-operations .ant-table-tbody > tr.ant-table-row > td {
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
 // Four main columns (plus separators)
 
 .LastOp__group__details {
