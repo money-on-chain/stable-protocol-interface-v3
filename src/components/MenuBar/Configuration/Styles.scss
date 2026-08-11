@@ -201,4 +201,16 @@
         width: 36px;
         height: 36px;
     }
+
+    .menu-bar-configuration__popover {
+        position: fixed;
+        top: 66px;
+        right: 12px;
+        left: 12px;
+        width: auto;
+    }
+
+    .menu-bar-configuration__popover::before {
+        display: none;
+    }
 }
