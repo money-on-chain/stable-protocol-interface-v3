@@ -60,7 +60,7 @@
         var(--surface-shadow-3),
         0 18px 48px rgba(0, 0, 0, 0.18);
     border: 1px solid var(--dividers);
-    border-radius: 18px;
+    border-radius: var(--card-border-radius);
     background: var(--surface-color-3);
     padding: 16px;
     width: 268px;

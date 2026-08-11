@@ -2,6 +2,7 @@ import "./Styles.scss";
 
 import { useEffect, useRef, useState } from "react";
 
+import settings from "../../settings";
 import Branding from "./Branding";
 import Configuration from "./Configuration";
 import MenuOptions from "./MenuOptions";
@@ -11,11 +12,19 @@ export interface MenuBarProps {
     maxVisibleMenuItems?: number;
 }
 
-export default function MenuBar({ maxVisibleMenuItems = 6 }: MenuBarProps): JSX.Element {
+interface ProjectSettingsWithMenuBar {
+    menuBar?: {
+        maxVisibleItems?: number;
+    };
+}
+
+export default function MenuBar({ maxVisibleMenuItems }: MenuBarProps): JSX.Element {
     const shellRef = useRef<HTMLDivElement>(null);
     const lastScrollYRef = useRef(0);
     const animationFrameRef = useRef<number | null>(null);
     const [isFloating, setIsFloating] = useState(false);
+    const visibleMenuItems =
+        maxVisibleMenuItems ?? (settings as unknown as ProjectSettingsWithMenuBar).menuBar?.maxVisibleItems ?? 6;
 
     useEffect(() => {
         lastScrollYRef.current = window.scrollY;
@@ -58,7 +67,7 @@ export default function MenuBar({ maxVisibleMenuItems = 6 }: MenuBarProps): JSX.
         <div className="menu-bar-shell" ref={shellRef}>
             <header className={`menu-bar${isFloating ? " menu-bar--floating" : ""}`}>
                 <Branding />
-                <MenuOptions maxVisibleItems={maxVisibleMenuItems} />
+                <MenuOptions maxVisibleItems={visibleMenuItems} />
                 <div className="menu-bar__actions">
                     <Configuration />
                     <Wallet />
