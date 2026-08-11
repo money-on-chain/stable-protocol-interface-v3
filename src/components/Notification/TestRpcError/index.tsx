@@ -1,7 +1,7 @@
-import { Button } from "antd";
 import React from "react";
 
 import { useWalletContext } from "../../../context/Wallet";
+import Button from "../../Button";
 
 export default function TestRpcError(): React.ReactElement {
     const {

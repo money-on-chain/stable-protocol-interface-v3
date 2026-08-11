@@ -1,11 +1,11 @@
 import "./style.scss";
 
-import { Button } from "antd";
 import React, { useState } from "react";
 
 import { useWalletContext } from "../../../context/Wallet";
 import { TokenSettings } from "../../../helpers/currencies";
 import { useProjectTranslation } from "../../../helpers/translations";
+import Button from "../../Button";
 import Copy from "../../Copy";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 import TokenMigratePNG from "./../../../assets/icons/tokenmigrate.png";

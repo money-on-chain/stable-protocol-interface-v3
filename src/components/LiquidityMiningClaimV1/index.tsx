@@ -1,7 +1,6 @@
 import "../LiquidityMiningClaim/Styles.scss";
 import "./Styles.scss";
 
-import { Button } from "antd";
 import React, { Fragment, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -19,6 +18,7 @@ import {
     useIncentivesBalance,
     useIncentivesClaims,
 } from "../../hooks/useIncentives";
+import Button from "../Button";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import PerformanceChart from "../Staking/performanceChart";
 import LiquidityMiningClaimsV1 from "../Tables/LiquidityMiningClaimsV1";

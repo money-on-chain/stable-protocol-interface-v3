@@ -445,6 +445,13 @@
         // outline: 1px dashed green;
     }
 
+    .info {
+        justify-content: center;
+        gap: 2px;
+        min-width: 0;
+        min-height: 48px;
+    }
+
     .perfGlobalMetrics__footnote {
         text-align: left;
     }

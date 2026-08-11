@@ -1,7 +1,7 @@
 import "../Exchange/Styles.scss";
 
 import type { RadioChangeEvent } from "antd";
-import { Button, Radio, Space } from "antd";
+import { Radio, Space } from "antd";
 import React, { useState } from "react";
 
 import { previewFeesMocV1, previewFeesV1 } from "../../backend/v1/fees-v1";
@@ -17,6 +17,7 @@ import {
 } from "../../helpers/exchangeV1";
 import { mulPrecision, toBigIntPrecision, WAD } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
+import Button from "../Button";
 import type {
     ExchangeConfirmDataV1,
     ExchangeModeV1,
@@ -416,7 +417,7 @@ export default function ExchangeV1(): React.ReactElement {
             <div className="sectionExchange__Content">
                 <div className="inputFields">
                     <div
-                        className="tokenSelector"
+                        className="tokenSelector tokenSelector--compact"
                         data-testid="exchange-v1-input-from"
                     >
                         <TokenAmountInput
@@ -455,12 +456,15 @@ export default function ExchangeV1(): React.ReactElement {
                         />
                     </div>
 
-                    <div className="buttonSwap" onClick={handleSwapCurrencies}>
+                    <div
+                        className="buttonSwap buttonSwap--feedback-offset"
+                        onClick={handleSwapCurrencies}
+                    >
                         <div className="icon-swap"></div>
                     </div>
 
                     <div
-                        className="tokenSelector"
+                        className="tokenSelector tokenSelector--compact"
                         data-testid="exchange-v1-input-to"
                     >
                         <TokenAmountInput

@@ -295,15 +295,57 @@ export default function LastOperations(props: LastOperationsProps) {
     }, []); // Empty deps - using refs for all values
     // #section Operation detail custom expand function
     const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
+    const [visuallyExpandedKeys, setVisuallyExpandedKeys] = useState<string[]>(
+        []
+    );
+    const expansionTimers = useRef<
+        Map<string, ReturnType<typeof setTimeout>>
+    >(new Map());
+
+    useEffect(
+        () => () => {
+            expansionTimers.current.forEach(clearTimeout);
+            expansionTimers.current.clear();
+        },
+        []
+    );
 
     // Expansion / Contraction
     const handleExpand = useCallback(
         (expanded: boolean, record: { key: string }) => {
-            setExpandedKeys((prevKeys) => {
-                return expanded
-                    ? [...prevKeys, record.key]
-                    : prevKeys.filter((key) => key !== record.key);
-            });
+            const key = record.key;
+            const pendingTimer = expansionTimers.current.get(key);
+
+            if (pendingTimer) clearTimeout(pendingTimer);
+
+            if (expanded) {
+                setExpandedKeys((prevKeys) =>
+                    prevKeys.includes(key) ? prevKeys : [...prevKeys, key]
+                );
+                expansionTimers.current.set(
+                    key,
+                    setTimeout(() => {
+                        setVisuallyExpandedKeys((prevKeys) =>
+                            prevKeys.includes(key) ? prevKeys : [...prevKeys, key]
+                        );
+                        expansionTimers.current.delete(key);
+                    }, 20)
+                );
+                return;
+            }
+
+            setVisuallyExpandedKeys((prevKeys) =>
+                prevKeys.filter((expandedKey) => expandedKey !== key)
+            );
+            expansionTimers.current.set(
+                key,
+                setTimeout(() => {
+                    setExpandedKeys((prevKeys) =>
+                        prevKeys.filter((expandedKey) => expandedKey !== key)
+                    );
+                    expansionTimers.current.delete(key);
+                }, 320)
+            );
         },
         []
     );
@@ -1857,10 +1899,14 @@ export default function LastOperations(props: LastOperationsProps) {
                     <div className="lastOp__row">
                         <div className="LastOp__expand-collapse">
                             <ExpandIcon
-                                expanded={expandedKeys.includes(element.key)}
+                                expanded={visuallyExpandedKeys.includes(
+                                    element.key
+                                )}
                                 onClick={() =>
                                     handleExpand(
-                                        !expandedKeys.includes(element.key),
+                                        !visuallyExpandedKeys.includes(
+                                            element.key
+                                        ),
                                         element
                                     )
                                 }
@@ -1936,7 +1982,7 @@ export default function LastOperations(props: LastOperationsProps) {
         token,
         i18n,
         t,
-        expandedKeys,
+        visuallyExpandedKeys,
         getErrorMessage,
         getFee,
         getStatus,
@@ -2004,8 +2050,20 @@ export default function LastOperations(props: LastOperationsProps) {
                             expandedRowKeys: expandedKeys,
                             onExpand: handleExpand,
                             expandedRowRender: (record) => (
-                                <div className="table-expanded-row">
-                                    {record.description}
+                                <div
+                                    className={`table-expanded-row-motion${
+                                        visuallyExpandedKeys.includes(record.key)
+                                            ? " table-expanded-row-motion--expanded"
+                                            : ""
+                                    }`}
+                                >
+                                    <div className="table-expanded-row-motion__content">
+                                        <div className="table-expanded-row-motion__inset">
+                                            <div className="table-expanded-row">
+                                                {record.description}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             ),
                             expandIconColumnIndex: -1, // Hide default expansion icon cell

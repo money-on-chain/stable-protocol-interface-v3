@@ -1158,12 +1158,26 @@ h2 {
 
 /* #region BUTTONS */
 .button {
+    --button-motion-easing: cubic-bezier(0.2, 0, 0, 1);
+
+    transform-origin: center;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    user-select: none;
     transition:
-        background-color 0.3s,
-        color 0.3s,
-        border-color 0.3s;
+        transform var(--button-motion-hover-duration, 180ms)
+            var(--button-motion-easing),
+        box-shadow var(--button-motion-hover-duration, 180ms)
+            var(--button-motion-easing),
+        background-color var(--button-motion-hover-duration, 180ms)
+            var(--button-motion-easing),
+        color var(--button-motion-hover-duration, 180ms)
+            var(--button-motion-easing),
+        border-color var(--button-motion-hover-duration, 180ms)
+            var(--button-motion-easing);
     cursor: pointer;
-    box-shadow: var(--color-btn-primary-background-default-shadow);
+    box-shadow: none;
     border-width: 0px;
     border-color: var(--color-btn-primary-txt-default);
     border-radius: var(--btn-radius);
@@ -1176,6 +1190,7 @@ h2 {
     font-family: var(--main-font);
     text-align: center;
 }
+
 .button:disabled {
     cursor: not-allowed;
     box-shadow: none;
@@ -1184,20 +1199,49 @@ h2 {
     .icon {
         filter: var(--color-btn-primary-filter-disabled);
     }
+
 }
 
-.button:not(:disabled):hover,
-.button:not(:disabled):focus-visible {
+.button:not(:disabled):hover {
+    transform: none;
+    box-shadow: none;
     border-color: var(--color-btn-primary-txt-hover);
     background: var(--color-btn-primary-background-hover);
     color: var(--color-btn-primary-txt-hover);
+
     .icon {
         filter: var(--color-btn-primary-filter-hover);
     }
 }
 
+.button:not(:disabled):focus-visible {
+    outline: 3px solid
+        color-mix(
+            in srgb,
+            var(--color-btn-primary-background-default) 42%,
+            transparent
+        );
+    outline-offset: 3px;
+}
+
+.button:not(:disabled):active {
+    transition:
+        transform var(--button-motion-press-duration, 90ms)
+            cubic-bezier(0.4, 0, 1, 1),
+        box-shadow var(--button-motion-press-duration, 90ms)
+            cubic-bezier(0.4, 0, 1, 1),
+        background-color var(--button-motion-press-duration, 90ms)
+            var(--button-motion-easing),
+        color var(--button-motion-press-duration, 90ms)
+            var(--button-motion-easing);
+    transform: scale(0.99);
+    box-shadow: none;
+    background: var(--color-btn-primary-background-active);
+    color: var(--color-btn-primary-txt-active);
+}
+
 .secondary {
-    box-shadow: var(--color-btn-secondary-background-default-shadow);
+    box-shadow: none;
     border: 2px solid var(--color-btn-secondary-txt-default);
     background-color: var(--color-btn-secondary-background-default);
     color: var(--color-btn-secondary-txt-default);
@@ -1209,6 +1253,12 @@ h2 {
     color: var(--color-btn-secondary-txt-hover);
 }
 
+.button.secondary:not(:disabled):active {
+    border-color: var(--color-btn-secondary-txt-active);
+    background: var(--color-btn-secondary-background-active);
+    color: var(--color-btn-secondary-txt-active);
+}
+
 .button.secondary:disabled {
     border-color: var(--color-btn-secondary-txt-disabled);
     background-color: var(--color-btn-secondary-background-disabled);
@@ -1217,13 +1267,30 @@ h2 {
 
 .buttonSwap {
     .icon-swap {
-        filter: var(--color-icon-link-filter);
+        filter: var(--color-icon-link-hover-filter);
+        transform-origin: center;
+        transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
     }
 }
+
+.buttonSwap--feedback-offset {
+    margin-bottom: 24px;
+}
+
 .buttonSwap:hover {
     .icon-swap {
-        filter: var(--color-icon-link-hover-filter);
+        transform: rotate(180deg);
         cursor: pointer;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .buttonSwap .icon-swap {
+        transition-duration: 0.01ms;
+    }
+
+    .buttonSwap:hover .icon-swap {
+        transform: none;
     }
 }
 
@@ -1303,6 +1370,17 @@ h2 {
 }
 
 /* #endregion BUTTONS */
+
+@media (prefers-reduced-motion: reduce) {
+    .button {
+        transition-duration: 0.01ms;
+    }
+
+    .button:not(:disabled):hover,
+    .button:not(:disabled):active {
+        transform: none;
+    }
+}
 
 /* #region CUSTOMIZE PRICE VARIATION TOLERANCE */
 .customize-tolerance {
@@ -1402,6 +1480,9 @@ h2 {
     padding: 0px;
     width: 318px;
     height: 108px;
+}
+.tokenSelector--compact {
+    height: auto;
 }
 .tokenSelector__token {
     display: flex;

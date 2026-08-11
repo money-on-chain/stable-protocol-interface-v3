@@ -1,9 +1,9 @@
 import "./Styles.scss";
 
-import { Button } from "antd";
 import React, { Fragment } from "react";
 
 import { useProjectTranslation } from "../../helpers/translations";
+import Button from "../Button";
 import PerformanceChart from "../Staking/performanceChart";
 import LiquidityMiningClaims from "../Tables/LiquidityMiningClaims";
 

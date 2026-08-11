@@ -340,10 +340,47 @@
     color: rgb(0, 0, 0);
 }
 
+.custom-table .ant-table-expanded-row > td {
+    padding: 0 !important;
+}
+
+.table-expanded-row-motion {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition:
+        grid-template-rows 320ms cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 220ms ease,
+        transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.table-expanded-row-motion--expanded {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.table-expanded-row-motion__content {
+    min-height: 0;
+    overflow: hidden;
+}
+
+.table-expanded-row-motion__inset {
+    padding: 16px;
+}
+
 .table-expanded-row {
     padding-left: 2rem;
     font-weight: 100;
     border-radius: var(--card-border-radius);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .table-expanded-row-motion {
+        transition-duration: 0.01ms;
+        transform: none;
+    }
 }
 
 .table-asset-name {

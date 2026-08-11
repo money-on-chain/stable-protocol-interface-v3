@@ -1,8 +1,8 @@
-import { Button } from "antd";
 import Modal from "antd/lib/modal/Modal";
 import React, { useState } from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
+import Button from "../../Button";
 import ConfirmSendV1 from "../../ConfirmSendV1";
 
 interface ModalConfirmSendV1Props {

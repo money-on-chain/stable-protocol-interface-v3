@@ -1,10 +1,11 @@
-import { Button, Modal } from "antd";
+import { Modal } from "antd";
 import React, { Fragment, useEffect, useState } from "react";
 import type { TransactionReceipt } from "viem";
 
 import { useWalletContext } from "../../../context/Wallet";
 import { TokenSettings } from "../../../helpers/currencies";
 import { useProjectTranslation } from "../../../helpers/translations";
+import Button from "../../Button";
 import CopyAddress from "../../CopyAddress";
 import DisplayAmount from "../../DisplayAmount";
 import { PrecisionNumbers } from "../../PrecisionNumbers";

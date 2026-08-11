@@ -1,4 +1,3 @@
-import { Button } from "antd";
 import React, { Fragment, useCallback, useEffect, useState } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
@@ -8,6 +7,7 @@ import { toBigIntPrecision } from "../../helpers/precision";
 import { tokenStake } from "../../helpers/staking";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings";
+import Button from "../Button";
 import OperationStatusModal from "../Modals/OperationStatusModal/OperationStatusModal";
 import StakingOptionsModal from "../Modals/StakingOptionsModal/index";
 import { PrecisionNumbers } from "../PrecisionNumbers";

@@ -108,11 +108,11 @@ $breakpoint-mobile: 600px;
 
     .table__cell__claim {
         display: flex;
-        justify-content: flex-end;
+        justify-content: flex-start;
         align-items: center;
         gap: 4px;
         width: 220px;
-        text-align: right;
+        text-align: left;
     }
 
     .table__cell__price {

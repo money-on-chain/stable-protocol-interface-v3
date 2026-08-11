@@ -2,7 +2,13 @@ import "../LastOperations/Styles.scss";
 
 import { DownCircleOutlined, UpCircleOutlined } from "@ant-design/icons";
 import { Modal, Skeleton, Table } from "antd";
-import React, { useCallback, useMemo, useState } from "react";
+import React, {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 import Moment from "react-moment";
 
 import { useWalletContext } from "../../../context/Wallet";
@@ -50,7 +56,21 @@ export default function ListOperationsV1(
 
     const [current, setCurrent] = useState(1);
     const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
+    const [visuallyExpandedKeys, setVisuallyExpandedKeys] = useState<string[]>(
+        []
+    );
+    const expansionTimers = useRef<
+        Map<string, ReturnType<typeof setTimeout>>
+    >(new Map());
     const [queueModal, setQueueModal] = useState(false);
+
+    useEffect(
+        () => () => {
+            expansionTimers.current.forEach(clearTimeout);
+            expansionTimers.current.clear();
+        },
+        []
+    );
 
     const { operations, total, ready } = useOperationsV1(
         token,
@@ -64,10 +84,38 @@ export default function ListOperationsV1(
 
     const handleExpand = useCallback(
         (expanded: boolean, record: { key: string }) => {
-            setExpandedKeys((prevKeys) =>
-                expanded
-                    ? [...prevKeys, record.key]
-                    : prevKeys.filter((key) => key !== record.key)
+            const key = record.key;
+            const pendingTimer = expansionTimers.current.get(key);
+
+            if (pendingTimer) clearTimeout(pendingTimer);
+
+            if (expanded) {
+                setExpandedKeys((prevKeys) =>
+                    prevKeys.includes(key) ? prevKeys : [...prevKeys, key]
+                );
+                expansionTimers.current.set(
+                    key,
+                    setTimeout(() => {
+                        setVisuallyExpandedKeys((prevKeys) =>
+                            prevKeys.includes(key) ? prevKeys : [...prevKeys, key]
+                        );
+                        expansionTimers.current.delete(key);
+                    }, 20)
+                );
+                return;
+            }
+
+            setVisuallyExpandedKeys((prevKeys) =>
+                prevKeys.filter((expandedKey) => expandedKey !== key)
+            );
+            expansionTimers.current.set(
+                key,
+                setTimeout(() => {
+                    setExpandedKeys((prevKeys) =>
+                        prevKeys.filter((expandedKey) => expandedKey !== key)
+                    );
+                    expansionTimers.current.delete(key);
+                }, 320)
             );
         },
         []
@@ -231,10 +279,14 @@ export default function ListOperationsV1(
                     <div className="lastOp__row">
                         <div className="LastOp__expand-collapse">
                             <ExpandIcon
-                                expanded={expandedKeys.includes(parsed.key)}
+                                expanded={visuallyExpandedKeys.includes(
+                                    parsed.key
+                                )}
                                 onClick={() =>
                                     handleExpand(
-                                        !expandedKeys.includes(parsed.key),
+                                        !visuallyExpandedKeys.includes(
+                                            parsed.key
+                                        ),
                                         { key: parsed.key }
                                     )
                                 }
@@ -332,7 +384,14 @@ export default function ListOperationsV1(
 
         return rows;
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [operations, expandedKeys, i18n, t, explorerUrl, handleExpand]);
+    }, [
+        operations,
+        visuallyExpandedKeys,
+        i18n,
+        t,
+        explorerUrl,
+        handleExpand,
+    ]);
 
     const tableColumns = [{ dataIndex: "renderRow" }];
 
@@ -373,8 +432,20 @@ export default function ListOperationsV1(
                         expandedRowKeys: expandedKeys,
                         onExpand: handleExpand,
                         expandedRowRender: (record) => (
-                            <div className="table-expanded-row">
-                                {record.description}
+                            <div
+                                className={`table-expanded-row-motion${
+                                    visuallyExpandedKeys.includes(record.key)
+                                        ? " table-expanded-row-motion--expanded"
+                                        : ""
+                                }`}
+                            >
+                                <div className="table-expanded-row-motion__content">
+                                    <div className="table-expanded-row-motion__inset">
+                                        <div className="table-expanded-row">
+                                            {record.description}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         ),
                         expandIconColumnIndex: -1,

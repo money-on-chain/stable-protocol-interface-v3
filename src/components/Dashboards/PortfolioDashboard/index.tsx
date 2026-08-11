@@ -49,14 +49,6 @@ function DashboardItem({
                     })}
                 </div>
                 <div className="portfolioDash__data__label">
-                    {onAction && (
-                        <span
-                            aria-hidden="true"
-                            className="portfolioDash__action"
-                        >
-                            <div className="icon__button__arrow"></div>
-                        </span>
-                    )}
                     <span>{label}</span>
                 </div>
             </div>

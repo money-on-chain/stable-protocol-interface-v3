@@ -1,10 +1,10 @@
-import { Button } from "antd";
 import React, { useState } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
 import { TokenSettings } from "../../helpers/currencies";
 import { toBigIntPrecision } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
+import Button from "../Button";
 import CopyAddress from "../CopyAddress";
 import DisplayAmount from "../DisplayAmount";
 import { PrecisionNumbers } from "../PrecisionNumbers";

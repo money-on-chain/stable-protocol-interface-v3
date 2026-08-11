@@ -1,11 +1,12 @@
 import { LoadingOutlined } from "@ant-design/icons";
-import { Button, Checkbox, Modal, notification, Spin } from "antd";
+import { Checkbox, Modal, notification, Spin } from "antd";
 import React, { Fragment, useCallback, useEffect, useState } from "react";
 import type { TransactionReceipt } from "viem";
 
 import { useWalletContext } from "../../../context/Wallet";
 import { useProjectTranslation } from "../../../helpers/translations";
 import settings from "../../../settings";
+import Button from "../../Button";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 
 interface StakingOptionsModalProps {

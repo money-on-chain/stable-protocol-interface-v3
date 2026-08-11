@@ -1,9 +1,9 @@
-import { Button } from "antd";
 import Modal from "antd/lib/modal/Modal";
 import React, { useState } from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
 import type { CommissionsState } from "../../../types/status";
+import Button from "../../Button";
 import ConfirmOperation from "../../ConfirmOperation";
 
 interface ModalConfirmOperationProps {
