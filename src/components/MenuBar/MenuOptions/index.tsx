@@ -24,6 +24,8 @@ export default function MenuOptions({ maxVisibleItems }: MenuOptionsProps): JSX.
     const navigate = useNavigate();
     const { t } = useProjectTranslation();
     const menuRef = useRef<HTMLDivElement>(null);
+    const desktopOpenTimerRef = useRef<number | null>(null);
+    const desktopCloseTimerRef = useRef<number | null>(null);
     const projectOptionsKey = getProjectMenuOptions(settings.project)
         .map((option) => `${option.path}:${option.children?.map((child) => child.path).join(",") ?? ""}`)
         .join("|");
@@ -42,6 +44,14 @@ export default function MenuOptions({ maxVisibleItems }: MenuOptionsProps): JSX.
     useEffect(() => {
         setOrderedOptions(getProjectMenuOptions(settings.project));
     }, [projectOptionsKey]);
+
+    useEffect(
+        () => () => {
+            if (desktopOpenTimerRef.current !== null) window.clearTimeout(desktopOpenTimerRef.current);
+            if (desktopCloseTimerRef.current !== null) window.clearTimeout(desktopCloseTimerRef.current);
+        },
+        []
+    );
 
     useEffect(() => {
         if (!isMobileOpen) return;
@@ -109,6 +119,47 @@ export default function MenuOptions({ maxVisibleItems }: MenuOptionsProps): JSX.
         });
     };
 
+    const clearDesktopMenuTimers = (): void => {
+        if (desktopOpenTimerRef.current !== null) {
+            window.clearTimeout(desktopOpenTimerRef.current);
+            desktopOpenTimerRef.current = null;
+        }
+        if (desktopCloseTimerRef.current !== null) {
+            window.clearTimeout(desktopCloseTimerRef.current);
+            desktopCloseTimerRef.current = null;
+        }
+    };
+
+    const scheduleDesktopMenuOpen = (menu: string): void => {
+        clearDesktopMenuTimers();
+
+        if (openDesktopMenu && openDesktopMenu !== menu) {
+            setOpenDesktopMenu(menu);
+            return;
+        }
+
+        desktopOpenTimerRef.current = window.setTimeout(() => {
+            setOpenDesktopMenu(menu);
+            desktopOpenTimerRef.current = null;
+        }, 120);
+    };
+
+    const scheduleDesktopMenuClose = (): void => {
+        if (desktopOpenTimerRef.current !== null) {
+            window.clearTimeout(desktopOpenTimerRef.current);
+            desktopOpenTimerRef.current = null;
+        }
+        desktopCloseTimerRef.current = window.setTimeout(() => {
+            setOpenDesktopMenu(null);
+            desktopCloseTimerRef.current = null;
+        }, 220);
+    };
+
+    const toggleDesktopMenu = (menu: string): void => {
+        clearDesktopMenuTimers();
+        setOpenDesktopMenu((openMenu) => (openMenu === menu ? null : menu));
+    };
+
     const closeMobileMenu = (): void => {
         setIsMobileOpen(false);
         setOpenMobileSubmenu(null);
@@ -122,15 +173,25 @@ export default function MenuOptions({ maxVisibleItems }: MenuOptionsProps): JSX.
             >
                 {visibleOptions.map((option) =>
                     option.children?.length ? (
-                        <div className="menu-bar-menu__more" key={option.path}>
+                        <div
+                            className="menu-bar-menu__more"
+                            key={option.path}
+                            onBlur={(event) => {
+                                if (!event.currentTarget.contains(event.relatedTarget)) scheduleDesktopMenuClose();
+                            }}
+                            onMouseEnter={() => scheduleDesktopMenuOpen(option.path)}
+                            onMouseLeave={scheduleDesktopMenuClose}
+                        >
                             <button
                                 aria-expanded={openDesktopMenu === option.path}
                                 aria-haspopup="menu"
                                 className="menu-bar-menu__item menu-bar-menu__more-trigger"
                                 data-active={isMenuOptionActive(location.pathname, option) || undefined}
-                                onClick={() =>
-                                    setOpenDesktopMenu((openMenu) => (openMenu === option.path ? null : option.path))
-                                }
+                                onClick={() => toggleDesktopMenu(option.path)}
+                                onFocus={() => {
+                                    clearDesktopMenuTimers();
+                                    setOpenDesktopMenu(option.path);
+                                }}
                                 type="button"
                             >
                                 {t(option.nameKey)}
@@ -170,13 +231,24 @@ export default function MenuOptions({ maxVisibleItems }: MenuOptionsProps): JSX.
                 )}
 
                 {moreOptions.length > 0 && (
-                    <div className="menu-bar-menu__more">
+                    <div
+                        className="menu-bar-menu__more"
+                        onBlur={(event) => {
+                            if (!event.currentTarget.contains(event.relatedTarget)) scheduleDesktopMenuClose();
+                        }}
+                        onMouseEnter={() => scheduleDesktopMenuOpen("more")}
+                        onMouseLeave={scheduleDesktopMenuClose}
+                    >
                         <button
                             aria-expanded={openDesktopMenu === "more"}
                             aria-haspopup="menu"
                             className="menu-bar-menu__item menu-bar-menu__more-trigger"
                             data-active={isMoreActive || undefined}
-                            onClick={() => setOpenDesktopMenu((openMenu) => (openMenu === "more" ? null : "more"))}
+                            onClick={() => toggleDesktopMenu("more")}
+                            onFocus={() => {
+                                clearDesktopMenuTimers();
+                                setOpenDesktopMenu("more");
+                            }}
                             type="button"
                         >
                             {t("menuOptions.more")}
