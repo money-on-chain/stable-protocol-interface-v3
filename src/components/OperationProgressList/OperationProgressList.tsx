@@ -146,6 +146,8 @@ export default function OperationProgressList({
                     <li
                         key={step.id}
                         className={`operation-progress-list__step operation-progress-list__step--${step.status}`}
+                        data-status={step.status}
+                        data-testid={`operation-progress-step-${step.id}`}
                     >
                         <span
                             className="operation-progress-list__marker"
