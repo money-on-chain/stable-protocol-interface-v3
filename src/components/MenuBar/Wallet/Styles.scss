@@ -1,0 +1,67 @@
+.menu-bar-wallet {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    transition:
+        background-color var(--btn-transition),
+        border-color var(--btn-transition),
+        color var(--btn-transition);
+    cursor: pointer;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: 0 20px;
+    min-width: 144px;
+    height: 40px;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1;
+    font-family: var(--main-font);
+    white-space: nowrap;
+}
+
+.menu-bar-wallet__icon {
+    flex: 0 0 auto;
+    margin-right: 8px;
+    border-radius: 4px;
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+}
+
+.menu-bar-wallet--disconnected {
+    box-shadow: var(--color-btn-primary-background-default-shadow);
+    background-color: var(--color-btn-primary-background-default);
+    color: var(--color-btn-primary-txt-default);
+}
+
+.menu-bar-wallet--disconnected:hover,
+.menu-bar-wallet--disconnected:focus-visible {
+    background-color: var(--color-btn-primary-background-hover);
+    color: var(--color-btn-primary-txt-hover);
+}
+
+.menu-bar-wallet--connected {
+    border-color: var(--color-btn-secondary-txt-default);
+    background-color: var(--surface-color-1);
+    color: var(--color-btn-secondary-txt-default);
+}
+
+.menu-bar-wallet--connected:hover,
+.menu-bar-wallet--connected:focus-visible {
+    border-color: var(--color-btn-secondary-txt-hover);
+    color: var(--color-btn-secondary-txt-hover);
+}
+
+.menu-bar-wallet:focus-visible {
+    outline: 2px solid var(--color-txt-link);
+    outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+    .menu-bar-wallet {
+        padding: 0 14px;
+        min-width: auto;
+        height: 36px;
+        font-size: 13px;
+    }
+}

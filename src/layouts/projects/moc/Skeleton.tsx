@@ -4,6 +4,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 
 import DappFooter from "../../../components/Footer/index";
 import SectionHeader from "../../../components/Header";
+import MenuBar from "../../../components/MenuBar";
 import NotificationBody from "../../../components/Notification";
 import UpdateToast from "../../../components/UpdateToast";
 import { useWalletContext } from "../../../context/Wallet";
@@ -115,6 +116,7 @@ export default function Skeleton(): JSX.Element {
 
     return (
         <Layout>
+            <MenuBar />
             <SectionHeader />
             <Content>
                 <UpdateToast />

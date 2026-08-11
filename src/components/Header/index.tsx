@@ -32,6 +32,12 @@ interface LanguageOption {
     code: string;
 }
 
+interface ProjectSettingsWithHeader {
+    header?: {
+        centerVariant?: string;
+    };
+}
+
 const truncateAddress = (address: string): string => {
     return (
         address.substring(0, 6) +
@@ -58,6 +64,10 @@ export default function SectionHeader(): JSX.Element {
     const [lang, setLang] = useState<string>("en");
 
     const MAX_MAIN_MENU_ITEMS: number = 5;
+    const showDashboard =
+        (settings as unknown as ProjectSettingsWithHeader).header
+            ?.centerVariant === "lendBorrowBanner";
+    const hasTokenPriceStrip = Boolean(settings.tokenPriceStrip?.tokens.length);
 
     // Filter options based on project and language changes
     const [displayOptions, setDisplayOptions] = useState<MenuOption[]>([]);
@@ -128,10 +138,16 @@ export default function SectionHeader(): JSX.Element {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    if (!showDashboard && !hasTokenPriceStrip) return <></>;
+
     return (
-        <Header className="app-header">
+        <Header
+            className={`app-header app-header--supporting${showDashboard ? " app-header--dashboard" : ""}${!hasTokenPriceStrip ? " app-header--without-price-strip" : ""}`}
+        >
             <TokenPriceStrip />
-            <div className="header-container">
+            <div
+                className={`header-container${showDashboard ? " header-container--dashboard-only" : " header-container--legacy-hidden"}`}
+            >
                 <Brand />
                 <HeaderCenter
                     currentPath={location.pathname}
