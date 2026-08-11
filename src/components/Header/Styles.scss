@@ -6,6 +6,16 @@ $breakpoint-mobile: 600px;
     min-height: 80px;
 }
 
+.app-header--supporting {
+    margin-bottom: 0;
+    height: auto;
+    min-height: 0;
+
+    .token-price-strip {
+        margin-bottom: 0;
+    }
+}
+
 .header-container {
     display: flex;
     flex-direction: row;
@@ -202,6 +212,35 @@ $breakpoint-mobile: 600px;
             // background-image: url('../../assets/icons/GlobeFilled.svg');
             filter: var(--color-nav-icon-filter-hover);
         }
+    }
+}
+
+.header-container--legacy-hidden {
+    display: none;
+}
+
+.header-container--dashboard-only {
+    > .header-logo,
+    > .wallet-user,
+    > .mobile__menu__button {
+        display: none;
+    }
+
+    > .header-center-banner {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .ant-layout-header.app-header--supporting {
+        position: static;
+        margin-top: 16px;
+        margin-bottom: var(--layout-module-gap-vertical);
+        min-height: 0;
+    }
+
+    .app-header--dashboard.app-header--without-price-strip {
+        display: none;
     }
 }
 /*
@@ -718,6 +757,10 @@ $breakpoint-mobile: 600px;
             width: 32px;
             height: 32px;
         }
+    }
+    .header-container.header-container--legacy-hidden,
+    .header-container.header-container--dashboard-only {
+        display: none;
     }
     .section-container {
         display: flex;

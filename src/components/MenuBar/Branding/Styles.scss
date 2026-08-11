@@ -1,0 +1,22 @@
+.menu-bar-branding {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+}
+
+.menu-bar-branding__logo {
+    background-image: var(--brand-logo-main);
+    background-position: left center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 127px;
+    height: 42px;
+}
+
+@media (max-width: 768px) {
+    .menu-bar-branding__logo {
+        background-image: var(--brand-logo-main-small);
+        width: 32px;
+        height: 32px;
+    }
+}

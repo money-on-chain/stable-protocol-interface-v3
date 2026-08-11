@@ -5,6 +5,9 @@
         "description": "MOC UI - Legacy v1 contracts"
     },
     "showPriceVariation": true,
+    "menuBar": {
+        "maxVisibleItems": 5
+    },
     "tokenPriceStrip": {
         "tokens": ["CA_0", "TC_0", "TP_0", "TG"]
     },

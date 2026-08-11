@@ -5,6 +5,7 @@ import { useChainId } from "wagmi";
 
 import DappFooter from "../../../components/Footer/index";
 import SectionHeader from "../../../components/Header";
+import MenuBar from "../../../components/MenuBar";
 import { NetworkGuard } from "../../../components/NetworkGuard";
 import NotConnected from "../../../components/NotConnected";
 import RpcErrorAlert from "../../../components/Notification/RpcErrorAlert";
@@ -210,6 +211,7 @@ export default function Skeleton(): JSX.Element {
     return (
         <NotificationProvider>
             <Layout>
+                <MenuBar />
                 <SectionHeader />
 
                 {/* Global notification center, always rendered below the header */}
