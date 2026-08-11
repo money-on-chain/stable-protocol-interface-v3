@@ -1,3 +1,7 @@
+.menu-bar-shell {
+    min-height: 64px;
+}
+
 .menu-bar {
     display: flex;
     align-items: center;
@@ -11,6 +15,27 @@
     margin-left: calc(50% - 50vw);
 }
 
+.menu-bar--floating {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1200;
+    animation: menu-bar-slide-in 180ms ease-out;
+    box-shadow: var(--surface-shadow-3);
+    margin-left: 0;
+    width: 100%;
+}
+
+@keyframes menu-bar-slide-in {
+    from {
+        transform: translateY(-100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
 .menu-bar__actions {
     display: flex;
     align-items: center;
@@ -19,8 +44,18 @@
 }
 
 @media (max-width: 768px) {
+    .menu-bar-shell {
+        min-height: 56px;
+    }
+
     .menu-bar {
         gap: 16px;
         min-height: 56px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .menu-bar--floating {
+        animation: none;
     }
 }
