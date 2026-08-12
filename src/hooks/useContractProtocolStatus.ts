@@ -22,6 +22,15 @@ const onErrorGetZeroUint256 = (): MultiCallErrorResult => {
     return { value: 0n };
 };
 
+// peek() calls revert outright when a price provider rejects the caller
+// (e.g. an access-controlled feed that only whitelists the real Moc bucket
+// contract) — that's a permanent revert, not a transient error, so every
+// consumer must still get the [price, valid] tuple shape it expects rather
+// than the generic `null` fallback for non-scalar resultTypes.
+const onErrorGetInvalidPeek = (): MultiCallErrorResult => {
+    return { value: [0n, false] };
+};
+
 const mocQueuePriceUpdatesCostAbi = [
     {
         inputs: [],
@@ -142,6 +151,7 @@ export function useContractProtocolStatus(
                     const tuple = result as [bigint, boolean];
                     return [normalizeToBigInt(tuple[0]), tuple[1]];
                 },
+                onError: onErrorGetInvalidPeek,
             });
         }
 
@@ -402,6 +412,7 @@ export function useContractProtocolStatus(
                     const tuple = result as [bigint, boolean];
                     return [normalizeToBigInt(tuple[0]), tuple[1]];
                 },
+                onError: onErrorGetInvalidPeek,
             });
 
             callRequest.push({
@@ -564,6 +575,7 @@ export function useContractProtocolStatus(
                         const tuple = result as [bigint, boolean];
                         return [normalizeToBigInt(tuple[0]), tuple[1]];
                     },
+                    onError: onErrorGetInvalidPeek,
                 });
 
                 callRequest.push({
@@ -740,6 +752,7 @@ export function useContractProtocolStatus(
                     const tuple = result as [bigint, boolean];
                     return [normalizeToBigInt(tuple[0]), tuple[1]];
                 },
+                onError: onErrorGetInvalidPeek,
             });
         }
 
