@@ -453,7 +453,9 @@ export default function TokenAmountInput({
                     onCancel={() => setIsSelectorOpen(false)}
                     open={isSelectorOpen}
                     title={
-                        title && title.trim() !== "" ? title : "Select a token"
+                        title && title.trim() !== ""
+                            ? title
+                            : t("tokenAmountInput.selectTokenTitle")
                     }
                 >
                     <div className="tokenAmountInput__optionList">

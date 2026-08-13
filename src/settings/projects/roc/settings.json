@@ -4,6 +4,9 @@
         "name": "ROC UI",
         "description": "ROC UI"
     },
+    "menuBar": {
+        "maxVisibleItems": 5
+    },
     "showPriceVariation": false,
     "useCombinedOperationsRedeemableLimit": true,
     "slippage": {

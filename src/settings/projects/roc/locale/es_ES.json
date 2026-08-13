@@ -38,11 +38,11 @@
             "buttonClose": "Cerrar"
         },
         "tooltip": {
-            "text": "Only list >= 1 block confirmation.\nConfirming: Transaction with at least one confirmation and less than 10.\nConfirmed: Transaction with more than 10 confirmations.\nOpen: Transaction confirmed, transaction successfully queued to processed on next settlement.\nSettled: Transaction executed on last settlement."
+            "text": "Solo se muestran operaciones con al menos 1 confirmación de bloque.\nConfirmando: transacción con al menos una confirmación y menos de 10.\nConfirmada: transacción con más de 10 confirmaciones.\nAbierta: transacción confirmada y encolada correctamente para procesarse en la próxima liquidación.\nLiquidada: transacción ejecutada en la última liquidación."
         },
-        "empty": "No operations",
+        "empty": "Sin operaciones",
         "headers": {
-            "amountReserve": "This amount include platform commission + gas fee + interest if its applied"
+            "amountReserve": "Este monto incluye la comisión de la plataforma, la tarifa de gas y los intereses, si corresponden"
         },
         "actions": {
             "transfer": "Transferencia",
@@ -84,7 +84,7 @@
             "qACBelow1": "La variación de precio para",
             "qACBelow2": "resultó en un monto recibido inferior al mínimo requerido.",
             "insufficientQAC1": "La variación de precio para",
-            "insufficientQAC2": "excedió el Slippage Tolerance. Intenta aumentar la tolerancia o reintentar.",
+            "insufficientQAC2": "excedió la tolerancia de deslizamiento. Intenta aumentar la tolerancia o reintentar.",
             "lowCoverage": "La operación falló debido a baja cobertura del sistema.",
             "fluxCapacitor": "Operación rechazada: se alcanzó el límite del sistema.",
             "noMessage": "La transacción falló.",
@@ -113,15 +113,15 @@
             "close": "Cerrar"
         },
         "vestingFeedback": {
-            "empty": "You must specify a Vesting Machine address",
-            "notValid": "Vesting Machine Address not valid",
-            "alreadyLoaded": "Vesting Machine already loaded",
-            "incorrect": "Vesting Machine Address format appears to be incorrect"
+            "empty": "Debes especificar una dirección de Vesting Machine",
+            "notValid": "La dirección de la Vesting Machine no es válida",
+            "alreadyLoaded": "La Vesting Machine ya está cargada",
+            "incorrect": "El formato de la dirección de la Vesting Machine parece incorrecto"
         }
     },
     "walletProviders": {
-        "connectWalletButton": "Connectar Wallet",
-        "connectYourWallet": "Connecta tu Wallet",
+        "connectWalletButton": "Conectar wallet",
+        "connectYourWallet": "Conecta tu wallet",
         "noBrowserWallets": "Sin wallets de navegador detectadas",
         "providers": {
             "injected": "Browser Wallet / MetaMask",
@@ -220,7 +220,7 @@
             "notOperational": "No operacional debido a bajo Global Coverage ratio",
             "cantOperate": "No se puede operar con el estado actual",
             "requestTimeout": "Mucho tiempo procesando",
-            "connectYourWallet": "Please connect your wallet Por favor conectar wallet",
+            "connectYourWallet": "Por favor, conecta tu wallet",
             "amountTooLow": "La cantidad debe ser mayor a cero",
             "amountInvalid": "La cantidad debe ser válida",
             "notBalance": "No hay balance suficiente en tu wallet",
@@ -245,7 +245,7 @@
         "dashboard": {
             "readyToClaim": "MoC listo para claim",
             "earnedToday": "MoC ganado hoy",
-            "balance": "MoC balance",
+            "balance": "Saldo de MoC",
             "staked": "MoC en staking",
             "unstaking": "MoC en proceso de unstaking",
             "readyToWithdraw": "MoC para retirar"
@@ -452,7 +452,10 @@
         "voting": "Votación",
         "more": "Más",
         "combinedOperations": "Op. Combinadas",
-        "lendingBorrowing": "Lend & Borrow"
+        "lendingBorrowing": "Lend & Borrow",
+        "navigation": "Navegación principal",
+        "openNavigation": "Abrir navegación",
+        "closeNavigation": "Cerrar navegación"
     },
 
     "language": {
@@ -475,7 +478,7 @@
     },
 
     "swapModal": {
-        "text1": "RIF Dollar (RDOC) ha cambiado a RIF US Dollar (USDRIF). Necesitas cambiar tus RIF Dollars para usar la nueva dApp. No vas a poder ver tu balance de RDOC en la dApp. Házlo usando el ",
+        "text1": "RIF Dollar (RDOC) ha cambiado a RIF US Dollar (USDRIF). Necesitas cambiar tus RIF Dollars para usar la nueva dApp. No vas a poder ver tu balance de RDOC en la dApp. Hazlo usando el ",
         "text2": "botón 'Cambiar Ahora'",
         "button": "Cambiar Ahora",
         "modalTitle1": "AVISO IMPORTANTE",
@@ -545,7 +548,7 @@
                 "description": "Desempeño anual del MOC",
                 "base": "MoC",
                 "sign": "+",
-                "staking": "Stacking"
+                "staking": "Staking"
             }
         },
         "withdraw": {
@@ -628,15 +631,15 @@
             "StakingOptionsModal_AmountToRestake": "Monto para Restake",
             "StakingOptionsModal_RestakeDescription": "Luego de hacer el Restaking de tus tokens comenzarás a recibir recompensas del Programa de Staking Rewards de MoC. ",
 
-            "StatusModal_Modal_Title": "Operation details",
-            "StatusModal_Modal_Close": "Close",
-            "StatusModal_Modal_TxStatus_sign": "Sign the transaction in your wallet",
-            "StatusModal_Modal_TxStatus_success": "Transaction successful",
-            "StatusModal_Modal_TxStatus_failed": "Transaction failed!",
-            "StatusModal_Modal_TxStatus_pending": "Wait for transaction confirmation",
-            "StatusModal_Modal_TxStatus_error": "Transaction error!"
+            "StatusModal_Modal_Title": "Detalles de la operación",
+            "StatusModal_Modal_Close": "Cerrar",
+            "StatusModal_Modal_TxStatus_sign": "Firma la transacción en tu wallet",
+            "StatusModal_Modal_TxStatus_success": "Transacción exitosa",
+            "StatusModal_Modal_TxStatus_failed": "¡La transacción falló!",
+            "StatusModal_Modal_TxStatus_pending": "Espera la confirmación de la transacción",
+            "StatusModal_Modal_TxStatus_error": "¡Error en la transacción!"
         },
-        "confirmation": { "cardTitle": "Confirm Stake" },
+        "confirmation": { "cardTitle": "Confirmar staking" },
         "Error_numericField": "Este campo debe ser numérico",
         "Error_separateDecimals": "Usa el punto para separar decimales",
         "Error_numberTooSmall": "El valor es muy pequeño",
@@ -668,7 +671,7 @@
                 "amountLabel": "Cantidad de tokens para el claim",
                 "ownerLabel": "Puede cargar cualquier dirección de Vesting Machine (VM) existente o crear una nueva si tienes un Claim Code.",
                 "transactionId": "ID de transacción",
-                "ctaInfo": "Los tokens serán bloqueados en la Vesting Machine vinculada a la wallet a la que estás conectado en este momento. Por favor, verifica la información de arriba antes de confirmar. Una vez que la transaccíon haya sido firmada no será posible revertirla",
+                "ctaInfo": "Los tokens serán bloqueados en la Vesting Machine vinculada a la wallet a la que estás conectado en este momento. Por favor, verifica la información de arriba antes de confirmar. Una vez que la transacción haya sido firmada no será posible revertirla",
                 "ctaSecondary": "Atrás",
                 "ctaPrimary": "Confirmar",
                 "modalTitle": "Confirmar Vesting Machine"
@@ -711,7 +714,7 @@
             "released": "MOC Bloqueados",
             "staked": "MOC en Staking",
             "unstaking": "MOC en progreso de unstaking",
-            "daysToRelease": "Days to next release"
+            "daysToRelease": "Días hasta la próxima liberación"
         },
         "releaseSchedule": {
             "cardTitle": "Calendario de liberación",
@@ -803,6 +806,7 @@
     },
     "settings": {
         "protocolName": "Rif On Chain",
+        "configuration": "Configuración",
         "themeMode": {
             "light": "Modo claro",
             "dark": "Modo oscuro"
@@ -829,14 +833,15 @@
             "statusInProgress": "En progreso"
         }
     },
-    "slippageTolerance": { "title": "Slippage Tolerance" },
+    "slippageTolerance": { "title": "Tolerancia de deslizamiento" },
     "beforeAfterCard": {
         "before": "Actual",
         "after": "Siguiente"
     },
     "tokenAmountInput": {
         "noEnoughBalance": "No hay balance suficiente en tu wallet.",
-        "labelBalance": "Balance"
+        "labelBalance": "Balance",
+        "selectTokenTitle": "Seleccionar un token"
     },
     "lendingBorrowing": {
         "backLink": "Volver a Lending & Borrowing",
