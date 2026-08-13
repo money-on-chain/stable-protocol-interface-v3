@@ -2,7 +2,12 @@ import { useMemo } from "react";
 
 import { normalizeToBigInt } from "../helpers/precision";
 import settings from "../settings";
-import type { ContractInfo, DContracts, MultiCallInput } from "../types/hooks";
+import type {
+    ContractInfo,
+    DContracts,
+    MultiCallErrorResult,
+    MultiCallInput,
+} from "../types/hooks";
 import type { OnchainPricesResult } from "../types/status";
 import { useMultiCall } from "./useMulticall";
 
@@ -14,6 +19,15 @@ function isPeekResult(result: unknown): result is [string | bigint, boolean] {
         typeof result[1] === "boolean"
     );
 }
+
+// peek() calls revert outright when a price provider rejects the caller
+// (e.g. an access-controlled feed that only whitelists the real Moc bucket
+// contract) — that's a permanent revert, not a transient error, so every
+// consumer must still get the [price, valid] tuple shape it expects rather
+// than the generic `null` fallback for non-scalar resultTypes.
+const onErrorGetInvalidPeek = (): MultiCallErrorResult => {
+    return { value: [0n, false] };
+};
 
 /**
  * React hook that wraps useMultiCall3 to fetch contract status data.
@@ -64,6 +78,7 @@ export function useOnchainPrices(
                     if (!isPeekResult(result)) return [null, false];
                     return [normalizeToBigInt(result[0]), result[1]];
                 },
+                onError: onErrorGetInvalidPeek,
             });
 
             // TP prices
@@ -97,6 +112,7 @@ export function useOnchainPrices(
                         if (!isPeekResult(result)) return [null, false];
                         return [normalizeToBigInt(result[0]), result[1]];
                     },
+                    onError: onErrorGetInvalidPeek,
                 });
             }
 
@@ -122,6 +138,7 @@ export function useOnchainPrices(
                     const tuple = result as [string, boolean];
                     return [normalizeToBigInt(tuple[0]), tuple[1]];
                 },
+                onError: onErrorGetInvalidPeek,
             });
 
             if (contracts.PP_COINBASE) {
@@ -146,6 +163,7 @@ export function useOnchainPrices(
                         if (!isPeekResult(result)) return [null, false];
                         return [normalizeToBigInt(result[0]), result[1]];
                     },
+                    onError: onErrorGetInvalidPeek,
                 });
             }
         }

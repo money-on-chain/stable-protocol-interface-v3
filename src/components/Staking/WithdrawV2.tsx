@@ -107,7 +107,7 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
                     </div>
                     <div className="withdraw__cta">
                         <div
-                            className={`cta__button restake action__container${withdrawal.status !== "PENDING" && withdrawal.status !== "AVAILABLE" ? " action__container--disabled" : ""}`}
+                            className={`cta__button restake action__container${withdrawal.status !== "PENDING" && withdrawal.status !== "AVAILABLE" ? " cta__button--disabled" : ""}`}
                             onClick={() =>
                                 handleActionClick("restake", withdrawal)
                             }
