@@ -15,19 +15,27 @@ export interface RawMenuChildOption {
     allowedProjects?: string[];
 }
 
+const isLendingBorrowingEnabled = Boolean(import.meta.env.REACT_APP_LENDING_READER);
+
+function isLendingBorrowingOption(option: { nameKey: string }): boolean {
+    return option.nameKey === "menuOptions.lendingBorrowing";
+}
+
 export function getProjectMenuOptions(project: string): RawMenuOption[] {
     return (menuOptionsData as RawMenuOption[])
         .filter(
             (option: RawMenuOption) =>
                 option.allowedProjects.includes(project) || option.allowedProjects.includes("all")
         )
+        .filter((option: RawMenuOption) => isLendingBorrowingEnabled || !isLendingBorrowingOption(option))
         .map((option: RawMenuOption) => ({
             ...option,
             children: option.children?.filter(
                 (child: RawMenuChildOption) =>
-                    !child.allowedProjects ||
-                    child.allowedProjects.includes(project) ||
-                    child.allowedProjects.includes("all")
+                    (!child.allowedProjects ||
+                        child.allowedProjects.includes(project) ||
+                        child.allowedProjects.includes("all")) &&
+                    (isLendingBorrowingEnabled || !isLendingBorrowingOption(child))
             ),
         }));
 }

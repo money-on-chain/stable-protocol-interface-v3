@@ -11,10 +11,18 @@ export function usePortfolioCurrentDebt(
     userAddress?: Address,
     refetchInterval = 30_000
 ) {
+    // contracts.LendingManager is only ever populated when
+    // REACT_APP_LENDING_READER is set (see useReadContracts.ts); if it's
+    // unset this is permanently false, so we stop waiting on it instead of
+    // leaving the query - and its callers' loading state - stuck forever.
+    const lendingReaderConfigured = Boolean(
+        import.meta.env.REACT_APP_LENDING_READER
+    );
     const lendingManager = contracts?.LendingManager;
     const tpToken = contracts?.TP?.[0];
     const mocBucket = contracts?.Moc?.[0];
     const enabled =
+        lendingReaderConfigured &&
         lendingManager != null &&
         tpToken != null &&
         mocBucket != null &&
@@ -64,10 +72,11 @@ export function usePortfolioCurrentDebt(
     // L&R presents DOC debt with two decimals and considers 0.00 to be no
     // current debt. Compare against half of the smallest visible unit so this
     // hook follows the same rounding criterion without changing L&R itself.
-    const hasCurrentDebt =
-        currentDebt === undefined
-            ? undefined
-            : currentDebt >= DOC_VISIBLE_UNIT / 2n;
+    const hasCurrentDebt = !lendingReaderConfigured
+        ? false
+        : currentDebt === undefined
+          ? undefined
+          : currentDebt >= DOC_VISIBLE_UNIT / 2n;
 
     return {
         creditBalanceQuery,
@@ -75,5 +84,6 @@ export function usePortfolioCurrentDebt(
         creditBalance,
         currentDebt,
         hasCurrentDebt,
+        lendingReaderConfigured,
     };
 }

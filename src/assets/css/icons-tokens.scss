@@ -15,20 +15,11 @@
 .icon-token-RBTC {
     @include token-icon("RBTC");
 }
-.icon-token-RIF {
-    @include token-icon("RIF");
+.icon-token-BPRO {
+    @include token-icon("BPRO");
 }
 .icon-token-DOC {
     @include token-icon("DOC");
-}
-.icon-token-USDRIF {
-    @include token-icon("USDRIF");
-}
-.icon-token-RIFP {
-    @include token-icon("RIFP");
-}
-.icon-token-ROCR {
-    @include token-icon("ROCR");
 }
 .icon-token-MOC {
     @include token-icon("MOC");
@@ -39,19 +30,13 @@
     @include token-icon("RBTC");
 }
 .icon-token-ca_0 {
-    @include token-icon("RIF");
-}
-.icon-token-ca_1 {
-    @include token-icon("DOC");
+    @include token-icon("RBTC");
 }
 .icon-token-tc_0 {
-    @include token-icon("RIFP");
-}
-.icon-token-tc_1 {
-    @include token-icon("ROCR");
+    @include token-icon("BPRO");
 }
 .icon-token-tp_0 {
-    @include token-icon("USDRIF");
+    @include token-icon("DOC");
 }
 .icon-token-tf {
     @include token-icon("MOC");

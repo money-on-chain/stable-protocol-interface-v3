@@ -22,10 +22,8 @@ export default function PortfolioTableV1(): React.ReactElement {
         userBalanceV1,
         userBaseCoinBalance,
     } = useWalletContext();
-    const { hasCurrentDebt } = usePortfolioCurrentDebt(
-        contractsAddress,
-        address
-    );
+    const { hasCurrentDebt, lendingReaderConfigured } =
+        usePortfolioCurrentDebt(contractsAddress, address);
 
     const ready =
         contractProtocolStatusV1.data != null && userBalanceV1.data != null;
@@ -87,9 +85,11 @@ export default function PortfolioTableV1(): React.ReactElement {
                             }`}
                         >
                             {row.tokenTicker === "DOC" &&
+                            lendingReaderConfigured &&
                             hasCurrentDebt === undefined ? (
                                 <Skeleton.Button active size="small" />
-                            ) : row.tokenTicker === "DOC" ? (
+                            ) : row.tokenTicker === "DOC" &&
+                              lendingReaderConfigured ? (
                                 <button
                                     className="portfolioActionV1__button"
                                     data-testid="portfolio-lending-borrowing-DOC"
