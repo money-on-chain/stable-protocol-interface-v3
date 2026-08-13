@@ -5,14 +5,15 @@
 .menu-bar {
     display: flex;
     align-items: center;
-    gap: var(--layout-module-gap-horizontal);
+    gap: var(--menu-bar-brand-gap, var(--layout-module-gap-horizontal));
     box-sizing: border-box;
     border-bottom: var(--card-border);
     background: var(--surface-color-1);
     padding: 0 var(--card-padding);
     width: 100vw;
+    min-width: 1184px;
     min-height: 64px;
-    margin-left: calc(50% - 50vw);
+    margin-left: min(0px, calc(50% - 50vw));
 }
 
 .menu-bar--floating {
@@ -50,6 +51,7 @@
 
     .menu-bar {
         gap: 16px;
+        min-width: 0;
         min-height: 56px;
     }
 }

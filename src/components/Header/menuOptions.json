@@ -37,23 +37,35 @@
         "className": "logo-earn",
         "path": "/earn",
         "allowedProjects": [
-            "moc-v1"
+            "moc-v1",
+            "roc"
         ],
         "children": [
             {
                 "nameKey": "menuOptions.staking",
                 "className": "logo-staking",
-                "path": "/staking"
+                "path": "/staking",
+                "allowedProjects": [
+                    "moc-v1",
+                    "roc"
+                ]
             },
             {
                 "nameKey": "menuOptions.lendingBorrowing",
                 "className": "logo-lending-borrowing",
-                "path": "/lending-borrowing"
+                "path": "/lending-borrowing",
+                "allowedProjects": [
+                    "moc-v1"
+                ]
             },
             {
                 "nameKey": "menuOptions.liquidityMining",
                 "className": "logo-liquidity-mining",
-                "path": "/liquidity-mining"
+                "path": "/liquidity-mining",
+                "allowedProjects": [
+                    "moc-v1",
+                    "roc"
+                ]
             }
         ]
     },
@@ -64,8 +76,7 @@
         "allowedProjects": [
             "moc",
             "flipmoney",
-            "voting",
-            "roc"
+            "voting"
         ]
     },
     {
