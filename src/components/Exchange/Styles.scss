@@ -21,6 +21,14 @@ section_exchange.scss contains all the css code for Exchange & Combined Operatio
     gap: 32px;
     width: 736px;
 }
+
+// Exchange shares its markup with Combined Operations. In the simple flow,
+// keep the conditional group wrapper out of the flex layout so both token
+// inputs and the swap button are spaced exactly like ExchangeV1.
+.exchange-input-wrapper {
+    display: contents;
+}
+
 .info {
     display: flex;
     flex-direction: column;

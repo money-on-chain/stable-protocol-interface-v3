@@ -182,13 +182,13 @@
             "confirmed": "Transaction confirmed",
             "success": "Transaction successful",
             "error": "Transaction failed!",
-            "default": "Espera la confirmación de la transacción",
+            "default": "Waiting for transaction confirmation",
             "minimumWarning": "Minimum to receive",
             "minimumExplanation": "(see price variation tolerance)"
         },
 
         "priceVariation": {
-            "title": "Customice price variation tolerance",
+            "title": "Customize price variation tolerance",
             "sliderLabel": "Price Variation Tolerance",
             "warning": "This amount was updated according to variation tolerance"
         },
@@ -452,11 +452,14 @@
         "voting": "Voting",
         "more": "More",
         "combinedOperations": "Combined Ops.",
-        "lendingBorrowing": "Lend & Borrow"
+        "lendingBorrowing": "Lend & Borrow",
+        "navigation": "Main navigation",
+        "openNavigation": "Open navigation",
+        "closeNavigation": "Close navigation"
     },
 
     "language": {
-        "languageCTA": "Selecet Language:",
+        "languageCTA": "Select Language:",
         "en": "🇬🇧 English",
         "es": "🇪🇸 Español"
     },
@@ -545,7 +548,7 @@
                 "description": "MoC staking annualized performance",
                 "base": "MoC",
                 "sign": "+",
-                "staking": "Stacking"
+                "staking": "Staking"
             }
         },
         "withdraw": {
@@ -801,6 +804,7 @@
     },
     "settings": {
         "protocolName": "Rif On Chain",
+        "configuration": "Settings",
         "themeMode": {
             "light": "Light Mode",
             "dark": "Dark mode"
@@ -834,7 +838,8 @@
     },
     "tokenAmountInput": {
         "noEnoughBalance": "Not enough balance in your wallet.",
-        "labelBalance": "Balance"
+        "labelBalance": "Balance",
+        "selectTokenTitle": "Select a token"
     },
     "lendingBorrowing": {
         "backLink": "Back to Lending & Borrowing",

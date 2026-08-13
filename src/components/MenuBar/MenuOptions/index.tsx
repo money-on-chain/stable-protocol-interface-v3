@@ -3,7 +3,11 @@ import "./Styles.scss";
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { getProjectMenuOptions, type RawMenuChildOption, type RawMenuOption } from "../../../helpers/menuOptions";
+import {
+    getProjectMenuOptions,
+    type RawMenuChildOption,
+    type RawMenuOption,
+} from "../../../helpers/menuOptions";
 import { useProjectTranslation } from "../../../helpers/translations";
 import settings from "../../../settings";
 import Branding from "../Branding";
@@ -13,13 +17,25 @@ export interface MenuOptionsProps {
 }
 
 const isOptionActive = (currentPath: string, optionPath: string): boolean =>
-    optionPath === "/" ? currentPath === "/" : currentPath === optionPath || currentPath.startsWith(`${optionPath}/`);
+    optionPath === "/"
+        ? currentPath === "/"
+        : currentPath === optionPath ||
+          currentPath.startsWith(`${optionPath}/`);
 
-const isMenuOptionActive = (currentPath: string, option: RawMenuOption): boolean =>
+const isMenuOptionActive = (
+    currentPath: string,
+    option: RawMenuOption
+): boolean =>
     isOptionActive(currentPath, option.path) ||
-    Boolean(option.children?.some((child) => isOptionActive(currentPath, child.path)));
+    Boolean(
+        option.children?.some((child) =>
+            isOptionActive(currentPath, child.path)
+        )
+    );
 
-export default function MenuOptions({ maxVisibleItems }: MenuOptionsProps): JSX.Element {
+export default function MenuOptions({
+    maxVisibleItems,
+}: MenuOptionsProps): JSX.Element {
     const location = useLocation();
     const navigate = useNavigate();
     const { t } = useProjectTranslation();
@@ -27,19 +43,26 @@ export default function MenuOptions({ maxVisibleItems }: MenuOptionsProps): JSX.
     const desktopOpenTimerRef = useRef<number | null>(null);
     const desktopCloseTimerRef = useRef<number | null>(null);
     const projectOptionsKey = getProjectMenuOptions(settings.project)
-        .map((option) => `${option.path}:${option.children?.map((child) => child.path).join(",") ?? ""}`)
+        .map(
+            (option) =>
+                `${option.path}:${option.children?.map((child) => child.path).join(",") ?? ""}`
+        )
         .join("|");
     const [orderedOptions, setOrderedOptions] = useState<RawMenuOption[]>(() =>
         getProjectMenuOptions(settings.project)
     );
     const [openDesktopMenu, setOpenDesktopMenu] = useState<string | null>(null);
     const [isMobileOpen, setIsMobileOpen] = useState(false);
-    const [openMobileSubmenu, setOpenMobileSubmenu] = useState<string | null>(null);
+    const [openMobileSubmenu, setOpenMobileSubmenu] = useState<string | null>(
+        null
+    );
 
     const visibleItemsCount = Math.max(1, Math.floor(maxVisibleItems));
     const visibleOptions = orderedOptions.slice(0, visibleItemsCount);
     const moreOptions = orderedOptions.slice(visibleItemsCount);
-    const isMoreActive = moreOptions.some((option) => isMenuOptionActive(location.pathname, option));
+    const isMoreActive = moreOptions.some((option) =>
+        isMenuOptionActive(location.pathname, option)
+    );
 
     useEffect(() => {
         setOrderedOptions(getProjectMenuOptions(settings.project));
@@ -47,8 +70,10 @@ export default function MenuOptions({ maxVisibleItems }: MenuOptionsProps): JSX.
 
     useEffect(
         () => () => {
-            if (desktopOpenTimerRef.current !== null) window.clearTimeout(desktopOpenTimerRef.current);
-            if (desktopCloseTimerRef.current !== null) window.clearTimeout(desktopCloseTimerRef.current);
+            if (desktopOpenTimerRef.current !== null)
+                window.clearTimeout(desktopOpenTimerRef.current);
+            if (desktopCloseTimerRef.current !== null)
+                window.clearTimeout(desktopCloseTimerRef.current);
         },
         []
     );
@@ -57,7 +82,9 @@ export default function MenuOptions({ maxVisibleItems }: MenuOptionsProps): JSX.
         if (!isMobileOpen) return;
 
         const activeSubmenu = orderedOptions.find((option) =>
-            option.children?.some((child) => isOptionActive(location.pathname, child.path))
+            option.children?.some((child) =>
+                isOptionActive(location.pathname, child.path)
+            )
         );
         if (activeSubmenu) setOpenMobileSubmenu(activeSubmenu.path);
 
@@ -109,7 +136,9 @@ export default function MenuOptions({ maxVisibleItems }: MenuOptionsProps): JSX.
         if (!promoteFromMore) return;
 
         setOrderedOptions((currentOptions) => {
-            const selectedIndex = currentOptions.findIndex((item) => item.path === parentPath);
+            const selectedIndex = currentOptions.findIndex(
+                (item) => item.path === parentPath
+            );
             if (selectedIndex < visibleItemsCount) return currentOptions;
 
             const nextOptions = [...currentOptions];
@@ -168,7 +197,9 @@ export default function MenuOptions({ maxVisibleItems }: MenuOptionsProps): JSX.
     return (
         <div className="menu-bar-menu" ref={menuRef}>
             <nav
-                aria-label={t("menuOptions.navigation", { defaultValue: "Main navigation" })}
+                aria-label={t("menuOptions.navigation", {
+                    defaultValue: "Main navigation",
+                })}
                 className="menu-bar-menu__desktop"
             >
                 {visibleOptions.map((option) =>
@@ -177,16 +208,28 @@ export default function MenuOptions({ maxVisibleItems }: MenuOptionsProps): JSX.
                             className="menu-bar-menu__more"
                             key={option.path}
                             onBlur={(event) => {
-                                if (!event.currentTarget.contains(event.relatedTarget)) scheduleDesktopMenuClose();
+                                if (
+                                    !event.currentTarget.contains(
+                                        event.relatedTarget
+                                    )
+                                )
+                                    scheduleDesktopMenuClose();
                             }}
-                            onMouseEnter={() => scheduleDesktopMenuOpen(option.path)}
+                            onMouseEnter={() =>
+                                scheduleDesktopMenuOpen(option.path)
+                            }
                             onMouseLeave={scheduleDesktopMenuClose}
                         >
                             <button
                                 aria-expanded={openDesktopMenu === option.path}
                                 aria-haspopup="menu"
                                 className="menu-bar-menu__item menu-bar-menu__more-trigger"
-                                data-active={isMenuOptionActive(location.pathname, option) || undefined}
+                                data-active={
+                                    isMenuOptionActive(
+                                        location.pathname,
+                                        option
+                                    ) || undefined
+                                }
                                 onClick={() => toggleDesktopMenu(option.path)}
                                 onFocus={() => {
                                     clearDesktopMenuTimers();
@@ -195,15 +238,26 @@ export default function MenuOptions({ maxVisibleItems }: MenuOptionsProps): JSX.
                                 type="button"
                             >
                                 {t(option.nameKey)}
-                                <span aria-hidden="true" className="menu-bar-menu__chevron" />
+                                <span
+                                    aria-hidden="true"
+                                    className="menu-bar-menu__chevron"
+                                />
                             </button>
 
                             {openDesktopMenu === option.path && (
-                                <div className="menu-bar-menu__dropdown" role="menu">
+                                <div
+                                    className="menu-bar-menu__dropdown"
+                                    role="menu"
+                                >
                                     {option.children.map((child) => (
                                         <button
                                             aria-current={
-                                                isOptionActive(location.pathname, child.path) ? "page" : undefined
+                                                isOptionActive(
+                                                    location.pathname,
+                                                    child.path
+                                                )
+                                                    ? "page"
+                                                    : undefined
                                             }
                                             className="menu-bar-menu__dropdown-item"
                                             key={child.path}
@@ -219,7 +273,11 @@ export default function MenuOptions({ maxVisibleItems }: MenuOptionsProps): JSX.
                         </div>
                     ) : (
                         <button
-                            aria-current={isMenuOptionActive(location.pathname, option) ? "page" : undefined}
+                            aria-current={
+                                isMenuOptionActive(location.pathname, option)
+                                    ? "page"
+                                    : undefined
+                            }
                             className="menu-bar-menu__item"
                             key={option.path}
                             onClick={() => selectOption(option)}
@@ -234,7 +292,12 @@ export default function MenuOptions({ maxVisibleItems }: MenuOptionsProps): JSX.
                     <div
                         className="menu-bar-menu__more"
                         onBlur={(event) => {
-                            if (!event.currentTarget.contains(event.relatedTarget)) scheduleDesktopMenuClose();
+                            if (
+                                !event.currentTarget.contains(
+                                    event.relatedTarget
+                                )
+                            )
+                                scheduleDesktopMenuClose();
                         }}
                         onMouseEnter={() => scheduleDesktopMenuOpen("more")}
                         onMouseLeave={scheduleDesktopMenuClose}
@@ -252,25 +315,45 @@ export default function MenuOptions({ maxVisibleItems }: MenuOptionsProps): JSX.
                             type="button"
                         >
                             {t("menuOptions.more")}
-                            <span aria-hidden="true" className="menu-bar-menu__chevron" />
+                            <span
+                                aria-hidden="true"
+                                className="menu-bar-menu__chevron"
+                            />
                         </button>
 
                         {openDesktopMenu === "more" && (
-                            <div className="menu-bar-menu__dropdown" role="menu">
+                            <div
+                                className="menu-bar-menu__dropdown"
+                                role="menu"
+                            >
                                 {moreOptions.map((option) =>
                                     option.children?.length ? (
-                                        <div className="menu-bar-menu__dropdown-group" key={option.path}>
-                                            <span className="menu-bar-menu__dropdown-label">{t(option.nameKey)}</span>
+                                        <div
+                                            className="menu-bar-menu__dropdown-group"
+                                            key={option.path}
+                                        >
+                                            <span className="menu-bar-menu__dropdown-label">
+                                                {t(option.nameKey)}
+                                            </span>
                                             {option.children.map((child) => (
                                                 <button
                                                     aria-current={
-                                                        isOptionActive(location.pathname, child.path)
+                                                        isOptionActive(
+                                                            location.pathname,
+                                                            child.path
+                                                        )
                                                             ? "page"
                                                             : undefined
                                                     }
                                                     className="menu-bar-menu__dropdown-item"
                                                     key={child.path}
-                                                    onClick={() => selectOption(child, true, option.path)}
+                                                    onClick={() =>
+                                                        selectOption(
+                                                            child,
+                                                            true,
+                                                            option.path
+                                                        )
+                                                    }
                                                     role="menuitem"
                                                     type="button"
                                                 >
@@ -281,11 +364,18 @@ export default function MenuOptions({ maxVisibleItems }: MenuOptionsProps): JSX.
                                     ) : (
                                         <button
                                             aria-current={
-                                                isMenuOptionActive(location.pathname, option) ? "page" : undefined
+                                                isMenuOptionActive(
+                                                    location.pathname,
+                                                    option
+                                                )
+                                                    ? "page"
+                                                    : undefined
                                             }
                                             className="menu-bar-menu__dropdown-item"
                                             key={option.path}
-                                            onClick={() => selectOption(option, true)}
+                                            onClick={() =>
+                                                selectOption(option, true)
+                                            }
                                             role="menuitem"
                                             type="button"
                                         >
@@ -301,7 +391,9 @@ export default function MenuOptions({ maxVisibleItems }: MenuOptionsProps): JSX.
 
             <button
                 aria-expanded={isMobileOpen}
-                aria-label={t("menuOptions.navigation", { defaultValue: "Open navigation" })}
+                aria-label={t("menuOptions.openNavigation", {
+                    defaultValue: "Open navigation",
+                })}
                 className="menu-bar-menu__mobile-trigger"
                 onClick={() => setIsMobileOpen((open) => !open)}
                 type="button"
@@ -314,16 +406,24 @@ export default function MenuOptions({ maxVisibleItems }: MenuOptionsProps): JSX.
             {isMobileOpen && (
                 <>
                     <button
-                        aria-label={t("menuOptions.closeNavigation", { defaultValue: "Close navigation" })}
+                        aria-label={t("menuOptions.closeNavigation", {
+                            defaultValue: "Close navigation",
+                        })}
                         className="menu-bar-menu__mobile-backdrop"
                         onClick={closeMobileMenu}
                         type="button"
                     />
-                    <aside aria-modal="true" className="menu-bar-menu__mobile-dropdown" role="dialog">
+                    <aside
+                        aria-modal="true"
+                        className="menu-bar-menu__mobile-dropdown"
+                        role="dialog"
+                    >
                         <div className="menu-bar-menu__mobile-header">
                             <Branding />
                             <button
-                                aria-label={t("menuOptions.closeNavigation", { defaultValue: "Close navigation" })}
+                                aria-label={t("menuOptions.closeNavigation", {
+                                    defaultValue: "Close navigation",
+                                })}
                                 className="menu-bar-menu__mobile-close"
                                 onClick={closeMobileMenu}
                                 type="button"
@@ -333,54 +433,86 @@ export default function MenuOptions({ maxVisibleItems }: MenuOptionsProps): JSX.
                             </button>
                         </div>
                         <nav
-                            aria-label={t("menuOptions.navigation", { defaultValue: "Main navigation" })}
+                            aria-label={t("menuOptions.navigation", {
+                                defaultValue: "Main navigation",
+                            })}
                             className="menu-bar-menu__mobile-list"
                         >
                             {orderedOptions.map((option) =>
                                 option.children?.length ? (
-                                    <div className="menu-bar-menu__mobile-group" key={option.path}>
+                                    <div
+                                        className="menu-bar-menu__mobile-group"
+                                        key={option.path}
+                                    >
                                         <button
-                                            aria-expanded={openMobileSubmenu === option.path}
+                                            aria-expanded={
+                                                openMobileSubmenu ===
+                                                option.path
+                                            }
                                             className="menu-bar-menu__mobile-item menu-bar-menu__mobile-parent"
                                             data-contains-active={
                                                 option.children.some((child) =>
-                                                    isOptionActive(location.pathname, child.path)
+                                                    isOptionActive(
+                                                        location.pathname,
+                                                        child.path
+                                                    )
                                                 ) || undefined
                                             }
                                             onClick={() =>
-                                                setOpenMobileSubmenu((openSubmenu) =>
-                                                    openSubmenu === option.path ? null : option.path
+                                                setOpenMobileSubmenu(
+                                                    (openSubmenu) =>
+                                                        openSubmenu ===
+                                                        option.path
+                                                            ? null
+                                                            : option.path
                                                 )
                                             }
                                             type="button"
                                         >
                                             {t(option.nameKey)}
-                                            <span aria-hidden="true" className="menu-bar-menu__chevron" />
+                                            <span
+                                                aria-hidden="true"
+                                                className="menu-bar-menu__chevron"
+                                            />
                                         </button>
                                         {openMobileSubmenu === option.path && (
                                             <div className="menu-bar-menu__mobile-children">
-                                                {option.children.map((child) => (
-                                                    <button
-                                                        aria-current={
-                                                            isOptionActive(location.pathname, child.path)
-                                                                ? "page"
-                                                                : undefined
-                                                        }
-                                                        className="menu-bar-menu__mobile-item menu-bar-menu__mobile-child"
-                                                        key={child.path}
-                                                        onClick={() => selectOption(child)}
-                                                        type="button"
-                                                    >
-                                                        {t(child.nameKey)}
-                                                    </button>
-                                                ))}
+                                                {option.children.map(
+                                                    (child) => (
+                                                        <button
+                                                            aria-current={
+                                                                isOptionActive(
+                                                                    location.pathname,
+                                                                    child.path
+                                                                )
+                                                                    ? "page"
+                                                                    : undefined
+                                                            }
+                                                            className="menu-bar-menu__mobile-item menu-bar-menu__mobile-child"
+                                                            key={child.path}
+                                                            onClick={() =>
+                                                                selectOption(
+                                                                    child
+                                                                )
+                                                            }
+                                                            type="button"
+                                                        >
+                                                            {t(child.nameKey)}
+                                                        </button>
+                                                    )
+                                                )}
                                             </div>
                                         )}
                                     </div>
                                 ) : (
                                     <button
                                         aria-current={
-                                            isMenuOptionActive(location.pathname, option) ? "page" : undefined
+                                            isMenuOptionActive(
+                                                location.pathname,
+                                                option
+                                            )
+                                                ? "page"
+                                                : undefined
                                         }
                                         className="menu-bar-menu__mobile-item"
                                         key={option.path}
