@@ -80,7 +80,6 @@ export default function PortfolioDashboard(): React.ReactElement {
     const balances = useMemo(() => {
         const result = {
             readyToClaim: userOmocBalance.data?.incentiveV2?.userBalance ?? 0n,
-            balance: 0n,
             staked: 0n,
             unstaking: 0n,
             readyToWithdraw: 0n,
@@ -89,14 +88,12 @@ export default function PortfolioDashboard(): React.ReactElement {
         let pendingWithdrawals: PendingWithdrawal[] = [];
 
         if (isVestingLoaded() && userVesting.data) {
-            result.balance = userVesting.data.vestingmachine?.tgBalance ?? 0n;
             result.staked =
                 userVesting.data.vestingmachine?.staking?.balance ?? 0n;
             pendingWithdrawals = pendingWithdrawalsFormat(
                 userVesting.data.vestingmachine?.delay
             );
         } else if (userOmocBalance.data) {
-            result.balance = userOmocBalance.data.TG?.balance ?? 0n;
             result.staked =
                 userOmocBalance.data.stakingmachine?.getBalance ?? 0n;
             pendingWithdrawals = pendingWithdrawalsFormat(
@@ -127,12 +124,6 @@ export default function PortfolioDashboard(): React.ReactElement {
                 label={t("portfolio.dashboard.readyToClaim")}
                 onAction={() => navigate("/liquidity-mining")}
                 testId="portfolio-dashboard-ready-to-claim"
-            />
-            <DashboardItem
-                amount={balances.balance}
-                icon="icon__govBalance"
-                label={t("portfolio.dashboard.balance")}
-                testId="portfolio-dashboard-balance"
             />
             <DashboardItem
                 amount={balances.staked}
