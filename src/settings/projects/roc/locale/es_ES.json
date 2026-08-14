@@ -214,10 +214,12 @@
         "buttonConfirm": "Confirmar",
         "buttonClose": "Cerrar",
         "infoNoBalance": "Saldo insuficiente",
+        "infoNoNegativeValues": "El monto no puede ser negativo",
         "infoAddressEmpty": "Falta la dirección de destino",
         "infoAddressInvalid": "Dirección de destino inválida",
         "errors": {
             "notOperational": "No operacional debido a bajo Global Coverage ratio",
+            "coverageNotMet": "La operación no está disponible porque no se alcanza el ratio de cobertura requerido",
             "cantOperate": "No se puede operar con el estado actual",
             "requestTimeout": "Mucho tiempo procesando",
             "connectYourWallet": "Por favor, conecta tu wallet",
@@ -460,8 +462,8 @@
 
     "language": {
         "languageCTA": "Seleccione Idioma:",
-        "en": "🇬🇧 English",
-        "es": "🇪🇸 Español"
+        "en": "English",
+        "es": "Español"
     },
 
     "defaultCTA": {
@@ -763,7 +765,8 @@
             "ongoing": "• ¡La votación está en progreso!",
             "approved": "• La propuesta fue aprobada",
             "noQuorum": "• ¡No se alcanzó el quórum para esta propuesta!",
-            "rejected": "• ¡La propuesta fue rechazada por votos en contra!"
+            "rejected": "• ¡La propuesta fue rechazada por votos en contra!",
+            "vetoed": "• La propuesta fue vetada"
         },
         "balanceGraph": { "against": "En Contra", "inFavor": "A Favor" },
         "statusGraph": {
@@ -799,6 +802,26 @@
             "changerAddress": "Dirección del Cambio de Propuesta",
             "votingInFavor": "¡Estás votando a favor!",
             "votingAgainst": "¡Estás votando en contra!"
+        },
+        "veto": {
+            "alert": {
+                "title": "Tokens vetados disponibles",
+                "text": "Tenés tokens disponibles para retirar después de vetar.",
+                "cta": "Retirar tokens"
+            },
+            "row": { "ctaVeto": "Vetar con" },
+            "outsideVetoing": {
+                "statsTitle": "Votos de veto sobre la circulación",
+                "statsLabel": "Votos de veto",
+                "cta": "Vetar propuesta"
+            },
+            "vetoWithdraw": {
+                "button": "Retirar",
+                "headerToken": "Token",
+                "headerProposal": "Propuesta",
+                "headerAmount": "Monto",
+                "note": "Retirá los tokens que quedaron bloqueados al vetar."
+            }
         }
     },
     "alert": {
@@ -930,6 +953,9 @@
         "labelMinRequieredCollateral": "Colateral mínimo requerido",
         "labelAvailableWithCollateral": "Disponible para pedir con colateral",
         "labelBorrowUsage": "Uso del préstamo",
+        "liquidating": {
+            "banner": "Esta posición está siendo liquidada"
+        },
         "liquidated": {
             "title": "Liquidado",
             "ctaDetails": "Detalles",

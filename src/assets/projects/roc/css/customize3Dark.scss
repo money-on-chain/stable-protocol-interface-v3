@@ -272,8 +272,7 @@
         hue-rotate(185deg) brightness(85%) contrast(99%);
 
     --color-icon-link-filter: var(--brand-color-base-filter);
-    --color-icon-link-hover-filter: invert(53%) sepia(98%) saturate(1512%)
-        hue-rotate(206deg) brightness(87%) contrast(88%);
+    --color-icon-link-hover-filter: var(--brand-color-base-filter);
     --color-icon-link-secondary-filter: invert(44%) sepia(28%) saturate(232%)
         hue-rotate(174deg) brightness(93%) contrast(91%);
     --color-icon-link-secondary-hover-filter: invert(44%) sepia(28%)

@@ -3,6 +3,7 @@ import "./Styles.scss";
 import { useEffect, useRef, useState } from "react";
 
 import { useProjectTranslation } from "../../../helpers/translations";
+import LanguageLabel from "../../LanguageLabel";
 import useTheme from "../../UseTheme";
 
 const SUPPORTED_LANGUAGES = ["en", "es"] as const;
@@ -84,7 +85,10 @@ export default function Configuration(): JSX.Element {
                                     onClick={() => selectLanguage(language)}
                                     type="button"
                                 >
-                                    {t(`language.${language}`)}
+                                    <LanguageLabel
+                                        code={language}
+                                        name={t(`language.${language}`)}
+                                    />
                                 </button>
                             ))}
                         </div>

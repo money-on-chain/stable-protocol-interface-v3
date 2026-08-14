@@ -466,8 +466,8 @@
 
     "language": {
         "languageCTA": "Seleccione Idioma:",
-        "en": "🇬🇧 English",
-        "es": "🇪🇸 Español"
+        "en": "English",
+        "es": "Español"
     },
 
     "defaultCTA": {

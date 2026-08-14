@@ -214,10 +214,12 @@
         "buttonConfirm": "Confirm",
         "buttonClose": "Close",
         "infoNoBalance": "insufficient balance",
+        "infoNoNegativeValues": "The amount cannot be negative",
         "infoAddressEmpty": "Enter destination address",
         "infoAddressInvalid": "Invalid destination address",
         "errors": {
             "notOperational": "Not Operational due to low Global Coverage ratio",
+            "coverageNotMet": "The operation is unavailable because the required coverage ratio is not met",
             "cantOperate": "Cannot operate with the current status",
             "requestTimeout": "Request timeout",
             "connectYourWallet": "Please connect your wallet",
@@ -460,8 +462,8 @@
 
     "language": {
         "languageCTA": "Select Language:",
-        "en": "🇬🇧 English",
-        "es": "🇪🇸 Español"
+        "en": "English",
+        "es": "Español"
     },
 
     "defaultCTA": {
@@ -763,7 +765,8 @@
             "ongoing": "• The voting is in progress!",
             "approved": "• Proposal was approved",
             "noQuorum": "• No reach quorum for this proposal!",
-            "rejected": "• Proposal was rejected by votess against!"
+            "rejected": "• Proposal was rejected by votess against!",
+            "vetoed": "• Proposal was vetoed"
         },
         "balanceGraph": { "against": "Against", "inFavor": "In Favor" },
         "statusGraph": {
@@ -797,6 +800,26 @@
             "changerAddress": "Proposal Changer Address",
             "votingInFavor": "You are voting in favor!",
             "votingAgainst": "You are voting against!"
+        },
+        "veto": {
+            "alert": {
+                "title": "Vetoed tokens available",
+                "text": "You have tokens available to withdraw after vetoing.",
+                "cta": "Withdraw tokens"
+            },
+            "row": { "ctaVeto": "Veto with" },
+            "outsideVetoing": {
+                "statsTitle": "Veto votes over circulation",
+                "statsLabel": "Veto votes",
+                "cta": "Veto proposal"
+            },
+            "vetoWithdraw": {
+                "button": "Withdraw",
+                "headerToken": "Token",
+                "headerProposal": "Proposal",
+                "headerAmount": "Amount",
+                "note": "Withdraw the tokens that were locked when you vetoed."
+            }
         }
     },
     "alert": {
@@ -928,6 +951,9 @@
         "labelMinRequieredCollateral": "Min Required Collateral",
         "labelAvailableWithCollateral": "Borrow Available W/Collateral",
         "labelBorrowUsage": "Borrow Usage",
+        "liquidating": {
+            "banner": "This position is being liquidated"
+        },
         "liquidated": {
             "title": "Liquidated",
             "ctaDetails": "Details",

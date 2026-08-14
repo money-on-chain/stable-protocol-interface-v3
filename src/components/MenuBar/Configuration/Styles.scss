@@ -83,6 +83,9 @@
 
 .menu-bar-configuration__theme,
 .menu-bar-configuration__language {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     cursor: pointer;
     border: 0;
     font-family: inherit;

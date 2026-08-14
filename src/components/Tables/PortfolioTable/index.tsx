@@ -59,7 +59,7 @@ export default function PortfolioTable() {
 
     // Default values for all tokens
     const label: Label = {
-        name: t("portfolio.tokensTable.name"),
+        name: t("portfolio.tokensTable.tokenName"),
         price: t("portfolio.tokensTable.priceInUSD"),
         variation: t("portfolio.tokensTable.variation"),
         balance: t("portfolio.tokensTable.balance"),

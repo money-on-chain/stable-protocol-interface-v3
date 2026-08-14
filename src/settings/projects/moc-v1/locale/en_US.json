@@ -448,8 +448,8 @@
     },
     "language": {
         "languageCTA": "Select Language:",
-        "en": "🇬🇧 English",
-        "es": "🇪🇸 Español"
+        "en": "English",
+        "es": "Español"
     },
     "defaultCTA": {
         "buttonSubmit": "Confirm",

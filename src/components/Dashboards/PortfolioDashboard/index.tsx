@@ -49,14 +49,6 @@ function DashboardItem({
                     })}
                 </div>
                 <div className="portfolioDash__data__label">
-                    {onAction && (
-                        <span
-                            aria-hidden="true"
-                            className="portfolioDash__action"
-                        >
-                            <div className="icon__button__arrow"></div>
-                        </span>
-                    )}
                     <span>{label}</span>
                 </div>
             </div>
@@ -127,7 +119,7 @@ export default function PortfolioDashboard(): React.ReactElement {
     }, [isVestingLoaded, userOmocBalance.data, userVesting.data]);
 
     return (
-        <div className="layout-card dashboard-portfolio-info">
+        <div className="layout-card dashboard-portfolio-info dashboard-portfolio-info--roc">
             <DashboardItem
                 actionLabel={t("liquidityMining.cta.button")}
                 amount={balances.readyToClaim}

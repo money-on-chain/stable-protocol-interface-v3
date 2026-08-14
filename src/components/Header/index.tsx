@@ -12,6 +12,7 @@ import {
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings";
 import DappVersion from "../DappVersion";
+import LanguageLabel from "../LanguageLabel";
 import ThemeMode from "../ThemeMode";
 import TokenPriceStrip from "../TokenPriceStrip";
 import Brand from "./Brand";
@@ -166,12 +167,18 @@ export default function SectionHeader(): JSX.Element {
                         onClick={toggleLanguageMenu}
                     >
                         <a className="translation-selector">
-                            {
-                                languageOptions.find(
+                            {languageOptions
+                                .filter(
                                     (option: LanguageOption) =>
                                         option.code === lang
-                                )?.name
-                            }
+                                )
+                                .map((option: LanguageOption) => (
+                                    <LanguageLabel
+                                        code={option.code}
+                                        key={option.code}
+                                        name={option.name}
+                                    />
+                                ))}
                         </a>
                         <div className="logo-translation"></div>
                     </div>
@@ -204,7 +211,10 @@ export default function SectionHeader(): JSX.Element {
                                                 }
                                                 key={option.code}
                                             >
-                                                <span>{option.name}</span>
+                                                <LanguageLabel
+                                                    code={option.code}
+                                                    name={option.name}
+                                                />
                                                 {lang === option.code && (
                                                     <div className="icon-checked"></div>
                                                 )}
@@ -262,10 +272,22 @@ export default function SectionHeader(): JSX.Element {
                                                 {t("language.languageCTA")}{" "}
                                             </div>
                                         ) : (
-                                            languageOptions.find(
-                                                (option: LanguageOption) =>
-                                                    option.code === lang
-                                            )?.name
+                                            languageOptions
+                                                .filter(
+                                                    (option: LanguageOption) =>
+                                                        option.code === lang
+                                                )
+                                                .map(
+                                                    (
+                                                        option: LanguageOption
+                                                    ) => (
+                                                        <LanguageLabel
+                                                            code={option.code}
+                                                            key={option.code}
+                                                            name={option.name}
+                                                        />
+                                                    )
+                                                )
                                         )}
                                         {/* Language Menu for Mobile */}
                                         {showLanguageSubmenu && (
@@ -285,7 +307,14 @@ export default function SectionHeader(): JSX.Element {
                                                             }
                                                         >
                                                             <div>
-                                                                {option.name}
+                                                                <LanguageLabel
+                                                                    code={
+                                                                        option.code
+                                                                    }
+                                                                    name={
+                                                                        option.name
+                                                                    }
+                                                                />
                                                                 <span> •</span>
                                                             </div>
                                                         </div>
