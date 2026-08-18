@@ -45,7 +45,7 @@ export default function Borrow({
             </div>
             <div className="borrow-items">
                 {cards.map((card) => (
-                    <div className="card borrow-card" key={card.id}>
+                    <div className="card borrow-card" data-testid={`borrow-card-${card.id}`} key={card.id}>
                         {(() => {
                             const hasCurrentDebt =
                                 parseMetricNumber(card.currentDebt.value) > 0;
@@ -179,6 +179,7 @@ export default function Borrow({
                                                     ]
                                                         .filter(Boolean)
                                                         .join(" ")}
+                                                    data-testid={`borrow-card-borrow-${card.id}`}
                                                     disabled={isActionDisabled(
                                                         action.id
                                                     )}

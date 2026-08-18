@@ -685,6 +685,7 @@ export default function BorrowOperation({
                 <OperationActions>
                     <button
                         className="button borrow-operation-actions__confirm"
+                        data-testid="borrow-operation-confirm"
                         disabled={!hasPendingChanges}
                         onClick={() =>
                             onConfirm(card, borrowAmount, collateralAmount, () => {
