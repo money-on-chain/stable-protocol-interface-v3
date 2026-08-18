@@ -230,11 +230,8 @@ export default function MenuOptions({
                                         option
                                     ) || undefined
                                 }
+                                data-testid={`menu-bar-item-${option.className}`}
                                 onClick={() => toggleDesktopMenu(option.path)}
-                                onFocus={() => {
-                                    clearDesktopMenuTimers();
-                                    setOpenDesktopMenu(option.path);
-                                }}
                                 type="button"
                             >
                                 {t(option.nameKey)}
@@ -260,6 +257,7 @@ export default function MenuOptions({
                                                     : undefined
                                             }
                                             className="menu-bar-menu__dropdown-item"
+                                            data-testid={`menu-bar-item-${child.className ?? option.className}`}
                                             key={child.path}
                                             onClick={() => selectOption(child)}
                                             role="menuitem"
@@ -279,6 +277,7 @@ export default function MenuOptions({
                                     : undefined
                             }
                             className="menu-bar-menu__item"
+                            data-testid={`menu-bar-item-${option.className}`}
                             key={option.path}
                             onClick={() => selectOption(option)}
                             type="button"
@@ -307,11 +306,8 @@ export default function MenuOptions({
                             aria-haspopup="menu"
                             className="menu-bar-menu__item menu-bar-menu__more-trigger"
                             data-active={isMoreActive || undefined}
+                            data-testid="menu-bar-item-more"
                             onClick={() => toggleDesktopMenu("more")}
-                            onFocus={() => {
-                                clearDesktopMenuTimers();
-                                setOpenDesktopMenu("more");
-                            }}
                             type="button"
                         >
                             {t("menuOptions.more")}
@@ -346,6 +342,7 @@ export default function MenuOptions({
                                                             : undefined
                                                     }
                                                     className="menu-bar-menu__dropdown-item"
+                                                    data-testid={`menu-bar-item-${child.className ?? option.className}`}
                                                     key={child.path}
                                                     onClick={() =>
                                                         selectOption(
@@ -372,6 +369,7 @@ export default function MenuOptions({
                                                     : undefined
                                             }
                                             className="menu-bar-menu__dropdown-item"
+                                            data-testid={`menu-bar-item-${option.className}`}
                                             key={option.path}
                                             onClick={() =>
                                                 selectOption(option, true)
