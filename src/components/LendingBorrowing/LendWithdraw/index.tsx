@@ -248,6 +248,7 @@ export default function LendWithdraw({
                     </button>
                     <button
                         className="button"
+                        data-testid="lend-withdraw-confirm"
                         disabled={!hasSelectedAmount || hasValidationError}
                         onClick={() => onConfirm(token, amount, () => setAmount(""))}
                         type="button"
