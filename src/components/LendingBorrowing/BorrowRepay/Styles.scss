@@ -1,0 +1,104 @@
+.borrow-repay-view {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.borrow-repay-body {
+    --borrow-metrics-content-width: 980px;
+
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.borrow-repay-main {
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.borrow-repay-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 710px;
+    max-width: 100%;
+}
+
+.borrow-repay-panel__title {
+    color: var(--color-txt-primary);
+    font-size: 22px;
+    font-weight: 600;
+    font-family: var(--brand-font);
+    text-align: left;
+    width: min(100%, 400px);
+}
+
+.borrow-repay-panel > .tokenAmountInput {
+    width: 100%;
+    max-width: 400px;
+}
+
+.borrow-repay-panel > .compact-metric-display {
+    width: min(100%, 400px);
+}
+
+.borrow-repay-metrics {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: var(--borrow-metrics-content-width);
+    margin: 0 auto;
+}
+
+.borrow-repay-metrics__row {
+    display: contents;
+}
+
+.borrow-repay-metrics__row > .before-after-card {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+}
+
+.borrow-repay-notice-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.operation-actions > .borrow-repay-actions__confirm {
+    width: min(300px, 100%);
+}
+
+@media (max-width: 1200px) {
+    .borrow-repay-metrics {
+        width: 100%;
+    }
+}
+
+@media (max-width: 960px) {
+    .borrow-repay-main {
+        width: 100%;
+    }
+
+    .borrow-repay-metrics {
+        align-items: center;
+    }
+
+    .borrow-repay-metrics__row > .before-after-card {
+        flex: 0 0 calc((100% - 16px) / 2);
+        width: auto;
+        max-width: 100%;
+    }
+}

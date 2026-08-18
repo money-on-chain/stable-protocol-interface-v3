@@ -1,0 +1,447 @@
+/*
+section_voting.scss contains all the css code for Voting section cards not contained in global.scss
+*/
+
+// Variables
+$breakpoint-mobile: 600px;
+
+.title {
+    color: var(--color-txt-primary);
+    font-size: 16px;
+    font-family: var(--brand-font);
+    font-weight: 600;
+    width: 100%;
+    text-align: left;
+    text-wrap: wrap;
+    word-break: break-all;
+    span {
+        color: var(--color-txt-secondary);
+        margin-bottom: 24px;
+    }
+}
+.voting__status__container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 32px;
+    width: 100%;
+}
+
+.votingButtons {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    .button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 16px;
+        box-shadow: none;
+        padding-right: 32px;
+        padding-left: 32px;
+        width: 100%;
+        max-width: 256px;
+        font-weight: 600;
+        font-size: 18px;
+        font-family: var(--brand-font);
+        color: var(--color-btn-semantic-txt-default);
+    }
+    .icon {
+        filter: var(--color-btn-semantic-icon-filter-default);
+        background-size: 24px 24px;
+        width: 24px;
+        height: 24px;
+    }
+    .against {
+        background-color: var(--color-semantic-negative);
+    }
+
+    .infavor {
+        background-color: var(--color-semantic-positive);
+    }
+
+    .veto {
+        justify-content: left;
+        background-color: var(--color-semantic-negative);
+    }
+}
+.voting__proposals {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+}
+.votingInfo__item {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 8px;
+    width: 100%;
+    color: var(--color-txt-secondary);
+    font-size: 14px;
+    .label {
+        width: 168px;
+    }
+}
+
+.cta {
+    padding-top: 16px;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 100%;
+    .votingButtons {
+        margin-bottom: 24px;
+    }
+    .voting__status__votingInfo {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+    .voting__status__votedInfo {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        margin-bottom: 16px;
+        .data,
+        .label {
+            color: var(--color-txt-primary);
+        }
+    }
+}
+
+.externalLink {
+    font-weight: 600;
+    a {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+    }
+}
+
+.sectionPreVoting {
+    display: flex;
+    gap: 24px;
+    flex-direction: column;
+    width: 100%;
+}
+.votingDetails__wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+    border-radius: var(--card-border-radius);
+    background-color: var(--surface-color-2);
+    padding: var(--card-padding);
+    width: 100%;
+    .forumLink {
+        color: var(--color-txt-primary);
+    }
+    .details {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 4px;
+        width: 100%;
+
+        .icon-external-link {
+            margin-top: 2px;
+            background-size: 16px 16px;
+            width: 16px;
+            height: 16px;
+        }
+    }
+    .voting__status__container {
+        display: flex;
+        justify-content: stretch;
+        align-items: center;
+    }
+
+    .graphs {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 4px;
+        width: 100%;
+        .voting__status {
+            margin-bottom: 16px;
+            color: var(--color-txt-primary);
+            font-weight: 600;
+            font-size: 16px;
+            font-family: var(--brand-font);
+        }
+        .icon-external-link {
+            margin-top: 2px;
+            background-size: 16px 16px;
+            width: 16px;
+            height: 16px;
+        }
+    }
+}
+.proposalsList__wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 26px;
+    border-radius: var(--card-border-radius);
+    padding: var(--card-padding);
+    background-color: var(--surface-color-2);
+    .button__addProposal {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: 600;
+        font-family: var(--brand-font);
+        color: var(--color-txt-link);
+        .icon__addProposal {
+            filter: var(--color-icon-link-filter);
+        }
+    }
+    .button__addProposal:hover {
+        .icon__addProposal {
+            filter: var(--color-icon-link-hover-filter);
+        }
+    }
+    .proposals__empty {
+        padding: var(--card-padding);
+        border-radius: var(--card-border-radius);
+        border: 2px dashed var(--dividers);
+        color: var(--color-txt-secondary);
+        font-size: 16px;
+    }
+}
+.proposal__wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 26px;
+    border-radius: var(--card-border-radius);
+    padding: var(--card-padding);
+    background-color: var(--surface-color-2);
+    border: 1px solid var(--dividers);
+
+    .button__addProposal {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: 600;
+        font-family: var(--brand-font);
+        color: var(--color-txt-link);
+        .icon__addProposal {
+            filter: var(--color-icon-link-filter);
+        }
+    }
+    .button__addProposal:hover {
+        cursor: pointer;
+
+        .icon__addProposal {
+            filter: var(--color-icon-link-hover-filter);
+        }
+    }
+    .proposals__empty {
+        padding: var(--card-padding);
+        border-radius: var(--card-border-radius);
+        border: 2px dashed var(--dividers);
+        color: var(--color-txt-secondary);
+        font-size: 16px;
+    }
+}
+.proposal__content {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    .forumLink {
+        color: var(--color-txt-primary);
+    }
+    .details {
+        width: 544px;
+        display: flex;
+        flex-direction: column;
+        color: var(--color-txt-secondary);
+        gap: 2px;
+        flex: 1;
+
+        .icon-external-link {
+            width: 16px;
+            height: 16px;
+            background-size: 16px 16px;
+            margin-top: 2px;
+        }
+    }
+    .cta {
+        flex: 1;
+        justify-content: center;
+        align-items: center;
+        .cta-container {
+            margin-top: 0px;
+        }
+    }
+}
+.proposalsContainer {
+    display: flex;
+    justify-content: center;
+}
+.addProposal {
+    font-family: var(--brand-font);
+    align-items: center;
+    flex-direction: column;
+    display: flex;
+    width: 600px;
+    .inputFields {
+        gap: 3px;
+    }
+
+    @media (max-width: 600px) {
+        width: 100%;
+    }
+    .amountInput {
+        // width: 500px;
+    }
+}
+.votingStatus__graphs {
+    margin-top: 16px;
+}
+
+.externalLink {
+    font-weight: 600;
+    a {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+    }
+}
+
+.go-back {
+    margin-top: 64px;
+    width: 100%;
+    text-align: center;
+}
+.center {
+    // border: 1px dashed greenyellow;
+    display: flex !important;
+    align-items: center !important;
+}
+.votingPowerContainer {
+    width: fit-content;
+    flex-direction: column;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    border: 1px solid var(--dividers);
+    padding: 16px;
+    border-radius: var(--card-border-radius);
+    .votingPowerLabel {
+        margin-bottom: 8px;
+    }
+    .votingPowerData {
+    }
+}
+
+.votingStatus {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 100%;
+    border: 1px solid var(--dividers);
+    padding: var(--card-padding);
+    border-radius: var(--card-border-radius);
+    .votingStatus__title {
+        font-weight: 600;
+        font-family: var(--brand-font);
+        font-size: 16px;
+        margin-bottom: 16px;
+        max-width: 100%;
+    }
+}
+.votingStatusProposal {
+    width: 100%;
+}
+.ProposalVoteModal {
+    .proposalChanger__container {
+        color: var(--color-txt-primary);
+        .proposalChanger__label {
+        }
+        .proposalChanger__data {
+            margin-bottom: 32px;
+            font-weight: 600;
+        }
+    }
+    .Link {
+        color: var(--color-txt-primary);
+    }
+    .whatIsVoting {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        border-radius: var(--card-border-radius);
+        height: 100px;
+        gap: 16px;
+        font-weight: 600;
+        font-size: 16px;
+        margin-bottom: 24px;
+
+        .whatIsVoging__text {
+            margin-top: 5px;
+            color: var(--color-btn-primary-txt-default);
+        }
+        .icon {
+            filter: var(--color-btn-primary-icon-filter-default);
+        }
+    }
+    .inFavor {
+        background-color: var(--color-semantic-positive);
+    }
+    .against {
+        background-color: var(--color-semantic-negative);
+    }
+}
+
+.voting__status__graphs {
+    margin-top: 24px;
+}
+
+@media (max-width: $breakpoint-mobile) {
+    .votingStatus {
+        padding: var(--card-padding-mobile);
+    }
+    .votingDetails__wrapper {
+        padding: var(--card-padding-mobile);
+        align-items: stretch;
+        gap: 16px;
+        .title {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .externalLink {
+            flex-direction: column;
+            .forumLink {
+                span {
+                }
+            }
+        }
+        .voting__status__container {
+            flex-direction: column;
+            .voting__status {
+                font-size: 12px;
+            }
+        }
+    }
+    .cta {
+        .cta-container {
+            margin-top: 0px;
+        }
+    }
+}

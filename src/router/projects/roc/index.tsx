@@ -23,6 +23,12 @@ const LiquidityMining = React.lazy(
 );
 const Vesting = React.lazy(() => import("../../../pages/Vesting/index"));
 const Voting = React.lazy(() => import("../../../pages/Voting/index"));
+const LendingBorrowing = React.lazy(
+    () => import("../../../pages/LendingBorrowing/index")
+);
+const ComponentTest = React.lazy(
+    () => import("../../../pages/ComponentTest/index")
+);
 
 export default function Router(): React.ReactElement | null {
     return useRoutes([
@@ -73,6 +79,14 @@ export default function Router(): React.ReactElement | null {
                 {
                     path: "combined-operations",
                     element: <CombinedOperations />,
+                },
+                {
+                    path: "lending-borrowing",
+                    element: <LendingBorrowing />,
+                },
+                {
+                    path: "componenttest",
+                    element: <ComponentTest />,
                 },
                 { path: "404", element: <NotFound /> },
                 { path: "*", element: <Navigate to="/404" /> },

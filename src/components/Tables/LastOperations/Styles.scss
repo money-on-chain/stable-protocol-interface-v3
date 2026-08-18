@@ -5,7 +5,7 @@
 
 /* #region LAST OPERATIONS TABLE */
 .content-last-operations {
-    margin-top: 24px;
+    margin-top: var(--layout-module-gap-vertical);
     box-shadow: var(--surface-shadow-1);
     border-radius: var(--card-border-radius);
     background: var(--surface-color-1);
@@ -587,6 +587,46 @@
     grid-column: 3;
     grid-template-columns: minmax(0, 1fr);
 }
+
+// Legacy V1 operations only have origin + destination. Let destination use
+// the otherwise-empty middle V3 column and align its content as one group.
+.LastOp__group__details--v1-wide-destination {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+
+    .LastOp__origin {
+        grid-column: 1;
+        padding-right: 24px;
+
+        .lastOp__detail__item {
+            justify-content: flex-end;
+        }
+    }
+
+    .LastOp__destination {
+        grid-column: 2;
+        grid-template-columns: minmax(0, 1fr);
+        justify-items: end;
+        padding-right: 24px;
+        padding-left: 24px;
+
+        .lastOp__detail__item {
+            justify-content: flex-end;
+        }
+
+        > .lastOp__detail__item--double {
+            justify-content: flex-end;
+
+            .lastOp__detail__transfer {
+                text-align: right;
+            }
+        }
+    }
+
+    > .LastOp__divider--details-middle {
+        left: calc(100% / 3);
+    }
+}
+
 .LastOp__group__details--one-two-split .LastOp__destination > :nth-child(3),
 .LastOp__group__details--two-one-split .LastOp__origin > :nth-child(3) {
     grid-column: 3;
@@ -732,6 +772,7 @@
     color: var(--color-txt-primary);
     font-weight: 600;
     letter-spacing: 0.61px;
+    overflow-wrap: anywhere;
 }
 
 @media (max-width: 768px) {
@@ -793,6 +834,24 @@
             width: 100%;
             text-align: right;
             // outline: 1px dashed orange;
+        }
+    }
+    .LastOp__group__details--v1-wide-destination {
+        .LastOp__origin,
+        .LastOp__destination {
+            padding-right: 0;
+            padding-left: 0;
+        }
+
+        .LastOp__origin .lastOp__detail__item,
+        .LastOp__destination .lastOp__detail__item {
+            justify-content: flex-end;
+        }
+
+        .LastOp__destination
+            > .lastOp__detail__item--double
+            .lastOp__detail__transfer {
+            text-align: right;
         }
     }
     .LastOp__group__dateStatus {

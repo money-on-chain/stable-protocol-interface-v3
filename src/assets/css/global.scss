@@ -1,6 +1,11 @@
 // Variables
 $breakpoint-mobile: 600px;
 
+:root {
+    --layout-module-gap-vertical: 8px;
+    --layout-module-gap-horizontal: 8px;
+}
+
 html {
     scrollbar-color: var(--color-controls-foreground-on) transparent;
     // Scrollbars customization for Firefox
@@ -300,13 +305,14 @@ $breakpoint-mobile: 600px;
 
 h1,
 h2 {
-    margin-bottom: 20px;
+    // margin-bottom: 20px;
     color: var(--color-txt-primary);
     font-style: normal;
     font-weight: 600;
     font-family: var(--brand-font);
     letter-spacing: 0px;
     text-align: left;
+    line-height: 1.2;
 }
 h1 {
     font-size: 20px;
@@ -315,7 +321,7 @@ h2 {
     font-size: 16px;
 }
 .section-container {
-    margin-top: 24px;
+    margin-top: var(--layout-module-gap-vertical);
 }
 .mobile-only {
     display: none !important;
@@ -324,7 +330,7 @@ h2 {
     display: block !important;
 }
 .ShowTokenMigration {
-    margin-top: 24px;
+    margin-top: var(--layout-module-gap-vertical);
 }
 /* #endregion GENERAL STYLING*/
 
@@ -574,8 +580,8 @@ h2 {
 }
 .section {
     display: flex;
-    column-gap: 32px;
-    row-gap: 24px;
+    column-gap: var(--layout-module-gap-horizontal);
+    row-gap: var(--layout-module-gap-vertical);
     flex-direction: row;
     flex-wrap: wrap;
     color: var(--color-txt-primary);
@@ -796,6 +802,10 @@ h2 {
 /* #endregion MODAL GENERIC CUSTOMIZATION */
 
 /* #region CTA - CALL TO ACTION */
+.cta-info-detail {
+    color: var(--color-txt-secondary);
+}
+
 .cta-container {
     // CTA container
     display: flex;
@@ -830,9 +840,6 @@ h2 {
         font-weight: 700;
         font-size: 16px;
         font-family: var(--brand-font);
-    }
-    .cta-info-detail {
-        color: var(--color-txt-primary);
     }
     .cta-options-group {
         display: flex;
@@ -882,7 +889,11 @@ h2 {
     // !important should be removed after moving notifications to skeleton
     display: flex !important;
     flex-direction: column;
-    gap: 8px !important;
+    gap: var(--layout-module-gap-vertical) !important;
+}
+
+.notification-container > .content-last-operations {
+    margin-top: 0;
 }
 
 .ant-notification-notice {
@@ -1165,8 +1176,8 @@ h2 {
     font-family: var(--main-font);
     text-align: center;
 }
-.button:disabled,
-.button:disabled:hover {
+.button:disabled {
+    cursor: not-allowed;
     box-shadow: none;
     background-color: var(--color-btn-primary-background-disabled);
     color: var(--color-btn-primary-txt-disabled);
@@ -1175,8 +1186,8 @@ h2 {
     }
 }
 
-.button:hover,
-.button:focus {
+.button:not(:disabled):hover,
+.button:not(:disabled):focus-visible {
     border-color: var(--color-btn-primary-txt-hover);
     background: var(--color-btn-primary-background-hover);
     color: var(--color-btn-primary-txt-hover);
@@ -1191,11 +1202,17 @@ h2 {
     background-color: var(--color-btn-secondary-background-default);
     color: var(--color-btn-secondary-txt-default);
 }
-.secondary:hover,
-.secondary:focus {
+.secondary:not(:disabled):hover,
+.secondary:not(:disabled):focus-visible {
     border-color: var(--color-btn-secondary-txt-hover);
     background: var(--color-btn-primary-secondary-hover);
     color: var(--color-btn-secondary-txt-hover);
+}
+
+.button.secondary:disabled {
+    border-color: var(--color-btn-secondary-txt-disabled);
+    background-color: var(--color-btn-secondary-background-disabled);
+    color: var(--color-btn-secondary-txt-disabled);
 }
 
 .buttonSwap {
@@ -1229,8 +1246,38 @@ h2 {
     text-align: center;
 }
 
-.button--small:hover,
-.button--small:focus {
+.button--small:not(:disabled):hover,
+.button--small:not(:disabled):focus-visible {
+    border-color: var(--color-btn-secondary-txt-hover);
+    background: var(--color-btn-primary-secondary-hover);
+    color: var(--color-btn-secondary-txt-hover);
+}
+.button--compact {
+    transition:
+        background-color 0.3s,
+        color 0.3s,
+        border-color 0.3s;
+    cursor: pointer;
+    border: 2px solid var(--color-btn-secondary-txt-default);
+    border-color: var(--color-btn-secondary-txt-default);
+    border-radius: var(--btn-compact-radius);
+    background-color: var(--color-btn-primary-background-default);
+    padding: 0px var(--btn-compact-padding) 1px var(--btn-compact-padding);
+    height: var(--btn-compact-height);
+    color: var(--color-btn-primary-txt-default);
+    font-weight: 600;
+    font-size: 12px;
+    font-family: var(--main-font);
+    text-align: center;
+    &--secondary {
+        background-color: var(--color-btn-secondary-background-default);
+        color: red;
+        color: var(--color-btn-secondary-txt-default);
+    }
+}
+
+.button--compact:not(:disabled):hover,
+.button--compact:not(:disabled):focus-visible {
     border-color: var(--color-btn-secondary-txt-hover);
     background: var(--color-btn-primary-secondary-hover);
     color: var(--color-btn-secondary-txt-hover);
@@ -1662,7 +1709,7 @@ h2 {
 
 .footer-container {
     /* Auto layout */
-    margin-top: 24px;
+    margin-top: var(--layout-module-gap-vertical);
     box-shadow: var(--surface-shadow-1);
     border: var(--card-border);
     border-radius: var(--card-border-radius);

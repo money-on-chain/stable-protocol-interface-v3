@@ -1,7 +1,7 @@
 .tab__container {
     display: flex;
-    position: sticky;
-    top: calc(100dvh - 40px);
+    position: fixed;
+    bottom: 0;
     left: 0;
     justify-content: space-around;
     align-items: center;

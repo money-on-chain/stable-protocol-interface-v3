@@ -1,11 +1,51 @@
 .sectionPerformance {
-    // display: flex;
-    // column-gap: 32px;
-    // row-gap: 24px;
+    > .section__innerCard--small {
+        flex: 1 1 calc((100% - var(--layout-module-gap-horizontal)) / 2);
+        width: auto;
+        min-width: 0;
+    }
+
+    @media (max-width: 768px) {
+        > .section__innerCard--small {
+            flex-basis: 100%;
+            width: 100%;
+        }
+    }
 }
-.section__innerCard--small {
-    // width: 340px;
+
+.perfAssetRowV1 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--layout-module-gap-horizontal);
+    width: 100%;
+
+    > .layout-card {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .perfGlobalMetrics .metrics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
+    }
+
+    .perfGlobalMetrics .dataGroup {
+        min-width: 0;
+    }
+
+    @media (max-width: 900px) {
+        grid-template-columns: 1fr;
+        gap: var(--layout-module-gap-vertical);
+    }
+
+    @media (max-width: 560px) {
+        .perfGlobalMetrics .metrics {
+            grid-template-columns: 1fr;
+        }
+    }
 }
+
 .dash__perfSystemStatus {
     box-shadow: var(--surface-shadow-1);
     border-radius: var(--card-border-radius);
@@ -338,6 +378,29 @@
 }
 
 .perfGlobalMetrics {
+    .perfCardTitleV1 {
+        margin-bottom: 32px;
+    }
+
+    .perfAssetTitleV1 {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: var(--icon-token-size);
+    }
+
+    .perfAssetTitleV1__icon {
+        align-self: center;
+        flex: 0 0 var(--icon-token-size);
+        background-position: center;
+        transform: translateY(-1px);
+    }
+
+    .perfAssetTitleV1 h1 {
+        line-height: var(--icon-token-size);
+        white-space: nowrap;
+    }
+
     .collateralMetricsArea {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(360px, 42%);
@@ -576,6 +639,10 @@
         font-weight: 600;
     }
 
+    .collateralStatusCard:only-child {
+        margin-inline: auto;
+    }
+
     .collateralTitle {
         display: flex;
         align-items: center;
@@ -644,10 +711,16 @@
         align-items: center;
         gap: 8px;
         color: var(--color-txt-primary);
+
+        > div {
+            flex: 0 0 var(--icon-token-size);
+        }
     }
 
     .tokenLabel {
+        min-width: 0;
         font-weight: 500;
+        white-space: nowrap;
     }
 
     .icon-status-success,
@@ -658,9 +731,19 @@
     }
 
     .cta {
+        align-items: center;
         margin-top: 32px;
         width: 100%;
         text-align: center;
+    }
+}
+
+.aboutGlobalStatus__modal {
+    width: 800px !important;
+    max-width: calc(100vw - 32px);
+
+    .ant-modal-header {
+        margin-bottom: 48px;
     }
 }
 
@@ -669,6 +752,10 @@
         .collateralStatusCard {
             max-width: 100%;
             flex: 1 1 100%;
+        }
+
+        .tokenLabel {
+            white-space: normal;
         }
     }
 }

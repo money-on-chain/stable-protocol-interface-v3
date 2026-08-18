@@ -18,6 +18,29 @@ const onErrorGetPTCac = (): MultiCallErrorResult => {
     return { value: 0n };
 };
 
+const onErrorGetZeroUint256 = (): MultiCallErrorResult => {
+    return { value: 0n };
+};
+
+// peek() calls revert outright when a price provider rejects the caller
+// (e.g. an access-controlled feed that only whitelists the real Moc bucket
+// contract) — that's a permanent revert, not a transient error, so every
+// consumer must still get the [price, valid] tuple shape it expects rather
+// than the generic `null` fallback for non-scalar resultTypes.
+const onErrorGetInvalidPeek = (): MultiCallErrorResult => {
+    return { value: [0n, false] };
+};
+
+const mocQueuePriceUpdatesCostAbi = [
+    {
+        inputs: [],
+        name: "priceUpdatesCost",
+        outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+        stateMutability: "view",
+        type: "function",
+    },
+] as const;
+
 /**
  * Checks if parsedPrices is empty (either empty array or empty object)
  */
@@ -128,6 +151,7 @@ export function useContractProtocolStatus(
                     const tuple = result as [bigint, boolean];
                     return [normalizeToBigInt(tuple[0]), tuple[1]];
                 },
+                onError: onErrorGetInvalidPeek,
             });
         }
 
@@ -388,6 +412,7 @@ export function useContractProtocolStatus(
                     const tuple = result as [bigint, boolean];
                     return [normalizeToBigInt(tuple[0]), tuple[1]];
                 },
+                onError: onErrorGetInvalidPeek,
             });
 
             callRequest.push({
@@ -471,6 +496,18 @@ export function useContractProtocolStatus(
             });
 
             callRequest.push({
+                contract: {
+                    address: MocQueue.address,
+                    abi: mocQueuePriceUpdatesCostAbi,
+                },
+                functionName: "priceUpdatesCost",
+                args: [],
+                resultType: "uint256",
+                keys: [ca, "priceUpdatesCost"],
+                onError: onErrorGetZeroUint256,
+            });
+
+            callRequest.push({
                 contract: Moc,
                 functionName: "maxQACToMintTP",
                 args: [0],
@@ -538,6 +575,7 @@ export function useContractProtocolStatus(
                         const tuple = result as [bigint, boolean];
                         return [normalizeToBigInt(tuple[0]), tuple[1]];
                     },
+                    onError: onErrorGetInvalidPeek,
                 });
 
                 callRequest.push({
@@ -714,6 +752,7 @@ export function useContractProtocolStatus(
                     const tuple = result as [bigint, boolean];
                     return [normalizeToBigInt(tuple[0]), tuple[1]];
                 },
+                onError: onErrorGetInvalidPeek,
             });
         }
 

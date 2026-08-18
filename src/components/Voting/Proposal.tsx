@@ -227,7 +227,7 @@ const Proposal: React.FC<ProposalProps> = (props) => {
                                     onViewProposal(proposal.changeContract)
                                 }
                             >
-                                {t("View Proposal")}
+                                {t("voting.cta.viewProposal")}
                             </button>
                         </div>
                     </div>

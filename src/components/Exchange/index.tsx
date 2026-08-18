@@ -34,13 +34,14 @@ import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings";
 import type { CommissionItem, CommissionsState } from "../../types/status";
 import CommissionsSelector from "../CommissionsSelector";
-import CurrencyPopUp from "../CurrencyPopUp";
-import InputAmount from "../InputAmount/";
 import ModalConfirmOperation from "../Modals/ConfirmOperation";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import { SlippageTolerance } from "../SlippageTolerance";
+import TokenAmountInput from "../TokenAmountInput";
 const { slippage } = settings;
 import "./Styles.scss";
+
+const QUICK_ACTIONS = [25, 50, 75, 100];
 
 // Type definitions
 interface CommissionInfo {
@@ -701,14 +702,6 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                 caIndex,
                 tpIndex
             );
-            otherTokenAmount.qAC = calculateLimit(
-                otherTokenAmount.qAC,
-                +(slippageTolerance / 100)
-            );
-            otherTokenAmount.amount = calculateLimit(
-                otherTokenAmount.amount,
-                +(slippageTolerance / 100)
-            );
             setAmountAnotherToken(otherTokenAmount);
             combinedFeeCA = amountInCA + otherTokenAmount.qAC;
         }
@@ -1185,6 +1178,39 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         );
     };
 
+    const onQuickActionYouExchange = (percentage: number): void => {
+        const balance = TokenBalance(userBalance, currencyYouExchange);
+        onChangeAmountYouExchange(
+            balance === 0n
+                ? ""
+                : bigIntToInputValue(
+                      (balance * BigInt(percentage)) / 100n,
+                      currencyYouExchange,
+                      8
+                  )
+        );
+    };
+
+    const receiveUpToBalance = ConvertBalance(
+        contractProtocolStatus,
+        userBalance,
+        currencyYouExchange,
+        currencyYouReceive,
+        caIndex
+    );
+
+    const onQuickActionYouReceive = (percentage: number): void => {
+        onChangeAmountYouReceive(
+            receiveUpToBalance === 0n
+                ? ""
+                : bigIntToInputValue(
+                      (receiveUpToBalance * BigInt(percentage)) / 100n,
+                      currencyYouReceive,
+                      8
+                  )
+        );
+    };
+
     const onChangeFee = (e: RadioChangeEvent): void => {
         console.warn("radio checked", e.target.value);
         const feeCurrency = String(e.target.value);
@@ -1446,61 +1472,69 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                         className={
                             isCombinedOperation
                                 ? "group-wrapper group-input"
-                                : ""
+                                : "exchange-input-wrapper"
                         }
                     >
                         <div
-                            className="tokenSelector"
+                            className={
+                                isCombinedOperation
+                                    ? "tokenSelector"
+                                    : "tokenSelector tokenSelector--compact"
+                            }
                             data-testid="exchange-input-from"
                         >
-                            <CurrencyPopUp
-                                value={currencyYouExchange}
-                                data-testid="exchange-input-from-popup"
+                            <TokenAmountInput
+                                testId="exchange-input-amount-from"
+                                inputValue={valueExchange}
+                                placeholder="0.0"
+                                onValueChange={onChangeAmountYouExchange}
+                                validateError={inputValidationErrorText !== ""}
+                                feedbackMessage={
+                                    inputValidationErrorText || undefined
+                                }
+                                feedbackState="negative"
+                                preserveSpaceWhenNoFeedback
+                                balanceValue={PrecisionNumbers({
+                                    amount: TokenBalance(
+                                        userBalance,
+                                        currencyYouExchange
+                                    ),
+                                    token: TokenSettings(currencyYouExchange),
+                                    decimals: 8,
+                                    i18n,
+                                    compact: true,
+                                })}
+                                onMaxClick={setAddTotalAvailable}
+                                label={
+                                    operationType === "MINT" ||
+                                    operationType === "COMBINED_MINT"
+                                        ? t("exchange.labelSendingMint")
+                                        : t("exchange.labelSending")
+                                }
+                                balanceLabel={t("exchange.labelBalance")}
+                                getFiatEquivalent={onFiatEquivalentYouExchange}
+                                action="exchange"
                                 currencyOptions={
                                     isCombinedOperation
                                         ? tokenExchangeCombined()
                                         : tokenExchange()
                                 }
-                                onChange={onChangeCurrencyYouExchange}
-                                action={"exchange"}
-                            />
-
-                            <InputAmount
-                                inputValue={valueExchange}
-                                placeholder={"0.0"}
-                                onValueChange={onChangeAmountYouExchange}
-                                validateError={false}
-                                balance={
-                                    !userBalance
-                                        ? "--"
-                                        : PrecisionNumbers({
-                                              amount: TokenBalance(
-                                                  userBalance,
-                                                  currencyYouExchange
-                                              ),
-                                              token: TokenSettings(
-                                                  currencyYouExchange
-                                              ),
-                                              decimals: 8,
-                                              i18n: i18n,
-                                              compact: true,
-                                          })
+                                tokenSelectable
+                                selectedTokenValue={currencyYouExchange}
+                                onTokenSelect={onChangeCurrencyYouExchange}
+                                quickActions={
+                                    operationType === "COMBINED_MINT"
+                                        ? []
+                                        : QUICK_ACTIONS.filter(
+                                              (percentage) => percentage !== 100
+                                          )
                                 }
-                                setAddTotalAvailable={setAddTotalAvailable}
-                                action={
-                                    operationType === "COMBINED_MINT" ||
-                                    operationType === "MINT"
-                                        ? t("exchange.labelSendingMint")
-                                        : t("exchange.labelSending")
-                                }
-                                balanceText={t("exchange.labelBalance")}
-                                getFiatEquivalent={onFiatEquivalentYouExchange}
-                                // readOnly={operationType === "COMBINED_MINT"}
+                                onQuickActionClick={onQuickActionYouExchange}
                                 displayOnly={operationType === "COMBINED_MINT"}
+                                showMaxShortcut={
+                                    operationType !== "COMBINED_MINT"
+                                }
                             />
-                            <div className="amountInput__feedback amountInput__feedback--error">
-                                {inputValidationErrorText}
-                            </div>
                         </div>
                         {isCombinedOperation &&
                             operationType === "COMBINED_REDEEM" && (
@@ -1509,20 +1543,10 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                         data-testid="exchange-input-combined-redeem-other-token"
                                         className="combined-operations-info"
                                     >
-                                        <div className="combined-operations-info-item">
-                                            <CurrencyPopUp
-                                                data-testid="exchange-input-combined-redeem-other-token-popup"
-                                                value={allTPs[tpIndex]}
-                                                currencyOptions={allTPs}
-                                                onChange={onChangeTPIndex}
-                                                action={"exchange"}
-                                            />
-                                        </div>
-                                        <InputAmount
+                                        <TokenAmountInput
+                                            testId="exchange-input-combined-redeem-other-token"
                                             displayOnly
-                                            action={t(
-                                                "exchange.LabelSendingUpTo"
-                                            )}
+                                            label={t("exchange.labelSending")}
                                             placeholder="--"
                                             inputValue={
                                                 !contractProtocolStatus.data
@@ -1536,26 +1560,22 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                                       )
                                             }
                                             onValueChange={() => {}}
-                                            setAddTotalAvailable={() => {}}
-                                            balanceText={t(
+                                            showMaxShortcut={false}
+                                            balanceLabel={t(
                                                 "exchange.labelBalance"
                                             )}
-                                            balance={
-                                                !userBalance
-                                                    ? "--"
-                                                    : PrecisionNumbers({
-                                                          amount: TokenBalance(
-                                                              userBalance,
-                                                              `TP_${tpIndex}`
-                                                          ),
-                                                          token: TokenSettings(
-                                                              `TP_${tpIndex}`
-                                                          ),
-                                                          decimals: 8,
-                                                          i18n: i18n,
-                                                          compact: true,
-                                                      })
-                                            }
+                                            balanceValue={PrecisionNumbers({
+                                                amount: TokenBalance(
+                                                    userBalance,
+                                                    `TP_${tpIndex}`
+                                                ),
+                                                token: TokenSettings(
+                                                    `TP_${tpIndex}`
+                                                ),
+                                                decimals: 8,
+                                                i18n,
+                                                compact: true,
+                                            })}
                                             getFiatEquivalent={() => {
                                                 if (
                                                     !contractProtocolStatus.data
@@ -1571,72 +1591,12 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                                 );
                                             }}
                                             fiatLabel="USD"
+                                            action="exchange"
+                                            currencyOptions={allTPs}
+                                            tokenSelectable
+                                            selectedTokenValue={allTPs[tpIndex]}
+                                            onTokenSelect={onChangeTPIndex}
                                         />
-                                        {/* 
-                                        <div className="combined-operations-info-wrapper">
-                                            <div className="combined-operations-info-label">
-                                                {t("exchange.LabelSendingUpTo")}
-                                            </div>
-                                            <div className="combined-operations-info-value">
-                                                {!contractProtocolStatus.data
-                                                    ? "--"
-                                                    : PrecisionNumbers({
-                                                          amount: amountAnotherToken.amount,
-                                                          decimals:
-                                                              TokenSettings(
-                                                                  `TP_${tpIndex}`
-                                                              )
-                                                                  .visibleDecimals ||
-                                                              2,
-                                                          token: TokenSettings(
-                                                              `TP_${tpIndex}`
-                                                          ),
-                                                          i18n: i18n,
-                                                          compact: true,
-                                                      })}
-                                            </div>
-                                            <div className="amountInput__infoBar">
-                                                <div className="combined-operations-info-fiat">
-                                                    ≈{space}
-                                                    {!contractProtocolStatus.data
-                                                        ? "--"
-                                                        : PrecisionNumbers({
-                                                              amount: ConvertAmount(
-                                                                  contractProtocolStatus,
-                                                                  `TP_${tpIndex}`,
-                                                                  "USD",
-                                                                  amountAnotherToken.amount,
-                                                                  caIndex
-                                                              ),
-                                                              token: TokenSettings(
-                                                                  `CA_${caIndex}`
-                                                              ),
-                                                              decimals: 2,
-                                                              i18n: i18n,
-                                                              compact: true,
-                                                          })}
-                                                    {space}USD
-                                                </div>
-                                                <div className="combined-operations-info-balance">
-                                                    {t("exchange.labelBalance")}
-                                                    :{space}
-                                                    {!userBalance
-                                                        ? "--"
-                                                        : PrecisionNumbers({
-                                                              amount: TokenBalance(
-                                                                  userBalance,
-                                                                  `TP_${tpIndex}`
-                                                              ),
-                                                              token: TokenSettings(
-                                                                  `TP_${tpIndex}`
-                                                              ),
-                                                              decimals: 8,
-                                                              i18n: i18n,
-                                                              compact: true,
-                                                          })}
-                                                </div>
-                                            </div>
-                                        </div> */}
                                     </div>
                                 </>
                             )}
@@ -1677,60 +1637,56 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                             </div>
                         )}
                     </div>
-                    <div className="buttonSwap" onClick={handleSwapCurrencies}>
+                    <div
+                        className={
+                            isCombinedOperation
+                                ? "buttonSwap"
+                                : "buttonSwap buttonSwap--feedback-offset"
+                        }
+                        onClick={handleSwapCurrencies}
+                    >
                         <div className="icon-swap"></div>
                     </div>
                     <div
                         className={
                             isCombinedOperation
                                 ? "group-wrapper group-output"
-                                : ""
+                                : "exchange-input-wrapper"
                         }
                     >
                         <div
-                            className="tokenSelector"
+                            className={
+                                isCombinedOperation
+                                    ? "tokenSelector"
+                                    : "tokenSelector tokenSelector--compact"
+                            }
                             data-testid="exchange-input-to"
                         >
-                            <CurrencyPopUp
-                                value={currencyYouReceive}
-                                data-testid="exchange-input-to-popup"
-                                currencyOptions={
-                                    isCombinedOperation
-                                        ? tokenReceiveCombined(
-                                              currencyYouExchange
-                                          )
-                                        : tokenReceive(currencyYouExchange)
-                                }
-                                onChange={onChangeCurrencyYouReceive}
-                                action={"exchange"}
-                            />
-
-                            <InputAmount
+                            <TokenAmountInput
+                                testId="exchange-input-amount-to"
                                 inputValue={valueReceive}
-                                placeholder={"0.0"}
+                                placeholder="0.0"
                                 onValueChange={onChangeAmountYouReceive}
                                 validateError={false}
-                                balance={
-                                    !userBalance
-                                        ? "--"
-                                        : PrecisionNumbers({
-                                              amount: ConvertBalance(
-                                                  contractProtocolStatus,
-                                                  userBalance,
-                                                  currencyYouExchange,
+                                balanceValue={PrecisionNumbers({
+                                    amount: receiveUpToBalance,
+                                    token: TokenSettings(currencyYouReceive),
+                                    decimals: 8,
+                                    i18n,
+                                    compact: true,
+                                })}
+                                onMaxClick={() =>
+                                    onChangeAmountYouReceive(
+                                        receiveUpToBalance === 0n
+                                            ? ""
+                                            : bigIntToInputValue(
+                                                  receiveUpToBalance,
                                                   currencyYouReceive,
-                                                  caIndex
-                                              ),
-                                              token: TokenSettings(
-                                                  currencyYouReceive
-                                              ),
-                                              decimals: 8,
-                                              i18n: i18n,
-                                              compact: true,
-                                          })
+                                                  8
+                                              )
+                                    )
                                 }
-                                setAddTotalAvailable={setAddTotalAvailable}
-                                action={
+                                label={
                                     operationType === "COMBINED_REDEEM" ||
                                     operationType === "REDEEM" ||
                                     operationType === "SWAP_TPFORTP" ||
@@ -1739,9 +1695,31 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                         ? t("exchange.labelReceivingRedeem")
                                         : t("exchange.labelReceiving")
                                 }
-                                balanceText={t("exchange.labelUpTo")}
+                                balanceLabel={t("exchange.labelUpTo")}
                                 getFiatEquivalent={onFiatEquivalentYouReceive}
+                                action="exchange"
+                                currencyOptions={
+                                    isCombinedOperation
+                                        ? tokenReceiveCombined(
+                                              currencyYouExchange
+                                          )
+                                        : tokenReceive(currencyYouExchange)
+                                }
+                                tokenSelectable
+                                selectedTokenValue={currencyYouReceive}
+                                onTokenSelect={onChangeCurrencyYouReceive}
+                                quickActions={
+                                    operationType === "COMBINED_REDEEM"
+                                        ? []
+                                        : QUICK_ACTIONS.filter(
+                                              (percentage) => percentage !== 100
+                                          )
+                                }
+                                onQuickActionClick={onQuickActionYouReceive}
                                 readOnly={operationType === "COMBINED_REDEEM"}
+                                showMaxShortcut={
+                                    operationType !== "COMBINED_REDEEM"
+                                }
                             />
                         </div>
                         {isCombinedOperation &&
@@ -1750,20 +1728,10 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                     data-testid="exchange-input-combined-mint-other-token"
                                     className="combined-operations-info second-token"
                                 >
-                                    <div className="combined-operations-info-item">
-                                        <CurrencyPopUp
-                                            data-testid="exchange-input-combined-mint-other-token-popup"
-                                            value={`TC_${caIndex}`}
-                                            currencyOptions={[`TC_${caIndex}`]}
-                                            onChange={() => {}}
-                                            action="exchange"
-                                            displayOnly={true}
-                                        />
-                                    </div>
-
-                                    <InputAmount
+                                    <TokenAmountInput
+                                        testId="exchange-input-combined-mint-other-token"
                                         displayOnly
-                                        action={t("exchange.labelReceiving")}
+                                        label={t("exchange.labelReceiving")}
                                         placeholder="--"
                                         inputValue={
                                             !contractProtocolStatus.data
@@ -1779,26 +1747,22 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                         onValueChange={() => {
                                             /* displayOnly: no-op */
                                         }}
-                                        setAddTotalAvailable={() => {
-                                            /* displayOnly: MAX hidden */
-                                        }}
-                                        balanceText={t("exchange.labelBalance")}
-                                        balance={
-                                            !userBalance
-                                                ? "--"
-                                                : PrecisionNumbers({
-                                                      amount: TokenBalance(
-                                                          userBalance,
-                                                          `TC_${caIndex}`
-                                                      ),
-                                                      token: TokenSettings(
-                                                          `TC_${caIndex}`
-                                                      ),
-                                                      decimals: 8,
-                                                      i18n: i18n,
-                                                      compact: true,
-                                                  })
-                                        }
+                                        showMaxShortcut={false}
+                                        balanceLabel={t(
+                                            "exchange.labelBalance"
+                                        )}
+                                        balanceValue={PrecisionNumbers({
+                                            amount: TokenBalance(
+                                                userBalance,
+                                                `TC_${caIndex}`
+                                            ),
+                                            token: TokenSettings(
+                                                `TC_${caIndex}`
+                                            ),
+                                            decimals: 8,
+                                            i18n,
+                                            compact: true,
+                                        })}
                                         getFiatEquivalent={(value: number) => {
                                             if (!contractProtocolStatus.data)
                                                 return 0n;
@@ -1812,71 +1776,10 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                             );
                                         }}
                                         fiatLabel="USD"
+                                        action="exchange"
+                                        currencyOptions={[`TC_${caIndex}`]}
+                                        selectedTokenValue={`TC_${caIndex}`}
                                     />
-
-                                    {/* <div className="combined-operations-info-wrapper">
-                                        <div className="combined-operations-info-label">
-                                            {t("exchange.labelReceiving")}
-                                        </div>
-                                        <span className="combined-operations-info-value">
-                                            {!contractProtocolStatus.data
-                                                ? "--"
-                                                : PrecisionNumbers({
-                                                      amount: amountAnotherToken.amount,
-                                                      decimals:
-                                                          TokenSettings(
-                                                              `TC_${caIndex}`
-                                                          ).visibleDecimals ||
-                                                          2,
-                                                      token: TokenSettings(
-                                                          `TC_${caIndex}`
-                                                      ),
-                                                      i18n: i18n,
-                                                      compact: true,
-                                                  })}
-                                        </span>
-                                        <div className="amountInput__infoBar">
-                                            <div className="combined-operations-info-fiat">
-                                                ≈{space}
-                                                {!contractProtocolStatus.data
-                                                    ? "--"
-                                                    : PrecisionNumbers({
-                                                          amount: ConvertAmount(
-                                                              contractProtocolStatus,
-                                                              `TC_${caIndex}`,
-                                                              "USD",
-                                                              amountAnotherToken.amount,
-                                                              caIndex
-                                                          ),
-                                                          token: TokenSettings(
-                                                              `CA_${caIndex}`
-                                                          ),
-                                                          decimals: 2,
-                                                          i18n: i18n,
-                                                          compact: true,
-                                                      })}
-                                                {space}USD
-                                            </div>
-                                            <div className="combined-operations-info-balance">
-                                                {t("exchange.labelBalance")}:
-                                                {space}
-                                                {!userBalance
-                                                    ? "--"
-                                                    : PrecisionNumbers({
-                                                          amount: TokenBalance(
-                                                              userBalance,
-                                                              `TC_${caIndex}`
-                                                          ),
-                                                          token: TokenSettings(
-                                                              `TC_${caIndex}`
-                                                          ),
-                                                          decimals: 8,
-                                                          i18n: i18n,
-                                                          compact: true,
-                                                      })}
-                                            </div>
-                                        </div>
-                                    </div> */}
                                 </div>
                             )}
                         {isCombinedOperation && (

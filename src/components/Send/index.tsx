@@ -1,3 +1,5 @@
+import "../InputAmount/Styles.scss";
+
 import { Input } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
 import { checksumAddress } from "viem";
@@ -12,10 +14,11 @@ import {
 import { tokenExchange } from "../../helpers/exchange";
 import { fromWei, toBigIntPrecision } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
-import CurrencyPopUp from "../CurrencyPopUp";
-import InputAmount from "../InputAmount";
 import ModalConfirmSend from "../Modals/ConfirmSend";
 import { PrecisionNumbers } from "../PrecisionNumbers";
+import TokenAmountInput from "../TokenAmountInput";
+
+const QUICK_ACTIONS = [25, 50, 75, 100];
 
 export default function Send(): JSX.Element {
     const { t, i18n } = useProjectTranslation();
@@ -216,6 +219,21 @@ export default function Send(): JSX.Element {
         onChangeAmountYouSend(totalYouSend, true);
     };
 
+    const onQuickActionSend = (percentage: number): void => {
+        const totalYouSendWei = TokenBalance(
+            userBalance,
+            currencyYouSend,
+            userBaseCoinBalance?.balance
+                ? { balance: userBaseCoinBalance.balance }
+                : undefined
+        );
+        const partialYouSend = fromWei(
+            (totalYouSendWei * BigInt(percentage)) / 100n,
+            TokenSettings(currencyYouSend).decimals
+        );
+        onChangeAmountYouSend(partialYouSend.toString());
+    };
+
     const sendingUSD: bigint = (() => {
         if (currencyYouSend.split("_")[0] === "CUSTOM") {
             const tokenName = currencyYouSend.replace(/^CUSTOM_/, "");
@@ -240,20 +258,18 @@ export default function Send(): JSX.Element {
                         className="tokenSelector"
                         data-testid="send-input-token"
                     >
-                        <CurrencyPopUp
-                            value={currencyYouSend}
-                            data-testid="send-input-token-popup"
-                            currencyOptions={tokenSend}
-                            onChange={onChangeCurrencyYouSend}
-                            action={"send"}
-                        />
-                        <InputAmount
+                        <TokenAmountInput
                             testId="send-input-amount"
                             inputValue={amountYouSend.toString()}
                             placeholder={"0.0"}
                             onValueChange={onChangeAmountYouSend}
-                            validateError={false}
-                            balance={PrecisionNumbers({
+                            validateError={inputValidationErrorText !== ""}
+                            feedbackMessage={
+                                inputValidationErrorText || undefined
+                            }
+                            feedbackState="negative"
+                            preserveSpaceWhenNoFeedback
+                            balanceValue={PrecisionNumbers({
                                 amount: TokenBalance(
                                     userBalance,
                                     currencyYouSend,
@@ -271,13 +287,19 @@ export default function Send(): JSX.Element {
                                 i18n: i18n,
                                 compact: true,
                             })}
-                            setAddTotalAvailable={setAddTotalAvailable}
-                            action={t("send.labelSending")}
-                            balanceText={t("send.labelBalance")}
+                            onMaxClick={setAddTotalAvailable}
+                            label={t("send.labelSending")}
+                            balanceLabel={t("send.labelBalance")}
+                            action="send"
+                            currencyOptions={tokenSend}
+                            tokenSelectable
+                            selectedTokenValue={currencyYouSend}
+                            onTokenSelect={onChangeCurrencyYouSend}
+                            quickActions={QUICK_ACTIONS.filter(
+                                (percentage) => percentage !== 100
+                            )}
+                            onQuickActionClick={onQuickActionSend}
                         />
-                        <div className="amountInput__feedback amountInput__feedback--error">
-                            {inputValidationErrorText}
-                        </div>
                     </div>
                     <div className="tx-direction">
                         <div className="icon-arrow-down"></div>

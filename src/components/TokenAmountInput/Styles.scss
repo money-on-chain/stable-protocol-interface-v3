@@ -1,0 +1,309 @@
+.tokenAmountInput {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.tokenAmountInput:focus-within .tokenAmountInput__field {
+    outline: 2px solid var(--brand-color-base);
+}
+
+.tokenAmountInput__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 4px 8px;
+    border: 1px solid var(--dividers);
+    border-radius: var(--card-border-radius);
+    background-color: var(--surface-color-2);
+}
+
+.tokenAmountInput--displayOnly .tokenAmountInput__field {
+    background-color: transparent;
+}
+
+.tokenAmountInput--error .tokenAmountInput__field {
+    border-color: var(--color-semantic-negative);
+}
+
+.tokenAmountInput--readonly {
+    cursor: default;
+}
+
+.tokenAmountInput__topRow,
+.tokenAmountInput__bottomRow,
+.tokenAmountInput__content {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.tokenAmountInput__topRow {
+    align-items: flex-start;
+}
+
+.tokenAmountInput__content,
+.tokenAmountInput__bottomRow {
+    align-items: center;
+}
+
+.tokenAmountInput__label {
+    color: var(--color-txt-secondary);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.tokenAmountInput__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tokenAmountInput__quick-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    max-width: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition:
+        opacity 0.2s ease,
+        max-width 0.2s ease;
+}
+
+.tokenAmountInput:hover .tokenAmountInput__quick-actions,
+.tokenAmountInput:focus-within .tokenAmountInput__quick-actions {
+    opacity: 1;
+    max-width: 220px;
+    pointer-events: auto;
+}
+
+.tokenAmountInput__quick-action,
+.tokenAmountInput__maxButton,
+.tokenAmountInput__tokenButton {
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+
+.tokenAmountInput__quick-action,
+.tokenAmountInput__maxButton {
+    color: var(--color-txt-highlight);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.tokenAmountInput__divider {
+    color: var(--color-txt-highlight);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.tokenAmountInput__divider--max {
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.tokenAmountInput:hover .tokenAmountInput__divider--max,
+.tokenAmountInput:focus-within .tokenAmountInput__divider--max {
+    opacity: 1;
+}
+
+.tokenAmountInput__amountBlock {
+    flex: 1;
+    min-width: 0;
+}
+
+.tokenAmountInput__value {
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-txt-primary);
+    font-size: 28px;
+    font-weight: 600;
+    font-family: var(--brand-font);
+    outline: none;
+    line-height: 0%;
+}
+
+.tokenAmountInput__value::placeholder {
+    color: var(--color-txt-primary);
+    opacity: 1;
+}
+
+.tokenAmountInput__fiatValue,
+.tokenAmountInput__balance {
+    color: var(--color-txt-secondary);
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.tokenAmountInput__balance {
+    margin-left: auto;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.tokenAmountInput__tokenButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    align-self: center;
+    color: var(--color-txt-primary);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.tokenAmountInput__tokenButton--static {
+    cursor: default;
+}
+
+.tokenAmountInput__token-icon {
+    width: 22px;
+    height: 22px;
+    background-size: 22px 22px;
+    flex-shrink: 0;
+}
+
+.tokenAmountInput__token-icon > .token__icon {
+    display: block;
+    margin-right: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.tokenAmountInput__token-label {
+    color: var(--color-txt-primary);
+    font-size: 16px;
+    font-weight: 600;
+    font-family: var(--brand-font);
+}
+
+.tokenAmountInput__token-selectIcon {
+    flex-shrink: 0;
+    opacity: 0.85;
+    filter: var(--color-icon-link-secondary-filter);
+}
+
+.tokenAmountInput__token-selectSlot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 12px;
+    flex-shrink: 0;
+}
+
+.tokenAmountInput__token-selectSlot--hidden {
+    visibility: hidden;
+}
+
+.tokenAmountInput__tokenButton:hover .tokenAmountInput__token-selectIcon,
+.tokenAmountInput__tokenButton:focus-visible
+    .tokenAmountInput__token-selectIcon {
+    filter: var(--color-icon-link-hover-filter);
+}
+
+.tokenAmountInput__feedback {
+    width: 100%;
+    margin-top: 8px;
+    padding: 2px 0;
+    color: var(--color-txt-secondary);
+    font-family: var(--main-font);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: 12px;
+    text-align: left;
+}
+
+.tokenAmountInput__feedback--default {
+    color: var(--color-txt-secondary);
+}
+
+.tokenAmountInput__feedback--positive {
+    color: var(--color-semantic-positive);
+}
+
+.tokenAmountInput__feedback--neutral {
+    color: var(--color-semantic-neutral);
+}
+
+.tokenAmountInput__feedback--negative {
+    color: var(--color-semantic-negative);
+}
+
+.tokenAmountInput__feedback--placeholder {
+    min-height: 12px;
+}
+
+.tokenAmountInput__selectorModal {
+    .ant-modal-content {
+        border: 1px solid var(--dividers);
+        border-radius: var(--card-border-radius);
+        background-color: var(--surface-color-1);
+    }
+}
+
+.tokenAmountInput__optionList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tokenAmountInput__option {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--dividers);
+    border-radius: var(--card-border-radius);
+    background-color: var(--surface-color-2);
+    color: var(--color-txt-primary);
+    cursor: pointer;
+    text-align: left;
+}
+
+.tokenAmountInput__option--selected {
+    border-color: var(--color-txt-highlight);
+}
+
+.tokenAmountInput__optionLabel {
+    color: var(--color-txt-primary);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--brand-font);
+}
+
+.tokenAmountInput--readonly .tokenAmountInput__value {
+    cursor: default;
+}
+
+@media (max-width: 960px) {
+    .tokenAmountInput__content,
+    .tokenAmountInput__bottomRow {
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .tokenAmountInput__tokenButton {
+        align-self: flex-start;
+    }
+
+    .tokenAmountInput__balance {
+        margin-left: 0;
+        text-align: left;
+    }
+}

@@ -1,0 +1,370 @@
+{  
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address payable",
+          "name": "lendingManager_",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidPrice",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "LENDING_MANAGER",
+      "outputs": [
+        {
+          "internalType": "contract MocLendingManager",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "tpToken_",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "emissionRate_",
+          "type": "uint256"
+        }
+      ],
+      "name": "getBrakeFactor",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "brakeFactor",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "user_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "tpToken_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "mocBucket_",
+          "type": "address"
+        }
+      ],
+      "name": "getCoverage",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "coverage",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "user_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "tpToken_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "mocBucket_",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "pACtp_",
+          "type": "uint256"
+        }
+      ],
+      "name": "getCoverageWithPACtp",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "coverage",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "user_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "tpToken_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "mocBucket_",
+          "type": "address"
+        }
+      ],
+      "name": "getLiquidationPrice",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "pACtpLiquidation",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "user_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "tpToken_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "mocBucket_",
+          "type": "address"
+        }
+      ],
+      "name": "getMaxACToRemove",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "maxACToRemove",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "user_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "tpToken_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "mocBucket_",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "pACtp_",
+          "type": "uint256"
+        }
+      ],
+      "name": "getMaxACToRemoveWithPACtp",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "maxACToRemove",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "user_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "tpToken_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "mocBucket_",
+          "type": "address"
+        }
+      ],
+      "name": "getMaxTPToBorrow",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "maxTPToBorrow",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "user_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "tpToken_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "mocBucket_",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "pACtp_",
+          "type": "uint256"
+        }
+      ],
+      "name": "getMaxTPToBorrowWithPACtp",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "maxTPToBorrow",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getPACtpNeeded",
+      "outputs": [
+        {
+          "internalType": "bytes[]",
+          "name": "pairs",
+          "type": "bytes[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "tpToken_",
+          "type": "address"
+        }
+      ],
+      "name": "getUtilizationRate",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "utilization",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "user_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "tpToken_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "mocBucket_",
+          "type": "address"
+        }
+      ],
+      "name": "isVaultLiquidable",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "isLiquidable",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "user_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "tpToken_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "mocBucket_",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "pACtp_",
+          "type": "uint256"
+        }
+      ],
+      "name": "isVaultLiquidableWithPACtp",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "isLiquidable",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ]  
+}

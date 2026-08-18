@@ -5,6 +5,20 @@ section_voting.scss contains all the css code for Voting section cards not conta
 // Variables
 $breakpoint-mobile: 600px;
 
+.voting-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--layout-module-gap-vertical);
+
+    > .content-page:empty {
+        display: none;
+    }
+
+    > .section-container {
+        margin-top: 0;
+    }
+}
+
 .title {
     color: var(--color-txt-primary);
     font-size: 16px;
@@ -23,7 +37,7 @@ $breakpoint-mobile: 600px;
     display: flex;
     flex-direction: row;
     align-items: flex-end;
-    gap: 32px;
+    gap: var(--layout-module-gap-horizontal);
     width: 100%;
 }
 
@@ -69,7 +83,7 @@ $breakpoint-mobile: 600px;
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: var(--layout-module-gap-vertical);
     width: 100%;
 }
 .votingInfo__item {
@@ -124,7 +138,7 @@ $breakpoint-mobile: 600px;
 
 .sectionPreVoting {
     display: flex;
-    gap: 24px;
+    gap: var(--layout-module-gap-vertical);
     flex-direction: column;
     width: 100%;
 }

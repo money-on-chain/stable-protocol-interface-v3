@@ -1,0 +1,32 @@
+.section-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--layout-module-gap-vertical);
+    color: var(--color-txt-secondary);
+}
+.card {
+    width: 100%;
+}
+
+.token {
+    &-icon {
+        background-size: 20px;
+        width: 20px;
+        height: 20px;
+    }
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    &-name {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        color: var(--color-txt-primary);
+        font-weight: 600;
+        font-size: 12px;
+        font-family: var(--brand-font);
+    }
+    &-ticker {
+        color: var(--color-txt-secondary);
+    }
+}

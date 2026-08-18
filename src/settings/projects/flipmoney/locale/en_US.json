@@ -29,7 +29,7 @@
         "sectionTitle": "Last Operations",
         "aboutQueue": {
             "button": "About queue",
-            "title": "About queue - Cicle of a transaction",
+            "title": "About queue - Cycle of a transaction",
             "statusQueuing": "Transaction entered the queue with the first confirmation.",
             "statusQueued": "Transaction is in the queue waiting for execution.",
             "statusConfirming": "Transaction was executed and has one confirmation.",
@@ -186,13 +186,13 @@
             "confirmed": "Transaction confirmed",
             "success": "Transaction successful",
             "error": "Transaction failed!",
-            "default": "Espera la confirmación de la transacción",
+            "default": "Waiting for transaction confirmation",
             "minimumWarning": "Minimum to receive",
             "minimumExplanation": "(see price variation tolerance)"
         },
 
         "priceVariation": {
-            "title": "Customice price variation tolerance",
+            "title": "Customize price variation tolerance",
             "sliderLabel": "Price Variation Tolerance",
             "warning": "This amount was updated according to variation tolerance"
         },
@@ -243,7 +243,16 @@
             "balance": "Balance",
             "usdBalance": "Balance in USD",
             "priceInUSD": "Price in USD",
-            "tokensPerUSD": "Tokens per USD"
+            "tokensPerUSD": "Tokens per USD",
+            "readyToClaim": "Ready to claim"
+        },
+        "dashboard": {
+            "readyToClaim": "FLIP ready to claim",
+            "earnedToday": "FLIP earned today",
+            "balance": "FLIP balance",
+            "staked": "FLIP staked",
+            "unstaking": "FLIP unstaking",
+            "readyToWithdraw": "FLIP withdrawable"
         },
         "sectionTitle": "Portfolio",
         "totalCurrency": "USD",
@@ -262,7 +271,7 @@
             "statusDescriptionFull": "The system is in optimal condition",
 
             "statusTitleGood": "Good Condition",
-            "statusDescriptionGood": "See Status by Collateral using the button bellow:",
+            "statusDescriptionGood": "See Status by Collateral using the button below:",
 
             "stuatusTitleWarning": "Partially Operational",
             "statusDescriptionWarning": "Token Collateral cannot be redeemed. Token Pegged cannot be minted",
@@ -395,7 +404,7 @@
         "buttonCancel": "Cancel",
         "buttonConfirm": "Confirm",
         "buttonClose": "Close",
-        "infoNoBalance": "No enough balance",
+        "infoNoBalance": "Not enough balance",
         "noNegativeValues": "Value must be greater than 0",
         "infoAddressEmpty": "Destination address not specified",
         "infoAddressInvalid": "Invalid address",
@@ -422,7 +431,7 @@
             "authorize": "Authorize"
         },
         "feedback": {
-            "submit": "",
+            "submit": "Wait for transaction confirmation",
             "sign": "Please, sign the allowance authorization transaction using your wallet.",
             "waiting": "Please, wait while the allowance authorization is mined in the blockchain. Once it´s done, the transaction will be sent to your wallet.",
             "error": "Operation Failed!",
@@ -436,7 +445,7 @@
     "fees": {
         "labelFee": "Fee",
         "labelExecutionFee": "Execution Fee",
-        "disclaimer1": "This fee will be deduced from the amount to be transferred.",
+        "disclaimer1": "This fee will be deducted from the amount to be transferred.",
         "disclaimer2": "Amounts may change at the transaction confirmation"
     },
 
@@ -450,13 +459,14 @@
         "vesting": "Vesting",
         "voting": "Voting",
         "more": "More",
-        "combinedOperations": "Combined Ops."
+        "combinedOperations": "Combined Ops.",
+        "lendingBorrowing": "Lend & Borrow"
     },
 
     "language": {
-        "languageCTA": "Selecet Language:",
-        "en": "🇬🇧 English",
-        "es": "🇪🇸 Español"
+        "languageCTA": "Select Language:",
+        "en": "English",
+        "es": "Español"
     },
 
     "defaultCTA": {
@@ -504,13 +514,13 @@
             "balance": "Balance",
             "staked": "Flip Staked",
             "unstaking": "Unstaking",
-            "ready": "Ready to Withdraw",
+            "ready": "FLIP withdrawable",
             "lockedVoting": "Locked while Voting"
         },
         "staking": {
             "input_decimals": 2,
             "tabStake": "Stake",
-            "tabUnstake": "Ustake",
+            "tabUnstake": "Unstake",
             "inputStake": "Stake",
             "inputUnstake": "Unstake",
             "inputAvailable": "Available",
@@ -562,7 +572,7 @@
                 "expiration": "Expiration",
                 "amount": "Amount",
                 "status": "Status",
-                "actions": "Options"
+                "actions": "Available actions"
             }
         },
         "history": {
@@ -607,11 +617,11 @@
             "StakingOptionsModal_ReviewYourWalletDescription": "Please review your wallet",
             "StakingOptionsModal_Authorize": "Authorize",
             "StakingOptionsModal_AllowanceDescription": "Before continuing with the staking you must set the allowance so that the staking system can access the tokens. This has to be done only once and it doesn't lock any tokens from your wallet.",
-            "StakingOptionsModal_ProccessingAllowance": "Processing Allowance, please wait.",
+            "StakingOptionsModal_ProcessingAllowance": "Processing Allowance, please wait.",
             "StakingOptionsModal_StakingDescription": "Staked Flips will receive rewards from the Flip Staking Rewards Program. You can unstake your Flips whenever you want, the withdraw process will take 30 days",
             "StakingOptionsModal_AmountToStake": "Amount to Stake",
             "StakingOptionsModal_Title": "Stake",
-            "StakingOptionsModal_Comfirm": "Confirm",
+            "StakingOptionsModal_Confirm": "Confirm",
             "StakingOptionsModal_Cancel": "Cancel",
 
             "StakingOptionsModal_UnstakeTitle": "Unstake",
@@ -624,7 +634,7 @@
 
             "StakingOptionsModal_RestakeTitle": "Restake",
             "StakingOptionsModal_AmountToRestake": "Amount to Restake",
-            "StakingOptionsModal_RestakeDescription": "After confirming, this amount of Flipl Tokens will be removed from the processing queue and staked again. They will immediately start receiving Flip Staking Rewards.",
+            "StakingOptionsModal_RestakeDescription": "After confirming, this amount of Flip Tokens will be removed from the processing queue and staked again. They will immediately start receiving Flip Staking Rewards.",
 
             "StatusModal_Modal_Title": "Operation details",
             "StatusModal_Modal_Close": "Close",
@@ -677,7 +687,7 @@
                 "addressLabel": "Created Vesting Machine Address",
                 "buttonDownloadAddress": "Download Address",
                 "buttonCopyAddress": "Copy Address",
-                "ctaInfo": "Write down the VM address and don't loose it. You will need it to load your Vesting Machine.",
+                "ctaInfo": "Write down the VM address and don't lose it. You will need it to load your Vesting Machine.",
                 "ctaSecondary": "Back",
                 "ctaPrimary": "View Vesting Machine"
             }
@@ -757,8 +767,8 @@
             "finished": "• The voting period is over!",
             "ongoing": "• The voting is in progress!",
             "approved": "• Proposal was approved",
-            "noQuorum": "• No reach quorum for this proposal!",
-            "rejected": "• Proposal was rejected by votess against!"
+            "noQuorum": "• This proposal did not reach quorum",
+            "rejected": "• Proposal was rejected by votes against!"
         },
         "balanceGraph": { "against": "Against", "inFavor": "In Favor" },
         "statusGraph": {
@@ -823,6 +833,274 @@
             "status": "Status",
             "statusReceived": "Received",
             "statusInProgress": "In progress"
+        }
+    },
+    "beforeAfterCard": {
+        "before": "Current",
+        "after": "Next"
+    },
+    "tokenAmountInput": {
+        "noEnoughBalance": "Not enough balance in your wallet.",
+        "labelBalance": "Balance"
+    },
+    "lendingBorrowing": {
+        "backLink": "Back to Lending & Borrowing",
+        "operations": {
+            "title": "Activity",
+            "description": "Your latest lending and borrowing transactions.",
+            "filterLabel": "Filter activity",
+            "empty": "No transactions to display.",
+            "filters": { "all": "All", "lending": "Lending", "borrowing": "Borrowing" },
+            "columns": {
+                "date": "Date",
+                "operation": "Operation",
+                "market": "Market",
+                "movement": "Movement",
+                "status": "Status",
+                "transaction": "Transaction"
+            },
+            "status": { "pending": "Pending", "confirmed": "Confirmed", "failed": "Failed" },
+            "types": {
+                "deposit": "Deposit",
+                "withdraw": "Withdraw",
+                "borrow": "Borrow",
+                "repay": "Repay",
+                "repay-with-collateral": "Repay with collateral",
+                "deposit-collateral": "Deposit collateral",
+                "withdraw-collateral": "Withdraw collateral",
+                "liquidation": "Liquidation"
+            }
+        }
+    },
+    "lending": {
+        "cardTitle": "Lend",
+        "labelInterest": "Variable Supply APY",
+        "labelDeposits": "Your Deposits + Earnings",
+        "cta": { "earn": "Earn", "withdraw": "Withdraw" },
+        "sectionEarn": {
+            "cardTitle": "Earn",
+            "apy": "Variable APY",
+            "labelAmountToLend": "Amount to Lend",
+            "summary": {
+                "titleBalanceError": "Not enough Balance",
+                "titleAmountOK": "Ready to lend",
+                "titleNoAmount": "No lend amount selected",
+                "txtExceedsBalance": "The amount exceeds your wallet balance.",
+                "txtAboutToLend": "You are about to lend",
+                "txtEnterAmount": "Enter an amount to lend."
+            },
+            "cta": { "ok": "Lend", "noAmount": "Enter an amount" }
+        },
+        "sectionWithdraw": {
+            "cardTitle": "Withdraw",
+            "apy": "Variable APY",
+            "available": "Available to withdraw",
+            "labelAmountToWithdraw": "Amount to Withdraw",
+            "exceedsWithdrawBalance": "Amount exceeds your available withdraw balance",
+            "summary": {
+                "titleBalanceError": "Amount exceeds available balance",
+                "titleAmountOK": "Ready to withdraw",
+                "titleNoAmount": "No withdraw amount selected",
+                "txtExceedsBalance": "The amount exceeds what you can currently withdraw.",
+                "txtAboutToWithdraw": "You are about to withdraw",
+                "txtEnterAmount": "Enter amount to withdraw or select Withdraw All",
+                "txtRemaining": "Remaining deposit"
+            },
+            "cta": {
+                "ok": "Withdraw",
+                "noAmount": "Enter an amount",
+                "withdrawAll": "Withdraw All"
+            }
+        }
+    },
+    "borrowing": {
+        "cardTitle": {
+            "section": "Borrow"
+        },
+        "labelInterest": "Variable Borrow APY",
+        "labelDeposits": "Your Deposits + Earnings",
+        "labelMaxAvailable": "Max Available (Wallet + Collateral)",
+        "labelCurrentDebt": "Current Debt",
+        "labelDepositedCollateral": "Deposited Collateral",
+        "labelLoanToken": "Loan Token",
+        "labelCollateralToken": "Collateral Token",
+        "labelLiquidationPercentage": "Loan is liquidated if collateral price drops",
+        "labelLiquidationPrice": "Liquidation Price",
+        "labelDistanceToLiquidation": "Distance to Liquidation",
+        "labelMinRequieredCollateral": "Min Required Collateral",
+        "labelAvailableWithCollateral": "Borrow Available W/Collateral",
+        "labelBorrowUsage": "Borrow Usage",
+        "liquidated": {
+            "title": "Liquidated",
+            "ctaDetails": "Details",
+            "labelAmount": "Amount Liquidated",
+            "labelLiquidationPrice": "Liquidation Price"
+        },
+        "cta": { "confirm": "Confirm" },
+        "risk": {
+            "decrease": "Risk will decrease if you proceed.",
+            "increase": "Risk will increase if you proceed.",
+            "neutral": "Risk will remain neutral if you proceed."
+        },
+        "actions": {
+            "borrow": "Borrow",
+            "repay": "Repay",
+            "repayWithCollateral": "Repay with Collateral",
+            "depositCollateral": "Deposit Collateral",
+            "withdrawCollateral": "Withdraw Collateral"
+        },
+        "sectionBorrow": {
+            "cardTitle": "Borrow",
+            "apy": "Variable APY",
+            "feedbackBorrowLimit": "Amount exceeds your available borrow limit",
+            "labelAmountToBorrow": "Amount to Borrow",
+            "labelAddToCollateral": "Add to Collateral",
+            "summary": {
+                "titleBorrowLimit": "Borrow amount exceeds limit",
+                "titleNoBalance": "Not enough balance",
+                "titleReady": "Ready to continue",
+                "titleNoAmount": "No amount selected",
+                "txtBorrowing": "Borrowing",
+                "txtDepositingCollateral": "Depositing collateral",
+                "txtBorrowAvailableWithDepositedCollateral": "Borrow available with deposited collateral",
+                "txtBorrowLimit": "The borrow amount exceeds your available borrow limit.",
+                "txtCollateralBalance": "The collateral amount exceeds your wallet balance.",
+                "txtEnterAmounts": "Enter borrow and/or collateral amounts to continue.",
+                "titleInsufficientCollateral": "Insufficient collateral",
+                "txtMinCollateralNeeded": "Minimum collateral required"
+            }
+        },
+        "operationProgress": {
+            "titles": {
+                "lend": "Lend {{token}}",
+                "lendWithdraw": "Withdraw {{token}}",
+                "borrow": "Borrow {{token}}",
+                "repay": "Repay {{token}}",
+                "repayWithCollateral": "Repay {{token}} with Collateral",
+                "depositCollateral": "Deposit {{token}} as Collateral",
+                "withdrawCollateral": "Withdraw {{token}} Collateral"
+            },
+            "actions": {
+                "cancel": "Cancel",
+                "close": "Close"
+            },
+            "approveTP": "Approve Token",
+            "approveCA": "Approve Collateral",
+            "depositLend": "Deposit",
+            "withdrawLend": "Withdraw",
+            "borrow": "Borrow",
+            "repay": "Repay",
+            "repayWithCollateral": "Repay with Collateral",
+            "depositCollateral": "Deposit Collateral",
+            "withdrawCollateral": "Withdraw Collateral",
+            "descriptions": {
+                "pending": "This step will start after the previous transaction is confirmed.",
+                "processing": "Wait while the transaction is confirmed on the blockchain.",
+                "completed": "This step was completed successfully. No further action is required.",
+                "failed": "The transaction could not be completed. Check your wallet and try again.",
+                "approveTP": "Confirm the allowance transaction in your wallet so the protocol can use the required loan token amount.",
+                "approveCA": "Confirm the allowance transaction in your wallet so the protocol can use the required collateral amount.",
+                "depositLend": "Confirm the deposit transaction in your wallet to start earning.",
+                "withdrawLend": "Confirm the withdrawal transaction in your wallet to return the funds to your balance.",
+                "borrow": "Confirm the borrow transaction in your wallet to receive the loan tokens.",
+                "repay": "Confirm the repayment transaction in your wallet to reduce or settle your debt.",
+                "repayWithCollateral": "Confirm the transaction in your wallet to repay the debt using your deposited collateral.",
+                "depositCollateral": "Confirm the transaction in your wallet to add collateral to your position.",
+                "withdrawCollateral": "Confirm the transaction in your wallet to withdraw the available collateral from your position."
+            }
+        },
+        "sectionRepay": {
+            "cardTitle": "Repay",
+            "feedbackDebtLimit": "Amount exceeds your current debt",
+            "feedbackWalletBalance": "Amount exceeds your wallet balance",
+            "labelAmountToRepay": "Amount to Repay",
+            "summary": {
+                "titleDebtLimit": "Repay amount exceeds current debt",
+                "titleWalletBalance": "Insufficient wallet balance",
+                "titleReady": "Ready to repay",
+                "titleNoAmount": "Repay amount not specified",
+                "txtRepaying": "Repaying",
+                "txtDebtLimit": "The repay amount exceeds your current debt.",
+                "txtWalletBalance": "The repay amount exceeds your wallet balance of the borrow token.",
+                "txtEnterAmount": "Enter an amount to repay or use \"Repay in Full\"."
+            },
+            "cta": {
+                "ok": "Repay",
+                "noAmount": "Enter an Amount",
+                "repayInFull": "Repay in Full"
+            }
+        },
+        "sectionRepayCollateral": {
+            "cardTitle": "Repay with Collateral",
+            "feedbackCollateralLimit": "Amount exceeds your deposited collateral",
+            "labelCollateralForRepay": "Collateral for Repay",
+            "labelDepositedCollateralAfterRepayment": "Deposited Collateral After Repayment",
+            "summary": {
+                "titleReady": "Ready to continue",
+                "titleNoAmount": "Repay with collateral amount not specified",
+                "txtUsingCollateral": "Using collateral for repay",
+                "txtDepositedCollateralAfterRepayment": "Deposited collateral after repayment",
+                "txtEnterAmount": "Enter an amount to repay with collateral or use \"MAX\"."
+            }
+        },
+        "sectionDepositCollateral": {
+            "cardTitle": "Deposit Collateral",
+            "labelAmountToDeposit": "Amount to Deposit",
+            "summary": {
+                "titleReady": "Ready to continue",
+                "titleNoAmount": "Deposit amount not specified",
+                "txtDepositingCollateral": "Depositing collateral",
+                "txtEnterAmount": "Enter a collateral amount to deposit."
+            }
+        },
+        "sectionWithdrawCollateral": {
+            "cardTitle": "Withdraw Collateral",
+            "feedbackCollateralLimit": "Amount exceeds your deposited collateral",
+            "feedbackWithdrawLimit": "Amount exceeds your withdrawable collateral (minimum required to cover debt)",
+            "labelAmountToWithdraw": "Amount to Withdraw",
+            "summary": {
+                "titleReady": "Ready to continue",
+                "titleNoAmount": "Withdraw amount not specified",
+                "txtWithdrawingCollateral": "Withdrawing collateral",
+                "txtEnterAmount": "Enter a collateral amount to withdraw."
+            }
+        }
+    },
+    "operationProgressList": {
+        "transaction": "Transaction",
+        "openLink": "Open details",
+        "copyHash": "Copy hash",
+        "status": {
+            "pending": "Pending",
+            "waiting": "Waiting",
+            "processing": "Processing",
+            "completed": "Completed",
+            "failed": "Failed"
+        },
+        "example": {
+            "runSuccess": "Run success flow",
+            "runFailure": "Run failed flow",
+            "reset": "Reset",
+            "failureMessage": "The parent received an error and kept the remaining steps pending.",
+            "approveTokenA": {
+                "title": "Approve token A",
+                "description": "User approval is required before the operation can continue."
+            },
+            "approveTokenB": {
+                "title": "Approve token B",
+                "description": "This step can complete or fail independently."
+            },
+            "depositCollateral": {
+                "title": "Deposit collateral",
+                "description": "The parent decides when this step starts."
+            },
+            "borrowToken": {
+                "title": "Borrow token",
+                "description": "The list only renders the status it receives."
+            },
+            "operationCompleted": {
+                "title": "Operation completed"
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ import "./Styles.scss";
 import React, { useState } from "react";
 
 import Portfolio from "../../components/Dashboards/Portfolio";
+import PortfolioDashboard from "../../components/Dashboards/PortfolioDashboard";
 import { useProjectTranslation } from "../../helpers/translations";
 import ListOperationsMobile from "../Tables/LastOperations";
 
@@ -56,6 +57,7 @@ export default function HomeTabs(): React.ReactElement {
             <div>
                 {activeTab === tabs[0].id ? (
                     <div className="section-container">
+                        <PortfolioDashboard />
                         <Portfolio />
                     </div>
                 ) : (

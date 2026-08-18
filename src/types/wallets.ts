@@ -1,8 +1,10 @@
 // Generic interface context consumed by backend helpers
+import type { TransactionReceipt } from "viem";
 import type { usePublicClient } from "wagmi";
 import type { useWalletClient } from "wagmi";
 import type { useConnect } from "wagmi";
 
+import type { useContractLendingStatus } from "../hooks/useContractLendingStatus";
 import type { useContractOmocStatus } from "../hooks/useContractOmocStatus";
 import type { useContractProtocolStatus } from "../hooks/useContractProtocolStatus";
 import type { useIncentiveV2 } from "../hooks/useIncentiveV2";
@@ -12,8 +14,14 @@ import type { useUserVeto } from "../hooks/useUserVeto";
 import type { UseBaseCoinBalanceResult } from "../types/status";
 import type { DContracts } from "./hooks";
 import type {
+    ContractProtocolStatusV1Result,
+    DContractsV1,
+    UserBalanceV1Result,
+} from "./hooks-v1";
+import type {
     ContractProtocolStatusResult,
     UserBalanceResult,
+    UserLendingResult,
     UserOmocBalanceResult,
     UserVestingResult,
 } from "./status";
@@ -51,10 +59,59 @@ export type WalletContextType = {
 
     contractStatusOmoc: ReturnType<typeof useContractOmocStatus>;
     contractProtocolStatus: ReturnType<typeof useContractProtocolStatus>;
+    contractLendingStatus: ReturnType<typeof useContractLendingStatus>;
+
+    userLending: UserLendingResult;
 
     userBalance: UserBalanceResult;
     userOmocBalance: UserOmocBalanceResult;
     userBaseCoinBalance: UseBaseCoinBalanceResult;
+
+    // moc-v1 (legacy) — populated only when
+    // REACT_APP_ENVIRONMENT_APP_PROJECT === "moc-v1"; see feedback memory
+    // "shared wallet context": these live alongside the v3 fields above rather
+    // than replacing them, so v3 components keep their existing types untouched.
+    contractsAddressV1: DContractsV1 | null;
+    contractProtocolStatusV1: ContractProtocolStatusV1Result;
+    userBalanceV1: UserBalanceV1Result;
+    interfaceMintBProV1: (
+        btcAmount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ) => Promise<TransactionReceipt | undefined>;
+    interfaceMintDocV1: (
+        btcAmount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ) => Promise<TransactionReceipt | undefined>;
+    interfaceRedeemBProV1: (
+        bproAmount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ) => Promise<TransactionReceipt | undefined>;
+    interfaceRedeemFreeDocV1: (
+        docAmount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ) => Promise<TransactionReceipt | undefined>;
+    interfaceAllowanceMocV1: (
+        amount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ) => Promise<TransactionReceipt | undefined>;
+    interfaceTransferTokenV1: (
+        currencyYouExchange: string,
+        amount: bigint,
+        destinationAddress: string,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ) => Promise<TransactionReceipt | undefined>;
+    interfaceTransferCoinbaseV1: (
+        amount: bigint,
+        destinationAddress: string,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ) => Promise<TransactionReceipt | undefined>;
     userVesting: UserVestingResult;
     userIncentiveV2: ReturnType<typeof useIncentiveV2>;
     userVeto: ReturnType<typeof useUserVeto>;

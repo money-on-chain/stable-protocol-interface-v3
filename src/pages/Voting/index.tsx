@@ -27,7 +27,7 @@ export default function SectionVoting(): React.ReactElement {
 
     return (
         <Fragment>
-            <div className="section-container">
+            <div className="section-container voting-page">
                 <div className="content-page">
                     {(settings.project === "moc" ||
                         settings.project === "voting" ||

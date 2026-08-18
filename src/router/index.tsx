@@ -11,18 +11,14 @@ declare global {
         REACT_APP_ENVIRONMENT_APP_PROJECT: string;
     }
 }
-
 const RouterFlipmoney: LazyRouterComponent = React.lazy(
     () => import("./projects/flipmoney")
 );
 const RouterRoc: LazyRouterComponent = React.lazy(
     () => import("./projects/roc")
 );
-const RouterMoc: LazyRouterComponent = React.lazy(
-    () => import("./projects/moc")
-);
-const RouterVoting: LazyRouterComponent = React.lazy(
-    () => import("./projects/voting")
+const RouterMocV1: LazyRouterComponent = React.lazy(
+    () => import("./projects/moc-v1")
 );
 
 const Router = (): LazyRouterComponent => {
@@ -31,10 +27,8 @@ const Router = (): LazyRouterComponent => {
             return RouterFlipmoney;
         case "roc":
             return RouterRoc;
-        case "moc":
-            return RouterMoc;
-        case "voting":
-            return RouterVoting;
+        case "moc-v1":
+            return RouterMocV1;
         default:
             return RouterFlipmoney;
     }

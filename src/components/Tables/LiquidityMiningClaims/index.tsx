@@ -340,31 +340,33 @@ export default function LiquidityMiningClaims(): React.ReactElement {
     );
 
     return (
-        <div className="layout-card">
+        <div className="layout-card liquidityMiningClaims">
             <div className="layout-card-title">
                 <h1>{t("liquidityMining.cardTitle")}</h1>
             </div>
-            <div className="renderHeader">
-                <div className="date">
-                    {t("liquidityMining.claimsTable.date")}
+            <div className="liquidityMiningClaims__viewport">
+                <div className="renderHeader">
+                    <div className="date">
+                        {t("liquidityMining.claimsTable.date")}
+                    </div>
+                    <div className="amount">
+                        {t("liquidityMining.claimsTable.amount")}
+                    </div>
+                    <div className="event">
+                        {t("liquidityMining.claimsTable.event")}
+                    </div>
+                    <div className="status">
+                        {t("liquidityMining.claimsTable.status")}
+                    </div>
                 </div>
-                <div className="amount">
-                    {t("liquidityMining.claimsTable.amount")}
-                </div>
-                <div className="event">
-                    {t("liquidityMining.claimsTable.event")}
-                </div>
-                <div className="statu">
-                    {t("liquidityMining.claimsTable.status")}
-                </div>
+                <Table
+                    columns={tableColumns}
+                    dataSource={tableData}
+                    pagination={{ pageSize: 10 }}
+                    showHeader={false}
+                    scroll={{ y: "auto" }}
+                />
             </div>
-            <Table
-                columns={tableColumns}
-                dataSource={tableData}
-                pagination={{ pageSize: 10 }}
-                showHeader={false}
-                scroll={{ y: "auto" }}
-            />
         </div>
     );
 }

@@ -5,13 +5,18 @@ import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { useWalletContext } from "../../context/Wallet";
+import {
+    getProjectMenuOptions,
+    type RawMenuOption,
+} from "../../helpers/menuOptions";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings";
 import DappVersion from "../DappVersion";
+import LanguageLabel from "../LanguageLabel";
 import ThemeMode from "../ThemeMode";
 import TokenPriceStrip from "../TokenPriceStrip";
 import Brand from "./Brand";
-import menuOptionsData from "./menuOptions.json";
+import HeaderCenter from "./HeaderCenter";
 
 const { Header } = Layout;
 
@@ -26,6 +31,12 @@ interface MenuOption {
 interface LanguageOption {
     name: string;
     code: string;
+}
+
+interface ProjectSettingsWithHeader {
+    header?: {
+        centerVariant?: string;
+    };
 }
 
 const truncateAddress = (address: string): string => {
@@ -54,36 +65,21 @@ export default function SectionHeader(): JSX.Element {
     const [lang, setLang] = useState<string>("en");
 
     const MAX_MAIN_MENU_ITEMS: number = 5;
-
-    // Process JSON for navigation menu
-    interface RawMenuOption {
-        path: string;
-        nameKey: string;
-        className: string;
-        allowedProjects: string[];
-    }
+    const showDashboard =
+        (settings as unknown as ProjectSettingsWithHeader).header
+            ?.centerVariant === "lendBorrowBanner";
+    const hasTokenPriceStrip = Boolean(settings.tokenPriceStrip?.tokens.length);
 
     // Filter options based on project and language changes
     const [displayOptions, setDisplayOptions] = useState<MenuOption[]>([]);
     const currentProject: string = settings.project;
     useEffect(() => {
-        const menuOptions: MenuOption[] = (
-            menuOptionsData as RawMenuOption[]
+        const filteredOptions: MenuOption[] = getProjectMenuOptions(
+            currentProject
         ).map((option: RawMenuOption) => ({
             ...option,
             name: () => t(option.nameKey), // Traducimos el nombre dinámicamente
         }));
-
-        const filteredOptions: MenuOption[] = menuOptions
-            .filter(
-                (option: MenuOption) =>
-                    option.allowedProjects.includes(currentProject) ||
-                    option.allowedProjects.includes("all")
-            )
-            .map((option: MenuOption) => ({
-                ...option,
-                name: option.name, // keep the function
-            }));
         setDisplayOptions(filteredOptions);
     }, [currentProject, lang, t]);
 
@@ -143,79 +139,46 @@ export default function SectionHeader(): JSX.Element {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    if (!showDashboard && !hasTokenPriceStrip) return <></>;
+
     return (
-        <Header className="app-header">
+        <Header
+            className={`app-header app-header--supporting${showDashboard ? " app-header--dashboard" : ""}${!hasTokenPriceStrip ? " app-header--without-price-strip" : ""}`}
+        >
             <TokenPriceStrip />
-            <div className="header-container">
+            <div
+                className={`header-container${showDashboard ? " header-container--dashboard-only" : " header-container--legacy-hidden"}`}
+            >
                 <Brand />
-                <div className="central-menu">
-                    {mainMenuOptions.map((option: MenuOption) => (
-                        <a
-                            onClick={() => handleOptionClick(option.path)}
-                            data-testid={`navbar-menu-item-${option.className}`}
-                            className={`menu-nav-item disable-nav-item ${location.pathname === option.path ? "menu-nav-item-selected" : ""}`}
-                            key={option.path}
-                        >
-                            <div
-                                className={`${option.className}${location.pathname === option.path ? "-selected" : ""}`}
-                            ></div>
-                            <span className="menu-nav-item-title">
-                                {option.name()}
-                            </span>
-                        </a>
-                    ))}
-                    {moreMenuOptions.length > 0 && (
-                        <div
-                            data-testid="navbar-menu-item-more"
-                            onClick={() =>
-                                setShowMoreDropdown(!showMoreDropdown)
-                            }
-                            className="menu-nav-item-more"
-                        >
-                            <div className="logo-more"></div>
-                            <span className="menu-nav-item-title-more">
-                                {t("menuOptions.more")}
-                            </span>{" "}
-                            {showMoreDropdown && (
-                                <div className="dropdown-menu show">
-                                    {moreMenuOptions.map(
-                                        (option: MenuOption) => (
-                                            <a
-                                                data-testid={`navbar-menu-item-${option.className}`}
-                                                onClick={() =>
-                                                    handleOptionClick(
-                                                        option.path
-                                                    )
-                                                }
-                                                className={`menu-nav-item disable-nav-item ${location.pathname === option.path ? "menu-nav-item-selected" : ""}`}
-                                                key={option.path}
-                                            >
-                                                <i
-                                                    className={`${option.className}${location.pathname === option.path ? "-selected" : ""}`}
-                                                ></i>
-                                                <span className="menu-nav-item-title">
-                                                    {option.name()}
-                                                </span>
-                                            </a>
-                                        )
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
+                <HeaderCenter
+                    currentPath={location.pathname}
+                    mainMenuOptions={mainMenuOptions}
+                    moreMenuOptions={moreMenuOptions}
+                    onMenuOptionClick={handleOptionClick}
+                    onMoreMenuToggle={() =>
+                        setShowMoreDropdown(!showMoreDropdown)
+                    }
+                    showMoreDropdown={showMoreDropdown}
+                    moreLabel={t("menuOptions.more")}
+                />
                 <div className="wallet-user">
                     <div
                         className="wallet-translation"
                         onClick={toggleLanguageMenu}
                     >
                         <a className="translation-selector">
-                            {
-                                languageOptions.find(
+                            {languageOptions
+                                .filter(
                                     (option: LanguageOption) =>
                                         option.code === lang
-                                )?.name
-                            }
+                                )
+                                .map((option: LanguageOption) => (
+                                    <LanguageLabel
+                                        code={option.code}
+                                        key={option.code}
+                                        name={option.name}
+                                    />
+                                ))}
                         </a>
                         <div className="logo-translation"></div>
                     </div>
@@ -248,7 +211,10 @@ export default function SectionHeader(): JSX.Element {
                                                 }
                                                 key={option.code}
                                             >
-                                                <span>{option.name}</span>
+                                                <LanguageLabel
+                                                    code={option.code}
+                                                    name={option.name}
+                                                />
                                                 {lang === option.code && (
                                                     <div className="icon-checked"></div>
                                                 )}
@@ -306,10 +272,22 @@ export default function SectionHeader(): JSX.Element {
                                                 {t("language.languageCTA")}{" "}
                                             </div>
                                         ) : (
-                                            languageOptions.find(
-                                                (option: LanguageOption) =>
-                                                    option.code === lang
-                                            )?.name
+                                            languageOptions
+                                                .filter(
+                                                    (option: LanguageOption) =>
+                                                        option.code === lang
+                                                )
+                                                .map(
+                                                    (
+                                                        option: LanguageOption
+                                                    ) => (
+                                                        <LanguageLabel
+                                                            code={option.code}
+                                                            key={option.code}
+                                                            name={option.name}
+                                                        />
+                                                    )
+                                                )
                                         )}
                                         {/* Language Menu for Mobile */}
                                         {showLanguageSubmenu && (
@@ -329,7 +307,14 @@ export default function SectionHeader(): JSX.Element {
                                                             }
                                                         >
                                                             <div>
-                                                                {option.name}
+                                                                <LanguageLabel
+                                                                    code={
+                                                                        option.code
+                                                                    }
+                                                                    name={
+                                                                        option.name
+                                                                    }
+                                                                />
                                                                 <span> •</span>
                                                             </div>
                                                         </div>

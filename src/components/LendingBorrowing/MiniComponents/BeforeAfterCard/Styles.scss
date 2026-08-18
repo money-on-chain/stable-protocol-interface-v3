@@ -1,0 +1,114 @@
+.before-after-card {
+    --before-after-card-notch-height: 8px;
+    --before-after-card-notch-width: 12px;
+
+    overflow: hidden;
+    border-radius: var(--card-border-radius);
+    background-color: transparent;
+    width: 180px;
+}
+
+.before-after-card--bordered {
+    border: 1px solid var(--dividers);
+}
+
+.before-after-card__title {
+    padding: 4px 2px 0;
+    font-size: 8px;
+    font-weight: 600;
+    text-align: center;
+    text-transform: uppercase;
+    background-color: var(--surface-color-3);
+    // border-bottom: 1px solid var(--surface-color-1);
+}
+
+.before-after-card__section {
+    padding: 8px;
+    position: relative;
+}
+
+.before-after-card__section--before {
+    z-index: 1;
+    background-color: var(--surface-color-3);
+    padding: 8px;
+}
+
+.before-after-card__section--before::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: calc(var(--before-after-card-notch-height) * -1);
+    transform: translateX(-50%);
+    width: 0px;
+    height: 0;
+    border-left: var(--before-after-card-notch-width) solid transparent;
+    border-right: var(--before-after-card-notch-width) solid transparent;
+    border-top: var(--before-after-card-notch-height) solid
+        var(--surface-color-3);
+}
+
+.before-after-card__section--after {
+    z-index: 0;
+    background-color: var(--surface-color-1);
+}
+
+.before-after-card__section--after-only {
+    background-color: var(--surface-color-1);
+}
+
+.before-after-card__label {
+    // margin-bottom: 4px;
+    font-size: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.before-after-card__value-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 4px;
+}
+
+.before-after-card__value-row--with-trend {
+    justify-content: space-between;
+}
+
+.before-after-card__value-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.before-after-card__value {
+    color: var(--color-txt-primary);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--brand-font);
+}
+
+.before-after-card__unit {
+    color: var(--color-txt-secondary);
+    font-size: 6px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.before-after-card__trend {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.before-after-card__trend--positive {
+    background-color: var(--color-semantic-positive);
+}
+
+.before-after-card__trend--negative {
+    background-color: var(--color-semantic-negative);
+}
+
+.before-after-card__trend--neutral {
+    background-color: var(--color-semantic-neutral);
+}

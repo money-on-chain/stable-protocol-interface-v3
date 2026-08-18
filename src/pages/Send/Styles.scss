@@ -12,3 +12,9 @@ section_send.scss contains all the css code for Send section cards not contained
         width: 100%;
     }
 }
+
+.sectionSend__Content--v1 {
+    .tokenSelector {
+        height: auto;
+    }
+}

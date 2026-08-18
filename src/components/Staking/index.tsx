@@ -236,7 +236,7 @@ export default function Staking(): JSX.Element {
                                     />
                                 </div>
                             </div>
-                            <div>
+                            <div className="distributionCardWrapper">
                                 <div
                                     id="distributionCard"
                                     className="layout-card staking-distribution-card"

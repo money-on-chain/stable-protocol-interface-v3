@@ -2,9 +2,9 @@ import { Layout } from "antd";
 import React, { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
-
 import DappFooter from "../../../components/Footer/index";
 import SectionHeader from "../../../components/Header";
+import MenuBar from "../../../components/MenuBar";
 import { NetworkGuard } from "../../../components/NetworkGuard";
 import NotConnected from "../../../components/NotConnected";
 import RpcErrorAlert from "../../../components/Notification/RpcErrorAlert";
@@ -19,7 +19,6 @@ import { CheckStatusGlobal } from "../../../helpers/checkStatus";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { isSomeTCLockedByVeto } from "../../../helpers/veto";
 import settings from "../../../settings";
-
 
 const { Content, Footer } = Layout;
 
@@ -192,6 +191,7 @@ export default function Skeleton(): JSX.Element {
     return (
         <NotificationProvider>
             <Layout>
+                <MenuBar />
                 <SectionHeader />
 
                 {/* Global notification center, always rendered below the header */}

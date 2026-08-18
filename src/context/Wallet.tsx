@@ -50,6 +50,15 @@ import {
     vote,
     voteStep,
 } from "../backend/omoc/voting";
+import {
+    allowanceMoc as allowanceMocV1,
+    mintBPro as mintBProV1,
+    mintDoc as mintDocV1,
+    redeemBPro as redeemBProV1,
+    redeemFreeDoc as redeemFreeDocV1,
+    transferCoinbase as transferCoinbaseV1,
+    transferToken as transferTokenV1,
+} from "../backend/v1/moc-v1";
 import ModalAccount from "../components/Modals/Account";
 import ModalProviders from "../components/Modals/Providers";
 import { ALLOWED_CHAIN } from "../constants/chain";
@@ -64,23 +73,29 @@ import {
     saveVestingAddressesToLocalStorage,
 } from "../helpers/vesting";
 import { useBaseCoinBalance } from "../hooks/useBaseCoinBalance";
+import { useContractLendingStatus } from "../hooks/useContractLendingStatus";
 import { useContractOmocStatus } from "../hooks/useContractOmocStatus";
 import { useContractProtocolStatus } from "../hooks/useContractProtocolStatus";
+import { useContractProtocolStatusV1 } from "../hooks/useContractProtocolStatusV1";
 import { useIncentiveV2 } from "../hooks/useIncentiveV2";
 import { useLatestBlockNumber } from "../hooks/useLatestBlockNumber";
 import { useOffchainPrices } from "../hooks/useOffchainPrices";
 import { useOnchainPrices } from "../hooks/useOnchainPrices";
 import { usePriceProvider } from "../hooks/usePriceProvider";
 import { readContracts } from "../hooks/useReadContracts";
+import { readContractsV1 } from "../hooks/useReadContractsV1";
 import { useRpcErrorHandler } from "../hooks/useRpcErrorHandler";
 import { useRpcErrorIntegration } from "../hooks/useRpcErrorIntegration";
 import { useUserBalance } from "../hooks/useUserBalance";
+import { useUserBalanceV1 } from "../hooks/useUserBalanceV1";
+import { useUserLending } from "../hooks/useUserLending";
 import { useUserOmocBalance } from "../hooks/useUserOmocBalance";
 import { useUserVesting } from "../hooks/useUserVesting";
 import { useUserVeto } from "../hooks/useUserVeto";
 import api from "../services/api";
 import { API_OPERATIONS_BASE } from "../services/apiConfig";
 import type { DContracts, ParsedPrices } from "../types/hooks";
+import type { DContractsV1, InterfaceContextV1 } from "../types/hooks-v1";
 import type {
     InterfaceContext,
     OnReceipt,
@@ -116,6 +131,14 @@ const REFRESH_INTERVAL_ONCHAIN_PRICES = 20_000;
 const REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS = 30_000;
 const REFRESH_INTERVAL_CONTRACT_STATUS_OMOC = 30_000;
 const REFRESH_INTERVAL_USER_BALANCE = 30_000;
+const REFRESH_INTERVAL_CONTRACT_LENDING_MANAGER = 30_000;
+
+// moc-v1 (legacy) uses a different, incompatible contract generation (no
+// caIndex/MocQueue) — see feedback memory "shared wallet context". Rather than
+// forking this provider, contract discovery/status/balance branch on this flag
+// and expose their results as separate fields alongside the v3 ones.
+const IS_MOC_V1 =
+    import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "moc-v1";
 
 export function WalletProvider({ children }: { children: React.ReactNode }) {
     const { address, isConnected, chainId } = useAccount();
@@ -131,6 +154,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const [contractsAddress, setContractsAddress] = useState<DContracts | null>(
         null
     );
+    const [contractsAddressV1, setContractsAddressV1] =
+        useState<DContractsV1 | null>(null);
     const [contractsAddressLoaded, setContractsAddressLoaded] = useState(false);
     const [contractsLoadRetryCount, setContractsLoadRetryCount] = useState(0);
     const MAX_CONTRACTS_LOAD_RETRIES = 3;
@@ -182,10 +207,19 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         (onChainPricesHook.data as unknown as ParsedPrices[]) ?? undefined;
 
     const contractProtocolStatus = useContractProtocolStatus(
-        contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
+        contractsAddressLoaded && !IS_MOC_V1
+            ? (contractsAddress ?? undefined)
+            : undefined,
         Number(blockNumber),
         offChainPrices,
         onChainPrices,
+        REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS
+    );
+
+    const contractProtocolStatusV1 = useContractProtocolStatusV1(
+        contractsAddressLoaded && IS_MOC_V1
+            ? (contractsAddressV1 ?? undefined)
+            : undefined,
         REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS
     );
 
@@ -204,6 +238,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         REFRESH_INTERVAL_CONTRACT_STATUS_OMOC
     );
 
+    const contractLendingStatus = useContractLendingStatus(
+        contractsAddressLoaded && contractsAddress
+            ? contractsAddress
+            : undefined,
+        REFRESH_INTERVAL_CONTRACT_LENDING_MANAGER
+    );
+
     // Hooks for user data
 
     const userBaseCoinBalance = useBaseCoinBalance(
@@ -212,7 +253,20 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     );
 
     const userBalance = useUserBalance(
+        // Was gated to `!IS_MOC_V1` back when contractsAddress.TP/.Moc were
+        // always empty for moc-v1 (no calls would've been generated anyway).
+        // Now that those arrays are bridged from the v1 discovery above,
+        // Lending & Borrowing (useLendingBorrowingData) needs this to run so
+        // DOC/RBTC wallet balances populate for moc-v1 too.
         contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
+        address,
+        REFRESH_INTERVAL_USER_BALANCE
+    );
+
+    const userBalanceV1 = useUserBalanceV1(
+        contractsAddressLoaded && IS_MOC_V1
+            ? (contractsAddressV1 ?? undefined)
+            : undefined,
         address,
         REFRESH_INTERVAL_USER_BALANCE
     );
@@ -248,6 +302,14 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         REFRESH_INTERVAL_USER_BALANCE
     );
 
+    const userLending = useUserLending(
+        contractsAddressLoaded && contractsAddress
+            ? contractsAddress
+            : undefined,
+        address,
+        REFRESH_INTERVAL_USER_BALANCE
+    );
+
     const readContractsAddresses = useCallback(async (): Promise<void> => {
         if (
             !isConnected ||
@@ -258,8 +320,40 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             return;
 
         try {
-            const contractsAddresses = await readContracts(publicClient);
-            setContractsAddress(contractsAddresses);
+            if (IS_MOC_V1) {
+                // moc-v1's own Exchange/Send flow needs the v1-shaped bag, but
+                // Staking/Vesting/Voting are reused as-is from the v3 flavors
+                // (see router/projects/moc-v1) and read exclusively from the
+                // v3 `contractsAddress` state — so both must be loaded. With
+                // no REACT_APP_CONTRACT_MULTICOLLATERAL_GUARD configured for
+                // moc-v1, readContracts()'s caIndex/bucket-discovery loop is
+                // skipped entirely; it only resolves the IRegistry-derived
+                // governance contracts (StakingMachine, VestingFactory,
+                // VotingMachine, VetoMachine, TG/MOC token, etc.).
+                const [contractsAddressesV1, contractsAddresses] =
+                    await Promise.all([
+                        readContractsV1(publicClient),
+                        readContracts(publicClient),
+                    ]);
+                setContractsAddressV1(contractsAddressesV1);
+
+                // Lending & Borrowing (useContractLendingStatus, useUserLending,
+                // useLendingBorrowingData) reads exclusively from the shared
+                // `contracts.TP`/`.Moc` arrays, never from `contractsAddressV1`.
+                // The MoC V1 lending-and-borrowing-sc adapter (MocAdapterV1)
+                // is deployed against the legacy MoC.sol contract itself as its
+                // single "moc bucket" (see validateAndGetPACtp: mocBucket_ must
+                // equal MOC_V1), so it maps 1:1 onto contracts.Moc[0], and the
+                // legacy DOC token maps onto contracts.TP[0] — matching
+                // settings tokens.TP[0]/CA[0] for the moc-v1 project.
+                contractsAddresses.TP = [contractsAddressesV1.DocToken];
+                contractsAddresses.Moc = [contractsAddressesV1.Moc];
+
+                setContractsAddress(contractsAddresses);
+            } else {
+                const contractsAddresses = await readContracts(publicClient);
+                setContractsAddress(contractsAddresses);
+            }
             setContractsAddressLoaded(true);
         } catch (e) {
             console.error("Error loading contracts:", e);
@@ -291,6 +385,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (isConnected && !isOnCorrectChain) {
             setContractsAddress(null);
+            setContractsAddressV1(null);
             setContractsAddressLoaded(false);
             setContractsLoadRetryCount(0);
         }
@@ -324,21 +419,27 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     refetchBaseCoinBalanceRef.current = userBaseCoinBalance?.refetch;
     const refetchUserBalanceRef = useRef(userBalance?.refetch);
     refetchUserBalanceRef.current = userBalance?.refetch;
+    const refetchUserBalanceV1Ref = useRef(userBalanceV1?.refetch);
+    refetchUserBalanceV1Ref.current = userBalanceV1?.refetch;
     const refetchOmocBalanceRef = useRef(userOmocBalance?.refetch);
     refetchOmocBalanceRef.current = userOmocBalance?.refetch;
     const refetchVestingRef = useRef(userVesting?.refetch);
     refetchVestingRef.current = userVesting?.refetch;
     const refetchIncentiveV2Ref = useRef(userIncentiveV2?.refetch);
     refetchIncentiveV2Ref.current = userIncentiveV2?.refetch;
+    const refetchLendingRef = useRef(userLending?.refetch);
+    refetchLendingRef.current = userLending?.refetch;
 
     useEffect(() => {
         // Refetch user data when address changes
         if (!address) return;
         void refetchBaseCoinBalanceRef.current?.();
         void refetchUserBalanceRef.current?.();
+        void refetchUserBalanceV1Ref.current?.();
         void refetchOmocBalanceRef.current?.();
         void refetchVestingRef.current?.();
         void refetchIncentiveV2Ref.current?.();
+        void refetchLendingRef.current?.();
     }, [address]); // refs are intentionally omitted — they never change identity
 
     const onDisconnect = (): void => {
@@ -375,6 +476,125 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             address: address,
             contracts: contractsAddress,
         };
+    };
+
+    const buildInterfaceContextV1 = (): InterfaceContextV1 => {
+        return {
+            publicClient,
+            address,
+            contracts: contractsAddressV1,
+            contractProtocolStatus: contractProtocolStatusV1,
+        };
+    };
+
+    const interfaceMintBProV1 = async (
+        btcAmount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ): Promise<TransactionReceipt | undefined> => {
+        const interfaceContext = buildInterfaceContextV1();
+        return mintBProV1(interfaceContext, btcAmount, onTransaction, onReceipt);
+    };
+
+    const interfaceMintDocV1 = async (
+        btcAmount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ): Promise<TransactionReceipt | undefined> => {
+        const interfaceContext = buildInterfaceContextV1();
+        return mintDocV1(interfaceContext, btcAmount, onTransaction, onReceipt);
+    };
+
+    const interfaceRedeemBProV1 = async (
+        bproAmount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ): Promise<TransactionReceipt | undefined> => {
+        const interfaceContext = buildInterfaceContextV1();
+        return redeemBProV1(
+            interfaceContext,
+            bproAmount,
+            onTransaction,
+            onReceipt
+        );
+    };
+
+    const interfaceRedeemFreeDocV1 = async (
+        docAmount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ): Promise<TransactionReceipt | undefined> => {
+        const interfaceContext = buildInterfaceContextV1();
+        return redeemFreeDocV1(
+            interfaceContext,
+            docAmount,
+            onTransaction,
+            onReceipt
+        );
+    };
+
+    const interfaceAllowanceMocV1 = async (
+        amount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ): Promise<TransactionReceipt | undefined> => {
+        const interfaceContext = buildInterfaceContextV1();
+        return allowanceMocV1(interfaceContext, amount, onTransaction, onReceipt);
+    };
+
+    // Resolves which v1 ERC20 contract backs a given Send token symbol —
+    // v1's flat DContractsV1 has no caIndex to dispatch on, unlike TokenContract
+    // (helpers/exchange.ts) which is tied to the v3 CA-indexed contracts bag.
+    const interfaceTransferTokenV1 = async (
+        currencyYouExchange: string,
+        amount: bigint,
+        destinationAddress: string,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ): Promise<TransactionReceipt | undefined> => {
+        const interfaceContext = buildInterfaceContextV1();
+        const { contracts } = interfaceContext;
+        if (!contracts) throw new Error("Contracts not found");
+
+        let token;
+        switch (currencyYouExchange) {
+            case "TC_0":
+                token = contracts.BProToken;
+                break;
+            case "TP_0":
+                token = contracts.DocToken;
+                break;
+            case "TG":
+                token = contracts.MoCToken;
+                break;
+            default:
+                throw new Error(`Unsupported token: ${currencyYouExchange}`);
+        }
+
+        return transferTokenV1(
+            interfaceContext,
+            token,
+            destinationAddress,
+            amount,
+            onTransaction,
+            onReceipt
+        );
+    };
+
+    const interfaceTransferCoinbaseV1 = async (
+        amount: bigint,
+        destinationAddress: string,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt
+    ): Promise<TransactionReceipt | undefined> => {
+        const interfaceContext = buildInterfaceContextV1();
+        return transferCoinbaseV1(
+            interfaceContext,
+            destinationAddress,
+            amount,
+            onTransaction,
+            onReceipt
+        );
     };
 
     /* VESTING */
@@ -969,7 +1189,18 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 contractsAddressLoaded,
                 contractStatusOmoc,
                 contractProtocolStatus,
+                contractLendingStatus,
                 userBalance,
+                contractsAddressV1,
+                contractProtocolStatusV1,
+                userBalanceV1,
+                interfaceMintBProV1,
+                interfaceMintDocV1,
+                interfaceRedeemBProV1,
+                interfaceRedeemFreeDocV1,
+                interfaceAllowanceMocV1,
+                interfaceTransferTokenV1,
+                interfaceTransferCoinbaseV1,
                 blockNumber,
                 offChainPrices,
                 priceProvider,
@@ -981,6 +1212,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 userOmocBalance,
                 userIncentiveV2,
                 userVeto,
+                userLending,
                 connect,
                 disconnect,
                 readContractsAddresses,

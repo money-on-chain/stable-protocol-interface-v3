@@ -1,0 +1,42 @@
+{
+    "project": "moc-v1",
+    "dapp": {
+        "name": "MOC UI (Legacy)",
+        "description": "MOC UI - Legacy v1 contracts"
+    },
+    "showPriceVariation": true,
+    "menuBar": {
+        "maxVisibleItems": 5
+    },
+    "tokenPriceStrip": {
+        "tokens": ["CA_0", "TC_0", "TP_0", "TG"]
+    },
+    "slippage": {
+        "autoDefault": 1.0,
+        "presets": [0.3, 1.0, 2.0],
+        "max": 5.0
+    },
+    "exchange": {
+        "tokenMap": {
+            "blacklist": []
+        }
+    },
+    "tokens": {
+        "COINBASE": [{ "key": 0, "token": "RBTC", "fullName": "Smart Bitcoin" }],
+        "CA": [{ "key": 0, "token": "RBTC", "fullName": "Smart Bitcoin" }],
+        "TC": [{ "key": 0, "token": "BPRO" }],
+        "TP": [{ "key": 0, "token": "DOC", "peggedUSD": true }],
+        "TG": [
+            {
+                "key": 0,
+                "token": "MOC",
+                "visibleDecimals": 6,
+                "visiblePriceDecimals": 4,
+                "visibleBalanceDecimals": 2
+            }
+        ]
+    },
+    "performance": {
+        "hidePanels": ["execution-queue", "multi-collateral", "liquidity-mining"]
+    }
+}

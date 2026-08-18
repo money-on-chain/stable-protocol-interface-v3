@@ -52,12 +52,32 @@ $breakpoint-mobile: 600px;
     width: 576px !important;
     // height: 430px;
 
-    .ant-table-body .ant-table-cell {
-        border-color: transparent !important;
-    }
-    .ant-table-cell {
-        padding: 16px 0px 0px 0px !important;
-        height: auto !important;
+    .withdraw__table {
+        .ant-table {
+            margin-bottom: 20px;
+        }
+        .ant-table table {
+            border-spacing: 0 4px;
+            width: 100%;
+        }
+        .ant-table-tbody > tr.ant-table-row > td {
+            border: 0 !important;
+            border-radius: var(--card-border-radius);
+            background: var(
+                --staking-withdraw-row-background,
+                var(--surface-color-2)
+            );
+            padding: 0 !important;
+            height: auto !important;
+            vertical-align: middle;
+        }
+        .ant-table-tbody > tr.ant-table-row:hover > td,
+        .ant-table-tbody > tr > td.ant-table-cell-row-hover {
+            background: var(
+                --staking-withdraw-row-background,
+                var(--surface-color-2)
+            ) !important;
+        }
     }
     .ant-pagination {
         display: none;
@@ -72,19 +92,42 @@ $breakpoint-mobile: 600px;
         scrollbar-width: none; /* Hide scrollbar in Firefox */
     }
 }
-.withdraw__row {
-    display: flex;
-    flex-direction: row;
+
+.withdraw__row,
+.withdraw__header {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 200px;
     align-items: center;
-    border-radius: var(--card-border-radius);
-    background-color: var(--surface-color-2);
-    padding: 16px 0px 16px 0px;
-    height: 66px;
+    min-width: 0;
+    width: 100%;
+
     .withdraw__first__column {
-        // width: 100%;
-        display: flex;
-        gap: 32px;
-        // justify-content: space-between;
+        display: grid !important;
+        grid-template-columns:
+            minmax(220px, 1.5fr) minmax(120px, 0.65fr)
+            minmax(160px, 0.85fr);
+        align-items: center;
+        min-width: 0;
+    }
+}
+
+.withdraw__row {
+    border-radius: var(--card-border-radius);
+    background-color: var(
+        --staking-withdraw-row-background,
+        var(--surface-color-2)
+    );
+    color: var(--color-txt-primary);
+    min-height: 66px;
+
+    .withdraw__first__column {
+        > .withdraw__date,
+        > .withdraw__amount,
+        > .withdraw__status {
+            padding: 0 16px;
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
     }
 }
 
@@ -102,25 +145,39 @@ $breakpoint-mobile: 600px;
     flex-direction: column;
     gap: 2px;
     cursor: pointer;
-    margin-left: auto;
-    width: 124px;
+    width: 200px;
+    min-width: 0;
     // color: var(--color-btn-tertiary-txt-default);
 
     .cta__button {
         display: flex;
         align-items: center;
-        background-color: var(--color-btn-tertiary-background-default);
+        background-color: var(
+            --staking-withdraw-action-background,
+            var(--color-btn-tertiary-background-default)
+        );
         padding-left: 16px;
+        width: 100%;
         height: 32px;
-        color: var(--color-btn-tertiary-txt-default);
+        color: var(
+            --staking-withdraw-action-color,
+            var(--color-btn-tertiary-txt-default)
+        );
     }
     .cta__button--disabled {
         display: flex;
         align-items: center;
-        background-color: var(--color-btn-tertiary-background-disabled);
+        background-color: var(
+            --staking-withdraw-action-disabled-background,
+            var(--color-btn-tertiary-background-disabled)
+        );
         padding-left: 16px;
+        width: 100%;
         height: 32px;
-        color: var(--color-btn-tertiary-txt-disabled);
+        color: var(
+            --staking-withdraw-action-disabled-color,
+            var(--color-btn-tertiary-txt-disabled)
+        );
     }
     .restake {
         border-radius: 0px 8px 0px 0px;
@@ -138,29 +195,29 @@ $breakpoint-mobile: 600px;
     }
 }
 
-// TABLE
-
 .withdraw__header {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 32px;
-    margin: 0px;
     margin-top: 32px;
-    height: 20px;
+    padding-bottom: 4px;
     color: var(--color-txt-secondary);
     font-weight: 600;
-    font-size: 14px;
-    .withdraw__first__column {
-        display: flex;
-        gap: 32px;
+    font-size: 10px;
+    line-height: 1.2;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+
+    .withdraw__first__column > .withdraw__date,
+    .withdraw__first__column > .withdraw__amount,
+    .withdraw__first__column > .withdraw__status,
+    > .withdraw__cta {
+        padding: 0 16px;
+    }
+
+    > .withdraw__cta {
+        cursor: default;
     }
 }
-.withdraw__date {
-    width: 200px;
-}
+
 .withdraw__amount {
-    width: 200px;
     text-align: right;
 }
 .withdraw__status {
@@ -179,43 +236,35 @@ $breakpoint-mobile: 600px;
         height: 98px;
     }
     .withdraw__header {
+        grid-template-columns: minmax(0, 1fr);
+
         .withdraw__first__column {
-            width: 100%;
+            grid-template-columns: minmax(150px, 1fr) minmax(88px, auto);
         }
-        .withdraw__date {
-        }
-        .withdraw__amount {
-            width: auto;
-            margin-left: auto;
-        }
-        .withdraw__status,
-        .withdraw__cta {
+        .withdraw__first__column > .withdraw__status,
+        > .withdraw__cta {
             display: none;
         }
     }
     .withdraw__row {
-        flex-direction: column;
-        gap: 0px;
-        height: 120px;
-        .withdraw__first__column {
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 4px;
-        }
-        .withdraw__date {
-            font-size: 12px;
-        }
-        .withdraw__amount {
-            width: 220px;
+        grid-template-columns: minmax(0, 1fr);
+        min-height: 120px;
 
-            width: 88px;
+        .withdraw__first__column {
+            grid-template-columns: minmax(150px, 1fr) minmax(88px, auto);
         }
-        .withdraw__status {
-            flex-basis: 100%;
-            width: 120px;
+        .withdraw__first__column > .withdraw__date {
             font-size: 12px;
         }
-        .withdraw__cta {
+        .withdraw__first__column > .withdraw__amount {
+            width: auto;
+        }
+        .withdraw__first__column > .withdraw__status {
+            grid-column: 1 / -1;
+            width: auto;
+            font-size: 12px;
+        }
+        > .withdraw__cta {
             width: 100%;
             display: flex;
             flex-direction: row;

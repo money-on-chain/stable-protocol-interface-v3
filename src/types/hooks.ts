@@ -41,6 +41,10 @@ export type DContracts = {
     // Pair matrix (CA x TP) of price providers
     PP_TP?: Record<number, ContractInfo[]>;
 
+    // Lending contracts
+    LendingManager?: ContractInfo;
+    LendingReader?: ContractInfo;
+
     // Custom price providers (from REACT_APP_CONTRACT_PRICE_PROVIDER_CUSTOM)
     // Each ContractInfo.name holds the pair label, e.g. "MOC/USD"
     PP_CUSTOM?: ContractInfo[];

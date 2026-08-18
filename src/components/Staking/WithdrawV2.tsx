@@ -100,15 +100,14 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
                                 i18n: i18n,
                                 compact: true,
                             })}
-                        </div>{" "}
+                        </div>
                         <div className="item-data withdraw__status">
                             {t(`staking.withdraw.status.${withdrawal.status}`)}
                         </div>
                     </div>
-
                     <div className="withdraw__cta">
                         <div
-                            className={`cta__button restake action__container${withdrawal.status !== "PENDING" && withdrawal.status !== "AVAILABLE" ? " action__container--disabled" : ""}`}
+                            className={`cta__button restake action__container${withdrawal.status !== "PENDING" && withdrawal.status !== "AVAILABLE" ? " cta__button--disabled" : ""}`}
                             onClick={() =>
                                 handleActionClick("restake", withdrawal)
                             }
@@ -158,7 +157,6 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
         }
     }, [contractStatusOmoc.data, userInfoStaking, getWithdrawals]);
 
-    // Columns
     (ProvideColumnsTG || []).forEach(function (dataItem: TableColumn) {
         columnsData.push({
             title: dataItem.title,
@@ -254,25 +252,24 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
             </div>
             {data ? (
                 <>
-                    <div className="withdraw__header ">
+                    <div className="withdraw__header">
                         <div className="withdraw__first__column">
                             <div className="withdraw__date">
                                 {t("staking.withdraw.table.expiration")}
                             </div>
                             <div className="withdraw__amount">
                                 {t("staking.withdraw.table.amount")}
-                            </div>{" "}
+                            </div>
                             <div className="withdraw__status">
                                 {t("staking.withdraw.table.status")}
                             </div>
                         </div>
-
                         <div className="withdraw__cta">
                             {t("staking.withdraw.table.actions")}
                         </div>
                     </div>
-                    <div className="divider-horizontal"></div>
                     <Table
+                        className="withdraw__table"
                         columns={columnsData}
                         dataSource={data}
                         pagination={{
@@ -282,7 +279,6 @@ export default function WithdrawV2(props: WithdrawV2Props): JSX.Element {
                             total: totalTable || 0,
                         }}
                         showHeader={false}
-                        scroll={{ y: "auto" }}
                     />
                 </>
             ) : (

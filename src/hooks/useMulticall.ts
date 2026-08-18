@@ -1,8 +1,16 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Abi } from "viem";
-import { useReadContracts } from "wagmi";
+import { usePublicClient, useReadContracts } from "wagmi";
 
 import type { MultiCallInput, MultiCallOptions } from "../types/hooks";
+
+// Some price providers whitelist callers by msg.sender and reject peek()
+// calls routed through the multicall aggregator contract, since the
+// aggregator's own address is never on that whitelist — only a direct,
+// non-batched call can succeed. address(1) is the conventional "public
+// reader" account these providers whitelist for exactly this purpose.
+const DIRECT_RETRY_ACCOUNT =
+    "0x0000000000000000000000000000000000000001" as const;
 
 /**
  * Assigns a value into a nested object structure given a path of keys.
@@ -89,7 +97,7 @@ export function useMultiCall(
 
             if (isGetBalance && isAddressOnly) {
                 return {
-                    address: contract as `0x${string}`,
+                    address: contract,
                     abi: [] as Abi,
                     functionName: "getBalance",
                     type: "getBalance" as const,
@@ -134,15 +142,73 @@ export function useMultiCall(
         },
     });
 
+    // Step 2b: Retry failed peek() calls individually (bypassing multicall)
+    // as DIRECT_RETRY_ACCOUNT — see comment above. Keyed by contract address
+    // (peek() always takes no args) so it survives `calls` re-ordering and
+    // naturally refreshes every poll cycle since a price feed's value
+    // changes over time.
+    const publicClient = usePublicClient();
+    const [directRetryResults, setDirectRetryResults] = useState<
+        Record<string, unknown>
+    >({});
+    const inFlightRetries = useRef<Set<string>>(new Set());
+
+    useEffect(() => {
+        if (!publicClient || !results) return;
+
+        results.forEach((item, i) => {
+            if (item.status === "success") return;
+
+            const call = calls[i];
+            if (!call || call.functionName !== "peek") return;
+            if (
+                typeof call.contract !== "object" ||
+                !("address" in call.contract)
+            )
+                return;
+
+            const address = call.contract.address.toLowerCase();
+            if (inFlightRetries.current.has(address)) return;
+            inFlightRetries.current.add(address);
+
+            publicClient
+                .readContract({
+                    address: call.contract.address,
+                    abi: call.contract.abi,
+                    functionName: "peek",
+                    args: call.args ?? [],
+                    account: DIRECT_RETRY_ACCOUNT,
+                })
+                .then((result) => {
+                    setDirectRetryResults((prev) => ({
+                        ...prev,
+                        [address]: result,
+                    }));
+                })
+                .catch(() => {
+                    // Leave unresolved — the existing onError/default
+                    // fallback in `storage` still applies for this call.
+                })
+                .finally(() => {
+                    inFlightRetries.current.delete(address);
+                });
+        });
+    }, [results, calls, publicClient]);
+
     // Step 3: Structure results into a nested dictionary, with optional transforms.
     // Wrapped in useMemo so the transform + deepMerge only re-run when results,
     // calls, or externalData actually change — not on every parent render.
     const storage = useMemo(() => {
         let next: Record<string | number, unknown> | undefined = {};
 
-        // Return undefined while calls are pending so consumers can distinguish
-        // loading from empty.
-        if (calls.length > 0 && (!results || results.length === 0)) {
+        // Return undefined while calls are pending, AND while there are no
+        // calls at all yet — every caller builds `calls` from something like
+        // `if (!contracts) return []`, so an empty `calls` array on the first
+        // render(s) means "prerequisites (wallet/contracts) not ready yet",
+        // not "legitimately nothing to fetch". Treating it as ready-with-{}
+        // let consumers' `data != null` checks pass prematurely against a
+        // hollow object — see estimateExchangeOutputV1's reload-only crash.
+        if (calls.length === 0 || !results || results.length === 0) {
             return undefined;
         }
 
@@ -155,11 +221,41 @@ export function useMultiCall(
                 return;
             }
 
-            const { resultType, keys, transform, onError } = calls[i];
+            const { contract, resultType, keys, transform, onError } = calls[i];
             let value: unknown;
 
-            if (item.status === "success") {
-                value = item.result;
+            // A failed batched call may already have a fresh result from
+            // the direct (non-multicall) retry below — treat that exactly
+            // like a successful decode instead of falling back to onError.
+            const directRetryResult =
+                item.status !== "success" &&
+                typeof contract === "object" &&
+                "address" in contract
+                    ? directRetryResults[contract.address.toLowerCase()]
+                    : undefined;
+            const succeeded =
+                item.status === "success" || directRetryResult !== undefined;
+
+            if (succeeded) {
+                value =
+                    item.status === "success" ? item.result : directRetryResult;
+                // A live decode always hands back a native bigint for
+                // uint256/int256, but on a cold page load `results` can
+                // briefly reflect cached/rehydrated query state instead of a
+                // fresh decode, which can't carry a raw bigint the same way
+                // (e.g. round-tripped through JSON) — coerce defensively so
+                // downstream bigint math (wadDiv/mulDiv) never sees anything
+                // else and throws "Cannot mix BigInt and other types".
+                if (
+                    (resultType === "uint256" || resultType === "int256") &&
+                    typeof value !== "bigint"
+                ) {
+                    try {
+                        value = BigInt(value as string | number | boolean);
+                    } catch {
+                        value = 0n;
+                    }
+                }
                 if (transform) {
                     try {
                         value = transform(value);
@@ -177,7 +273,12 @@ export function useMultiCall(
                     switch (resultType) {
                         case "uint256":
                         case "int256":
-                            value = "0";
+                            // Successful uint256/int256 decodes come back as
+                            // native bigint (viem) — the fallback must match
+                            // that type, or downstream bigint arithmetic
+                            // (e.g. wadDiv/mulDiv) throws "Cannot mix BigInt
+                            // and other types" the moment a call fails.
+                            value = 0n;
                             break;
                         case "address":
                             value = "0x";
@@ -200,14 +301,11 @@ export function useMultiCall(
         });
 
         if (next && externalData) {
-            next = deepMerge(
-                next,
-                externalData as Record<string | number, unknown>
-            );
+            next = deepMerge(next, externalData);
         }
 
         return next;
-    }, [results, calls, externalData]);
+    }, [results, calls, externalData, directRetryResults]);
 
     return {
         data: storage,

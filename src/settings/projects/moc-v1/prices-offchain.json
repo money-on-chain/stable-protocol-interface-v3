@@ -1,0 +1,12 @@
+{
+    "prices": [
+        {
+            "COINBASE": "BTC/USD",
+            "CA": "BTC/USD",
+            "TP": [
+                "DOC/USD"
+            ],
+            "TF": "MOC/USD"
+        }
+    ]
+}

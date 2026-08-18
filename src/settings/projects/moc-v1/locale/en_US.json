@@ -1,0 +1,1097 @@
+{
+    "CustomizePrize_VariationToleranceTitle": "Price Variation Tolerance",
+    "NoConnection_alertTitle": "Wallet not connected!",
+    "NoConnection_alertPleaseConnect": "Please, connect your wallet using the “connect” button on the top right section of the platform.",
+    "invalidValueDescription": "No value to display",
+    "invalidValuePlaceholder": "--",
+    "notification": {
+        "dismiss": "Dismiss",
+        "update": {
+            "title": "New version available",
+            "content": "A new version of the app has been deployed.",
+            "update": "Update"
+        },
+        "networkGuard": {
+            "title": "Wrong network",
+            "content": "You are connected to the wrong network. This environment only allows <strong>{{chainName}}</strong>.",
+            "switch": "Switch to {{chainName}}"
+        },
+        "rpcError": {
+            "title": "Network Connection Error",
+            "description": "Unable to connect to the blockchain network. This may be due to network congestion or RPC server issues. The system will automatically retry, or you can try again manually.",
+            "retry": "Retry Connection",
+            "dismiss": "Dismiss"
+        }
+    },
+    "txFeedback": {
+        "txIdLabel": "Transaction ID"
+    },
+    "button": {
+        "inputMaxValue": "max"
+    },
+    "operations": {
+        "sectionTitle": "Last Operations",
+        "aboutQueue": {
+            "button": "About queue",
+            "title": "About queue - Cycle of a transaction",
+            "statusQueuing": "Transaction entered the queue with the first confirmation.",
+            "statusQueued": "Transaction is in the queue waiting for execution.",
+            "statusConfirming": "Transaction was executed and has one confirmation.",
+            "statusConfirmed": "Transaction was executed and has at least ten confirmations.",
+            "statusFailed": "Transaction failed in any of the involved steps.",
+            "buttonClose": "Close"
+        },
+        "tooltip": {
+            "text": "Only list >= 1 block confirmation.\nConfirming: Transaction with at least one confirmation and less than 10.\nConfirmed: Transaction with more than 10 confirmations.\nOpen: Transaction confirmed, transaction successfully queued to processed on next settlement.\nSettled: Transaction executed on last settlement."
+        },
+        "empty": "No operations",
+        "headers": {
+            "amountReserve": "This amount include platform commission + gas fee + interest if its applied"
+        },
+        "actions": {
+            "transfer": "Transfer",
+            "exchanging": "Exchanging",
+            "exchanged": "Exchanged",
+            "receiving": "Receiving",
+            "received": "Received",
+            "origin": "From",
+            "destination": "Destination",
+            "statusQueuing": "Queuing",
+            "statusQueued": "Queued",
+            "statusConfirming": "Confirming",
+            "statusConfirmed": "Confirmed",
+            "statusFailed": "Failed",
+            "transactionFailed": "Transaction failed"
+        },
+        "columns": {
+            "date": "Date"
+        },
+        "columns_detailed": {
+            "event": "Event",
+            "created": "Created",
+            "gas_used": "Gas used",
+            "oper_id": "Operation ID",
+            "confirmation": "Confirmation",
+            "recipient": "Recipient",
+            "status": "Status",
+            "error_code": "Error code",
+            "block": "Block Number",
+            "executed_tx": "Executed TX",
+            "tx": "TX Hash",
+            "fee": "Fee",
+            "gas": "Gas Fee",
+            "msg": "Message",
+            "reason": "Reason",
+            "price": "Price",
+            "price_another_token": "Price"
+        },
+        "errors": {
+            "qACBelow1": "Price variation for",
+            "qACBelow2": "resulted in an amount received below the minimum required.",
+            "insufficientQAC1": "Price variation for",
+            "insufficientQAC2": "exceeded your slippage tolerance. Try increasing tolerance or retry.",
+            "lowCoverage": "Operation failed due to low system coverage.",
+            "fluxCapacitor": "Operation rejected: system limit reached.",
+            "noMessage": "Transaction failed.",
+            "failedBeforeExecution": "Failed before execution"
+        },
+        "table": {
+            "itemsPerPage": "Page"
+        }
+    },
+    "feedback": {
+        "clipboardCopy": "Copied",
+        "clipboardTo": "to the clipboard"
+    },
+    "wallet": {
+        "modalTitle": "Your Wallet Address",
+        "userAddress": "Address",
+        "useVesting": "Use vesting address",
+        "inputLabel": "Select a loaded Vesting Machine",
+        "loadVM": "Load Vesting Machine",
+        "unloadVM": "Unload Vesting Machine",
+        "useClaimCode": "Use claim code",
+        "disclaimer": "You can load any existing Vesting Machine address. Unloading a Vesting Machine address from the App doesn’t affect it’s funds and it can be re loaded any time. If you have a Claim Code, you can create a new Vesting Machine.",
+        "cta": {
+            "disconnect": "Disconnect",
+            "close": "Close"
+        },
+        "vestingFeedback": {
+            "empty": "You must specify a Vesting Machine address",
+            "notValid": "Vesting Machine Address not valid",
+            "alreadyLoaded": "Vesting Machine already loaded",
+            "incorrect": "Vesting Machine Address format appears to be incorrect"
+        }
+    },
+    "walletProviders": {
+        "connectWalletButton": "Connect Wallet",
+        "connectYourWallet": "Connect your Wallet",
+        "noBrowserWallets": "No browser wallets detected",
+        "providers": {
+            "injected": "Browser wallet / MetaMask",
+            "metamask": "MetaMask Wallet",
+            "multisig": "Safe (multi-sig)",
+            "walletconnect": "WalletConnect (QR / mobile)"
+        },
+        "toolTip": {
+            "walletConnected": "For hardware wallets like Ledger Live, Keystone, GridPlus: 1) Open your wallet app 2) Select Connect with WalletConnect 3) Scan the QR code shown here.",
+            "injected": "To use Ledger or Trezor: 1) Open MetaMask or Rabby 2) Connect your hardware wallet in settings 3) Select the account here.",
+            "metamask": "To use Ledger or Trezor: 1) Open MetaMask or Rabby 2) Connect your hardware wallet in settings 3) Select the account here. "
+        }
+    },
+    "exchange": {
+        "tokens": {
+            "CA_0": {
+                "label": "Smart Bitcoin",
+                "abbr": "RBTC"
+            },
+            "TC_0": {
+                "label": "BPro",
+                "abbr": "BPRO"
+            },
+            "TP_0": {
+                "label": "Dollar on Chain",
+                "abbr": "DOC"
+            },
+            "COINBASE": {
+                "label": "Smart Bitcoin",
+                "abbr": "RBTC"
+            },
+            "TG": {
+                "label": "MOC",
+                "abbr": "MOC"
+            }
+        },
+        "v1": {
+            "tabMint": "Mint",
+            "tabRedeem": "Redeem",
+            "inputSending": "You send",
+            "inputRedeeming": "You redeem",
+            "inputReceiving": "You receive (estimated)",
+            "estimatedMaxRbtc": "Estimated max RBTC required — any excess is automatically refunded",
+            "limitReachedDoc": "Redeem limit for DOC reached at this time",
+            "systemPaused": "The contract is paused. Operations are disabled",
+            "confirmExchangeTitle": "Confirm Exchange",
+            "confirmDescriptionRedeem": "This amount will be burned and the equivalent RBTC sent to your wallet.",
+            "allowanceMocReason": "This allowance lets the protocol charge the operation's fee in MOC instead of RBTC.",
+            "allowanceMocRevokeReason": "This revokes the protocol's permission to charge the operation's fee in MOC, since you're paying the fee in RBTC instead."
+        },
+        "limit": {
+            "minimumToReceive": "Minimum to receive",
+            "seeVariationTolarance": "See Price Variation Tolerance"
+        },
+        "confirm": {
+            "submit": "Wait for transaction confirmation",
+            "sign": "Sign the transaction in your wallet",
+            "queuing": "Queuing transaction…",
+            "queued": "Operation queued. Execution may take a few minutes",
+            "confirming": "Confirming transaction",
+            "confirmed": "Transaction confirmed",
+            "success": "Transaction successful",
+            "error": "Transaction failed!",
+            "default": "Waiting for transaction confirmation",
+            "minimumWarning": "Minimum to receive",
+            "minimumExplanation": "(see price variation tolerance)"
+        },
+        "priceVariation": {
+            "title": "Customize price variation tolerance",
+            "sliderLabel": "Price Variation Tolerance",
+            "warning": "This amount was updated according to variation tolerance"
+        },
+        "cardTitle": "Exchange",
+        "labelSending": "Exchanging",
+        "LabelSendingUpTo": "Exchanging up to",
+        "labelSendingMint": "Exchanging up to",
+        "labelBalance": "Balance",
+        "labelUpTo": "Up to",
+        "labelReceiving": "Receiving",
+        "labelReceivingRedeem": "Minimum to receive",
+        "labelTransactionID": "Transaction ID",
+        "placeholder": "Address",
+        "exchangingSummary": "Exchanging",
+        "exchangingSign": "≈",
+        "exchangingCurrency": "USD",
+        "buttonPrimary": "Exchange",
+        "modalTitle": "Confirm exchange",
+        "buttonCancel": "Cancel",
+        "buttonConfirm": "Confirm",
+        "buttonClose": "Close",
+        "infoNoBalance": "insufficient balance",
+        "infoAddressEmpty": "Enter destination address",
+        "infoAddressInvalid": "Invalid destination address",
+        "errors": {
+            "notOperational": "Not Operational due to low Global Coverage ratio",
+            "cantOperate": "Cannot operate with the current status",
+            "requestTimeout": "Request timeout",
+            "connectYourWallet": "Please connect your wallet",
+            "amountTooLow": "Amount must be greater than zero",
+            "amountInvalid": "Amount must be valid",
+            "notBalance": "Not enough balance in your wallet",
+            "noLiquidity": "Not enough liquidity in the protocol",
+            "maxLimitedByProtocol": "Maximum temporarily limited by the protocol",
+            "insufficientTPinCA": "Insufficient tokens in this bucket",
+            "useBalancedOps": "You can use Combined Operations instead to exchange tokens without affecting actual coverage.",
+            "balancedOpsCTA": "Go to Combined Operations section",
+            "noBalanceForFees": "Not enough balance to pay fees"
+        }
+    },
+    "portfolio": {
+        "tokensTable": {
+            "tokenName": "Token",
+            "variation": "Variation 24hs",
+            "balance": "Balance",
+            "usdBalance": "Balance in USD",
+            "priceInUSD": "Price in USD",
+            "tokensPerUSD": "Tokens per USD",
+            "liquidityMining": "Liquidity Mining",
+            "readyToClaim": "Ready to claim",
+            "lendAndBorrow": "Lend & Borrow",
+            "viewCurrentDebt": "View current debt"
+        },
+        "dashboard": {
+            "readyToClaim": "MoC ready to claim",
+            "earnedToday": "MoC earned today",
+            "balance": "MoC balance",
+            "staked": "MoC staked",
+            "unstaking": "MoC unstaking",
+            "readyToWithdraw": "MoC withdrawable"
+        },
+        "sectionTitle": "Portfolio",
+        "totalCurrency": "USD",
+        "totalBalance": "Total Balance",
+        "mobileTabs": {
+            "portfolio": "Portfolio",
+            "lastOperations": "Last Operations"
+        }
+    },
+    "performance": {
+        "sectionTitle": "Performance",
+        "status": {
+            "cardTitle": "System status",
+            "statusTitleFull": "Fully Operational",
+            "statusDescriptionFull": "The system is in optimal condition",
+            "stuatusTitleWarning": "Partially Operational",
+            "statusDescriptionWarning": "Token Collateral cannot be redeemed. Token Pegged cannot be minted",
+            "statusTitleAlert": "Protected Mode",
+            "statusDescriptionAlert": "No operations allowed",
+            "statusTitleLiquidated": "Liquidated",
+            "statusDescriptionLiquidated": "No operations allowed",
+            "statusTitlePaused": "Paused",
+            "statusDescriptionPaused": "The contract is paused. No operations allowed",
+            "statusTitleUnavailable": "Cannot operate",
+            "statusDescreiptionUnavailable": "One or more contracts are temporarily unavailable. Please try again later.",
+            "showingBlock": "Showing block"
+        },
+        "tvl": {
+            "cardTitle": "Total Value Locked",
+            "expressedIn": "Expressed in USD"
+        },
+        "metrics": {
+            "globalCardTitle": "Global Metrics",
+            "tvlInCollateral": "TVL in {{ticker}}",
+            "tvlInUsd": "TVL in USD",
+            "currentCoverage": "Current Coverage",
+            "targetCoverage": "Target Coverage",
+            "leverage": "Leverage",
+            "lockedCollateral": "Locked Collateral",
+            "tpMintable": "{{ticker}} Mintable",
+            "tpRedeemable": "{{ticker}} Redeemable"
+        },
+        "tc": {
+            "priceIn": "Price in USD",
+            "currentLeverage": "Current leverage",
+            "totalInSystem": "Total in the system",
+            "redeemable": "Available to redeem"
+        },
+        "collateral": {
+            "cardTitle": "Collateral",
+            "distributionTitle": "Collateral distribution ({{ticker}})",
+            "totalIn": "Total collateral in USD",
+            "globalCoverage": "Global coverage"
+        },
+        "pegged": {
+            "cardTitle": "Dollar On Chain",
+            "colName": "Name",
+            "colPriceIn": "Price in {{ticker}}",
+            "colTokensPer": "Tokens per USD",
+            "colMinted": "Minted",
+            "colMintable": "Mintable",
+            "colRedeemable": "Redeemable",
+            "colTargetCoverage": "T. Coverage",
+            "colEMA": "EMA",
+            "colCAUsed": "Collateral used",
+            "colTargetEMA": "Target EMA",
+            "redeemableNoLimit": "No Limit",
+            "redeemableNoLimitWithFootnote": "No Limit*",
+            "redeemableCombinedOperationsFootnote": "* No limit through combined operations only."
+        },
+        "v1": {
+            "statusTitleOpportunity": "Opportunity Mode",
+            "statusDescriptionOpportunity": "BPro is available at a discount price",
+            "statusTitleSettlement": "Settlement in progress",
+            "statusDescriptionSettlement": "No operations allowed during settlement",
+            "buttonDetails": "View Status by Collateral",
+            "detailedStatus": {
+                "modalTitle": "System Status by Collateral",
+                "headerOperations": {
+                    "token": "Token",
+                    "mint": "Mint",
+                    "redeem": "Redeem"
+                }
+            },
+            "rbtcEma": "RBTC EMA (120)",
+            "totalRbtc": "Total RBTC in the system",
+            "collateralAsset": "Collateral Asset",
+            "docCardTitle": "Dollar on Chain",
+            "totalDoc": "Total DOC in the system",
+            "availableRedeemDoc": "Available to redeem",
+            "availableMintDoc": "Available to mint",
+            "bproCardTitle": "BPro",
+            "tokenCollateral": "Token Collateral",
+            "totalBpro": "Total BPro in the system",
+            "availableRedeemBpro": "Available to redeem"
+        }
+    },
+    "send": {
+        "tokens": {
+            "CA_0": {
+                "label": "Smart Bitcoin",
+                "abbr": "RBTC"
+            },
+            "TC_0": {
+                "label": "BPro",
+                "abbr": "BPRO"
+            },
+            "TP_0": {
+                "label": "Dollar on Chain",
+                "abbr": "DOC"
+            },
+            "TG": {
+                "label": "MOC",
+                "abbr": "MOC"
+            },
+            "COINBASE": {
+                "label": "Smart Bitcoin",
+                "abbr": "RBTC"
+            }
+        },
+        "cardTitle": "Send",
+        "labelSending": "Sending",
+        "labelBalance": "Balance",
+        "labelDestination": "Destination address",
+        "labelTransactionID": "Transaction ID",
+        "placeholder": "Address",
+        "sendingSummary": "Sending",
+        "sendingSign": "≈",
+        "sendingCurrency": "USD",
+        "buttonPrimary": "Send",
+        "modalTitle": "Confirm Send",
+        "buttonCancel": "Cancel",
+        "buttonConfirm": "Confirm",
+        "buttonClose": "Close",
+        "infoNoBalance": "Not enough balance",
+        "noNegativeValues": "Value must be greater than 0",
+        "infoAddressEmpty": "Destination address not specified",
+        "infoAddressInvalid": "Invalid address",
+        "infoAddressChecksumInvalid": "This address uses a different format than the current network. It should still work—just make sure it was copied correctly.",
+        "feedback": {
+            "submit": "Wait for transaction confirmation",
+            "sign": "Sign the transaction in your wallet",
+            "waiting": "Wait for transaction confirmation",
+            "success": "Transaction successful",
+            "error": "Transaction failed!",
+            "default": "Wait for transaction confirmation"
+        }
+    },
+    "allowance": {
+        "cardTitle": "Authorize using",
+        "disallowanceTitle": "Revoke allowance of",
+        "statusText1": "Before continuing with the operation, you must authorize the allowance so that the system can access the tokens.",
+        "statusText2": "The recommended allowance may be higher than the exact amount needed for this operation to improve reliability. This does not mean the full allowance will be used. Optionally, you can set an unlimited allowance by checking the checkbox, but consider the security implications before doing so.",
+        "statusDisallowanceText": "Before continuing with the operation, you must authorize the revoke so that the system can no longer access the tokens.",
+        "setUnlimited": "Set unlimited allowance. Don't ask me again.",
+        "confirm": {
+            "cancel": "Cancel",
+            "authorize": "Authorize",
+            "revoke": "Revoke"
+        },
+        "feedback": {
+            "submit": "Wait for transaction confirmation",
+            "sign": "Please, sign the allowance authorization transaction using your wallet.",
+            "waiting": "Please, wait while the allowance authorization is mined in the blockchain. Once it´s done, the transaction will be sent to your wallet.",
+            "error": "Operation Failed!",
+            "default": "Wait for transaction confirmation"
+        }
+    },
+    "inputFields": {
+        "maxButton": "Max"
+    },
+    "fees": {
+        "labelFee": "Fee",
+        "labelExecutionFee": "Execution Fee",
+        "disclaimer1": "This fee will be deduced from the amount to be transferred.",
+        "disclaimer2": "Amounts may change at the transaction confirmation"
+    },
+    "menuOptions": {
+        "portfolio": "Portfolio",
+        "send": "Send",
+        "exchange": "Exchange",
+        "earn": "Earn",
+        "performance": "Metrics",
+        "staking": "Staking",
+        "liquidityMining": "Liquidity Mining",
+        "vesting": "Vesting",
+        "voting": "Voting",
+        "more": "More",
+        "combinedOperations": "Combined Ops.",
+        "lendingBorrowing": "Lend & Borrow"
+    },
+    "language": {
+        "languageCTA": "Select Language:",
+        "en": "English",
+        "es": "Español"
+    },
+    "defaultCTA": {
+        "buttonSubmit": "Confirm",
+        "buttonCancel": "Cancel",
+        "buttonExchange": "Exchange",
+        "buttonClose": "Close"
+    },
+    "numberFormat": {
+        "thousandsSeparator": ",",
+        "decimalSeparator": ".",
+        "noLimit": "No limit"
+    },
+    "swapModal": {
+        "text1": "RIF Dollar (RDOC) has changed to RIF US Dollar (USDRIF). You need to swap your RIF Dollars to operate with the updated DAPP. You won't be able to see your RDOC balance in the DAPP. Please, swap your tokens using the ",
+        "text2": "'Swap Now' button",
+        "button": "Swap Now",
+        "modalTitle1": "IMPORTANT NOTICE",
+        "modalTitle2": "Confirm Migration",
+        "explanation1": "RIF Dollar on Chain (RDOC) is changing to RIF US Dollar (USDRIF). You need to swap your RIF Dollar on Chain (RDOC) to operate with the new DAPP. You will no longer be able to see your RDOC balance in the DAPP.",
+        "explanation2": "The exchange rate for the swap is 1 RDOC = 1 USDRIF. You will not be charged a transaction fee, only gas fees will apply.",
+        "explanation3": "Clicking Confirm button on your wallet will ask you to sign the transaction. All your RDOC balance will be converted to USDRIF",
+        "buttonCancel": "Cancel",
+        "buttonConfirm": "Confirm",
+        "exchanging": "Exchanging",
+        "receiving": "Receiving",
+        "authorizing": "TOKEN AUTHORIZATION",
+        "migrating": "TOKEN MIGRATION",
+        "allowanceSignText": "Please, sign the allowance authorization transaction using your wallet.",
+        "migrationTransactionSignText": "Please, sign the migration transaction using your wallet.",
+        "allowanceWaiting": "Please, wait while the allowance authorization is mined in the blockchain. Once it’s done, the transaction will be sent to your wallet.",
+        "transactionHash": "Transaction Hash",
+        "operationFailed": "Operation Failed!.",
+        "tokenMigrationWaitingText": "Please, wait while the token migration is mined in the blockchain.",
+        "operationSuccessful": "Operation Successful."
+    },
+    "staking": {
+        "display_decimals": 2,
+        "cardTitle": "Staking",
+        "governanceToken": "MOC",
+        "dashLabels": {
+            "balance": "MOC Balance",
+            "staked": "MOC Staked",
+            "unstaking": "Unstaking",
+            "ready": "MoC withdrawable",
+            "lockedVoting": "Locked while Voting"
+        },
+        "staking": {
+            "input_decimals": 2,
+            "tabStake": "Stake",
+            "tabUnstake": "Unstake",
+            "inputStake": "Stake",
+            "inputUnstake": "Unstake",
+            "inputAvailable": "Available",
+            "stakedAmount": "Staked",
+            "cta": {
+                "explanation": "You will be able to unstake at any time with a release delay of 30 days (no rewards received during this period). After this period you will be able to 'Withdraw'.",
+                "stakeButton": "Stake",
+                "unstakeButton": "Unstake",
+                "staking": "Staking",
+                "unstaking": "Unstaking",
+                "stakingSign": "≈"
+            }
+        },
+        "distribution": {
+            "title": "MOC Distribution",
+            "graph": {
+                "balance": "Balance (free)",
+                "processingUnstake": "Processing unstake",
+                "readyWithdraw": "Ready for withdraw",
+                "staked": "Staked",
+                "totalLabel": "Total MOC tokens"
+            },
+            "bar": {
+                "desc": "MOC staking annualized performance"
+            }
+        },
+        "performance": {
+            "title": "Staking Performance",
+            "bar": {
+                "description": "MOC staking annualized performance",
+                "base": "MOC",
+                "sign": "+",
+                "staking": "Stacking"
+            }
+        },
+        "withdraw": {
+            "title": "Withdraw",
+            "processing_unstake": "Processing unstake",
+            "ready_to_withdraw": "Ready to withdraw",
+            "buttons": {
+                "withdraw": "Withdraw",
+                "restake": "Restake"
+            },
+            "status": {
+                "PENDING": "Processing Unstake",
+                "AVAILABLE": "Unstaked"
+            },
+            "table": {
+                "expiration": "Expiration",
+                "amount": "Amount",
+                "status": "Status",
+                "actions": "Available actions"
+            }
+        },
+        "tokens": {
+            "TG": {
+                "label": "MOC",
+                "abbr": "MOC"
+            }
+        },
+        "modal": {
+            "options": {
+                "availableToWithdraw": "Ready to Withdraw",
+                "unstaking": "Processing unstake",
+                "withdrawAll": "Withdraw all available",
+                "restake": "Restake",
+                "withdraw": "Withdraw"
+            },
+            "StakingOptions_AvailableToWithdraw": "Ready to Withdraw",
+            "StakingOptions_PendingExpiration": "Processing unstake",
+            "StakingOptions_WithdrawAll": "Withdraw all available",
+            "StakingOptions_Restake": "Restake",
+            "StakingOptions_Withdraw": "Withdraw",
+            "allowance": {
+                "title": "Set the allowance",
+                "description": "Before continuing with the staking you must set the allowance so that the staking system can access the tokens. This has to be done only once and it doesn't lock any tokens from your wallet.",
+                "setUnlimited": "Set unlimited allowance. Don't ask me again.",
+                "cta": "Authorize"
+            },
+            "StakingOptionsModal_SetAllowance": "Set Allowance",
+            "StakingOptionsModal_ReviewYourWallet": "Wallet",
+            "StakingOptionsModal_ReviewYourWalletDescription": "Please review your wallet",
+            "StakingOptionsModal_Authorize": "Authorize",
+            "StakingOptionsModal_AllowanceDescription": "Before continuing with the staking you must set the allowance so that the staking system can access the tokens. This has to be done only once and it doesn't lock any tokens from your wallet.",
+            "StakingOptionsModal_ProcessingAllowance": "Processing Allowance, please wait.",
+            "StakingOptionsModal_StakingDescription": "Staked MOCs will receive rewards from the MOC Staking Rewards Program. You can unstake your MOC's whenever you want, the withdraw process will take 30 days",
+            "StakingOptionsModal_AmountToStake": "Amount to Stake",
+            "StakingOptionsModal_Title": "Stake",
+            "StakingOptionsModal_Confirm": "Confirm",
+            "StakingOptionsModal_Cancel": "Cancel",
+            "StakingOptionsModal_UnstakeTitle": "Unstake",
+            "StakingOptionsModal_AmountToUnstake": "Amount to Unstake",
+            "StakingOptionsModal_UnstakingDescription": "You will be able to withdraw your MOC Tokens to your wallet in 30 days. You can restake them anytime in this period.",
+            "StakingOptionsModal_WithdrawTitle": "Withdraw",
+            "StakingOptionsModal_AmountToWithdraw": "Amount to Withdraw",
+            "StakingOptionsModal_WithdrawDescription": "After withdrawal your MOCs tokens will be available in your wallet",
+            "StakingOptionsModal_RestakeTitle": "Restake",
+            "StakingOptionsModal_AmountToRestake": "Amount to Restake",
+            "StakingOptionsModal_RestakeDescription": "After confirming, this amount of MOC Tokens will be removed from the processing queue and staked again. They will immediately start receiving MOC Staking Rewards.",
+            "StatusModal_Modal_Title": "Operation details",
+            "StatusModal_Modal_Close": "Close",
+            "StatusModal_Modal_TxStatus_sign": "Sign the transaction in your wallet",
+            "StatusModal_Modal_TxStatus_success": "Transaction successful",
+            "StatusModal_Modal_TxStatus_failed": "Transaction failed!",
+            "StatusModal_Modal_TxStatus_pending": "Wait for transaction confirmation",
+            "StatusModal_Modal_TxStatus_error": "Transaction error!"
+        },
+        "confirmation": {
+            "cardTitle": "Confirm Stake"
+        },
+        "Error_numericField": "This field should be numeric",
+        "Error_separateDecimals": "Use point to separate decimals",
+        "Error_numberTooSmall": "The number is too small",
+        "Error_maxExceeded": "The number exceeds the maximum allowed"
+    },
+    "vesting": {
+        "vestingOnboarding": {
+            "page1": {
+                "stepTitle": "You don’t have any Vesting Machine (VM) Loaded yet",
+                "explanation1": "If you have a VM address, please click 'Load VM' button to access it.",
+                "explanation2": "If you are a MOC staker with a claim code, congrats! Please click 'Use Claim Code' button to create the Vesting Machine for your MOC tokens.",
+                "ctaPrimary": "Use Claim Code",
+                "ctaSecondary": "Load VM"
+            },
+            "page2": {
+                "stepTitle": "Let’s create a new Vesting Machine (VM) using a Claim Code",
+                "label": "Enter your Claim Code below",
+                "placeholder": "You can paste your claim code here or select 'load from file' button",
+                "loadButton": "Load Claim Code from file",
+                "explanation1": "You can either paste your Claim Code from clipboard or load it from file. Then click the Create VM button to get the Vesting Machine address. As this is a transaction, you will have to sign it with your wallet.",
+                "ctaPrimary": "Create VM",
+                "ctaSecondary": "Back",
+                "feedback": {
+                    "notValid": "Not valid claim code. You need to claim with the original address"
+                }
+            },
+            "page3": {
+                "stepTitle": "Review Vesting Machine details",
+                "amountLabel": "Amount of tokens to claim",
+                "ownerLabel": "Owner of the Vesting Machine to be created",
+                "transactionId": "Transaction ID",
+                "ctaInfo": "This tokens are going to be vested in the Vesting Machine related to the wallet you are currently connected. Please, verify the information above before confirming. Once the transaction is signed, it is not possible to roll it back.",
+                "ctaSecondary": "Back",
+                "ctaPrimary": "Confirm",
+                "modalTitle": "Confirm Vesting Machine"
+            },
+            "page4": {
+                "stepTitle": "Vesting Machine Created Successfully!",
+                "successMessage": "Congratulations! You have successfully claimed your MOC tokens and created a Vesting Machine (VM). Please, read carefully the information below and don't forget to save your vesting address as indicated.",
+                "addressLabel": "Created Vesting Machine Address",
+                "buttonDownloadAddress": "Download Address",
+                "buttonCopyAddress": "Copy Address",
+                "ctaInfo": "Write down the VM address and don't loose it. You will need it to load your Vesting Machine.",
+                "ctaSecondary": "Back",
+                "ctaPrimary": "View Vesting Machine"
+            }
+        },
+        "alert": {
+            "vmEnabled": {
+                "title": "Using Vesting Address",
+                "text": "Your wallet is currently set to use a Vesting Address. To use your regular wallet instead, click on Switch to Wallet Address.",
+                "addressLabel": "VM Address:",
+                "cta": "Switch to Wallet Address"
+            },
+            "vmDisabled": {
+                "title": "Using Regular Wallet Address",
+                "text": "Your wallet is currently set to use the regular address. You can enable a Vesting Address if needed.",
+                "cta": "Enable Vesting Address"
+            }
+        },
+        "cardTitle": "Vesting Machine",
+        "status": {
+            "verified": "This Vesting Machine is Verified",
+            "verifyCTA": "Verify it now!",
+            "notVerified": "This Vesting Machine is not verified yet",
+            "notFromThisUser": "Vesting Machine doesn't belong to this account"
+        },
+        "tokensAvailableToWithdraw": "Available Free MOC balance",
+        "withdrawToWallet": "Send to my wallet",
+        "dashDistribution": {
+            "vested": "Ready to withdraw MOC",
+            "released": "Vested MOC",
+            "staked": "Staked MOC",
+            "unstaking": "Unstaking MOC in progress",
+            "daysToRelease": "Days to next release"
+        },
+        "releaseSchedule": {
+            "cardTitle": "Vesting Release Schedule",
+            "scheduled": "Scheduled (vested + released)"
+        },
+        "vestingScheduleColumns": {
+            "date": "Release date",
+            "daysLeft": "Days to release",
+            "percent": "Percent",
+            "amount": "Amount",
+            "status": "Status"
+        }
+    },
+    "voting": {
+        "cardTitle": {
+            "section": "Voting",
+            "proposalsList": "Proposals",
+            "proposalDetails": "Proposal Details",
+            "votingStage": "Proposal Details",
+            "addNewProposal": "Add New Proposal"
+        },
+        "feedback": {
+            "noProposals": "It looks like there are no proposals. Submit yours by selecting 'Add New Proposal'",
+            "stakeRequiered1": "You need a minimum of",
+            "stakeRequiered2": "tokens to submit a proposal. Don’t forget to share the details in the community forum."
+        },
+        "states": {
+            "stateTitle": "Current State:",
+            "proposals": "Proposals",
+            "prevoting": "Pre-Voting",
+            "voting": "Voting"
+        },
+        "info": {
+            "changeContract": "Change contract",
+            "searchForum": "Search for this proposal in the Governance forum",
+            "stateAs": "Voting Stage as of "
+        },
+        "status": {
+            "title": "Current Voting Status",
+            "openForSubmissions": "• Open for proposal submissions.",
+            "active": "• Proposal voting is currently active.",
+            "firstStageActive": " First-stage voting is active—cast your vote now!",
+            "firstStageOver": "• The first stage voting period is over!",
+            "firstStageClosed": "Voting is closed—either the time has expired or a proposal has already won.",
+            "finished": "• The voting period is over!",
+            "ongoing": "• The voting is in progress!",
+            "approved": "• Proposal was approved",
+            "noQuorum": "• This proposal did not reach quorum",
+            "rejected": "• Proposal was rejected by votes against!"
+        },
+        "balanceGraph": {
+            "against": "Against",
+            "inFavor": "In Favor"
+        },
+        "statusGraph": {
+            "castOverCirculation": "Voted cast over circulation",
+            "votingPower": "your voting power over circulating",
+            "positiveOverCirculation": "positive votes over circulating for passing",
+            "negativeOverCirculation": "negative votes over circulating for vetoing"
+        },
+        "labels": {
+            "proposalChangerContract": "Proposal Changer Contract"
+        },
+        "votingOptions": {
+            "against": "Vote Against",
+            "inFavor": "Vote In Favor"
+        },
+        "userPower": {
+            "votingPower": "Voting power:",
+            "totalMOC": "Total MOC in circulation:",
+            "totalSupply": "Total Supply:"
+        },
+        "cta": {
+            "viewProposal": "View Proposal",
+            "infoAdvance": "Please run Step to advance to next voting stage",
+            "btnPushNextStep": "Push to Next Step",
+            "infoApplyChanges": "Please run 'accepted step' to finish & apply the changes to contracts",
+            "btnApplyChangesToContracts": "Change Contracts",
+            "addNewProposal": " Add New Proposal",
+            "cancel": "Cancel",
+            "addProposal": "Add Proposal"
+        },
+        "confirmationModal": {
+            "cardTitle": "Confirm Vote",
+            "changerAddress": "Proposal Changer Address",
+            "votingInFavor": "You are voting in favor!",
+            "votingAgainst": "You are voting against!"
+        }
+    },
+    "alert": {
+        "walletNotConnected": "Wallet not connected!"
+    },
+    "settings": {
+        "protocolName": "Money on Chain",
+        "themeMode": {
+            "light": "Light Mode",
+            "dark": "Dark mode"
+        }
+    },
+    "liquidityMining": {
+        "cardTitle": "Liquidity Mining",
+        "cta": {
+            "infoDetail": "Use the button below to claim your tokens from the MOC Liquidity Mining incentive program. You’ll only need to pay the gas fees for this on-chain transaction. Once the tokens are in your balance, you can stake them to earn even more rewards!",
+            "infoSummary": "MoC ready to claim",
+            "button": "Claim"
+        },
+        "stakingCTA": {
+            "button": "Go to Staking",
+            "explanation": "Stake MOC tokens — it’s quick and simple!"
+        },
+        "claimsTable": {
+            "date": "Date",
+            "asset": "Asset",
+            "amount": "Amount",
+            "event": "Event",
+            "status": "Status",
+            "statusReceived": "Received",
+            "statusInProgress": "In progress"
+        },
+        "v1": {
+            "earnedToday": "Earned Today",
+            "claimEvent": "Claim",
+            "gasCost": "Gas cost",
+            "sentTx": "Claim request tx",
+            "payoutTx": "Payout tx",
+            "status": {
+                "sent": "Sent",
+                "confirming": "Confirming",
+                "processing": "Processing",
+                "failed": "Failed"
+            }
+        }
+    },
+    "beforeAfterCard": {
+        "before": "Current",
+        "after": "Next"
+    },
+    "tokenAmountInput": {
+        "noEnoughBalance": "Not enough balance in your wallet.",
+        "labelBalance": "Balance"
+    },
+    "lendingBorrowing": {
+        "backLink": "Back to Lending & Borrowing",
+        "operations": {
+            "title": "Activity",
+            "description": "Your latest lending and borrowing transactions.",
+            "filterLabel": "Filter activity",
+            "empty": "No transactions to display.",
+            "filters": { "all": "All", "lending": "Lending", "borrowing": "Borrowing" },
+            "columns": {
+                "date": "Date",
+                "operation": "Operation",
+                "market": "Market",
+                "movement": "Movement",
+                "status": "Status",
+                "transaction": "Transaction"
+            },
+            "status": { "pending": "Pending", "confirmed": "Confirmed", "failed": "Failed" },
+            "types": {
+                "deposit": "Deposit",
+                "withdraw": "Withdraw",
+                "borrow": "Borrow",
+                "repay": "Repay",
+                "repay-with-collateral": "Repay with collateral",
+                "deposit-collateral": "Deposit collateral",
+                "withdraw-collateral": "Withdraw collateral",
+                "liquidation": "Liquidation"
+            }
+        }
+    },
+    "lending": {
+        "cardTitle": "Lend",
+        "labelInterest": "Variable Supply APY",
+        "labelDeposits": "Your Deposits + Earnings",
+        "cta": {
+            "earn": "Earn",
+            "withdraw": "Withdraw"
+        },
+        "sectionEarn": {
+            "cardTitle": "Earn",
+            "apy": "Variable APY",
+            "labelAmountToLend": "Amount to Lend",
+            "summary": {
+                "titleBalanceError": "Not enough Balance",
+                "titleAmountOK": "Ready to lend",
+                "titleNoAmount": "No lend amount selected",
+                "txtExceedsBalance": "The amount exceeds your wallet balance.",
+                "txtAboutToLend": "You are about to lend",
+                "txtEnterAmount": "Enter an amount to lend."
+            },
+            "cta": {
+                "ok": "Lend",
+                "noAmount": "Enter an amount"
+            }
+        },
+        "sectionWithdraw": {
+            "cardTitle": "Withdraw",
+            "apy": "Variable APY",
+            "available": "Available to withdraw",
+            "labelAmountToWithdraw": "Amount to Withdraw",
+            "exceedsWithdrawBalance": "Amount exceeds your available withdraw balance",
+            "summary": {
+                "titleBalanceError": "Amount exceeds available balance",
+                "titleAmountOK": "Ready to withdraw",
+                "titleNoAmount": "No withdraw amount selected",
+                "txtExceedsBalance": "The amount exceeds what you can currently withdraw.",
+                "txtAboutToWithdraw": "You are about to withdraw",
+                "txtEnterAmount": "Enter amount to withdraw or select Withdraw All",
+                "txtRemaining": "Remaining deposit"
+            },
+            "cta": {
+                "ok": "Withdraw",
+                "noAmount": "Enter an amount",
+                "withdrawAll": "Withdraw All"
+            }
+        }
+    },
+    "borrowing": {
+        "cardTitle": {
+            "section": "Borrow"
+        },
+        "labelInterest": "Variable Borrow APY",
+        "labelDeposits": "Your Deposits + Earnings",
+        "labelMaxAvailable": "Max Available (Wallet + Collateral)",
+        "labelCurrentDebt": "Current Debt",
+        "labelDepositedCollateral": "Deposited Collateral",
+        "labelLoanToken": "Loan Token",
+        "labelCollateralToken": "Collateral Token",
+        "labelLiquidationPercentage": "Loan is liquidated if collateral price drops",
+        "labelLiquidationPrice": "Liquidation Price",
+        "labelDistanceToLiquidation": "Distance to Liquidation",
+        "labelMinRequieredCollateral": "Min Required Collateral",
+        "labelAvailableWithCollateral": "Borrow Available W/Collateral",
+        "labelBorrowUsage": "Borrow Usage",
+        "liquidated": {
+            "title": "Liquidated",
+            "ctaDetails": "Details",
+            "labelAmount": "Amount Liquidated",
+            "labelLiquidationPrice": "Liquidation Price"
+        },
+        "cta": {
+            "confirm": "Confirm"
+        },
+        "risk": {
+            "decrease": "Risk will decrease if you proceed.",
+            "increase": "Risk will increase if you proceed.",
+            "neutral": "Risk will remain neutral if you proceed."
+        },
+        "actions": {
+            "borrow": "Borrow",
+            "repay": "Repay",
+            "repayWithCollateral": "Repay with Collateral",
+            "depositCollateral": "Deposit Collateral",
+            "withdrawCollateral": "Withdraw Collateral"
+        },
+        "sectionBorrow": {
+            "cardTitle": "Borrow",
+            "apy": "Variable APY",
+            "feedbackBorrowLimit": "Amount exceeds your available borrow limit",
+            "labelAmountToBorrow": "Amount to Borrow",
+            "labelAddToCollateral": "Add to Collateral",
+            "summary": {
+                "titleBorrowLimit": "Borrow amount exceeds limit",
+                "titleNoBalance": "Not enough balance",
+                "titleReady": "Ready to continue",
+                "titleNoAmount": "No amount selected",
+                "txtBorrowing": "Borrowing",
+                "txtDepositingCollateral": "Depositing collateral",
+                "txtBorrowAvailableWithDepositedCollateral": "Borrow available with deposited collateral",
+                "txtBorrowLimit": "The borrow amount exceeds your available borrow limit.",
+                "txtCollateralBalance": "The collateral amount exceeds your wallet balance.",
+                "txtEnterAmounts": "Enter borrow and/or collateral amounts to continue.",
+                "titleInsufficientCollateral": "Insufficient collateral",
+                "txtMinCollateralNeeded": "Minimum collateral required"
+            }
+        },
+        "operationProgress": {
+            "titles": {
+                "lend": "Lend {{token}}",
+                "lendWithdraw": "Withdraw {{token}}",
+                "borrow": "Borrow {{token}}",
+                "repay": "Repay {{token}}",
+                "repayWithCollateral": "Repay {{token}} with Collateral",
+                "depositCollateral": "Deposit {{token}} as Collateral",
+                "withdrawCollateral": "Withdraw {{token}} Collateral"
+            },
+            "actions": {
+                "cancel": "Cancel",
+                "close": "Close"
+            },
+            "approveTP": "Approve Token",
+            "approveCA": "Approve Collateral",
+            "depositLend": "Deposit",
+            "withdrawLend": "Withdraw",
+            "borrow": "Borrow",
+            "repay": "Repay",
+            "repayWithCollateral": "Repay with Collateral",
+            "depositCollateral": "Deposit Collateral",
+            "withdrawCollateral": "Withdraw Collateral",
+            "descriptions": {
+                "pending": "This step will start after the previous transaction is confirmed.",
+                "processing": "Wait while the transaction is confirmed on the blockchain.",
+                "completed": "This step was completed successfully. No further action is required.",
+                "failed": "The transaction could not be completed. Check your wallet and try again.",
+                "approveTP": "Confirm the allowance transaction in your wallet so the protocol can use the required loan token amount.",
+                "approveCA": "Confirm the allowance transaction in your wallet so the protocol can use the required collateral amount.",
+                "depositLend": "Confirm the deposit transaction in your wallet to start earning.",
+                "withdrawLend": "Confirm the withdrawal transaction in your wallet to return the funds to your balance.",
+                "borrow": "Confirm the borrow transaction in your wallet to receive the loan tokens.",
+                "repay": "Confirm the repayment transaction in your wallet to reduce or settle your debt.",
+                "repayWithCollateral": "Confirm the transaction in your wallet to repay the debt using your deposited collateral.",
+                "depositCollateral": "Confirm the transaction in your wallet to add collateral to your position.",
+                "withdrawCollateral": "Confirm the transaction in your wallet to withdraw the available collateral from your position."
+            }
+        },
+        "sectionRepay": {
+            "cardTitle": "Repay",
+            "feedbackDebtLimit": "Amount exceeds your current debt",
+            "feedbackWalletBalance": "Amount exceeds your wallet balance",
+            "labelAmountToRepay": "Amount to Repay",
+            "summary": {
+                "titleDebtLimit": "Repay amount exceeds current debt",
+                "titleWalletBalance": "Insufficient wallet balance",
+                "titleReady": "Ready to repay",
+                "titleNoAmount": "Repay amount not specified",
+                "txtRepaying": "Repaying",
+                "txtDebtLimit": "The repay amount exceeds your current debt.",
+                "txtWalletBalance": "The repay amount exceeds your wallet balance of the borrow token.",
+                "txtEnterAmount": "Enter an amount to repay or use \"Repay in Full\"."
+            },
+            "cta": {
+                "ok": "Repay",
+                "noAmount": "Enter an Amount",
+                "repayInFull": "Repay in Full"
+            }
+        },
+        "sectionRepayCollateral": {
+            "cardTitle": "Repay with Collateral",
+            "feedbackCollateralLimit": "Amount exceeds your deposited collateral",
+            "labelCollateralForRepay": "Collateral for Repay",
+            "labelDepositedCollateralAfterRepayment": "Deposited Collateral After Repayment",
+            "summary": {
+                "titleReady": "Ready to continue",
+                "titleNoAmount": "Repay with collateral amount not specified",
+                "txtUsingCollateral": "Using collateral for repay",
+                "txtDepositedCollateralAfterRepayment": "Deposited collateral after repayment",
+                "txtEnterAmount": "Enter an amount to repay with collateral or use \"MAX\"."
+            }
+        },
+        "sectionDepositCollateral": {
+            "cardTitle": "Deposit Collateral",
+            "labelAmountToDeposit": "Amount to Deposit",
+            "summary": {
+                "titleReady": "Ready to continue",
+                "titleNoAmount": "Deposit amount not specified",
+                "txtDepositingCollateral": "Depositing collateral",
+                "txtEnterAmount": "Enter a collateral amount to deposit."
+            }
+        },
+        "sectionWithdrawCollateral": {
+            "cardTitle": "Withdraw Collateral",
+            "feedbackCollateralLimit": "Amount exceeds your deposited collateral",
+            "feedbackWithdrawLimit": "Amount exceeds your withdrawable collateral (minimum required to cover debt)",
+            "labelAmountToWithdraw": "Amount to Withdraw",
+            "summary": {
+                "titleReady": "Ready to continue",
+                "titleNoAmount": "Withdraw amount not specified",
+                "txtWithdrawingCollateral": "Withdrawing collateral",
+                "txtEnterAmount": "Enter a collateral amount to withdraw."
+            }
+        }
+    },
+    "operationProgressList": {
+        "transaction": "Transaction",
+        "openLink": "Open details",
+        "copyHash": "Copy hash",
+        "status": {
+            "pending": "Pending",
+            "waiting": "Waiting",
+            "processing": "Processing",
+            "completed": "Completed",
+            "failed": "Failed"
+        },
+        "example": {
+            "runSuccess": "Run success flow",
+            "runFailure": "Run failed flow",
+            "reset": "Reset",
+            "failureMessage": "The parent received an error and kept the remaining steps pending.",
+            "approveTokenA": {
+                "title": "Approve token A",
+                "description": "User approval is required before the operation can continue."
+            },
+            "approveTokenB": {
+                "title": "Approve token B",
+                "description": "This step can complete or fail independently."
+            },
+            "depositCollateral": {
+                "title": "Deposit collateral",
+                "description": "The parent decides when this step starts."
+            },
+            "borrowToken": {
+                "title": "Borrow token",
+                "description": "The list only renders the status it receives."
+            },
+            "operationCompleted": {
+                "title": "Operation completed"
+            }
+        }
+    }
+}

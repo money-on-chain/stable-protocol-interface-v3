@@ -1,0 +1,84 @@
+.lend-withdraw-view {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.lend-withdraw-body {
+    width: 100%;
+    max-width: 740px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.lend-withdraw-main {
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.lend-withdraw-content {
+    display: grid;
+    grid-template-columns: minmax(0, 380px) 180px;
+    grid-template-rows: auto auto;
+    justify-content: center;
+    align-items: start;
+    column-gap: 32px;
+    row-gap: 24px;
+}
+
+.lend-withdraw-summary-column {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.lend-withdraw-inputs {
+    display: contents;
+}
+
+.lend-withdraw-inputs > .compact-metric-display {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.lend-withdraw-inputs > .tokenAmountInput {
+    grid-column: 1;
+    grid-row: 2;
+    width: 380px;
+    max-width: 100%;
+}
+
+.lend-withdraw-notice-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+@media (max-width: 960px) {
+    .lend-withdraw-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 32px;
+    }
+
+    .lend-withdraw-main {
+        width: 100%;
+    }
+
+    .lend-withdraw-inputs {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        width: 380px;
+        max-width: 100%;
+    }
+}

@@ -3,54 +3,140 @@
         "nameKey": "menuOptions.portfolio",
         "className": "logo-portfolio",
         "path": "/",
-        "allowedProjects": ["flipmoney", "roc", "moc"]
+        "allowedProjects": [
+            "flipmoney",
+            "roc",
+            "moc",
+            "moc-v1"
+        ]
     },
     {
         "nameKey": "menuOptions.send",
         "className": "logo-send",
         "path": "/send",
-        "allowedProjects": ["flipmoney", "roc", "moc"]
+        "allowedProjects": [
+            "flipmoney",
+            "roc",
+            "moc",
+            "moc-v1"
+        ]
     },
     {
         "nameKey": "menuOptions.exchange",
         "className": "logo-exchange",
         "path": "/exchange",
-        "allowedProjects": ["flipmoney", "roc", "moc"]
+        "allowedProjects": [
+            "flipmoney",
+            "roc",
+            "moc",
+            "moc-v1"
+        ]
+    },
+    {
+        "nameKey": "menuOptions.earn",
+        "className": "logo-earn",
+        "path": "/earn",
+        "allowedProjects": [
+            "moc-v1",
+            "roc"
+        ],
+        "children": [
+            {
+                "nameKey": "menuOptions.staking",
+                "className": "logo-staking",
+                "path": "/staking",
+                "allowedProjects": [
+                    "moc-v1",
+                    "roc"
+                ]
+            },
+            {
+                "nameKey": "menuOptions.lendingBorrowing",
+                "className": "logo-lending-borrowing",
+                "path": "/lending-borrowing",
+                "allowedProjects": [
+                    "moc-v1"
+                ]
+            },
+            {
+                "nameKey": "menuOptions.liquidityMining",
+                "className": "logo-liquidity-mining",
+                "path": "/liquidity-mining",
+                "allowedProjects": [
+                    "moc-v1",
+                    "roc"
+                ]
+            }
+        ]
     },
     {
         "nameKey": "menuOptions.staking",
         "className": "logo-staking",
         "path": "/staking",
-        "allowedProjects": ["moc", "flipmoney", "voting", "roc"]
+        "allowedProjects": [
+            "moc",
+            "flipmoney",
+            "voting"
+        ]
+    },
+    {
+        "nameKey": "menuOptions.lendingBorrowing",
+        "className": "logo-lending-borrowing",
+        "path": "/lending-borrowing",
+        "allowedProjects": [
+            "flipmoney",
+            "lendborrow"
+        ]
     },
     {
         "nameKey": "menuOptions.performance",
         "className": "logo-performance",
         "path": "/performance",
-        "allowedProjects": ["flipmoney", "roc", "moc"]
-    },
-    {
-        "nameKey": "menuOptions.vesting",
-        "className": "logo-vesting",
-        "path": "/vesting",
-        "allowedProjects": ["moc", "voting", "roc"]
+        "allowedProjects": [
+            "flipmoney",
+            "roc",
+            "moc",
+            "moc-v1"
+        ]
     },
     {
         "nameKey": "menuOptions.liquidityMining",
         "className": "logo-liquidity-mining",
         "path": "/liquidity-mining",
-        "allowedProjects": ["moc"]
+        "allowedProjects": [
+            "moc"
+        ]
     },
     {
         "nameKey": "menuOptions.voting",
         "className": "logo-voting",
         "path": "/voting",
-        "allowedProjects": ["flipmoney", "moc", "voting", "roc"]
+        "allowedProjects": [
+            "flipmoney",
+            "moc",
+            "voting",
+            "roc",
+            "moc-v1"
+        ]
     },
     {
         "nameKey": "menuOptions.combinedOperations",
         "className": "logo-exchange-combined",
         "path": "/combined-operations",
-        "allowedProjects": ["flipmoney", "roc"]
+        "allowedProjects": [
+            "flipmoney",
+            "roc"
+        ]
+    },
+    {
+        "nameKey": "menuOptions.vesting",
+        "className": "logo-vesting",
+        "path": "/vesting",
+        "allowedProjects": [
+            "moc",
+            "voting",
+            "roc",
+            "moc-v1"
+        ]
     }
 ]

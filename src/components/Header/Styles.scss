@@ -6,12 +6,27 @@ $breakpoint-mobile: 600px;
     min-height: 80px;
 }
 
+.app-header--supporting {
+    margin-bottom: 0;
+    height: auto;
+    min-height: 0;
+
+    .token-price-strip {
+        margin-bottom: 0;
+    }
+}
+
 .header-container {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
-    gap: var(--card-padding);
+    gap: var(--layout-module-gap-horizontal);
+
+    > .central-menu,
+    > .header-center-banner {
+        flex: 1 1 auto;
+    }
 
     .wallet-user {
         display: flex;
@@ -117,7 +132,7 @@ $breakpoint-mobile: 600px;
                     filter: var(--color-language-icon-filter-active);
                 }
             }
-            span {
+            .language-label {
                 width: 90%;
             }
         }
@@ -197,6 +212,35 @@ $breakpoint-mobile: 600px;
             // background-image: url('../../assets/icons/GlobeFilled.svg');
             filter: var(--color-nav-icon-filter-hover);
         }
+    }
+}
+
+.header-container--legacy-hidden {
+    display: none;
+}
+
+.header-container--dashboard-only {
+    > .header-logo,
+    > .wallet-user,
+    > .mobile__menu__button {
+        display: none;
+    }
+
+    > .header-center-banner {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .ant-layout-header.app-header--supporting {
+        position: static;
+        margin-top: 16px;
+        margin-bottom: var(--layout-module-gap-vertical);
+        min-height: 0;
+    }
+
+    .app-header--dashboard.app-header--without-price-strip {
+        display: none;
     }
 }
 /*
@@ -337,6 +381,13 @@ $breakpoint-mobile: 600px;
         height: 32px;
     }
     .logo-exchange-combined {
+        filter: var(--color-nav-icon-filter-hover);
+        background-size: 32px 32px;
+        background-repeat: no-repeat;
+        width: 32px;
+        height: 32px;
+    }
+    .logo-lending-borrowing {
         filter: var(--color-nav-icon-filter-hover);
         background-size: 32px 32px;
         background-repeat: no-repeat;
@@ -595,6 +646,22 @@ $breakpoint-mobile: 600px;
     width: 32px;
     height: 32px;
 }
+.logo-lending-borrowing {
+    filter: var(--color-nav-icon-filter-default);
+    background-image: url("../../assets/icons/LendingBorrowing.svg");
+    background-size: 32px 32px;
+    background-repeat: no-repeat;
+    width: 32px;
+    height: 32px;
+}
+.logo-lending-borrowing-selected {
+    filter: var(--color-nav-icon-filter-active);
+    background-image: url("../../assets/icons/LendingBorrowing.svg");
+    background-size: 32px 32px;
+    background-repeat: no-repeat;
+    width: 32px;
+    height: 32px;
+}
 .logo-more {
     filter: var(--color-nav-icon-filter-default);
     background-image: url("../../assets/icons/OverflowOutline.svg");
@@ -621,7 +688,7 @@ $breakpoint-mobile: 600px;
         margin-top: 10px;
     }
     .ShowTokenMigration {
-        margin-top: 24px;
+        margin-top: var(--layout-module-gap-vertical);
         .NotificationMigration {
             flex-direction: column;
             height: auto;
@@ -691,10 +758,14 @@ $breakpoint-mobile: 600px;
             height: 32px;
         }
     }
+    .header-container.header-container--legacy-hidden,
+    .header-container.header-container--dashboard-only {
+        display: none;
+    }
     .section-container {
         display: flex;
         flex-direction: column;
-        gap: 24px;
+        gap: var(--layout-module-gap-vertical);
         margin-right: 8px;
         margin-left: 8px;
         max-width: 100%;
