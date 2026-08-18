@@ -232,10 +232,6 @@ export default function MenuOptions({
                                 }
                                 data-testid={`menu-bar-item-${option.className}`}
                                 onClick={() => toggleDesktopMenu(option.path)}
-                                onFocus={() => {
-                                    clearDesktopMenuTimers();
-                                    setOpenDesktopMenu(option.path);
-                                }}
                                 type="button"
                             >
                                 {t(option.nameKey)}
@@ -312,10 +308,6 @@ export default function MenuOptions({
                             data-active={isMoreActive || undefined}
                             data-testid="menu-bar-item-more"
                             onClick={() => toggleDesktopMenu("more")}
-                            onFocus={() => {
-                                clearDesktopMenuTimers();
-                                setOpenDesktopMenu("more");
-                            }}
                             type="button"
                         >
                             {t("menuOptions.more")}
