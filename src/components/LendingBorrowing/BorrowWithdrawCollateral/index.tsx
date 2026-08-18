@@ -422,6 +422,7 @@ export default function BorrowWithdrawCollateral({
                 <OperationActions>
                     <button
                         className="button borrow-withdraw-collateral-actions__confirm"
+                        data-testid="borrow-withdraw-collateral-confirm"
                         disabled={!hasPendingChanges || hasValidationError}
                         onClick={() => onConfirm(card, collateralAmount, () => setCollateralAmount(""))}
                         type="button"
