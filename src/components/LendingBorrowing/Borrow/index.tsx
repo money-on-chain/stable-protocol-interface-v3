@@ -259,6 +259,7 @@ export default function Borrow({
                                                         .map((action) => (
                                                             <button
                                                                 className="button--compact button--compact--secondary"
+                                                                data-testid={`borrow-card-${action.id}-${card.id}`}
                                                                 disabled={isActionDisabled(
                                                                     action.id
                                                                 )}
