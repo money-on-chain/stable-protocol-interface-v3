@@ -824,7 +824,8 @@
     },
     "tokenAmountInput": {
         "noEnoughBalance": "Not enough balance in your wallet.",
-        "labelBalance": "Balance"
+        "labelBalance": "Balance",
+        "selectTokenTitle": "Select a token"
     },
     "lendingBorrowing": {
         "backLink": "Back to Lending & Borrowing",
