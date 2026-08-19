@@ -1519,6 +1519,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                         ? tokenExchangeCombined()
                                         : tokenExchange()
                                 }
+                                selectorTestId="exchange-input-from-popup"
                                 tokenSelectable
                                 selectedTokenValue={currencyYouExchange}
                                 onTokenSelect={onChangeCurrencyYouExchange}
@@ -1593,6 +1594,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                             fiatLabel="USD"
                                             action="exchange"
                                             currencyOptions={allTPs}
+                                            selectorTestId="exchange-input-combined-redeem-other-token-popup"
                                             tokenSelectable
                                             selectedTokenValue={allTPs[tpIndex]}
                                             onTokenSelect={onChangeTPIndex}
@@ -1705,6 +1707,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                           )
                                         : tokenReceive(currencyYouExchange)
                                 }
+                                selectorTestId="exchange-input-to-popup"
                                 tokenSelectable
                                 selectedTokenValue={currencyYouReceive}
                                 onTokenSelect={onChangeCurrencyYouReceive}

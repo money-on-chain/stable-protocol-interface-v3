@@ -1126,5 +1126,16 @@
                 "title": "Operation completed"
             }
         }
+    },
+    "rifProMigration": {
+        "text1": "Your legacy RIFPRO can be migrated to the new RIFPRO token. Use the ",
+        "text2": "'Migrate Now' button.",
+        "legacyToken": "RIFP (legacy)",
+        "button": "Migrate Now",
+        "modalTitle1": "RIFPRO MIGRATION",
+        "modalTitle2": "Confirm Migration",
+        "explanation1": "Migrate your legacy RIFPRO balance to the new RIFPRO token.",
+        "explanation2": "Approve the migration and confirm it in your wallet.",
+        "operationSuccessful": "Migration successful."
     }
 }

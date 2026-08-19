@@ -55,6 +55,8 @@ export type DContracts = {
     // Extras contracts
     tp_legacy?: ContractInfo;
     token_migrator?: ContractInfo;
+    legacy_rifpro?: ContractInfo;
+    rifpro_migrator?: ContractInfo;
 
     [k: string]:
         | ContractInfo

@@ -187,9 +187,41 @@ const MigrateToken = async (
     return receipt;
 };
 
+const MigrateRifPro = async (
+    interfaceContext: InterfaceContext,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt,
+    onError: OnError
+): Promise<TransactionReceipt | undefined> => {
+    const { address, contracts } = interfaceContext;
+
+    if (!contracts?.rifpro_migrator) {
+        onError(new Error("RIFPRO migrator contract is not configured"));
+        return;
+    }
+
+    const tokenMigrator = contracts.rifpro_migrator;
+    const { request } = await simulateContract(config, {
+        address: tokenMigrator.address,
+        abi: tokenMigrator.abi,
+        functionName: "migrateToken",
+        args: [],
+        account: address,
+    });
+    const txHash = await writeContract(config, request);
+
+    onTransaction(txHash);
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
+    onReceipt(receipt);
+
+    return receipt;
+};
+
 export {
     AllowanceAmount,
     AllowUseTokenMigrator,
+    MigrateRifPro,
     MigrateToken,
     transferCoinbaseTo,
     transferTokenTo,

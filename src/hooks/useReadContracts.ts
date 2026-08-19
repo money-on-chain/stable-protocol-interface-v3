@@ -447,6 +447,29 @@ const readContracts = async (
         }
     }
 
+    if (import.meta.env.REACT_APP_CONTRACT_LEGACY_RIFPRO) {
+        contracts.legacy_rifpro = {
+            address: import.meta.env.REACT_APP_CONTRACT_LEGACY_RIFPRO as Address,
+            abi: ABI_TokenPegged,
+            name: "legacyRifPro",
+            type: "",
+        };
+
+        if (!import.meta.env.REACT_APP_CONTRACT_RIFPRO_MIGRATOR) {
+            console.error(
+                "Please set REACT_APP_CONTRACT_RIFPRO_MIGRATOR env var"
+            );
+        } else {
+            contracts.rifpro_migrator = {
+                address: import.meta.env
+                    .REACT_APP_CONTRACT_RIFPRO_MIGRATOR as Address,
+                abi: ABI_TokenMigrator,
+                name: "rifProMigrator",
+                type: "",
+            };
+        }
+    }
+
 
     // ---- Lending manager ----
     if (import.meta.env.REACT_APP_LENDING_READER) {

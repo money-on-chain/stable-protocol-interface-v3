@@ -292,6 +292,7 @@ export default function Send(): JSX.Element {
                             balanceLabel={t("send.labelBalance")}
                             action="send"
                             currencyOptions={tokenSend}
+                            selectorTestId="send-input-token-popup"
                             tokenSelectable
                             selectedTokenValue={currencyYouSend}
                             onTokenSelect={onChangeCurrencyYouSend}
