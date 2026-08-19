@@ -845,7 +845,8 @@
     },
     "tokenAmountInput": {
         "noEnoughBalance": "No hay balance suficiente en tu billetera.",
-        "labelBalance": "Balance"
+        "labelBalance": "Balance",
+        "selectTokenTitle": "Seleccionar un token"
     },
     "lendingBorrowing": {
         "backLink": "Volver a Lending & Borrowing",

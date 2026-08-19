@@ -5,6 +5,7 @@ build
 IPFS_DEPLOYMENT_NOTES.md
 public/*.*
 dist/
+/index.html
 
 # assets
 src/assets/branding/logo-app.svg

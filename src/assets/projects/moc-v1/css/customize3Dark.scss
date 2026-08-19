@@ -290,8 +290,7 @@
     --color-icon-link-filter: invert(88%) sepia(13%) saturate(1553%)
         hue-rotate(112deg) brightness(83%) contrast(87%);
 
-    --color-icon-link-hover-filter: invert(0%) sepia(20%) saturate(6237%)
-        hue-rotate(317deg) brightness(107%) contrast(115%);
+    --color-icon-link-hover-filter: var(--brand-color-base-filter);
 
     --color-icon-link-secondary-filter: invert(44%) sepia(28%) saturate(232%)
         hue-rotate(174deg) brightness(93%) contrast(91%);
