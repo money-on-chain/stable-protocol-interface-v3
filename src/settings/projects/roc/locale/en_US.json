@@ -1131,11 +1131,27 @@
         "text1": "Your legacy RIFPRO can be migrated to the new RIFPRO token. Use the ",
         "text2": "'Migrate Now' button.",
         "legacyToken": "RIFP (legacy)",
+        "newToken": "RIFPRO",
+        "exchanging": "Migrating",
+        "receiving": "Receiving",
         "button": "Migrate Now",
-        "modalTitle1": "RIFPRO MIGRATION",
-        "modalTitle2": "Confirm Migration",
+        "titles": {
+            "details": "RIFPRO MIGRATION",
+            "confirm": "Confirm Migration",
+            "authorizing": "Authorize Migration",
+            "authorizationPending": "Authorization Pending",
+            "migrating": "Confirm Migration",
+            "migrationPending": "Migration Pending",
+            "success": "Migration Complete",
+            "error": "Migration Failed"
+        },
         "explanation1": "Migrate your legacy RIFPRO balance to the new RIFPRO token.",
         "explanation2": "Approve the migration and confirm it in your wallet.",
-        "operationSuccessful": "Migration successful."
+        "authorizationSignText": "Confirm the token authorization in your wallet.",
+        "authorizationPendingText": "Your authorization transaction is being processed.",
+        "migrationSignText": "Confirm the migration transaction in your wallet.",
+        "migrationPendingText": "Your migration transaction is being processed.",
+        "operationSuccessful": "Migration successful.",
+        "operationFailed": "The migration could not be completed. Please try again."
     }
 }
