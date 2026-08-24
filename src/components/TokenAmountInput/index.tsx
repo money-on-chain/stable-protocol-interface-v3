@@ -45,6 +45,7 @@ interface TokenAmountInputProps {
     showApproxSymbol?: boolean;
     showMaxShortcut?: boolean;
     setAddTotalAvailable?: () => void;
+    selectorTestId?: string;
     testId?: string;
     title?: string;
     tokenIconClassName?: string;
@@ -107,6 +108,7 @@ export default function TokenAmountInput({
     readOnly = false,
     preserveSpaceWhenNoFeedback = false,
     setAddTotalAvailable,
+    selectorTestId,
     selectedTokenValue,
     showApproxSymbol = true,
     showMaxShortcut = true,
@@ -449,6 +451,7 @@ export default function TokenAmountInput({
                 <Modal
                     centered
                     className="tokenAmountInput__selectorModal"
+                    data-testid={selectorTestId}
                     footer={null}
                     onCancel={() => setIsSelectorOpen(false)}
                     open={isSelectorOpen}
@@ -469,6 +472,7 @@ export default function TokenAmountInput({
                                 ]
                                     .filter(Boolean)
                                     .join(" ")}
+                                data-testid={`token-list-select-${option.label}`}
                                 key={option.value}
                                 onClick={() => {
                                     resolvedOnTokenSelect(option.value);

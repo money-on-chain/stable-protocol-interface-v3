@@ -13,6 +13,7 @@ export type UserBalance = {
     CA: TokenBalance[];
     TP: TokenBalance[][];
     tpLegacy?: TokenBalance;
+    rifProLegacy?: TokenBalance;
     // Custom tokens keyed by pair name (e.g. "MOC/USD")
     CUSTOM?: Record<string, TokenBalance>;
 };

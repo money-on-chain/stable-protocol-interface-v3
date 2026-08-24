@@ -1128,5 +1128,32 @@
                 "title": "Operación completada"
             }
         }
+    },
+    "rifProMigration": {
+        "text1": "Tu RIFPRO anterior puede migrarse al nuevo token RIFPRO. Usa el botón ",
+        "text2": "'Migrar Ahora'.",
+        "legacyToken": "RIFP (anterior)",
+        "newToken": "RIFPRO",
+        "exchanging": "Migrando",
+        "receiving": "Recibiendo",
+        "button": "Migrar Ahora",
+        "titles": {
+            "details": "MIGRACIÓN DE RIFPRO",
+            "confirm": "Confirmar Migración",
+            "authorizing": "Autorizar Migración",
+            "authorizationPending": "Autorización Pendiente",
+            "migrating": "Confirmar Migración",
+            "migrationPending": "Migración Pendiente",
+            "success": "Migración Completada",
+            "error": "Error en la Migración"
+        },
+        "explanation1": "Migra tu balance anterior de RIFPRO al nuevo token RIFPRO.",
+        "explanation2": "Autoriza la migración y confírmala en tu wallet.",
+        "authorizationSignText": "Confirma la autorización del token en tu wallet.",
+        "authorizationPendingText": "Tu transacción de autorización está siendo procesada.",
+        "migrationSignText": "Confirma la transacción de migración en tu wallet.",
+        "migrationPendingText": "Tu transacción de migración está siendo procesada.",
+        "operationSuccessful": "Migración exitosa.",
+        "operationFailed": "No se pudo completar la migración. Inténtalo nuevamente."
     }
 }

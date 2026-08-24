@@ -177,6 +177,20 @@ export type WalletContextType = {
         onError: OnError
     ) => Promise<unknown>;
 
+    interfaceAllowUseRifProMigrator: (
+        amount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ) => Promise<unknown>;
+
+    interfaceMigrateRifPro: (
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ) => Promise<unknown>;
+
+
     interfaceStakingApprove: (
         amount: bigint,
         onTransaction: OnTransaction,

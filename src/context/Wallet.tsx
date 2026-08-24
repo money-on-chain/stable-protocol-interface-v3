@@ -18,6 +18,7 @@ import {
 import {
     AllowanceAmount,
     AllowUseTokenMigrator,
+    MigrateRifPro,
     MigrateToken,
     transferCoinbaseTo,
     transferTokenTo,
@@ -811,6 +812,47 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         );
     };
 
+    const interfaceAllowUseRifProMigrator = async (
+        amount: bigint,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
+        const interfaceContext = buildInterfaceContext();
+        const legacyRifPro = interfaceContext.contracts?.legacy_rifpro;
+        const rifProMigrator = interfaceContext.contracts?.rifpro_migrator;
+
+        if (!legacyRifPro || !rifProMigrator) {
+            const error = new Error("RIFPRO migration contracts are not configured");
+            onError(error);
+            throw error;
+        }
+
+        return AllowanceAmount(
+            interfaceContext,
+            legacyRifPro,
+            rifProMigrator,
+            amount,
+            onTransaction,
+            onReceipt
+        );
+    };
+
+    const interfaceMigrateRifPro = async (
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
+        const receipt = await MigrateRifPro(
+            buildInterfaceContext(),
+            onTransaction,
+            onReceipt,
+            onError
+        );
+        void refetchUserBalanceRef.current?.();
+        return receipt;
+    };
+
     // OMOC methods
     const interfaceStakingApprove = async (
         amount: bigint,
@@ -1223,6 +1265,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 interfaceAllowUseTokenMigrator,
                 interfaceMigrateToken,
                 isVestingLoaded,
+                interfaceAllowUseRifProMigrator,
+                interfaceMigrateRifPro,
                 interfaceStakingApprove,
                 interfaceStakingAddStake,
                 interfaceStakingDelayMachineWithdraw,
