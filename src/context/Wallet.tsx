@@ -843,12 +843,14 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         onReceipt: OnReceipt,
         onError: (error: unknown) => void
     ): Promise<unknown> => {
-        return MigrateRifPro(
+        const receipt = await MigrateRifPro(
             buildInterfaceContext(),
             onTransaction,
             onReceipt,
             onError
         );
+        void refetchUserBalanceRef.current?.();
+        return receipt;
     };
 
     // OMOC methods
