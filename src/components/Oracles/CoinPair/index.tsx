@@ -98,6 +98,10 @@ export default function CoinPair(): React.ReactElement {
             title: t("oracles.coinpair.table.pair"),
             dataIndex: "pairName",
             key: "pairName",
+            render: (pairName: string) =>
+                t(`oracles.coinpair.pairMask.${pairName}`, {
+                    defaultValue: pairName,
+                }),
         },
         {
             title: t("oracles.coinpair.table.price"),

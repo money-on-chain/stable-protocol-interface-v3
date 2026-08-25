@@ -737,6 +737,11 @@
             "modalTitle": "Suscripción de Par de Monedas",
             "notRegisteredWarning": "Tu oráculo no está registrado. Debes registrar tu oráculo antes de poder suscribirte o cancelar la suscripción a pares de monedas.",
             "insufficientStakeWarning": "Stake insuficiente. Necesitas al menos {{minStake}} MOC en stake para suscribirte a un par de monedas.",
+            "pairMask": {
+                "BTCUSD": "BTC/USD",
+                "RIFBTC": "RIF/BTC",
+                "RIFUSD": "RIF/USD"
+            },
             "table": {
                 "pair": "Par de Monedas",
                 "price": "Precio",

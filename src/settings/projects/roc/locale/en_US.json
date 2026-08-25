@@ -737,6 +737,11 @@
             "modalTitle": "Coin Pair Subscription",
             "notRegisteredWarning": "Your oracle is not registered. You must register your oracle before you can subscribe or unsubscribe from coin pairs.",
             "insufficientStakeWarning": "Insufficient stake. You need at least {{minStake}} MOC staked to subscribe to a coin pair.",
+            "pairMask": {
+                "BTCUSD": "BTC/USD",
+                "RIFBTC": "RIF/BTC",
+                "RIFUSD": "RIF/USD"
+            },
             "table": {
                 "pair": "Coin Pair",
                 "price": "Price",
