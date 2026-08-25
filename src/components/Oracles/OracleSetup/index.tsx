@@ -6,6 +6,7 @@ import { formatUnits, isAddress } from "viem";
 
 import { useWalletContext } from "../../../context/Wallet";
 import { useProjectTranslation } from "../../../helpers/translations";
+import CardHeaderMetrics from "../../CardHeaderMetrics";
 import InlineWarning from "../../InlineWarning";
 import OperationStatusModal from "../../Modals/OperationStatusModal/OperationStatusModal";
 import TextField from "../../TextField";
@@ -24,7 +25,7 @@ type OperationHandlers = {
 };
 
 export default function OracleSetup(): React.ReactElement {
-    const { t } = useProjectTranslation();
+    const { i18n, t } = useProjectTranslation();
     const {
         userOmocBalance,
         contractStatusOmoc,
@@ -68,6 +69,12 @@ export default function OracleSetup(): React.ReactElement {
         typeof minCPSubscriptionStake === "bigint";
     const hasEnoughStake =
         !isStakeKnown || currentStake >= minCPSubscriptionStake;
+    const formattedCurrentStake = isStakeKnown
+        ? Number(formatUnits(currentStake, 18)).toLocaleString(i18n.language, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+          })
+        : "…";
 
     const [oracleAddressInput, setOracleAddressInput] = useState<string>("");
     const [oracleUrlInput, setOracleUrlInput] = useState<string>("");
@@ -172,19 +179,42 @@ export default function OracleSetup(): React.ReactElement {
                     <h1>{t("oracles.oracleSetup.cardTitle")}</h1>
                 </div>
 
-                {isRegistrationKnown && (
-                    <span
-                        className={
-                            isOracleRegistered
-                                ? "oracleSetup__status oracleSetup__status--registered"
-                                : "oracleSetup__status oracleSetup__status--notRegistered"
-                        }
-                    >
-                        {isOracleRegistered
-                            ? t("oracles.oracleSetup.statusRegistered")
-                            : t("oracles.oracleSetup.statusNotRegistered")}
-                    </span>
-                )}
+                <CardHeaderMetrics
+                    items={[
+                        ...(isRegistrationKnown
+                            ? [
+                                  {
+                                      label: t(
+                                          "oracles.oracleSetup.oracleStatusMetricLabel"
+                                      ),
+                                      value: (
+                                          <span
+                                              className={
+                                                  isOracleRegistered
+                                                      ? "oracleSetup__status oracleSetup__status--registered"
+                                                      : "oracleSetup__status oracleSetup__status--notRegistered"
+                                              }
+                                          >
+                                              {isOracleRegistered
+                                                  ? t(
+                                                        "oracles.oracleSetup.statusRegistered"
+                                                    )
+                                                  : t(
+                                                        "oracles.oracleSetup.statusNotRegistered"
+                                                    )}
+                                          </span>
+                                      ),
+                                  },
+                              ]
+                            : []),
+                        {
+                            label: t(
+                                "oracles.oracleSetup.currentStakeMetricLabel"
+                            ),
+                            value: `${formattedCurrentStake} MOC`,
+                        },
+                    ]}
+                />
             </div>
 
             {isRegistrationKnown && !isOracleRegistered && !hasEnoughStake && (
@@ -322,16 +352,9 @@ export default function OracleSetup(): React.ReactElement {
                                 : "…",
                         })}
                     </div>
-                    {isStakeKnown && (
-                        <div className="oracleSetup__requirements-current">
-                            {t("oracles.oracleSetup.currentStakeLabel", {
-                                amount: formatUnits(currentStake, 18),
-                            })}
-                        </div>
-                    )}
                     <div className="oracleSetup__docLink">
                         <a
-                            href="https://docs.moneyonchain.com/"
+                            href="https://moneyonchain.com/run-an-omoc-oracle-node-2/"
                             target="_blank"
                             rel="noopener noreferrer"
                         >

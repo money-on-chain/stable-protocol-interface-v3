@@ -19,9 +19,9 @@ export default function SectionOraclesCoinPair(): React.ReactElement {
                 <div className="content-page">
                     {ready ? (
                         <Fragment>
+                            <RegisteredOracles />
                             <OracleSetup />
                             <CoinPair />
-                            <RegisteredOracles />
                         </Fragment>
                     ) : (
                         <Skeleton active />

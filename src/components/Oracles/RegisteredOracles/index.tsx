@@ -8,6 +8,7 @@ import { formatUnits, parseUnits } from "viem";
 import { useWalletContext } from "../../../context/Wallet";
 import { useProjectTranslation } from "../../../helpers/translations";
 import type { RegisteredOracleInfo } from "../../../hooks/useRegisteredOracles";
+import CardHeaderMetrics from "../../CardHeaderMetrics";
 import CopyAddress from "../../CopyAddress";
 
 // Not derived from any contract value — RBTC gas cost isn't an on-chain
@@ -16,8 +17,18 @@ import CopyAddress from "../../CopyAddress";
 const LOW_GAS_THRESHOLD = parseUnits("0.001", 18);
 
 export default function RegisteredOracles(): React.ReactElement {
-    const { t } = useProjectTranslation();
+    const { i18n, t } = useProjectTranslation();
     const { registeredOracles, address } = useWalletContext();
+    const totalStake = registeredOracles.data.reduce(
+        (total, oracle) => total + oracle.stake,
+        0n
+    );
+    const formattedTotalStake = Number(
+        formatUnits(totalStake, 18)
+    ).toLocaleString(i18n.language, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    });
 
     const columns: ColumnsType<RegisteredOracleInfo> = [
         {
@@ -102,8 +113,20 @@ export default function RegisteredOracles(): React.ReactElement {
 
     return (
         <div className="layout-card registeredOracles">
-            <div className="layout-card-title">
-                <h1>{t("oracles.registeredOracles.cardTitle")}</h1>
+            <div className="registeredOracles__header">
+                <div className="layout-card-title">
+                    <h1>{t("oracles.registeredOracles.cardTitle")}</h1>
+                </div>
+                <CardHeaderMetrics
+                    items={[
+                        {
+                            label: t(
+                                "oracles.registeredOracles.totalStakeLabel"
+                            ),
+                            value: `${formattedTotalStake} MOC`,
+                        },
+                    ]}
+                />
             </div>
             <Table<RegisteredOracleInfo>
                 className="registeredOracles__table"

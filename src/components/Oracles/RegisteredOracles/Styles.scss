@@ -2,6 +2,18 @@
     width: 100%;
     overflow: hidden;
 
+    .registeredOracles__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 24px;
+        margin-bottom: 20px;
+
+        .layout-card-title {
+            margin-bottom: 0;
+        }
+    }
+
     .ant-table {
         background: transparent;
         color: var(--color-txt-primary);
@@ -66,13 +78,16 @@
             color: var(--color-txt-link);
         }
 
-        > a:last-child {
+        .copyAddress__button {
             flex: 0 0 auto;
             margin-left: auto;
             cursor: pointer;
         }
 
         .icon-copy {
+            width: 16px;
+            height: 16px;
+            background-size: 16px 16px;
             filter: var(--color-icon-link-filter);
         }
     }
@@ -129,6 +144,11 @@
 
 @media (max-width: 600px) {
     .registeredOracles {
+        .registeredOracles__header {
+            flex-direction: column;
+            gap: 12px;
+        }
+
         .ant-table-thead > tr > th,
         .ant-table-tbody > tr.ant-table-row > td {
             padding-right: 8px;

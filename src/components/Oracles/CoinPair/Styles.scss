@@ -2,6 +2,18 @@
     width: 100%;
     overflow: hidden;
 
+    .coinPair__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 24px;
+        margin-bottom: 20px;
+
+        .layout-card-title {
+            margin-bottom: 0;
+        }
+    }
+
     .coinPair__subscriptionsTable {
         .ant-table {
             background: transparent;
@@ -50,6 +62,25 @@
             background: var(--surface-color-2) !important;
         }
 
+        .ant-table-expanded-row > td,
+        .ant-table-expanded-row:hover > td {
+            border: 0 !important;
+            background: transparent !important;
+            padding: 0 0 4px !important;
+        }
+
+        .ant-table-tbody
+            > tr.coinPair__row--expanded.ant-table-row
+            > td:first-child {
+            border-bottom-left-radius: 0;
+        }
+
+        .ant-table-tbody
+            > tr.coinPair__row--expanded.ant-table-row
+            > td:last-child {
+            border-bottom-right-radius: 0;
+        }
+
         .button--compact {
             width: auto;
             min-width: 104px;
@@ -68,6 +99,187 @@
             background-color: var(--color-btn-secondary-background-disabled);
             color: var(--color-btn-secondary-txt-disabled);
         }
+    }
+
+    .coinPair__expanded {
+        position: relative;
+        top: -4px;
+        box-shadow: var(--data-shadows-inset);
+        border-radius: 0 0 var(--card-border-radius) var(--card-border-radius);
+        background: var(--surface-color-inset);
+        padding: 20px;
+        min-width: 0;
+    }
+
+    .coinPair__expandToggle {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 0.2s;
+        cursor: pointer;
+        border: 0;
+        background: transparent;
+        padding: 0;
+        width: 24px;
+        height: 24px;
+
+        &:hover,
+        &:focus-visible {
+            opacity: 0.75;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-controls-foreground-on);
+            outline-offset: 2px;
+            border-radius: 50%;
+        }
+    }
+
+    .coinPair__expandIcon {
+        background: var(--color-controls-foreground-on);
+        mask-position: center;
+        mask-size: 24px 24px;
+        mask-repeat: no-repeat;
+        width: 24px;
+        height: 24px;
+    }
+
+    .coinPair__expandIcon--expand {
+        mask-image: url("../../../assets/icons/IconToggleExpand.svg");
+    }
+
+    .coinPair__expandIcon--collapse {
+        mask-image: url("../../../assets/icons/IconToggleCollapse.svg");
+    }
+
+    .coinPair__expandedHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 24px;
+        margin-bottom: 16px;
+    }
+
+    .coinPair__expandedTitle {
+        color: var(--color-txt-primary);
+        font-weight: 700;
+        font-size: 14px;
+    }
+
+    .coinPair__detailLoading {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        border-radius: var(--card-border-radius);
+        background: var(--surface-color-2);
+        padding: 20px;
+        min-height: 112px;
+        text-align: center;
+    }
+
+    .coinPair__detailLoadingIcon {
+        flex: 0 0 32px;
+        filter: var(--filter-semantic-neutral);
+    }
+
+    .coinPair__detailLoadingBody {
+        width: min(100%, 420px);
+        min-width: 0;
+    }
+
+    .coinPair__detailLoadingText {
+        margin-bottom: 12px;
+        color: var(--color-txt-primary);
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .coinPair__detailSkeleton {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+
+        span {
+            animation: coinPair-detail-skeleton 1.2s ease-in-out infinite;
+            border-radius: 4px;
+            background: var(--surface-color-3);
+            margin-right: auto;
+            margin-left: auto;
+            width: 100%;
+            height: 8px;
+
+            &:nth-child(2) {
+                animation-delay: 0.15s;
+                width: 86%;
+            }
+
+            &:nth-child(3) {
+                animation-delay: 0.3s;
+                width: 68%;
+            }
+        }
+    }
+
+    .coinPair__oraclesTable {
+        .ant-table {
+            margin-bottom: 0;
+        }
+
+        .address-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            white-space: nowrap;
+
+            .copyAddress__button {
+                flex: 0 0 auto;
+                margin-left: auto;
+            }
+
+            a {
+                color: var(--color-txt-link);
+            }
+
+            a:hover {
+                text-decoration: underline;
+            }
+
+            .icon-copy {
+                width: 16px;
+                height: 16px;
+                background-size: 16px 16px;
+                filter: var(--color-icon-link-filter);
+            }
+        }
+    }
+
+    .coinPair__detailTag {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        background: var(--surface-color-3);
+        padding: 0 10px;
+        min-height: 24px;
+        color: var(--color-txt-secondary);
+        font-weight: 600;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .coinPair__detailTag--positive {
+        color: var(--color-semantic-positive);
+    }
+
+    .coinPair__detailTag--negative {
+        color: var(--color-semantic-negative);
+    }
+
+    .coinPair__detailTag--warning {
+        color: var(--color-semantic-neutral-alt);
     }
 
     .coinPair__warning {
@@ -93,21 +305,48 @@
     }
 }
 
-@media (max-width: 600px) {
-    .coinPair .coinPair__subscriptionsTable {
-        .ant-table-thead > tr > th,
-        .ant-table-tbody > tr.ant-table-row > td {
-            padding-right: 8px;
-            padding-left: 8px;
-        }
+@keyframes coinPair-detail-skeleton {
+    0%,
+    100% {
+        opacity: 0.35;
+    }
+
+    50% {
+        opacity: 1;
     }
 }
 
-// Rendered via antd's Drawer portal, outside .coinPair's DOM subtree.
-.coinPair__roundStatus {
-    margin-bottom: 16px;
-    font-size: 13px;
-    color: var(--color-txt-secondary);
+@media (prefers-reduced-motion: reduce) {
+    .coinPair__detailSkeleton span {
+        animation: none;
+        opacity: 0.7;
+    }
+}
+
+@media (max-width: 600px) {
+    .coinPair {
+        .coinPair__header {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .coinPair__subscriptionsTable {
+            .ant-table-thead > tr > th,
+            .ant-table-tbody > tr.ant-table-row > td {
+                padding-right: 8px;
+                padding-left: 8px;
+            }
+        }
+
+        .coinPair__expanded {
+            padding: 12px;
+        }
+
+        .coinPair__expandedHeader {
+            flex-direction: column;
+            gap: 6px;
+        }
+    }
 }
 
 .coinPair__missedRounds--disabled {

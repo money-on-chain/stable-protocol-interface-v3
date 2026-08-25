@@ -1,6 +1,6 @@
 import "./Styles.scss";
 
-import { Drawer, Table, Tag, Tooltip } from "antd";
+import { Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import React, { useState } from "react";
 import { formatUnits } from "viem";
@@ -13,6 +13,9 @@ import type {
 } from "../../../hooks/useCoinPairOracles";
 import { useCoinPairOracles } from "../../../hooks/useCoinPairOracles";
 import type { OracleCoinPairInfo } from "../../../hooks/useOracleCoinPairs";
+import CardHeaderMetrics, {
+    type CardHeaderMetric,
+} from "../../CardHeaderMetrics";
 import CopyAddress from "../../CopyAddress";
 import InlineWarning from "../../InlineWarning";
 import OperationStatusModal from "../../Modals/OperationStatusModal/OperationStatusModal";
@@ -64,6 +67,9 @@ export default function CoinPair(): React.ReactElement {
         });
     const [isOperationModalVisible, setIsOperationModalVisible] =
         useState<boolean>(false);
+    const expiredPriceCount = oracleCoinPairs.data.filter(
+        (pair) => !pair.priceIsValid
+    ).length;
 
     const onToggleSubscription = async (
         row: OracleCoinPairInfo
@@ -111,6 +117,34 @@ export default function CoinPair(): React.ReactElement {
 
     const columns: ColumnsType<OracleCoinPairInfo> = [
         {
+            title: "",
+            key: "explore",
+            width: 44,
+            render: (_value, row) => {
+                const isExpanded = exploringPair?.pairRaw === row.pairRaw;
+
+                return (
+                    <button
+                        type="button"
+                        aria-expanded={isExpanded}
+                        aria-label={t("oracles.coinpair.table.exploreButton")}
+                        className="coinPair__expandToggle"
+                        onClick={() =>
+                            setExploringPair(isExpanded ? null : row)
+                        }
+                        data-testid={`coinpair-explore-${row.pairName}`}
+                    >
+                        <span
+                            className={`coinPair__expandIcon coinPair__expandIcon--${
+                                isExpanded ? "collapse" : "expand"
+                            }`}
+                            aria-hidden="true"
+                        />
+                    </button>
+                );
+            },
+        },
+        {
             title: t("oracles.coinpair.table.pair"),
             dataIndex: "pairName",
             key: "pairName",
@@ -126,11 +160,12 @@ export default function CoinPair(): React.ReactElement {
             render: (_value, row) => {
                 if (!row.priceIsValid) {
                     return (
-                        <Tooltip title={t("oracles.coinpair.table.priceStale")}>
-                            <span className="coinPair__price--stale">
-                                {t("oracles.coinpair.table.priceNotAvailable")}
-                            </span>
-                        </Tooltip>
+                        <span
+                            className="coinPair__price--stale"
+                            title={t("oracles.coinpair.table.priceStale")}
+                        >
+                            {t("oracles.coinpair.table.priceNotAvailable")}
+                        </span>
                     );
                 }
 
@@ -209,47 +244,32 @@ export default function CoinPair(): React.ReactElement {
                 );
 
                 return disabledReason ? (
-                    <Tooltip title={disabledReason}>
-                        <span>{button}</span>
-                    </Tooltip>
+                    <span
+                        className="coinPair__actionHint"
+                        title={disabledReason}
+                    >
+                        {button}
+                    </span>
                 ) : (
                     button
                 );
             },
         },
-        {
-            title: t("oracles.coinpair.table.explore"),
-            key: "explore",
-            render: (_value, row) => (
-                <button
-                    type="button"
-                    className="button--compact button--compact--secondary"
-                    onClick={() => setExploringPair(row)}
-                    data-testid={`coinpair-explore-${row.pairName}`}
-                >
-                    {t("oracles.coinpair.table.exploreButton")}
-                </button>
-            ),
-        },
     ];
-
-    const explorePairName = exploringPair
-        ? t(`oracles.coinpair.pairMask.${exploringPair.pairName}`, {
-              defaultValue: exploringPair.pairName,
-          })
-        : "";
 
     const coinPairOraclesColumns: ColumnsType<CoinPairOracleInfo> = [
         {
             title: t("oracles.coinpair.explore.owner"),
             dataIndex: "owner",
             key: "owner",
+            width: 160,
             render: (owner: string) => <CopyAddress address={owner} />,
         },
         {
             title: t("oracles.coinpair.explore.oracleAddress"),
             dataIndex: "oracleAddr",
             key: "oracleAddr",
+            width: 160,
             render: (oracleAddr: string) => (
                 <CopyAddress address={oracleAddr} />
             ),
@@ -258,18 +278,26 @@ export default function CoinPair(): React.ReactElement {
             title: t("oracles.coinpair.explore.points"),
             dataIndex: "points",
             key: "points",
+            align: "right",
+            width: 72,
             render: (points: bigint) => points.toString(),
         },
         {
             title: t("oracles.coinpair.explore.inRound"),
             dataIndex: "selectedInCurrentRound",
             key: "selectedInCurrentRound",
+            align: "center",
+            width: 104,
             render: (selectedInCurrentRound: boolean) => (
-                <Tag color={selectedInCurrentRound ? "success" : "default"}>
+                <span
+                    className={`coinPair__detailTag coinPair__detailTag--${
+                        selectedInCurrentRound ? "positive" : "negative"
+                    }`}
+                >
                     {selectedInCurrentRound
                         ? t("oracles.coinpair.explore.inRoundYes")
                         : t("oracles.coinpair.explore.inRoundNo")}
-                </Tag>
+                </span>
             ),
         },
         {
@@ -288,32 +316,66 @@ export default function CoinPair(): React.ReactElement {
                     );
                 }
 
-                const color =
+                const tone =
                     missedSignatureRounds >= max
-                        ? "error"
+                        ? "negative"
                         : missedSignatureRounds > 0n
                           ? "warning"
-                          : "success";
+                          : "positive";
 
                 return (
-                    <Tag color={color}>
+                    <span
+                        className={`coinPair__detailTag coinPair__detailTag--${tone}`}
+                    >
                         {missedSignatureRounds.toString()} / {max.toString()}
-                    </Tag>
+                    </span>
                 );
             },
         },
     ];
 
-    const formatRoundStatus = (roundInfo: CoinPairRoundInfo | null): string => {
-        if (!roundInfo) return "";
+    const getRoundMetrics = (
+        roundInfo: CoinPairRoundInfo | null
+    ): CardHeaderMetric[] => {
+        if (!roundInfo) {
+            return [
+                {
+                    label: t("oracles.coinpair.explore.roundLabel"),
+                    value: "…",
+                },
+                {
+                    label: t("oracles.coinpair.explore.statusLabel"),
+                    value: "…",
+                },
+            ];
+        }
+
         if (roundInfo.round === 0n) {
-            return t("oracles.coinpair.explore.roundNotStarted");
+            return [
+                {
+                    label: t("oracles.coinpair.explore.roundLabel"),
+                    value: "0",
+                },
+                {
+                    label: t("oracles.coinpair.explore.statusLabel"),
+                    value: t("oracles.coinpair.explore.roundNotStartedValue"),
+                },
+            ];
         }
 
         const round = roundInfo.round.toString();
         const now = BigInt(Math.floor(Date.now() / 1000));
         if (roundInfo.lockPeriodTimestamp <= now) {
-            return t("oracles.coinpair.explore.roundReadyToSwitch", { round });
+            return [
+                {
+                    label: t("oracles.coinpair.explore.roundLabel"),
+                    value: round,
+                },
+                {
+                    label: t("oracles.coinpair.explore.statusLabel"),
+                    value: t("oracles.coinpair.explore.roundReadyValue"),
+                },
+            ];
         }
 
         const secondsLeft = Number(roundInfo.lockPeriodTimestamp - now);
@@ -325,16 +387,36 @@ export default function CoinPair(): React.ReactElement {
         if (days > 0 || hours > 0) parts.push(`${hours}h`);
         parts.push(`${minutes}m`);
 
-        return t("oracles.coinpair.explore.roundEndsIn", {
-            round,
-            time: parts.join(" "),
-        });
+        return [
+            {
+                label: t("oracles.coinpair.explore.roundLabel"),
+                value: round,
+            },
+            {
+                label: t("oracles.coinpair.explore.endsInLabel"),
+                value: parts.join(" "),
+            },
+        ];
     };
 
     return (
         <div className="layout-card coinPair">
-            <div className="layout-card-title">
-                <h1>{t("oracles.coinpair.cardTitle")}</h1>
+            <div className="coinPair__header">
+                <div className="layout-card-title">
+                    <h1>{t("oracles.coinpair.cardTitle")}</h1>
+                </div>
+                <CardHeaderMetrics
+                    items={[
+                        {
+                            label: t("oracles.coinpair.totalPairsLabel"),
+                            value: oracleCoinPairs.data.length,
+                        },
+                        {
+                            label: t("oracles.coinpair.expiredPricesLabel"),
+                            value: expiredPriceCount,
+                        },
+                    ]}
+                />
             </div>
             {isRegistrationKnown && !isOracleRegistered && (
                 <InlineWarning className="coinPair__warning">
@@ -361,7 +443,86 @@ export default function CoinPair(): React.ReactElement {
                 dataSource={oracleCoinPairs.data}
                 loading={oracleCoinPairs.isLoading}
                 pagination={false}
+                rowClassName={(row) =>
+                    exploringPair?.pairRaw === row.pairRaw
+                        ? "coinPair__row--expanded"
+                        : ""
+                }
                 scroll={{ x: 760 }}
+                expandable={{
+                    expandedRowKeys: exploringPair
+                        ? [exploringPair.pairRaw]
+                        : [],
+                    expandedRowRender: (row) => {
+                        const pair = t(
+                            `oracles.coinpair.pairMask.${row.pairName}`,
+                            { defaultValue: row.pairName }
+                        );
+
+                        return (
+                            <div className="coinPair__expanded">
+                                <div className="coinPair__expandedHeader">
+                                    <div className="coinPair__expandedTitle">
+                                        {t("oracles.coinpair.explore.title", {
+                                            pair,
+                                        })}
+                                    </div>
+                                    {!coinPairOracles.isLoading && (
+                                        <div className="coinPair__roundMetrics">
+                                            <CardHeaderMetrics
+                                                items={getRoundMetrics(
+                                                    coinPairOracles.roundInfo
+                                                )}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                                {coinPairOracles.isLoading ? (
+                                    <div
+                                        className="coinPair__detailLoading"
+                                        role="status"
+                                        aria-live="polite"
+                                    >
+                                        <span
+                                            className="icon-tx-waiting coinPair__detailLoadingIcon"
+                                            aria-hidden="true"
+                                        />
+                                        <div className="coinPair__detailLoadingBody">
+                                            <div className="coinPair__detailLoadingText">
+                                                {t(
+                                                    "oracles.coinpair.explore.loadingDetails"
+                                                )}
+                                            </div>
+                                            <div
+                                                className="coinPair__detailSkeleton"
+                                                aria-hidden="true"
+                                            >
+                                                <span />
+                                                <span />
+                                                <span />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <Table<CoinPairOracleInfo>
+                                        className="coinPair__oraclesTable"
+                                        rowKey="owner"
+                                        columns={coinPairOraclesColumns}
+                                        dataSource={coinPairOracles.data}
+                                        pagination={false}
+                                        scroll={{ x: 560 }}
+                                        locale={{
+                                            emptyText: t(
+                                                "oracles.coinpair.explore.empty"
+                                            ),
+                                        }}
+                                    />
+                                )}
+                            </div>
+                        );
+                    },
+                    expandIconColumnIndex: -1,
+                }}
                 locale={{ emptyText: t("oracles.coinpair.table.empty") }}
             />
             {isOperationModalVisible && (
@@ -373,28 +534,6 @@ export default function CoinPair(): React.ReactElement {
                     title={t("oracles.coinpair.modalTitle")}
                 />
             )}
-            <Drawer
-                className="coinPair__exploreDrawer"
-                title={t("oracles.coinpair.explore.title", {
-                    pair: explorePairName,
-                })}
-                placement="right"
-                width={640}
-                open={!!exploringPair}
-                onClose={() => setExploringPair(null)}
-            >
-                <div className="coinPair__roundStatus">
-                    {formatRoundStatus(coinPairOracles.roundInfo)}
-                </div>
-                <Table<CoinPairOracleInfo>
-                    rowKey="owner"
-                    columns={coinPairOraclesColumns}
-                    dataSource={coinPairOracles.data}
-                    loading={coinPairOracles.isLoading}
-                    pagination={false}
-                    locale={{ emptyText: t("oracles.coinpair.explore.empty") }}
-                />
-            </Drawer>
         </div>
     );
 }
