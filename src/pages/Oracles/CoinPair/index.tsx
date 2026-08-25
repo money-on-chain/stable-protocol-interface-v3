@@ -5,6 +5,7 @@ import React, { Fragment } from "react";
 
 import CoinPair from "../../../components/Oracles/CoinPair";
 import OracleSetup from "../../../components/Oracles/OracleSetup";
+import RegisteredOracles from "../../../components/Oracles/RegisteredOracles";
 import { useWalletContext } from "../../../context/Wallet";
 
 export default function SectionOraclesCoinPair(): React.ReactElement {
@@ -20,6 +21,7 @@ export default function SectionOraclesCoinPair(): React.ReactElement {
                         <Fragment>
                             <OracleSetup />
                             <CoinPair />
+                            <RegisteredOracles />
                         </Fragment>
                     ) : (
                         <Skeleton active />

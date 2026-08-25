@@ -755,6 +755,18 @@
             "updateUrlButton": "Actualizar URL",
             "docsLink": "Documentación"
         },
+        "registeredOracles": {
+            "cardTitle": "Oráculos Registrados",
+            "table": {
+                "owner": "Propietario",
+                "oracleAddress": "Dirección del Oráculo",
+                "url": "URL",
+                "stake": "Stake (MOC)",
+                "subscribedPairs": "Pares de Monedas Registrados",
+                "noPairs": "Sin suscripciones",
+                "empty": "No hay oráculos registrados"
+            }
+        },
         "coinpair": {
             "cardTitle": "Suscripciones de Pares de Monedas",
             "modalTitle": "Suscripción de Par de Monedas",

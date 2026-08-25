@@ -723,6 +723,18 @@
             "updateUrlButton": "Update URL",
             "docsLink": "Documentation"
         },
+        "registeredOracles": {
+            "cardTitle": "Registered Oracles",
+            "table": {
+                "owner": "Owner",
+                "oracleAddress": "Oracle Address",
+                "url": "URL",
+                "stake": "Stake (MOC)",
+                "subscribedPairs": "Registered Coinpairs",
+                "noPairs": "No subscriptions",
+                "empty": "No oracles registered"
+            }
+        },
         "coinpair": {
             "cardTitle": "Coin Pair Subscriptions",
             "modalTitle": "Coin Pair Subscription",

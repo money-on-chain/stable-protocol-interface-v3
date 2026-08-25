@@ -10,6 +10,7 @@ import type { useContractProtocolStatus } from "../hooks/useContractProtocolStat
 import type { useIncentiveV2 } from "../hooks/useIncentiveV2";
 import type { useOracleCoinPairs } from "../hooks/useOracleCoinPairs";
 import type { UsePriceProviderResult } from "../hooks/usePriceProvider";
+import type { useRegisteredOracles } from "../hooks/useRegisteredOracles";
 // import type { useProposalCount } from "../hooks/useProposalCount";
 import type { useUserVeto } from "../hooks/useUserVeto";
 import type { UseBaseCoinBalanceResult } from "../types/status";
@@ -115,6 +116,7 @@ export type WalletContextType = {
     ) => Promise<TransactionReceipt | undefined>;
     userVesting: UserVestingResult;
     oracleCoinPairs: ReturnType<typeof useOracleCoinPairs>;
+    registeredOracles: ReturnType<typeof useRegisteredOracles>;
     userIncentiveV2: ReturnType<typeof useIncentiveV2>;
     userVeto: ReturnType<typeof useUserVeto>;
 

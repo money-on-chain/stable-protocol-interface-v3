@@ -92,6 +92,7 @@ import { useOracleCoinPairs } from "../hooks/useOracleCoinPairs";
 import { usePriceProvider } from "../hooks/usePriceProvider";
 import { readContracts } from "../hooks/useReadContracts";
 import { readContractsV1 } from "../hooks/useReadContractsV1";
+import { useRegisteredOracles } from "../hooks/useRegisteredOracles";
 import { useRpcErrorHandler } from "../hooks/useRpcErrorHandler";
 import { useRpcErrorIntegration } from "../hooks/useRpcErrorIntegration";
 import { useUserBalance } from "../hooks/useUserBalance";
@@ -289,6 +290,12 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         publicClient,
         contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
         address,
+        REFRESH_INTERVAL_USER_BALANCE
+    );
+
+    const registeredOracles = useRegisteredOracles(
+        publicClient,
+        contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
         REFRESH_INTERVAL_USER_BALANCE
     );
 
@@ -1377,6 +1384,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 userVesting,
                 userOmocBalance,
                 oracleCoinPairs,
+                registeredOracles,
                 userIncentiveV2,
                 userVeto,
                 userLending,

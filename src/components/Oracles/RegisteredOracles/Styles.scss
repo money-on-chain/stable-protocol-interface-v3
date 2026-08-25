@@ -1,0 +1,17 @@
+.registeredOracles {
+    width: 100%;
+
+    .registeredOracles__pairs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .registeredOracles__noPairs {
+        color: var(--color-txt-secondary);
+    }
+
+    .ant-table-tbody > tr.registeredOracles__row--own > td {
+        background-color: var(--surface-color-2);
+    }
+}
