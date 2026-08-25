@@ -122,21 +122,10 @@
     {
         "nameKey": "menuOptions.oracles",
         "className": "logo-oracles",
-        "path": "/oracles",
+        "path": "/oracles/coinpair",
         "allowedProjects": [
             "roc",
             "moc-v1"
-        ],
-        "children": [
-            {
-                "nameKey": "menuOptions.coinpair",
-                "className": "logo-coinpair",
-                "path": "/oracles/coinpair",
-                "allowedProjects": [
-                    "roc",
-                    "moc-v1"
-                ]
-            }
         ]
     },
     {
