@@ -1,11 +1,29 @@
 .oracleSetup {
     width: 100%;
 
+    .oracleSetup__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 24px;
+        margin-bottom: 24px;
+
+        .layout-card-title {
+            margin-bottom: 0;
+        }
+    }
+
     .oracleSetup__status {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        flex: 0 0 auto;
+        border-radius: 999px;
+        background: var(--surface-color-2);
+        padding: 0 12px;
+        min-height: 24px;
         font-weight: 600;
-        font-size: 14px;
-        margin-bottom: 16px;
+        font-size: 12px;
+        line-height: 1;
     }
 
     .oracleSetup__status--registered {
@@ -13,51 +31,65 @@
     }
 
     .oracleSetup__status--notRegistered {
-        color: var(--color-txt-secondary);
+        background: var(--notification-error-background);
+        color: var(--notification-error-text);
     }
 
     .oracleSetup__warning {
-        margin-bottom: 16px;
+        margin-bottom: 24px;
+    }
+
+    .oracleSetup__workspace {
+        display: grid;
+        grid-template-columns: minmax(0, 650px) minmax(280px, 380px);
+        justify-content: space-between;
+        align-items: start;
+        gap: 32px;
+    }
+
+    .oracleSetup__form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        min-width: 0;
+    }
+
+    .oracleSetup__fieldRow {
+        display: grid;
+        grid-template-columns: minmax(260px, 440px) 144px;
+        align-items: start;
+        gap: 16px;
+    }
+
+    .oracleSetup__fieldAction {
+        margin-top: 29px;
+        min-width: 144px;
     }
 
     .oracleSetup__requirements {
-        margin-bottom: 16px;
-        padding: 12px 16px;
         border-radius: var(--card-border-radius);
         background-color: var(--surface-color-2);
-        font-size: 13px;
+        padding: 20px;
         color: var(--color-txt-secondary);
+        font-size: 13px;
+        line-height: 1.45;
 
-        > div {
-            margin-top: 4px;
+        > div + div {
+            margin-top: 8px;
         }
     }
 
     .oracleSetup__requirements-title {
-        margin-top: 0;
-        font-weight: 600;
         color: var(--color-txt-primary);
+        font-weight: 700;
+        font-size: 14px;
     }
 
     .oracleSetup__requirements-current {
+        border-top: 1px solid var(--dividers);
+        padding-top: 12px;
         color: var(--color-txt-primary);
-    }
-
-    .oracleSetup__field {
-        margin-bottom: 16px;
-
-        label {
-            display: block;
-            margin-bottom: 4px;
-            font-size: 13px;
-            color: var(--color-txt-secondary);
-        }
-    }
-
-    .oracleSetup__field-error {
-        margin-top: 4px;
-        font-size: 12px;
-        color: var(--color-semantic-negative);
+        font-weight: 600;
     }
 
     .oracleSetup__actions {
@@ -65,9 +97,33 @@
         flex-wrap: wrap;
         align-items: center;
         gap: 12px;
+        border-top: 1px solid var(--dividers);
+        margin-top: 4px;
+        padding-top: 20px;
+
+        .button--compact {
+            width: auto;
+            min-width: 120px;
+        }
+
+        .button--compact:disabled {
+            cursor: not-allowed;
+            border-color: var(--color-btn-primary-background-disabled);
+            background-color: var(--color-btn-primary-background-disabled);
+            color: var(--color-btn-primary-txt-disabled);
+            opacity: 1;
+        }
+
+        .button--compact--secondary:disabled {
+            border-color: var(--color-btn-secondary-txt-disabled);
+            background-color: var(--color-btn-secondary-background-disabled);
+            color: var(--color-btn-secondary-txt-disabled);
+        }
     }
 
     .oracleSetup__docLink {
+        border-top: 1px solid var(--dividers);
+        padding-top: 12px;
         font-weight: 600;
 
         a {
@@ -75,6 +131,49 @@
             align-items: center;
             gap: 8px;
             color: var(--color-txt-link);
+        }
+    }
+}
+
+@media (max-width: 960px) {
+    .oracleSetup {
+        .oracleSetup__workspace {
+            grid-template-columns: minmax(0, 1fr);
+            justify-content: stretch;
+        }
+
+        .oracleSetup__requirements {
+            max-width: 720px;
+        }
+    }
+}
+
+@media (max-width: 640px) {
+    .oracleSetup {
+        .oracleSetup__header {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .oracleSetup__fieldRow {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 10px;
+        }
+
+        .oracleSetup__fieldAction {
+            justify-self: start;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .oracleSetup__actions {
+            align-items: stretch;
+
+            > .button--compact,
+            > span,
+            > span .button--compact {
+                width: 100%;
+            }
         }
     }
 }

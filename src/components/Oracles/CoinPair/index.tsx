@@ -1,6 +1,6 @@
 import "./Styles.scss";
 
-import { Alert, Button, Drawer, Table, Tag, Tooltip } from "antd";
+import { Drawer, Table, Tag, Tooltip } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import React, { useState } from "react";
 import { formatUnits } from "viem";
@@ -14,6 +14,7 @@ import type {
 import { useCoinPairOracles } from "../../../hooks/useCoinPairOracles";
 import type { OracleCoinPairInfo } from "../../../hooks/useOracleCoinPairs";
 import CopyAddress from "../../CopyAddress";
+import InlineWarning from "../../InlineWarning";
 import OperationStatusModal from "../../Modals/OperationStatusModal/OperationStatusModal";
 
 interface OperationModalInfo {
@@ -35,7 +36,8 @@ export default function CoinPair(): React.ReactElement {
 
     const stakingInfo = userOmocBalance.data?.stakingmachine;
     const isOracleRegistered = stakingInfo?.isOracleRegistered ?? false;
-    const isRegistrationKnown = typeof stakingInfo?.isOracleRegistered === "boolean";
+    const isRegistrationKnown =
+        typeof stakingInfo?.isOracleRegistered === "boolean";
 
     const currentStake = stakingInfo?.getBalance;
     const minCPSubscriptionStake =
@@ -46,9 +48,7 @@ export default function CoinPair(): React.ReactElement {
     const hasEnoughStake =
         !isStakeKnown || currentStake >= minCPSubscriptionStake;
 
-    const [pendingPair, setPendingPair] = useState<`0x${string}` | null>(
-        null
-    );
+    const [pendingPair, setPendingPair] = useState<`0x${string}` | null>(null);
     const [exploringPair, setExploringPair] =
         useState<OracleCoinPairInfo | null>(null);
 
@@ -126,9 +126,7 @@ export default function CoinPair(): React.ReactElement {
             render: (_value, row) => {
                 if (!row.priceIsValid) {
                     return (
-                        <Tooltip
-                            title={t("oracles.coinpair.table.priceStale")}
-                        >
+                        <Tooltip title={t("oracles.coinpair.table.priceStale")}>
                             <span className="coinPair__price--stale">
                                 {t("oracles.coinpair.table.priceNotAvailable")}
                             </span>
@@ -174,7 +172,8 @@ export default function CoinPair(): React.ReactElement {
             title: t("oracles.coinpair.table.action"),
             key: "action",
             render: (_value, row) => {
-                const notRegistered = isRegistrationKnown && !isOracleRegistered;
+                const notRegistered =
+                    isRegistrationKnown && !isOracleRegistered;
                 const insufficientStake = !row.isSubscribed && !hasEnoughStake;
                 const disabledReason = notRegistered
                     ? t("oracles.coinpair.notRegisteredWarning")
@@ -188,9 +187,13 @@ export default function CoinPair(): React.ReactElement {
                       : null;
 
                 const button = (
-                    <Button
-                        type="primary"
-                        className="button"
+                    <button
+                        type="button"
+                        className={
+                            row.isSubscribed
+                                ? "button--compact button--compact--secondary"
+                                : "button--compact"
+                        }
                         disabled={
                             pendingPair === row.pairRaw ||
                             notRegistered ||
@@ -202,7 +205,7 @@ export default function CoinPair(): React.ReactElement {
                         {row.isSubscribed
                             ? t("oracles.coinpair.table.unsubscribeButton")
                             : t("oracles.coinpair.table.subscribeButton")}
-                    </Button>
+                    </button>
                 );
 
                 return disabledReason ? (
@@ -218,13 +221,14 @@ export default function CoinPair(): React.ReactElement {
             title: t("oracles.coinpair.table.explore"),
             key: "explore",
             render: (_value, row) => (
-                <Button
-                    className="button"
+                <button
+                    type="button"
+                    className="button--compact button--compact--secondary"
                     onClick={() => setExploringPair(row)}
                     data-testid={`coinpair-explore-${row.pairName}`}
                 >
                     {t("oracles.coinpair.table.exploreButton")}
-                </Button>
+                </button>
             ),
         },
     ];
@@ -277,7 +281,9 @@ export default function CoinPair(): React.ReactElement {
                 if (max === 0n) {
                     return (
                         <span className="coinPair__missedRounds--disabled">
-                            {t("oracles.coinpair.explore.autoUnsubscribeDisabled")}
+                            {t(
+                                "oracles.coinpair.explore.autoUnsubscribeDisabled"
+                            )}
                         </span>
                     );
                 }
@@ -331,38 +337,31 @@ export default function CoinPair(): React.ReactElement {
                 <h1>{t("oracles.coinpair.cardTitle")}</h1>
             </div>
             {isRegistrationKnown && !isOracleRegistered && (
-                <Alert
-                    className="coinPair__warning"
-                    type="warning"
-                    showIcon
-                    message={t("oracles.coinpair.notRegisteredWarning")}
-                />
+                <InlineWarning className="coinPair__warning">
+                    {t("oracles.coinpair.notRegisteredWarning")}
+                </InlineWarning>
             )}
             {isRegistrationKnown &&
                 isOracleRegistered &&
                 isStakeKnown &&
                 !hasEnoughStake && (
-                    <Alert
-                        className="coinPair__warning"
-                        type="warning"
-                        showIcon
-                        message={t(
-                            "oracles.coinpair.insufficientStakeWarning",
-                            {
-                                minStake: formatUnits(
-                                    minCPSubscriptionStake ?? 0n,
-                                    18
-                                ),
-                            }
-                        )}
-                    />
+                    <InlineWarning className="coinPair__warning">
+                        {t("oracles.coinpair.insufficientStakeWarning", {
+                            minStake: formatUnits(
+                                minCPSubscriptionStake ?? 0n,
+                                18
+                            ),
+                        })}
+                    </InlineWarning>
                 )}
             <Table<OracleCoinPairInfo>
+                className="coinPair__subscriptionsTable"
                 rowKey="pairRaw"
                 columns={columns}
                 dataSource={oracleCoinPairs.data}
                 loading={oracleCoinPairs.isLoading}
                 pagination={false}
+                scroll={{ x: 760 }}
                 locale={{ emptyText: t("oracles.coinpair.table.empty") }}
             />
             {isOperationModalVisible && (

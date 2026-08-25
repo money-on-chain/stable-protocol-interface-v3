@@ -1,6 +1,6 @@
 import "./Styles.scss";
 
-import { Table, Tag, Tooltip } from "antd";
+import { Table, Tooltip } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import React from "react";
 import { formatUnits, parseUnits } from "viem";
@@ -63,7 +63,9 @@ export default function RegisteredOracles(): React.ReactElement {
 
                 return (
                     <Tooltip
-                        title={t("oracles.registeredOracles.table.lowGasWarning")}
+                        title={t(
+                            "oracles.registeredOracles.table.lowGasWarning"
+                        )}
                     >
                         <span className="registeredOracles__gas--low">
                             {formattedGas}
@@ -80,11 +82,14 @@ export default function RegisteredOracles(): React.ReactElement {
                 pairs.length > 0 ? (
                     <div className="registeredOracles__pairs">
                         {pairs.map((pairName) => (
-                            <Tag key={pairName}>
+                            <span
+                                className="registeredOracles__pair"
+                                key={pairName}
+                            >
                                 {t(`oracles.coinpair.pairMask.${pairName}`, {
                                     defaultValue: pairName,
                                 })}
-                            </Tag>
+                            </span>
                         ))}
                     </div>
                 ) : (
@@ -101,11 +106,13 @@ export default function RegisteredOracles(): React.ReactElement {
                 <h1>{t("oracles.registeredOracles.cardTitle")}</h1>
             </div>
             <Table<RegisteredOracleInfo>
+                className="registeredOracles__table"
                 rowKey="owner"
                 columns={columns}
                 dataSource={registeredOracles.data}
                 loading={registeredOracles.isLoading}
                 pagination={false}
+                scroll={{ x: 960 }}
                 rowClassName={(row) =>
                     address && row.owner.toLowerCase() === address.toLowerCase()
                         ? "registeredOracles__row--own"
