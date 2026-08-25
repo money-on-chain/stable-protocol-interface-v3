@@ -26,6 +26,7 @@ export default function OracleSetup(): React.ReactElement {
     const {
         userOmocBalance,
         contractStatusOmoc,
+        oracleCoinPairs,
         interfaceOracleRegister,
         interfaceOracleRemove,
         interfaceOracleSetName,
@@ -45,6 +46,17 @@ export default function OracleSetup(): React.ReactElement {
     const currentOracleAddr = isOracleRegistered
         ? (registrationInfo?.[2] ?? "")
         : "";
+
+    // OracleManager._canRemoveOracle blocks removal only while the owner is
+    // selected in the current round for at least one coin pair — surface
+    // exactly which pair(s) rather than a generic warning.
+    const blockingPairNames = oracleCoinPairs.data
+        .filter((pair) => pair.isSelectedInCurrentRound)
+        .map((pair) =>
+            t(`oracles.coinpair.pairMask.${pair.pairName}`, {
+                defaultValue: pair.pairName,
+            })
+        );
 
     const currentStake = stakingInfo?.getBalance;
     const minCPSubscriptionStake =
@@ -273,7 +285,12 @@ export default function OracleSetup(): React.ReactElement {
                 <Tooltip
                     title={
                         isOracleRegistered && !canRemoveOracle
-                            ? t("oracles.oracleSetup.cannotRemoveWarning")
+                            ? blockingPairNames.length > 0
+                                ? t(
+                                      "oracles.oracleSetup.cannotRemoveInRound",
+                                      { pairs: blockingPairNames.join(", ") }
+                                  )
+                                : t("oracles.oracleSetup.cannotRemoveWarning")
                             : undefined
                     }
                 >

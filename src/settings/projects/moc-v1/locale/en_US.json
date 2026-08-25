@@ -717,6 +717,7 @@
             "currentStakeLabel": "Your current stake: {{amount}} MOC",
             "insufficientStakeWarning": "Insufficient stake. You need at least {{minStake}} MOC staked to register your oracle.",
             "cannotRemoveWarning": "Your oracle cannot be removed yet. It may still be subscribed to coin pairs or have pending rounds.",
+            "cannotRemoveInRound": "Can't remove: your oracle is currently selected in the round for {{pairs}}. Try again after this round ends.",
             "registerButton": "Register Oracle",
             "removeButton": "Remove Oracle",
             "updateAddressButton": "Update Address",
@@ -731,6 +732,7 @@
                 "url": "URL",
                 "stake": "Stake (MOC)",
                 "gas": "Gas (RBTC)",
+                "lowGasWarning": "Low RBTC balance — this oracle may not be able to pay for price-publish transactions.",
                 "subscribedPairs": "Registered Coinpairs",
                 "noPairs": "No subscriptions",
                 "empty": "No oracles registered"
@@ -751,13 +753,31 @@
                 "price": "Price",
                 "priceStale": "Price is stale (not currently valid)",
                 "priceNotAvailable": "N/A",
+                "capacity": "Subscribed",
                 "status": "Status",
                 "subscribed": "Subscribed",
                 "notSubscribed": "Not subscribed",
                 "action": "Action",
                 "subscribeButton": "Subscribe",
                 "unsubscribeButton": "Unsubscribe",
+                "explore": "Explore",
+                "exploreButton": "Explore",
                 "empty": "No coin pairs found"
+            },
+            "explore": {
+                "title": "Subscribed Oracles — {{pair}}",
+                "owner": "Owner",
+                "oracleAddress": "Oracle Address",
+                "points": "Points",
+                "inRound": "In Round",
+                "inRoundYes": "Yes",
+                "inRoundNo": "No",
+                "missedRounds": "Missed Rounds",
+                "autoUnsubscribeDisabled": "Auto-unsubscribe disabled",
+                "roundNotStarted": "Round has not started yet",
+                "roundReadyToSwitch": "Round #{{round}} — ready to switch",
+                "roundEndsIn": "Round #{{round}} — ends in {{time}}",
+                "empty": "No oracles subscribed to this coin pair"
             }
         }
     },

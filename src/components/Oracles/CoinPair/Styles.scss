@@ -23,3 +23,14 @@
         text-decoration: underline dotted;
     }
 }
+
+// Rendered via antd's Drawer portal, outside .coinPair's DOM subtree.
+.coinPair__roundStatus {
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: var(--color-txt-secondary);
+}
+
+.coinPair__missedRounds--disabled {
+    color: var(--color-txt-secondary);
+}

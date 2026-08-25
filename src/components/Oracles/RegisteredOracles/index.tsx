@@ -1,14 +1,19 @@
 import "./Styles.scss";
 
-import { Table, Tag } from "antd";
+import { Table, Tag, Tooltip } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import React from "react";
-import { formatUnits } from "viem";
+import { formatUnits, parseUnits } from "viem";
 
 import { useWalletContext } from "../../../context/Wallet";
 import { useProjectTranslation } from "../../../helpers/translations";
 import type { RegisteredOracleInfo } from "../../../hooks/useRegisteredOracles";
 import CopyAddress from "../../CopyAddress";
+
+// Not derived from any contract value — RBTC gas cost isn't an on-chain
+// parameter. This is a conservative "you're basically out of gas to publish
+// a price" floor, not a precise estimate of one publish tx's real cost.
+const LOW_GAS_THRESHOLD = parseUnits("0.001", 18);
 
 export default function RegisteredOracles(): React.ReactElement {
     const { t } = useProjectTranslation();
@@ -47,10 +52,25 @@ export default function RegisteredOracles(): React.ReactElement {
             title: t("oracles.registeredOracles.table.gas"),
             dataIndex: "gas",
             key: "gas",
-            render: (gas: bigint) =>
-                Number(formatUnits(gas, 18)).toLocaleString(undefined, {
-                    maximumFractionDigits: 6,
-                }),
+            render: (gas: bigint) => {
+                const formattedGas = Number(
+                    formatUnits(gas, 18)
+                ).toLocaleString(undefined, { maximumFractionDigits: 6 });
+
+                if (gas >= LOW_GAS_THRESHOLD) {
+                    return <span>{formattedGas}</span>;
+                }
+
+                return (
+                    <Tooltip
+                        title={t("oracles.registeredOracles.table.lowGasWarning")}
+                    >
+                        <span className="registeredOracles__gas--low">
+                            {formattedGas}
+                        </span>
+                    </Tooltip>
+                );
+            },
         },
         {
             title: t("oracles.registeredOracles.table.subscribedPairs"),

@@ -17,6 +17,16 @@ export interface OracleCoinPairInfo {
     // Current price (18 decimals) and validity, read from the pair's CoinPairPrice contract
     price: bigint;
     priceIsValid: boolean;
+    // Address of the pair's CoinPairPrice contract — used to look up its
+    // subscribed oracles (see useCoinPairOracles.ts)
+    coinPairPriceAddress: Address;
+    // How many oracles are subscribed vs. the pair's subscription cap
+    subscribedCount: number;
+    maxSubscribedOracles: number;
+    // Whether the connected owner is selected in this pair's current round —
+    // this is exactly what blocks OracleManager._canRemoveOracle (see
+    // components/Oracles/OracleSetup)
+    isSelectedInCurrentRound: boolean;
 }
 
 /**
@@ -131,12 +141,76 @@ export function useOracleCoinPairs(
                     | [bigint, boolean, bigint][]
                     | undefined) ?? [];
 
+            const capacityCalls: CallRequest[] =
+                coinPairPriceAddresses.flatMap((address, i) => [
+                    {
+                        contract: { address, abi: ABI_CoinPairPrice },
+                        functionName: "getSubscribedOraclesLen",
+                        args: [],
+                        resultType: "uint256" as const,
+                        keys: ["getSubscribedOraclesLen", i],
+                    },
+                    {
+                        contract: { address, abi: ABI_CoinPairPrice },
+                        functionName: "getMaxSubscribedOraclesPerRound",
+                        args: [],
+                        resultType: "uint256" as const,
+                        keys: ["getMaxSubscribedOraclesPerRound", i],
+                    },
+                ]);
+            const capacityRes = capacityCalls.length
+                ? await runMulticallSync(
+                      publicClient,
+                      capacityCalls as SyncMulticallInput[]
+                  )
+                : { data: undefined };
+            const subscribedCounts =
+                (capacityRes.data?.getSubscribedOraclesLen as
+                    | bigint[]
+                    | undefined) ?? [];
+            const maxSubscribedCounts =
+                (capacityRes.data?.getMaxSubscribedOraclesPerRound as
+                    | bigint[]
+                    | undefined) ?? [];
+
+            let selectedInCurrentRound: boolean[] = pairs.map(() => false);
+            if (userAddress) {
+                const roundInfoCalls: CallRequest[] =
+                    coinPairPriceAddresses.map((address, i) => ({
+                        contract: { address, abi: ABI_CoinPairPrice },
+                        functionName: "getOracleRoundInfo",
+                        args: [userAddress],
+                        resultType: [
+                            { type: "uint256", name: "points" },
+                            { type: "bool", name: "selectedInCurrentRound" },
+                        ],
+                        keys: ["getOracleRoundInfo", i],
+                    }));
+                const roundInfoRes = roundInfoCalls.length
+                    ? await runMulticallSync(
+                          publicClient,
+                          roundInfoCalls as SyncMulticallInput[]
+                      )
+                    : { data: undefined };
+                const roundInfos =
+                    (roundInfoRes.data?.getOracleRoundInfo as
+                        | [bigint, boolean][]
+                        | undefined) ?? [];
+                selectedInCurrentRound = pairs.map(
+                    (_pair, i) => roundInfos[i]?.[1] ?? false
+                );
+            }
+
             return pairs.map((pairRaw, i) => ({
                 pairRaw,
                 pairName: hexToString(pairRaw, { size: 32 }),
                 isSubscribed: !!subscribed[i],
                 price: priceInfos[i]?.[0] ?? 0n,
                 priceIsValid: priceInfos[i]?.[1] ?? false,
+                coinPairPriceAddress: coinPairPriceAddresses[i],
+                subscribedCount: Number(subscribedCounts[i] ?? 0n),
+                maxSubscribedOracles: Number(maxSubscribedCounts[i] ?? 0n),
+                isSelectedInCurrentRound: !!selectedInCurrentRound[i],
             }));
         },
     });

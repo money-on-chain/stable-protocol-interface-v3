@@ -1,13 +1,19 @@
 import "./Styles.scss";
 
-import { Alert, Button, Table, Tooltip } from "antd";
+import { Alert, Button, Drawer, Table, Tag, Tooltip } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import React, { useState } from "react";
 import { formatUnits } from "viem";
 
 import { useWalletContext } from "../../../context/Wallet";
 import { useProjectTranslation } from "../../../helpers/translations";
+import type {
+    CoinPairOracleInfo,
+    CoinPairRoundInfo,
+} from "../../../hooks/useCoinPairOracles";
+import { useCoinPairOracles } from "../../../hooks/useCoinPairOracles";
 import type { OracleCoinPairInfo } from "../../../hooks/useOracleCoinPairs";
+import CopyAddress from "../../CopyAddress";
 import OperationStatusModal from "../../Modals/OperationStatusModal/OperationStatusModal";
 
 interface OperationModalInfo {
@@ -23,6 +29,8 @@ export default function CoinPair(): React.ReactElement {
         interfaceOracleUnsubscribeCoinPair,
         userOmocBalance,
         contractStatusOmoc,
+        registeredOracles,
+        publicClient,
     } = useWalletContext();
 
     const stakingInfo = userOmocBalance.data?.stakingmachine;
@@ -40,6 +48,14 @@ export default function CoinPair(): React.ReactElement {
 
     const [pendingPair, setPendingPair] = useState<`0x${string}` | null>(
         null
+    );
+    const [exploringPair, setExploringPair] =
+        useState<OracleCoinPairInfo | null>(null);
+
+    const coinPairOracles = useCoinPairOracles(
+        publicClient,
+        exploringPair?.coinPairPriceAddress,
+        registeredOracles.data
     );
     const [operationModalInfo, setOperationModalInfo] =
         useState<OperationModalInfo>({
@@ -128,6 +144,15 @@ export default function CoinPair(): React.ReactElement {
             },
         },
         {
+            title: t("oracles.coinpair.table.capacity"),
+            key: "capacity",
+            render: (_value, row) => (
+                <span>
+                    {row.subscribedCount} / {row.maxSubscribedOracles}
+                </span>
+            ),
+        },
+        {
             title: t("oracles.coinpair.table.status"),
             dataIndex: "isSubscribed",
             key: "isSubscribed",
@@ -189,7 +214,116 @@ export default function CoinPair(): React.ReactElement {
                 );
             },
         },
+        {
+            title: t("oracles.coinpair.table.explore"),
+            key: "explore",
+            render: (_value, row) => (
+                <Button
+                    className="button"
+                    onClick={() => setExploringPair(row)}
+                    data-testid={`coinpair-explore-${row.pairName}`}
+                >
+                    {t("oracles.coinpair.table.exploreButton")}
+                </Button>
+            ),
+        },
     ];
+
+    const explorePairName = exploringPair
+        ? t(`oracles.coinpair.pairMask.${exploringPair.pairName}`, {
+              defaultValue: exploringPair.pairName,
+          })
+        : "";
+
+    const coinPairOraclesColumns: ColumnsType<CoinPairOracleInfo> = [
+        {
+            title: t("oracles.coinpair.explore.owner"),
+            dataIndex: "owner",
+            key: "owner",
+            render: (owner: string) => <CopyAddress address={owner} />,
+        },
+        {
+            title: t("oracles.coinpair.explore.oracleAddress"),
+            dataIndex: "oracleAddr",
+            key: "oracleAddr",
+            render: (oracleAddr: string) => (
+                <CopyAddress address={oracleAddr} />
+            ),
+        },
+        {
+            title: t("oracles.coinpair.explore.points"),
+            dataIndex: "points",
+            key: "points",
+            render: (points: bigint) => points.toString(),
+        },
+        {
+            title: t("oracles.coinpair.explore.inRound"),
+            dataIndex: "selectedInCurrentRound",
+            key: "selectedInCurrentRound",
+            render: (selectedInCurrentRound: boolean) => (
+                <Tag color={selectedInCurrentRound ? "success" : "default"}>
+                    {selectedInCurrentRound
+                        ? t("oracles.coinpair.explore.inRoundYes")
+                        : t("oracles.coinpair.explore.inRoundNo")}
+                </Tag>
+            ),
+        },
+        {
+            title: t("oracles.coinpair.explore.missedRounds"),
+            dataIndex: "missedSignatureRounds",
+            key: "missedSignatureRounds",
+            render: (missedSignatureRounds: bigint) => {
+                const max = coinPairOracles.maxMissedSigRounds;
+                if (max === 0n) {
+                    return (
+                        <span className="coinPair__missedRounds--disabled">
+                            {t("oracles.coinpair.explore.autoUnsubscribeDisabled")}
+                        </span>
+                    );
+                }
+
+                const color =
+                    missedSignatureRounds >= max
+                        ? "error"
+                        : missedSignatureRounds > 0n
+                          ? "warning"
+                          : "success";
+
+                return (
+                    <Tag color={color}>
+                        {missedSignatureRounds.toString()} / {max.toString()}
+                    </Tag>
+                );
+            },
+        },
+    ];
+
+    const formatRoundStatus = (roundInfo: CoinPairRoundInfo | null): string => {
+        if (!roundInfo) return "";
+        if (roundInfo.round === 0n) {
+            return t("oracles.coinpair.explore.roundNotStarted");
+        }
+
+        const round = roundInfo.round.toString();
+        const now = BigInt(Math.floor(Date.now() / 1000));
+        if (roundInfo.lockPeriodTimestamp <= now) {
+            return t("oracles.coinpair.explore.roundReadyToSwitch", { round });
+        }
+
+        const secondsLeft = Number(roundInfo.lockPeriodTimestamp - now);
+        const days = Math.floor(secondsLeft / 86_400);
+        const hours = Math.floor((secondsLeft % 86_400) / 3_600);
+        const minutes = Math.floor((secondsLeft % 3_600) / 60);
+        const parts: string[] = [];
+        if (days > 0) parts.push(`${days}d`);
+        if (days > 0 || hours > 0) parts.push(`${hours}h`);
+        parts.push(`${minutes}m`);
+
+        return t("oracles.coinpair.explore.roundEndsIn", {
+            round,
+            time: parts.join(" "),
+        });
+    };
 
     return (
         <div className="layout-card coinPair">
@@ -240,6 +374,28 @@ export default function CoinPair(): React.ReactElement {
                     title={t("oracles.coinpair.modalTitle")}
                 />
             )}
+            <Drawer
+                className="coinPair__exploreDrawer"
+                title={t("oracles.coinpair.explore.title", {
+                    pair: explorePairName,
+                })}
+                placement="right"
+                width={640}
+                open={!!exploringPair}
+                onClose={() => setExploringPair(null)}
+            >
+                <div className="coinPair__roundStatus">
+                    {formatRoundStatus(coinPairOracles.roundInfo)}
+                </div>
+                <Table<CoinPairOracleInfo>
+                    rowKey="owner"
+                    columns={coinPairOraclesColumns}
+                    dataSource={coinPairOracles.data}
+                    loading={coinPairOracles.isLoading}
+                    pagination={false}
+                    locale={{ emptyText: t("oracles.coinpair.explore.empty") }}
+                />
+            </Drawer>
         </div>
     );
 }

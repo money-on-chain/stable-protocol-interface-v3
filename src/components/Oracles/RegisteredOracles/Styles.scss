@@ -11,6 +11,11 @@
         color: var(--color-txt-secondary);
     }
 
+    .registeredOracles__gas--low {
+        color: var(--color-semantic-negative);
+        text-decoration: underline dotted;
+    }
+
     .ant-table-tbody > tr.registeredOracles__row--own > td {
         background-color: var(--surface-color-2);
     }

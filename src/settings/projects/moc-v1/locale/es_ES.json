@@ -741,6 +741,7 @@
             "currentStakeLabel": "Tu stake actual: {{amount}} MOC",
             "insufficientStakeWarning": "Stake insuficiente. Necesitas al menos {{minStake}} MOC en stake para registrar tu oráculo.",
             "cannotRemoveWarning": "Tu oráculo todavía no puede ser eliminado. Puede seguir suscripto a pares de monedas o tener rondas pendientes.",
+            "cannotRemoveInRound": "No se puede eliminar: tu oráculo está seleccionado actualmente en la ronda de {{pairs}}. Intenta nuevamente cuando termine esta ronda.",
             "registerButton": "Registrar Oráculo",
             "removeButton": "Eliminar Oráculo",
             "updateAddressButton": "Actualizar Dirección",
@@ -755,6 +756,7 @@
                 "url": "URL",
                 "stake": "Stake (MOC)",
                 "gas": "Gas (RBTC)",
+                "lowGasWarning": "Saldo de RBTC bajo — este oráculo podría no poder pagar las transacciones de publicación de precio.",
                 "subscribedPairs": "Pares de Monedas Registrados",
                 "noPairs": "Sin suscripciones",
                 "empty": "No hay oráculos registrados"
@@ -775,13 +777,31 @@
                 "price": "Precio",
                 "priceStale": "El precio está desactualizado (no es válido actualmente)",
                 "priceNotAvailable": "N/D",
+                "capacity": "Suscriptos",
                 "status": "Estado",
                 "subscribed": "Suscripto",
                 "notSubscribed": "No suscripto",
                 "action": "Acción",
                 "subscribeButton": "Suscribirse",
                 "unsubscribeButton": "Cancelar suscripción",
+                "explore": "Explorar",
+                "exploreButton": "Explorar",
                 "empty": "No se encontraron pares de monedas"
+            },
+            "explore": {
+                "title": "Oráculos Suscriptos — {{pair}}",
+                "owner": "Propietario",
+                "oracleAddress": "Dirección del Oráculo",
+                "points": "Puntos",
+                "inRound": "En Ronda",
+                "inRoundYes": "Sí",
+                "inRoundNo": "No",
+                "missedRounds": "Rondas Perdidas",
+                "autoUnsubscribeDisabled": "Cancelación automática deshabilitada",
+                "roundNotStarted": "La ronda todavía no ha comenzado",
+                "roundReadyToSwitch": "Ronda #{{round}} — lista para cambiar",
+                "roundEndsIn": "Ronda #{{round}} — termina en {{time}}",
+                "empty": "No hay oráculos suscriptos a este par de monedas"
             }
         }
     },
