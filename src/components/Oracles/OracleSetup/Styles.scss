@@ -63,6 +63,18 @@
     .oracleSetup__actions {
         display: flex;
         flex-wrap: wrap;
+        align-items: center;
         gap: 12px;
+    }
+
+    .oracleSetup__docLink {
+        font-weight: 600;
+
+        a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--color-txt-link);
+        }
     }
 }

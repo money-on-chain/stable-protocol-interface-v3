@@ -744,7 +744,8 @@
             "registerButton": "Registrar Oráculo",
             "removeButton": "Eliminar Oráculo",
             "updateAddressButton": "Actualizar Dirección",
-            "updateUrlButton": "Actualizar URL"
+            "updateUrlButton": "Actualizar URL",
+            "docsLink": "Documentación"
         },
         "coinpair": {
             "cardTitle": "Suscripciones de Pares de Monedas",

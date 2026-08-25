@@ -291,6 +291,17 @@ export default function OracleSetup(): React.ReactElement {
                         </Button>
                     </span>
                 </Tooltip>
+
+                <div className="oracleSetup__docLink">
+                    <a
+                        href="https://docs.moneyonchain.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        {t("oracles.oracleSetup.docsLink")}
+                        <span className="icon-external-link"></span>
+                    </a>
+                </div>
             </div>
 
             {isOperationModalVisible && (

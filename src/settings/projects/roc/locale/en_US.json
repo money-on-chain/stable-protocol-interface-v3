@@ -752,7 +752,8 @@
             "registerButton": "Register Oracle",
             "removeButton": "Remove Oracle",
             "updateAddressButton": "Update Address",
-            "updateUrlButton": "Update URL"
+            "updateUrlButton": "Update URL",
+            "docsLink": "Documentation"
         },
         "coinpair": {
             "cardTitle": "Coin Pair Subscriptions",
