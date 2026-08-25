@@ -44,6 +44,15 @@ export default function RegisteredOracles(): React.ReactElement {
                 }),
         },
         {
+            title: t("oracles.registeredOracles.table.gas"),
+            dataIndex: "gas",
+            key: "gas",
+            render: (gas: bigint) =>
+                Number(formatUnits(gas, 18)).toLocaleString(undefined, {
+                    maximumFractionDigits: 6,
+                }),
+        },
+        {
             title: t("oracles.registeredOracles.table.subscribedPairs"),
             dataIndex: "subscribedPairs",
             key: "subscribedPairs",

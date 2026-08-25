@@ -754,6 +754,7 @@
                 "oracleAddress": "Dirección del Oráculo",
                 "url": "URL",
                 "stake": "Stake (MOC)",
+                "gas": "Gas (RBTC)",
                 "subscribedPairs": "Pares de Monedas Registrados",
                 "noPairs": "Sin suscripciones",
                 "empty": "No hay oráculos registrados"

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { PublicClient } from "viem";
 import { hexToString } from "viem";
-import { readContract } from "viem/actions";
+import { getBalance, readContract } from "viem/actions";
 
 import { runMulticallSync } from "../backend/runMulticallSync";
 import CoinPairPrice from "../contracts/omoc/CoinPairPrice.json";
@@ -19,6 +19,10 @@ export interface RegisteredOracleInfo {
     oracleAddr: Address;
     url: string;
     stake: bigint;
+    // Native coin (RBTC) balance of the oracle address — what it pays gas
+    // with when publishing prices. Not a contract call, so it can't be
+    // batched through the ABI-based multicall like the rest of this hook.
+    gas: bigint;
     subscribedPairs: string[];
 }
 
@@ -95,6 +99,14 @@ export function useRegisteredOracles(
                 : { data: undefined };
             const stakes =
                 (stakeRes.data?.getBalance as bigint[] | undefined) ?? [];
+
+            const gasBalances = await Promise.all(
+                oracleRows.map(([, oracleAddr]) =>
+                    getBalance(publicClient, { address: oracleAddr }).catch(
+                        () => 0n
+                    )
+                )
+            );
 
             const pairCount = (await readContract(publicClient, {
                 address: stakingMachine.address,
@@ -205,6 +217,7 @@ export function useRegisteredOracles(
                 oracleAddr,
                 url,
                 stake: stakes[i] ?? 0n,
+                gas: gasBalances[i] ?? 0n,
                 subscribedPairs:
                     subscriptionsByOwner.get(owner.toLowerCase()) ?? [],
             }));
