@@ -700,6 +700,28 @@
         }
     },
     "oracles": {
+        "oracleSetup": {
+            "cardTitle": "Oracle Setup",
+            "modalTitle": "Oracle Setup",
+            "statusRegistered": "Registered",
+            "statusNotRegistered": "Not registered",
+            "labelOracleAddress": "Oracle Address",
+            "labelOracleUrl": "Oracle URL",
+            "placeholderAddress": "0x...",
+            "placeholderUrl": "https://...",
+            "invalidAddress": "Invalid address",
+            "addressUnchanged": "This is already your registered oracle address.",
+            "requirementsTitle": "Requirements",
+            "requirementUniqueAddress": "A unique oracle address and URL, not already registered by another owner.",
+            "requirementStake": "At least {{minStake}} MOC staked, so you can subscribe to coin pairs after registering.",
+            "currentStakeLabel": "Your current stake: {{amount}} MOC",
+            "insufficientStakeWarning": "Insufficient stake. You need at least {{minStake}} MOC staked to register your oracle.",
+            "cannotRemoveWarning": "Your oracle cannot be removed yet. It may still be subscribed to coin pairs or have pending rounds.",
+            "registerButton": "Register Oracle",
+            "removeButton": "Remove Oracle",
+            "updateAddressButton": "Update Address",
+            "updateUrlButton": "Update URL"
+        },
         "coinpair": {
             "cardTitle": "Coin Pair Subscriptions",
             "modalTitle": "Coin Pair Subscription",

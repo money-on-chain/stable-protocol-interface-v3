@@ -222,6 +222,34 @@ export type WalletContextType = {
         onError: OnError
     ) => Promise<unknown>;
 
+    interfaceOracleRegister: (
+        oracleAddr: Address,
+        url: string,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ) => Promise<unknown>;
+
+    interfaceOracleRemove: (
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ) => Promise<unknown>;
+
+    interfaceOracleSetName: (
+        url: string,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ) => Promise<unknown>;
+
+    interfaceOracleSetAddress: (
+        oracleAddr: Address,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ) => Promise<unknown>;
+
     interfaceStakingDelayMachineWithdraw: (
         idWithdraw: string | number,
         onTransaction: OnTransaction,

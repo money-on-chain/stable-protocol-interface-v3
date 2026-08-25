@@ -29,6 +29,10 @@ import {
     approveStakingMachine,
     delayMachineCancelWithdraw,
     delayMachineWithdraw,
+    registerOracle,
+    removeOracle,
+    setOracleAddress,
+    setOracleName,
     subscribeToCoinPair,
     unStake,
     unsubscribeFromCoinPair,
@@ -958,6 +962,78 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const interfaceOracleRegister = async (
+        oracleAddr: `0x${string}`,
+        url: string,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
+        try {
+            const interfaceContext = buildInterfaceContext();
+            return await registerOracle(
+                interfaceContext,
+                oracleAddr,
+                url,
+                onTransaction,
+                onReceipt
+            );
+        } catch (error) {
+            onError(error);
+        }
+    };
+
+    const interfaceOracleRemove = async (
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
+        try {
+            const interfaceContext = buildInterfaceContext();
+            return await removeOracle(interfaceContext, onTransaction, onReceipt);
+        } catch (error) {
+            onError(error);
+        }
+    };
+
+    const interfaceOracleSetName = async (
+        url: string,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
+        try {
+            const interfaceContext = buildInterfaceContext();
+            return await setOracleName(
+                interfaceContext,
+                url,
+                onTransaction,
+                onReceipt
+            );
+        } catch (error) {
+            onError(error);
+        }
+    };
+
+    const interfaceOracleSetAddress = async (
+        oracleAddr: `0x${string}`,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
+        try {
+            const interfaceContext = buildInterfaceContext();
+            return await setOracleAddress(
+                interfaceContext,
+                oracleAddr,
+                onTransaction,
+                onReceipt
+            );
+        } catch (error) {
+            onError(error);
+        }
+    };
+
     const interfaceStakingDelayMachineWithdraw = async (
         idWithdraw: string | number,
         onTransaction: OnTransaction,
@@ -1320,6 +1396,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 interfaceStakingAddStake,
                 interfaceOracleSubscribeCoinPair,
                 interfaceOracleUnsubscribeCoinPair,
+                interfaceOracleRegister,
+                interfaceOracleRemove,
+                interfaceOracleSetName,
+                interfaceOracleSetAddress,
                 interfaceStakingDelayMachineWithdraw,
                 interfaceStakingDelayMachineCancelWithdraw,
                 onShowModalAccount,

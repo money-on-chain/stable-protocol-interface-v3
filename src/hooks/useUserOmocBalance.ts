@@ -119,6 +119,28 @@ export function useUserOmocBalance(
                 resultType: "bool",
                 keys: ["stakingmachine", "isOracleRegistered"],
             });
+
+            calls.push({
+                contract: c.StakingMachine,
+                functionName: "canRemoveOracle",
+                args: [userAddress],
+                resultType: "bool",
+                keys: ["stakingmachine", "canRemoveOracle"],
+            });
+
+            if (c.OracleManager) {
+                calls.push({
+                    contract: c.OracleManager,
+                    functionName: "getOracleRegistrationInfo",
+                    args: [userAddress],
+                    resultType: [
+                        { type: "string", name: "internetName" },
+                        { type: "uint256", name: "stake" },
+                        { type: "address", name: "oracleAddr" },
+                    ],
+                    keys: ["stakingmachine", "getOracleRegistrationInfo"],
+                });
+            }
         }
 
         // ---- IncentiveV2 (requires TG for contractBalance) ----

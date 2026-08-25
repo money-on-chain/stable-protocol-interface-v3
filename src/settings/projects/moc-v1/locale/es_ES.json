@@ -724,6 +724,28 @@
         }
     },
     "oracles": {
+        "oracleSetup": {
+            "cardTitle": "Configuración del Oráculo",
+            "modalTitle": "Configuración del Oráculo",
+            "statusRegistered": "Registrado",
+            "statusNotRegistered": "No registrado",
+            "labelOracleAddress": "Dirección del Oráculo",
+            "labelOracleUrl": "URL del Oráculo",
+            "placeholderAddress": "0x...",
+            "placeholderUrl": "https://...",
+            "invalidAddress": "Dirección inválida",
+            "addressUnchanged": "Esta ya es tu dirección de oráculo registrada.",
+            "requirementsTitle": "Requisitos",
+            "requirementUniqueAddress": "Una dirección y URL de oráculo únicas, que no estén registradas por otro propietario.",
+            "requirementStake": "Al menos {{minStake}} MOC en stake, para poder suscribirte a pares de monedas luego de registrarte.",
+            "currentStakeLabel": "Tu stake actual: {{amount}} MOC",
+            "insufficientStakeWarning": "Stake insuficiente. Necesitas al menos {{minStake}} MOC en stake para registrar tu oráculo.",
+            "cannotRemoveWarning": "Tu oráculo todavía no puede ser eliminado. Puede seguir suscripto a pares de monedas o tener rondas pendientes.",
+            "registerButton": "Registrar Oráculo",
+            "removeButton": "Eliminar Oráculo",
+            "updateAddressButton": "Actualizar Dirección",
+            "updateUrlButton": "Actualizar URL"
+        },
         "coinpair": {
             "cardTitle": "Suscripciones de Pares de Monedas",
             "modalTitle": "Suscripción de Par de Monedas",

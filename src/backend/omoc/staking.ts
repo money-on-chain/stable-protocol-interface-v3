@@ -233,11 +233,139 @@ const unsubscribeFromCoinPair = async (
     return receipt;
 };
 
+const registerOracle = async (
+    interfaceContext: InterfaceContext,
+    oracleAddr: `0x${string}`,
+    url: string,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.StakingMachine) return;
+    const StakingMachine = contracts.StakingMachine;
+
+    const { request } = await simulateContract(config, {
+        address: StakingMachine.address,
+        abi: StakingMachine.abi,
+        functionName: "registerOracle",
+        args: [oracleAddr, url],
+        account: address,
+    });
+
+    // Send transaction
+    const txHash = await writeContract(config, request);
+
+    if (onTransaction) onTransaction(txHash);
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
+
+    if (onReceipt) onReceipt(receipt);
+
+    return receipt;
+};
+
+const removeOracle = async (
+    interfaceContext: InterfaceContext,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.StakingMachine) return;
+    const StakingMachine = contracts.StakingMachine;
+
+    const { request } = await simulateContract(config, {
+        address: StakingMachine.address,
+        abi: StakingMachine.abi,
+        functionName: "removeOracle",
+        args: [],
+        account: address,
+    });
+
+    // Send transaction
+    const txHash = await writeContract(config, request);
+
+    if (onTransaction) onTransaction(txHash);
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
+
+    if (onReceipt) onReceipt(receipt);
+
+    return receipt;
+};
+
+const setOracleName = async (
+    interfaceContext: InterfaceContext,
+    url: string,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.StakingMachine) return;
+    const StakingMachine = contracts.StakingMachine;
+
+    const { request } = await simulateContract(config, {
+        address: StakingMachine.address,
+        abi: StakingMachine.abi,
+        functionName: "setOracleName",
+        args: [url],
+        account: address,
+    });
+
+    // Send transaction
+    const txHash = await writeContract(config, request);
+
+    if (onTransaction) onTransaction(txHash);
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
+
+    if (onReceipt) onReceipt(receipt);
+
+    return receipt;
+};
+
+const setOracleAddress = async (
+    interfaceContext: InterfaceContext,
+    oracleAddr: `0x${string}`,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.StakingMachine) return;
+    const StakingMachine = contracts.StakingMachine;
+
+    const { request } = await simulateContract(config, {
+        address: StakingMachine.address,
+        abi: StakingMachine.abi,
+        functionName: "setOracleAddress",
+        args: [oracleAddr],
+        account: address,
+    });
+
+    // Send transaction
+    const txHash = await writeContract(config, request);
+
+    if (onTransaction) onTransaction(txHash);
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
+
+    if (onReceipt) onReceipt(receipt);
+
+    return receipt;
+};
+
 export {
     addStake,
     approveStakingMachine,
     delayMachineCancelWithdraw,
     delayMachineWithdraw,
+    registerOracle,
+    removeOracle,
+    setOracleAddress,
+    setOracleName,
     subscribeToCoinPair,
     unStake,
     unsubscribeFromCoinPair,

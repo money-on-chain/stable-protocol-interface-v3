@@ -115,6 +115,8 @@ export type StakingMachineInfo = {
     getLockingInfo: [bigint, bigint]; // [lockedAmount, timestampEnd]
     tgAllowance: bigint;
     isOracleRegistered: boolean;
+    canRemoveOracle: boolean;
+    getOracleRegistrationInfo?: [string, bigint, Address]; // [internetName, stake, oracleAddr]
 };
 
 export type VotingMachineInfo = {
