@@ -8,6 +8,7 @@ import type { useContractLendingStatus } from "../hooks/useContractLendingStatus
 import type { useContractOmocStatus } from "../hooks/useContractOmocStatus";
 import type { useContractProtocolStatus } from "../hooks/useContractProtocolStatus";
 import type { useIncentiveV2 } from "../hooks/useIncentiveV2";
+import type { useOracleCoinPairs } from "../hooks/useOracleCoinPairs";
 import type { UsePriceProviderResult } from "../hooks/usePriceProvider";
 // import type { useProposalCount } from "../hooks/useProposalCount";
 import type { useUserVeto } from "../hooks/useUserVeto";
@@ -113,6 +114,7 @@ export type WalletContextType = {
         onReceipt: OnReceipt
     ) => Promise<TransactionReceipt | undefined>;
     userVesting: UserVestingResult;
+    oracleCoinPairs: ReturnType<typeof useOracleCoinPairs>;
     userIncentiveV2: ReturnType<typeof useIncentiveV2>;
     userVeto: ReturnType<typeof useUserVeto>;
 
@@ -201,6 +203,20 @@ export type WalletContextType = {
     interfaceStakingAddStake: (
         amount: bigint,
         address: Address,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ) => Promise<unknown>;
+
+    interfaceOracleSubscribeCoinPair: (
+        coinPair: Address,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ) => Promise<unknown>;
+
+    interfaceOracleUnsubscribeCoinPair: (
+        coinPair: Address,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
         onError: OnError

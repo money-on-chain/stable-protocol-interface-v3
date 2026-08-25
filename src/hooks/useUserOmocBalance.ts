@@ -111,6 +111,14 @@ export function useUserOmocBalance(
                 ],
                 keys: ["stakingmachine", "getLockingInfo"],
             });
+
+            calls.push({
+                contract: c.StakingMachine,
+                functionName: "isOracleRegistered",
+                args: [userAddress],
+                resultType: "bool",
+                keys: ["stakingmachine", "isOracleRegistered"],
+            });
         }
 
         // ---- IncentiveV2 (requires TG for contractBalance) ----

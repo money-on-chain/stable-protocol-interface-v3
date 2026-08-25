@@ -459,6 +459,8 @@
         "liquidityMining": "Liquidity Mining",
         "vesting": "Bloqueo",
         "voting": "Votación",
+        "oracles": "Oráculos",
+        "coinpair": "Coinpair",
         "more": "Más",
         "combinedOperations": "Op. Combinadas",
         "lendingBorrowing": "Lend & Borrow"
@@ -720,6 +722,24 @@
             "percent": "Percent",
             "amount": "Amount",
             "status": "Status"
+        }
+    },
+    "oracles": {
+        "coinpair": {
+            "cardTitle": "Suscripciones de Pares de Monedas",
+            "modalTitle": "Suscripción de Par de Monedas",
+            "notRegisteredWarning": "Tu oráculo no está registrado. Debes registrar tu oráculo antes de poder suscribirte o cancelar la suscripción a pares de monedas.",
+            "insufficientStakeWarning": "Stake insuficiente. Necesitas al menos {{minStake}} MOC en stake para suscribirte a un par de monedas.",
+            "table": {
+                "pair": "Par de Monedas",
+                "status": "Estado",
+                "subscribed": "Suscripto",
+                "notSubscribed": "No suscripto",
+                "action": "Acción",
+                "subscribeButton": "Suscribirse",
+                "unsubscribeButton": "Cancelar suscripción",
+                "empty": "No se encontraron pares de monedas"
+            }
         }
     },
     "voting": {

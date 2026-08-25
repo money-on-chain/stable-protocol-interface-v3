@@ -114,6 +114,7 @@ export type StakingMachineInfo = {
     getLockedBalance: bigint;
     getLockingInfo: [bigint, bigint]; // [lockedAmount, timestampEnd]
     tgAllowance: bigint;
+    isOracleRegistered: boolean;
 };
 
 export type VotingMachineInfo = {
@@ -191,6 +192,10 @@ export type StakingMachineStatus = {
     getWithdrawLockTime: bigint;
 };
 
+export type OracleManagerStatus = {
+    getMinCPSubscriptionStake: bigint;
+};
+
 export type SupportersStatus = {
     isReadyToDistribute: boolean;
     mocToken: Address;
@@ -240,6 +245,7 @@ export type ContractStatusOmoc = {
     supporters: SupportersStatus;
     vetomachine: VetoMachineStatus;
     votingmachine: VotingMachineStatus;
+    oraclemanager: OracleManagerStatus;
 };
 
 export type ContractStatusOmocResult = Omit<

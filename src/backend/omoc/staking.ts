@@ -171,10 +171,74 @@ const approveStakingMachine = async (
     return receipt;
 };
 
+const subscribeToCoinPair = async (
+    interfaceContext: InterfaceContext,
+    coinPair: `0x${string}`,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.StakingMachine) return;
+    const StakingMachine = contracts.StakingMachine;
+
+    const { request } = await simulateContract(config, {
+        address: StakingMachine.address,
+        abi: StakingMachine.abi,
+        functionName: "subscribeToCoinPair",
+        args: [coinPair],
+        account: address,
+    });
+
+    // Send transaction
+    const txHash = await writeContract(config, request);
+
+    if (onTransaction) onTransaction(txHash);
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
+
+    if (onReceipt) onReceipt(receipt);
+
+    return receipt;
+};
+
+const unsubscribeFromCoinPair = async (
+    interfaceContext: InterfaceContext,
+    coinPair: `0x${string}`,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.StakingMachine) return;
+    const StakingMachine = contracts.StakingMachine;
+
+    const { request } = await simulateContract(config, {
+        address: StakingMachine.address,
+        abi: StakingMachine.abi,
+        functionName: "unSubscribeFromCoinPair",
+        args: [coinPair],
+        account: address,
+    });
+
+    // Send transaction
+    const txHash = await writeContract(config, request);
+
+    if (onTransaction) onTransaction(txHash);
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
+
+    if (onReceipt) onReceipt(receipt);
+
+    return receipt;
+};
+
 export {
     addStake,
     approveStakingMachine,
     delayMachineCancelWithdraw,
     delayMachineWithdraw,
+    subscribeToCoinPair,
     unStake,
+    unsubscribeFromCoinPair,
 };

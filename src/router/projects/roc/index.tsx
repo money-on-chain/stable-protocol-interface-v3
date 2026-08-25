@@ -23,6 +23,9 @@ const LiquidityMining = React.lazy(
 );
 const Vesting = React.lazy(() => import("../../../pages/Vesting/index"));
 const Voting = React.lazy(() => import("../../../pages/Voting/index"));
+const OraclesCoinPair = React.lazy(
+    () => import("../../../pages/Oracles/CoinPair/index")
+);
 const LendingBorrowing = React.lazy(
     () => import("../../../pages/LendingBorrowing/index")
 );
@@ -67,6 +70,10 @@ export default function Router(): React.ReactElement | null {
                 {
                     path: "voting",
                     element: <Voting />,
+                },
+                {
+                    path: "oracles/coinpair",
+                    element: <OraclesCoinPair />,
                 },
                 {
                     path: "veto",

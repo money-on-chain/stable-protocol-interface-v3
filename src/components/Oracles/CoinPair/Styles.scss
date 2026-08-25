@@ -1,0 +1,20 @@
+.coinPair {
+    width: 100%;
+
+    .coinPair__warning {
+        margin-bottom: 16px;
+    }
+
+    .coinPair__status {
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .coinPair__status--subscribed {
+        color: var(--color-semantic-positive);
+    }
+
+    .coinPair__status--notSubscribed {
+        color: var(--color-txt-secondary);
+    }
+}

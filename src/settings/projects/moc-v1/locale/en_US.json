@@ -442,6 +442,8 @@
         "liquidityMining": "Liquidity Mining",
         "vesting": "Vesting",
         "voting": "Voting",
+        "oracles": "Oracles",
+        "coinpair": "Coinpair",
         "more": "More",
         "combinedOperations": "Combined Ops.",
         "lendingBorrowing": "Lend & Borrow"
@@ -696,6 +698,24 @@
             "percent": "Percent",
             "amount": "Amount",
             "status": "Status"
+        }
+    },
+    "oracles": {
+        "coinpair": {
+            "cardTitle": "Coin Pair Subscriptions",
+            "modalTitle": "Coin Pair Subscription",
+            "notRegisteredWarning": "Your oracle is not registered. You must register your oracle before you can subscribe or unsubscribe from coin pairs.",
+            "insufficientStakeWarning": "Insufficient stake. You need at least {{minStake}} MOC staked to subscribe to a coin pair.",
+            "table": {
+                "pair": "Coin Pair",
+                "status": "Status",
+                "subscribed": "Subscribed",
+                "notSubscribed": "Not subscribed",
+                "action": "Action",
+                "subscribeButton": "Subscribe",
+                "unsubscribeButton": "Unsubscribe",
+                "empty": "No coin pairs found"
+            }
         }
     },
     "voting": {

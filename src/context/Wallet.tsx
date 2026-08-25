@@ -29,7 +29,9 @@ import {
     approveStakingMachine,
     delayMachineCancelWithdraw,
     delayMachineWithdraw,
+    subscribeToCoinPair,
     unStake,
+    unsubscribeFromCoinPair,
 } from "../backend/omoc/staking";
 import {
     addStake as addStakeVesting,
@@ -82,6 +84,7 @@ import { useIncentiveV2 } from "../hooks/useIncentiveV2";
 import { useLatestBlockNumber } from "../hooks/useLatestBlockNumber";
 import { useOffchainPrices } from "../hooks/useOffchainPrices";
 import { useOnchainPrices } from "../hooks/useOnchainPrices";
+import { useOracleCoinPairs } from "../hooks/useOracleCoinPairs";
 import { usePriceProvider } from "../hooks/usePriceProvider";
 import { readContracts } from "../hooks/useReadContracts";
 import { readContractsV1 } from "../hooks/useReadContractsV1";
@@ -273,6 +276,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     );
 
     const userOmocBalance = useUserOmocBalance(
+        contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
+        address,
+        REFRESH_INTERVAL_USER_BALANCE
+    );
+
+    const oracleCoinPairs = useOracleCoinPairs(
+        publicClient,
         contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
         address,
         REFRESH_INTERVAL_USER_BALANCE
@@ -910,6 +920,44 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const interfaceOracleSubscribeCoinPair = async (
+        coinPair: `0x${string}`,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
+        try {
+            const interfaceContext = buildInterfaceContext();
+            return await subscribeToCoinPair(
+                interfaceContext,
+                coinPair,
+                onTransaction,
+                onReceipt
+            );
+        } catch (error) {
+            onError(error);
+        }
+    };
+
+    const interfaceOracleUnsubscribeCoinPair = async (
+        coinPair: `0x${string}`,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
+        try {
+            const interfaceContext = buildInterfaceContext();
+            return await unsubscribeFromCoinPair(
+                interfaceContext,
+                coinPair,
+                onTransaction,
+                onReceipt
+            );
+        } catch (error) {
+            onError(error);
+        }
+    };
+
     const interfaceStakingDelayMachineWithdraw = async (
         idWithdraw: string | number,
         onTransaction: OnTransaction,
@@ -1252,6 +1300,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 walletClient,
                 userVesting,
                 userOmocBalance,
+                oracleCoinPairs,
                 userIncentiveV2,
                 userVeto,
                 userLending,
@@ -1269,6 +1318,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 interfaceMigrateRifPro,
                 interfaceStakingApprove,
                 interfaceStakingAddStake,
+                interfaceOracleSubscribeCoinPair,
+                interfaceOracleUnsubscribeCoinPair,
                 interfaceStakingDelayMachineWithdraw,
                 interfaceStakingDelayMachineCancelWithdraw,
                 onShowModalAccount,
