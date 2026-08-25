@@ -72,7 +72,7 @@ export default function Router(): React.ReactElement | null {
                     element: <Voting />,
                 },
                 {
-                    path: "oracles/coinpair",
+                    path: "oracles",
                     element: <OraclesCoinPair />,
                 },
                 {
