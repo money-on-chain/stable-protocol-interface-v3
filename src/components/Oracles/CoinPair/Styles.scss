@@ -17,4 +17,9 @@
     .coinPair__status--notSubscribed {
         color: var(--color-txt-secondary);
     }
+
+    .coinPair__price--stale {
+        color: var(--color-semantic-negative);
+        text-decoration: underline dotted;
+    }
 }

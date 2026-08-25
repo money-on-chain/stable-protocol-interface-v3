@@ -739,6 +739,9 @@
             "insufficientStakeWarning": "Insufficient stake. You need at least {{minStake}} MOC staked to subscribe to a coin pair.",
             "table": {
                 "pair": "Coin Pair",
+                "price": "Price",
+                "priceStale": "Price is stale (not currently valid)",
+                "priceNotAvailable": "N/A",
                 "status": "Status",
                 "subscribed": "Subscribed",
                 "notSubscribed": "Not subscribed",

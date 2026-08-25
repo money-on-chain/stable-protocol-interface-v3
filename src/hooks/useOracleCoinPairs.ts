@@ -4,13 +4,19 @@ import { hexToString } from "viem";
 import { readContract } from "viem/actions";
 
 import { runMulticallSync } from "../backend/runMulticallSync";
+import CoinPairPrice from "../contracts/omoc/CoinPairPrice.json";
 import type { Address, CallRequest, DContracts, SyncMulticallInput } from "../types/hooks";
+
+const ABI_CoinPairPrice = CoinPairPrice.abi as readonly unknown[];
 
 export interface OracleCoinPairInfo {
     // bytes32, passed back as-is to subscribeToCoinPair/unSubscribeFromCoinPair
     pairRaw: `0x${string}`;
     pairName: string;
     isSubscribed: boolean;
+    // Current price (18 decimals) and validity, read from the pair's CoinPairPrice contract
+    price: bigint;
+    priceIsValid: boolean;
 }
 
 /**
@@ -87,10 +93,50 @@ export function useOracleCoinPairs(
                     subscribed;
             }
 
+            const addressCalls: CallRequest[] = pairs.map((pair, i) => ({
+                contract: stakingMachine,
+                functionName: "getContractAddress",
+                args: [pair],
+                resultType: "address",
+                keys: ["getContractAddress", i],
+            }));
+            const addressRes = await runMulticallSync(
+                publicClient,
+                addressCalls as SyncMulticallInput[]
+            );
+            const coinPairPriceAddresses =
+                (addressRes.data?.getContractAddress as Address[]) ?? [];
+
+            const priceCalls: CallRequest[] = coinPairPriceAddresses.map(
+                (address, i) => ({
+                    contract: { address, abi: ABI_CoinPairPrice },
+                    functionName: "getPriceInfo",
+                    args: [],
+                    resultType: [
+                        { type: "uint256", name: "price" },
+                        { type: "bool", name: "isValid" },
+                        { type: "uint256", name: "lastPublicationBlock" },
+                    ],
+                    keys: ["getPriceInfo", i],
+                })
+            );
+            const priceRes = priceCalls.length
+                ? await runMulticallSync(
+                      publicClient,
+                      priceCalls as SyncMulticallInput[]
+                  )
+                : { data: undefined };
+            const priceInfos =
+                (priceRes.data?.getPriceInfo as
+                    | [bigint, boolean, bigint][]
+                    | undefined) ?? [];
+
             return pairs.map((pairRaw, i) => ({
                 pairRaw,
                 pairName: hexToString(pairRaw, { size: 32 }),
                 isSubscribed: !!subscribed[i],
+                price: priceInfos[i]?.[0] ?? 0n,
+                priceIsValid: priceInfos[i]?.[1] ?? false,
             }));
         },
     });

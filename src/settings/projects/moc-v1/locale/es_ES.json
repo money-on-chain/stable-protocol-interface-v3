@@ -731,6 +731,9 @@
             "insufficientStakeWarning": "Stake insuficiente. Necesitas al menos {{minStake}} MOC en stake para suscribirte a un par de monedas.",
             "table": {
                 "pair": "Par de Monedas",
+                "price": "Precio",
+                "priceStale": "El precio está desactualizado (no es válido actualmente)",
+                "priceNotAvailable": "N/D",
                 "status": "Estado",
                 "subscribed": "Suscripto",
                 "notSubscribed": "No suscripto",

@@ -100,6 +100,30 @@ export default function CoinPair(): React.ReactElement {
             key: "pairName",
         },
         {
+            title: t("oracles.coinpair.table.price"),
+            dataIndex: "price",
+            key: "price",
+            render: (_value, row) => {
+                if (!row.priceIsValid) {
+                    return (
+                        <Tooltip
+                            title={t("oracles.coinpair.table.priceStale")}
+                        >
+                            <span className="coinPair__price--stale">
+                                {t("oracles.coinpair.table.priceNotAvailable")}
+                            </span>
+                        </Tooltip>
+                    );
+                }
+
+                const formattedPrice = Number(
+                    formatUnits(row.price, 18)
+                ).toLocaleString(undefined, { maximumFractionDigits: 4 });
+
+                return <span>{formattedPrice}</span>;
+            },
+        },
+        {
             title: t("oracles.coinpair.table.status"),
             dataIndex: "isSubscribed",
             key: "isSubscribed",
