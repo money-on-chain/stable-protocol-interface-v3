@@ -783,6 +783,8 @@
                 "roundLabel": "Round #",
                 "endsInLabel": "Ends in",
                 "statusLabel": "Status",
+                "selectedLabel": "Selected / Round",
+                "availableRewardFeesLabel": "Available Reward Fees",
                 "roundNotStartedValue": "Not started",
                 "roundReadyValue": "Ready to switch",
                 "switchRoundButton": "Switch round",

@@ -25,6 +25,10 @@ export interface CoinPairRoundInfo {
     // Timestamp after which the round is ready to switch — i.e. the round's
     // effective end (see RoundInfoLib.isReadyToSwitch on-chain).
     lockPeriodTimestamp: bigint;
+    // How many oracles are actually selected to participate in this round —
+    // the top-stake subset of subscribedOracles, capped at maxOraclesPerRound.
+    selectedCount: number;
+    maxOraclesPerRound: bigint;
 }
 
 export interface CoinPairOraclesData {
@@ -32,6 +36,9 @@ export interface CoinPairOraclesData {
     roundInfo: CoinPairRoundInfo | null;
     // A value of 0 means auto-unsubscribe is disabled for this pair.
     maxMissedSigRounds: bigint;
+    // Reward token balance held by this coin pair's contract, pending
+    // distribution to oracles (RoundManager.getAvailableRewardFees).
+    availableRewardFees: bigint;
 }
 
 /**
@@ -56,7 +63,12 @@ export function useCoinPairOracles(
         refetchInterval,
         queryFn: async (): Promise<CoinPairOraclesData> => {
             if (!publicClient || !coinPairPriceAddress) {
-                return { oracles: [], roundInfo: null, maxMissedSigRounds: 0n };
+                return {
+                    oracles: [],
+                    roundInfo: null,
+                    maxMissedSigRounds: 0n,
+                    availableRewardFees: 0n,
+                };
             }
 
             const contract = {
@@ -64,7 +76,13 @@ export function useCoinPairOracles(
                 abi: ABI_CoinPairPrice,
             };
 
-            const [len, roundInfoRaw, maxMissedSigRounds] = await Promise.all([
+            const [
+                len,
+                roundInfoRaw,
+                maxMissedSigRounds,
+                availableRewardFees,
+                maxOraclesPerRound,
+            ] = await Promise.all([
                 readContract(publicClient, {
                     address: coinPairPriceAddress,
                     abi: ABI_CoinPairPrice,
@@ -85,16 +103,35 @@ export function useCoinPairOracles(
                     functionName: "getMaxMissedSigRounds",
                     args: [],
                 }) as Promise<bigint>,
+                readContract(publicClient, {
+                    address: coinPairPriceAddress,
+                    abi: ABI_CoinPairPrice,
+                    functionName: "getAvailableRewardFees",
+                    args: [],
+                }) as Promise<bigint>,
+                readContract(publicClient, {
+                    address: coinPairPriceAddress,
+                    abi: ABI_CoinPairPrice,
+                    functionName: "maxOraclesPerRound",
+                    args: [],
+                }) as Promise<bigint>,
             ]);
 
             const roundInfo: CoinPairRoundInfo = {
                 round: roundInfoRaw[0],
                 lockPeriodTimestamp: roundInfoRaw[2],
+                selectedCount: roundInfoRaw[4].length,
+                maxOraclesPerRound,
             };
 
             const subscribedLen = Number(len);
             if (subscribedLen <= 0) {
-                return { oracles: [], roundInfo, maxMissedSigRounds };
+                return {
+                    oracles: [],
+                    roundInfo,
+                    maxMissedSigRounds,
+                    availableRewardFees,
+                };
             }
 
             const ownerCalls: CallRequest[] = [];
@@ -177,7 +214,7 @@ export function useCoinPairOracles(
                 };
             });
 
-            return { oracles, roundInfo, maxMissedSigRounds };
+            return { oracles, roundInfo, maxMissedSigRounds, availableRewardFees };
         },
     });
 
@@ -185,6 +222,7 @@ export function useCoinPairOracles(
         data: data?.oracles ?? [],
         roundInfo: data?.roundInfo ?? null,
         maxMissedSigRounds: data?.maxMissedSigRounds ?? 0n,
+        availableRewardFees: data?.availableRewardFees ?? 0n,
         isLoading,
         isFetching,
         error,

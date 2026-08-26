@@ -807,6 +807,8 @@
                 "roundLabel": "Ronda #",
                 "endsInLabel": "Termina en",
                 "statusLabel": "Estado",
+                "selectedLabel": "Seleccionados / Ronda",
+                "availableRewardFeesLabel": "Recompensas Disponibles",
                 "roundNotStartedValue": "No iniciada",
                 "roundReadyValue": "Lista para cambiar",
                 "switchRoundButton": "Cambiar ronda",

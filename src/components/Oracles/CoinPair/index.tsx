@@ -407,6 +407,11 @@ export default function CoinPair(): React.ReactElement {
             ];
         }
 
+        const selectedMetric: CardHeaderMetric = {
+            label: t("oracles.coinpair.explore.selectedLabel"),
+            value: `${roundInfo.selectedCount} / ${roundInfo.maxOraclesPerRound.toString()}`,
+        };
+
         if (roundInfo.round === 0n) {
             return [
                 {
@@ -417,6 +422,7 @@ export default function CoinPair(): React.ReactElement {
                     label: t("oracles.coinpair.explore.statusLabel"),
                     value: t("oracles.coinpair.explore.roundNotStartedValue"),
                 },
+                selectedMetric,
             ];
         }
 
@@ -432,6 +438,7 @@ export default function CoinPair(): React.ReactElement {
                     label: t("oracles.coinpair.explore.statusLabel"),
                     value: t("oracles.coinpair.explore.roundReadyValue"),
                 },
+                selectedMetric,
             ];
         }
 
@@ -453,6 +460,7 @@ export default function CoinPair(): React.ReactElement {
                 label: t("oracles.coinpair.explore.endsInLabel"),
                 value: parts.join(" "),
             },
+            selectedMetric,
         ];
     };
 
@@ -527,9 +535,27 @@ export default function CoinPair(): React.ReactElement {
                                     {!coinPairOracles.isLoading && (
                                         <div className="coinPair__roundMetrics">
                                             <CardHeaderMetrics
-                                                items={getRoundMetrics(
-                                                    coinPairOracles.roundInfo
-                                                )}
+                                                items={[
+                                                    ...getRoundMetrics(
+                                                        coinPairOracles.roundInfo
+                                                    ),
+                                                    {
+                                                        label: t(
+                                                            "oracles.coinpair.explore.availableRewardFeesLabel"
+                                                        ),
+                                                        value: Number(
+                                                            formatUnits(
+                                                                coinPairOracles.availableRewardFees,
+                                                                18
+                                                            )
+                                                        ).toLocaleString(
+                                                            undefined,
+                                                            {
+                                                                maximumFractionDigits: 4,
+                                                            }
+                                                        ),
+                                                    },
+                                                ]}
                                             />
                                             <span
                                                 title={
