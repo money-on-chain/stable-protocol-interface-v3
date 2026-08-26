@@ -519,25 +519,34 @@ export default function CoinPair(): React.ReactElement {
     const getAvailableRewardValue = (
         availableRewardFees: bigint,
         mocPriceUsd: bigint
-    ): string => {
-        const moc = Number(
-            formatUnits(availableRewardFees, 18)
-        ).toLocaleString(undefined, { maximumFractionDigits: 4 });
+    ): React.ReactNode => {
+        const moc = Number(formatUnits(availableRewardFees, 18)).toLocaleString(
+            undefined,
+            { maximumFractionDigits: 4 }
+        );
 
         if (mocPriceUsd <= 0n) {
-            return t("oracles.coinpair.explore.availableRewardMocValue", {
-                moc,
-            });
+            return (
+                <span className="coinPair__rewardValue">
+                    <span className="coinPair__rewardAmount">
+                        <span className="coinPair__rewardNumber">{moc}</span>
+                    </span>
+                </span>
+            );
         }
 
         const usd = Number(
             formatUnits(wadMul(availableRewardFees, mocPriceUsd), 18)
         ).toLocaleString(undefined, { maximumFractionDigits: 2 });
 
-        return t("oracles.coinpair.explore.availableRewardMocUsdValue", {
-            moc,
-            usd,
-        });
+        return (
+            <span className="coinPair__rewardValue">
+                <span className="coinPair__rewardAmount">
+                    <span className="coinPair__rewardNumber">{moc}</span>
+                </span>
+                <span className="coinPair__rewardUsd">≈ {usd} USD</span>
+            </span>
+        );
     };
 
     const getPriceMetrics = (
@@ -557,9 +566,7 @@ export default function CoinPair(): React.ReactElement {
                 ? t("oracles.coinpair.explore.neverPublishedValue")
                 : priceStatus.expiresInSeconds >= 0
                   ? t("oracles.coinpair.explore.expiresInValue", {
-                        time: formatDurationParts(
-                            priceStatus.expiresInSeconds
-                        ),
+                        time: formatDurationParts(priceStatus.expiresInSeconds),
                     })
                   : t("oracles.coinpair.explore.expiredAgoValue", {
                         time: formatDurationParts(
@@ -638,37 +645,45 @@ export default function CoinPair(): React.ReactElement {
                             `oracles.coinpair.pairMask.${row.pairName}`,
                             { defaultValue: row.pairName }
                         );
+                        const roundMetrics = getRoundMetrics(
+                            coinPairOracles.roundInfo
+                        );
+                        const priceMetrics = getPriceMetrics(
+                            coinPairOracles.priceStatus
+                        );
+                        const availableRewardMetric: CardHeaderMetric = {
+                            label: t(
+                                "oracles.coinpair.explore.availableRewardFeesLabel"
+                            ),
+                            value: getAvailableRewardValue(
+                                coinPairOracles.availableRewardFees,
+                                mocUsdPrice
+                            ),
+                        };
 
                         return (
                             <div className="coinPair__expanded">
-                                <div className="coinPair__expandedHeader">
-                                    <div className="coinPair__expandedTitle">
-                                        {t("oracles.coinpair.explore.title", {
-                                            pair,
-                                        })}
+                                <div
+                                    className={`coinPair__expandedHeader ${
+                                        roundMetrics.length < 4
+                                            ? "coinPair__expandedHeader--compact"
+                                            : ""
+                                    }`}
+                                >
+                                    <div className="coinPair__expandedIdentity">
+                                        <div className="coinPair__expandedLabel">
+                                            {t(
+                                                "oracles.coinpair.explore.subtitle"
+                                            )}
+                                        </div>
+                                        <div className="coinPair__expandedTitle">
+                                            {pair}
+                                        </div>
                                     </div>
                                     {!coinPairOracles.isLoading && (
-                                        <div className="coinPair__roundMetrics">
-                                            <CardHeaderMetrics
-                                                items={[
-                                                    ...getRoundMetrics(
-                                                        coinPairOracles.roundInfo
-                                                    ),
-                                                    {
-                                                        label: t(
-                                                            "oracles.coinpair.explore.availableRewardFeesLabel"
-                                                        ),
-                                                        value: getAvailableRewardValue(
-                                                            coinPairOracles.availableRewardFees,
-                                                            mocUsdPrice
-                                                        ),
-                                                    },
-                                                    ...getPriceMetrics(
-                                                        coinPairOracles.priceStatus
-                                                    ),
-                                                ]}
-                                            />
+                                        <div className="coinPair__headlineMetric">
                                             <span
+                                                className="coinPair__switchRoundHint"
                                                 title={
                                                     canSwitchRound(
                                                         coinPairOracles.roundInfo
@@ -681,7 +696,7 @@ export default function CoinPair(): React.ReactElement {
                                             >
                                                 <button
                                                     type="button"
-                                                    className="button--compact button--compact--secondary"
+                                                    className="button--compact button--compact--secondary coinPair__switchRoundButton"
                                                     disabled={
                                                         switchingPair ===
                                                             row.pairRaw ||
@@ -699,9 +714,41 @@ export default function CoinPair(): React.ReactElement {
                                                     )}
                                                 </button>
                                             </span>
+                                            <CardHeaderMetrics
+                                                items={roundMetrics.slice(0, 1)}
+                                                size="primary"
+                                            />
                                         </div>
                                     )}
                                 </div>
+                                {!coinPairOracles.isLoading && (
+                                    <div
+                                        className={`coinPair__metricsDashboard ${
+                                            roundMetrics.length < 4
+                                                ? "coinPair__metricsDashboard--compact"
+                                                : ""
+                                        }`}
+                                    >
+                                        <div className="coinPair__metricGroup coinPair__metricGroup--round">
+                                            <CardHeaderMetrics
+                                                items={roundMetrics.slice(1)}
+                                                size="secondary"
+                                            />
+                                        </div>
+                                        <div className="coinPair__metricGroup coinPair__metricGroup--price">
+                                            <CardHeaderMetrics
+                                                items={priceMetrics}
+                                                size="secondary"
+                                            />
+                                        </div>
+                                        <div className="coinPair__metricGroup coinPair__metricGroup--reward">
+                                            <CardHeaderMetrics
+                                                items={[availableRewardMetric]}
+                                                size="secondary"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
                                 {coinPairOracles.isLoading ? (
                                     <div
                                         className="coinPair__detailLoading"
