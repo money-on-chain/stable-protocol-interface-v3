@@ -1,0 +1,52 @@
+.cardHeaderMetrics {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: 16px 32px;
+
+    &__item {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+        min-width: 112px;
+    }
+
+    &__label {
+        color: var(--color-txt-secondary);
+        font-weight: 600;
+        font-size: 10px;
+        line-height: 16px;
+        font-family: var(--main-font);
+        letter-spacing: 1.2px;
+        text-align: right;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    &__value {
+        color: var(--color-txt-primary);
+        font-weight: 600;
+        font-size: 18px;
+        line-height: 1.2;
+        font-family: var(--brand-font);
+        text-align: right;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 600px) {
+    .cardHeaderMetrics {
+        justify-content: flex-start;
+
+        &__item {
+            align-items: flex-start;
+        }
+
+        &__label,
+        &__value {
+            text-align: left;
+        }
+    }
+}

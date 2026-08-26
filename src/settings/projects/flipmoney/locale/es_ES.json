@@ -95,6 +95,7 @@
         }
     },
     "feedback": {
+        "clipboardAction": "Copiar dirección",
         "clipboardCopy": "Copiado",
         "clipboardTo": "al portapapeles"
     },
@@ -852,7 +853,11 @@
             "description": "Tus transacciones recientes de lending y borrowing.",
             "filterLabel": "Filtrar actividad",
             "empty": "No hay transacciones para mostrar.",
-            "filters": { "all": "Todas", "lending": "Lending", "borrowing": "Borrowing" },
+            "filters": {
+                "all": "Todas",
+                "lending": "Lending",
+                "borrowing": "Borrowing"
+            },
             "columns": {
                 "date": "Fecha",
                 "operation": "Operación",
@@ -861,7 +866,11 @@
                 "status": "Estado",
                 "transaction": "Transacción"
             },
-            "status": { "pending": "Pendiente", "confirmed": "Confirmada", "failed": "Fallida" },
+            "status": {
+                "pending": "Pendiente",
+                "confirmed": "Confirmada",
+                "failed": "Fallida"
+            },
             "types": {
                 "deposit": "Depositar",
                 "withdraw": "Retirar",

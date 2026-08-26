@@ -95,6 +95,7 @@
         }
     },
     "feedback": {
+        "clipboardAction": "Copy address",
         "clipboardCopy": "Copied",
         "clipboardTo": "to the clipboard"
     },
@@ -850,7 +851,11 @@
             "description": "Your latest lending and borrowing transactions.",
             "filterLabel": "Filter activity",
             "empty": "No transactions to display.",
-            "filters": { "all": "All", "lending": "Lending", "borrowing": "Borrowing" },
+            "filters": {
+                "all": "All",
+                "lending": "Lending",
+                "borrowing": "Borrowing"
+            },
             "columns": {
                 "date": "Date",
                 "operation": "Operation",
@@ -859,7 +864,11 @@
                 "status": "Status",
                 "transaction": "Transaction"
             },
-            "status": { "pending": "Pending", "confirmed": "Confirmed", "failed": "Failed" },
+            "status": {
+                "pending": "Pending",
+                "confirmed": "Confirmed",
+                "failed": "Failed"
+            },
             "types": {
                 "deposit": "Deposit",
                 "withdraw": "Withdraw",

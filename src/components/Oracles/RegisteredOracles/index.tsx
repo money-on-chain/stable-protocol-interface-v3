@@ -1,6 +1,6 @@
 import "./Styles.scss";
 
-import { Table, Tag, Tooltip } from "antd";
+import { Table, Tooltip } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import React from "react";
 import { formatUnits, parseUnits } from "viem";
@@ -8,6 +8,7 @@ import { formatUnits, parseUnits } from "viem";
 import { useWalletContext } from "../../../context/Wallet";
 import { useProjectTranslation } from "../../../helpers/translations";
 import type { RegisteredOracleInfo } from "../../../hooks/useRegisteredOracles";
+import CardHeaderMetrics from "../../CardHeaderMetrics";
 import CopyAddress from "../../CopyAddress";
 
 // Not derived from any contract value — RBTC gas cost isn't an on-chain
@@ -16,8 +17,18 @@ import CopyAddress from "../../CopyAddress";
 const LOW_GAS_THRESHOLD = parseUnits("0.001", 18);
 
 export default function RegisteredOracles(): React.ReactElement {
-    const { t } = useProjectTranslation();
+    const { i18n, t } = useProjectTranslation();
     const { registeredOracles, address } = useWalletContext();
+    const totalStake = registeredOracles.data.reduce(
+        (total, oracle) => total + oracle.stake,
+        0n
+    );
+    const formattedTotalStake = Number(
+        formatUnits(totalStake, 18)
+    ).toLocaleString(i18n.language, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    });
 
     const columns: ColumnsType<RegisteredOracleInfo> = [
         {
@@ -63,7 +74,9 @@ export default function RegisteredOracles(): React.ReactElement {
 
                 return (
                     <Tooltip
-                        title={t("oracles.registeredOracles.table.lowGasWarning")}
+                        title={t(
+                            "oracles.registeredOracles.table.lowGasWarning"
+                        )}
                     >
                         <span className="registeredOracles__gas--low">
                             {formattedGas}
@@ -80,11 +93,14 @@ export default function RegisteredOracles(): React.ReactElement {
                 pairs.length > 0 ? (
                     <div className="registeredOracles__pairs">
                         {pairs.map((pairName) => (
-                            <Tag key={pairName}>
+                            <span
+                                className="registeredOracles__pair"
+                                key={pairName}
+                            >
                                 {t(`oracles.coinpair.pairMask.${pairName}`, {
                                     defaultValue: pairName,
                                 })}
-                            </Tag>
+                            </span>
                         ))}
                     </div>
                 ) : (
@@ -97,15 +113,29 @@ export default function RegisteredOracles(): React.ReactElement {
 
     return (
         <div className="layout-card registeredOracles">
-            <div className="layout-card-title">
-                <h1>{t("oracles.registeredOracles.cardTitle")}</h1>
+            <div className="registeredOracles__header">
+                <div className="layout-card-title">
+                    <h1>{t("oracles.registeredOracles.cardTitle")}</h1>
+                </div>
+                <CardHeaderMetrics
+                    items={[
+                        {
+                            label: t(
+                                "oracles.registeredOracles.totalStakeLabel"
+                            ),
+                            value: `${formattedTotalStake} MOC`,
+                        },
+                    ]}
+                />
             </div>
             <Table<RegisteredOracleInfo>
+                className="registeredOracles__table"
                 rowKey="owner"
                 columns={columns}
                 dataSource={registeredOracles.data}
                 loading={registeredOracles.isLoading}
                 pagination={false}
+                scroll={{ x: 960 }}
                 rowClassName={(row) =>
                     address && row.owner.toLowerCase() === address.toLowerCase()
                         ? "registeredOracles__row--own"

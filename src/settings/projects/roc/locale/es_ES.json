@@ -95,6 +95,7 @@
         }
     },
     "feedback": {
+        "clipboardAction": "Copiar dirección",
         "clipboardCopy": "Copiado",
         "clipboardTo": "al portapapeles"
     },
@@ -745,10 +746,12 @@
             "addressUnchanged": "Esta ya es tu dirección de oráculo registrada.",
             "requirementsTitle": "Requisitos",
             "requirementUniqueAddress": "Una dirección y URL de oráculo únicas, que no estén registradas por otro propietario.",
-            "requirementStake": "Al menos {{minStake}} MOC en stake, para poder suscribirte a pares de monedas luego de registrarte.",
+            "requirementStake": "Al menos {{minStake}} MOC en stake, para poder suscribirte a Coin Pairs luego de registrarte.",
             "currentStakeLabel": "Tu stake actual: {{amount}} MOC",
+            "currentStakeMetricLabel": "Stake Actual",
+            "oracleStatusMetricLabel": "Estado del Oráculo",
             "insufficientStakeWarning": "Stake insuficiente. Necesitas al menos {{minStake}} MOC en stake para registrar tu oráculo.",
-            "cannotRemoveWarning": "Tu oráculo todavía no puede ser eliminado. Puede seguir suscripto a pares de monedas o tener rondas pendientes.",
+            "cannotRemoveWarning": "Tu oráculo todavía no puede ser eliminado. Puede seguir suscripto a Coin Pairs o tener rondas pendientes.",
             "cannotRemoveInRound": "No se puede eliminar: tu oráculo está seleccionado actualmente en la ronda de {{pairs}}. Intenta nuevamente cuando termine esta ronda.",
             "registerButton": "Registrar Oráculo",
             "removeButton": "Eliminar Oráculo",
@@ -758,6 +761,7 @@
         },
         "registeredOracles": {
             "cardTitle": "Oráculos Registrados",
+            "totalStakeLabel": "Stake Total en Oráculos",
             "table": {
                 "owner": "Propietario",
                 "oracleAddress": "Dirección del Oráculo",
@@ -765,23 +769,25 @@
                 "stake": "Stake (MOC)",
                 "gas": "Gas (RBTC)",
                 "lowGasWarning": "Saldo de RBTC bajo — este oráculo podría no poder pagar las transacciones de publicación de precio.",
-                "subscribedPairs": "Pares de Monedas Registrados",
+                "subscribedPairs": "Coin Pairs Registrados",
                 "noPairs": "Sin suscripciones",
                 "empty": "No hay oráculos registrados"
             }
         },
         "coinpair": {
-            "cardTitle": "Suscripciones de Pares de Monedas",
-            "modalTitle": "Suscripción de Par de Monedas",
-            "notRegisteredWarning": "Tu oráculo no está registrado. Debes registrar tu oráculo antes de poder suscribirte o cancelar la suscripción a pares de monedas.",
-            "insufficientStakeWarning": "Stake insuficiente. Necesitas al menos {{minStake}} MOC en stake para suscribirte a un par de monedas.",
+            "cardTitle": "Suscripciones a Coin Pairs",
+            "totalPairsLabel": "Total de Pares",
+            "expiredPricesLabel": "Datos de Precio Expirados",
+            "modalTitle": "Suscripción a Coin Pair",
+            "notRegisteredWarning": "Tu oráculo no está registrado. Debes registrar tu oráculo antes de poder suscribirte o cancelar la suscripción a Coin Pairs.",
+            "insufficientStakeWarning": "Stake insuficiente. Necesitas al menos {{minStake}} MOC en stake para suscribirte a un Coin Pair.",
             "pairMask": {
                 "BTCUSD": "BTC/USD",
                 "RIFBTC": "RIF/BTC",
                 "RIFUSD": "RIF/USD"
             },
             "table": {
-                "pair": "Par de Monedas",
+                "pair": "Coin Pair",
                 "price": "Precio",
                 "priceStale": "El precio está desactualizado (no es válido actualmente)",
                 "priceNotAvailable": "N/D",
@@ -794,10 +800,10 @@
                 "unsubscribeButton": "Cancelar suscripción",
                 "explore": "Explorar",
                 "exploreButton": "Explorar",
-                "empty": "No se encontraron pares de monedas"
+                "empty": "No se encontraron Coin Pairs"
             },
             "explore": {
-                "title": "Oráculos Suscriptos — {{pair}}",
+                "title": "{{pair}} — Oráculos Suscriptos",
                 "owner": "Propietario",
                 "oracleAddress": "Dirección del Oráculo",
                 "points": "Puntos",
@@ -806,10 +812,16 @@
                 "inRoundNo": "No",
                 "missedRounds": "Rondas Perdidas",
                 "autoUnsubscribeDisabled": "Cancelación automática deshabilitada",
+                "roundLabel": "Ronda #",
+                "endsInLabel": "Termina en",
+                "statusLabel": "Estado",
+                "roundNotStartedValue": "No iniciada",
+                "roundReadyValue": "Lista para cambiar",
+                "loadingDetails": "Obteniendo datos de los oráculos…",
                 "roundNotStarted": "La ronda todavía no ha comenzado",
                 "roundReadyToSwitch": "Ronda #{{round}} — lista para cambiar",
                 "roundEndsIn": "Ronda #{{round}} — termina en {{time}}",
-                "empty": "No hay oráculos suscriptos a este par de monedas"
+                "empty": "No hay oráculos suscriptos a este Coin Pair"
             }
         }
     },
@@ -956,7 +968,11 @@
             "description": "Tus transacciones recientes de lending y borrowing.",
             "filterLabel": "Filtrar actividad",
             "empty": "No hay transacciones para mostrar.",
-            "filters": { "all": "Todas", "lending": "Lending", "borrowing": "Borrowing" },
+            "filters": {
+                "all": "Todas",
+                "lending": "Lending",
+                "borrowing": "Borrowing"
+            },
             "columns": {
                 "date": "Fecha",
                 "operation": "Operación",
@@ -965,7 +981,11 @@
                 "status": "Estado",
                 "transaction": "Transacción"
             },
-            "status": { "pending": "Pendiente", "confirmed": "Confirmada", "failed": "Fallida" },
+            "status": {
+                "pending": "Pendiente",
+                "confirmed": "Confirmada",
+                "failed": "Fallida"
+            },
             "types": {
                 "deposit": "Depositar",
                 "withdraw": "Retirar",

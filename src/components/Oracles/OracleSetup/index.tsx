@@ -1,12 +1,15 @@
 import "./Styles.scss";
 
-import { Alert, Button, Input, Tooltip } from "antd";
+import { Tooltip } from "antd";
 import React, { useState } from "react";
 import { formatUnits, isAddress } from "viem";
 
 import { useWalletContext } from "../../../context/Wallet";
 import { useProjectTranslation } from "../../../helpers/translations";
+import CardHeaderMetrics from "../../CardHeaderMetrics";
+import InlineWarning from "../../InlineWarning";
 import OperationStatusModal from "../../Modals/OperationStatusModal/OperationStatusModal";
+import TextField from "../../TextField";
 
 interface OperationModalInfo {
     operationStatus: string;
@@ -22,7 +25,7 @@ type OperationHandlers = {
 };
 
 export default function OracleSetup(): React.ReactElement {
-    const { t } = useProjectTranslation();
+    const { i18n, t } = useProjectTranslation();
     const {
         userOmocBalance,
         contractStatusOmoc,
@@ -64,7 +67,14 @@ export default function OracleSetup(): React.ReactElement {
     const isStakeKnown =
         typeof currentStake === "bigint" &&
         typeof minCPSubscriptionStake === "bigint";
-    const hasEnoughStake = !isStakeKnown || currentStake >= minCPSubscriptionStake;
+    const hasEnoughStake =
+        !isStakeKnown || currentStake >= minCPSubscriptionStake;
+    const formattedCurrentStake = isStakeKnown
+        ? Number(formatUnits(currentStake, 18)).toLocaleString(i18n.language, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+          })
+        : "…";
 
     const [oracleAddressInput, setOracleAddressInput] = useState<string>("");
     const [oracleUrlInput, setOracleUrlInput] = useState<string>("");
@@ -81,6 +91,12 @@ export default function OracleSetup(): React.ReactElement {
         isOracleRegistered &&
         !!currentOracleAddr &&
         addressValue.toLowerCase() === currentOracleAddr.toLowerCase();
+    const addressError =
+        addressValue && !isAddressValid
+            ? t("oracles.oracleSetup.invalidAddress")
+            : addressValue && isAddressValid && isAddressUnchanged
+              ? t("oracles.oracleSetup.addressUnchanged")
+              : undefined;
 
     const runAction = async (
         action: PendingAction,
@@ -158,167 +174,195 @@ export default function OracleSetup(): React.ReactElement {
 
     return (
         <div className="layout-card oracleSetup">
-            <div className="layout-card-title">
-                <h1>{t("oracles.oracleSetup.cardTitle")}</h1>
-            </div>
-
-            {isRegistrationKnown && (
-                <span
-                    className={
-                        isOracleRegistered
-                            ? "oracleSetup__status oracleSetup__status--registered"
-                            : "oracleSetup__status oracleSetup__status--notRegistered"
-                    }
-                >
-                    {isOracleRegistered
-                        ? t("oracles.oracleSetup.statusRegistered")
-                        : t("oracles.oracleSetup.statusNotRegistered")}
-                </span>
-            )}
-
-            <div className="oracleSetup__requirements">
-                <div className="oracleSetup__requirements-title">
-                    {t("oracles.oracleSetup.requirementsTitle")}
+            <div className="oracleSetup__header">
+                <div className="layout-card-title">
+                    <h1>{t("oracles.oracleSetup.cardTitle")}</h1>
                 </div>
-                <div>{t("oracles.oracleSetup.requirementUniqueAddress")}</div>
-                <div>
-                    {t("oracles.oracleSetup.requirementStake", {
-                        minStake: isStakeKnown
-                            ? formatUnits(minCPSubscriptionStake, 18)
-                            : "…",
-                    })}
-                </div>
-                {isStakeKnown && (
-                    <div className="oracleSetup__requirements-current">
-                        {t("oracles.oracleSetup.currentStakeLabel", {
-                            amount: formatUnits(currentStake, 18),
-                        })}
-                    </div>
-                )}
+
+                <CardHeaderMetrics
+                    items={[
+                        ...(isRegistrationKnown
+                            ? [
+                                  {
+                                      label: t(
+                                          "oracles.oracleSetup.oracleStatusMetricLabel"
+                                      ),
+                                      value: (
+                                          <span
+                                              className={
+                                                  isOracleRegistered
+                                                      ? "oracleSetup__status oracleSetup__status--registered"
+                                                      : "oracleSetup__status oracleSetup__status--notRegistered"
+                                              }
+                                          >
+                                              {isOracleRegistered
+                                                  ? t(
+                                                        "oracles.oracleSetup.statusRegistered"
+                                                    )
+                                                  : t(
+                                                        "oracles.oracleSetup.statusNotRegistered"
+                                                    )}
+                                          </span>
+                                      ),
+                                  },
+                              ]
+                            : []),
+                        {
+                            label: t(
+                                "oracles.oracleSetup.currentStakeMetricLabel"
+                            ),
+                            value: `${formattedCurrentStake} MOC`,
+                        },
+                    ]}
+                />
             </div>
 
             {isRegistrationKnown && !isOracleRegistered && !hasEnoughStake && (
-                <Alert
-                    className="oracleSetup__warning"
-                    type="warning"
-                    showIcon
-                    message={t("oracles.oracleSetup.insufficientStakeWarning", {
+                <InlineWarning className="oracleSetup__warning">
+                    {t("oracles.oracleSetup.insufficientStakeWarning", {
                         minStake: formatUnits(minCPSubscriptionStake ?? 0n, 18),
                     })}
-                />
+                </InlineWarning>
             )}
 
-            <div className="oracleSetup__field">
-                <label>{t("oracles.oracleSetup.labelOracleAddress")}</label>
-                <Input
-                    data-testid="oracle-setup-address"
-                    value={addressValue}
-                    placeholder={t("oracles.oracleSetup.placeholderAddress")}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setOracleAddressInput(e.target.value)
-                    }
-                    status={addressValue && !isAddressValid ? "error" : undefined}
-                />
-                {addressValue && !isAddressValid && (
-                    <div className="oracleSetup__field-error">
-                        {t("oracles.oracleSetup.invalidAddress")}
-                    </div>
-                )}
-                {addressValue && isAddressValid && isAddressUnchanged && (
-                    <div className="oracleSetup__field-error">
-                        {t("oracles.oracleSetup.addressUnchanged")}
-                    </div>
-                )}
-            </div>
-
-            <div className="oracleSetup__field">
-                <label>{t("oracles.oracleSetup.labelOracleUrl")}</label>
-                <Input
-                    data-testid="oracle-setup-url"
-                    value={urlValue}
-                    placeholder={t("oracles.oracleSetup.placeholderUrl")}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setOracleUrlInput(e.target.value)
-                    }
-                />
-            </div>
-
-            <div className="oracleSetup__actions">
-                <Button
-                    type="primary"
-                    className="button"
-                    disabled={
-                        isBusy ||
-                        isOracleRegistered ||
-                        !isAddressValid ||
-                        !hasEnoughStake
-                    }
-                    onClick={() => void onRegister()}
-                    data-testid="oracle-setup-register"
-                >
-                    {t("oracles.oracleSetup.registerButton")}
-                </Button>
-
-                <Button
-                    className="button"
-                    disabled={
-                        isBusy ||
-                        !isOracleRegistered ||
-                        !isAddressValid ||
-                        isAddressUnchanged
-                    }
-                    onClick={() => void onUpdateAddress()}
-                    data-testid="oracle-setup-update-address"
-                >
-                    {t("oracles.oracleSetup.updateAddressButton")}
-                </Button>
-
-                <Button
-                    className="button"
-                    disabled={isBusy || !isOracleRegistered}
-                    onClick={() => void onUpdateUrl()}
-                    data-testid="oracle-setup-update-url"
-                >
-                    {t("oracles.oracleSetup.updateUrlButton")}
-                </Button>
-
-                <Tooltip
-                    title={
-                        isOracleRegistered && !canRemoveOracle
-                            ? blockingPairNames.length > 0
-                                ? t(
-                                      "oracles.oracleSetup.cannotRemoveInRound",
-                                      { pairs: blockingPairNames.join(", ") }
-                                  )
-                                : t("oracles.oracleSetup.cannotRemoveWarning")
-                            : undefined
-                    }
-                >
-                    <span>
-                        <Button
-                            danger
-                            className="button"
-                            disabled={
-                                isBusy || !isOracleRegistered || !canRemoveOracle
+            <div className="oracleSetup__workspace">
+                <div className="oracleSetup__form">
+                    <div className="oracleSetup__fieldRow">
+                        <TextField
+                            className="oracleSetup__field"
+                            data-testid="oracle-setup-address"
+                            error={addressError}
+                            id="oracle-setup-address"
+                            label={t("oracles.oracleSetup.labelOracleAddress")}
+                            onChange={(e) =>
+                                setOracleAddressInput(e.target.value)
                             }
-                            onClick={() => void onRemove()}
-                            data-testid="oracle-setup-remove"
-                        >
-                            {t("oracles.oracleSetup.removeButton")}
-                        </Button>
-                    </span>
-                </Tooltip>
+                            placeholder={t(
+                                "oracles.oracleSetup.placeholderAddress"
+                            )}
+                            spellCheck={false}
+                            value={addressValue}
+                        />
 
-                <div className="oracleSetup__docLink">
-                    <a
-                        href="https://docs.moneyonchain.com/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        {t("oracles.oracleSetup.docsLink")}
-                        <span className="icon-external-link"></span>
-                    </a>
+                        <button
+                            className="button--compact button--compact--secondary oracleSetup__fieldAction"
+                            disabled={
+                                isBusy ||
+                                !isOracleRegistered ||
+                                !isAddressValid ||
+                                isAddressUnchanged
+                            }
+                            onClick={() => void onUpdateAddress()}
+                            type="button"
+                            data-testid="oracle-setup-update-address"
+                        >
+                            {t("oracles.oracleSetup.updateAddressButton")}
+                        </button>
+                    </div>
+
+                    <div className="oracleSetup__fieldRow">
+                        <TextField
+                            className="oracleSetup__field"
+                            data-testid="oracle-setup-url"
+                            id="oracle-setup-url"
+                            label={t("oracles.oracleSetup.labelOracleUrl")}
+                            onChange={(e) => setOracleUrlInput(e.target.value)}
+                            placeholder={t(
+                                "oracles.oracleSetup.placeholderUrl"
+                            )}
+                            spellCheck={false}
+                            value={urlValue}
+                        />
+
+                        <button
+                            className="button--compact button--compact--secondary oracleSetup__fieldAction"
+                            disabled={isBusy || !isOracleRegistered}
+                            onClick={() => void onUpdateUrl()}
+                            type="button"
+                            data-testid="oracle-setup-update-url"
+                        >
+                            {t("oracles.oracleSetup.updateUrlButton")}
+                        </button>
+                    </div>
+
+                    <div className="oracleSetup__actions">
+                        <button
+                            className="button--compact"
+                            disabled={
+                                isBusy ||
+                                isOracleRegistered ||
+                                !isAddressValid ||
+                                !hasEnoughStake
+                            }
+                            onClick={() => void onRegister()}
+                            type="button"
+                            data-testid="oracle-setup-register"
+                        >
+                            {t("oracles.oracleSetup.registerButton")}
+                        </button>
+
+                        <Tooltip
+                            title={
+                                isOracleRegistered && !canRemoveOracle
+                                    ? blockingPairNames.length > 0
+                                        ? t(
+                                              "oracles.oracleSetup.cannotRemoveInRound",
+                                              {
+                                                  pairs: blockingPairNames.join(
+                                                      ", "
+                                                  ),
+                                              }
+                                          )
+                                        : t(
+                                              "oracles.oracleSetup.cannotRemoveWarning"
+                                          )
+                                    : undefined
+                            }
+                        >
+                            <span>
+                                <button
+                                    className="button--compact button--compact--secondary"
+                                    disabled={
+                                        isBusy ||
+                                        !isOracleRegistered ||
+                                        !canRemoveOracle
+                                    }
+                                    onClick={() => void onRemove()}
+                                    type="button"
+                                    data-testid="oracle-setup-remove"
+                                >
+                                    {t("oracles.oracleSetup.removeButton")}
+                                </button>
+                            </span>
+                        </Tooltip>
+                    </div>
                 </div>
+
+                <aside className="oracleSetup__requirements">
+                    <div className="oracleSetup__requirements-title">
+                        {t("oracles.oracleSetup.requirementsTitle")}
+                    </div>
+                    <div>
+                        {t("oracles.oracleSetup.requirementUniqueAddress")}
+                    </div>
+                    <div>
+                        {t("oracles.oracleSetup.requirementStake", {
+                            minStake: isStakeKnown
+                                ? formatUnits(minCPSubscriptionStake, 18)
+                                : "…",
+                        })}
+                    </div>
+                    <div className="oracleSetup__docLink">
+                        <a
+                            href="https://moneyonchain.com/run-an-omoc-oracle-node-2/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            {t("oracles.oracleSetup.docsLink")}
+                            <span className="icon-external-link"></span>
+                        </a>
+                    </div>
+                </aside>
             </div>
 
             {isOperationModalVisible && (
