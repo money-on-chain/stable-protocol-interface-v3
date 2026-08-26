@@ -13,6 +13,8 @@ export interface CoinPairOracleInfo {
     owner: Address;
     oracleAddr: Address;
     url: string;
+    // Looked up from the registeredOracles list passed in, not re-read here.
+    stake: bigint;
     points: bigint;
     selectedInCurrentRound: boolean;
     // Consecutive rounds without a valid signature — reaching
@@ -291,6 +293,7 @@ export function useCoinPairOracles(
                     owner,
                     oracleAddr: registered?.oracleAddr ?? owner,
                     url: registered?.url ?? "",
+                    stake: registered?.stake ?? 0n,
                     points: oracleRoundInfos[i]?.[0] ?? 0n,
                     selectedInCurrentRound:
                         oracleRoundInfos[i]?.[1] ?? false,

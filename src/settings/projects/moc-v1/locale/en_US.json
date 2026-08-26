@@ -774,6 +774,7 @@
                 "title": "{{pair}} — Subscribed Oracles",
                 "owner": "Owner",
                 "oracleAddress": "Oracle Address",
+                "stake": "Stake (MOC)",
                 "points": "Points",
                 "inRound": "In Round",
                 "inRoundYes": "Yes",

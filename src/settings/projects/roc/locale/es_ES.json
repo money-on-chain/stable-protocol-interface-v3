@@ -806,6 +806,7 @@
                 "title": "{{pair}} — Oráculos Suscriptos",
                 "owner": "Propietario",
                 "oracleAddress": "Dirección del Oráculo",
+                "stake": "Stake (MOC)",
                 "points": "Puntos",
                 "inRound": "En Ronda",
                 "inRoundYes": "Sí",

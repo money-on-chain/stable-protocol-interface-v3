@@ -373,6 +373,17 @@ export default function CoinPair(): React.ReactElement {
             ),
         },
         {
+            title: t("oracles.coinpair.explore.stake"),
+            dataIndex: "stake",
+            key: "stake",
+            align: "right",
+            width: 96,
+            render: (stake: bigint) =>
+                Number(formatUnits(stake, 18)).toLocaleString(undefined, {
+                    maximumFractionDigits: 4,
+                }),
+        },
+        {
             title: t("oracles.coinpair.explore.points"),
             dataIndex: "points",
             key: "points",
