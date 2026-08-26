@@ -2,7 +2,7 @@ import "./Styles.scss";
 
 import { Table, Tooltip } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import React from "react";
+import React, { useMemo } from "react";
 import { formatUnits, parseUnits } from "viem";
 
 import { useWalletContext } from "../../../context/Wallet";
@@ -19,6 +19,13 @@ const LOW_GAS_THRESHOLD = parseUnits("0.001", 18);
 export default function RegisteredOracles(): React.ReactElement {
     const { i18n, t } = useProjectTranslation();
     const { registeredOracles, address } = useWalletContext();
+    const sortedOracles = useMemo(
+        () =>
+            [...registeredOracles.data].sort((a, b) =>
+                b.stake > a.stake ? 1 : b.stake < a.stake ? -1 : 0
+            ),
+        [registeredOracles.data]
+    );
     const totalStake = registeredOracles.data.reduce(
         (total, oracle) => total + oracle.stake,
         0n
@@ -31,6 +38,12 @@ export default function RegisteredOracles(): React.ReactElement {
     });
 
     const columns: ColumnsType<RegisteredOracleInfo> = [
+        {
+            title: "#",
+            key: "rank",
+            width: 40,
+            render: (_value, _record, index) => index + 1,
+        },
         {
             title: t("oracles.registeredOracles.table.owner"),
             dataIndex: "owner",
@@ -132,7 +145,7 @@ export default function RegisteredOracles(): React.ReactElement {
                 className="registeredOracles__table"
                 rowKey="owner"
                 columns={columns}
-                dataSource={registeredOracles.data}
+                dataSource={sortedOracles}
                 loading={registeredOracles.isLoading}
                 pagination={false}
                 scroll={{ x: 960 }}

@@ -2,7 +2,7 @@ import "./Styles.scss";
 
 import { Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { formatUnits } from "viem";
 
 import { useWalletContext } from "../../../context/Wallet";
@@ -91,6 +91,13 @@ export default function CoinPair(): React.ReactElement {
         publicClient,
         exploringPair?.coinPairPriceAddress,
         registeredOracles.data
+    );
+    const sortedCoinPairOracles = useMemo(
+        () =>
+            [...coinPairOracles.data].sort((a, b) =>
+                b.points > a.points ? 1 : b.points < a.points ? -1 : 0
+            ),
+        [coinPairOracles.data]
     );
     const [operationModalInfo, setOperationModalInfo] =
         useState<OperationModalInfo>({
@@ -343,6 +350,12 @@ export default function CoinPair(): React.ReactElement {
     ];
 
     const coinPairOraclesColumns: ColumnsType<CoinPairOracleInfo> = [
+        {
+            title: "#",
+            key: "rank",
+            width: 40,
+            render: (_value, _record, index) => index + 1,
+        },
         {
             title: t("oracles.coinpair.explore.owner"),
             dataIndex: "owner",
@@ -709,7 +722,7 @@ export default function CoinPair(): React.ReactElement {
                                         className="coinPair__oraclesTable"
                                         rowKey="owner"
                                         columns={coinPairOraclesColumns}
-                                        dataSource={coinPairOracles.data}
+                                        dataSource={sortedCoinPairOracles}
                                         pagination={false}
                                         scroll={{ x: 560 }}
                                         locale={{
