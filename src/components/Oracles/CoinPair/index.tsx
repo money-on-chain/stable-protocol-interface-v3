@@ -6,9 +6,12 @@ import React, { useState } from "react";
 import { formatUnits } from "viem";
 
 import { useWalletContext } from "../../../context/Wallet";
+import { ConvertAmount } from "../../../helpers/currencies";
+import { WAD, wadMul } from "../../../helpers/precision";
 import { useProjectTranslation } from "../../../helpers/translations";
 import type {
     CoinPairOracleInfo,
+    CoinPairPriceStatus,
     CoinPairRoundInfo,
 } from "../../../hooks/useCoinPairOracles";
 import { useCoinPairOracles } from "../../../hooks/useCoinPairOracles";
@@ -25,6 +28,25 @@ interface OperationModalInfo {
     txHash: string;
 }
 
+// The oracle reward token distributed on round close (RoundManager.token) is
+// the protocol's MOC token — same token wired as "TG" everywhere else in
+// this dapp. moc-v1 exposes its USD price as a flat field; v3-style flavors
+// (roc) derive it via ConvertAmount, same split TokenPriceStrip uses.
+const IS_MOC_V1 =
+    import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT === "moc-v1";
+
+function formatDurationParts(totalSeconds: number): string {
+    const safeSeconds = Math.max(0, totalSeconds);
+    const days = Math.floor(safeSeconds / 86_400);
+    const hours = Math.floor((safeSeconds % 86_400) / 3_600);
+    const minutes = Math.floor((safeSeconds % 3_600) / 60);
+    const parts: string[] = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (days > 0 || hours > 0) parts.push(`${hours}h`);
+    parts.push(`${minutes}m`);
+    return parts.join(" ");
+}
+
 export default function CoinPair(): React.ReactElement {
     const { t } = useProjectTranslation();
     const {
@@ -34,9 +56,15 @@ export default function CoinPair(): React.ReactElement {
         interfaceOracleSwitchRound,
         userOmocBalance,
         contractStatusOmoc,
+        contractProtocolStatus,
+        contractProtocolStatusV1,
         registeredOracles,
         publicClient,
     } = useWalletContext();
+
+    const mocUsdPrice = IS_MOC_V1
+        ? (contractProtocolStatusV1.data?.mocUsdPrice ?? 0n)
+        : ConvertAmount(contractProtocolStatus, "TG", "USD", WAD, 0);
 
     const stakingInfo = userOmocBalance.data?.stakingmachine;
     const isOracleRegistered = stakingInfo?.isOracleRegistered ?? false;
@@ -411,6 +439,10 @@ export default function CoinPair(): React.ReactElement {
             label: t("oracles.coinpair.explore.selectedLabel"),
             value: `${roundInfo.selectedCount} / ${roundInfo.maxOraclesPerRound.toString()}`,
         };
+        const totalPointsMetric: CardHeaderMetric = {
+            label: t("oracles.coinpair.explore.totalPointsLabel"),
+            value: roundInfo.totalPoints.toString(),
+        };
 
         if (roundInfo.round === 0n) {
             return [
@@ -423,6 +455,7 @@ export default function CoinPair(): React.ReactElement {
                     value: t("oracles.coinpair.explore.roundNotStartedValue"),
                 },
                 selectedMetric,
+                totalPointsMetric,
             ];
         }
 
@@ -439,17 +472,11 @@ export default function CoinPair(): React.ReactElement {
                     value: t("oracles.coinpair.explore.roundReadyValue"),
                 },
                 selectedMetric,
+                totalPointsMetric,
             ];
         }
 
         const secondsLeft = Number(roundInfo.lockPeriodTimestamp - now);
-        const days = Math.floor(secondsLeft / 86_400);
-        const hours = Math.floor((secondsLeft % 86_400) / 3_600);
-        const minutes = Math.floor((secondsLeft % 3_600) / 60);
-        const parts: string[] = [];
-        if (days > 0) parts.push(`${days}d`);
-        if (days > 0 || hours > 0) parts.push(`${hours}h`);
-        parts.push(`${minutes}m`);
 
         return [
             {
@@ -458,9 +485,73 @@ export default function CoinPair(): React.ReactElement {
             },
             {
                 label: t("oracles.coinpair.explore.endsInLabel"),
-                value: parts.join(" "),
+                value: formatDurationParts(secondsLeft),
             },
             selectedMetric,
+            totalPointsMetric,
+        ];
+    };
+
+    const getAvailableRewardValue = (
+        availableRewardFees: bigint,
+        mocPriceUsd: bigint
+    ): string => {
+        const moc = Number(
+            formatUnits(availableRewardFees, 18)
+        ).toLocaleString(undefined, { maximumFractionDigits: 4 });
+
+        if (mocPriceUsd <= 0n) {
+            return t("oracles.coinpair.explore.availableRewardMocValue", {
+                moc,
+            });
+        }
+
+        const usd = Number(
+            formatUnits(wadMul(availableRewardFees, mocPriceUsd), 18)
+        ).toLocaleString(undefined, { maximumFractionDigits: 2 });
+
+        return t("oracles.coinpair.explore.availableRewardMocUsdValue", {
+            moc,
+            usd,
+        });
+    };
+
+    const getPriceMetrics = (
+        priceStatus: CoinPairPriceStatus
+    ): CardHeaderMetric[] => {
+        const lastPublishedValue =
+            priceStatus.lastPublishedAgoSeconds === null
+                ? t("oracles.coinpair.explore.neverPublishedValue")
+                : t("oracles.coinpair.explore.agoValue", {
+                      time: formatDurationParts(
+                          priceStatus.lastPublishedAgoSeconds
+                      ),
+                  });
+
+        const expiresValue =
+            priceStatus.expiresInSeconds === null
+                ? t("oracles.coinpair.explore.neverPublishedValue")
+                : priceStatus.expiresInSeconds >= 0
+                  ? t("oracles.coinpair.explore.expiresInValue", {
+                        time: formatDurationParts(
+                            priceStatus.expiresInSeconds
+                        ),
+                    })
+                  : t("oracles.coinpair.explore.expiredAgoValue", {
+                        time: formatDurationParts(
+                            Math.abs(priceStatus.expiresInSeconds)
+                        ),
+                    });
+
+        return [
+            {
+                label: t("oracles.coinpair.explore.lastPublishedLabel"),
+                value: lastPublishedValue,
+            },
+            {
+                label: t("oracles.coinpair.explore.expiresLabel"),
+                value: expiresValue,
+            },
         ];
     };
 
@@ -543,18 +634,14 @@ export default function CoinPair(): React.ReactElement {
                                                         label: t(
                                                             "oracles.coinpair.explore.availableRewardFeesLabel"
                                                         ),
-                                                        value: Number(
-                                                            formatUnits(
-                                                                coinPairOracles.availableRewardFees,
-                                                                18
-                                                            )
-                                                        ).toLocaleString(
-                                                            undefined,
-                                                            {
-                                                                maximumFractionDigits: 4,
-                                                            }
+                                                        value: getAvailableRewardValue(
+                                                            coinPairOracles.availableRewardFees,
+                                                            mocUsdPrice
                                                         ),
                                                     },
+                                                    ...getPriceMetrics(
+                                                        coinPairOracles.priceStatus
+                                                    ),
                                                 ]}
                                             />
                                             <span

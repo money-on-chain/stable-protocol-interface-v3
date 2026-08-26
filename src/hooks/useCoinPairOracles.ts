@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import type { PublicClient } from "viem";
-import { readContract } from "viem/actions";
+import { getBlock, readContract } from "viem/actions";
 
 import { runMulticallSync } from "../backend/runMulticallSync";
 import CoinPairPrice from "../contracts/omoc/CoinPairPrice.json";
@@ -29,7 +29,27 @@ export interface CoinPairRoundInfo {
     // the top-stake subset of subscribedOracles, capped at maxOraclesPerRound.
     selectedCount: number;
     maxOraclesPerRound: bigint;
+    // Sum of points accumulated by selected oracles so far in this round —
+    // the denominator used to split availableRewardFees on round close.
+    totalPoints: bigint;
 }
+
+export interface CoinPairPriceStatus {
+    isValid: boolean;
+    // Seconds elapsed since the last price publication, or null if the
+    // price has never been published.
+    lastPublishedAgoSeconds: number | null;
+    // Estimated seconds until the price is considered stale (negative if
+    // already expired), or null if never published. validPricePeriodInBlocks
+    // is a block count on-chain, not a duration — there's no fixed RSK
+    // block-time constant, so this converts it to wall-clock time using the
+    // average block time actually observed between the publication block and
+    // the current block (falls back to an assumed 30s/block only when both
+    // blocks are the same, i.e. published this same block).
+    expiresInSeconds: number | null;
+}
+
+const FALLBACK_BLOCK_TIME_SECONDS = 30;
 
 export interface CoinPairOraclesData {
     oracles: CoinPairOracleInfo[];
@@ -39,7 +59,14 @@ export interface CoinPairOraclesData {
     // Reward token balance held by this coin pair's contract, pending
     // distribution to oracles (RoundManager.getAvailableRewardFees).
     availableRewardFees: bigint;
+    priceStatus: CoinPairPriceStatus;
 }
+
+const emptyPriceStatus: CoinPairPriceStatus = {
+    isValid: false,
+    lastPublishedAgoSeconds: null,
+    expiresInSeconds: null,
+};
 
 /**
  * For a single coin pair's CoinPairPrice contract, reads which oracle owners
@@ -68,6 +95,7 @@ export function useCoinPairOracles(
                     roundInfo: null,
                     maxMissedSigRounds: 0n,
                     availableRewardFees: 0n,
+                    priceStatus: emptyPriceStatus,
                 };
             }
 
@@ -82,6 +110,9 @@ export function useCoinPairOracles(
                 maxMissedSigRounds,
                 availableRewardFees,
                 maxOraclesPerRound,
+                priceInfoRaw,
+                validPricePeriodInBlocks,
+                currentBlock,
             ] = await Promise.all([
                 readContract(publicClient, {
                     address: coinPairPriceAddress,
@@ -115,6 +146,19 @@ export function useCoinPairOracles(
                     functionName: "maxOraclesPerRound",
                     args: [],
                 }) as Promise<bigint>,
+                readContract(publicClient, {
+                    address: coinPairPriceAddress,
+                    abi: ABI_CoinPairPrice,
+                    functionName: "getPriceInfo",
+                    args: [],
+                }) as Promise<[bigint, boolean, bigint]>,
+                readContract(publicClient, {
+                    address: coinPairPriceAddress,
+                    abi: ABI_CoinPairPrice,
+                    functionName: "getValidPricePeriodInBlocks",
+                    args: [],
+                }) as Promise<bigint>,
+                getBlock(publicClient),
             ]);
 
             const roundInfo: CoinPairRoundInfo = {
@@ -122,6 +166,45 @@ export function useCoinPairOracles(
                 lockPeriodTimestamp: roundInfoRaw[2],
                 selectedCount: roundInfoRaw[4].length,
                 maxOraclesPerRound,
+                totalPoints: roundInfoRaw[3],
+            };
+
+            const [, priceIsValid, lastPublicationBlock] = priceInfoRaw;
+            let lastPublishedAgoSeconds: number | null = null;
+            let expiresInSeconds: number | null = null;
+
+            if (lastPublicationBlock > 0n) {
+                const publishedBlock =
+                    lastPublicationBlock === currentBlock.number
+                        ? currentBlock
+                        : await getBlock(publicClient, {
+                              blockNumber: lastPublicationBlock,
+                          });
+
+                const lastPublishedAt = publishedBlock.timestamp;
+                lastPublishedAgoSeconds = Number(
+                    currentBlock.timestamp - lastPublishedAt
+                );
+
+                const blockDelta = currentBlock.number - lastPublicationBlock;
+                const avgBlockTimeSeconds =
+                    blockDelta > 0n
+                        ? Number(currentBlock.timestamp - lastPublishedAt) /
+                          Number(blockDelta)
+                        : FALLBACK_BLOCK_TIME_SECONDS;
+
+                const expiresAtSeconds =
+                    Number(lastPublishedAt) +
+                    Number(validPricePeriodInBlocks) * avgBlockTimeSeconds;
+                expiresInSeconds = Math.round(
+                    expiresAtSeconds - Number(currentBlock.timestamp)
+                );
+            }
+
+            const priceStatus: CoinPairPriceStatus = {
+                isValid: priceIsValid,
+                lastPublishedAgoSeconds,
+                expiresInSeconds,
             };
 
             const subscribedLen = Number(len);
@@ -131,6 +214,7 @@ export function useCoinPairOracles(
                     roundInfo,
                     maxMissedSigRounds,
                     availableRewardFees,
+                    priceStatus,
                 };
             }
 
@@ -214,7 +298,13 @@ export function useCoinPairOracles(
                 };
             });
 
-            return { oracles, roundInfo, maxMissedSigRounds, availableRewardFees };
+            return {
+                oracles,
+                roundInfo,
+                maxMissedSigRounds,
+                availableRewardFees,
+                priceStatus,
+            };
         },
     });
 
@@ -223,6 +313,7 @@ export function useCoinPairOracles(
         roundInfo: data?.roundInfo ?? null,
         maxMissedSigRounds: data?.maxMissedSigRounds ?? 0n,
         availableRewardFees: data?.availableRewardFees ?? 0n,
+        priceStatus: data?.priceStatus ?? emptyPriceStatus,
         isLoading,
         isFetching,
         error,
