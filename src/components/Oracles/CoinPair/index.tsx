@@ -31,6 +31,7 @@ export default function CoinPair(): React.ReactElement {
         oracleCoinPairs,
         interfaceOracleSubscribeCoinPair,
         interfaceOracleUnsubscribeCoinPair,
+        interfaceOracleSwitchRound,
         userOmocBalance,
         contractStatusOmoc,
         registeredOracles,
@@ -52,6 +53,9 @@ export default function CoinPair(): React.ReactElement {
         !isStakeKnown || currentStake >= minCPSubscriptionStake;
 
     const [pendingPair, setPendingPair] = useState<`0x${string}` | null>(null);
+    const [switchingPair, setSwitchingPair] = useState<`0x${string}` | null>(
+        null
+    );
     const [exploringPair, setExploringPair] =
         useState<OracleCoinPairInfo | null>(null);
 
@@ -112,6 +116,59 @@ export default function CoinPair(): React.ReactElement {
             })
             .finally(() => {
                 setPendingPair(null);
+            });
+    };
+
+    // Mirrors RoundInfoLib.isReadyToSwitch on-chain: round 0 (never started)
+    // is always switchable; otherwise the lock period must have elapsed.
+    const canSwitchRound = (roundInfo: CoinPairRoundInfo | null): boolean => {
+        if (!roundInfo) return false;
+        if (roundInfo.round === 0n) return true;
+        const now = BigInt(Math.floor(Date.now() / 1000));
+        return roundInfo.lockPeriodTimestamp <= now;
+    };
+
+    const onSwitchRound = async (row: OracleCoinPairInfo): Promise<void> => {
+        setSwitchingPair(row.pairRaw);
+        setOperationModalInfo({ operationStatus: "sign", txHash: "" });
+        setIsOperationModalVisible(true);
+
+        const onTransaction = (txHash: string): void => {
+            setOperationModalInfo({ operationStatus: "pending", txHash });
+        };
+        const onReceipt = (): void => {
+            setOperationModalInfo((prev) => ({
+                ...prev,
+                operationStatus: "success",
+            }));
+        };
+        const onError = (error: unknown): void => {
+            console.error("Switch round error!...:", error);
+            setOperationModalInfo((prev) => ({
+                ...prev,
+                operationStatus: "error",
+            }));
+        };
+
+        await interfaceOracleSwitchRound(
+            row.coinPairPriceAddress,
+            onTransaction,
+            onReceipt,
+            onError
+        )
+            .then(() => {
+                void coinPairOracles.refetch();
+                void oracleCoinPairs.refetch();
+            })
+            .catch((error) => {
+                console.error(error);
+                setOperationModalInfo((prev) => ({
+                    ...prev,
+                    operationStatus: "error",
+                }));
+            })
+            .finally(() => {
+                setSwitchingPair(null);
             });
     };
 
@@ -474,6 +531,37 @@ export default function CoinPair(): React.ReactElement {
                                                     coinPairOracles.roundInfo
                                                 )}
                                             />
+                                            <span
+                                                title={
+                                                    canSwitchRound(
+                                                        coinPairOracles.roundInfo
+                                                    )
+                                                        ? undefined
+                                                        : t(
+                                                              "oracles.coinpair.explore.switchRoundNotReady"
+                                                          )
+                                                }
+                                            >
+                                                <button
+                                                    type="button"
+                                                    className="button--compact button--compact--secondary"
+                                                    disabled={
+                                                        switchingPair ===
+                                                            row.pairRaw ||
+                                                        !canSwitchRound(
+                                                            coinPairOracles.roundInfo
+                                                        )
+                                                    }
+                                                    onClick={() =>
+                                                        void onSwitchRound(row)
+                                                    }
+                                                    data-testid={`coinpair-switchround-${row.pairName}`}
+                                                >
+                                                    {t(
+                                                        "oracles.coinpair.explore.switchRoundButton"
+                                                    )}
+                                                </button>
+                                            </span>
                                         </div>
                                     )}
                                 </div>

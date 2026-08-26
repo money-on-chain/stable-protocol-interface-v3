@@ -34,6 +34,7 @@ import {
     setOracleAddress,
     setOracleName,
     subscribeToCoinPair,
+    switchRound,
     unStake,
     unsubscribeFromCoinPair,
 } from "../backend/omoc/staking";
@@ -1022,6 +1023,25 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const interfaceOracleSwitchRound = async (
+        coinPairPriceAddress: `0x${string}`,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
+        try {
+            const interfaceContext = buildInterfaceContext();
+            return await switchRound(
+                interfaceContext,
+                coinPairPriceAddress,
+                onTransaction,
+                onReceipt
+            );
+        } catch (error) {
+            onError(error);
+        }
+    };
+
     const interfaceOracleSetAddress = async (
         oracleAddr: `0x${string}`,
         onTransaction: OnTransaction,
@@ -1408,6 +1428,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 interfaceOracleRemove,
                 interfaceOracleSetName,
                 interfaceOracleSetAddress,
+                interfaceOracleSwitchRound,
                 interfaceStakingDelayMachineWithdraw,
                 interfaceStakingDelayMachineCancelWithdraw,
                 onShowModalAccount,

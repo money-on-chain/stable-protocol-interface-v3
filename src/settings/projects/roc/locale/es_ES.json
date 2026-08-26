@@ -817,6 +817,8 @@
                 "statusLabel": "Estado",
                 "roundNotStartedValue": "No iniciada",
                 "roundReadyValue": "Lista para cambiar",
+                "switchRoundButton": "Cambiar ronda",
+                "switchRoundNotReady": "Disponible cuando finalice el período de bloqueo de la ronda actual",
                 "loadingDetails": "Obteniendo datos de los oráculos…",
                 "roundNotStarted": "La ronda todavía no ha comenzado",
                 "roundReadyToSwitch": "Ronda #{{round}} — lista para cambiar",

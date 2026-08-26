@@ -785,6 +785,8 @@
                 "statusLabel": "Status",
                 "roundNotStartedValue": "Not started",
                 "roundReadyValue": "Ready to switch",
+                "switchRoundButton": "Switch round",
+                "switchRoundNotReady": "Available once the current round's lock period ends",
                 "loadingDetails": "Getting oracle data…",
                 "roundNotStarted": "Round has not started yet",
                 "roundReadyToSwitch": "Round #{{round}} — ready to switch",

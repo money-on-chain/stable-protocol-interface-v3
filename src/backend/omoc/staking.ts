@@ -6,6 +6,7 @@ import {
 import type { TransactionReceipt } from "viem";
 import { checksumAddress } from "viem";
 
+import CoinPairPrice from "../../contracts/omoc/CoinPairPrice.json";
 import type {
     InterfaceContext,
     OnReceipt,
@@ -357,6 +358,37 @@ const setOracleAddress = async (
     return receipt;
 };
 
+// Permissionless: callable by any address, not just the coinpair's oracles.
+// Reverts on-chain with "The current round lock period is active" when the
+// round hasn't reached its lockPeriodTimestamp yet (see RoundManager.sol).
+const switchRound = async (
+    interfaceContext: InterfaceContext,
+    coinPairPriceAddress: `0x${string}`,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    const { address } = interfaceContext;
+
+    const { request } = await simulateContract(config, {
+        address: coinPairPriceAddress,
+        abi: CoinPairPrice.abi,
+        functionName: "switchRound",
+        args: [],
+        account: address,
+    });
+
+    // Send transaction
+    const txHash = await writeContract(config, request);
+
+    if (onTransaction) onTransaction(txHash);
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
+
+    if (onReceipt) onReceipt(receipt);
+
+    return receipt;
+};
+
 export {
     addStake,
     approveStakingMachine,
@@ -367,6 +399,7 @@ export {
     setOracleAddress,
     setOracleName,
     subscribeToCoinPair,
+    switchRound,
     unStake,
     unsubscribeFromCoinPair,
 };

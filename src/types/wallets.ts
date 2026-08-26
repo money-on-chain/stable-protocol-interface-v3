@@ -252,6 +252,13 @@ export type WalletContextType = {
         onError: OnError
     ) => Promise<unknown>;
 
+    interfaceOracleSwitchRound: (
+        coinPairPriceAddress: Address,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: OnError
+    ) => Promise<unknown>;
+
     interfaceStakingDelayMachineWithdraw: (
         idWithdraw: string | number,
         onTransaction: OnTransaction,
