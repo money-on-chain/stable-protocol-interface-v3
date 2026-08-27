@@ -30,13 +30,21 @@ export default function OracleSetup(): React.ReactElement {
         userOmocBalance,
         contractStatusOmoc,
         oracleCoinPairs,
+        userVesting,
+        isVestingLoaded,
         interfaceOracleRegister,
         interfaceOracleRemove,
         interfaceOracleSetName,
         interfaceOracleSetAddress,
     } = useWalletContext();
 
-    const stakingInfo = userOmocBalance.data?.stakingmachine;
+    // When vesting is in use, the oracle is registered under the vesting
+    // contract's account, not the connected wallet — same rule Staking/Voting
+    // follow (see components/Voting's infoUser vUsing selection).
+    const stakingInfo =
+        isVestingLoaded() && userVesting.data
+            ? userVesting.data.vestingmachine?.staking
+            : userOmocBalance.data?.stakingmachine;
     const isRegistrationKnown =
         typeof stakingInfo?.isOracleRegistered === "boolean";
     const isOracleRegistered = stakingInfo?.isOracleRegistered ?? false;
@@ -125,7 +133,11 @@ export default function OracleSetup(): React.ReactElement {
 
         await call({ onTransaction, onReceipt, onError })
             .then(() => {
-                void userOmocBalance.refetch();
+                if (isVestingLoaded()) {
+                    void userVesting.refetch();
+                } else {
+                    void userOmocBalance.refetch();
+                }
             })
             .catch((error) => {
                 console.error(error);

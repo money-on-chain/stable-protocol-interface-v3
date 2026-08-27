@@ -181,6 +181,36 @@ export function useUserVesting(
             keys: ["vestingmachine", "staking", "getLockingInfo"],
         });
 
+        callRequest.push({
+            contract: c.StakingMachine!,
+            functionName: "isOracleRegistered",
+            args: [vestingMachine.address],
+            resultType: "bool",
+            keys: ["vestingmachine", "staking", "isOracleRegistered"],
+        });
+
+        callRequest.push({
+            contract: c.StakingMachine!,
+            functionName: "canRemoveOracle",
+            args: [vestingMachine.address],
+            resultType: "bool",
+            keys: ["vestingmachine", "staking", "canRemoveOracle"],
+        });
+
+        if (c.OracleManager) {
+            callRequest.push({
+                contract: c.OracleManager,
+                functionName: "getOracleRegistrationInfo",
+                args: [vestingMachine.address],
+                resultType: [
+                    { type: "string", name: "internetName" },
+                    { type: "uint256", name: "stake" },
+                    { type: "address", name: "oracleAddr" },
+                ],
+                keys: ["vestingmachine", "staking", "getOracleRegistrationInfo"],
+            });
+        }
+
         // ---- DelayMachine ----
         callRequest.push({
             contract: c.DelayMachine!,

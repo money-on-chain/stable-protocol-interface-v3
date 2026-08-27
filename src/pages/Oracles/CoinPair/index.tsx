@@ -7,6 +7,8 @@ import CoinPair from "../../../components/Oracles/CoinPair";
 import OracleSetup from "../../../components/Oracles/OracleSetup";
 import RegisteredOracles from "../../../components/Oracles/RegisteredOracles";
 import { useWalletContext } from "../../../context/Wallet";
+import settings from "../../../settings";
+import VestingStatusAlert from "../../../components/Notification/VestingStatusAlert";
 
 export default function SectionOraclesCoinPair(): React.ReactElement {
     const { oracleCoinPairs, userOmocBalance } = useWalletContext();
@@ -19,6 +21,9 @@ export default function SectionOraclesCoinPair(): React.ReactElement {
                 <div className="content-page">
                     {ready ? (
                         <Fragment>
+                            {(settings.project === "moc-v1" ||
+                              settings.project === "voting" ||
+                              settings.project === "roc") && <VestingStatusAlert />}
                             <RegisteredOracles />
                             <OracleSetup />
                             <CoinPair />

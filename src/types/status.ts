@@ -151,6 +151,9 @@ export type StakingInfo = {
     getBalance: bigint;
     getLockedBalance: bigint;
     getLockingInfo: [bigint, bigint]; // [amount, timestampEnd]
+    isOracleRegistered: boolean;
+    canRemoveOracle: boolean;
+    getOracleRegistrationInfo?: [string, bigint, Address]; // [internetName, stake, oracleAddr]
 };
 
 export type VestingMachineInfo = {

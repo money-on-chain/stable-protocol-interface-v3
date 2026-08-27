@@ -44,7 +44,13 @@ import {
     delayMachineCancelWithdraw as delayMachineCancelWithdrawVesting,
     delayMachineWithdraw as delayMachineWithdrawVesting,
     preVote as preVoteVesting,
+    registerOracle as registerOracleVesting,
+    removeOracle as removeOracleVesting,
+    setOracleAddress as setOracleAddressVesting,
+    setOracleName as setOracleNameVesting,
+    subscribeToCoinPair as subscribeToCoinPairVesting,
     unStake as unStakeVesting,
+    unsubscribeFromCoinPair as unsubscribeFromCoinPairVesting,
     vestingVerify,
     vote as voteVesting,
     withdrawAll as withdrawAllVesting,
@@ -287,10 +293,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         REFRESH_INTERVAL_USER_BALANCE
     );
 
+    // When vesting is in use, oracle ownership (subscriptions, round
+    // selection) lives on the vesting contract's account, not the connected
+    // wallet — same "vesting acts as the account" rule Staking/Voting follow.
     const oracleCoinPairs = useOracleCoinPairs(
         publicClient,
         contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
-        address,
+        (vestingAddress as `0x${string}` | undefined) ?? address,
         REFRESH_INTERVAL_USER_BALANCE
     );
 
@@ -940,6 +949,15 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     ): Promise<unknown> => {
         try {
             const interfaceContext = buildInterfaceContext();
+            if (isVestingLoaded() && vestingAddress) {
+                return await subscribeToCoinPairVesting(
+                    interfaceContext,
+                    coinPair,
+                    vestingAddress as `0x${string}`,
+                    onTransaction,
+                    onReceipt
+                );
+            }
             return await subscribeToCoinPair(
                 interfaceContext,
                 coinPair,
@@ -959,6 +977,15 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     ): Promise<unknown> => {
         try {
             const interfaceContext = buildInterfaceContext();
+            if (isVestingLoaded() && vestingAddress) {
+                return await unsubscribeFromCoinPairVesting(
+                    interfaceContext,
+                    coinPair,
+                    vestingAddress as `0x${string}`,
+                    onTransaction,
+                    onReceipt
+                );
+            }
             return await unsubscribeFromCoinPair(
                 interfaceContext,
                 coinPair,
@@ -979,6 +1006,16 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     ): Promise<unknown> => {
         try {
             const interfaceContext = buildInterfaceContext();
+            if (isVestingLoaded() && vestingAddress) {
+                return await registerOracleVesting(
+                    interfaceContext,
+                    oracleAddr,
+                    url,
+                    vestingAddress as `0x${string}`,
+                    onTransaction,
+                    onReceipt
+                );
+            }
             return await registerOracle(
                 interfaceContext,
                 oracleAddr,
@@ -998,6 +1035,14 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     ): Promise<unknown> => {
         try {
             const interfaceContext = buildInterfaceContext();
+            if (isVestingLoaded() && vestingAddress) {
+                return await removeOracleVesting(
+                    interfaceContext,
+                    vestingAddress as `0x${string}`,
+                    onTransaction,
+                    onReceipt
+                );
+            }
             return await removeOracle(interfaceContext, onTransaction, onReceipt);
         } catch (error) {
             onError(error);
@@ -1012,6 +1057,15 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     ): Promise<unknown> => {
         try {
             const interfaceContext = buildInterfaceContext();
+            if (isVestingLoaded() && vestingAddress) {
+                return await setOracleNameVesting(
+                    interfaceContext,
+                    url,
+                    vestingAddress as `0x${string}`,
+                    onTransaction,
+                    onReceipt
+                );
+            }
             return await setOracleName(
                 interfaceContext,
                 url,
@@ -1050,6 +1104,15 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     ): Promise<unknown> => {
         try {
             const interfaceContext = buildInterfaceContext();
+            if (isVestingLoaded() && vestingAddress) {
+                return await setOracleAddressVesting(
+                    interfaceContext,
+                    oracleAddr,
+                    vestingAddress as `0x${string}`,
+                    onTransaction,
+                    onReceipt
+                );
+            }
             return await setOracleAddress(
                 interfaceContext,
                 oracleAddr,

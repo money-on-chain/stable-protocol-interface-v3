@@ -18,7 +18,10 @@ const LOW_GAS_THRESHOLD = parseUnits("0.001", 18);
 
 export default function RegisteredOracles(): React.ReactElement {
     const { i18n, t } = useProjectTranslation();
-    const { registeredOracles, address } = useWalletContext();
+    const { registeredOracles, address, vestingAddress } = useWalletContext();
+    // When vesting is in use, "my oracle" is registered under the vesting
+    // contract's account, not the connected wallet.
+    const ownAddress = vestingAddress ?? address;
     const sortedOracles = useMemo(
         () =>
             [...registeredOracles.data].sort((a, b) =>
@@ -150,7 +153,8 @@ export default function RegisteredOracles(): React.ReactElement {
                 pagination={false}
                 scroll={{ x: 960 }}
                 rowClassName={(row) =>
-                    address && row.owner.toLowerCase() === address.toLowerCase()
+                    ownAddress &&
+                    row.owner.toLowerCase() === ownAddress.toLowerCase()
                         ? "registeredOracles__row--own"
                         : ""
                 }
