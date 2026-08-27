@@ -9,13 +9,18 @@ export interface CardHeaderMetric {
 
 interface CardHeaderMetricsProps {
     items: CardHeaderMetric[];
+    size?: "primary" | "secondary";
 }
 
 export default function CardHeaderMetrics({
     items,
+    size = "primary",
 }: CardHeaderMetricsProps): React.ReactElement {
     return (
-        <div className="cardHeaderMetrics">
+        <div
+            className={`cardHeaderMetrics cardHeaderMetrics--${size}`}
+            data-size={size}
+        >
             {items.map((item) => (
                 <div className="cardHeaderMetrics__item" key={item.label}>
                     <div className="cardHeaderMetrics__label">{item.label}</div>

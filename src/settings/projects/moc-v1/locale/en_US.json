@@ -771,7 +771,7 @@
                 "empty": "No coin pairs found"
             },
             "explore": {
-                "title": "{{pair}} — Subscribed Oracles",
+                "subtitle": "Subscribed Oracles",
                 "owner": "Owner",
                 "oracleAddress": "Oracle Address",
                 "stake": "Stake (MOC)",
@@ -786,7 +786,7 @@
                 "statusLabel": "Status",
                 "selectedLabel": "Selected / Round",
                 "totalPointsLabel": "Total Points",
-                "availableRewardFeesLabel": "Available Reward",
+                "availableRewardFeesLabel": "Available Reward in MOC",
                 "availableRewardMocValue": "{{moc}} MOC",
                 "availableRewardMocUsdValue": "{{moc}} MOC (≈ ${{usd}})",
                 "lastPublishedLabel": "Last Published",
