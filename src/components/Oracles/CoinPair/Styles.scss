@@ -372,6 +372,10 @@
             margin-bottom: 0;
         }
 
+        .ant-table-tbody > tr.coinPair__oracleRow--own > td:first-child {
+            box-shadow: inset 3px 0 0 var(--color-controls-foreground-on);
+        }
+
         .ant-table-tbody > tr.ant-table-placeholder > td {
             border: 0 !important;
             border-radius: var(--card-border-radius);

@@ -61,7 +61,14 @@ export default function CoinPair(): React.ReactElement {
         registeredOracles,
         publicClient,
         contractsAddress,
+        address,
+        vestingAddress,
     } = useWalletContext();
+
+    // When vesting is in use, "our oracle" is registered under the vesting
+    // contract's account, not the connected wallet — same rule
+    // RegisteredOracles' row highlight follows.
+    const ownAddress = vestingAddress ?? address;
 
     const mocUsdPrice = IS_MOC_V1
         ? (contractProtocolStatusV1.data?.mocUsdPrice ?? 0n)
@@ -796,6 +803,13 @@ export default function CoinPair(): React.ReactElement {
                                         columns={coinPairOraclesColumns}
                                         dataSource={sortedCoinPairOracles}
                                         pagination={false}
+                                        rowClassName={(oracleRow) =>
+                                            ownAddress &&
+                                            oracleRow.owner.toLowerCase() ===
+                                                ownAddress.toLowerCase()
+                                                ? "coinPair__oracleRow--own"
+                                                : ""
+                                        }
                                         scroll={{ x: 560 }}
                                         locale={{
                                             emptyText: t(
