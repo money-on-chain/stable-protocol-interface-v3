@@ -783,6 +783,8 @@
                 "price": "Precio",
                 "priceStale": "El precio está desactualizado (no es válido actualmente)",
                 "priceNotAvailable": "N/D",
+                "notPriceFeed": "No es un feed de precio — esta entrada no tiene datos de ronda ni de precio",
+                "priceNotApplicable": "—",
                 "capacity": "Suscriptos",
                 "status": "Estado",
                 "subscribed": "Suscripto",

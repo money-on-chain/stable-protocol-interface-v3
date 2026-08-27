@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { PublicClient } from "viem";
+import type { Abi, PublicClient } from "viem";
 import { hexToString } from "viem";
 import { readContract } from "viem/actions";
 
@@ -27,6 +27,15 @@ export interface OracleCoinPairInfo {
     // this is exactly what blocks OracleManager._canRemoveOracle (see
     // components/Oracles/OracleSetup)
     isSelectedInCurrentRound: boolean;
+    // Whether the registered contract for this pair actually implements
+    // CoinPairPrice. Some names registered under StakingMachine's coin-pair
+    // registry aren't real price feeds — e.g. "TASKSRUNNER" reuses
+    // OracleManager.registerCoinPair to point at an automation TasksRunner
+    // contract instead (see the protocol deploy scripts). Subscribing still
+    // works for these (it's plain StakingMachine bookkeeping), but round/price
+    // metrics don't apply — see useCoinPairOracles.ts for how the "Explore"
+    // detail view falls back for them.
+    isPriceContract: boolean;
 }
 
 /**
@@ -117,29 +126,35 @@ export function useOracleCoinPairs(
             const coinPairPriceAddresses =
                 (addressRes.data?.getContractAddress as Address[]) ?? [];
 
-            const priceCalls: CallRequest[] = coinPairPriceAddresses.map(
-                (address, i) => ({
-                    contract: { address, abi: ABI_CoinPairPrice },
-                    functionName: "getPriceInfo",
-                    args: [],
-                    resultType: [
-                        { type: "uint256", name: "price" },
-                        { type: "bool", name: "isValid" },
-                        { type: "uint256", name: "lastPublicationBlock" },
-                    ],
-                    keys: ["getPriceInfo", i],
-                })
+            // Not every registered "coin pair" is backed by a CoinPairPrice
+            // contract (see isPriceContract on OracleCoinPairInfo above).
+            // getPriceInfo is used as a canary to tell them apart, via a
+            // failure-tolerant multicall so a non-price entry never throws.
+            const priceInfoResults = coinPairPriceAddresses.length
+                ? await publicClient.multicall({
+                      contracts: coinPairPriceAddresses.map((address) => ({
+                          address,
+                          abi: ABI_CoinPairPrice as Abi,
+                          functionName: "getPriceInfo",
+                          args: [],
+                      })),
+                      allowFailure: true,
+                  })
+                : [];
+
+            const isPriceContract = pairs.map(
+                (_pair, i) => priceInfoResults[i]?.status === "success"
             );
-            const priceRes = priceCalls.length
-                ? await runMulticallSync(
-                      publicClient,
-                      priceCalls as SyncMulticallInput[]
-                  )
-                : { data: undefined };
-            const priceInfos =
-                (priceRes.data?.getPriceInfo as
-                    | [bigint, boolean, bigint][]
-                    | undefined) ?? [];
+            const priceInfos: [bigint, boolean, bigint][] = pairs.map(
+                (_pair, i) =>
+                    (isPriceContract[i]
+                        ? (priceInfoResults[i].result as [
+                              bigint,
+                              boolean,
+                              bigint,
+                          ])
+                        : undefined) ?? [0n, false, 0n]
+            );
 
             const capacityCalls: CallRequest[] =
                 coinPairPriceAddresses.flatMap((address, i) => [
@@ -211,6 +226,7 @@ export function useOracleCoinPairs(
                 subscribedCount: Number(subscribedCounts[i] ?? 0n),
                 maxSubscribedOracles: Number(maxSubscribedCounts[i] ?? 0n),
                 isSelectedInCurrentRound: !!selectedInCurrentRound[i],
+                isPriceContract: isPriceContract[i],
             }));
         },
     });

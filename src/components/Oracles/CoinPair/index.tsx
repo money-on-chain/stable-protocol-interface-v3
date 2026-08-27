@@ -60,6 +60,7 @@ export default function CoinPair(): React.ReactElement {
         contractProtocolStatusV1,
         registeredOracles,
         publicClient,
+        contractsAddress,
     } = useWalletContext();
 
     const mocUsdPrice = IS_MOC_V1
@@ -90,7 +91,9 @@ export default function CoinPair(): React.ReactElement {
     const coinPairOracles = useCoinPairOracles(
         publicClient,
         exploringPair?.coinPairPriceAddress,
-        registeredOracles.data
+        registeredOracles.data,
+        contractsAddress?.StakingMachine,
+        exploringPair?.pairRaw
     );
     const sortedCoinPairOracles = useMemo(
         () =>
@@ -107,7 +110,7 @@ export default function CoinPair(): React.ReactElement {
     const [isOperationModalVisible, setIsOperationModalVisible] =
         useState<boolean>(false);
     const expiredPriceCount = oracleCoinPairs.data.filter(
-        (pair) => !pair.priceIsValid
+        (pair) => pair.isPriceContract && !pair.priceIsValid
     ).length;
 
     const onToggleSubscription = async (
@@ -250,6 +253,17 @@ export default function CoinPair(): React.ReactElement {
             dataIndex: "price",
             key: "price",
             render: (_value, row) => {
+                if (!row.isPriceContract) {
+                    return (
+                        <span
+                            className="coinPair__price--stale"
+                            title={t("oracles.coinpair.table.notPriceFeed")}
+                        >
+                            {t("oracles.coinpair.table.priceNotApplicable")}
+                        </span>
+                    );
+                }
+
                 if (!row.priceIsValid) {
                     return (
                         <span

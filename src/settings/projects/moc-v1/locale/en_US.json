@@ -759,6 +759,8 @@
                 "price": "Price",
                 "priceStale": "Price is stale (not currently valid)",
                 "priceNotAvailable": "N/A",
+                "notPriceFeed": "Not a price feed — this entry has no round or price data",
+                "priceNotApplicable": "—",
                 "capacity": "Subscribed",
                 "status": "Status",
                 "subscribed": "Subscribed",

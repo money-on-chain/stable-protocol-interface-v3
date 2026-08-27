@@ -1,10 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import type { PublicClient } from "viem";
-import { getBlock, readContract } from "viem/actions";
+import { getBlock } from "viem/actions";
 
 import { runMulticallSync } from "../backend/runMulticallSync";
 import CoinPairPrice from "../contracts/omoc/CoinPairPrice.json";
-import type { Address, CallRequest, SyncMulticallInput } from "../types/hooks";
+import type {
+    Address,
+    CallRequest,
+    ContractInfo,
+    SyncMulticallInput,
+} from "../types/hooks";
 import type { RegisteredOracleInfo } from "./useRegisteredOracles";
 
 const ABI_CoinPairPrice = CoinPairPrice.abi as readonly unknown[];
@@ -77,6 +82,14 @@ const emptyPriceStatus: CoinPairPriceStatus = {
  * Owner -> oracleAddr/url is looked up from the already fetched
  * registered-oracles list rather than re-reading it here.
  *
+ * Not every registered "coin pair" is backed by a real CoinPairPrice contract
+ * (see isPriceContract on useOracleCoinPairs' OracleCoinPairInfo — e.g.
+ * "TASKSRUNNER" points at an automation TasksRunner contract instead). When
+ * the CoinPairPrice-shaped reads fail, this falls back to a StakingMachine-
+ * only view: which of the registered oracles are subscribed to this pair
+ * (StakingMachine.isSubscribed), with no round/price/reward data — hence the
+ * extra stakingMachine/pairRaw params, only needed for that fallback.
+ *
  * Meant to be used on-demand (e.g. an "Explore" action on a single row),
  * hence the plain address param instead of wiring through Wallet context.
  */
@@ -84,10 +97,12 @@ export function useCoinPairOracles(
     publicClient: PublicClient | undefined,
     coinPairPriceAddress: Address | undefined,
     registeredOracles: RegisteredOracleInfo[],
+    stakingMachine?: ContractInfo,
+    pairRaw?: `0x${string}`,
     refetchInterval = 30_000
 ) {
     const { data, isLoading, isFetching, error, refetch } = useQuery({
-        queryKey: ["coinPairOracles", coinPairPriceAddress],
+        queryKey: ["coinPairOracles", coinPairPriceAddress, pairRaw],
         enabled: !!publicClient && !!coinPairPriceAddress,
         refetchInterval,
         queryFn: async (): Promise<CoinPairOraclesData> => {
@@ -106,62 +121,161 @@ export function useCoinPairOracles(
                 abi: ABI_CoinPairPrice,
             };
 
-            const [
-                len,
-                roundInfoRaw,
-                maxMissedSigRounds,
-                availableRewardFees,
-                maxOraclesPerRound,
-                priceInfoRaw,
-                validPricePeriodInBlocks,
-                currentBlock,
-            ] = await Promise.all([
-                readContract(publicClient, {
-                    address: coinPairPriceAddress,
-                    abi: ABI_CoinPairPrice,
-                    functionName: "getSubscribedOraclesLen",
-                    args: [],
-                }) as Promise<bigint>,
-                readContract(publicClient, {
-                    address: coinPairPriceAddress,
-                    abi: ABI_CoinPairPrice,
-                    functionName: "getRoundInfo",
-                    args: [],
-                }) as Promise<
-                    [bigint, bigint, bigint, bigint, Address[], Address[]]
-                >,
-                readContract(publicClient, {
-                    address: coinPairPriceAddress,
-                    abi: ABI_CoinPairPrice,
-                    functionName: "getMaxMissedSigRounds",
-                    args: [],
-                }) as Promise<bigint>,
-                readContract(publicClient, {
-                    address: coinPairPriceAddress,
-                    abi: ABI_CoinPairPrice,
-                    functionName: "getAvailableRewardFees",
-                    args: [],
-                }) as Promise<bigint>,
-                readContract(publicClient, {
-                    address: coinPairPriceAddress,
-                    abi: ABI_CoinPairPrice,
-                    functionName: "maxOraclesPerRound",
-                    args: [],
-                }) as Promise<bigint>,
-                readContract(publicClient, {
-                    address: coinPairPriceAddress,
-                    abi: ABI_CoinPairPrice,
-                    functionName: "getPriceInfo",
-                    args: [],
-                }) as Promise<[bigint, boolean, bigint]>,
-                readContract(publicClient, {
-                    address: coinPairPriceAddress,
-                    abi: ABI_CoinPairPrice,
-                    functionName: "getValidPricePeriodInBlocks",
-                    args: [],
-                }) as Promise<bigint>,
+            const [multicallResults, currentBlock] = await Promise.all([
+                publicClient.multicall({
+                    contracts: [
+                        {
+                            ...contract,
+                            functionName: "getSubscribedOraclesLen",
+                            args: [],
+                        },
+                        { ...contract, functionName: "getRoundInfo", args: [] },
+                        {
+                            ...contract,
+                            functionName: "getMaxMissedSigRounds",
+                            args: [],
+                        },
+                        {
+                            ...contract,
+                            functionName: "getAvailableRewardFees",
+                            args: [],
+                        },
+                        {
+                            ...contract,
+                            functionName: "maxOraclesPerRound",
+                            args: [],
+                        },
+                        { ...contract, functionName: "getPriceInfo", args: [] },
+                        {
+                            ...contract,
+                            functionName: "getValidPricePeriodInBlocks",
+                            args: [],
+                        },
+                    ],
+                    allowFailure: true,
+                }),
                 getBlock(publicClient),
             ]);
+
+            const [
+                lenResult,
+                roundInfoResult,
+                maxMissedSigRoundsResult,
+                availableRewardFeesResult,
+                maxOraclesPerRoundResult,
+                priceInfoResult,
+                validPricePeriodInBlocksResult,
+            ] = multicallResults;
+
+            // getSubscribedOraclesLen/getRoundInfo live on RoundManager, the
+            // base every coin-pair-registered contract shares — including
+            // non-price ones like TASKSRUNNER's TasksRunner contract (it
+            // extends RoundManager too, just without CoinPairPrice's price
+            // publishing on top). So round/reward/subscribed-oracle data is
+            // genuinely available for those; only getPriceInfo (defined on
+            // CoinPairPrice itself, not RoundManager) isn't. Only fall back
+            // to a StakingMachine-only view when even the RoundManager-level
+            // calls fail, i.e. the address isn't a RoundManager at all.
+            if (
+                lenResult.status !== "success" ||
+                roundInfoResult.status !== "success"
+            ) {
+                if (!stakingMachine || !pairRaw) {
+                    return {
+                        oracles: [],
+                        roundInfo: null,
+                        maxMissedSigRounds: 0n,
+                        availableRewardFees: 0n,
+                        priceStatus: emptyPriceStatus,
+                    };
+                }
+
+                const subscribedCalls: CallRequest[] = registeredOracles.map(
+                    (oracle, i) => ({
+                        contract: stakingMachine,
+                        functionName: "isSubscribed",
+                        args: [oracle.owner, pairRaw],
+                        resultType: "bool",
+                        keys: ["isSubscribed", i],
+                    })
+                );
+                const subscribedRes = subscribedCalls.length
+                    ? await runMulticallSync(
+                          publicClient,
+                          subscribedCalls as SyncMulticallInput[]
+                      )
+                    : { data: undefined };
+                const subscribedFlags =
+                    (subscribedRes.data?.isSubscribed as
+                        | boolean[]
+                        | undefined) ?? [];
+
+                const oracles: CoinPairOracleInfo[] = registeredOracles
+                    .filter((_oracle, i) => subscribedFlags[i])
+                    .map((oracle) => ({
+                        owner: oracle.owner,
+                        oracleAddr: oracle.oracleAddr,
+                        url: oracle.url,
+                        stake: oracle.stake,
+                        points: 0n,
+                        selectedInCurrentRound: false,
+                        missedSignatureRounds: 0n,
+                    }));
+
+                return {
+                    oracles,
+                    roundInfo: null,
+                    maxMissedSigRounds: 0n,
+                    availableRewardFees: 0n,
+                    priceStatus: emptyPriceStatus,
+                };
+            }
+
+            const len =
+                lenResult.status === "success"
+                    ? (lenResult.result as bigint)
+                    : 0n;
+            const roundInfoRaw: [
+                bigint,
+                bigint,
+                bigint,
+                bigint,
+                Address[],
+                Address[],
+            ] =
+                roundInfoResult.status === "success"
+                    ? (roundInfoResult.result as [
+                          bigint,
+                          bigint,
+                          bigint,
+                          bigint,
+                          Address[],
+                          Address[],
+                      ])
+                    : [0n, 0n, 0n, 0n, [], []];
+            const maxMissedSigRounds =
+                maxMissedSigRoundsResult.status === "success"
+                    ? (maxMissedSigRoundsResult.result as bigint)
+                    : 0n;
+            const availableRewardFees =
+                availableRewardFeesResult.status === "success"
+                    ? (availableRewardFeesResult.result as bigint)
+                    : 0n;
+            const maxOraclesPerRound =
+                maxOraclesPerRoundResult.status === "success"
+                    ? (maxOraclesPerRoundResult.result as bigint)
+                    : 0n;
+            // CoinPairPrice-only (not on RoundManager) — genuinely absent for
+            // non-price registrations like TASKSRUNNER, so priceStatus below
+            // degrades to emptyPriceStatus for those rather than failing.
+            const priceInfoRaw: [bigint, boolean, bigint] =
+                priceInfoResult.status === "success"
+                    ? (priceInfoResult.result as [bigint, boolean, bigint])
+                    : [0n, false, 0n];
+            const validPricePeriodInBlocks =
+                validPricePeriodInBlocksResult.status === "success"
+                    ? (validPricePeriodInBlocksResult.result as bigint)
+                    : 0n;
 
             const roundInfo: CoinPairRoundInfo = {
                 round: roundInfoRaw[0],
