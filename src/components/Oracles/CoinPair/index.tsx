@@ -249,6 +249,7 @@ export default function CoinPair(): React.ReactElement {
             title: t("oracles.coinpair.table.price"),
             dataIndex: "price",
             key: "price",
+            align: "right",
             render: (_value, row) => {
                 if (!row.priceIsValid) {
                     return (
@@ -271,6 +272,7 @@ export default function CoinPair(): React.ReactElement {
         {
             title: t("oracles.coinpair.table.capacity"),
             key: "capacity",
+            align: "right",
             render: (_value, row) => (
                 <span>
                     {row.subscribedCount} / {row.maxSubscribedOracles}

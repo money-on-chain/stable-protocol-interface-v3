@@ -234,6 +234,16 @@
         }
     }
 
+    .coinPair__metricGroup--round,
+    .coinPair__metricGroup--price {
+        .cardHeaderMetrics__value::after {
+            display: block;
+            margin-top: 2px;
+            height: 12px;
+            content: "";
+        }
+    }
+
     .coinPair__expandedIdentity {
         display: flex;
         flex: 0 0 calc((100% - 16px) / 3);

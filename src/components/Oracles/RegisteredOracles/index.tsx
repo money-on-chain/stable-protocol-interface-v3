@@ -67,6 +67,7 @@ export default function RegisteredOracles(): React.ReactElement {
             title: t("oracles.registeredOracles.table.stake"),
             dataIndex: "stake",
             key: "stake",
+            align: "right",
             render: (stake: bigint) =>
                 Number(formatUnits(stake, 18)).toLocaleString(undefined, {
                     maximumFractionDigits: 4,
@@ -76,6 +77,7 @@ export default function RegisteredOracles(): React.ReactElement {
             title: t("oracles.registeredOracles.table.gas"),
             dataIndex: "gas",
             key: "gas",
+            align: "right",
             render: (gas: bigint) => {
                 const formattedGas = Number(
                     formatUnits(gas, 18)
