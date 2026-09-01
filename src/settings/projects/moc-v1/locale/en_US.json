@@ -305,7 +305,7 @@
             "redeemable": "Available to redeem"
         },
         "collateral": {
-            "cardTitle": "Collateral",
+            "cardTitle": "Collateral Asset",
             "distributionTitle": "Collateral distribution ({{ticker}})",
             "totalIn": "Total collateral in USD",
             "globalCoverage": "Global coverage"
@@ -348,7 +348,7 @@
             "availableRedeemDoc": "Available to redeem",
             "availableMintDoc": "Available to mint",
             "bproCardTitle": "BPro",
-            "tokenCollateral": "Token Collateral",
+            "tokenCollateral": "Collateral Token",
             "totalBpro": "Total BPro in the system",
             "availableRedeemBpro": "Available to redeem"
         }
