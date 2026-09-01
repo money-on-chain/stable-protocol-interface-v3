@@ -1,0 +1,92 @@
+.address-section.address-section--copyOnly {
+    flex: 0 0 auto;
+    width: auto;
+}
+
+.copyAddress__button {
+    display: inline-flex;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    flex: 0 0 auto;
+    margin-left: auto;
+    cursor: pointer;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    width: 22px;
+    height: 22px;
+
+    &:focus-visible {
+        outline: 2px solid var(--color-controls-foreground-on);
+        outline-offset: 2px;
+        border-radius: 3px;
+    }
+}
+
+.copyAddress__copied {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    z-index: 10;
+    animation: copyAddress-copied 1.4s ease forwards;
+    box-shadow: var(--surface-shadow-1);
+    border-radius: 4px;
+    background: var(--color-txt-primary);
+    padding: 5px 8px;
+    color: var(--surface-color-1);
+    font-weight: 600;
+    font-size: 11px;
+    line-height: 1;
+    font-family: var(--main-font);
+    white-space: nowrap;
+    pointer-events: none;
+
+    &::after {
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border-top: 4px solid var(--color-txt-primary);
+        border-right: 4px solid transparent;
+        border-left: 4px solid transparent;
+        content: "";
+    }
+}
+
+@keyframes copyAddress-copied {
+    0% {
+        transform: translate(-50%, 3px);
+        opacity: 0;
+    }
+
+    12%,
+    70% {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -2px);
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .copyAddress__copied {
+        animation-name: copyAddress-copied-reduced;
+    }
+}
+
+@keyframes copyAddress-copied-reduced {
+    0%,
+    70% {
+        transform: translateX(-50%);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(-50%);
+        opacity: 0;
+    }
+}

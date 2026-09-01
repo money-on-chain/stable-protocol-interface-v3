@@ -100,6 +100,7 @@
         }
     },
     "feedback": {
+        "clipboardAction": "Copy address",
         "clipboardCopy": "Copied",
         "clipboardTo": "to the clipboard"
     },
@@ -442,6 +443,7 @@
         "liquidityMining": "Liquidity Mining",
         "vesting": "Vesting",
         "voting": "Voting",
+        "oracles": "Oracles",
         "more": "More",
         "combinedOperations": "Combined Ops.",
         "lendingBorrowing": "Lend & Borrow"
@@ -698,6 +700,115 @@
             "status": "Status"
         }
     },
+    "oracles": {
+        "oracleSetup": {
+            "cardTitle": "Oracle Setup",
+            "modalTitle": "Oracle Setup",
+            "statusRegistered": "Registered",
+            "statusNotRegistered": "Not registered",
+            "labelOracleAddress": "Oracle Address",
+            "labelOracleUrl": "Oracle URL",
+            "placeholderAddress": "0x...",
+            "placeholderUrl": "https://...",
+            "invalidAddress": "Invalid address",
+            "addressUnchanged": "This is already your registered oracle address.",
+            "requirementsTitle": "Requirements",
+            "requirementUniqueAddress": "A unique oracle address and URL, not already registered by another owner.",
+            "requirementStake": "At least {{minStake}} MOC staked, so you can subscribe to coin pairs after registering.",
+            "currentStakeLabel": "Your current stake: {{amount}} MOC",
+            "currentStakeMetricLabel": "Current Stake",
+            "oracleStatusMetricLabel": "Oracle Status",
+            "insufficientStakeWarning": "Insufficient stake. You need at least {{minStake}} MOC staked to register your oracle.",
+            "cannotRemoveWarning": "Your oracle cannot be removed yet. It may still be subscribed to coin pairs or have pending rounds.",
+            "cannotRemoveInRound": "Can't remove: your oracle is currently selected in the round for {{pairs}}. Try again after this round ends.",
+            "registerButton": "Register Oracle",
+            "removeButton": "Remove Oracle",
+            "updateAddressButton": "Update Address",
+            "updateUrlButton": "Update URL",
+            "docsLink": "Documentation"
+        },
+        "registeredOracles": {
+            "cardTitle": "Registered Oracles",
+            "totalStakeLabel": "Total Stake in Oracles",
+            "table": {
+                "owner": "Owner",
+                "oracleAddress": "Oracle Address",
+                "url": "URL",
+                "stake": "Stake (MOC)",
+                "gas": "Gas (RBTC)",
+                "lowGasWarning": "Low RBTC balance — this oracle may not be able to pay for price-publish transactions.",
+                "subscribedPairs": "Registered Coinpairs",
+                "noPairs": "No subscriptions",
+                "empty": "No oracles registered"
+            }
+        },
+        "coinpair": {
+            "cardTitle": "Coin Pair Subscriptions",
+            "totalPairsLabel": "Total Coin Pairs",
+            "expiredPricesLabel": "Price Data Expired",
+            "modalTitle": "Coin Pair Subscription",
+            "notRegisteredWarning": "Your oracle is not registered. You must register your oracle before you can subscribe or unsubscribe from coin pairs.",
+            "insufficientStakeWarning": "Insufficient stake. You need at least {{minStake}} MOC staked to subscribe to a coin pair.",
+            "pairMask": {
+                "BTCUSD": "BTC/USD",
+                "RIFBTC": "RIF/BTC",
+                "RIFUSD": "RIF/USD"
+            },
+            "table": {
+                "pair": "Coin Pair",
+                "price": "Price",
+                "priceStale": "Price is stale (not currently valid)",
+                "priceNotAvailable": "N/A",
+                "notPriceFeed": "Not a price feed — this entry has no round or price data",
+                "priceNotApplicable": "—",
+                "capacity": "Subscribed",
+                "status": "Status",
+                "subscribed": "Subscribed",
+                "notSubscribed": "Not subscribed",
+                "action": "Action",
+                "subscribeButton": "Subscribe",
+                "unsubscribeButton": "Unsubscribe",
+                "explore": "Explore",
+                "exploreButton": "Explore",
+                "empty": "No coin pairs found"
+            },
+            "explore": {
+                "subtitle": "Subscribed Oracles",
+                "owner": "Owner",
+                "oracleAddress": "Oracle Address",
+                "stake": "Stake (MOC)",
+                "points": "Points",
+                "inRound": "In Round",
+                "inRoundYes": "Yes",
+                "inRoundNo": "No",
+                "missedRounds": "Missed Rounds",
+                "autoUnsubscribeDisabled": "Auto-unsubscribe disabled",
+                "roundLabel": "Round #",
+                "endsInLabel": "Ends in",
+                "statusLabel": "Status",
+                "selectedLabel": "Selected / Round",
+                "totalPointsLabel": "Total Points",
+                "availableRewardFeesLabel": "Available Rewards",
+                "availableRewardMocValue": "{{moc}} MOC",
+                "availableRewardMocUsdValue": "{{moc}} MOC (≈ ${{usd}})",
+                "lastPublishedLabel": "Last Published",
+                "expiresLabel": "Price Expires",
+                "agoValue": "{{time}} ago",
+                "expiresInValue": "in {{time}}",
+                "expiredAgoValue": "Expired {{time}} ago",
+                "neverPublishedValue": "Never",
+                "roundNotStartedValue": "Not started",
+                "roundReadyValue": "Ready to switch",
+                "switchRoundButton": "Switch round",
+                "switchRoundNotReady": "Available once the current round's lock period ends",
+                "loadingDetails": "Getting oracle data…",
+                "roundNotStarted": "Round has not started yet",
+                "roundReadyToSwitch": "Round #{{round}} — ready to switch",
+                "roundEndsIn": "Round #{{round}} — ends in {{time}}",
+                "empty": "No oracles subscribed to this coin pair"
+            }
+        }
+    },
     "voting": {
         "cardTitle": {
             "section": "Voting",
@@ -834,7 +945,11 @@
             "description": "Your latest lending and borrowing transactions.",
             "filterLabel": "Filter activity",
             "empty": "No transactions to display.",
-            "filters": { "all": "All", "lending": "Lending", "borrowing": "Borrowing" },
+            "filters": {
+                "all": "All",
+                "lending": "Lending",
+                "borrowing": "Borrowing"
+            },
             "columns": {
                 "date": "Date",
                 "operation": "Operation",
@@ -843,7 +958,11 @@
                 "status": "Status",
                 "transaction": "Transaction"
             },
-            "status": { "pending": "Pending", "confirmed": "Confirmed", "failed": "Failed" },
+            "status": {
+                "pending": "Pending",
+                "confirmed": "Confirmed",
+                "failed": "Failed"
+            },
             "types": {
                 "deposit": "Deposit",
                 "withdraw": "Withdraw",

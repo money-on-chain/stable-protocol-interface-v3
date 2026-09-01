@@ -29,7 +29,14 @@ import {
     approveStakingMachine,
     delayMachineCancelWithdraw,
     delayMachineWithdraw,
+    registerOracle,
+    removeOracle,
+    setOracleAddress,
+    setOracleName,
+    subscribeToCoinPair,
+    switchRound,
     unStake,
+    unsubscribeFromCoinPair,
 } from "../backend/omoc/staking";
 import {
     addStake as addStakeVesting,
@@ -37,7 +44,13 @@ import {
     delayMachineCancelWithdraw as delayMachineCancelWithdrawVesting,
     delayMachineWithdraw as delayMachineWithdrawVesting,
     preVote as preVoteVesting,
+    registerOracle as registerOracleVesting,
+    removeOracle as removeOracleVesting,
+    setOracleAddress as setOracleAddressVesting,
+    setOracleName as setOracleNameVesting,
+    subscribeToCoinPair as subscribeToCoinPairVesting,
     unStake as unStakeVesting,
+    unsubscribeFromCoinPair as unsubscribeFromCoinPairVesting,
     vestingVerify,
     vote as voteVesting,
     withdrawAll as withdrawAllVesting,
@@ -82,9 +95,11 @@ import { useIncentiveV2 } from "../hooks/useIncentiveV2";
 import { useLatestBlockNumber } from "../hooks/useLatestBlockNumber";
 import { useOffchainPrices } from "../hooks/useOffchainPrices";
 import { useOnchainPrices } from "../hooks/useOnchainPrices";
+import { useOracleCoinPairs } from "../hooks/useOracleCoinPairs";
 import { usePriceProvider } from "../hooks/usePriceProvider";
 import { readContracts } from "../hooks/useReadContracts";
 import { readContractsV1 } from "../hooks/useReadContractsV1";
+import { useRegisteredOracles } from "../hooks/useRegisteredOracles";
 import { useRpcErrorHandler } from "../hooks/useRpcErrorHandler";
 import { useRpcErrorIntegration } from "../hooks/useRpcErrorIntegration";
 import { useUserBalance } from "../hooks/useUserBalance";
@@ -275,6 +290,22 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const userOmocBalance = useUserOmocBalance(
         contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
         address,
+        REFRESH_INTERVAL_USER_BALANCE
+    );
+
+    // When vesting is in use, oracle ownership (subscriptions, round
+    // selection) lives on the vesting contract's account, not the connected
+    // wallet — same "vesting acts as the account" rule Staking/Voting follow.
+    const oracleCoinPairs = useOracleCoinPairs(
+        publicClient,
+        contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
+        (vestingAddress as `0x${string}` | undefined) ?? address,
+        REFRESH_INTERVAL_USER_BALANCE
+    );
+
+    const registeredOracles = useRegisteredOracles(
+        publicClient,
+        contractsAddressLoaded ? (contractsAddress ?? undefined) : undefined,
         REFRESH_INTERVAL_USER_BALANCE
     );
 
@@ -910,6 +941,189 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const interfaceOracleSubscribeCoinPair = async (
+        coinPair: `0x${string}`,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
+        try {
+            const interfaceContext = buildInterfaceContext();
+            if (isVestingLoaded() && vestingAddress) {
+                return await subscribeToCoinPairVesting(
+                    interfaceContext,
+                    coinPair,
+                    vestingAddress as `0x${string}`,
+                    onTransaction,
+                    onReceipt
+                );
+            }
+            return await subscribeToCoinPair(
+                interfaceContext,
+                coinPair,
+                onTransaction,
+                onReceipt
+            );
+        } catch (error) {
+            onError(error);
+        }
+    };
+
+    const interfaceOracleUnsubscribeCoinPair = async (
+        coinPair: `0x${string}`,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
+        try {
+            const interfaceContext = buildInterfaceContext();
+            if (isVestingLoaded() && vestingAddress) {
+                return await unsubscribeFromCoinPairVesting(
+                    interfaceContext,
+                    coinPair,
+                    vestingAddress as `0x${string}`,
+                    onTransaction,
+                    onReceipt
+                );
+            }
+            return await unsubscribeFromCoinPair(
+                interfaceContext,
+                coinPair,
+                onTransaction,
+                onReceipt
+            );
+        } catch (error) {
+            onError(error);
+        }
+    };
+
+    const interfaceOracleRegister = async (
+        oracleAddr: `0x${string}`,
+        url: string,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
+        try {
+            const interfaceContext = buildInterfaceContext();
+            if (isVestingLoaded() && vestingAddress) {
+                return await registerOracleVesting(
+                    interfaceContext,
+                    oracleAddr,
+                    url,
+                    vestingAddress as `0x${string}`,
+                    onTransaction,
+                    onReceipt
+                );
+            }
+            return await registerOracle(
+                interfaceContext,
+                oracleAddr,
+                url,
+                onTransaction,
+                onReceipt
+            );
+        } catch (error) {
+            onError(error);
+        }
+    };
+
+    const interfaceOracleRemove = async (
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
+        try {
+            const interfaceContext = buildInterfaceContext();
+            if (isVestingLoaded() && vestingAddress) {
+                return await removeOracleVesting(
+                    interfaceContext,
+                    vestingAddress as `0x${string}`,
+                    onTransaction,
+                    onReceipt
+                );
+            }
+            return await removeOracle(interfaceContext, onTransaction, onReceipt);
+        } catch (error) {
+            onError(error);
+        }
+    };
+
+    const interfaceOracleSetName = async (
+        url: string,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
+        try {
+            const interfaceContext = buildInterfaceContext();
+            if (isVestingLoaded() && vestingAddress) {
+                return await setOracleNameVesting(
+                    interfaceContext,
+                    url,
+                    vestingAddress as `0x${string}`,
+                    onTransaction,
+                    onReceipt
+                );
+            }
+            return await setOracleName(
+                interfaceContext,
+                url,
+                onTransaction,
+                onReceipt
+            );
+        } catch (error) {
+            onError(error);
+        }
+    };
+
+    const interfaceOracleSwitchRound = async (
+        coinPairPriceAddress: `0x${string}`,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
+        try {
+            const interfaceContext = buildInterfaceContext();
+            return await switchRound(
+                interfaceContext,
+                coinPairPriceAddress,
+                onTransaction,
+                onReceipt
+            );
+        } catch (error) {
+            onError(error);
+        }
+    };
+
+    const interfaceOracleSetAddress = async (
+        oracleAddr: `0x${string}`,
+        onTransaction: OnTransaction,
+        onReceipt: OnReceipt,
+        onError: (error: unknown) => void
+    ): Promise<unknown> => {
+        try {
+            const interfaceContext = buildInterfaceContext();
+            if (isVestingLoaded() && vestingAddress) {
+                return await setOracleAddressVesting(
+                    interfaceContext,
+                    oracleAddr,
+                    vestingAddress as `0x${string}`,
+                    onTransaction,
+                    onReceipt
+                );
+            }
+            return await setOracleAddress(
+                interfaceContext,
+                oracleAddr,
+                onTransaction,
+                onReceipt
+            );
+        } catch (error) {
+            onError(error);
+        }
+    };
+
     const interfaceStakingDelayMachineWithdraw = async (
         idWithdraw: string | number,
         onTransaction: OnTransaction,
@@ -1252,6 +1466,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 walletClient,
                 userVesting,
                 userOmocBalance,
+                oracleCoinPairs,
+                registeredOracles,
                 userIncentiveV2,
                 userVeto,
                 userLending,
@@ -1269,6 +1485,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 interfaceMigrateRifPro,
                 interfaceStakingApprove,
                 interfaceStakingAddStake,
+                interfaceOracleSubscribeCoinPair,
+                interfaceOracleUnsubscribeCoinPair,
+                interfaceOracleRegister,
+                interfaceOracleRemove,
+                interfaceOracleSetName,
+                interfaceOracleSetAddress,
+                interfaceOracleSwitchRound,
                 interfaceStakingDelayMachineWithdraw,
                 interfaceStakingDelayMachineCancelWithdraw,
                 onShowModalAccount,
