@@ -639,7 +639,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         setVestingAddress(vAddress === "" ? undefined : vAddress);
     }, []);
 
-    const saveUserVesting = (response: VestingResponse): void => {
+    const saveUserVesting = useCallback((response: VestingResponse): void => {
         if (!address) return;
         if (
             response.transactions !== undefined &&
@@ -667,9 +667,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 saveVestingAddressesToLocalStorage(address, vLowerFromStorage);
             }
         }
-    };
+    }, [address]);
 
-    const readUserVesting = (): void => {
+    const readUserVesting = useCallback((): void => {
+        if (!address) return;
         if (!API_OPERATIONS_BASE) {
             console.warn(
                 "readUserVesting: REACT_APP_ENVIRONMENT_API_OPERATIONS is not set"
@@ -679,8 +680,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         const url = new URL(API_OPERATIONS_BASE);
         url.pathname = "/v1/omoc/vesting_created/";
         url.search = new URLSearchParams({
-            holder: address || "",
-            limit: "20",
+            holder: address,
+            limit: "50",
             skip: "0",
         }).toString();
 
@@ -691,7 +692,16 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             .catch((error: Error) => {
                 console.error(error);
             });
-    };
+    }, [address, saveUserVesting]);
+
+    // Discover the connected wallet's vesting contracts from the backend and
+    // persist them to localStorage. Without this, vesting addresses only ever
+    // reach storage when created in-session or pasted manually in the Account
+    // modal, so externally-created vestings never show up in the dapp.
+    useEffect(() => {
+        if (!address) return;
+        readUserVesting();
+    }, [address, readUserVesting]);
 
     const isVestingLoaded = (): boolean => {
         return !!vestingAddress;
