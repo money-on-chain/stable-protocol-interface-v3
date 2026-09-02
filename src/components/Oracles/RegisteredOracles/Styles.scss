@@ -1,0 +1,158 @@
+.registeredOracles {
+    width: 100%;
+    overflow: hidden;
+
+    .registeredOracles__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 24px;
+        margin-bottom: 20px;
+
+        .layout-card-title {
+            margin-bottom: 0;
+        }
+    }
+
+    .ant-table {
+        background: transparent;
+        color: var(--color-txt-primary);
+    }
+
+    .ant-table-container table {
+        border-spacing: 0 4px;
+    }
+
+    .ant-table-thead > tr > th {
+        border: 0 !important;
+        background: transparent;
+        padding: 12px 10px 4px;
+        color: var(--color-txt-secondary);
+        font-weight: 600;
+        font-size: 10px;
+        line-height: 1.2;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+    }
+
+    .ant-table-thead > tr > th::before {
+        display: none;
+    }
+
+    .ant-table-tbody > tr.ant-table-row > td {
+        border: 0 !important;
+        background: var(--surface-color-2);
+        padding: 16px 10px;
+        vertical-align: middle;
+    }
+
+    .ant-table-tbody > tr.ant-table-row > td:first-child {
+        border-radius: var(--card-border-radius) 0 0 var(--card-border-radius);
+    }
+
+    .ant-table-tbody > tr.ant-table-row > td:last-child {
+        border-radius: 0 var(--card-border-radius) var(--card-border-radius) 0;
+    }
+
+    .ant-table-tbody > tr.ant-table-row:hover > td,
+    .ant-table-tbody > tr > td.ant-table-cell-row-hover {
+        background: var(--surface-color-2) !important;
+    }
+
+    .address-section {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        white-space: nowrap;
+
+        .address {
+            display: inline-flex;
+        }
+
+        a {
+            display: inline-flex;
+            align-items: center;
+            color: var(--color-txt-link);
+        }
+
+        .copyAddress__button {
+            flex: 0 0 auto;
+            margin-left: auto;
+            cursor: pointer;
+        }
+
+        .icon-copy {
+            width: 16px;
+            height: 16px;
+            background-size: 16px 16px;
+            filter: var(--color-icon-link-filter);
+        }
+    }
+
+    .registeredOracles__pairs {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 6px;
+    }
+
+    .registeredOracles__pair {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        border: 0;
+        border-radius: 999px;
+        background: var(--surface-color-3);
+        padding: 0 10px;
+        height: 24px;
+        color: var(--color-txt-primary);
+        font-weight: 600;
+        font-size: 12px;
+        line-height: 1;
+        font-family: var(--main-font);
+        white-space: nowrap;
+
+        &::before {
+            flex: 0 0 12px;
+            filter: var(--color-icon-link-filter);
+            background-image: url("../../../assets/icons/Selected.svg");
+            background-position: center;
+            background-size: 12px 12px;
+            background-repeat: no-repeat;
+            width: 12px;
+            height: 12px;
+            content: "";
+        }
+    }
+
+    .registeredOracles__noPairs {
+        color: var(--color-txt-secondary);
+    }
+
+    .registeredOracles__gas--low {
+        color: var(--color-semantic-negative);
+        text-decoration: underline dotted;
+    }
+
+    .ant-table-tbody > tr.registeredOracles__row--own > td:first-child {
+        box-shadow: inset 3px 0 0 var(--color-controls-foreground-on);
+    }
+}
+
+@media (max-width: 600px) {
+    .registeredOracles {
+        .registeredOracles__header {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ant-table-thead > tr > th,
+        .ant-table-tbody > tr.ant-table-row > td {
+            padding-right: 8px;
+            padding-left: 8px;
+        }
+    }
+}

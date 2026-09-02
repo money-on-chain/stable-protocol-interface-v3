@@ -21,6 +21,7 @@ export type DContracts = {
     IncentiveV2?: ContractInfo;
     IRegistry?: ContractInfo;
     VestingMachine?: ContractInfo;
+    OracleManager?: ContractInfo;
 
     // Protocol contracts
     MocMultiCollateralGuard?: ContractInfo;

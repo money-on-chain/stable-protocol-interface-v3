@@ -72,6 +72,16 @@ export function useContractOmocStatus(
                 });
             }
 
+            if (contracts.OracleManager) {
+                callRequest.push({
+                    contract: contracts.OracleManager,
+                    functionName: "getMinCPSubscriptionStake",
+                    args: [],
+                    resultType: "uint256",
+                    keys: ["oraclemanager", "getMinCPSubscriptionStake"],
+                });
+            }
+
             if (contracts.DelayMachine) {
                 callRequest.push({
                     contract: contracts.DelayMachine,

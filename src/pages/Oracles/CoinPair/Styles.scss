@@ -1,0 +1,19 @@
+.oracles-coinpair-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--layout-module-gap-vertical);
+
+    > .content-page:empty {
+        display: none;
+    }
+
+    > .content-page {
+        display: flex;
+        flex-direction: column;
+        gap: var(--layout-module-gap-vertical);
+    }
+
+    > .section-container {
+        margin-top: 0;
+    }
+}
