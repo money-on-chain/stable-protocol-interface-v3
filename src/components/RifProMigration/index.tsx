@@ -123,7 +123,7 @@ export default function RifProMigration(): React.ReactElement | null {
                                         <div className="MigrationAssetLabel">{t("rifProMigration.exchanging")}</div>
                                         <div className="MigrationAssetContent">
                                             <div
-                                                className="icon-token-RIFP MigrationTokenIcon"
+                                                className="icon-token-RIFP_LEGACY MigrationTokenIcon"
                                                 aria-hidden="true"
                                             ></div>
                                             <div className="MigrationAssetDetails">
