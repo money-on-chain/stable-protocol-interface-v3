@@ -208,7 +208,8 @@ export default function LastOperations(props: LastOperationsProps) {
         total: 0,
     });
     const [totalTable, setTotalTable] = useState(0);
-    const [pageSize, setPageSize] = useState(10);
+    // Fixed page size — the per-page selector was removed from the pagination UI.
+    const pageSize = 10;
     //const [loadingSke, setLoadingSke] = useState(true);
     const [queueModal, setQueueModal] = useState(false);
     const lastOperationsHeight = getComputedStyle(
@@ -2016,17 +2017,7 @@ export default function LastOperations(props: LastOperationsProps) {
                             defaultCurrent: 1,
                             onChange: onChange,
                             total: totalTable,
-                            pageSizeOptions: [10, 20, 50, 100],
-                            showSizeChanger: true,
-                            onShowSizeChange: (current, pageSize) => {
-                                setPageSize(pageSize);
-                            },
-                            locale: {
-                                items_per_page: t(
-                                    "operations.table.itemsPerPage",
-                                    { ns: ns }
-                                ),
-                            },
+                            showSizeChanger: false,
                         }}
                         columns={tableColumns}
                         dataSource={
