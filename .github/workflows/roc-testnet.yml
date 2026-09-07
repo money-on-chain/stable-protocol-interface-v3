@@ -51,6 +51,8 @@ jobs:
               run: pnpm audit --audit-level=high
 
             - name: Build
+              env:
+                  REACT_APP_WALLET_CONNECT_PROJECT_ID: ${{ vars.REACT_APP_WALLET_CONNECT_PROJECT_ID }}
               run: pnpm run build:roc-testnet
 
             - name: Pin to IPFS
