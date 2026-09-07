@@ -53,7 +53,9 @@ jobs:
             - name: Build
               env:
                   REACT_APP_WALLET_CONNECT_PROJECT_ID: ${{ vars.REACT_APP_WALLET_CONNECT_PROJECT_ID || secrets.REACT_APP_WALLET_CONNECT_PROJECT_ID }}
-              run: pnpm run build:roc-testnet
+              run: |
+                  test -n "$REACT_APP_WALLET_CONNECT_PROJECT_ID" || { echo "::error::REACT_APP_WALLET_CONNECT_PROJECT_ID is not set as an Actions Variable or Secret"; exit 1; }
+                  pnpm run build:roc-testnet
 
             - name: Pin to IPFS
               id: upload
