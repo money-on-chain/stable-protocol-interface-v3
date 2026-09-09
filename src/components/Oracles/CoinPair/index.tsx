@@ -63,6 +63,8 @@ export default function CoinPair(): React.ReactElement {
         contractsAddress,
         address,
         vestingAddress,
+        userVesting,
+        isVestingLoaded,
     } = useWalletContext();
 
     // When vesting is in use, "our oracle" is registered under the vesting
@@ -74,7 +76,13 @@ export default function CoinPair(): React.ReactElement {
         ? (contractProtocolStatusV1.data?.mocUsdPrice ?? 0n)
         : ConvertAmount(contractProtocolStatus, "TG", "USD", WAD, 0);
 
-    const stakingInfo = userOmocBalance.data?.stakingmachine;
+    // When vesting is in use, the oracle is registered and staked under the
+    // vesting contract's account, not the connected wallet — same rule
+    // OracleSetup follows for its own stakingInfo/registration checks.
+    const stakingInfo =
+        isVestingLoaded() && userVesting.data
+            ? userVesting.data.vestingmachine?.staking
+            : userOmocBalance.data?.stakingmachine;
     const isOracleRegistered = stakingInfo?.isOracleRegistered ?? false;
     const isRegistrationKnown =
         typeof stakingInfo?.isOracleRegistered === "boolean";
