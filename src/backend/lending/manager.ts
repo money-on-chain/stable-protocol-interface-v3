@@ -16,6 +16,7 @@ type SimulateParams = {
     gasPrice?: bigint;
 };
 
+import { env } from "../../constants/v1";
 import type {
     InterfaceContext,
     OnReceipt,
@@ -27,16 +28,20 @@ type Address = `0x${string}`;
 
 /**
  * Legacy MoC v1's own mintDoc/redeemFreeDoc enforce a hardcoded max
- * tx.gasprice (~30.3M wei) — a deliberate protocol guard, not a bug. Any
- * call that ends up routing through that swap (repayWithAC sells vault
- * collateral for TP via MoC v1) must pin its own gas price below that cap
- * explicitly: the wallet's default gas price isn't derived from the
- * network's current base fee, so there's no other way to keep it under the
- * limit from here. Must also stay above the network's current base fee
- * (e.g. e2e's realistic-mining loop holds it at 22M) or the transaction is
- * simply invalid and never gets mined.
+ * tx.gasprice (a protocol-level value that can be changed by governance,
+ * observed at ~30.3M wei) — a deliberate guard, not a bug. Any call that
+ * ends up routing through that swap (repayWithAC sells vault collateral for
+ * TP via MoC v1) must pin its own gas price below that cap explicitly: the
+ * wallet's default gas price isn't derived from the network's current base
+ * fee, so there's no other way to keep it under the limit from here. Must
+ * also stay above the network's current base fee (e.g. e2e's
+ * realistic-mining loop holds it at 22M) or the transaction is simply
+ * invalid and never gets mined. Configurable via env since MoC v1's cap can
+ * change without a corresponding dapp release.
  */
-const MOC_V1_SAFE_GAS_PRICE = 28_000_000n;
+const MOC_V1_SAFE_GAS_PRICE = BigInt(
+    env("REACT_APP_MOC_V1_SAFE_GAS_PRICE") || "28000000"
+);
 
 /**
  * waitForTransactionReceipt resolves once a transaction lands in a block,
