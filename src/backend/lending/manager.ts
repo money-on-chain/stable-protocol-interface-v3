@@ -13,6 +13,7 @@ type SimulateParams = {
     args: unknown[];
     account: Address | undefined;
     value?: bigint;
+    gasPrice?: bigint;
 };
 
 import type {
@@ -23,6 +24,37 @@ import type {
 import { config } from "../../wagmiConfig";
 
 type Address = `0x${string}`;
+
+/**
+ * Legacy MoC v1's own mintDoc/redeemFreeDoc enforce a hardcoded max
+ * tx.gasprice (~30.3M wei) — a deliberate protocol guard, not a bug. Any
+ * call that ends up routing through that swap (repayWithAC sells vault
+ * collateral for TP via MoC v1) must pin its own gas price below that cap
+ * explicitly: the wallet's default gas price isn't derived from the
+ * network's current base fee, so there's no other way to keep it under the
+ * limit from here. Must also stay above the network's current base fee
+ * (e.g. e2e's realistic-mining loop holds it at 22M) or the transaction is
+ * simply invalid and never gets mined.
+ */
+const MOC_V1_SAFE_GAS_PRICE = 28_000_000n;
+
+/**
+ * waitForTransactionReceipt resolves once a transaction lands in a block,
+ * whether it succeeded or reverted — it does not throw on revert. Callers
+ * here otherwise treat any resolved receipt as a completed operation, so a
+ * reverted transaction (e.g. legacy MoC v1's own gas-price guard rejecting
+ * the swap inside a queued operation) would silently be reported as success.
+ */
+const waitForSuccessfulReceipt = async (
+    hash: `0x${string}`,
+    operationName: string
+): Promise<TransactionReceipt> => {
+    const receipt = await waitForTransactionReceipt(config, { hash });
+    if (receipt.status === "reverted") {
+        throw new Error(`${operationName} transaction reverted (hash: ${hash})`);
+    }
+    return receipt;
+};
 
 /**
  * Approve a TP token so the LendingManager can pull it for deposit.
@@ -48,7 +80,7 @@ const approveTP = async (
     const txHash = await writeContract(config, request);
     if (onTransaction) onTransaction(txHash);
 
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
+    const receipt = await waitForSuccessfulReceipt(txHash, "approveTP");
     if (onReceipt) onReceipt(receipt);
 
     return receipt;
@@ -81,7 +113,7 @@ const deposit = async (
     const txHash = await writeContract(config, request);
     if (onTransaction) onTransaction(txHash);
 
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
+    const receipt = await waitForSuccessfulReceipt(txHash, "deposit");
     if (onReceipt) onReceipt(receipt);
 
     return receipt;
@@ -117,7 +149,7 @@ const withdraw = async (
     const txHash = await writeContract(config, request);
     if (onTransaction) onTransaction(txHash);
 
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
+    const receipt = await waitForSuccessfulReceipt(txHash, "withdraw");
     if (onReceipt) onReceipt(receipt);
 
     return receipt;
@@ -162,7 +194,7 @@ const addACtoVault = async (
     const txHash = await writeContract(config, request);
     if (onTransaction) onTransaction(txHash);
 
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
+    const receipt = await waitForSuccessfulReceipt(txHash, "addACtoVault");
     if (onReceipt) onReceipt(receipt);
 
     return receipt;
@@ -206,7 +238,7 @@ const removeACfromVault = async (
     const txHash = await writeContract(config, request);
     if (onTransaction) onTransaction(txHash);
 
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
+    const receipt = await waitForSuccessfulReceipt(txHash, "removeACfromVault");
     if (onReceipt) onReceipt(receipt);
 
     return receipt;
@@ -250,7 +282,7 @@ const borrow = async (
     const txHash = await writeContract(config, request);
     if (onTransaction) onTransaction(txHash);
 
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
+    const receipt = await waitForSuccessfulReceipt(txHash, "borrow");
     if (onReceipt) onReceipt(receipt);
 
     return receipt;
@@ -289,7 +321,7 @@ const repay = async (
     const txHash = await writeContract(config, request);
     if (onTransaction) onTransaction(txHash);
 
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
+    const receipt = await waitForSuccessfulReceipt(txHash, "repay");
     if (onReceipt) onReceipt(receipt);
 
     return receipt;
@@ -324,6 +356,7 @@ const repayWithAC = async (
         account: address,
     };
     simParams.value = executionFee;
+    simParams.gasPrice = MOC_V1_SAFE_GAS_PRICE;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { request } = await simulateContract(config, simParams as any);
@@ -331,7 +364,7 @@ const repayWithAC = async (
     const txHash = await writeContract(config, request);
     if (onTransaction) onTransaction(txHash);
 
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
+    const receipt = await waitForSuccessfulReceipt(txHash, "repayWithAC");
     if (onReceipt) onReceipt(receipt);
 
     return receipt;
@@ -361,7 +394,7 @@ const execute = async (
     const txHash = await writeContract(config, request);
     if (onTransaction) onTransaction(txHash);
 
-    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
+    const receipt = await waitForSuccessfulReceipt(txHash, "execute");
     if (onReceipt) onReceipt(receipt);
 
     return receipt;

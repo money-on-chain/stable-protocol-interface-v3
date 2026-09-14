@@ -380,6 +380,7 @@ export default function BorrowRepayWithCollateral({
                 <OperationActions>
                     <button
                         className="button borrow-repay-with-collateral-actions__confirm"
+                        data-testid="borrow-repay-with-collateral-confirm"
                         disabled={!hasPendingChanges || hasValidationError}
                         onClick={() => onConfirm(card, collateralAmount)}
                         type="button"
