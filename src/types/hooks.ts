@@ -21,6 +21,7 @@ export type DContracts = {
     IncentiveV2?: ContractInfo;
     IRegistry?: ContractInfo;
     VestingMachine?: ContractInfo;
+    OracleManager?: ContractInfo;
 
     // Protocol contracts
     MocMultiCollateralGuard?: ContractInfo;
@@ -55,6 +56,8 @@ export type DContracts = {
     // Extras contracts
     tp_legacy?: ContractInfo;
     token_migrator?: ContractInfo;
+    legacy_rifpro?: ContractInfo;
+    rifpro_migrator?: ContractInfo;
 
     [k: string]:
         | ContractInfo

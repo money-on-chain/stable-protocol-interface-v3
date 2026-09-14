@@ -193,6 +193,7 @@ export default function SendV1(): React.ReactElement {
                             balanceLabel={t("send.labelBalance")}
                             action="send"
                             currencyOptions={tokenSend}
+                            selectorTestId="send-v1-input-token-popup"
                             tokenSelectable
                             selectedTokenValue={currencyYouSend}
                             onTokenSelect={onChangeCurrencyYouSend}

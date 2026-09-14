@@ -1,0 +1,46 @@
+{
+    "abi": [
+        {
+            "inputs": [],
+            "name": "getMinCPSubscriptionStake",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "ownerAddr",
+                    "type": "address"
+                }
+            ],
+            "name": "getOracleRegistrationInfo",
+            "outputs": [
+                {
+                    "internalType": "string",
+                    "name": "internetName",
+                    "type": "string"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "stake",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "address",
+                    "name": "oracleAddr",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        }
+    ]
+}

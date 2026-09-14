@@ -1,0 +1,572 @@
+.coinPair {
+    width: 100%;
+    overflow: hidden;
+
+    .coinPair__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 24px;
+        margin-bottom: 20px;
+
+        .layout-card-title {
+            margin-bottom: 0;
+        }
+    }
+
+    .coinPair__subscriptionsTable {
+        .ant-table {
+            background: transparent;
+            color: var(--color-txt-primary);
+        }
+
+        .ant-table-container table {
+            border-spacing: 0 4px;
+        }
+
+        .ant-table-thead > tr > th {
+            border: 0 !important;
+            background: transparent;
+            padding: 12px 10px 4px;
+            color: var(--color-txt-secondary);
+            font-weight: 600;
+            font-size: 10px;
+            line-height: 1.2;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+
+        .ant-table-thead > tr > th::before {
+            display: none;
+        }
+
+        .ant-table-tbody > tr.ant-table-row > td {
+            border: 0 !important;
+            background: var(--surface-color-2);
+            padding: 16px 10px;
+            vertical-align: middle;
+        }
+
+        .ant-table-tbody > tr.ant-table-row > td:first-child {
+            border-radius: var(--card-border-radius) 0 0
+                var(--card-border-radius);
+        }
+
+        .ant-table-tbody > tr.ant-table-row > td:last-child {
+            border-radius: 0 var(--card-border-radius) var(--card-border-radius)
+                0;
+        }
+
+        .ant-table-tbody > tr.ant-table-row:hover > td,
+        .ant-table-tbody > tr > td.ant-table-cell-row-hover {
+            background: var(--surface-color-2) !important;
+        }
+
+        .ant-table-expanded-row > td,
+        .ant-table-expanded-row:hover > td {
+            border: 0 !important;
+            background: transparent !important;
+            padding: 0 0 4px !important;
+        }
+
+        .ant-table-tbody
+            > tr.coinPair__row--expanded.ant-table-row
+            > td:first-child {
+            border-bottom-left-radius: 0;
+        }
+
+        .ant-table-tbody
+            > tr.coinPair__row--expanded.ant-table-row
+            > td:last-child {
+            border-bottom-right-radius: 0;
+        }
+
+        .button--compact {
+            width: auto;
+            min-width: 104px;
+        }
+
+        .button--compact:disabled {
+            cursor: not-allowed;
+            border-color: var(--color-btn-primary-background-disabled);
+            background-color: var(--color-btn-primary-background-disabled);
+            color: var(--color-btn-primary-txt-disabled);
+            opacity: 1;
+        }
+
+        .button--compact--secondary:disabled {
+            border-color: var(--color-btn-secondary-txt-disabled);
+            background-color: var(--color-btn-secondary-background-disabled);
+            color: var(--color-btn-secondary-txt-disabled);
+        }
+    }
+
+    .coinPair__expanded {
+        position: relative;
+        top: -4px;
+        box-shadow: var(--data-shadows-inset);
+        border-radius: 0 0 var(--card-border-radius) var(--card-border-radius);
+        background: var(--surface-color-inset);
+        padding: 20px;
+        min-width: 0;
+    }
+
+    .coinPair__expandToggle {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 0.2s;
+        cursor: pointer;
+        border: 0;
+        background: transparent;
+        padding: 0;
+        width: 24px;
+        height: 24px;
+
+        &:hover,
+        &:focus-visible {
+            opacity: 0.75;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-controls-foreground-on);
+            outline-offset: 2px;
+            border-radius: 50%;
+        }
+    }
+
+    .coinPair__expandIcon {
+        background: var(--color-controls-foreground-on);
+        mask-position: center;
+        mask-size: 24px 24px;
+        mask-repeat: no-repeat;
+        width: 24px;
+        height: 24px;
+    }
+
+    .coinPair__expandIcon--expand {
+        mask-image: url("../../../assets/icons/IconToggleExpand.svg");
+    }
+
+    .coinPair__expandIcon--collapse {
+        mask-image: url("../../../assets/icons/IconToggleCollapse.svg");
+    }
+
+    .coinPair__expandedHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .coinPair__expandedHeader--compact {
+        .coinPair__expandedIdentity,
+        .coinPair__headlineMetric {
+            flex-basis: calc((100% - 8px) / 2);
+        }
+    }
+
+    .coinPair__metricsDashboard {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 8px;
+        margin-bottom: 20px;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .coinPair__metricsDashboard--compact {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .coinPair__headlineMetric {
+        display: flex;
+        flex: 0 0 calc((100% - 16px) / 3);
+        align-items: center;
+        gap: 8px;
+        box-sizing: border-box;
+        border-radius: var(--card-border-radius);
+        background: var(--surface-color-2);
+        padding: 10px 12px;
+        min-width: 256px;
+
+        .cardHeaderMetrics {
+            flex: 0 0 calc((100% - 8px) / 2);
+            justify-content: flex-end;
+        }
+
+        .cardHeaderMetrics__item {
+            align-items: flex-end;
+            width: 100%;
+            min-width: 0;
+        }
+
+        .cardHeaderMetrics__label,
+        .cardHeaderMetrics__value {
+            text-align: right;
+        }
+
+        .coinPair__switchRoundHint {
+            flex: 0 0 calc((100% - 8px) / 2);
+            align-self: center;
+        }
+
+        .coinPair__switchRoundButton {
+            width: 100%;
+        }
+    }
+
+    .coinPair__metricGroup {
+        display: contents;
+
+        .cardHeaderMetrics {
+            display: contents;
+        }
+
+        .cardHeaderMetrics__item {
+            justify-content: center;
+            border-radius: var(--card-border-radius);
+            background: var(--surface-color-2);
+            padding: 10px 12px;
+            min-width: 0;
+            min-height: 60px;
+        }
+    }
+
+    .coinPair__metricGroup--round,
+    .coinPair__metricGroup--price {
+        .cardHeaderMetrics__value::after {
+            display: block;
+            margin-top: 2px;
+            height: 12px;
+            content: "";
+        }
+    }
+
+    .coinPair__expandedIdentity {
+        display: flex;
+        flex: 0 0 calc((100% - 16px) / 3);
+        flex-direction: column;
+        align-items: flex-start;
+        box-sizing: border-box;
+        border-radius: var(--card-border-radius);
+        background: var(--surface-color-2);
+        padding: 10px 12px;
+        min-width: 256px;
+
+        .button--compact {
+            width: auto;
+            min-width: 0;
+        }
+
+        .button--compact:disabled {
+            cursor: not-allowed;
+            border-color: var(--color-btn-secondary-txt-disabled);
+            background-color: var(--color-btn-secondary-background-disabled);
+            color: var(--color-btn-secondary-txt-disabled);
+            opacity: 1;
+        }
+    }
+
+    .coinPair__expandedLabel {
+        color: var(--color-txt-secondary);
+        font-weight: 600;
+        font-size: 10px;
+        line-height: 16px;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+    }
+
+    .coinPair__switchRoundHint {
+        display: flex;
+    }
+
+    .coinPair__switchRoundButton {
+        width: 100%;
+        white-space: nowrap;
+    }
+
+    .coinPair__rewardValue {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 2px;
+    }
+
+    .coinPair__rewardAmount {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 4px;
+    }
+
+    .coinPair__rewardNumber {
+        color: var(--color-txt-primary);
+        font-weight: 700;
+        font-size: 16px;
+        line-height: 19px;
+    }
+
+    .coinPair__rewardUsd {
+        color: var(--color-txt-secondary);
+        font-weight: 600;
+        font-size: 10px;
+    }
+
+    .coinPair__expandedTitle {
+        margin-top: 2px;
+        color: var(--color-txt-highlight);
+        font-weight: 700;
+        font-size: 16px;
+        line-height: 1.3;
+    }
+
+    .coinPair__detailLoading {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        border-radius: var(--card-border-radius);
+        background: var(--surface-color-2);
+        padding: 20px;
+        min-height: 112px;
+        text-align: center;
+    }
+
+    .coinPair__detailLoadingIcon {
+        flex: 0 0 32px;
+        filter: var(--filter-semantic-neutral);
+    }
+
+    .coinPair__detailLoadingBody {
+        width: min(100%, 420px);
+        min-width: 0;
+    }
+
+    .coinPair__detailLoadingText {
+        margin-bottom: 12px;
+        color: var(--color-txt-primary);
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .coinPair__detailSkeleton {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+
+        span {
+            animation: coinPair-detail-skeleton 1.2s ease-in-out infinite;
+            border-radius: 4px;
+            background: var(--surface-color-3);
+            margin-right: auto;
+            margin-left: auto;
+            width: 100%;
+            height: 8px;
+
+            &:nth-child(2) {
+                animation-delay: 0.15s;
+                width: 86%;
+            }
+
+            &:nth-child(3) {
+                animation-delay: 0.3s;
+                width: 68%;
+            }
+        }
+    }
+
+    .coinPair__oraclesTable {
+        .ant-table {
+            margin-bottom: 0;
+        }
+
+        .ant-table-tbody > tr.coinPair__oracleRow--own > td:first-child {
+            box-shadow: inset 3px 0 0 var(--color-controls-foreground-on);
+        }
+
+        .ant-table-tbody > tr.ant-table-placeholder > td {
+            border: 0 !important;
+            border-radius: var(--card-border-radius);
+            background: var(--surface-color-2) !important;
+            padding: 24px 12px !important;
+            color: var(--color-txt-secondary) !important;
+            font-weight: 600;
+        }
+
+        .ant-table-tbody > tr.ant-table-placeholder > td * {
+            color: inherit !important;
+        }
+
+        .ant-table-placeholder:hover > td {
+            background: var(--surface-color-2) !important;
+        }
+
+        .ant-empty {
+            margin: 0;
+        }
+
+        .ant-empty-description {
+            color: var(--color-txt-secondary) !important;
+        }
+
+        .address-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            white-space: nowrap;
+
+            .copyAddress__button {
+                flex: 0 0 auto;
+                margin-left: auto;
+            }
+
+            a {
+                color: var(--color-txt-link);
+            }
+
+            a:hover {
+                text-decoration: underline;
+            }
+
+            .icon-copy {
+                width: 16px;
+                height: 16px;
+                background-size: 16px 16px;
+                filter: var(--color-icon-link-filter);
+            }
+        }
+    }
+
+    .coinPair__detailTag {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        background: var(--surface-color-3);
+        padding: 0 10px;
+        min-height: 24px;
+        color: var(--color-txt-secondary);
+        font-weight: 600;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .coinPair__detailTag--positive {
+        color: var(--color-semantic-positive);
+    }
+
+    .coinPair__detailTag--negative {
+        color: var(--color-semantic-negative);
+    }
+
+    .coinPair__detailTag--warning {
+        color: var(--color-semantic-neutral-alt);
+    }
+
+    .coinPair__warning {
+        margin-bottom: 16px;
+    }
+
+    .coinPair__status {
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .coinPair__status--subscribed {
+        color: var(--color-semantic-positive);
+    }
+
+    .coinPair__status--notSubscribed {
+        color: var(--color-txt-secondary);
+    }
+
+    .coinPair__price--stale {
+        color: var(--color-semantic-negative);
+        text-decoration: underline dotted;
+    }
+}
+
+@keyframes coinPair-detail-skeleton {
+    0%,
+    100% {
+        opacity: 0.35;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .coinPair__detailSkeleton span {
+        animation: none;
+        opacity: 0.7;
+    }
+}
+
+@media (max-width: 600px) {
+    .coinPair {
+        .coinPair__header {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .coinPair__subscriptionsTable {
+            .ant-table-thead > tr > th,
+            .ant-table-tbody > tr.ant-table-row > td {
+                padding-right: 8px;
+                padding-left: 8px;
+            }
+        }
+
+        .coinPair__expanded {
+            padding: 12px;
+        }
+
+        .coinPair__expandedHeader {
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .coinPair__expandedHeader--compact {
+            .coinPair__expandedIdentity,
+            .coinPair__headlineMetric {
+                flex-basis: auto;
+                width: 100%;
+            }
+        }
+
+        .coinPair__headlineMetric {
+            flex-basis: auto;
+            width: 100%;
+            min-width: 0;
+        }
+
+        .coinPair__expandedIdentity {
+            flex-basis: auto;
+            width: 100%;
+            min-width: 0;
+        }
+
+        .coinPair__metricsDashboard {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            width: 100%;
+        }
+
+        .coinPair__metricsDashboard--compact {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .coinPair__rewardValue {
+            align-items: flex-start;
+        }
+    }
+}
+
+.coinPair__missedRounds--disabled {
+    color: var(--color-txt-secondary);
+}

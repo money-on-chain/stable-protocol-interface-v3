@@ -29,10 +29,6 @@ $breakpoint-mobile: 600px;
     .portfolioDash__item--actionable {
         cursor: pointer;
 
-        &:hover .icon__button__arrow {
-            filter: var(--color-icon-link-secondary-hover-filter);
-        }
-
         &:focus-visible {
             outline: 2px solid var(--color-txt-link);
             outline-offset: 4px;
@@ -91,23 +87,10 @@ $breakpoint-mobile: 600px;
             text-overflow: ellipsis;
         }
     }
-
-    .portfolioDash__action {
-        display: flex;
-        flex: 0 0 16px;
-        justify-content: center;
-        align-items: center;
-        border: none;
-        background: transparent;
-        padding: 0;
-
-        .icon__button__arrow {
-            filter: var(--color-icon-link-secondary-filter);
-        }
-    }
 }
 
-.dashboard-portfolio-info--roc {
+.dashboard-portfolio-info--roc,
+.dashboard-portfolio-info--v1 {
     .portfolioDash__item--actionable {
         position: relative;
         isolation: isolate;
@@ -154,7 +137,8 @@ $breakpoint-mobile: 600px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .dashboard-portfolio-info--roc {
+    .dashboard-portfolio-info--roc,
+    .dashboard-portfolio-info--v1 {
         .portfolioDash__item--actionable::before,
         .portfolioDash__icon__back {
             transition-duration: 0.01ms;

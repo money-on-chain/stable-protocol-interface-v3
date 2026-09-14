@@ -13,6 +13,7 @@ export type UserBalance = {
     CA: TokenBalance[];
     TP: TokenBalance[][];
     tpLegacy?: TokenBalance;
+    rifProLegacy?: TokenBalance;
     // Custom tokens keyed by pair name (e.g. "MOC/USD")
     CUSTOM?: Record<string, TokenBalance>;
 };
@@ -113,6 +114,9 @@ export type StakingMachineInfo = {
     getLockedBalance: bigint;
     getLockingInfo: [bigint, bigint]; // [lockedAmount, timestampEnd]
     tgAllowance: bigint;
+    isOracleRegistered: boolean;
+    canRemoveOracle: boolean;
+    getOracleRegistrationInfo?: [string, bigint, Address]; // [internetName, stake, oracleAddr]
 };
 
 export type VotingMachineInfo = {
@@ -147,6 +151,9 @@ export type StakingInfo = {
     getBalance: bigint;
     getLockedBalance: bigint;
     getLockingInfo: [bigint, bigint]; // [amount, timestampEnd]
+    isOracleRegistered: boolean;
+    canRemoveOracle: boolean;
+    getOracleRegistrationInfo?: [string, bigint, Address]; // [internetName, stake, oracleAddr]
 };
 
 export type VestingMachineInfo = {
@@ -188,6 +195,10 @@ export type StakingMachineStatus = {
     getOracleManager: Address;
     getSupporters: Address;
     getWithdrawLockTime: bigint;
+};
+
+export type OracleManagerStatus = {
+    getMinCPSubscriptionStake: bigint;
 };
 
 export type SupportersStatus = {
@@ -239,6 +250,7 @@ export type ContractStatusOmoc = {
     supporters: SupportersStatus;
     vetomachine: VetoMachineStatus;
     votingmachine: VotingMachineStatus;
+    oraclemanager: OracleManagerStatus;
 };
 
 export type ContractStatusOmocResult = Omit<

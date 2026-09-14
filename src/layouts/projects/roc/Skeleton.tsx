@@ -14,6 +14,7 @@ import {
     NotificationProvider,
 } from "../../../components/Notifications";
 import ModalTokenMigration from "../../../components/TokenMigration/Modal";
+import RifProMigration from "../../../components/RifProMigration";
 import UpdateToast from "../../../components/UpdateToast";
 import { useWalletContext } from "../../../context/Wallet";
 import { CheckStatusGlobal } from "../../../helpers/checkStatus";
@@ -206,6 +207,13 @@ export default function Skeleton(): JSX.Element {
         }
     }, [userBalance.data]);
 
+    const legacyRifProAvailable = React.useMemo(() => {
+        const legacyRifProBalance = userBalance.data?.rifProLegacy?.balance;
+
+        return legacyRifProBalance !== undefined && legacyRifProBalance > 0n;
+    }, [userBalance.data]);
+
+
     return (
         <NotificationProvider>
             <Layout>
@@ -257,6 +265,7 @@ export default function Skeleton(): JSX.Element {
                     )}
                     {/* Token migration modal */}
                     {legacyTpAvailable && <ModalTokenMigration />}
+                    {legacyRifProAvailable && <RifProMigration />}
                     {isConnected && !isWrongNetwork ? (
                         <Outlet />
                     ) : (

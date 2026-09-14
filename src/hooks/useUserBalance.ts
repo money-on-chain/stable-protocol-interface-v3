@@ -221,6 +221,22 @@ export function useUserBalance(
             });
         }
 
+        if (contracts.legacy_rifpro && contracts.rifpro_migrator) {
+            calls.push({
+                contract: contracts.legacy_rifpro,
+                functionName: "balanceOf",
+                args: [userAddress],
+                resultType: "uint256",
+                keys: ["rifProLegacy", "balance"],
+            });
+            calls.push({
+                contract: contracts.legacy_rifpro,
+                functionName: "allowance",
+                args: [userAddress, contracts.rifpro_migrator.address],
+                resultType: "uint256",
+                keys: ["rifProLegacy", "allowance"],
+            });
+        }
         return calls;
     }, [contracts, userAddress]);
 

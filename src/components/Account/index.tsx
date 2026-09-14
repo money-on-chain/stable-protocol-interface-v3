@@ -1,4 +1,4 @@
-import { Input, notification, Select, Switch } from "antd";
+import { Input, Select, Switch } from "antd";
 import React, { useEffect, useState } from "react";
 import QRCode from "react-qr-code";
 import { readContract } from "viem/actions";
@@ -13,6 +13,7 @@ import {
     saveDefaultVestingToLocalStorage,
     saveVestingAddressesToLocalStorage,
 } from "../../helpers/vesting";
+import CopyAddress from "../CopyAddress";
 
 const { Option } = Select;
 
@@ -34,15 +35,6 @@ function removeAllItem<T>(arr: T[], value: T): T[] {
     }
     return arr;
 }
-
-const truncateAddress = (address: string | undefined): string => {
-    if (!address || address === undefined) return "";
-    return (
-        address.substring(0, 6) +
-        "..." +
-        address.substring(address.length - 4, address.length)
-    );
-};
 
 export default function AccountDialog(props: AccountDialogProps): JSX.Element {
     const { onCloseModal, vestingOn, setVestingOn } = props;
@@ -125,35 +117,6 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
     const onDisconnect = (): void => {
         onCloseModal();
         disconnect();
-    };
-
-    const onCopy = (e: React.MouseEvent): void => {
-        e.stopPropagation();
-        /*navigator.clipboard.writeText(address);
-        showNotificationCopiedAddress(address);*/
-    };
-
-    const onCopyVesting = (e: React.MouseEvent): void => {
-        e.stopPropagation();
-        if (vestingAddressDefault) {
-            void navigator.clipboard.writeText(vestingAddressDefault);
-            showNotificationCopiedAddress(vestingAddressDefault);
-        }
-    };
-
-    const showNotificationCopiedAddress = (copiedAddress: string): void => {
-        notification.open({
-            className: "notification type-temporal",
-            message: t("feedback.clipboardCopy"),
-            description: `${copiedAddress} ` + t("feedback.clipboardTo"),
-            placement: "topRight",
-            duration: 4,
-            //pauseOnHover: true,
-            onClose: () => {
-                // destroys container when closed
-                notification.destroy();
-            },
-        });
     };
 
     const onChangeInputVestingAddress = (
@@ -336,26 +299,8 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
                             <div className="tx-id-label">
                                 {t("wallet.userAddress")}
                             </div>
-                            <div
-                                className="tx-id-address"
-                                style={{
-                                    cursor: qrValue ? "pointer" : "default",
-                                }}
-                                onClick={() => {
-                                    if (!qrValue) return;
-                                    window.open(
-                                        qrValue,
-                                        "_blank",
-                                        "noopener,noreferrer"
-                                    );
-                                }}
-                            >
-                                <div className="truncate-address">
-                                    {truncateAddress(address)}
-                                </div>
-                                <div onClick={onCopy}>
-                                    <div className="icon-copy"></div>
-                                </div>
+                            <div className="tx-id-address">
+                                <CopyAddress address={address} />
                             </div>
                         </div>
                     </div>
@@ -407,10 +352,12 @@ export default function AccountDialog(props: AccountDialogProps): JSX.Element {
                                 </Option>
                             ))}
                         </Select>
-                        <div
-                            className="icon-copy"
-                            onClick={onCopyVesting}
-                        ></div>
+                        {vestingAddressDefault ? (
+                            <CopyAddress
+                                address={vestingAddressDefault}
+                                showAddress={false}
+                            />
+                        ) : null}
                     </div>
                     <div className="wallet__vesting__options__cta">
                         <div className="wallet__vesting__options__buttons">

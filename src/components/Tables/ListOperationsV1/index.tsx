@@ -385,11 +385,7 @@ export default function ListOperationsV1(
                         defaultCurrent: 1,
                         onChange: setCurrent,
                         total,
-                        locale: {
-                            items_per_page: t("operations.table.itemsPerPage", {
-                                ns,
-                            }),
-                        },
+                        showSizeChanger: false,
                     }}
                     columns={tableColumns}
                     dataSource={isConnected ? processedData : undefined}

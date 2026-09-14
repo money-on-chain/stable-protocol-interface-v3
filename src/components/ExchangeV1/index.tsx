@@ -445,6 +445,7 @@ export default function ExchangeV1(): React.ReactElement {
                             getFiatEquivalent={onFiatEquivalentYouExchange}
                             action="exchange"
                             currencyOptions={tokenExchangeV1()}
+                            selectorTestId="exchange-v1-input-from-popup"
                             tokenSelectable
                             selectedTokenValue={currencyYouExchange}
                             onTokenSelect={onChangeCurrencyYouExchange}
@@ -498,6 +499,7 @@ export default function ExchangeV1(): React.ReactElement {
                             currencyOptions={tokenReceiveV1(
                                 currencyYouExchange
                             )}
+                            selectorTestId="exchange-v1-input-to-popup"
                             tokenSelectable
                             selectedTokenValue={currencyYouReceive}
                             onTokenSelect={onChangeCurrencyYouReceive}

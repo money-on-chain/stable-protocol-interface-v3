@@ -120,6 +120,15 @@
         ]
     },
     {
+        "nameKey": "menuOptions.oracles",
+        "className": "logo-oracles",
+        "path": "/oracles",
+        "allowedProjects": [
+            "roc",
+            "moc-v1"
+        ]
+    },
+    {
         "nameKey": "menuOptions.combinedOperations",
         "className": "logo-exchange-combined",
         "path": "/combined-operations",

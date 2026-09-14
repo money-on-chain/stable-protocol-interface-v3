@@ -16,6 +16,7 @@ import DelayMachine from "../contracts/omoc/DelayMachine.json";
 import IERC20 from "../contracts/omoc/IERC20.json";
 import IncentiveV2 from "../contracts/omoc/IncentiveV2.json";
 import IRegistry from "../contracts/omoc/IRegistry.json";
+import OracleManager from "../contracts/omoc/OracleManager.json";
 import StakingMachine from "../contracts/omoc/StakingMachine.json";
 import Supporters from "../contracts/omoc/Supporters.json";
 import VestingFactory from "../contracts/omoc/VestingFactory.json";
@@ -53,6 +54,7 @@ const ABI_FeeToken = FeeToken.abi as readonly unknown[];
 const ABI_IERC20 = IERC20.abi as readonly unknown[];
 const ABI_IncentiveV2 = IncentiveV2.abi as readonly unknown[];
 const ABI_StakingMachine = StakingMachine.abi as readonly unknown[];
+const ABI_OracleManager = OracleManager.abi as readonly unknown[];
 const ABI_DelayMachine = DelayMachine.abi as readonly unknown[];
 const ABI_Supporters = Supporters.abi as readonly unknown[];
 const ABI_VestingFactory = VestingFactory.abi as readonly unknown[];
@@ -134,6 +136,13 @@ const readContracts = async (
             address: registryAddr.data.MOC_DELAY_MACHINE,
             abi: ABI_DelayMachine,
             name: "DelayMachine",
+            type: "",
+        };
+
+        contracts.OracleManager = {
+            address: registryAddr.data.ORACLE_MANAGER_ADDR,
+            abi: ABI_OracleManager,
+            name: "OracleManager",
             type: "",
         };
 
@@ -442,6 +451,29 @@ const readContracts = async (
                     .REACT_APP_CONTRACT_TOKEN_MIGRATOR as Address,
                 abi: ABI_TokenMigrator,
                 name: "tokenMigrator",
+                type: "",
+            };
+        }
+    }
+
+    if (import.meta.env.REACT_APP_CONTRACT_LEGACY_RIFPRO) {
+        contracts.legacy_rifpro = {
+            address: import.meta.env.REACT_APP_CONTRACT_LEGACY_RIFPRO as Address,
+            abi: ABI_TokenPegged,
+            name: "legacyRifPro",
+            type: "",
+        };
+
+        if (!import.meta.env.REACT_APP_CONTRACT_RIFPRO_MIGRATOR) {
+            console.error(
+                "Please set REACT_APP_CONTRACT_RIFPRO_MIGRATOR env var"
+            );
+        } else {
+            contracts.rifpro_migrator = {
+                address: import.meta.env
+                    .REACT_APP_CONTRACT_RIFPRO_MIGRATOR as Address,
+                abi: ABI_TokenMigrator,
+                name: "rifProMigrator",
                 type: "",
             };
         }

@@ -1,0 +1,69 @@
+.textField {
+    min-width: 0;
+
+    &__label {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--color-txt-secondary);
+        font-weight: 600;
+        font-size: 12px;
+        line-height: 1.2;
+        font-family: var(--main-font);
+    }
+
+    &__control {
+        display: flex;
+        align-items: center;
+        transition:
+            border-color 0.2s,
+            outline-color 0.2s;
+        box-shadow: var(--data-shadows-inset);
+        border: 1px solid var(--data-background-color);
+        border-radius: var(--data-background-radius);
+        background: var(--data-background-color);
+        padding: 0 12px;
+        height: 40px;
+    }
+
+    &:focus-within &__control {
+        outline: 2px solid var(--brand-color-base);
+        outline-offset: 0;
+    }
+
+    &--error &__control {
+        border-color: var(--color-semantic-negative);
+    }
+
+    &--error:focus-within &__control {
+        outline-color: var(--color-semantic-negative);
+    }
+
+    &__input {
+        outline: none;
+        box-shadow: none;
+        border: 0;
+        background: transparent;
+        padding: 0;
+        width: 100%;
+        min-width: 0;
+        height: 100%;
+        color: var(--color-txt-primary);
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 1.2;
+        font-family: var(--main-font);
+
+        &::placeholder {
+            color: var(--color-txt-secondary);
+            opacity: 1;
+        }
+    }
+
+    &__error {
+        margin-top: 6px;
+        color: var(--color-semantic-negative);
+        font-size: 12px;
+        line-height: 1.3;
+        font-family: var(--main-font);
+    }
+}

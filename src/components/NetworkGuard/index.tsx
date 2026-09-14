@@ -12,11 +12,18 @@ export function NetworkGuard() {
     // whereas useChainId() is clamped to wagmi's configured chains and
     // would mask wrong-network when CHAINS only contains ALLOWED_CHAIN.
     const { isConnected, chainId } = useAccount();
-    const { switchChain, isPending } = useSwitchChain();
+    const { switchChain, isPending, error } = useSwitchChain();
 
     const isWrongNetwork = isConnected && chainId !== undefined && chainId !== ALLOWED_CHAIN.id;
 
     if (!isWrongNetwork) return null;
+
+    // Surfaced when the wallet rejects the switch, or when the target network
+    // was never added and the wallet_addEthereumChain fallback also fails —
+    // otherwise the button just stops spinning with no feedback.
+    const switchError = error
+        ? ((error as { shortMessage?: string }).shortMessage ?? error.message)
+        : null;
 
     return (
         <AppNotification
@@ -31,6 +38,7 @@ export function NetworkGuard() {
                             components={{ strong: <strong /> }}
                         />
                     </span>
+                    {switchError && <span>{switchError}</span>}
                 </Space>
             }
             actions={[
