@@ -3,12 +3,14 @@ import { formatUnits } from "viem";
 
 import { useWalletContext } from "../../context/Wallet";
 import { ConvertAmountLending } from "../../helpers/currencies";
+import { useLendingOperations } from "../../hooks/useLendingOperations";
 import { useLiquidationHistory } from "../../hooks/useLiquidationHistory";
 import settings from "../../settings";
 import type { LendingPoolStatus } from "../../types/status";
 import type { SettingsTokens } from "../../types/hooks";
 import type { BorrowCardData } from "./Borrow/data";
 import type { LendCardData } from "./Lend/data";
+import type { LendingOperation } from "./OperationsTable";
 import { getLendingBorrowingTokenMetadata } from "./tokenMetadata";
 
 const WAD = 10n ** 18n;
@@ -18,6 +20,8 @@ interface LendingBorrowingData {
     error: Error | null;
     isLoading: boolean;
     lendCards: LendCardData[];
+    operations: LendingOperation[];
+    operationsLoading: boolean;
     refetch: () => void;
 }
 
@@ -51,6 +55,7 @@ export function useLendingBorrowingData(): LendingBorrowingData {
     } = useWalletContext();
 
     const liquidationHistory = useLiquidationHistory(address);
+    const { operations, isLoading: operationsLoading } = useLendingOperations(address, contractsAddress);
 
     const tokens = (settings as { tokens?: unknown }).tokens as SettingsTokens | undefined;
     const lmData = contractLendingStatus.data?.lendingmanager;
@@ -374,6 +379,8 @@ export function useLendingBorrowingData(): LendingBorrowingData {
         error: null,
         isLoading: contractLendingStatus.isLoading || userLending.isLoading,
         lendCards,
+        operations,
+        operationsLoading,
         refetch,
     };
 }

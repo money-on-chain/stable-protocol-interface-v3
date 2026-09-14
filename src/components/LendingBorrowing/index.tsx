@@ -18,7 +18,7 @@ import { useLendingBorrowingData } from "./useLendingBorrowingData";
 
 const LendingBorrowing: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    const { borrowCards, lendCards } = useLendingBorrowingData();
+    const { borrowCards, lendCards, operations, operationsLoading } = useLendingBorrowingData();
     const actions = useLendingBorrowingActions();
     const { operationProgress } = actions;
     const view = searchParams.get("view");
@@ -82,6 +82,8 @@ const LendingBorrowing: React.FC = () => {
                 <Overview
                     borrowCards={borrowCards}
                     lendCards={lendCards}
+                    operations={operations}
+                    operationsLoading={operationsLoading}
                     onOpenBorrow={(card) =>
                         updateSearchParams((params) => {
                             params.set("view", "borrow-operation");
