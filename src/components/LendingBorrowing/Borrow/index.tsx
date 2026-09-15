@@ -329,7 +329,10 @@ export default function Borrow({
                                     ) : null}
 
                                     {card.previousLiquidation ? (
-                                        <div className="borrow-card-previous-liquidation">
+                                        <div
+                                            className="borrow-card-previous-liquidation"
+                                            data-testid={`borrow-card-previous-liquidation-${card.id}`}
+                                        >
                                             <div className="borrow-card-previous-liquidation__header">
                                                 <div className="borrow-card-previous-liquidation__title">
                                                     {t(
