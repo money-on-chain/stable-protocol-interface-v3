@@ -13,4 +13,10 @@ export interface LendCardData {
     depositedTicker: string;
     depositedAmountUsd: string;
     walletBalance: string;
+    // Unix seconds when the pool's next scheduled liquidity injection
+    // (see MocLendingManager.triggerTPInjection) becomes callable.
+    nextInjectionAt: number;
+    // Whether nextInjectionAt has passed the chain's own current block
+    // timestamp (not the browser's clock — see useChainTime).
+    injectionReady: boolean;
 }

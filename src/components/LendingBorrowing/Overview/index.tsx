@@ -16,6 +16,7 @@ interface OverviewProps {
     onOpenBorrowWithdrawCollateral: (card: BorrowCardData) => void;
     onOpenLendEarn: (token: LendCardData) => void;
     onOpenLendWithdraw: (token: LendCardData) => void;
+    onTriggerInjection: (token: LendCardData) => void;
     operations: LendingOperation[];
     operationsLoading: boolean;
 }
@@ -30,12 +31,18 @@ export default function Overview({
     onOpenBorrowWithdrawCollateral,
     onOpenLendEarn,
     onOpenLendWithdraw,
+    onTriggerInjection,
     operations,
     operationsLoading,
 }: OverviewProps): React.ReactElement {
     return (
         <>
-            <Lend cards={lendCards} onEarn={onOpenLendEarn} onWithdraw={onOpenLendWithdraw} />
+            <Lend
+                cards={lendCards}
+                onEarn={onOpenLendEarn}
+                onTriggerInjection={onTriggerInjection}
+                onWithdraw={onOpenLendWithdraw}
+            />
             <Borrow
                 cards={borrowCards}
                 onOpenBorrow={onOpenBorrow}

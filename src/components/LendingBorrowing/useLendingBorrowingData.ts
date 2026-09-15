@@ -3,6 +3,7 @@ import { formatUnits } from "viem";
 
 import { useWalletContext } from "../../context/Wallet";
 import { ConvertAmountLending } from "../../helpers/currencies";
+import { useChainTime } from "../../hooks/useChainTime";
 import { useLendingOperations } from "../../hooks/useLendingOperations";
 import { useLiquidationHistory } from "../../hooks/useLiquidationHistory";
 import settings from "../../settings";
@@ -49,6 +50,7 @@ export function useLendingBorrowingData(): LendingBorrowingData {
         contractLendingStatus,
         contractProtocolStatus,
         contractProtocolStatusV1,
+        publicClient,
         userLending,
         userBalance,
         userBaseCoinBalance,
@@ -56,6 +58,7 @@ export function useLendingBorrowingData(): LendingBorrowingData {
 
     const liquidationHistory = useLiquidationHistory(address);
     const { operations, isLoading: operationsLoading } = useLendingOperations(address, contractsAddress);
+    const chainTime = useChainTime(publicClient);
 
     const tokens = (settings as { tokens?: unknown }).tokens as SettingsTokens | undefined;
     const lmData = contractLendingStatus.data?.lendingmanager;
@@ -92,6 +95,8 @@ export function useLendingBorrowingData(): LendingBorrowingData {
 
             const depositedTpUsd = toUsd(tokenCode, depositedTp, 0);
 
+            const nextInjectionTime = pool?.getNextInjectionTime ?? 0n;
+
             return {
                 id: `lend-tp-${tpIndex}`,
                 caIndex: 0,
@@ -107,9 +112,15 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                 availableToWithdrawAmount: fmtBigInt(depositedTp, 18, meta.visibleDecimals),
                 availableToWithdrawAmountUsd: fmtBigInt(depositedTpUsd),
                 walletBalance: fmtBigInt(tpBalance, 18, meta.visibleDecimals),
+                nextInjectionAt: Number(nextInjectionTime),
+                // Compared against the chain's own current block timestamp,
+                // not the browser's clock — a forked/idle chain's own time
+                // can drift arbitrarily far from the real wall clock, and
+                // the on-chain guard only ever checks block.timestamp.
+                injectionReady: nextInjectionTime > 0n && chainTime !== undefined && chainTime >= nextInjectionTime,
             };
         });
-    }, [contractsAddress, toUsd, pools, userLending.data, userBalance.data, tokens]);
+    }, [chainTime, contractsAddress, toUsd, pools, userLending.data, userBalance.data, tokens]);
 
     const borrowCards: BorrowCardData[] = React.useMemo((): BorrowCardData[] => {
         if (!contractsAddress?.TP || !contractsAddress?.Moc || !tokens) return [];

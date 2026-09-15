@@ -1035,6 +1035,11 @@
                 "noAmount": "Ingresa un monto",
                 "withdrawAll": "Retirar todo"
             }
+        },
+        "injection": {
+            "ready": "Inyección de liquidez lista",
+            "availableAt": "Próxima inyección de liquidez: {{date}}",
+            "cta": "Activar"
         }
     },
     "borrowing": {
@@ -1100,7 +1105,8 @@
                 "repay": "Repagar {{token}}",
                 "repayWithCollateral": "Repagar {{token}} con colateral",
                 "depositCollateral": "Depositar {{token}} como colateral",
-                "withdrawCollateral": "Retirar colateral {{token}}"
+                "withdrawCollateral": "Retirar colateral {{token}}",
+                "injectTP": "Activar inyección de liquidez para {{token}}"
             },
             "actions": { "cancel": "Cancelar", "close": "Cerrar" },
             "approveTP": "Aprobar token",
@@ -1112,6 +1118,7 @@
             "repayWithCollateral": "Repagar con colateral",
             "depositCollateral": "Depositar colateral",
             "withdrawCollateral": "Retirar colateral",
+            "injectTP": "Activar inyección",
             "descriptions": {
                 "pending": "Este paso comenzará cuando se confirme la transacción anterior.",
                 "processing": "Espera mientras la transacción se confirma en la blockchain.",
@@ -1125,7 +1132,8 @@
                 "repay": "Confirma en tu billetera la transacción de repago para reducir o cancelar tu deuda.",
                 "repayWithCollateral": "Confirma en tu billetera la transacción para repagar la deuda usando el colateral depositado.",
                 "depositCollateral": "Confirma en tu billetera la transacción para agregar colateral a tu posición.",
-                "withdrawCollateral": "Confirma en tu billetera la transacción para retirar el colateral disponible de tu posición."
+                "withdrawCollateral": "Confirma en tu billetera la transacción para retirar el colateral disponible de tu posición.",
+                "injectTP": "Confirma en tu billetera la transacción para activar la inyección de liquidez programada de este pool."
             }
         },
         "sectionRepay": {

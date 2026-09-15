@@ -17,6 +17,8 @@ const RAW_LEND_CARDS: RawLendCardData[] = [
         depositedAmount: "0.00",
         depositedAmountUsd: "0",
         walletBalance: "8,460,750.00",
+        nextInjectionAt: 0,
+        injectionReady: false,
     },
     {
         availableToWithdrawAmount: "8,500.00",
@@ -28,6 +30,8 @@ const RAW_LEND_CARDS: RawLendCardData[] = [
         depositedAmount: "0.00",
         depositedAmountUsd: "0",
         walletBalance: "6,250,000.00",
+        nextInjectionAt: 0,
+        injectionReady: false,
     },
 ];
 

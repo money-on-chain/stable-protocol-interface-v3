@@ -126,6 +126,7 @@ const LendingBorrowing: React.FC = () => {
                             params.set("token", token.id);
                         })
                     }
+                    onTriggerInjection={actions.confirmTriggerInjection}
                 />
             ) : isLendEarnView ? (
                 <LendEarn

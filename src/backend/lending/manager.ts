@@ -405,6 +405,38 @@ const execute = async (
     return receipt;
 };
 
+/**
+ * Trigger the scheduled TP liquidity injection for a lending pool. Callable
+ * by anyone once the pool's next injection time has passed; reverts
+ * otherwise, so callers should gate this on getNextInjectionTime first.
+ */
+const triggerTPInjection = async (
+    interfaceContext: InterfaceContext,
+    tpToken: Address,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    const { address, contracts } = interfaceContext;
+    if (!contracts?.LendingManager) return;
+    const LendingManager = contracts.LendingManager;
+
+    const { request } = await simulateContract(config, {
+        address: LendingManager.address,
+        abi: LendingManager.abi,
+        functionName: "triggerTPInjection",
+        args: [checksumAddress(tpToken)],
+        account: address,
+    });
+
+    const txHash = await writeContract(config, request);
+    if (onTransaction) onTransaction(txHash);
+
+    const receipt = await waitForSuccessfulReceipt(txHash, "triggerTPInjection");
+    if (onReceipt) onReceipt(receipt);
+
+    return receipt;
+};
+
 export {
     addACtoVault,
     approveTP,
@@ -414,5 +446,6 @@ export {
     removeACfromVault,
     repay,
     repayWithAC,
+    triggerTPInjection,
     withdraw,
 };
