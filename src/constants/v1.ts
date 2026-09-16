@@ -6,7 +6,7 @@ import { type Address, stringToHex } from "viem";
 
 export const BUCKET_C0 = stringToHex("C0", { size: 32 });
 
-const env = (k: string): string | undefined => {
+export const env = (k: string): string | undefined => {
     const importMetaEnv =
         typeof import.meta !== "undefined"
             ? (import.meta as { env?: Record<string, string> }).env?.[k]

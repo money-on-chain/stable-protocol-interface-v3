@@ -19,7 +19,7 @@ export type LendingOperationType =
 
 export type LendingOperationStatus = "pending" | "confirmed" | "failed";
 
-interface OperationAssetMovement {
+export interface OperationAssetMovement {
     amount: string;
     direction: "in" | "out";
     ticker: string;
@@ -67,110 +67,13 @@ const DEFAULT_TYPE_LABELS: Record<LendingOperationType, string> = {
     liquidation: "Liquidation",
 };
 
-// UI-only data. Replace this constant with the API result passed through the
-// `operations` prop once the lending operations endpoint is available.
-const MOCK_OPERATIONS: LendingOperation[] = [
-    {
-        id: "mock-1",
-        category: "borrowing",
-        type: "borrow",
-        timestamp: "2026-08-05T17:42:00Z",
-        status: "confirmed",
-        tpTicker: "USDRIF",
-        collateralTicker: "RIF",
-        movements: [{ amount: "1,250.00", ticker: "USDRIF", direction: "in" }],
-        transactionHash: "0x72d719a74316e27eb54af26095d12469713830aaec506f931b6067ff12d00421",
-    },
-    {
-        id: "mock-2",
-        category: "borrowing",
-        type: "deposit-collateral",
-        timestamp: "2026-08-05T17:40:00Z",
-        status: "confirmed",
-        tpTicker: "USDRIF",
-        collateralTicker: "RIF",
-        movements: [{ amount: "15,000.00", ticker: "RIF", direction: "in" }],
-        transactionHash: "0xe51fe79afd1991990b226baf0a16653007549f0a2a0c21f50ffef5ec95a31802",
-    },
-    {
-        id: "mock-3",
-        category: "lending",
-        type: "deposit",
-        timestamp: "2026-08-04T14:18:00Z",
-        status: "confirmed",
-        tpTicker: "USDRIF",
-        movements: [{ amount: "2,500.00", ticker: "USDRIF", direction: "in" }],
-        transactionHash: "0x326a839706f01cf632af1ebf473cce12724f12735ca26e9d579dee537048ba28",
-    },
-    {
-        id: "mock-4",
-        category: "borrowing",
-        type: "repay",
-        timestamp: "2026-08-03T21:05:00Z",
-        status: "pending",
-        tpTicker: "USDRIF",
-        collateralTicker: "DOC",
-        movements: [{ amount: "320.00", ticker: "USDRIF", direction: "out" }],
-        transactionHash: "0x0564bf933d38f8d5e05830c33f4f9d6c926e23023f76a95a35351343635f8746",
-    },
-    {
-        id: "mock-5",
-        category: "borrowing",
-        type: "repay-with-collateral",
-        timestamp: "2026-08-02T10:27:00Z",
-        status: "confirmed",
-        tpTicker: "USDRIF",
-        collateralTicker: "RIF",
-        movements: [
-            { amount: "4,850.00", ticker: "RIF", direction: "out" },
-            { amount: "400.00", ticker: "USDRIF", direction: "out" },
-        ],
-        transactionHash: "0x118bb25a494dc15a57f3ca2ba2768a886185d82299937d151b89b6e0abcccd37",
-    },
-    {
-        id: "mock-6",
-        category: "lending",
-        type: "withdraw",
-        timestamp: "2026-07-30T19:51:00Z",
-        status: "failed",
-        tpTicker: "USDRIF",
-        movements: [{ amount: "750.00", ticker: "USDRIF", direction: "out" }],
-        transactionHash: "0xd938cb8f839dd53ba9210f25ea78498c6e8f6928e638881e267e24993dcd2e45",
-    },
-    {
-        id: "mock-7",
-        category: "borrowing",
-        type: "withdraw-collateral",
-        timestamp: "2026-07-28T12:14:00Z",
-        status: "confirmed",
-        tpTicker: "USDRIF",
-        collateralTicker: "DOC",
-        movements: [{ amount: "600.00", ticker: "DOC", direction: "out" }],
-        transactionHash: "0xa5ce36ff050ceecbb9f8568c97a07ebf244a660460f3a0dbf02bf2623942668b",
-    },
-    {
-        id: "mock-8",
-        category: "borrowing",
-        type: "liquidation",
-        timestamp: "2026-07-25T08:33:00Z",
-        status: "confirmed",
-        tpTicker: "USDRIF",
-        collateralTicker: "RIF",
-        movements: [
-            { amount: "8,920.00", ticker: "RIF", direction: "out" },
-            { amount: "710.00", ticker: "USDRIF", direction: "out" },
-        ],
-        transactionHash: "0xc30f32747f389eb314502687e9562420b466008279138a2199bf52d12cb4bb05",
-    },
-];
-
 function truncateHash(hash: string): string {
     return hash ? `${hash.slice(0, 6)}...${hash.slice(-4)}` : "--";
 }
 
 export default function OperationsTable({
     loading = false,
-    operations = MOCK_OPERATIONS,
+    operations = [],
 }: OperationsTableProps): React.ReactElement {
     const { i18n, t } = useProjectTranslation();
     const [filter, setFilter] = useState<OperationFilter>("all");

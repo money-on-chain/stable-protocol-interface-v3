@@ -35,7 +35,7 @@ export function useLiquidationHistory(
         refetchInterval: 60_000,
         queryFn: async () => {
             const url = new URL(String(apiBase));
-            url.pathname = "/v1/lending/liquidations/";
+            url.pathname = "/api/v1/lending/liquidations/";
             url.searchParams.set("user", userAddress!);
             url.searchParams.set("limit", "1000");
             const response = await axios.get<RawLiquidateResponse>(
