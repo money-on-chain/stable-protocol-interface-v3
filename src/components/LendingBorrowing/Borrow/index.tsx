@@ -55,7 +55,11 @@ export default function Borrow({
                                 ) > 0;
                             const hasDebtOrCollateral =
                                 hasCurrentDebt || hasDepositedCollateral;
-                            const borrowPair = `${card.borrowTokenTicker}/${card.collateralTokenTicker}`;
+                            // Liquidation price is "how much borrow-token per 1
+                            // unit of collateral" (same shape as a BTC/USD
+                            // quote) — BASE/QUOTE convention puts the priced
+                            // asset (collateral) first.
+                            const borrowPair = `${card.collateralTokenTicker}/${card.borrowTokenTicker}`;
 
                             const isActionDisabled = (
                                 actionId: BorrowCardActionId

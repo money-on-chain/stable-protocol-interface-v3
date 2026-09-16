@@ -191,7 +191,12 @@ export function useLendingBorrowingData(): LendingBorrowingData {
 
                 const bTicker = borrowMeta.ticker;
                 const cTicker = collMeta.ticker;
-                const liqUnit = `${bTicker}/${cTicker}`;
+                // liqPrice (MocLendingReader.getLiquidationPrice → pACtpLiquidation)
+                // is "how much borrow-token per 1 unit of collateral" — the same
+                // quantity as e.g. a BTC/USD quote (price of 1 BTC in USD).
+                // Standard BASE/QUOTE convention puts the asset being priced
+                // first, so this is collateral/borrow-token, not the other way.
+                const liqUnit = `${cTicker}/${bTicker}`;
                 const liqVal = fmtBigInt(liqPrice);
                 const liqDropVal = liqDropPct.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 const collVal = fmtBigInt(acBalance, 18, collMeta.visibleDecimals);
