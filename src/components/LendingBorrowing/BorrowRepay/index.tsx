@@ -211,7 +211,7 @@ export default function BorrowRepay({
               return [
                   `${t("borrowing.sectionRepay.summary.txtRepaying")}: ${repayAmount} ${card.currentDebt.ticker}.`,
                   liqPriceAfter !== undefined
-                      ? `${t("borrowing.labelLiquidationPrice")}: ${liqPriceAfter} ${card.borrowTokenTicker}/${card.collateralTokenTicker}.`
+                      ? `${t("borrowing.labelLiquidationPrice")}: ${liqPriceAfter} ${card.collateralTokenTicker}/${card.borrowTokenTicker}.`
                       : null,
                   borrowAvailableAfter !== undefined
                       ? `${t("borrowing.labelAvailableWithCollateral")}: ${borrowAvailableAfter} ${card.borrowTokenTicker}.`

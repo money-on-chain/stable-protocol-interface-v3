@@ -377,7 +377,7 @@ export default function BorrowOperation({
                       ? `${t("borrowing.sectionBorrow.summary.txtDepositingCollateral")}: ${collateralAmount} ${card.collateralTokenTicker}.`
                       : null,
                   liquidationPriceMetric && liqPriceAfter !== undefined
-                      ? `${t("borrowing.labelLiquidationPrice")}: ${liqPriceAfter} ${card.borrowTokenTicker}/${card.collateralTokenTicker}.`
+                      ? `${t("borrowing.labelLiquidationPrice")}: ${liqPriceAfter} ${card.collateralTokenTicker}/${card.borrowTokenTicker}.`
                       : null,
                   borrowAvailableMetric && borrowAvailableAfter !== undefined
                       ? `${t("borrowing.sectionBorrow.summary.txtBorrowAvailableWithDepositedCollateral")}: ${borrowAvailableAfter} ${card.borrowTokenTicker}.`
@@ -504,7 +504,7 @@ export default function BorrowOperation({
                                 after={{
                                     label: t("beforeAfterCard.after"),
                                     unit: (hasBorrowTyped || hasCollateralTyped) && liqPriceAfter !== undefined
-                                        ? `${card.borrowTokenTicker}/${card.collateralTokenTicker}`
+                                        ? `${card.collateralTokenTicker}/${card.borrowTokenTicker}`
                                         : liquidationPriceMetric.currentUnit,
                                     value: (hasBorrowTyped || hasCollateralTyped) && liqPriceAfter !== undefined
                                         ? liqPriceAfter

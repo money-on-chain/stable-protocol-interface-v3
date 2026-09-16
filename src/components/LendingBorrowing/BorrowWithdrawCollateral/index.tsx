@@ -221,7 +221,7 @@ export default function BorrowWithdrawCollateral({
               return [
                   `${t("borrowing.sectionWithdrawCollateral.summary.txtWithdrawingCollateral")}: ${collateralAmount} ${card.collateralTokenTicker}.`,
                   liqPriceAfter !== undefined
-                      ? `${t("borrowing.labelLiquidationPrice")}: ${liqPriceAfter} ${card.borrowTokenTicker}/${card.collateralTokenTicker}.`
+                      ? `${t("borrowing.labelLiquidationPrice")}: ${liqPriceAfter} ${card.collateralTokenTicker}/${card.borrowTokenTicker}.`
                       : null,
                   borrowAvailableAfter !== undefined
                       ? `${t("borrowing.labelAvailableWithCollateral")}: ${borrowAvailableAfter} ${card.borrowTokenTicker}.`
