@@ -195,7 +195,7 @@ export default function BorrowRepayWithCollateral({
                   `${t("borrowing.sectionRepayCollateral.summary.txtUsingCollateral")}: ${collateralAmount} ${card.depositedCollateral.ticker}.`,
                   `${t("borrowing.sectionRepayCollateral.summary.txtDepositedCollateralAfterRepayment")}: ${formatAmount(collateralAfterRepayment, card.collateralTokenDecimals)} ${card.depositedCollateral.ticker}.`,
                   liqPriceAfter !== undefined
-                      ? `${t("borrowing.labelLiquidationPrice")}: ${liqPriceAfter} ${card.borrowTokenTicker}/${card.collateralTokenTicker}.`
+                      ? `${t("borrowing.labelLiquidationPrice")}: ${liqPriceAfter} ${card.collateralTokenTicker}/${card.borrowTokenTicker}.`
                       : null,
                   liqDistanceAfter !== undefined
                       ? `${t("borrowing.labelDistanceToLiquidation")}: ${liqDistanceAfter}%.`
@@ -380,6 +380,7 @@ export default function BorrowRepayWithCollateral({
                 <OperationActions>
                     <button
                         className="button borrow-repay-with-collateral-actions__confirm"
+                        data-testid="borrow-repay-with-collateral-confirm"
                         disabled={!hasPendingChanges || hasValidationError}
                         onClick={() => onConfirm(card, collateralAmount)}
                         type="button"
