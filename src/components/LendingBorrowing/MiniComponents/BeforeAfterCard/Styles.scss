@@ -65,7 +65,7 @@
 
 .before-after-card__value-row {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     justify-content: flex-start;
     gap: 4px;
 }
@@ -76,7 +76,7 @@
 
 .before-after-card__value-group {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     gap: 4px;
 }
 
@@ -89,7 +89,7 @@
 
 .before-after-card__unit {
     color: var(--color-txt-secondary);
-    font-size: 6px;
+    font-size: 10px;
     font-weight: 600;
     line-height: 1.2;
 }

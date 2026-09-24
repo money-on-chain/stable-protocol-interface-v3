@@ -94,23 +94,6 @@ export default function SectionHeader(): JSX.Element {
     const handleOptionClick = (path: string): void => {
         setShowMoreDropdown(false);
         navigate(path);
-        // Swap selected "More" option to main menu if it's in the "More" list
-        const indexInMoreMenu: number = moreMenuOptions.findIndex(
-            (opt: MenuOption) => opt.path === path
-        );
-        if (indexInMoreMenu > -1) {
-            const newDisplayOptions: MenuOption[] = [...displayOptions];
-            const selectedOption: MenuOption = newDisplayOptions.splice(
-                MAX_MAIN_MENU_ITEMS + indexInMoreMenu,
-                1
-            )[0];
-            newDisplayOptions.splice(
-                MAX_MAIN_MENU_ITEMS - 1,
-                0,
-                selectedOption
-            );
-            setDisplayOptions(newDisplayOptions);
-        }
     };
 
     const toggleLanguageMenu = (): void => {

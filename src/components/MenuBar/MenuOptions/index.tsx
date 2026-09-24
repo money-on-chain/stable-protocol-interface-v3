@@ -124,28 +124,12 @@ export default function MenuOptions({
     }, [isMobileOpen, openDesktopMenu]);
 
     const selectOption = (
-        option: Pick<RawMenuOption, "path"> | RawMenuChildOption,
-        promoteFromMore = false,
-        parentPath = option.path
+        option: Pick<RawMenuOption, "path"> | RawMenuChildOption
     ): void => {
         setOpenDesktopMenu(null);
         setIsMobileOpen(false);
         setOpenMobileSubmenu(null);
         navigate(option.path);
-
-        if (!promoteFromMore) return;
-
-        setOrderedOptions((currentOptions) => {
-            const selectedIndex = currentOptions.findIndex(
-                (item) => item.path === parentPath
-            );
-            if (selectedIndex < visibleItemsCount) return currentOptions;
-
-            const nextOptions = [...currentOptions];
-            const [selectedOption] = nextOptions.splice(selectedIndex, 1);
-            nextOptions.splice(visibleItemsCount - 1, 0, selectedOption);
-            return nextOptions;
-        });
     };
 
     const clearDesktopMenuTimers = (): void => {
@@ -345,11 +329,7 @@ export default function MenuOptions({
                                                     data-testid={`menu-bar-item-${child.className ?? option.className}`}
                                                     key={child.path}
                                                     onClick={() =>
-                                                        selectOption(
-                                                            child,
-                                                            true,
-                                                            option.path
-                                                        )
+                                                        selectOption(child)
                                                     }
                                                     role="menuitem"
                                                     type="button"
@@ -372,7 +352,7 @@ export default function MenuOptions({
                                             data-testid={`menu-bar-item-${option.className}`}
                                             key={option.path}
                                             onClick={() =>
-                                                selectOption(option, true)
+                                                selectOption(option)
                                             }
                                             role="menuitem"
                                             type="button"

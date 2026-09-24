@@ -32,9 +32,7 @@ const LendingBorrowing: React.FC = () => {
     const isBorrowOperationView =
         view === "borrow-operation" && !!selectedBorrowCard;
     const isBorrowDepositCollateralView =
-        view === "borrow-deposit-collateral" &&
-        !!selectedBorrowCard &&
-        parseMetricNumber(selectedBorrowCard.currentDebt.value) > 0;
+        view === "borrow-deposit-collateral" && !!selectedBorrowCard;
     const isBorrowRepayView =
         view === "borrow-repay" &&
         !!selectedBorrowCard &&
