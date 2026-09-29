@@ -575,16 +575,30 @@
             }
         },
         "history": {
-            "title": "Staking - Últimas Operaciones",
-            "columnDate": "Fecha",
-            "columnAmount": "Cantidad",
-            "columnOperation": "Operación",
-            "operatons": {
+            "title": "Actividad de Staking",
+            "description": "Tus últimas operaciones de stake, unstake, restake y retiro.",
+            "columns": {
+                "date": "Fecha",
+                "operation": "Operación",
+                "amount": "Cantidad",
+                "status": "Estado",
+                "transaction": "Transacción"
+            },
+            "types": {
                 "stake": "Stake",
                 "unstake": "Unstake",
                 "restake": "Restake",
-                "withdraw": "Withdraw"
-            }
+                "withdraw": "Retiro"
+            },
+            "status": {
+                "confirmed": "Confirmada",
+                "pending": "Se libera el {{date}}",
+                "available": "Listo para retirar",
+                "withdrawn": "Retirado",
+                "restaked": "Devuelto a Stake"
+            },
+            "empty": "No hay operaciones de staking para mostrar.",
+            "error": "No se pudo cargar la actividad de staking. Intenta nuevamente más tarde."
         },
         "tokens": {
             "TG": {
