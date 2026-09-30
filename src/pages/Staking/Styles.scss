@@ -194,8 +194,19 @@ $breakpoint-mobile: 600px;
             }
         }
         .pie-chart-container {
+            display: flex;
+            justify-content: center;
             height: 250px;
             color: var(--color-txt-primary);
+        }
+        .staking-distribution-chart {
+            // Match the previous 230px plot area inside the 250px wrapper.
+            height: 230px;
+            justify-content: center;
+
+            .distributionPieChart__chart {
+                flex: 0 1 auto;
+            }
         }
         .dataContainer {
             display: flex;

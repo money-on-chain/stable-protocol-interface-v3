@@ -1125,5 +1125,16 @@
                 "title": "Operation completed"
             }
         }
+    },
+    "common": {
+        "dataTable": {
+            "loading": "Loading records…",
+            "pagination": "Table pages",
+            "previous": "Previous",
+            "next": "Next",
+            "page": "Page {{page}}",
+            "range": "Showing {{first}}–{{last}} of {{total}}",
+            "summary": "{{page}} of {{total}}"
+        }
     }
 }

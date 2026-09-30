@@ -1,6 +1,5 @@
 import "./LastStakeOperations.scss";
 
-import { Table } from "antd";
 import React from "react";
 
 import { useWalletContext } from "../../context/Wallet";
@@ -12,6 +11,7 @@ import { useProjectTranslation } from "../../helpers/translations";
 import { useStakingActivity } from "../../hooks/useStakingActivity";
 import settings from "../../settings";
 import { PrecisionNumbers } from "../PrecisionNumbers";
+import DataTable from "../Tables/DataTable";
 
 type StatusKind =
     | "confirmed"
@@ -83,7 +83,7 @@ export default function LastStakeOperations(): React.ReactElement {
         const content = (
             <>
                 {truncateHash(operation.transactionHash)}
-                <span aria-hidden="true">↗</span>
+                <span className="icon-external-link" aria-hidden="true" />
             </>
         );
 
@@ -101,47 +101,6 @@ export default function LastStakeOperations(): React.ReactElement {
         );
     };
 
-    const columns = [
-        {
-            title: t("staking.history.columns.date"),
-            key: "timestamp",
-            width: "22%",
-            render: (_value: unknown, operation: StakingActivity) => (
-                <span className="staking-activity__date">
-                    {formatDate(operation.timestamp)}
-                </span>
-            ),
-        },
-        {
-            title: t("staking.history.columns.operation"),
-            key: "type",
-            width: "14%",
-            render: (_value: unknown, operation: StakingActivity) =>
-                renderType(operation.type),
-        },
-        {
-            title: t("staking.history.columns.amount"),
-            key: "amount",
-            width: "20%",
-            render: (_value: unknown, operation: StakingActivity) =>
-                renderAmount(operation),
-        },
-        {
-            title: t("staking.history.columns.status"),
-            key: "status",
-            width: "26%",
-            render: (_value: unknown, operation: StakingActivity) =>
-                renderStatus(operation),
-        },
-        {
-            title: t("staking.history.columns.transaction"),
-            key: "transactionHash",
-            width: "18%",
-            render: (_value: unknown, operation: StakingActivity) =>
-                renderTransaction(operation),
-        },
-    ];
-
     const emptyText = isError
         ? t("staking.history.error")
         : t("staking.history.empty");
@@ -157,63 +116,96 @@ export default function LastStakeOperations(): React.ReactElement {
                 <p>{t("staking.history.description")}</p>
             </div>
 
-            <div className="staking-activity__desktop">
-                <Table<StakingActivity>
-                    className="vertical-middle"
-                    columns={columns}
-                    data-testid="staking-activity-table"
-                    dataSource={activity}
-                    loading={isLoading}
-                    locale={{ emptyText }}
-                    pagination={{
-                        hideOnSinglePage: true,
-                        pageSize: 8,
-                        position: ["bottomRight"],
-                        showSizeChanger: false,
-                    }}
-                    rowKey="id"
-                    tableLayout="fixed"
-                />
-            </div>
-
-            <div className="staking-activity__mobile">
-                {activity.map((operation) => (
-                    <article
-                        className="staking-activity__mobile-row"
-                        key={operation.id}
-                    >
-                        <div className="staking-activity__mobile-heading">
+            <DataTable
+                items={activity}
+                rowKey={(operation) => operation.id}
+                resetKey={stakerAddress}
+                label={t("staking.history.title")}
+                emptyText={emptyText}
+                loading={isLoading}
+                loadingText={t("common.dataTable.loading")}
+                paginationLabel={t("common.dataTable.pagination")}
+                previousLabel={t("common.dataTable.previous")}
+                nextLabel={t("common.dataTable.next")}
+                rangeLabel={(first, last, total) =>
+                    t("common.dataTable.range", { first, last, total })
+                }
+                pageSummaryLabel={(page, total) =>
+                    t("common.dataTable.summary", { page, total })
+                }
+                pageLabel={(page) => t("common.dataTable.page", { page })}
+                testId="staking-activity-table"
+                headerClassName="staking-activity__table-header"
+                header={
+                    <div className="staking-activity__grid staking-activity__desktop">
+                        {[
+                            "date",
+                            "operation",
+                            "amount",
+                            "status",
+                            "transaction",
+                        ].map((column) => (
+                            <span
+                                key={column}
+                                className={
+                                    column === "amount"
+                                        ? "staking-activity__numeric"
+                                        : undefined
+                                }
+                            >
+                                {t(`staking.history.columns.${column}`)}
+                            </span>
+                        ))}
+                    </div>
+                }
+                renderRow={(operation) => (
+                    <>
+                        <div className="staking-activity__grid staking-activity__desktop">
+                            <span className="staking-activity__date">
+                                {formatDate(operation.timestamp)}
+                            </span>
                             {renderType(operation.type)}
+                            {renderAmount(operation)}
                             {renderStatus(operation)}
+                            {renderTransaction(operation)}
                         </div>
-                        <div className="staking-activity__mobile-details">
-                            <div className="staking-activity__mobile-field">
-                                <span className="staking-activity__mobile-label">
-                                    {t("staking.history.columns.amount")}
-                                </span>
-                                {renderAmount(operation)}
-                            </div>
-                            <div className="staking-activity__mobile-field staking-activity__mobile-field--right">
-                                <span className="staking-activity__mobile-label">
-                                    {t("staking.history.columns.date")}
-                                </span>
-                                <span className="staking-activity__date">
-                                    {formatDate(operation.timestamp)}
-                                </span>
-                            </div>
-                            <div className="staking-activity__mobile-field">
-                                <span className="staking-activity__mobile-label">
-                                    {t("staking.history.columns.transaction")}
-                                </span>
-                                {renderTransaction(operation)}
-                            </div>
+                        <div className="staking-activity__mobile">
+                            <article className="staking-activity__mobile-row">
+                                <div className="staking-activity__mobile-heading">
+                                    {renderType(operation.type)}
+                                    {renderStatus(operation)}
+                                </div>
+                                <div className="staking-activity__mobile-details">
+                                    <div className="staking-activity__mobile-field staking-activity__mobile-field--right">
+                                        <span className="staking-activity__mobile-label">
+                                            {t(
+                                                "staking.history.columns.amount"
+                                            )}
+                                        </span>
+                                        {renderAmount(operation)}
+                                    </div>
+                                    <div className="staking-activity__mobile-field staking-activity__mobile-field--right">
+                                        <span className="staking-activity__mobile-label">
+                                            {t("staking.history.columns.date")}
+                                        </span>
+                                        <span className="staking-activity__date">
+                                            {formatDate(operation.timestamp)}
+                                        </span>
+                                    </div>
+                                    <div className="staking-activity__mobile-field">
+                                        <span className="staking-activity__mobile-label">
+                                            {t(
+                                                "staking.history.columns.transaction"
+                                            )}
+                                        </span>
+                                        {renderTransaction(operation)}
+                                    </div>
+                                </div>
+                            </article>
                         </div>
-                    </article>
-                ))}
-                {!isLoading && activity.length === 0 ? (
-                    <div className="staking-activity__empty">{emptyText}</div>
-                ) : null}
-            </div>
+                    </>
+                )}
+            />
         </section>
     );
 }

@@ -1288,5 +1288,16 @@
         "migrationPendingText": "Tu transacción de migración está siendo procesada.",
         "operationSuccessful": "Migración exitosa.",
         "operationFailed": "No se pudo completar la migración. Inténtalo nuevamente."
+    },
+    "common": {
+        "dataTable": {
+            "loading": "Cargando registros…",
+            "pagination": "Páginas de la tabla",
+            "previous": "Anterior",
+            "next": "Siguiente",
+            "page": "Página {{page}}",
+            "range": "Mostrando {{first}}–{{last}} de {{total}}",
+            "summary": "{{page}} de {{total}}"
+        }
     }
 }
