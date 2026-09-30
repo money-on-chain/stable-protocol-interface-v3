@@ -1256,7 +1256,12 @@
             "next": "Next",
             "page": "Page {{page}}",
             "range": "Showing {{first}}–{{last}} of {{total}}",
-            "summary": "{{page}} of {{total}}"
+            "summary": "{{page}} of {{total}}",
+            "search": "Search",
+            "searchTransaction": "Search by transaction hash",
+            "all": "All",
+            "pending": "Awaiting unlock",
+            "noResults": "No records match your search and filters."
         }
     }
 }

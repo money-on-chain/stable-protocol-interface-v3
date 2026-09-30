@@ -82,7 +82,7 @@ export default function LastStakeOperations(): React.ReactElement {
     const renderTransaction = (operation: StakingActivity): React.ReactNode => {
         const content = (
             <>
-                {truncateHash(operation.transactionHash)}
+                <span>{truncateHash(operation.transactionHash)}</span>
                 <span className="icon-external-link" aria-hidden="true" />
             </>
         );
@@ -117,23 +117,74 @@ export default function LastStakeOperations(): React.ReactElement {
             </div>
 
             <DataTable
+                preserveHeight
                 items={activity}
+                search={{
+                    label: t("common.dataTable.search"),
+                    placeholder: t("common.dataTable.searchTransaction"),
+                    fields: ["transactionHash"],
+                }}
+                filters={[
+                    {
+                        id: "operation",
+                        label: t("staking.history.columns.operation"),
+                        allLabel: t("common.dataTable.all"),
+                        options: (
+                            [
+                                "stake",
+                                "unstake",
+                                "restake",
+                                "withdraw",
+                            ] as StakingActivityType[]
+                        ).map((value) => ({
+                            value,
+                            label: t(`staking.history.types.${value}`),
+                        })),
+                        matches: (operation, value) => operation.type === value,
+                    },
+                    {
+                        id: "status",
+                        label: t("staking.history.columns.status"),
+                        allLabel: t("common.dataTable.all"),
+                        options: (
+                            [
+                                "confirmed",
+                                "pending",
+                                "available",
+                                "withdrawn",
+                                "restaked",
+                            ] as StatusKind[]
+                        ).map((value) => ({
+                            value,
+                            label:
+                                value === "pending"
+                                    ? t("common.dataTable.pending")
+                                    : t(`staking.history.status.${value}`),
+                        })),
+                        matches: (operation, value) =>
+                            (operation.unstakeState ?? "confirmed") === value,
+                    },
+                ]}
+                noResultsText={t("common.dataTable.noResults")}
                 rowKey={(operation) => operation.id}
                 resetKey={stakerAddress}
                 label={t("staking.history.title")}
                 emptyText={emptyText}
                 loading={isLoading}
                 loadingText={t("common.dataTable.loading")}
-                paginationLabel={t("common.dataTable.pagination")}
-                previousLabel={t("common.dataTable.previous")}
-                nextLabel={t("common.dataTable.next")}
-                rangeLabel={(first, last, total) =>
-                    t("common.dataTable.range", { first, last, total })
-                }
-                pageSummaryLabel={(page, total) =>
-                    t("common.dataTable.summary", { page, total })
-                }
-                pageLabel={(page) => t("common.dataTable.page", { page })}
+                pagination={{
+                    pageSize: 8,
+                    labels: {
+                        navigation: t("common.dataTable.pagination"),
+                        previous: t("common.dataTable.previous"),
+                        next: t("common.dataTable.next"),
+                        page: (page) => t("common.dataTable.page", { page }),
+                        range: (first, last, total) =>
+                            t("common.dataTable.range", { first, last, total }),
+                        summary: (page, total) =>
+                            t("common.dataTable.summary", { page, total }),
+                    },
+                }}
                 testId="staking-activity-table"
                 headerClassName="staking-activity__table-header"
                 header={

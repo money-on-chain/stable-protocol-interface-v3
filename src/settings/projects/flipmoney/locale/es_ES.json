@@ -1136,7 +1136,12 @@
             "next": "Siguiente",
             "page": "Página {{page}}",
             "range": "Mostrando {{first}}–{{last}} de {{total}}",
-            "summary": "{{page}} de {{total}}"
+            "summary": "{{page}} de {{total}}",
+            "search": "Buscar",
+            "searchTransaction": "Buscar por hash de transacción",
+            "all": "Todos",
+            "pending": "Pendiente de desbloqueo",
+            "noResults": "No hay registros que coincidan con la búsqueda y los filtros."
         }
     }
 }

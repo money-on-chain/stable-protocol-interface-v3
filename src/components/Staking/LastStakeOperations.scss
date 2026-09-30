@@ -1,6 +1,5 @@
 .staking-activity {
-    margin-top: 24px;
-    overflow: hidden;
+    margin-top: var(--layout-module-gap-vertical);
 
     .layout-card-title {
         margin-bottom: 24px;
@@ -69,8 +68,11 @@
     }
 
     &__transaction {
-        display: inline-flex;
+        display: flex;
+        justify-content: space-between;
         align-items: center;
+        width: 132px;
+        max-width: 100%;
         gap: 6px;
         color: var(--color-txt-link);
         font-weight: 600;
@@ -78,6 +80,12 @@
         line-height: 19px;
         font-family: var(--main-font);
         white-space: nowrap;
+
+        &:hover,
+        &:focus-visible {
+            color: var(--color-txt-link);
+            text-decoration: underline;
+        }
 
         .icon-external-link {
             width: 16px;

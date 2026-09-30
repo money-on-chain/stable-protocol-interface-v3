@@ -4,6 +4,160 @@
     font-size: 14px;
     line-height: 19px;
 
+    &__controls {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 352px);
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    &__controls--filters-only {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    &__filters {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+    }
+
+    &__control {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        color: var(--color-txt-secondary);
+        font-size: 12px;
+    }
+
+    &__select {
+        position: relative;
+
+        > button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 180px;
+            min-height: 44px;
+            border: 0;
+            border-radius: var(--card-border-radius);
+            background: var(--surface-color-2);
+            padding: 8px 12px;
+            color: var(--color-txt-primary);
+            font: inherit;
+            cursor: pointer;
+
+            > span {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            svg {
+                flex-shrink: 0;
+            }
+            &:focus-visible {
+                outline: 2px solid var(--color-txt-link);
+                outline-offset: 2px;
+            }
+        }
+    }
+
+    &__select-menu {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        z-index: 20;
+        width: max-content;
+        min-width: 100%;
+        max-width: min(280px, calc(100vw - 80px));
+        max-height: 240px;
+        overflow-y: auto;
+        border: 1px solid var(--dividers);
+        border-radius: var(--card-border-radius);
+        background: var(--surface-color-1);
+        padding: 4px;
+        color: var(--color-txt-primary);
+        font-family: var(--main-font);
+        font-size: 12px;
+        outline: none;
+
+        [role="option"] {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            min-height: 36px;
+            border-radius: var(--card-border-radius);
+            padding: 8px 12px;
+            cursor: pointer;
+            &[aria-selected="true"] {
+                color: var(--color-txt-link);
+                font-weight: 600;
+            }
+        }
+
+        .data-table__select-option--active {
+            background: var(--surface-color-2);
+        }
+    }
+
+    &__search {
+        display: flex;
+        align-items: center;
+        justify-self: end;
+        min-height: 44px;
+        max-width: 100%;
+        border-radius: var(--card-border-radius);
+
+        background: var(--surface-color-2);
+        &:focus-within {
+            outline: 2px solid var(--color-txt-link);
+            outline-offset: 2px;
+        }
+
+        button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            min-width: 44px;
+            min-height: 44px;
+            gap: 8px;
+            padding: 8px 12px;
+            font: inherit;
+            border: 0;
+            border-radius: var(--card-border-radius);
+            background: transparent;
+            color: var(--color-txt-link);
+            cursor: pointer;
+            &:hover {
+                background: var(--surface-color-2);
+            }
+        }
+
+        input {
+            --data-table-search-width: 240px;
+            animation: data-table-search-expand 160ms ease-out;
+            width: var(--data-table-search-width);
+            max-width: calc(100vw - 140px);
+            min-width: 0;
+            min-height: 44px;
+            border: 0;
+            background: transparent;
+            padding: 8px 12px 8px 0;
+            color: var(--color-txt-primary);
+            font-family: var(--main-font);
+            font-size: 14px;
+            outline: none;
+            &::placeholder {
+                color: var(--color-txt-secondary);
+                opacity: 1;
+            }
+        }
+    }
+
     table {
         width: 100%;
         border-collapse: separate;
@@ -25,7 +179,17 @@
 
     td {
         border: 0;
-        border-radius: var(--card-border-radius);
+        &:first-child {
+            border-radius: var(--card-border-radius) 0 0
+                var(--card-border-radius);
+        }
+        &:last-child {
+            border-radius: 0 var(--card-border-radius) var(--card-border-radius)
+                0;
+        }
+        &:only-child {
+            border-radius: var(--card-border-radius);
+        }
         background: var(--surface-color-2);
         padding: 16px;
         overflow-wrap: anywhere;
@@ -35,6 +199,14 @@
         padding: 32px 16px;
         color: var(--color-txt-secondary);
         text-align: center;
+    }
+
+    &__pagination--single {
+        > button,
+        .data-table__pages,
+        .data-table__summary {
+            visibility: hidden;
+        }
     }
 
     &__pagination {
@@ -100,6 +272,24 @@
     }
 
     @media (max-width: 760px) {
+        &__controls {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        &__filters {
+            gap: 8px;
+        }
+        &__select > button {
+            max-width: 140px;
+        }
+        &__search--open {
+            width: 100%;
+        }
+        &__search input {
+            --data-table-search-width: 100%;
+            width: 100%;
+            max-width: none;
+        }
         &__pagination {
             justify-content: space-between;
             gap: 4px;
@@ -117,5 +307,24 @@
         &__summary {
             display: block;
         }
+    }
+}
+
+@keyframes data-table-search-expand {
+    from {
+        width: 0;
+        padding-right: 0;
+        opacity: 0;
+    }
+    to {
+        width: var(--data-table-search-width);
+        padding-right: 12px;
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .data-table__search input {
+        animation: none;
     }
 }
