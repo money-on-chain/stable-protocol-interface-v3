@@ -575,16 +575,30 @@
             }
         },
         "history": {
-            "title": "Staking Last Operations",
-            "columnDate": "Date",
-            "columnAmount": "Amount",
-            "columnOperation": "Operation",
-            "operatons": {
+            "title": "Staking Activity",
+            "description": "Your latest stake, unstake, restake and withdraw operations.",
+            "columns": {
+                "date": "Date",
+                "operation": "Operation",
+                "amount": "Amount",
+                "status": "Status",
+                "transaction": "Transaction"
+            },
+            "types": {
                 "stake": "Stake",
                 "unstake": "Unstake",
                 "restake": "Restake",
                 "withdraw": "Withdraw"
-            }
+            },
+            "status": {
+                "confirmed": "Confirmed",
+                "pending": "Unlocks {{date}}",
+                "available": "Ready to withdraw",
+                "withdrawn": "Withdrawn",
+                "restaked": "Restaked"
+            },
+            "empty": "No staking operations to display.",
+            "error": "Staking activity could not be loaded. Please try again later."
         },
         "tokens": {
             "TG": {
@@ -1272,5 +1286,21 @@
         "migrationPendingText": "Your migration transaction is being processed.",
         "operationSuccessful": "Migration successful.",
         "operationFailed": "The migration could not be completed. Please try again."
+    },
+    "common": {
+        "dataTable": {
+            "loading": "Loading records…",
+            "pagination": "Table pages",
+            "previous": "Previous",
+            "next": "Next",
+            "page": "Page {{page}}",
+            "range": "Showing {{first}}–{{last}} of {{total}}",
+            "summary": "{{page}} of {{total}}",
+            "search": "Search",
+            "searchTransaction": "Search by transaction hash",
+            "all": "All",
+            "pending": "Awaiting unlock",
+            "noResults": "No records match your search and filters."
+        }
     }
 }

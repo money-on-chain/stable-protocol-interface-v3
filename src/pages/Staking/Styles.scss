@@ -194,8 +194,19 @@ $breakpoint-mobile: 600px;
             }
         }
         .pie-chart-container {
+            display: flex;
+            justify-content: center;
             height: 250px;
             color: var(--color-txt-primary);
+        }
+        .staking-distribution-chart {
+            // Match the previous 230px plot area inside the 250px wrapper.
+            height: 230px;
+            justify-content: center;
+
+            .distributionPieChart__chart {
+                flex: 0 1 auto;
+            }
         }
         .dataContainer {
             display: flex;
@@ -297,46 +308,6 @@ $breakpoint-mobile: 600px;
     }
 }
 
-.card-stakingData {
-    box-shadow: var(--surface-shadow-1);
-    border-radius: var(--card-border-radius);
-    background-color: var(--surface-color-1);
-    padding: var(--card-padding);
-    width: 576px;
-    .ant-table-cell {
-        border: none;
-        padding: 0;
-    }
-    .table__stakingData {
-        width: 100%;
-        .table__header {
-            display: flex;
-            flex-direction: row;
-            gap: 32px;
-            color: var(--color-txt-secondary);
-            font-weight: 600;
-            font-size: 14px;
-        }
-        .table__row {
-            display: flex;
-            flex-direction: row;
-            gap: 32px;
-            padding-top: 8px;
-            padding-bottom: 8px;
-            color: var(--color-txt-primary);
-        }
-        .stakingTableData__date {
-            width: 156px;
-        }
-        .stakingTableData__amount {
-            width: 128px;
-        }
-        .stakingTableData__operation {
-            width: 128px;
-        }
-    }
-}
-
 .sectionStaking {
     @media (max-width: $breakpoint-mobile) {
         padding: 0px;
@@ -368,8 +339,5 @@ $breakpoint-mobile: 600px;
                 width: 100%;
             }
         }
-    }
-    #lastStakingOperations {
-        // display: none;
     }
 }

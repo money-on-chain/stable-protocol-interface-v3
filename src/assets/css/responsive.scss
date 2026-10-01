@@ -344,10 +344,6 @@ $breakpoint-mobile: 600px;
         right: auto !important;
     }
 
-    #lastStakingOperations {
-        // display: none;
-    }
-
     .sectionStaking {
     }
     .section__innerCard--big {
@@ -355,26 +351,6 @@ $breakpoint-mobile: 600px;
         padding: 16px 12px 16px 12px !important;
     }
 
-    .card-stakingData {
-        padding-left: 8px !important;
-        padding-right: 8px !important;
-        width: 100%;
-        .table__stakingData {
-            .stakingTableData__date {
-                width: 100px;
-            }
-            .stakingTableData__amount {
-                width: 100px;
-            }
-            .stakingTableData__operation {
-                width: 90px;
-            }
-            .table__header,
-            .table__row {
-                gap: 16px !important;
-            }
-        }
-    }
     .firstCardsGroup,
     .SecondCardsGroup {
         display: flex;
