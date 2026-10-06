@@ -856,6 +856,71 @@
         }
     },
     "voting": {
+        "mips": {
+            "title": "Proposals history",
+            "description": "Money on Chain Improvement Proposals (MIPs) with a changer contract on this network.",
+            "empty": "There are no proposals for this network yet.",
+            "error": "The proposals could not be loaded. Please try again later.",
+            "notFound": "This proposal does not exist or has no changer contract on this network.",
+            "searchPlaceholder": "Search by MIP, title or summary",
+            "columns": {
+                "status": "Status",
+                "tag": "Project",
+                "execution": "Execution"
+            },
+            "status": {
+                "Published": "Published",
+                "Draft": "Draft",
+                "Withdrawn": "Withdrawn"
+            },
+            "tags": {
+                "doc": "DOC",
+                "usdrif": "USDRIF",
+                "oracles": "Oracles",
+                "voting": "Voting",
+                "staking": "Staking"
+            },
+            "back": "Back to voting",
+            "goToVote": "Go to vote",
+            "executed": "Executed",
+            "notExecuted": "Not executed",
+            "executedOn": "Executed on {{date}}",
+            "executedTx": "Execution transaction",
+            "forum": "Discussion on the forum",
+            "source": "Document on GitHub",
+            "changers": {
+                "title": "Changer contracts",
+                "description": "The contracts voted on-chain for this proposal. Their verified source code is what gets executed.",
+                "submitter": "Submitted by",
+                "notSubmitted": "Not submitted for voting on this network yet"
+            },
+            "onChain": {
+                "title": "On-chain voting",
+                "none": "No on-chain voting has been indexed for these contracts on this network.",
+                "round": "Round {{round}}",
+                "inFavor": "In favor",
+                "against": "Against",
+                "capacity": {
+                    "participation": "{{pct}}% of the MOC supply voted",
+                    "notVoted": "Did not vote",
+                    "quorum": "Quorum {{pct}}%",
+                    "quorumReached": "Quorum reached",
+                    "quorumNotReached": "Quorum not reached",
+                    "aria": "In favor {{inFavor}}% and against {{against}}% of the MOC supply, quorum at {{quorum}}%"
+                },
+                "status": {
+                    "PreVoting": "In pre-voting",
+                    "Unregistered": "Unregistered",
+                    "NotSelected": "Not selected",
+                    "Voting": "In voting",
+                    "Accepted": "Accepted, pending execution",
+                    "NoQuorum": "No quorum",
+                    "Vetoed": "Vetoed",
+                    "Executed": "Executed",
+                    "ExecutionFailed": "Execution failed"
+                }
+            }
+        },
         "cardTitle": {
             "section": "Voting",
             "proposalsList": "Proposals",

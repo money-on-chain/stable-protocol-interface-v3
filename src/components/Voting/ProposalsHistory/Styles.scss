@@ -1,0 +1,121 @@
+.mips-history {
+    margin-top: var(--layout-module-gap-vertical);
+
+    .layout-card-title {
+        margin-bottom: 24px;
+
+        h1 {
+            margin-bottom: 4px;
+        }
+
+        p {
+            color: var(--color-txt-secondary);
+            font-family: var(--main-font);
+            margin: 0;
+        }
+    }
+
+    &__table-header {
+        display: none;
+    }
+
+    &__row {
+        color: var(--color-txt-primary);
+        display: flex;
+        flex-direction: column;
+        font-family: var(--main-font);
+        gap: 6px;
+        padding: 14px 4px;
+        text-decoration: none;
+
+        &:hover,
+        &:focus-visible {
+            color: var(--color-txt-primary);
+
+            .mips-history__title {
+                color: var(--color-txt-link);
+            }
+        }
+    }
+
+    &__heading {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    &__mip {
+        font-family: monospace;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    &__date {
+        color: var(--color-txt-secondary);
+        font-size: 13px;
+    }
+
+    &__title {
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    &__summary {
+        color: var(--color-txt-secondary);
+        font-size: 14px;
+        line-height: 1.45;
+        margin: 0;
+    }
+}
+
+.mip-status {
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    font-family: var(--main-font);
+    font-size: 12px;
+    line-height: 1;
+    padding: 4px 9px;
+    white-space: nowrap;
+
+    &--published {
+        color: var(--color-semantic-positive);
+    }
+
+    &--draft {
+        color: var(--color-semantic-neutral);
+    }
+
+    &--withdrawn {
+        color: var(--color-txt-secondary);
+    }
+}
+
+.mip-tags {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.mip-tag {
+    background: var(--surface-color-2);
+    border-radius: 999px;
+    color: var(--color-txt-secondary);
+    font-family: var(--main-font);
+    font-size: 12px;
+    line-height: 1;
+    padding: 4px 9px;
+    white-space: nowrap;
+}
+
+.mip-status--executed {
+    background: var(--color-semantic-positive);
+    border-color: var(--color-semantic-positive);
+    color: var(--color-txt-inverted);
+}
+
+.mip-status--live {
+    background: var(--color-txt-link);
+    border-color: var(--color-txt-link);
+    color: var(--color-txt-inverted);
+}

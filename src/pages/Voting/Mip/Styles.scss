@@ -1,0 +1,150 @@
+.mip-page {
+    display: flex;
+    flex-direction: column;
+    font-family: var(--main-font);
+    gap: var(--layout-module-gap-vertical);
+
+    &__back {
+        align-self: flex-start;
+        color: var(--color-txt-link);
+        font-size: 14px;
+    }
+
+    &__muted {
+        color: var(--color-txt-secondary);
+        margin: 0;
+    }
+
+    &__meta {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    &__header h1 {
+        margin-bottom: 8px;
+    }
+
+    &__summary {
+        color: var(--color-txt-secondary);
+        line-height: 1.5;
+        margin: 0 0 14px;
+    }
+
+    &__go-vote {
+        color: var(--color-txt-link);
+        display: inline-block;
+        font-weight: 600;
+        margin: 0 0 14px;
+    }
+
+    &__execution {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        font-size: 14px;
+        gap: 6px 8px;
+        margin: 0 0 14px;
+    }
+
+    &__links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+
+        a {
+            align-items: center;
+            color: var(--color-txt-link);
+            display: inline-flex;
+            gap: 6px;
+        }
+    }
+
+    &__changers .layout-card-title {
+        margin-bottom: 16px;
+
+        h1 {
+            margin-bottom: 4px;
+        }
+
+        p {
+            color: var(--color-txt-secondary);
+            margin: 0;
+        }
+    }
+
+    &__changer-list,
+    &__records {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        li {
+            border-top: 1px solid var(--dividers);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 12px 0;
+        }
+    }
+
+    &__changer-name {
+        font-weight: 600;
+    }
+
+    &__submitter {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        font-size: 14px;
+        gap: 6px 8px;
+    }
+
+    &__explorer-link {
+        align-items: center;
+        color: var(--color-txt-link);
+        display: inline-flex;
+        gap: 6px;
+        max-width: 100%;
+    }
+
+    &__hash {
+        font-family: monospace;
+        font-size: 13px;
+        overflow-wrap: anywhere;
+    }
+
+    &__subtitle {
+        font-size: 16px;
+        margin: 20px 0 8px;
+    }
+
+    &__record-heading {
+        display: flex;
+        flex-wrap: wrap;
+        font-weight: 600;
+        gap: 6px 16px;
+    }
+
+    // Holds the shared BalanceBar (in favor vs against)
+    &__record-votes {
+        margin: 4px 0;
+        max-width: 560px;
+        width: 100%;
+    }
+
+    &__record-status {
+        &--Executed,
+        &--Accepted {
+            color: var(--color-semantic-positive);
+        }
+
+        &--NoQuorum,
+        &--Vetoed,
+        &--ExecutionFailed {
+            color: var(--color-semantic-negative);
+        }
+    }
+}

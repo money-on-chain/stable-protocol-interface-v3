@@ -860,6 +860,71 @@
         }
     },
     "voting": {
+        "mips": {
+            "title": "Historial de propuestas",
+            "description": "Propuestas de mejora de Money on Chain (MIPs) con un contrato changer en esta red.",
+            "empty": "Todavía no hay propuestas para esta red.",
+            "error": "No se pudieron cargar las propuestas. Intente nuevamente más tarde.",
+            "notFound": "Esta propuesta no existe o no tiene un contrato changer en esta red.",
+            "searchPlaceholder": "Buscar por MIP, título o resumen",
+            "columns": {
+                "status": "Estado",
+                "tag": "Proyecto",
+                "execution": "Ejecución"
+            },
+            "status": {
+                "Published": "Publicada",
+                "Draft": "Borrador",
+                "Withdrawn": "Retirada"
+            },
+            "tags": {
+                "doc": "DOC",
+                "usdrif": "USDRIF",
+                "oracles": "Oráculos",
+                "voting": "Votación",
+                "staking": "Staking"
+            },
+            "back": "Volver a votación",
+            "goToVote": "Ir a votar",
+            "executed": "Ejecutada",
+            "notExecuted": "No ejecutada",
+            "executedOn": "Ejecutada el {{date}}",
+            "executedTx": "Transacción de ejecución",
+            "forum": "Discusión en el foro",
+            "source": "Documento en GitHub",
+            "changers": {
+                "title": "Contratos changer",
+                "description": "Los contratos que se votan on-chain para esta propuesta. Su código fuente verificado es lo que se ejecuta.",
+                "submitter": "Presentada por",
+                "notSubmitted": "Todavía no se presentó a votación en esta red"
+            },
+            "onChain": {
+                "title": "Votación on-chain",
+                "none": "No se indexó ninguna votación on-chain para estos contratos en esta red.",
+                "round": "Ronda {{round}}",
+                "inFavor": "A favor",
+                "against": "En contra",
+                "capacity": {
+                    "participation": "Votó el {{pct}}% del suministro de MOC",
+                    "notVoted": "No votó",
+                    "quorum": "Quórum {{pct}}%",
+                    "quorumReached": "Quórum alcanzado",
+                    "quorumNotReached": "Quórum no alcanzado",
+                    "aria": "A favor {{inFavor}}% y en contra {{against}}% del suministro de MOC, quórum en {{quorum}}%"
+                },
+                "status": {
+                    "PreVoting": "En pre-votación",
+                    "Unregistered": "Retirada",
+                    "NotSelected": "No seleccionada",
+                    "Voting": "En votación",
+                    "Accepted": "Aceptada, pendiente de ejecución",
+                    "NoQuorum": "Sin quórum",
+                    "Vetoed": "Vetada",
+                    "Executed": "Ejecutada",
+                    "ExecutionFailed": "Ejecución fallida"
+                }
+            }
+        },
         "cardTitle": {
             "section": "Votación",
             "proposalsList": "Propuestas",

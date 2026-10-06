@@ -13,6 +13,7 @@ import ModalAllowanceOperation from "../../Modals/Allowance";
 import VetoStatusModal from "../../Modals/VetoStatusModal/VetoStatusModal";
 import { PrecisionNumbers } from "../../PrecisionNumbers";
 import BalanceBar from "../BalanceBar";
+import { ChangerLinks, ChangerTitle } from "../ChangerInfo";
 import CompletedBar from "../CompletedBar";
 
 const PRECISION_DECIMALS = 18n;
@@ -352,33 +353,16 @@ const Veto: React.FC = () => {
                         </div>
 
                         <div className="details">
-                            <div className="title">
-                                {infoVoting.votingData["winnerProposal"]}
-                            </div>
-
-                            <div className="externalLink">
-                                <a
-                                    className="forumLink"
-                                    href={`https://forum.moneyonchain.com/search?q=${infoVoting.votingData["winnerProposal"]}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    {t("voting.info.searchForum")}
-                                    <div className="icon-external-link"></div>
-                                </a>
-                            </div>
-
-                            <div className="externalLink">
-                                <a
-                                    className="forumLink"
-                                    href={`https://rootstock.blockscout.com/address/${infoVoting.votingData["winnerProposal"]}?tab=contract`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    {t("voting.info.changeContract")}
-                                    <span className="icon-external-link"></span>
-                                </a>
-                            </div>
+                            <ChangerTitle
+                                address={
+                                    infoVoting.votingData["winnerProposal"]
+                                }
+                            />
+                            <ChangerLinks
+                                address={
+                                    infoVoting.votingData["winnerProposal"]
+                                }
+                            />
                         </div>
                         <div className="voting__status__container">
                             <div className="graphs">
