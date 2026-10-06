@@ -119,3 +119,11 @@
     border-color: var(--color-txt-link);
     color: var(--color-txt-inverted);
 }
+
+.mip-status--defeated {
+    color: var(--color-semantic-negative);
+}
+
+.mip-status--inactive {
+    color: var(--color-txt-secondary);
+}

@@ -4,7 +4,13 @@ import { useWalletContext } from "../context/Wallet";
 
 // Where a changer currently is in the VotingMachine. Same names as the
 // indexed records' statuses, so the same labels apply.
-export type LiveVotingStatus = "PreVoting" | "Voting" | "Accepted";
+// VotingEnded: still in the Voting state but past its expiration, waiting
+// for someone to call voteStep() and record the result.
+export type LiveVotingStatus =
+    | "PreVoting"
+    | "Voting"
+    | "VotingEnded"
+    | "Accepted";
 
 type ProposalEntry = [string, bigint, bigint, bigint];
 
@@ -26,9 +32,15 @@ export function useLiveVoting(): Record<string, LiveVotingStatus> {
         if (state === 1 || state === 2) {
             // Voting, or accepted and waiting for acceptedStep()
             const winner = vm.getVotingData?.[0];
+            const expiration = BigInt(vm.getVotingData?.[3] ?? 0n);
+            const now = BigInt(Math.floor(Date.now() / 1000));
             if (winner && !/^0x0{40}$/i.test(winner)) {
                 live[winner.toLowerCase()] =
-                    state === 1 ? "Voting" : "Accepted";
+                    state === 2
+                        ? "Accepted"
+                        : expiration > now
+                          ? "Voting"
+                          : "VotingEnded";
             }
             return live;
         }

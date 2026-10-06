@@ -7,6 +7,7 @@ import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import { ChangerLinks, ChangerTitle } from "./ChangerInfo";
 import CompletedBar from "./CompletedBar";
+import PreVoteStatus, { type PreVoteStatusKind } from "./PreVoteStatus";
 
 const PRECISION_DECIMALS = 18n;
 const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
@@ -44,6 +45,7 @@ interface Proposal {
     votesPositive: bigint;
     votesPositivePCT: bigint;
     expirationTimeStampFormat: string;
+    preVoteStatus?: PreVoteStatusKind;
 }
 
 interface InfoVoting {
@@ -248,10 +250,12 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
                 <div className="proposal__content">
                     <div className="details">
                         <ChangerLinks address={proposal.changeContract} />
-                        <p>
-                            {t("voting.info.stateAs")}
-                            <span>{proposal.expirationTimeStampFormat}</span>
-                        </p>
+                        {proposal.preVoteStatus && (
+                            <PreVoteStatus
+                                status={proposal.preVoteStatus}
+                                date={proposal.expirationTimeStampFormat}
+                            />
+                        )}
                         {/* <div className="voting__status__container"> */}
                         <div className="graphs">
                             {/* {!proposal.canVote && (

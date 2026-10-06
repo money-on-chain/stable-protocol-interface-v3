@@ -352,67 +352,111 @@ const Veto: React.FC = () => {
                             <h1>{t("voting.cardTitle.votingStage")}</h1>
                         </div>
 
-                        <div className="details">
-                            <ChangerTitle
-                                address={
-                                    infoVoting.votingData["winnerProposal"]
-                                }
-                            />
-                            <ChangerLinks
-                                address={
-                                    infoVoting.votingData["winnerProposal"]
-                                }
-                            />
-                        </div>
-                        <div className="voting__status__container">
-                            <div className="graphs">
-                                <p className="voting__status">
-                                    {t("voting.info.stateAs")}
-                                    <span>
-                                        {
-                                            infoVoting["votingData"][
-                                                "votingExpirationTimeFormat"
+                        {/* getVotingData() keeps the last round's winner
+                            after voting ends, and the VetoMachine only takes
+                            vetoes while the VotingMachine is in Voting: show
+                            the proposal and the veto actions only then. */}
+                        {infoVoting["state"] === 1 ? (
+                            <>
+                                <div className="details">
+                                    <ChangerTitle
+                                        address={
+                                            infoVoting.votingData[
+                                                "winnerProposal"
                                             ]
                                         }
-                                    </span>
-                                </p>
-                                <BalanceBar
-                                    key="1"
-                                    infavor={
-                                        infoVoting["votingData"][
-                                            "inFavorVotesPCT"
-                                        ]
-                                    }
-                                    against={
-                                        infoVoting["votingData"][
-                                            "againstVotesPCT"
-                                        ]
-                                    }
-                                    infavorVotes={
-                                        infoVoting["votingData"]["inFavorVotes"]
-                                    }
-                                    againstVotes={
-                                        infoVoting["votingData"]["againstVotes"]
-                                    }
-                                />
-                                <div className="voting__status__graphs">
-                                    <VetoBar infoVoting={infoVoting} />
+                                    />
+                                    <ChangerLinks
+                                        address={
+                                            infoVoting.votingData[
+                                                "winnerProposal"
+                                            ]
+                                        }
+                                    />
+                                </div>
+                                <div className="voting__status__container">
+                                    <div className="graphs">
+                                        <p className="voting__status">
+                                            {t("voting.info.stateAs")}
+                                            <span>
+                                                {
+                                                    infoVoting["votingData"][
+                                                        "votingExpirationTimeFormat"
+                                                    ]
+                                                }
+                                            </span>
+                                        </p>
+                                        <BalanceBar
+                                            key="1"
+                                            infavor={
+                                                infoVoting["votingData"][
+                                                    "inFavorVotesPCT"
+                                                ]
+                                            }
+                                            against={
+                                                infoVoting["votingData"][
+                                                    "againstVotesPCT"
+                                                ]
+                                            }
+                                            infavorVotes={
+                                                infoVoting["votingData"][
+                                                    "inFavorVotes"
+                                                ]
+                                            }
+                                            againstVotes={
+                                                infoVoting["votingData"][
+                                                    "againstVotes"
+                                                ]
+                                            }
+                                        />
+                                        <div className="voting__status__graphs">
+                                            <VetoBar infoVoting={infoVoting} />
+                                        </div>
+                                    </div>
+                                    <div className="cta">
+                                        <div className="cta-container">
+                                            <button
+                                                className="button secondary vetoPage__backBtn"
+                                                onClick={() =>
+                                                    navigate("/voting")
+                                                }
+                                            >
+                                                Back to Governance Voting
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {infoUser["InfoUserTC"].map(
+                                    (tc: InfoUserTC) => (
+                                        <VetoTokenCard
+                                            key={tc.address}
+                                            token={tc}
+                                        />
+                                    )
+                                )}
+                            </>
+                        ) : (
+                            <div className="voting__status__container">
+                                <div className="graphs">
+                                    <p className="voting__status">
+                                        {t("voting.veto.noVotingStage", {
+                                            defaultValue:
+                                                "No proposal is in the voting stage right now, so there is nothing to veto.",
+                                        })}
+                                    </p>
+                                </div>
+                                <div className="cta">
+                                    <div className="cta-container">
+                                        <button
+                                            className="button secondary vetoPage__backBtn"
+                                            onClick={() => navigate("/voting")}
+                                        >
+                                            Back to Governance Voting
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="cta">
-                                <div className="cta-container">
-                                    <button
-                                        className="button secondary vetoPage__backBtn"
-                                        onClick={() => navigate("/voting")}
-                                    >
-                                        Back to Governance Voting
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        {infoUser["InfoUserTC"].map((tc: InfoUserTC) => (
-                            <VetoTokenCard key={tc.address} token={tc} />
-                        ))}
+                        )}
                         {isOperationModalVisible && (
                             <VetoStatusModal
                                 title={modalTitle}

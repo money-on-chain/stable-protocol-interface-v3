@@ -8,10 +8,11 @@ import BalanceBar from "../../../components/Voting/BalanceBar";
 import MipDocument from "../../../components/Voting/MipDocument";
 import {
     MipExecutedBadge,
-    MipLiveBadge,
     mipLiveStatus,
     MipStatusBadge,
     MipTags,
+    MipVotingBadge,
+    mipVotingStatus,
     useFormatMipDate,
 } from "../../../components/Voting/ProposalsHistory";
 import VotingCapacityBar from "../../../components/Voting/VotingCapacityBar";
@@ -102,8 +103,19 @@ function VotingRecords({ mip }: { mip: MipContent }): React.ReactElement {
         mip.changers.map((changer) => changer.address)
     );
 
+    const live = useLiveVoting();
+
     const closingTx = (record: VotingRecord) =>
         record.acceptedStep?.hash ?? record.voteStep?.hash ?? null;
+
+    // The indexed status of an open round, refined with the live contract
+    // state: a pre-vote no longer live has expired, a vote may have ended.
+    const displayStatus = (record: VotingRecord): string => {
+        const current = live[record.proposal.toLowerCase()];
+        if (record.status === "PreVoting") return current ?? "Expired";
+        if (record.status === "Voting") return current ?? "Voting";
+        return record.status;
+    };
 
     if (isLoading) return <Skeleton active paragraph={{ rows: 1 }} />;
     if (!records?.length) {
@@ -122,9 +134,11 @@ function VotingRecords({ mip }: { mip: MipContent }): React.ReactElement {
                             })}
                         </span>
                         <span
-                            className={`mip-page__record-status mip-page__record-status--${record.status}`}
+                            className={`mip-page__record-status mip-page__record-status--${displayStatus(record)}`}
                         >
-                            {t(`voting.mips.onChain.status.${record.status}`)}
+                            {t(
+                                `voting.mips.onChain.status.${displayStatus(record)}`
+                            )}
                         </span>
                     </div>
                     <VotesBar record={record} />
@@ -144,6 +158,7 @@ export default function SectionVotingMip(): React.ReactElement {
     const formatDate = useFormatMipDate();
     const live = useLiveVoting();
     const liveStatus = mip ? mipLiveStatus(mip, live) : undefined;
+    const votingStatus = mip ? mipVotingStatus(mip, live) : undefined;
 
     const back = (
         <Link className="mip-page__back" to="/voting">
@@ -185,8 +200,11 @@ export default function SectionVotingMip(): React.ReactElement {
                 <div className="mip-page__meta">
                     <span className="mips-history__mip">{mip.mip}</span>
                     <MipStatusBadge status={mip.status} />
-                    <MipExecutedBadge executed={mip.executed} />
-                    <MipLiveBadge status={liveStatus} />
+                    <MipVotingBadge status={votingStatus} />
+                    <MipExecutedBadge
+                        executed={mip.executed}
+                        status={votingStatus}
+                    />
                     {mip.date && (
                         <span className="mip-page__muted">
                             {formatDate(mip.date)}

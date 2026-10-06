@@ -860,6 +860,22 @@
         }
     },
     "voting": {
+        "preVoteStatus": {
+            "showExpired": "Ver expiradas ({{count}})",
+            "hideExpired": "Ocultar expiradas",
+            "open": {
+                "label": "Abierta",
+                "text": "Pre-votación abierta hasta el {{date}}."
+            },
+            "selected": {
+                "label": "Seleccionada para votación",
+                "text": "La pre-votación terminó el {{date}} y esta propuesta ganó. Pásela a la siguiente etapa para iniciar la votación."
+            },
+            "expired": {
+                "label": "Expirada",
+                "text": "La pre-votación terminó el {{date}} sin que esta propuesta ganara. Ya no puede recibir pre-votos y su lugar se reutiliza cuando se presenta una nueva propuesta."
+            }
+        },
         "mips": {
             "title": "Historial de propuestas",
             "description": "Propuestas de mejora de Money on Chain (MIPs) con un contrato changer en esta red.",
@@ -870,7 +886,7 @@
             "columns": {
                 "status": "Estado",
                 "tag": "Proyecto",
-                "execution": "Ejecución"
+                "votingStatus": "Estado de votación"
             },
             "status": {
                 "Published": "Publicada",
@@ -885,9 +901,14 @@
                 "staking": "Staking"
             },
             "back": "Volver a votación",
+            "votingGroups": {
+                "inProgress": "En curso",
+                "executed": "Ejecutadas",
+                "defeated": "Derrotadas",
+                "notAdvanced": "No avanzaron"
+            },
             "goToVote": "Ir a votar",
             "executed": "Ejecutada",
-            "notExecuted": "No ejecutada",
             "executedOn": "Ejecutada el {{date}}",
             "executedTx": "Transacción de ejecución",
             "forum": "Discusión en el foro",
@@ -915,11 +936,13 @@
                 "status": {
                     "PreVoting": "En pre-votación",
                     "Unregistered": "Retirada",
+                    "Expired": "Expirada en pre-votación",
                     "NotSelected": "No seleccionada",
                     "Voting": "En votación",
+                    "VotingEnded": "Votación finalizada, pendiente de conteo",
                     "Accepted": "Aceptada, pendiente de ejecución",
                     "NoQuorum": "Sin quórum",
-                    "Vetoed": "Vetada",
+                    "Vetoed": "Rechazada",
                     "Executed": "Ejecutada",
                     "ExecutionFailed": "Ejecución fallida"
                 }

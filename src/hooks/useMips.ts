@@ -47,6 +47,11 @@ export interface MipEntry {
     executed?: boolean;
     executedTx?: string | null;
     executedAt?: string | null;
+    // Voting status of the latest indexed attempt (a VotingRecordStatus),
+    // "Executed" from the registry alone, or null when unknown. See
+    // mipVotingStatus for how the dapp combines it with the live state.
+    outcome?: string | null;
+    outcomeRound?: number | null;
 }
 
 export interface MipContent extends MipEntry {

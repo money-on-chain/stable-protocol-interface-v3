@@ -749,6 +749,22 @@
         }
     },
     "voting": {
+        "preVoteStatus": {
+            "showExpired": "Show expired ({{count}})",
+            "hideExpired": "Hide expired",
+            "open": {
+                "label": "Open",
+                "text": "Pre-voting open until {{date}}."
+            },
+            "selected": {
+                "label": "Selected for voting",
+                "text": "Pre-voting ended on {{date}} and this proposal won. Push it to the next step to start the vote."
+            },
+            "expired": {
+                "label": "Expired",
+                "text": "Pre-voting ended on {{date}} without this proposal winning. It can no longer receive pre-votes, and its slot is reused when a new proposal is submitted."
+            }
+        },
         "cardTitle": {
             "section": "Voting",
             "proposalsList": "Proposals",

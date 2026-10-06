@@ -46,27 +46,89 @@ export function mipLiveStatus(
     return undefined;
 }
 
-export function MipLiveBadge({
+// Voting status of a MIP: where its latest attempt is, or how it ended.
+export type MipVotingStatus =
+    | LiveVotingStatus
+    | "Expired"
+    | "NotSelected"
+    | "Unregistered"
+    | "NoQuorum"
+    // Rejected by votes against (or, where enabled, the collateral veto)
+    | "Vetoed"
+    | "Executed"
+    | "ExecutionFailed";
+
+/**
+ * The MIP's voting status. The live contract state wins for the current
+ * round (in pre-vote, in vote, vote ended, accepted). Otherwise the API's
+ * outcome of its latest indexed attempt, where a pre-vote that is no longer
+ * live has expired - the events don't carry the expiration. Undefined when
+ * nothing is known (e.g. old mainnet attempts, before it emitted events).
+ */
+export function mipVotingStatus(
+    entry: MipEntry,
+    live: Record<string, LiveVotingStatus>
+): MipVotingStatus | undefined {
+    const current = mipLiveStatus(entry, live);
+    if (current) return current;
+    switch (entry.outcome) {
+        case undefined:
+        case null:
+            return entry.executed ? "Executed" : undefined;
+        case "PreVoting":
+            return "Expired";
+        default:
+            return entry.outcome as MipVotingStatus;
+    }
+}
+
+// Filter groups of voting statuses
+export const VOTING_STATUS_GROUPS: Record<string, MipVotingStatus[]> = {
+    inProgress: ["PreVoting", "Voting", "VotingEnded", "Accepted"],
+    executed: ["Executed"],
+    defeated: ["NoQuorum", "Vetoed", "ExecutionFailed"],
+    notAdvanced: ["Expired", "NotSelected", "Unregistered"],
+};
+
+const STATUS_STYLE: Record<MipVotingStatus, string> = {
+    PreVoting: "live",
+    Voting: "live",
+    VotingEnded: "live",
+    Accepted: "live",
+    Executed: "executed",
+    NoQuorum: "defeated",
+    Vetoed: "defeated",
+    ExecutionFailed: "defeated",
+    Expired: "inactive",
+    NotSelected: "inactive",
+    Unregistered: "inactive",
+};
+
+export function MipVotingBadge({
     status,
 }: {
-    status?: LiveVotingStatus;
+    status?: MipVotingStatus;
 }): React.ReactElement | null {
     const { t } = useProjectTranslation();
     if (!status) return null;
     return (
-        <span className={`mip-status mip-status--live`}>
+        <span className={`mip-status mip-status--${STATUS_STYLE[status]}`}>
             {t(`voting.mips.onChain.status.${status}`)}
         </span>
     );
 }
 
+// An earlier attempt was executed while the latest one shows another status
+// (e.g. the same changer submitted again later).
 export function MipExecutedBadge({
     executed,
+    status,
 }: {
     executed?: boolean;
+    status?: MipVotingStatus;
 }): React.ReactElement | null {
     const { t } = useProjectTranslation();
-    if (!executed) return null;
+    if (!executed || status === "Executed") return null;
     return (
         <span className="mip-status mip-status--executed">
             {t("voting.mips.executed")}
@@ -148,21 +210,26 @@ export default function ProposalsHistory(): React.ReactElement {
                         matches: (entry, value) => entry.status === value,
                     },
                     {
-                        id: "execution",
-                        label: t("voting.mips.columns.execution"),
+                        id: "votingStatus",
+                        label: t("voting.mips.columns.votingStatus"),
                         allLabel: t("common.dataTable.all"),
-                        options: [
-                            {
-                                value: "executed",
-                                label: t("voting.mips.executed"),
-                            },
-                            {
-                                value: "notExecuted",
-                                label: t("voting.mips.notExecuted"),
-                            },
-                        ],
-                        matches: (entry, value) =>
-                            !!entry.executed === (value === "executed"),
+                        options: Object.keys(VOTING_STATUS_GROUPS).map(
+                            (value) => ({
+                                value,
+                                label: t(`voting.mips.votingGroups.${value}`),
+                            })
+                        ),
+                        matches: (entry, value) => {
+                            // "Executed" also matches an earlier executed
+                            // attempt
+                            if (value === "executed" && entry.executed)
+                                return true;
+                            const status = mipVotingStatus(entry, live);
+                            return (
+                                !!status &&
+                                VOTING_STATUS_GROUPS[value].includes(status)
+                            );
+                        },
                     },
                     {
                         id: "tag",
@@ -202,8 +269,13 @@ export default function ProposalsHistory(): React.ReactElement {
                                 {entry.mip}
                             </span>
                             <MipStatusBadge status={entry.status} />
-                            <MipExecutedBadge executed={entry.executed} />
-                            <MipLiveBadge status={mipLiveStatus(entry, live)} />
+                            <MipVotingBadge
+                                status={mipVotingStatus(entry, live)}
+                            />
+                            <MipExecutedBadge
+                                executed={entry.executed}
+                                status={mipVotingStatus(entry, live)}
+                            />
                             {entry.date && (
                                 <span className="mips-history__date">
                                     {formatDate(entry.date)}

@@ -3,6 +3,7 @@ import React from "react";
 import { useProjectTranslation } from "../../helpers/translations";
 import { ChangerLinks, ChangerTitle } from "./ChangerInfo";
 import CompletedBar from "./CompletedBar";
+import PreVoteStatus, { type PreVoteStatusKind } from "./PreVoteStatus";
 import ProposalStats from "./ProposalStats";
 
 const PRECISION_DECIMALS = 18n;
@@ -37,6 +38,7 @@ interface Proposal {
     votesPositive: bigint;
     votesPositivePCT: bigint;
     expirationTimeStampFormat: string;
+    preVoteStatus: PreVoteStatusKind;
     canRunStep: boolean;
 }
 
@@ -163,10 +165,10 @@ const Proposal: React.FC<ProposalProps> = (props) => {
                     {/*    <div className='proposal-period'>The first stage voting is in progress!</div>*/}
                     {/*)}*/}
                     <ChangerLinks address={proposal.changeContract} />
-                    <p>
-                        {t("voting.info.stateAs")}
-                        <span>{proposal.expirationTimeStampFormat} </span>
-                    </p>
+                    <PreVoteStatus
+                        status={proposal.preVoteStatus}
+                        date={proposal.expirationTimeStampFormat}
+                    />
 
                     <div className="votingStatus__graphs">
                         {preVotingGraphs.map(CreateBarGraph)}

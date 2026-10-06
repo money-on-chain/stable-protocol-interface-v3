@@ -836,6 +836,22 @@
         }
     },
     "voting": {
+        "preVoteStatus": {
+            "showExpired": "Show expired ({{count}})",
+            "hideExpired": "Hide expired",
+            "open": {
+                "label": "Open",
+                "text": "Pre-voting open until {{date}}."
+            },
+            "selected": {
+                "label": "Selected for voting",
+                "text": "Pre-voting ended on {{date}} and this proposal won. Push it to the next step to start the vote."
+            },
+            "expired": {
+                "label": "Expired",
+                "text": "Pre-voting ended on {{date}} without this proposal winning. It can no longer receive pre-votes, and its slot is reused when a new proposal is submitted."
+            }
+        },
         "mips": {
             "title": "Proposals history",
             "description": "Money on Chain Improvement Proposals (MIPs) with a changer contract on this network.",
@@ -846,7 +862,7 @@
             "columns": {
                 "status": "Status",
                 "tag": "Project",
-                "execution": "Execution"
+                "votingStatus": "Voting status"
             },
             "status": {
                 "Published": "Published",
@@ -861,9 +877,14 @@
                 "staking": "Staking"
             },
             "back": "Back to voting",
+            "votingGroups": {
+                "inProgress": "In progress",
+                "executed": "Executed",
+                "defeated": "Defeated",
+                "notAdvanced": "Did not advance"
+            },
             "goToVote": "Go to vote",
             "executed": "Executed",
-            "notExecuted": "Not executed",
             "executedOn": "Executed on {{date}}",
             "executedTx": "Execution transaction",
             "forum": "Discussion on the forum",
@@ -891,11 +912,13 @@
                 "status": {
                     "PreVoting": "In pre-voting",
                     "Unregistered": "Unregistered",
+                    "Expired": "Expired in pre-vote",
                     "NotSelected": "Not selected",
                     "Voting": "In voting",
+                    "VotingEnded": "Voting ended, awaiting count",
                     "Accepted": "Accepted, pending execution",
                     "NoQuorum": "No quorum",
-                    "Vetoed": "Vetoed",
+                    "Vetoed": "Rejected",
                     "Executed": "Executed",
                     "ExecutionFailed": "Execution failed"
                 }
