@@ -558,8 +558,31 @@
         min-width: 0;
         line-height: 1.5;
 
-        &--address .mip-page__hash {
-            max-width: 32ch;
+        &--address,
+        .mip-page__record-transaction & {
+            gap: 8px;
+
+            .mip-page__hash {
+                max-width: 22ch;
+            }
+
+            .mip-page__explorer-action {
+                align-items: center;
+                justify-content: center;
+                flex: 0 0 32px;
+                width: 32px;
+                height: 32px;
+                border-radius: 6px;
+                transition: background 150ms ease;
+
+                &:hover {
+                    background: var(--color-controls-background);
+                }
+            }
+        }
+
+        .mip-page__record-transaction & .mip-page__hash {
+            max-width: 36ch;
         }
     }
 
@@ -613,6 +636,14 @@
         margin: 4px 0;
         max-width: 760px;
         width: 100%;
+        padding: 16px;
+        border: 1px solid var(--dividers);
+        border-radius: var(--card-border-radius);
+        background: var(--surface-color-1);
+
+        .capacity-bar__legend {
+            margin-bottom: 0;
+        }
     }
 
     &__records > li {

@@ -71,33 +71,32 @@
         color: var(--color-txt-secondary);
         font-size: 11px;
         position: absolute;
+        left: 0;
         top: 2px;
-        transform: translateX(-50%);
         white-space: nowrap;
     }
 
     &__legend {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 12px;
+        width: 100%;
+        max-width: 320px;
+        grid-template-columns: 1fr;
+        gap: 2px;
         list-style: none;
-        margin: 12px 0 0;
+        margin: 16px 0 8px;
         padding: 0;
 
         > li {
             align-items: center;
             display: grid;
-            grid-template-columns: 9px minmax(0, 1fr);
+            grid-template-columns: 9px minmax(0, 1fr) auto;
             gap: 3px 8px;
             min-width: 0;
+            line-height: 1.5;
 
             .capacity-bar__muted {
-                grid-column: 2;
+                text-align: right;
             }
-        }
-
-        @media (max-width: 600px) {
-            grid-template-columns: 1fr;
         }
     }
 

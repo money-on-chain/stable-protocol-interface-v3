@@ -33,12 +33,12 @@ icons.css contains all the css code for Icons across the Dapp
 }
 
 .icon-stage-complete {
-    mask-image: url("../icons/f-check.svg");
+    mask-image: url("../icons/d-check.svg");
     background-color: var(--color-semantic-positive);
 }
 
 .icon-stage-stopped {
-    mask-image: url("../icons/d-remove.svg");
+    mask-image: url("../icons/e-remove.svg");
     background-color: var(--color-semantic-negative);
 }
 
