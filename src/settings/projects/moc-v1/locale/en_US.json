@@ -853,7 +853,60 @@
             }
         },
         "mips": {
-            "title": "Proposals history",
+            "openExplorer": "Open in explorer",
+            "presentation": {
+                "documentState": {
+                    "Published": "Published",
+                    "Draft": "Draft",
+                    "Withdrawn": "Withdrawn"
+                },
+                "publicationTitle": "Document status",
+                "areasTitle": "Affected areas",
+                "executionTitle": "Recorded on-chain execution",
+                "executionOn": "Contract executed on {{date}}",
+                "executionConfirmed": "Contract execution recorded",
+                "separateExecution": "This execution record is separate from the outcome of the latest voting round.",
+                "publication": {
+                    "Published": "The document is published. This does not mean the proposal was approved.",
+                    "Draft": "The document is still a draft.",
+                    "Withdrawn": "The document was withdrawn from publication."
+                },
+                "round": {
+                    "PreVoting": "This round is collecting support to advance to voting.",
+                    "Expired": "This round ended without advancing to voting.",
+                    "NotSelected": "This proposal was not selected to advance to voting.",
+                    "Unregistered": "This proposal is no longer registered in this round.",
+                    "Voting": "Voting is open in this round.",
+                    "VotingEnded": "Voting has closed; the result has not been recorded yet.",
+                    "Accepted": "This round approved the proposal; contract execution is pending.",
+                    "NoQuorum": "This round ended without reaching the required quorum.",
+                    "Vetoed": "This round ended with the proposal rejected.",
+                    "Executed": "The contract was executed following approval in this round.",
+                    "ExecutionFailed": "The proposal was approved, but the contract execution failed."
+                }
+            },
+            "progress": {
+                "label": "Voting stages",
+                "preVoting": "Pre-voting",
+                "voting": "Voting",
+                "decision": "Decision",
+                "execution": "Execution",
+                "current": "Current stage",
+                "final": "Final outcome"
+            },
+            "proposalIdentifier": "Proposal",
+            "publicationStatus": "Publication",
+            "latestRound": "Latest voting round",
+            "executionStatus": "Execution history",
+            "detail": "Proposal details",
+            "collapseDetail": "Close",
+            "date": "Proposal date",
+            "projects": "Areas",
+            "expandDetail": "Read proposal",
+            "documentLabel": "Proposal document",
+            "documentDescription": "Rationale and specifications",
+            "detailDescription": "Expand the original proposal document to read its rationale and specifications.",
+            "title": "Proposal history",
             "description": "Money on Chain Improvement Proposals (MIPs) with a changer contract on this network.",
             "empty": "There are no proposals for this network yet.",
             "error": "The proposals could not be loaded. Please try again later.",
@@ -888,22 +941,25 @@
             "executedOn": "Executed on {{date}}",
             "executedTx": "Execution transaction",
             "forum": "Discussion on the forum",
-            "source": "Document on GitHub",
+            "source": "View original document on GitHub",
             "changers": {
+                "address": "Contract address",
+                "contractName": "Contract name",
                 "title": "Changer contracts",
-                "description": "The contracts voted on-chain for this proposal. Their verified source code is what gets executed.",
+                "description": "Changer contracts submitted for voting on this network. Their verified source code is executed when the proposal is approved.",
                 "submitter": "Submitted by",
                 "notSubmitted": "Not submitted for voting on this network yet"
             },
             "onChain": {
                 "title": "On-chain voting",
+                "transaction": "Closing transaction",
                 "none": "No on-chain voting has been indexed for these contracts on this network.",
                 "round": "Round {{round}}",
                 "inFavor": "In favor",
                 "against": "Against",
                 "capacity": {
                     "participation": "{{pct}}% of the MOC supply voted",
-                    "notVoted": "Did not vote",
+                    "notVoted": "Not voted",
                     "quorum": "Quorum {{pct}}%",
                     "quorumReached": "Quorum reached",
                     "quorumNotReached": "Quorum not reached",
@@ -912,10 +968,10 @@
                 "status": {
                     "PreVoting": "In pre-voting",
                     "Unregistered": "Unregistered",
-                    "Expired": "Expired in pre-vote",
+                    "Expired": "Expired in pre-voting",
                     "NotSelected": "Not selected",
                     "Voting": "In voting",
-                    "VotingEnded": "Voting ended, awaiting count",
+                    "VotingEnded": "Voting ended, awaiting tally",
                     "Accepted": "Accepted, pending execution",
                     "NoQuorum": "No quorum",
                     "Vetoed": "Rejected",

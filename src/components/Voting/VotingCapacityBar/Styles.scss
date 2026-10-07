@@ -1,4 +1,5 @@
 .capacity-bar {
+    color: var(--color-txt-primary);
     font-family: var(--main-font);
     font-size: 13px;
     width: 100%;
@@ -31,10 +32,10 @@
     }
 
     &__track {
-        background: var(--surface-color-2);
+        background: var(--color-controls-background);
         border-radius: var(--btn-radius-tiny);
         display: flex;
-        height: 24px;
+        height: 12px;
         overflow: hidden;
         position: relative;
         width: 100%;
@@ -76,17 +77,27 @@
     }
 
     &__legend {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px 16px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
         list-style: none;
-        margin: 4px 0 0;
+        margin: 12px 0 0;
         padding: 0;
 
-        li {
+        > li {
             align-items: center;
-            display: inline-flex;
-            gap: 6px;
+            display: grid;
+            grid-template-columns: 9px minmax(0, 1fr);
+            gap: 3px 8px;
+            min-width: 0;
+
+            .capacity-bar__muted {
+                grid-column: 2;
+            }
+        }
+
+        @media (max-width: 600px) {
+            grid-template-columns: 1fr;
         }
     }
 

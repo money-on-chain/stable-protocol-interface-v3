@@ -873,11 +873,64 @@
             }
         },
         "mips": {
+            "openExplorer": "Abrir en el explorador",
+            "presentation": {
+                "documentState": {
+                    "Published": "Publicado",
+                    "Draft": "Borrador",
+                    "Withdrawn": "Retirado"
+                },
+                "publicationTitle": "Estado del documento",
+                "areasTitle": "Áreas afectadas",
+                "executionTitle": "Ejecución registrada en la red",
+                "executionOn": "Contrato ejecutado el {{date}}",
+                "executionConfirmed": "Ejecución del contrato registrada",
+                "separateExecution": "Este registro de ejecución es independiente del resultado de la última ronda de votación.",
+                "publication": {
+                    "Published": "El documento está publicado. Esto no significa que la propuesta haya sido aprobada.",
+                    "Draft": "El documento todavía es un borrador.",
+                    "Withdrawn": "El documento fue retirado de publicación."
+                },
+                "round": {
+                    "PreVoting": "Esta ronda está reuniendo apoyo para avanzar a votación.",
+                    "Expired": "Esta ronda terminó sin avanzar a votación.",
+                    "NotSelected": "Esta propuesta no fue seleccionada para avanzar a votación.",
+                    "Unregistered": "Esta propuesta ya no está registrada en esta ronda.",
+                    "Voting": "La votación está abierta en esta ronda.",
+                    "VotingEnded": "La votación terminó; el resultado todavía no fue registrado.",
+                    "Accepted": "La propuesta fue aprobada en esta ronda; falta ejecutar el contrato.",
+                    "NoQuorum": "Esta ronda terminó sin alcanzar el quórum necesario.",
+                    "Vetoed": "Esta ronda terminó con la propuesta rechazada.",
+                    "Executed": "El contrato se ejecutó tras la aprobación en esta ronda.",
+                    "ExecutionFailed": "La propuesta fue aprobada, pero la ejecución del contrato falló."
+                }
+            },
+            "progress": {
+                "label": "Etapas de votación",
+                "preVoting": "Pre-votación",
+                "voting": "Votación",
+                "decision": "Decisión",
+                "execution": "Ejecución",
+                "current": "Etapa actual",
+                "final": "Resultado final"
+            },
+            "proposalIdentifier": "Propuesta",
+            "publicationStatus": "Publicación",
+            "latestRound": "Última ronda de votación",
+            "executionStatus": "Historial de ejecución",
+            "detail": "Detalle de la propuesta",
+            "collapseDetail": "Cerrar",
+            "date": "Fecha de la propuesta",
+            "projects": "Áreas",
+            "expandDetail": "Leer propuesta",
+            "documentLabel": "Documento de la propuesta",
+            "documentDescription": "Fundamentos y especificaciones",
+            "detailDescription": "Abrí el documento original de la propuesta para leer sus fundamentos y especificaciones.",
             "title": "Historial de propuestas",
-            "description": "Propuestas de mejora de Money on Chain (MIPs) con un contrato changer en esta red.",
+            "description": "Propuestas de mejora de Money on Chain (MIPs) con un contrato de cambio en esta red.",
             "empty": "Todavía no hay propuestas para esta red.",
-            "error": "No se pudieron cargar las propuestas. Intente nuevamente más tarde.",
-            "notFound": "Esta propuesta no existe o no tiene un contrato changer en esta red.",
+            "error": "No se pudieron cargar las propuestas. Intentá nuevamente más tarde.",
+            "notFound": "Esta propuesta no existe o no tiene un contrato de cambio en esta red.",
             "searchPlaceholder": "Buscar por MIP, título o resumen",
             "columns": {
                 "status": "Estado",
@@ -896,7 +949,7 @@
                 "voting": "Votación",
                 "staking": "Staking"
             },
-            "back": "Volver a votación",
+            "back": "Volver a las votaciones",
             "votingGroups": {
                 "inProgress": "En curso",
                 "executed": "Ejecutadas",
@@ -908,22 +961,25 @@
             "executedOn": "Ejecutada el {{date}}",
             "executedTx": "Transacción de ejecución",
             "forum": "Discusión en el foro",
-            "source": "Documento en GitHub",
+            "source": "Ver documento original en GitHub",
             "changers": {
-                "title": "Contratos changer",
-                "description": "Los contratos que se votan on-chain para esta propuesta. Su código fuente verificado es lo que se ejecuta.",
-                "submitter": "Presentada por",
+                "address": "Dirección del contrato",
+                "contractName": "Nombre del contrato",
+                "title": "Contratos de cambio",
+                "description": "Contratos de cambio sometidos a votación en esta red. Al aprobarse la propuesta, se ejecuta su código fuente verificado.",
+                "submitter": "Presentado por",
                 "notSubmitted": "Todavía no se presentó a votación en esta red"
             },
             "onChain": {
-                "title": "Votación on-chain",
-                "none": "No se indexó ninguna votación on-chain para estos contratos en esta red.",
+                "title": "Votación en la red",
+                "transaction": "Transacción de cierre",
+                "none": "No hay votaciones registradas para estos contratos en esta red.",
                 "round": "Ronda {{round}}",
                 "inFavor": "A favor",
                 "against": "En contra",
                 "capacity": {
                     "participation": "Votó el {{pct}}% del suministro de MOC",
-                    "notVoted": "No votó",
+                    "notVoted": "Sin votos",
                     "quorum": "Quórum {{pct}}%",
                     "quorumReached": "Quórum alcanzado",
                     "quorumNotReached": "Quórum no alcanzado",
@@ -931,7 +987,7 @@
                 },
                 "status": {
                     "PreVoting": "En pre-votación",
-                    "Unregistered": "Retirada",
+                    "Unregistered": "No registrada",
                     "Expired": "Expirada en pre-votación",
                     "NotSelected": "No seleccionada",
                     "Voting": "En votación",
