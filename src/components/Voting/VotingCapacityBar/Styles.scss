@@ -1,0 +1,122 @@
+.capacity-bar {
+    color: var(--color-txt-primary);
+    font-family: var(--main-font);
+    font-size: 13px;
+    width: 100%;
+
+    &__summary {
+        align-items: baseline;
+        display: flex;
+        flex-wrap: wrap;
+        font-weight: 600;
+        gap: 4px 12px;
+        justify-content: space-between;
+        margin-bottom: 6px;
+    }
+
+    &__muted {
+        color: var(--color-txt-secondary);
+        font-weight: 400;
+    }
+
+    &__quorum-status {
+        font-size: 12px;
+
+        &--reached {
+            color: var(--color-semantic-positive);
+        }
+
+        &--missed {
+            color: var(--color-semantic-negative);
+        }
+    }
+
+    &__track {
+        background: var(--color-controls-background);
+        border-radius: var(--btn-radius-tiny);
+        display: flex;
+        height: 12px;
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+    }
+
+    &__segment {
+        height: 100%;
+
+        &--infavor {
+            background-color: var(--color-semantic-positive);
+        }
+
+        &--against {
+            background-color: var(--color-semantic-negative);
+        }
+    }
+
+    &__quorum {
+        background: var(--color-txt-primary);
+        bottom: 0;
+        position: absolute;
+        top: 0;
+        transform: translateX(-1px);
+        width: 2px;
+    }
+
+    &__quorum-label-row {
+        height: 18px;
+        position: relative;
+    }
+
+    &__quorum-label {
+        color: var(--color-txt-secondary);
+        font-size: 11px;
+        position: absolute;
+        left: 0;
+        top: 2px;
+        white-space: nowrap;
+    }
+
+    &__legend {
+        display: grid;
+        width: 100%;
+        max-width: 320px;
+        grid-template-columns: 1fr;
+        gap: 2px;
+        list-style: none;
+        margin: 16px 0 8px;
+        padding: 0;
+
+        > li {
+            align-items: center;
+            display: grid;
+            grid-template-columns: 9px minmax(0, 1fr) auto;
+            gap: 3px 8px;
+            min-width: 0;
+            line-height: 1.5;
+
+            .capacity-bar__muted {
+                text-align: right;
+            }
+        }
+    }
+
+    &__dot {
+        border-radius: 50%;
+        display: inline-block;
+        height: 9px;
+        width: 9px;
+
+        &--infavor {
+            background-color: var(--color-semantic-positive);
+        }
+
+        &--against {
+            background-color: var(--color-semantic-negative);
+        }
+
+        &--notvoted {
+            background-color: var(--surface-color-2);
+            border: 1px solid var(--dividers);
+        }
+    }
+}

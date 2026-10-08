@@ -1,0 +1,26 @@
+.changer-mip {
+    font-family: var(--main-font);
+    margin: 6px 0 10px;
+
+    &__meta {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 6px;
+    }
+
+    &__mip {
+        color: var(--color-txt-link);
+        font-family: monospace;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    &__summary {
+        color: var(--color-txt-secondary);
+        font-size: 14px;
+        line-height: 1.45;
+        margin: 0;
+    }
+}

@@ -575,16 +575,30 @@
             }
         },
         "history": {
-            "title": "Staking - Últimas Operaciones",
-            "columnDate": "Fecha",
-            "columnAmount": "Cantidad",
-            "columnOperation": "Operación",
-            "operatons": {
+            "title": "Actividad de Staking",
+            "description": "Tus últimas operaciones de stake, unstake, restake y retiro.",
+            "columns": {
+                "date": "Fecha",
+                "operation": "Operación",
+                "amount": "Cantidad",
+                "status": "Estado",
+                "transaction": "Transacción"
+            },
+            "types": {
                 "stake": "Stake",
                 "unstake": "Unstake",
                 "restake": "Restake",
-                "withdraw": "Withdraw"
-            }
+                "withdraw": "Retiro"
+            },
+            "status": {
+                "confirmed": "Confirmada",
+                "pending": "Se libera el {{date}}",
+                "available": "Listo para retirar",
+                "withdrawn": "Retirado",
+                "restaked": "Devuelto a Stake"
+            },
+            "empty": "No hay operaciones de staking para mostrar.",
+            "error": "No se pudo cargar la actividad de staking. Intenta nuevamente más tarde."
         },
         "tokens": {
             "TG": {
@@ -842,6 +856,150 @@
         }
     },
     "voting": {
+        "preVoteStatus": {
+            "showExpired": "Ver expiradas ({{count}})",
+            "hideExpired": "Ocultar expiradas",
+            "open": {
+                "label": "Abierta",
+                "text": "Pre-votación abierta hasta el {{date}}."
+            },
+            "selected": {
+                "label": "Seleccionada para votación",
+                "text": "La pre-votación terminó el {{date}} y esta propuesta ganó. Pásela a la siguiente etapa para iniciar la votación."
+            },
+            "expired": {
+                "label": "Expirada",
+                "text": "La pre-votación terminó el {{date}} sin que esta propuesta ganara. Ya no puede recibir pre-votos y su lugar se reutiliza cuando se presenta una nueva propuesta."
+            }
+        },
+        "mips": {
+            "openExplorer": "Abrir en el explorador",
+            "presentation": {
+                "documentState": {
+                    "Published": "Publicado",
+                    "Draft": "Borrador",
+                    "Withdrawn": "Retirado"
+                },
+                "publicationTitle": "Estado del documento",
+                "areasTitle": "Áreas afectadas",
+                "executionTitle": "Ejecución registrada en la red",
+                "executionOn": "Contrato ejecutado el {{date}}",
+                "executionConfirmed": "Ejecución del contrato registrada",
+                "separateExecution": "Este registro de ejecución es independiente del resultado de la última ronda de votación.",
+                "publication": {
+                    "Published": "El documento está publicado. Esto no significa que la propuesta haya sido aprobada.",
+                    "Draft": "El documento todavía es un borrador.",
+                    "Withdrawn": "El documento fue retirado de publicación."
+                },
+                "round": {
+                    "PreVoting": "Esta ronda está reuniendo apoyo para avanzar a votación.",
+                    "Expired": "Esta ronda terminó sin avanzar a votación.",
+                    "NotSelected": "Esta propuesta no fue seleccionada para avanzar a votación.",
+                    "Unregistered": "Esta propuesta ya no está registrada en esta ronda.",
+                    "Voting": "La votación está abierta en esta ronda.",
+                    "VotingEnded": "La votación terminó; el resultado todavía no fue registrado.",
+                    "Accepted": "La propuesta fue aprobada en esta ronda; falta ejecutar el contrato.",
+                    "NoQuorum": "Esta ronda terminó sin alcanzar el quórum necesario.",
+                    "Vetoed": "Esta ronda terminó con la propuesta rechazada.",
+                    "Executed": "El contrato se ejecutó tras la aprobación en esta ronda.",
+                    "ExecutionFailed": "La propuesta fue aprobada, pero la ejecución del contrato falló."
+                }
+            },
+            "progress": {
+                "label": "Etapas de votación",
+                "preVoting": "Pre-votación",
+                "voting": "Votación",
+                "decision": "Decisión",
+                "execution": "Ejecución",
+                "current": "Etapa actual",
+                "final": "Resultado final"
+            },
+            "proposalIdentifier": "Propuesta",
+            "publicationStatus": "Publicación",
+            "latestRound": "Última ronda de votación",
+            "executionStatus": "Historial de ejecución",
+            "detail": "Detalle de la propuesta",
+            "collapseDetail": "Cerrar",
+            "date": "Fecha de la propuesta",
+            "projects": "Áreas",
+            "expandDetail": "Leer propuesta",
+            "documentLabel": "Documento de la propuesta",
+            "documentDescription": "Fundamentos y especificaciones",
+            "detailDescription": "Abrí el documento original de la propuesta para leer sus fundamentos y especificaciones.",
+            "title": "Historial de propuestas",
+            "description": "Propuestas de mejora de Money on Chain (MIPs) con un contrato de cambio en esta red.",
+            "empty": "Todavía no hay propuestas para esta red.",
+            "error": "No se pudieron cargar las propuestas. Intentá nuevamente más tarde.",
+            "notFound": "Esta propuesta no existe o no tiene un contrato de cambio en esta red.",
+            "searchPlaceholder": "Buscar por MIP, título o resumen",
+            "columns": {
+                "status": "Estado",
+                "tag": "Proyecto",
+                "votingStatus": "Estado de votación"
+            },
+            "status": {
+                "Published": "Publicada",
+                "Draft": "Borrador",
+                "Withdrawn": "Retirada"
+            },
+            "tags": {
+                "doc": "DOC",
+                "usdrif": "USDRIF",
+                "oracles": "Oráculos",
+                "voting": "Votación",
+                "staking": "Staking"
+            },
+            "back": "Volver a las votaciones",
+            "votingGroups": {
+                "inProgress": "En curso",
+                "executed": "Ejecutadas",
+                "defeated": "Derrotadas",
+                "notAdvanced": "No avanzaron"
+            },
+            "goToVote": "Ir a votar",
+            "executed": "Ejecutada",
+            "executedOn": "Ejecutada el {{date}}",
+            "executedTx": "Transacción de ejecución",
+            "forum": "Discusión en el foro",
+            "source": "Ver documento original en GitHub",
+            "changers": {
+                "address": "Dirección del contrato",
+                "contractName": "Nombre del contrato",
+                "title": "Contratos de cambio",
+                "description": "Contratos de cambio sometidos a votación en esta red. Al aprobarse la propuesta, se ejecuta su código fuente verificado.",
+                "submitter": "Presentado por",
+                "notSubmitted": "Todavía no se presentó a votación en esta red"
+            },
+            "onChain": {
+                "title": "Votación en la red",
+                "transaction": "Transacción de cierre",
+                "none": "No hay votaciones registradas para estos contratos en esta red.",
+                "round": "Ronda {{round}}",
+                "inFavor": "A favor",
+                "against": "En contra",
+                "capacity": {
+                    "participation": "Votó el {{pct}}% del suministro de MOC",
+                    "notVoted": "Sin votos",
+                    "quorum": "Quórum {{pct}}%",
+                    "quorumReached": "Quórum alcanzado",
+                    "quorumNotReached": "Quórum no alcanzado",
+                    "aria": "A favor {{inFavor}}% y en contra {{against}}% del suministro de MOC, quórum en {{quorum}}%"
+                },
+                "status": {
+                    "PreVoting": "En pre-votación",
+                    "Unregistered": "No registrada",
+                    "Expired": "Expirada en pre-votación",
+                    "NotSelected": "No seleccionada",
+                    "Voting": "En votación",
+                    "VotingEnded": "Votación finalizada, pendiente de conteo",
+                    "Accepted": "Aceptada, pendiente de ejecución",
+                    "NoQuorum": "Sin quórum",
+                    "Vetoed": "Rechazada",
+                    "Executed": "Ejecutada",
+                    "ExecutionFailed": "Ejecución fallida"
+                }
+            }
+        },
         "cardTitle": {
             "section": "Votación",
             "proposalsList": "Propuestas",
@@ -915,6 +1073,7 @@
             "votingAgainst": "¡Estás votando en contra!"
         },
         "veto": {
+            "noVotingStage": "No hay ninguna propuesta en etapa de votación en este momento, por lo que no hay nada que vetar.",
             "alert": {
                 "title": "Tokens vetados disponibles",
                 "text": "Tenés tokens disponibles para retirar después de vetar.",
@@ -1274,5 +1433,21 @@
         "migrationPendingText": "Tu transacción de migración está siendo procesada.",
         "operationSuccessful": "Migración exitosa.",
         "operationFailed": "No se pudo completar la migración. Inténtalo nuevamente."
+    },
+    "common": {
+        "dataTable": {
+            "loading": "Cargando registros…",
+            "pagination": "Páginas de la tabla",
+            "previous": "Anterior",
+            "next": "Siguiente",
+            "page": "Página {{page}}",
+            "range": "Mostrando {{first}}–{{last}} de {{total}}",
+            "summary": "{{page}} de {{total}}",
+            "search": "Buscar",
+            "searchTransaction": "Buscar por hash de transacción",
+            "all": "Todos",
+            "pending": "Pendiente de desbloqueo",
+            "noResults": "No hay registros que coincidan con la búsqueda y los filtros."
+        }
     }
 }

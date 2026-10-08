@@ -5,7 +5,9 @@ import React, { Fragment, useMemo } from "react";
 
 import VestingStatusAlert from "../../components/Notification/VestingStatusAlert";
 import Voting from "../../components/Voting";
+import ProposalsHistory from "../../components/Voting/ProposalsHistory";
 import { useWalletContext } from "../../context/Wallet";
+import { mipsEnabled } from "../../hooks/useMips";
 import settings from "../../settings";
 
 export default function SectionVoting(): React.ReactElement {
@@ -34,6 +36,7 @@ export default function SectionVoting(): React.ReactElement {
                         settings.project === "roc") && <VestingStatusAlert />}
                 </div>
                 {ready ? <Voting /> : <Skeleton active />}
+                {mipsEnabled && <ProposalsHistory />}
             </div>
         </Fragment>
     );
