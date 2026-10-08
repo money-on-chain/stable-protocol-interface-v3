@@ -112,19 +112,7 @@ export default function VotingCapacityBar({
             </div>
             {quorum > 0n && (
                 <div className="capacity-bar__quorum-label-row">
-                    <span
-                        className="capacity-bar__quorum-label"
-                        style={{
-                            left: `${quorumPct}%`,
-                            // Keep the label inside the bar near its edges
-                            transform:
-                                quorumPct < 12
-                                    ? "none"
-                                    : quorumPct > 88
-                                      ? "translateX(-100%)"
-                                      : undefined,
-                        }}
-                    >
+                    <span className="capacity-bar__quorum-label">
                         {t("voting.mips.onChain.capacity.quorum", {
                             pct: formatPct(quorumPct),
                         })}
