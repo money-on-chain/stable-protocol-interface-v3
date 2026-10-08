@@ -620,7 +620,11 @@ export default function SectionVotingMip(): React.ReactElement {
                 <VotingRecords mip={mip} />
             </section>
 
-            <ProposalDocument key={mip.mip} mip={mip} />
+            {/* While the proposal is in pre-vote or vote, it is read on the
+                forum (linked above), not here */}
+            {liveStatus !== "PreVoting" && liveStatus !== "Voting" && (
+                <ProposalDocument key={mip.mip} mip={mip} />
+            )}
         </div>
     );
 }
