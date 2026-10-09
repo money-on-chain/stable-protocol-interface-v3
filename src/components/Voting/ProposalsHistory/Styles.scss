@@ -24,7 +24,7 @@
         display: flex;
         flex-direction: column;
         font-family: var(--main-font);
-        gap: 6px;
+        gap: 8px;
         padding: 14px 4px;
         text-decoration: none;
 
@@ -43,6 +43,25 @@
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
+    }
+
+    &__identity,
+    &__statuses {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    &__separator {
+        color: var(--color-txt-secondary);
+    }
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-top: 6px;
     }
 
     &__mip {
@@ -98,13 +117,14 @@
 }
 
 .mip-tag {
-    background: var(--surface-color-2);
-    border-radius: 999px;
+    background: var(--color-controls-background);
+    border: 1px solid var(--dividers);
+    border-radius: 4px;
     color: var(--color-txt-secondary);
     font-family: var(--main-font);
     font-size: 12px;
-    line-height: 1;
-    padding: 4px 9px;
+    line-height: 1.2;
+    padding: 3px 8px;
     white-space: nowrap;
 }
 

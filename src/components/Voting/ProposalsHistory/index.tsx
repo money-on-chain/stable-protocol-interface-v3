@@ -265,32 +265,49 @@ export default function ProposalsHistory(): React.ReactElement {
                         to={`/voting/mip/${mipNumber(entry.mip)}`}
                     >
                         <div className="mips-history__heading">
-                            <span className="mips-history__mip">
-                                {entry.mip}
-                            </span>
-                            <MipStatusBadge status={entry.status} />
-                            <MipVotingBadge
-                                status={mipVotingStatus(entry, live)}
-                            />
-                            <MipExecutedBadge
-                                executed={entry.executed}
-                                status={mipVotingStatus(entry, live)}
-                            />
-                            {entry.date && (
-                                <span className="mips-history__date">
-                                    {formatDate(entry.date)}
+                            <div className="mips-history__identity">
+                                <span className="mips-history__mip">
+                                    {entry.mip}
                                 </span>
-                            )}
-                            <MipTags tags={entry.tags} />
+                                {entry.date && (
+                                    <>
+                                        <span
+                                            className="mips-history__separator"
+                                            aria-hidden="true"
+                                        >
+                                            ·
+                                        </span>
+                                        <time
+                                            className="mips-history__date"
+                                            dateTime={entry.date}
+                                        >
+                                            {formatDate(entry.date)}
+                                        </time>
+                                    </>
+                                )}
+                            </div>
+                            <div className="mips-history__statuses">
+                                <MipStatusBadge status={entry.status} />
+                                <MipVotingBadge
+                                    status={mipVotingStatus(entry, live)}
+                                />
+                                <MipExecutedBadge
+                                    executed={entry.executed}
+                                    status={mipVotingStatus(entry, live)}
+                                />
+                            </div>
                         </div>
-                        <span className="mips-history__title">
-                            {entry.title ?? entry.mip}
-                        </span>
-                        {entry.summary && (
-                            <p className="mips-history__summary">
-                                {entry.summary}
-                            </p>
-                        )}
+                        <MipTags tags={entry.tags} />
+                        <div className="mips-history__content">
+                            <span className="mips-history__title">
+                                {entry.title ?? entry.mip}
+                            </span>
+                            {entry.summary && (
+                                <p className="mips-history__summary">
+                                    {entry.summary}
+                                </p>
+                            )}
+                        </div>
                     </Link>
                 )}
             />
