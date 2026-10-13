@@ -141,7 +141,7 @@ name = "dapp-proxy-moc-testnet"
 PINATA_GATEWAY = "https://moneyonchain.mypinata.cloud"
 # CUTOVER: uncomment to redirect manage-testnet.moneyonchain.com to dapp-testnet.moneyonchain.com
 # (see MIGRATION note at the top).
-# CANONICAL_HOST = "dapp-testnet.moneyonchain.com"
+CANONICAL_HOST = "dapp-testnet.moneyonchain.com"
 
 [[env.moc-testnet.kv_namespaces]]
 binding = "DAPP_KV"
@@ -153,6 +153,6 @@ zone_name = "moneyonchain.com"
 
 # CUTOVER: uncomment once the route has been removed from the legacy dapp's
 # worker (stable-protocol-interface, env moc-testnet) — a route can only belong to one worker.
-# [[env.moc-testnet.routes]]
-# pattern = "dapp-testnet.moneyonchain.com/*"
-# zone_name = "moneyonchain.com"
+[[env.moc-testnet.routes]]
+pattern = "dapp-testnet.moneyonchain.com/*"
+zone_name = "moneyonchain.com"
