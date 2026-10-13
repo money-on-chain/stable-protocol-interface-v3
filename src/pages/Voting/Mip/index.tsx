@@ -8,6 +8,7 @@ import BalanceBar from "../../../components/Voting/BalanceBar";
 import MipDocument from "../../../components/Voting/MipDocument";
 import {
     mipLiveStatus,
+    MipTags,
     type MipVotingStatus,
     mipVotingStatus,
     useFormatMipDate,
@@ -207,10 +208,10 @@ export function ProposalProgress({
 
     return (
         <div className="mip-page__progress-card">
+            <h2 className="mip-page__mini-title">
+                {t("voting.mips.latestRound")}
+            </h2>
             <div className="mip-page__progress-heading">
-                <h2 className="mip-page__mini-title">
-                    {t("voting.mips.latestRound")}
-                </h2>
                 <p className="mip-page__mini-value mip-page__progress-result">
                     {t(`voting.mips.onChain.status.${status}`)}
                     <VotingOutcomeIcon status={status} />
@@ -444,7 +445,10 @@ export default function SectionVotingMip(): React.ReactElement {
                     <p className="mip-page__section-label">
                         {t("voting.mips.detail")}
                     </p>
-                    <h1 className="mip-page__number">{mip.mip}</h1>
+                    <div className="mip-page__title-meta">
+                        <h1 className="mip-page__number">{mip.mip}</h1>
+                        <MipTags tags={mip.tags} />
+                    </div>
                     {mip.title && (
                         <h2 className="mip-page__proposal-title">
                             {mip.title}
@@ -510,22 +514,6 @@ export default function SectionVotingMip(): React.ReactElement {
                                 {t(
                                     `voting.mips.presentation.publication.${mip.status}`
                                 )}
-                            </p>
-                        </div>
-                    )}
-                    {!!mip.tags?.length && (
-                        <div className="mip-page__metadata-group">
-                            <h2 className="mip-page__mini-title">
-                                {t("voting.mips.presentation.areasTitle")}
-                            </h2>
-                            <p className="mip-page__mini-value">
-                                {mip.tags
-                                    .map((tag) =>
-                                        t(`voting.mips.tags.${tag}`, {
-                                            defaultValue: tag,
-                                        })
-                                    )
-                                    .join(" · ")}
                             </p>
                         </div>
                     )}
