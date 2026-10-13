@@ -20,8 +20,8 @@ Also you can access with this primary gateways, always point to the latest relea
 | ------------------ | -------------------------------------------------------------------------- |
 | ROC Testnet        | [https://dapp-testnet.rifonchain.com](https://dapp-testnet.rifonchain.com) |
 | ROC Mainnet        | [https://dapp.rifonchain.com](https://dapp.rifonchain.com)                 |
-| MOC V1 Mainnet | [https://manage.moneyonchain.com](https://manage.moneyonchain.com)         |
-| MOC V1 Testnet | [https://manage-testnet.moneyonchain.com](https://manage-testnet.moneyonchain.com)         |
+| MOC V1 Mainnet | [https://dapp.moneyonchain.com](https://dapp.moneyonchain.com)         |
+| MOC V1 Testnet | [https://dapp-testnet.moneyonchain.com](https://dapp-testnet.moneyonchain.com)         |
 
 ## DEVELOP
 
