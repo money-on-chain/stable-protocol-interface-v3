@@ -109,7 +109,7 @@ import { useUserOmocBalance } from "../hooks/useUserOmocBalance";
 import { useUserVesting } from "../hooks/useUserVesting";
 import { useUserVeto } from "../hooks/useUserVeto";
 import api from "../services/api";
-import { API_OPERATIONS_BASE } from "../services/apiConfig";
+import { API_OPERATIONS_BASE, apiOperationsUrl } from "../services/apiConfig";
 import type { DContracts, ParsedPrices } from "../types/hooks";
 import type { DContractsV1, InterfaceContextV1 } from "../types/hooks-v1";
 import type {
@@ -677,8 +677,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             );
             return;
         }
-        const url = new URL(API_OPERATIONS_BASE);
-        url.pathname = "/v1/omoc/vesting_created/";
+        const url = apiOperationsUrl("omoc/vesting_created/");
         url.search = new URLSearchParams({
             holder: address,
             limit: "50",
