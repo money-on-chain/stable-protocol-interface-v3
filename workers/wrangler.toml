@@ -35,6 +35,20 @@ compatibility_date = "2024-09-23"
 #   CF_KV_NAMESPACE_ID_FLIPMONEY_TESTNET — id of the KV namespace created for the flipmoney-testnet env
 #   CF_KV_NAMESPACE_ID_MOC_TESTNET      — id of the KV namespace created for the moc-testnet env
 
+# MIGRATION (moc-v1: manage.moneyonchain.com -> dapp.moneyonchain.com).
+# The legacy dapp (stable-protocol-interface repo) moved to dapp-classic.*
+# but its worker still owns dapp.moneyonchain.com / dapp-testnet.* routes.
+# Cutover, testnet first (dapp-testnet / env moc-testnet), then mainnet:
+#   1. Remove the dapp.* route from the legacy worker's wrangler.toml and
+#      `wrangler deploy` it (in that repo).
+#   2. Here, uncomment the CUTOVER blocks of the env (new route +
+#      CANONICAL_HOST) and `wrangler deploy --env <env>` right away.
+#   3. Check: https://<dapp host>/_version, /service-worker.js returns the
+#      SW kill switch, the old manage host 302s to the dapp host, and a
+#      browser that had the legacy dapp installed reloads into this app.
+# Rollback: comment the blocks again and deploy; re-add the route in the
+# legacy worker and deploy it (it serves a kill switch for this app's /sw.js).
+
 # ─── ROC (dapp.rifonchain.com) ───────────────────────────────────────────────
 [env.roc]
 name = "dapp-proxy-roc"
@@ -65,12 +79,15 @@ id = "19c9b65254c7457aa90067abac0ee0c0"
 pattern = "dapp.flipmoney.io/*"
 zone_name = "flipmoney.io"
 
-# ─── Money on Chain / Voting (manage.moneyonchain.com) ───────────────────────
+# ─── Money on Chain / moc-v1 (manage.moneyonchain.com → dapp.moneyonchain.com) ───────────────────────
 [env.moc]
 name = "dapp-proxy-moc"
 
 [env.moc.vars]
 PINATA_GATEWAY = "https://moneyonchain.mypinata.cloud"
+# CUTOVER: uncomment to redirect manage.moneyonchain.com to dapp.moneyonchain.com
+# (see MIGRATION note at the top).
+CANONICAL_HOST = "dapp.moneyonchain.com"
 
 [[env.moc.kv_namespaces]]
 binding = "DAPP_KV"
@@ -78,6 +95,12 @@ id = "c86625e5a1f543a89017c69c26afc76f"
 
 [[env.moc.routes]]
 pattern = "manage.moneyonchain.com/*"
+zone_name = "moneyonchain.com"
+
+# CUTOVER: uncomment once the route has been removed from the legacy dapp's
+# worker (stable-protocol-interface, env moc) — a route can only belong to one worker.
+[[env.moc.routes]]
+pattern = "dapp.moneyonchain.com/*"
 zone_name = "moneyonchain.com"
 
 # ─── ROC Testnet (dapp-testnet.rifonchain.com) ───────────────────────────────
@@ -110,12 +133,15 @@ id = "6570d69ffa304e2d8eed32d83969b392"
 pattern = "dapp-testnet.flipmoney.io/*"
 zone_name = "flipmoney.io"
 
-# ─── Money on Chain / Voting Testnet (manage-testnet.moneyonchain.com) ───────
+# ─── Money on Chain / moc-v1 Testnet (manage-testnet → dapp-testnet.moneyonchain.com) ───────
 [env.moc-testnet]
 name = "dapp-proxy-moc-testnet"
 
 [env.moc-testnet.vars]
 PINATA_GATEWAY = "https://moneyonchain.mypinata.cloud"
+# CUTOVER: uncomment to redirect manage-testnet.moneyonchain.com to dapp-testnet.moneyonchain.com
+# (see MIGRATION note at the top).
+CANONICAL_HOST = "dapp-testnet.moneyonchain.com"
 
 [[env.moc-testnet.kv_namespaces]]
 binding = "DAPP_KV"
@@ -123,4 +149,10 @@ id = "318db92ab6b9477bab82d72774b1df7f"
 
 [[env.moc-testnet.routes]]
 pattern = "manage-testnet.moneyonchain.com/*"
+zone_name = "moneyonchain.com"
+
+# CUTOVER: uncomment once the route has been removed from the legacy dapp's
+# worker (stable-protocol-interface, env moc-testnet) — a route can only belong to one worker.
+[[env.moc-testnet.routes]]
+pattern = "dapp-testnet.moneyonchain.com/*"
 zone_name = "moneyonchain.com"
