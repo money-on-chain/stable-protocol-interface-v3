@@ -1,0 +1,41 @@
+.preVoteStatus {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    font-family: var(--main-font);
+    gap: 6px 10px;
+    margin: 8px 0;
+
+    &__badge {
+        border: 1px solid currentColor;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1;
+        padding: 4px 9px;
+        white-space: nowrap;
+    }
+
+    &--open &__badge {
+        color: var(--color-semantic-positive);
+    }
+
+    &--selected &__badge {
+        color: var(--color-txt-link);
+    }
+
+    &--expired {
+        color: var(--color-txt-secondary);
+
+        .preVoteStatus__badge {
+            color: var(--color-semantic-negative);
+        }
+    }
+}
+
+// "Show / hide expired proposals" toggle under the pre-voting list
+.proposals__toggleExpired {
+    display: block;
+    margin: 12px auto;
+    white-space: nowrap;
+}

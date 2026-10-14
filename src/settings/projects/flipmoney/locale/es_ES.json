@@ -577,16 +577,30 @@
             }
         },
         "history": {
-            "title": "Staking - Últimas Operaciones",
-            "columnDate": "Fecha",
-            "columnAmount": "Cantidad",
-            "columnOperation": "Operación",
-            "operatons": {
+            "title": "Actividad de Staking",
+            "description": "Tus últimas operaciones de stake, unstake, restake y retiro.",
+            "columns": {
+                "date": "Fecha",
+                "operation": "Operación",
+                "amount": "Cantidad",
+                "status": "Estado",
+                "transaction": "Transacción"
+            },
+            "types": {
                 "stake": "Stake",
                 "unstake": "Unstake",
                 "restake": "Restake",
-                "withdraw": "Withdraw"
-            }
+                "withdraw": "Retiro"
+            },
+            "status": {
+                "confirmed": "Confirmada",
+                "pending": "Se libera el {{date}}",
+                "available": "Listo para retirar",
+                "withdrawn": "Retirado",
+                "restaked": "Devuelto a Stake"
+            },
+            "empty": "No hay operaciones de staking para mostrar.",
+            "error": "No se pudo cargar la actividad de staking. Intenta nuevamente más tarde."
         },
         "tokens": {
             "TG": {
@@ -735,6 +749,22 @@
         }
     },
     "voting": {
+        "preVoteStatus": {
+            "showExpired": "Ver expiradas ({{count}})",
+            "hideExpired": "Ocultar expiradas",
+            "open": {
+                "label": "Abierta",
+                "text": "Pre-votación abierta hasta el {{date}}."
+            },
+            "selected": {
+                "label": "Seleccionada para votación",
+                "text": "La pre-votación terminó el {{date}} y esta propuesta ganó. Pásela a la siguiente etapa para iniciar la votación."
+            },
+            "expired": {
+                "label": "Expirada",
+                "text": "La pre-votación terminó el {{date}} sin que esta propuesta ganara. Ya no puede recibir pre-votos y su lugar se reutiliza cuando se presenta una nueva propuesta."
+            }
+        },
         "cardTitle": {
             "section": "Votación",
             "proposalsList": "Propuestas",
@@ -1112,6 +1142,22 @@
             "operationCompleted": {
                 "title": "Operación completada"
             }
+        }
+    },
+    "common": {
+        "dataTable": {
+            "loading": "Cargando registros…",
+            "pagination": "Páginas de la tabla",
+            "previous": "Anterior",
+            "next": "Siguiente",
+            "page": "Página {{page}}",
+            "range": "Mostrando {{first}}–{{last}} de {{total}}",
+            "summary": "{{page}} de {{total}}",
+            "search": "Buscar",
+            "searchTransaction": "Buscar por hash de transacción",
+            "all": "Todos",
+            "pending": "Pendiente de desbloqueo",
+            "noResults": "No hay registros que coincidan con la búsqueda y los filtros."
         }
     }
 }

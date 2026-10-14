@@ -19,6 +19,9 @@ const PerformanceV1 = React.lazy(
 const Staking = React.lazy(() => import("../../../pages/Staking/index"));
 const Vesting = React.lazy(() => import("../../../pages/Vesting/index"));
 const Voting = React.lazy(() => import("../../../pages/Voting/index"));
+const VotingMip = React.lazy(
+    () => import("../../../pages/Voting/Mip/index")
+);
 const OraclesCoinPair = React.lazy(
     () => import("../../../pages/Oracles/CoinPair/index")
 );
@@ -71,6 +74,10 @@ export default function Router(): React.ReactElement | null {
                 {
                     path: "voting",
                     element: <Voting />,
+                },
+                {
+                    path: "voting/mip/:mip",
+                    element: <VotingMip />,
                 },
                 {
                     path: "oracles",

@@ -577,16 +577,30 @@
             }
         },
         "history": {
-            "title": "Staking Last Operations",
-            "columnDate": "Date",
-            "columnAmount": "Amount",
-            "columnOperation": "Operation",
-            "operatons": {
+            "title": "Staking Activity",
+            "description": "Your latest stake, unstake, restake and withdraw operations.",
+            "columns": {
+                "date": "Date",
+                "operation": "Operation",
+                "amount": "Amount",
+                "status": "Status",
+                "transaction": "Transaction"
+            },
+            "types": {
                 "stake": "Stake",
                 "unstake": "Unstake",
                 "restake": "Restake",
                 "withdraw": "Withdraw"
-            }
+            },
+            "status": {
+                "confirmed": "Confirmed",
+                "pending": "Unlocks {{date}}",
+                "available": "Ready to withdraw",
+                "withdrawn": "Withdrawn",
+                "restaked": "Restaked"
+            },
+            "empty": "No staking operations to display.",
+            "error": "Staking activity could not be loaded. Please try again later."
         },
         "tokens": {
             "TG": {
@@ -735,6 +749,22 @@
         }
     },
     "voting": {
+        "preVoteStatus": {
+            "showExpired": "Show expired ({{count}})",
+            "hideExpired": "Hide expired",
+            "open": {
+                "label": "Open",
+                "text": "Pre-voting open until {{date}}."
+            },
+            "selected": {
+                "label": "Selected for voting",
+                "text": "Pre-voting ended on {{date}} and this proposal won. Push it to the next step to start the vote."
+            },
+            "expired": {
+                "label": "Expired",
+                "text": "Pre-voting ended on {{date}} without this proposal winning. It can no longer receive pre-votes, and its slot is reused when a new proposal is submitted."
+            }
+        },
         "cardTitle": {
             "section": "Voting",
             "proposalsList": "Proposals",
@@ -1110,6 +1140,22 @@
             "operationCompleted": {
                 "title": "Operation completed"
             }
+        }
+    },
+    "common": {
+        "dataTable": {
+            "loading": "Loading records…",
+            "pagination": "Table pages",
+            "previous": "Previous",
+            "next": "Next",
+            "page": "Page {{page}}",
+            "range": "Showing {{first}}–{{last}} of {{total}}",
+            "summary": "{{page}} of {{total}}",
+            "search": "Search",
+            "searchTransaction": "Search by transaction hash",
+            "all": "All",
+            "pending": "Awaiting unlock",
+            "noResults": "No records match your search and filters."
         }
     }
 }
