@@ -9,7 +9,11 @@ import { useProjectTranslation } from "../../helpers/translations";
 import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import PreVote from "./PreVote";
+import type { PreVoteStatusKind } from "./PreVoteStatus";
 import Proposal from "./Proposal";
+
+// votesPositivePCT and the pre-vote minimum compared with 18 decimals
+const DECIMALS_18 = 10n ** 18n;
 
 interface ProposalData {
     id: number;
@@ -18,7 +22,9 @@ interface ProposalData {
     votesPositive: bigint;
     votesPositivePCT: bigint;
     expirationTimeStampFormat: string;
+    expirationTimestamp: bigint;
     expired: boolean;
+    preVoteStatus: PreVoteStatusKind;
     canUnregister: boolean;
     canRunStep: boolean;
     canVote: boolean;
@@ -59,6 +65,9 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         changeContract: "",
     };
     const [actionProposal, setActionProposal] = useState<string>("LIST");
+    // Expired pre-vote proposals stay in the contract's list until a new
+    // proposal reuses their slot: hide them unless asked for.
+    const [showExpired, setShowExpired] = useState<boolean>(false);
     const [viewProposal, setViewProposal] = useState<
         ProposalData | EmptyProposal
     >(emptyProposal);
@@ -139,14 +148,6 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                 infoVoting.totalSupply
             );
 
-            let canRunStep = false;
-            if (
-                votesPositivePCT >= infoVoting.PRE_VOTE_MIN_PCT_TO_WIN &&
-                infoVoting.readyToPreVoteStep
-            ) {
-                canRunStep = true;
-            }
-
             propData.push({
                 id: count++,
                 changeContract: proposalAddress,
@@ -156,15 +157,69 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                 expirationTimeStampFormat: formatTimestamp(
                     Number(expirationTimestamp)
                 ),
+                expirationTimestamp: propExpirationTimeStamp,
                 expired,
+                preVoteStatus: expired ? "expired" : "open",
                 canUnregister,
-                canRunStep,
+                // Set below, only for the round's winner
+                canRunStep: false,
                 canVote: !expired && !infoVoting.readyToPreVoteStep,
             });
         }
 
-        return propData;
+        // Same rule as the contract (PreVotingDataLib._getWinnerProposal):
+        // among the round's proposals over PRE_VOTE_MIN_PCT_TO_WIN, the one
+        // with the most votes (ties: the earlier expiration) is the winner
+        // once it has expired. Other expired proposals are dead: they can't
+        // get pre-votes and stay listed until a new proposal reuses the slot.
+        // PRE_VOTE_MIN_PCT_TO_WIN is a whole percentage (PCT_PRECISION 100)
+        // while votesPositivePCT has 18 decimals.
+        const minPctToWin = infoVoting.PRE_VOTE_MIN_PCT_TO_WIN * DECIMALS_18;
+        let candidate: ProposalData | undefined;
+        for (const p of propData) {
+            if (p.votesPositivePCT < minPctToWin) continue;
+            if (
+                !candidate ||
+                p.votesPositive > candidate.votesPositive ||
+                (p.votesPositive === candidate.votesPositive &&
+                    p.expirationTimestamp < candidate.expirationTimestamp)
+            )
+                candidate = p;
+        }
+        // The contract has the last word: readyToPreVoteStep() is true only
+        // when it has a winner, so never show one it doesn't have.
+        const winner =
+            candidate?.expired && infoVoting.readyToPreVoteStep
+                ? candidate
+                : undefined;
+        for (const p of propData) {
+            if (p === winner) p.preVoteStatus = "selected";
+            p.canRunStep = p === winner;
+        }
+
+        // Actionable first: the winner, then the open ones, then the expired
+        const order: Record<PreVoteStatusKind, number> = {
+            selected: 0,
+            open: 1,
+            expired: 2,
+        };
+        return propData.sort(
+            (a, b) => order[a.preVoteStatus] - order[b.preVoteStatus]
+        );
     }, [infoVoting]);
+
+    const hasOpenProposals = proposalsData.some(
+        (p) => p.preVoteStatus === "open"
+    );
+    const hasSelectedProposal = proposalsData.some(
+        (p) => p.preVoteStatus === "selected"
+    );
+    const expiredCount = proposalsData.filter(
+        (p) => p.preVoteStatus === "expired"
+    ).length;
+    const visibleProposals = showExpired
+        ? proposalsData
+        : proposalsData.filter((p) => p.preVoteStatus !== "expired");
 
     const searchProposal = useCallback(
         (proposalAddress: string): ProposalData => {
@@ -175,7 +230,9 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                 votesPositive: 0n,
                 votesPositivePCT: 0n,
                 expirationTimeStampFormat: "",
+                expirationTimestamp: 0n,
                 expired: true,
+                preVoteStatus: "expired",
                 canUnregister: false,
                 canRunStep: false,
                 canVote: false,
@@ -422,13 +479,16 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                     <div className="votingStatus__title">
                         {t("voting.status.title")}
                     </div>
+                    {/* Only expired proposals left: nothing can be voted,
+                        new proposals can be submitted */}
                     {actionProposal === "LIST" &&
-                        proposalsData.length === 0 && (
+                        !hasOpenProposals &&
+                        !hasSelectedProposal && (
                             <div className="votingStatus__round">
                                 {t("voting.status.openForSubmissions")}
                             </div>
                         )}
-                    {actionProposal === "LIST" && proposalsData.length > 0 && (
+                    {actionProposal === "LIST" && hasOpenProposals && (
                         <div className="votingStatus__round">
                             {t("voting.status.active")}
                         </div>
@@ -449,8 +509,8 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                 </div>
                 {/* PROPOSALS LIST */}
                 {actionProposal === "LIST" &&
-                    proposalsData.length > 0 &&
-                    proposalsData.map((proposal) => (
+                    visibleProposals.length > 0 &&
+                    visibleProposals.map((proposal) => (
                         <React.Fragment key={proposal.id}>
                             <Proposal
                                 proposal={proposal}
@@ -486,7 +546,7 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                     !infoVoting["readyToPreVoteStep"] && (
                         <>
                             {actionProposal === "LIST" &&
-                                proposalsData.length === 0 && (
+                                visibleProposals.length === 0 && (
                                     <div className="proposals__empty">
                                         {t("voting.feedback.noProposals")}
                                     </div>
@@ -501,6 +561,21 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                             </div>
                         </>
                     )}
+                {/* Expired proposals toggle, under the "Add New Proposal" button */}
+                {actionProposal === "LIST" && expiredCount > 0 && (
+                    <button
+                        type="button"
+                        data-testid="voting-toggle-expired"
+                        className="button--small proposals__toggleExpired"
+                        onClick={() => setShowExpired((show) => !show)}
+                    >
+                        {showExpired
+                            ? t("voting.preVoteStatus.hideExpired")
+                            : t("voting.preVoteStatus.showExpired", {
+                                  count: expiredCount,
+                              })}
+                    </button>
+                )}
                 {actionProposal === "ADD" && (
                     <div className="proposalsContainer">
                         <div className="addProposal">

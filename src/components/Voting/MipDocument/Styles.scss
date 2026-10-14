@@ -1,0 +1,140 @@
+.mip-document {
+    color: var(--color-txt-primary);
+    font-family: var(--main-font);
+    font-size: 15px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5 {
+        color: var(--color-txt-primary);
+        font-family: var(--main-font);
+        line-height: 1.3;
+        text-align: left;
+        margin: 28px 0 12px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    h2 {
+        font-size: 22px;
+    }
+
+    h3 {
+        font-size: 19px;
+    }
+
+    h4,
+    h5 {
+        font-size: 16px;
+    }
+
+    p,
+    ul,
+    ol,
+    blockquote,
+    pre {
+        margin: 0 0 14px;
+    }
+
+    ul,
+    ol {
+        padding-left: 24px;
+    }
+
+    li + li {
+        margin-top: 4px;
+    }
+
+    a {
+        color: var(--color-txt-link);
+        text-decoration: underline;
+    }
+
+    blockquote {
+        border-left: 3px solid var(--dividers);
+        color: var(--color-txt-secondary);
+        padding: 2px 0 2px 14px;
+
+        p:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    code {
+        color: inherit;
+        background: var(--surface-color-2);
+        border-radius: 4px;
+        font-size: 0.9em;
+        padding: 1px 5px;
+    }
+
+    pre {
+        background: var(--surface-color-2);
+        border-radius: var(--card-border-radius);
+        overflow-x: auto;
+        padding: 12px 14px;
+
+        code {
+            background: none;
+            padding: 0;
+        }
+    }
+
+    hr {
+        border: 0;
+        border-top: 1px solid var(--dividers);
+        margin: 24px 0;
+    }
+
+    &__table {
+        margin: 0 0 14px;
+        max-width: 100%;
+        overflow-x: auto;
+
+        table {
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 100%;
+        }
+
+        th,
+        td {
+            border: 1px solid var(--dividers);
+            padding: 6px 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: var(--surface-color-2);
+        }
+    }
+
+    &__image {
+        border-radius: var(--card-border-radius);
+        display: block;
+        height: auto;
+        margin: 8px 0;
+        max-width: 100%;
+    }
+
+    &__image-loading {
+        background: var(--surface-color-2);
+        border-radius: var(--card-border-radius);
+        display: block;
+        height: 160px;
+        margin: 8px 0;
+        max-width: 100%;
+    }
+
+    &__image-missing {
+        color: var(--color-txt-secondary);
+        font-style: italic;
+    }
+}
