@@ -1,4 +1,4 @@
-name: Manage-Testnet
+name: MOC-Testnet
 on:
     workflow_dispatch:
         inputs:
@@ -60,7 +60,7 @@ jobs:
               env:
                   PINATA_API_KEY: ${{ secrets.PINATA_API_KEY }}
                   PINATA_SECRET_KEY: ${{ secrets.PINATA_API_SECRET_KEY }}
-                  PIN_NAME: Manage Testnet ${{ needs.bump_version.outputs.new_tag }}
+                  PIN_NAME: MOC Testnet ${{ needs.bump_version.outputs.new_tag }}
               run: |
                   set -e
                   FORM_ARGS=()
@@ -159,7 +159,7 @@ jobs:
               with:
                   token: ${{ github.token }}
                   tag_name: ${{ needs.bump_version.outputs.new_tag }}
-                  name: Manage Testnet ${{ needs.bump_version.outputs.new_tag }}
+                  name: MOC Testnet ${{ needs.bump_version.outputs.new_tag }}
                   prerelease: true
                   body: |                     
 
