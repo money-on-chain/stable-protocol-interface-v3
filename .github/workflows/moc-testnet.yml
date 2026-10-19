@@ -1,4 +1,4 @@
-name: Manage-Mainnet
+name: MOC-Testnet
 on:
     workflow_dispatch:
         inputs:
@@ -34,7 +34,6 @@ jobs:
         if: ${{ needs.bump_version.result == 'success' && needs.bump_version.outputs.new_tag != '' }}
         permissions:
             contents: write
-        environment: production
         steps:
             - name: Checkout
               uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
@@ -54,14 +53,14 @@ jobs:
             - name: Build
               env:
                   REACT_APP_WALLET_CONNECT_PROJECT_ID: ${{ vars.REACT_APP_WALLET_CONNECT_PROJECT_ID || secrets.REACT_APP_WALLET_CONNECT_PROJECT_ID }}
-              run: pnpm run build:moc-v1-mainnet
+              run: pnpm run build:moc-v1-testnet
 
             - name: Pin to IPFS
               id: upload
               env:
                   PINATA_API_KEY: ${{ secrets.PINATA_API_KEY }}
                   PINATA_SECRET_KEY: ${{ secrets.PINATA_API_SECRET_KEY }}
-                  PIN_NAME: Manage Mainnet ${{ needs.bump_version.outputs.new_tag }}
+                  PIN_NAME: MOC Testnet ${{ needs.bump_version.outputs.new_tag }}
               run: |
                   set -e
                   FORM_ARGS=()
@@ -117,7 +116,7 @@ jobs:
 
             - name: Update Cloudflare Worker KV
               env:
-                  KV_URL: https://api.cloudflare.com/client/v4/accounts/${{ secrets.CF_ACCOUNT_ID }}/storage/kv/namespaces/${{ secrets.CF_KV_NAMESPACE_ID_MOC }}/values
+                  KV_URL: https://api.cloudflare.com/client/v4/accounts/${{ secrets.CF_ACCOUNT_ID }}/storage/kv/namespaces/${{ secrets.CF_KV_NAMESPACE_ID_MOC_TESTNET }}/values
                   CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
                   NEW_CID: ${{ steps.upload.outputs.hash }}
               run: |
@@ -160,15 +159,16 @@ jobs:
               with:
                   token: ${{ github.token }}
                   tag_name: ${{ needs.bump_version.outputs.new_tag }}
-                  name: Manage Mainnet ${{ needs.bump_version.outputs.new_tag }}
+                  name: MOC Testnet ${{ needs.bump_version.outputs.new_tag }}
                   prerelease: true
-                  body: |                      
+                  body: |                     
+
                       - CIDv0: `${{ steps.upload.outputs.hash }}`
                       - CIDv1: `${{ steps.convert_cidv0.outputs.cidv1 }}`
 
-                      **Primary Mainnet gateway**:
-                      - Always last version available: [https://dapp.moneyonchain.com](https://dapp.moneyonchain.com)
-                      - https://dapp.moneyonchain.com/ipfs/${{ steps.upload.outputs.hash }}
+                      **Primary Testnet gateway**:
+                      - Always last version available: [https://dapp-testnet.moneyonchain.com](https://dapp-testnet.moneyonchain.com)
+                      - https://dapp-testnet.moneyonchain.com/ipfs/${{ steps.upload.outputs.hash }}
                       - https://cloudflare-ipfs.com/ipfs/${{ steps.upload.outputs.hash }}
 
                       ${{ needs.bump_version.outputs.changelog }}
