@@ -1062,6 +1062,8 @@
             "btnPushNextStep": "Avanzar Etapa",
             "infoApplyChanges": "Por favor, ejecuta el 'paso aceptado' para finalizar y aplicar los cambios en los contratos",
             "btnApplyChangesToContracts": "Cambiar Contratos",
+            "acceptedStepPriorityLocked": "Solo quien presentó la propuesta ({{proposer}}) puede aplicar los cambios hasta el {{deadline}}. Después, cualquiera puede hacerlo.",
+            "acceptedStepPriorityOwner": "Presentaste esta propuesta: solo tú puedes aplicar los cambios hasta el {{deadline}}. Después, cualquiera puede hacerlo.",
             "addNewProposal": "Agregar Nueva Propuesta",
             "cancel": "Cancelar",
             "addProposal": "Agregar Propuesta"
