@@ -133,13 +133,28 @@ export function parseOperationV1(
         case "Transfer": {
             kind = "transfer";
             // raw.tokenInvolved comes straight off the legacy backend, which
-            // still uses its own old naming (RISKPRO/STABLE), not the new
-            // TC/TP identifiers — see the old dapp's TokenNameOldToNew.
-            const isBpro = raw.tokenInvolved === "RISKPRO";
-            const transferToken = isBpro ? tc : tp;
-            const transferTokenId = isBpro ? "TC_0" : "TP_0";
-            exchange = { amount, token: transferToken, tokenId: transferTokenId };
-            receive = { amount, token: transferToken, tokenId: transferTokenId };
+            // mixes naming: RISKPRO/STABLE for BPRO/DOC but "TG" for MOC
+            // (verified against the live API) — accept both old and new
+            // names, like the old dapp's TokenNameOldToNew.
+            let transferSide: OperationSideV1;
+            switch (raw.tokenInvolved) {
+                case "RISKPRO":
+                case "TC":
+                    transferSide = { amount, token: tc, tokenId: "TC_0" };
+                    break;
+                case "MOC":
+                case "TG":
+                    transferSide = {
+                        amount,
+                        token: settings.tokens.TG[0],
+                        tokenId: "TG",
+                    };
+                    break;
+                default:
+                    transferSide = { amount, token: tp, tokenId: "TP_0" };
+            }
+            exchange = transferSide;
+            receive = transferSide;
             break;
         }
         // The legacy backend logs reverted/failed txs with event:"ERROR" and
