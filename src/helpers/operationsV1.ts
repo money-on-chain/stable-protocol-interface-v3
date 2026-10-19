@@ -64,6 +64,8 @@ export interface ParsedOperationV1 {
     createdAtUnix: number;
     confirmationUnix: number | null;
     address: string;
+    // Transfers only: true when the connected wallet received the tokens.
+    incoming: boolean;
     txHash: string;
     blockNumber: number | string;
     fee: { amount: bigint; token: TokenConfig; tokenId: string } | null;
@@ -195,6 +197,7 @@ export function parseOperationV1(
         // is in `otherAddress`.
         address:
             (kind === "transfer" ? raw.otherAddress : raw.address) || "",
+        incoming: raw.isPositive === true,
         txHash: raw.transactionHash || "",
         blockNumber: raw.blockNumber ?? "--",
         fee,
