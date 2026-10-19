@@ -15,6 +15,8 @@ export interface RawOperationV1 {
     status?: string;
     confirmingPercent?: number;
     address?: string;
+    otherAddress?: string;
+    isPositive?: boolean;
     transactionHash?: string;
     RBTCAmount?: string | number;
     amount?: string | number;
@@ -188,7 +190,11 @@ export function parseOperationV1(
         confirmationUnix: raw.confirmationTime
             ? dateToUnix(raw.confirmationTime)
             : null,
-        address: raw.address && raw.address !== "" ? raw.address : "",
+        // `address` is always the queried (connected) wallet; for transfers
+        // the counterparty — sender when incoming, recipient when outgoing —
+        // is in `otherAddress`.
+        address:
+            (kind === "transfer" ? raw.otherAddress : raw.address) || "",
         txHash: raw.transactionHash || "",
         blockNumber: raw.blockNumber ?? "--",
         fee,
