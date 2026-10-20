@@ -18,6 +18,7 @@ import RifProMigration from "../../../components/RifProMigration";
 import UpdateToast from "../../../components/UpdateToast";
 import { useWalletContext } from "../../../context/Wallet";
 import { CheckStatusGlobal } from "../../../helpers/checkStatus";
+import { isPriceValidationEnabled } from "../../../helpers/priceValidation";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { isSomeTCLockedByVeto } from "../../../helpers/veto";
 import settings from "../../../settings";
@@ -89,6 +90,10 @@ export default function Skeleton(): JSX.Element {
     // 2) PRICE VALIDITY
     const priceNotValidStatus: InlineNotificationState | null =
         React.useMemo(() => {
+            if (!isPriceValidationEnabled()) return null;
+            // Price feeds still being retried would read as invalid meanwhile
+            if (contractProtocolStatus.isRetryingPeeks) return null;
+
             const data = contractProtocolStatus.data;
 
             if (!data || !data.PP_COINBASE) {
@@ -139,7 +144,10 @@ export default function Skeleton(): JSX.Element {
             }
 
             return null;
-        }, [contractProtocolStatus.data]);
+        }, [
+            contractProtocolStatus.data,
+            contractProtocolStatus.isRetryingPeeks,
+        ]);
 
     // 3) VETO WITHDRAW
     const vetoNotification: InlineNotificationState | null =
@@ -212,7 +220,6 @@ export default function Skeleton(): JSX.Element {
 
         return legacyRifProBalance !== undefined && legacyRifProBalance > 0n;
     }, [userBalance.data]);
-
 
     return (
         <NotificationProvider>
