@@ -401,6 +401,10 @@
         white-space: nowrap;
     }
 
+    .perfCardTitleV1 + .collateralMetricsArea {
+        margin-top: 0;
+    }
+
     .collateralMetricsArea {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(360px, 42%);
