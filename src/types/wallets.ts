@@ -337,7 +337,10 @@ export type WalletContextType = {
     interfaceVotingAcceptedStep: (
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: OnError
+        onError: OnError,
+        // Send through the VestingMachine (its proposer during MIP#263501's
+        // accepted-step priority window)
+        viaVesting?: boolean
     ) => Promise<unknown>;
 
     interfaceVotingUnRegister: (

@@ -824,6 +824,8 @@
             "btnPushNextStep": "Push to Next Step",
             "infoApplyChanges": "Please run 'accepted step' to finish & apply the changes to contracts",
             "btnApplyChangesToContracts": "Change Contracts",
+            "acceptedStepPriorityLocked": "Only the proposal submitter ({{proposer}}) can apply the changes until {{deadline}}. After that, anyone can.",
+            "acceptedStepPriorityOwner": "You submitted this proposal: only you can apply the changes until {{deadline}}. After that, anyone can.",
             "addNewProposal": " Add New Proposal",
             "cancel": "Cancel",
             "addProposal": "Add Proposal"
