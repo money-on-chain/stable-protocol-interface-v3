@@ -7,6 +7,7 @@ import {
     adjustedTargetCoverageV1,
     collateralDistributionV1,
 } from "../../helpers/performanceV1";
+import { tokenChartColors } from "../../helpers/tokenColors";
 import { useProjectTranslation } from "../../helpers/translations";
 import DistributionPieChart, {
     type DistributionPieSlice,
@@ -18,11 +19,6 @@ const RBTC_FORMAT = new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 6,
     maximumFractionDigits: 6,
 });
-
-const DISTRIBUTION_COLORS = [
-    "var(--brand-color-base)",
-    "var(--brand-color-light)",
-];
 
 // v1's analogue of components/Performance's multicollateral.tsx — coverage
 // ratios plus the RBTC collateral distribution pie (legacy dapp's Metrics
@@ -38,42 +34,41 @@ export default function GlobalMetricsV1(): React.ReactElement {
     );
 
     const rbtcAbbr = t("exchange.tokens.CA_0.abbr", { ns });
-    const distributionSlices: DistributionPieSlice[] = useMemo(
-        () =>
-            status
-                ? collateralDistributionV1(status).map((row, index) => {
-                      const label = t(`exchange.tokens.${row.token}.label`, {
-                          ns,
-                      });
-                      const abbr = t(`exchange.tokens.${row.token}.abbr`, {
-                          ns,
-                      });
-                      return {
-                          id: row.token,
-                          label:
-                              label.toUpperCase() !== abbr.toUpperCase()
-                                  ? `${label} (${abbr})`
-                                  : abbr,
-                          value: row.percent,
-                          detail: `${RBTC_FORMAT.format(
-                              parseFloat(formatUnits(row.rbtc, 18))
-                          )} ${rbtcAbbr}`,
-                          color: DISTRIBUTION_COLORS[
-                              index % DISTRIBUTION_COLORS.length
-                          ],
-                      };
-                  })
-                : [],
-        [status, t, ns, rbtcAbbr]
-    );
+    const distributionSlices: DistributionPieSlice[] = useMemo(() => {
+        if (!status) return [];
+        const rows = collateralDistributionV1(status);
+        const colors = tokenChartColors(
+            rows.map((row) => TokenSettings(row.token).name)
+        );
+        return rows.map((row) => {
+            const label = t(`exchange.tokens.${row.token}.label`, {
+                ns,
+            });
+            const abbr = t(`exchange.tokens.${row.token}.abbr`, {
+                ns,
+            });
+            return {
+                id: row.token,
+                label:
+                    label.toUpperCase() !== abbr.toUpperCase()
+                        ? `${label} (${abbr})`
+                        : abbr,
+                value: row.percent,
+                detail: `${RBTC_FORMAT.format(
+                    parseFloat(formatUnits(row.rbtc, 18))
+                )} ${rbtcAbbr}`,
+                color: colors.get(TokenSettings(row.token).name.toUpperCase()),
+            };
+        });
+    }, [status, t, ns, rbtcAbbr]);
 
     return (
-        <div className="layout-card section__innerCard--big perfGlobalMetrics">
-            <div className="layout-card-title perfCardTitleV1">
-                <h1>{t("performance.metrics.globalCardTitle")}</h1>
-            </div>
+        <div className="perfGlobalMetrics perfGlobalMetricsSplit">
+            <div className="layout-card perfGlobalMetricsSplit__metrics">
+                <div className="layout-card-title perfCardTitleV1">
+                    <h1>{t("performance.metrics.globalCardTitle")}</h1>
+                </div>
 
-            <div className="collateralMetricsArea">
                 <div className="metrics">
                     <div
                         className="dataGroup"
@@ -150,29 +145,31 @@ export default function GlobalMetricsV1(): React.ReactElement {
                         </div>
                     </div>
                 </div>
-
-                <div
-                    className="collateralDistribution"
-                    data-testid="performance-v1-collateral-distribution"
-                >
-                    <h2 className="collateralDistribution__title">
+            </div>
+            <div
+                className="layout-card collateralDistribution"
+                data-testid="performance-v1-collateral-distribution"
+            >
+                <div className="layout-card-title perfCardTitleV1">
+                    <h1>
                         {t("performance.collateral.distributionTitle", {
                             ticker: rbtcAbbr,
                         })}
-                    </h2>
-                    <DistributionPieChart
-                        slices={distributionSlices}
-                        size={224}
-                        displaySize="45%"
-                        gap={16}
-                        sliceGap={1}
-                        legendPosition="bottom"
-                        legendLayout="column"
-                        legendMaxWidth="80%"
-                        justifyContent="center"
-                        valueFormatter={(value) => `${value.toFixed(2)}%`}
-                    />
+                    </h1>
                 </div>
+                <DistributionPieChart
+                    slices={distributionSlices}
+                    size={224}
+                    displaySize={184}
+                    gap={16}
+                    sliceGap={1}
+                    legendPosition="right"
+                    legendLayout="column"
+                    legendFlexBasis="auto"
+                    legendMaxWidth="100%"
+                    justifyContent="center"
+                    valueFormatter={(value) => `${value.toFixed(2)}%`}
+                />
             </div>
         </div>
     );
