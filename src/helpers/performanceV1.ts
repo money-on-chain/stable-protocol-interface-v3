@@ -38,13 +38,14 @@ export interface SystemStatusResultV1 {
 const COVERAGE_WARNING = 2n * WAD;
 const COVERAGE_DANGEROUS = (3n * WAD) / 2n; // 1.5x
 
-const ALL_OPERATIONS: ReadonlyArray<Pick<SystemOperationV1, "action" | "token">> =
-    [
-        { action: "mint", token: "TP_0" },
-        { action: "redeem", token: "TP_0" },
-        { action: "mint", token: "TC_0" },
-        { action: "redeem", token: "TC_0" },
-    ];
+const ALL_OPERATIONS: ReadonlyArray<
+    Pick<SystemOperationV1, "action" | "token">
+> = [
+    { action: "mint", token: "TP_0" },
+    { action: "redeem", token: "TP_0" },
+    { action: "mint", token: "TC_0" },
+    { action: "redeem", token: "TC_0" },
+];
 
 const AVAILABILITY_BY_BAND: Record<SystemStatusBandV1, ReadonlySet<string>> = {
     unknown: new Set(),
@@ -106,6 +107,43 @@ export function adjustedTargetCoverageV1(
             : getBitcoinMovingAverage;
 
     return mulPrecision(cobj, divPrecision(getBitcoinPrice, minPrice));
+}
+
+export interface CollateralDistributionRowV1 {
+    token: "TP_0" | "TC_0";
+    // RBTC backing this token, WAD-scaled
+    rbtc: bigint;
+    // share of the bucket's RBTC, 0..100
+    percent: number;
+}
+
+/**
+ * How bucket C0's RBTC is split between DOC and BPro — mirrors the legacy
+ * dapp's Metrics Reserve card pie (DOC / btcPrice, BPro * bproTecPrice).
+ * BTCx (bucket X2) is left out, same as the rest of the v1 UI.
+ */
+export function collateralDistributionV1(
+    status: Pick<
+        ContractProtocolStatusV1Data,
+        "getBucketNDoc" | "getBucketNBPro" | "getBitcoinPrice" | "bproTecPrice"
+    >
+): CollateralDistributionRowV1[] {
+    const { getBucketNDoc, getBucketNBPro, getBitcoinPrice, bproTecPrice } =
+        status;
+    const docRbtc =
+        getBitcoinPrice > 0n
+            ? divPrecision(getBucketNDoc, getBitcoinPrice)
+            : 0n;
+    const bproRbtc = mulPrecision(getBucketNBPro, bproTecPrice);
+    const total = docRbtc + bproRbtc;
+
+    const toPercent = (part: bigint): number =>
+        total > 0n ? Number((part * 10000n) / total) / 100 : 0;
+
+    return [
+        { token: "TP_0", rbtc: docRbtc, percent: toPercent(docRbtc) },
+        { token: "TC_0", rbtc: bproRbtc, percent: toPercent(bproRbtc) },
+    ];
 }
 
 export function systemStatusV1(
