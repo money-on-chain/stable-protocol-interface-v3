@@ -11,7 +11,7 @@ import NotificationBody from "../../../components/Notification";
 import UpdateToast from "../../../components/UpdateToast";
 import { useWalletContext } from "../../../context/Wallet";
 import { CheckStatusGlobal } from "../../../helpers/checkStatus";
-import { isPriceValidationEnabled } from "../../../helpers/priceValidation";
+import { hasInvalidProtocolPriceV1 } from "../../../helpers/priceValidation";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { isSomeTCLockedByVeto } from "../../../helpers/veto";
 
@@ -61,29 +61,27 @@ export default function Skeleton(): JSX.Element {
     // moc-v1 price validity: BTC / MoC price providers peek() valid flag.
     // No-op on the v3 moc flavor, where contractProtocolStatusV1 stays empty.
     const priceNotValidStatus: NotificationStatus | null = React.useMemo(() => {
-        if (!isPriceValidationEnabled()) return null;
-        // Price feeds still being retried would read as invalid meanwhile
-        if (contractProtocolStatusV1.isRetryingPeeks) return null;
-
-        const data = contractProtocolStatusV1.data;
-        if (!data || (!data.PP_BTC && !data.PP_MOC)) return null;
-
-        const invalid = [data.PP_BTC, data.PP_MOC].some((pp) => pp && !pp[1]);
-        if (!invalid) return null;
+        if (
+            !hasInvalidProtocolPriceV1(
+                contractProtocolStatusV1.data,
+                contractProtocolStatusV1.isRetryingPeeks
+            )
+        )
+            return null;
 
         return {
             id: -1,
-            title: "Warning, price is invalid or a bit old",
-            textContent:
-                "Price is invalid or a bit old, operate at your own risk",
-            notifClass: "warning",
-            iconLeft: "warning-icon",
+            title: t("notification.priceInvalid.title"),
+            textContent: t("notification.priceInvalid.text"),
+            notifClass: "error",
+            iconLeft: "icon-status-warning",
             isDismisable: false,
             dismissTime: 0,
         };
     }, [
         contractProtocolStatusV1.data,
         contractProtocolStatusV1.isRetryingPeeks,
+        t,
     ]);
 
     useEffect(() => {

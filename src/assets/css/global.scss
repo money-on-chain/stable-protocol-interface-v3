@@ -1628,6 +1628,13 @@ h2 {
     .ant-radio-disabled + span {
         color: var(--color-controls-disabled);
     }
+    // Why an option is disabled (e.g. fee token price invalid)
+    .fee-option-note {
+        margin-top: 4px;
+        font-size: 12px;
+        line-height: 16px;
+        color: var(--color-semantic-negative);
+    }
 }
 /* #endregion TRANSACTION INFORMATION */
 

@@ -5,6 +5,7 @@
 // so the mint/redeem operation list below only covers DOC/BPro.
 import type { ContractProtocolStatusV1Data } from "../types/hooks-v1";
 import { divPrecision, mulPrecision, WAD } from "./precision";
+import { hasInvalidProtocolPriceV1 } from "./priceValidation";
 
 export type SystemStatusBandV1 =
     | "unknown"
@@ -13,6 +14,7 @@ export type SystemStatusBandV1 =
     | "opportunity"
     | "protected"
     | "paused"
+    | "priceInvalid"
     | "settlement";
 
 export type SystemStatusClassV1 =
@@ -38,13 +40,14 @@ export interface SystemStatusResultV1 {
 const COVERAGE_WARNING = 2n * WAD;
 const COVERAGE_DANGEROUS = (3n * WAD) / 2n; // 1.5x
 
-const ALL_OPERATIONS: ReadonlyArray<Pick<SystemOperationV1, "action" | "token">> =
-    [
-        { action: "mint", token: "TP_0" },
-        { action: "redeem", token: "TP_0" },
-        { action: "mint", token: "TC_0" },
-        { action: "redeem", token: "TC_0" },
-    ];
+const ALL_OPERATIONS: ReadonlyArray<
+    Pick<SystemOperationV1, "action" | "token">
+> = [
+    { action: "mint", token: "TP_0" },
+    { action: "redeem", token: "TP_0" },
+    { action: "mint", token: "TC_0" },
+    { action: "redeem", token: "TC_0" },
+];
 
 const AVAILABILITY_BY_BAND: Record<SystemStatusBandV1, ReadonlySet<string>> = {
     unknown: new Set(),
@@ -53,6 +56,7 @@ const AVAILABILITY_BY_BAND: Record<SystemStatusBandV1, ReadonlySet<string>> = {
     opportunity: new Set(["mint:TC_0"]),
     protected: new Set(),
     paused: new Set(),
+    priceInvalid: new Set(),
     settlement: new Set(),
 };
 
@@ -63,6 +67,7 @@ const CLASS_BY_BAND: Record<SystemStatusBandV1, SystemStatusClassV1> = {
     opportunity: "status-negative",
     protected: "status-negative",
     paused: "status-negative",
+    priceInvalid: "status-negative",
     settlement: "status-negative",
 };
 
@@ -73,6 +78,7 @@ const TITLE_KEY_BY_BAND: Record<SystemStatusBandV1, string> = {
     opportunity: "performance.v1.statusTitleOpportunity",
     protected: "performance.status.statusTitleAlert",
     paused: "performance.status.statusTitlePaused",
+    priceInvalid: "performance.status.statusTitlePriceInvalid",
     settlement: "performance.v1.statusTitleSettlement",
 };
 
@@ -83,6 +89,7 @@ const DESCRIPTION_KEY_BY_BAND: Record<SystemStatusBandV1, string> = {
     opportunity: "performance.v1.statusDescriptionOpportunity",
     protected: "performance.status.statusDescriptionAlert",
     paused: "performance.status.statusDescriptionPaused",
+    priceInvalid: "performance.status.statusDescriptionPriceInvalid",
     settlement: "performance.v1.statusDescriptionSettlement",
 };
 
@@ -109,13 +116,16 @@ export function adjustedTargetCoverageV1(
 }
 
 export function systemStatusV1(
-    status: ContractProtocolStatusV1Data | undefined
+    status: ContractProtocolStatusV1Data | undefined,
+    isRetryingPeeks?: boolean
 ): SystemStatusResultV1 {
     let band: SystemStatusBandV1 = "unknown";
 
     if (status) {
         if (status.paused) {
             band = "paused";
+        } else if (hasInvalidProtocolPriceV1(status, isRetryingPeeks)) {
+            band = "priceInvalid";
         } else if (status.blocksToSettlement <= 0n) {
             band = "settlement";
         } else {

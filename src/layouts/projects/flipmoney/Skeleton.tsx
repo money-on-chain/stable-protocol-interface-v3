@@ -16,7 +16,7 @@ import {
 import UpdateToast from "../../../components/UpdateToast";
 import { useWalletContext } from "../../../context/Wallet";
 import { CheckStatusGlobal } from "../../../helpers/checkStatus";
-import { isPriceValidationEnabled } from "../../../helpers/priceValidation";
+import { hasInvalidProtocolPrice } from "../../../helpers/priceValidation";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { isSomeTCLockedByVeto } from "../../../helpers/veto";
 import settings from "../../../settings";
@@ -89,59 +89,25 @@ export default function Skeleton(): JSX.Element {
     // 2) PRICE VALIDITY
     const priceNotValidStatus: InlineNotificationState | null =
         React.useMemo(() => {
-            if (!isPriceValidationEnabled()) return null;
-            // Price feeds still being retried would read as invalid meanwhile
-            if (contractProtocolStatus.isRetryingPeeks) return null;
+            const invalid = hasInvalidProtocolPrice(
+                contractProtocolStatus.data,
+                {
+                    CA: settings.tokens.CA.length,
+                    TP: settings.tokens.TP.length,
+                },
+                { isRetryingPeeks: contractProtocolStatus.isRetryingPeeks }
+            );
+            if (!invalid) return null;
 
-            const data = contractProtocolStatus.data;
-            if (
-                !data ||
-                !data[0] ||
-                !data[0].PP_CA ||
-                !data[0].PP_FeeToken ||
-                !data[0].PP_TP
-            ) {
-                return null;
-            }
-
-            let valid = true;
-
-            for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
-                if (!data[ca].PP_CA[1]) {
-                    valid = false;
-                    break;
-                }
-                if (!data[ca].PP_FeeToken[1]) {
-                    valid = false;
-                    break;
-                }
-                for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
-                    if (!data[ca].PP_TP[tp][1]) {
-                        valid = false;
-                        break;
-                    }
-                }
-                if (!valid) break;
-            }
-
-            // check PP_COINBASE
-            if (!data.PP_COINBASE?.[1]) {
-                valid = false;
-            }
-
-            if (!valid) {
-                return {
-                    type: "warning",
-                    title: "Warning, price is invalid or a bit old",
-                    content:
-                        "Price is invalid or a bit old, operate at your own risk",
-                };
-            }
-
-            return null;
+            return {
+                type: "error",
+                title: t("notification.priceInvalid.title"),
+                content: t("notification.priceInvalid.text"),
+            };
         }, [
             contractProtocolStatus.data,
             contractProtocolStatus.isRetryingPeeks,
+            t,
         ]);
 
     // 3) VETO WITHDRAW
