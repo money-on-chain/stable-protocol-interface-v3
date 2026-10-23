@@ -24,8 +24,15 @@ export default function PerformanceV1(): React.ReactElement {
     const { contractProtocolStatusV1, blockNumber } = useWalletContext();
 
     const status = useMemo(
-        () => systemStatusV1(contractProtocolStatusV1.data),
-        [contractProtocolStatusV1.data]
+        () =>
+            systemStatusV1(
+                contractProtocolStatusV1.data,
+                contractProtocolStatusV1.isRetryingPeeks
+            ),
+        [
+            contractProtocolStatusV1.data,
+            contractProtocolStatusV1.isRetryingPeeks,
+        ]
     );
 
     const showModal = (): void => {

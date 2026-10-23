@@ -9,6 +9,30 @@
         padding: 24px 20px;
         margin-top: 24px;
     }
+    // Blocking alert (e.g. invalid price): same layout as warning, error colors
+    .notification-container-error {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: var(--surface-shadow-1);
+        border-radius: var(--card-border-radius);
+        background-color: var(
+            --notification-error-background,
+            var(--color-semantic-negative)
+        );
+        padding: 24px 20px;
+        margin-top: 24px;
+
+        .text-content,
+        .text-content h4,
+        .action button {
+            color: var(--notification-error-text, #ffffff);
+        }
+
+        .icon-status-warning-notif {
+            filter: var(--notification-error-filter);
+        }
+    }
     .icon-left img {
         width: 50px;
         height: 50px;

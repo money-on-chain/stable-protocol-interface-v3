@@ -15,6 +15,8 @@ interface CommissionsSelectorProps {
     commissionsByKey: CommissionsState;
     caIndex: number;
     operationType: string;
+    // e.g. fee token price invalid: can't pay the fee with it
+    feeTokenDisabled?: boolean;
 }
 
 export default function CommissionsSelector(
@@ -27,6 +29,7 @@ export default function CommissionsSelector(
         commissionsByKey,
         caIndex,
         operationType,
+        feeTokenDisabled = false,
     } = props;
 
     const { t, i18n, ns } = useProjectTranslation();
@@ -48,6 +51,7 @@ export default function CommissionsSelector(
                         <Radio
                             value={"TF"}
                             disabled={
+                                feeTokenDisabled ||
                                 commissionsByKey["FeeToken"]?.commission >
                                     commissionsByKey["FeeToken"]?.balance ||
                                 commissionsByKey["FeeToken"]?.commission === 0n
@@ -99,6 +103,15 @@ export default function CommissionsSelector(
                                 {t("exchange.exchangingCurrency")}
                             </span>
                             <span className={""}>) </span>
+                            {feeTokenDisabled && (
+                                <div className="fee-option-note">
+                                    {t("fees.feeTokenPriceInvalid", {
+                                        token: t("exchange.tokens.TF.abbr", {
+                                            ns: ns,
+                                        }),
+                                    })}
+                                </div>
+                            )}
                         </Radio>
                         {collateralAvailable.map((ca, index) => (
                             <Radio

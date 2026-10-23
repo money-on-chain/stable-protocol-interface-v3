@@ -5,6 +5,10 @@
     "invalidValueDescription": "No value to display",
     "invalidValuePlaceholder": "--",
     "notification": {
+        "priceInvalid": {
+            "title": "Attention: price is invalid or outdated",
+            "text": "You cannot mint or redeem until a valid price is available."
+        },
         "dismiss": "Dismiss",
         "update": {
             "title": "New version available",
@@ -224,6 +228,7 @@
         "errors": {
             "notOperational": "Not Operational due to low Global Coverage ratio",
             "cantOperate": "Cannot operate with the current status",
+            "priceInvalid": "You cannot operate: the price is invalid or outdated",
             "requestTimeout": "Request timeout",
             "connectYourWallet": "Please connect your wallet",
             "amountTooLow": "Amount must be greater than zero",
@@ -286,6 +291,9 @@
             "statusTitlePaused": "Paused",
             "statusDescriptionPaused": "The contract is paused. No operations allowed",
 
+            "statusTitlePriceInvalid": "Invalid Price",
+            "statusDescriptionPriceInvalid": "Operations are disabled until a valid price is available.",
+
             "statusTitleUnavailable": "Cannot operate",
             "statusDescreiptionUnavailable": "One or more contracts are temporarily unavailable. Please try again later.",
 
@@ -298,7 +306,8 @@
                 "fullyOperational": "Fully Operational",
                 "partiallyOperational": "Partially Operational",
                 "protectedMode": "Protected Mode",
-                "liquidated": "Liquidated"
+                "liquidated": "Liquidated",
+                "priceInvalid": "Invalid Price"
             },
             "headerOperations": {
                 "token": "Token",
@@ -446,6 +455,7 @@
     "fees": {
         "labelFee": "Fee",
         "labelExecutionFee": "Execution Fee",
+        "feeTokenPriceInvalid": "Unavailable: the {{token}} price is invalid or outdated",
         "disclaimer1": "This fee will be deducted from the amount to be transferred.",
         "disclaimer2": "Amounts may change at the transaction confirmation"
     },

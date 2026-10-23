@@ -2,7 +2,7 @@ import "../Exchange/Styles.scss";
 
 import type { RadioChangeEvent } from "antd";
 import { Button, Radio, Space } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { previewFeesMocV1, previewFeesV1 } from "../../backend/v1/fees-v1";
 import { useWalletContext } from "../../context/Wallet";
@@ -16,6 +16,10 @@ import {
     tokenUsdPriceV1,
 } from "../../helpers/exchangeV1";
 import { mulPrecision, toBigIntPrecision, WAD } from "../../helpers/precision";
+import {
+    hasInvalidProtocolPriceV1,
+    isMocPriceInvalidV1,
+} from "../../helpers/priceValidation";
 import { useProjectTranslation } from "../../helpers/translations";
 import type {
     ExchangeConfirmDataV1,
@@ -270,8 +274,23 @@ export default function ExchangeV1(): React.ReactElement {
     const rbtcFeeDisabled =
         operationType === "REDEEM"
             ? false
-            : !feePreview || feePreview.total === 0n || feePreview.total > rbtcBalance;
-    const mocFeeDisabled = !feePreviewMoc || feeMoc === 0n || feeMoc > mocBalance;
+            : !feePreview ||
+              feePreview.total === 0n ||
+              feePreview.total > rbtcBalance;
+    // Invalid MoC price: can't pay the fee in MOC, only RBTC
+    const mocPriceInvalid = isMocPriceInvalidV1(
+        status,
+        contractProtocolStatusV1.isRetryingPeeks
+    );
+    const mocFeeDisabled =
+        mocPriceInvalid ||
+        !feePreviewMoc ||
+        feeMoc === 0n ||
+        feeMoc > mocBalance;
+
+    useEffect(() => {
+        if (mocPriceInvalid) setSelectedFeeCurrency("CA_0");
+    }, [mocPriceInvalid]);
 
     const needsMocAllowance =
         selectedFeeCurrency === "TG" && feeMoc > 0n && mocAllowance < feeMoc;
@@ -294,9 +313,16 @@ export default function ExchangeV1(): React.ReactElement {
             ? amountBigInt > status.freeDoc
             : false;
 
+    const priceInvalid = hasInvalidProtocolPriceV1(
+        status,
+        contractProtocolStatusV1.isRetryingPeeks
+    );
+
     let errorText = "";
     if (paused) {
         errorText = t("exchange.v1.systemPaused");
+    } else if (priceInvalid) {
+        errorText = t("exchange.errors.priceInvalid");
     } else if (amountYouExchange !== "" && amountBigInt > sourceBalance) {
         errorText = t("exchange.errors.notBalance");
     } else if (overFreeDocLimit) {
@@ -384,7 +410,8 @@ export default function ExchangeV1(): React.ReactElement {
         amount: amountBigInt,
         receiveAmount: amountReceiveBigInt,
         exchangingUSD: totalExchangingInFiat,
-        feeAmount: selectedFeeCurrency === "TG" ? feeMoc : (feePreview?.total ?? 0n),
+        feeAmount:
+            selectedFeeCurrency === "TG" ? feeMoc : (feePreview?.total ?? 0n),
         feeToken: selectedFeeCurrency,
         feePercent:
             selectedFeeCurrency === "TG" ? feePercentWadMoc : feePercentWadRbtc,
@@ -450,8 +477,8 @@ export default function ExchangeV1(): React.ReactElement {
                             selectedTokenValue={currencyYouExchange}
                             onTokenSelect={onChangeCurrencyYouExchange}
                             quickActions={QUICK_ACTIONS.filter(
-                                    (percentage) => percentage !== 100
-                                )}
+                                (percentage) => percentage !== 100
+                            )}
                             onQuickActionClick={onQuickActionYouExchange}
                         />
                     </div>
@@ -504,8 +531,8 @@ export default function ExchangeV1(): React.ReactElement {
                             selectedTokenValue={currencyYouReceive}
                             onTokenSelect={onChangeCurrencyYouReceive}
                             quickActions={QUICK_ACTIONS.filter(
-                                    (percentage) => percentage !== 100
-                                )}
+                                (percentage) => percentage !== 100
+                            )}
                             onQuickActionClick={onQuickActionYouReceive}
                         />
                     </div>
@@ -685,6 +712,18 @@ export default function ExchangeV1(): React.ReactElement {
                                                     )}
                                                 </span>
                                                 <span>) </span>
+                                                {mocPriceInvalid && (
+                                                    <div className="fee-option-note">
+                                                        {t(
+                                                            "fees.feeTokenPriceInvalid",
+                                                            {
+                                                                token: t(
+                                                                    "exchange.tokens.TG.abbr"
+                                                                ),
+                                                            }
+                                                        )}
+                                                    </div>
+                                                )}
                                             </Radio>
                                         </Space>
                                     </Radio.Group>
