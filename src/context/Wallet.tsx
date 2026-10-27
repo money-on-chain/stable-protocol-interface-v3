@@ -39,6 +39,7 @@ import {
     unsubscribeFromCoinPair,
 } from "../backend/omoc/staking";
 import {
+    acceptedStep as acceptedStepVesting,
     addStake as addStakeVesting,
     approve as approveVesting,
     delayMachineCancelWithdraw as delayMachineCancelWithdrawVesting,
@@ -1367,10 +1368,19 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const interfaceVotingAcceptedStep = async (
         onTransaction: OnTransaction,
         onReceipt: OnReceipt,
-        onError: (error: unknown) => void
+        onError: (error: unknown) => void,
+        viaVesting = false
     ): Promise<unknown> => {
         try {
             const interfaceContext = buildInterfaceContext();
+            if (viaVesting && isVestingLoaded() && vestingAddress) {
+                return await acceptedStepVesting(
+                    interfaceContext,
+                    vestingAddress as `0x${string}`,
+                    onTransaction,
+                    onReceipt
+                );
+            }
             return await acceptedStep(
                 interfaceContext,
                 onTransaction,

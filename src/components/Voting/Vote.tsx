@@ -2,7 +2,11 @@ import React, { Fragment, useCallback, useEffect, useState } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
 import { TokenSettings } from "../../helpers/currencies";
+import { truncateHash } from "../../helpers/incentives";
+import { formatTimestamp } from "../../helpers/staking";
 import { useProjectTranslation } from "../../helpers/translations";
+import { useAcceptedStepPriority } from "../../hooks/useAcceptedStepPriority";
+import { useChainTime } from "../../hooks/useChainTime";
 import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 import BalanceBar from "./BalanceBar";
@@ -105,8 +109,40 @@ function Vote(props: VoteProps): JSX.Element {
         interfaceVotingAcceptedStep,
         userOmocBalance,
         contractStatusOmoc,
+        address,
+        vestingAddress,
+        isVestingLoaded,
+        publicClient,
     } = useWalletContext();
     const space = "\u00A0";
+
+    // MIP#263501: only the proposal's submitter may run acceptedStep() until
+    // the priority window ends; after that anyone can.
+    const isAcceptedState = infoVoting["state"] === 2;
+    const acceptedStepPriority = useAcceptedStepPriority(
+        infoVoting.votingData["winnerProposal"],
+        isAcceptedState
+    );
+    const chainTime = useChainTime(publicClient);
+    const priority = acceptedStepPriority.data;
+    const sameAddress = (a?: string, b?: string): boolean =>
+        !!a && !!b && a.toLowerCase() === b.toLowerCase();
+    const priorityActive =
+        !!priority &&
+        (chainTime ?? BigInt(Math.floor(Date.now() / 1000))) <
+            priority.deadline;
+    // Submitted in vesting mode: the proposer is the VestingMachine
+    const proposerIsVesting =
+        !!priority &&
+        isVestingLoaded() &&
+        sameAddress(priority.proposer, vestingAddress);
+    const isProposer =
+        proposerIsVesting || sameAddress(priority?.proposer, address);
+    const acceptedStepLocked =
+        acceptedStepPriority.isLoading || (priorityActive && !isProposer);
+    const priorityDeadlineFormat = priority
+        ? formatTimestamp(Number(priority.deadline * 1000n))
+        : "";
 
     const votingPower = infoUser["Voting_Power"];
     const onValidateVotingInFavorOrAgainst = useCallback((): boolean => {
@@ -285,11 +321,17 @@ function Vote(props: VoteProps): JSX.Element {
             setOperationStatus("error");
         };
 
-        await interfaceVotingAcceptedStep(onTransaction, onReceipt, onError)
+        await interfaceVotingAcceptedStep(
+            onTransaction,
+            onReceipt,
+            onError,
+            priorityActive && proposerIsVesting
+        )
             .then((/*res*/) => {
                 // Refresh status
                 void userOmocBalance.refetch();
                 void contractStatusOmoc.refetch();
+                void acceptedStepPriority.refetch();
             })
             .catch((e) => {
                 console.error(e);
@@ -480,10 +522,37 @@ function Vote(props: VoteProps): JSX.Element {
                                     <div className="vote-info">
                                         {t("voting.cta.infoApplyChanges")}
                                     </div>
+                                    {priorityActive && priority && (
+                                        <div
+                                            className="vote-info"
+                                            data-testid="voting-accepted-step-priority"
+                                        >
+                                            {isProposer
+                                                ? t(
+                                                      "voting.cta.acceptedStepPriorityOwner",
+                                                      {
+                                                          deadline:
+                                                              priorityDeadlineFormat,
+                                                      }
+                                                  )
+                                                : t(
+                                                      "voting.cta.acceptedStepPriorityLocked",
+                                                      {
+                                                          proposer:
+                                                              truncateHash(
+                                                                  priority.proposer
+                                                              ),
+                                                          deadline:
+                                                              priorityDeadlineFormat,
+                                                      }
+                                                  )}
+                                        </div>
+                                    )}
                                     <button
                                         data-testid="voting-run-accepted-step"
                                         className="button secondary"
                                         onClick={() => void onRunAcceptedStep()}
+                                        disabled={acceptedStepLocked}
                                     >
                                         {t(
                                             "voting.cta.btnApplyChangesToContracts"
