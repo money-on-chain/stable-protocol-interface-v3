@@ -15,6 +15,10 @@ export type DContractsV1 = {
     BProToken: ContractInfo;
     DocToken: ContractInfo;
     MoCToken: ContractInfo;
+    // Price providers (MoCState.getBtcPriceProvider / getMoCPriceProvider),
+    // read with peek() to surface the invalid-price alert
+    PP_BTC: ContractInfo;
+    PP_MOC: ContractInfo;
 };
 
 export type ContractProtocolStatusV1Data = {
@@ -53,6 +57,9 @@ export type ContractProtocolStatusV1Data = {
     redeemBProFeesMoc: bigint;
     mintDocFeesMoc: bigint;
     redeemDocFeesMoc: bigint;
+    // peek() results as [price, valid]
+    PP_BTC: [bigint, boolean];
+    PP_MOC: [bigint, boolean];
 };
 
 export type ContractProtocolStatusV1Result = Omit<
