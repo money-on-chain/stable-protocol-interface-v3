@@ -46,12 +46,15 @@ export function useOffchainPrices(
             }
 
             try {
+                // The API answers with a plain-text report whenever Accept
+                // includes text/plain (axios' default), so ask for JSON only.
+                // Pairs are deduped since the API caps how many it accepts.
                 const response = await axios.get(
-                    `${priceApi}api/offchain_prices/`,
+                    `${priceApi}api/coinpairs/get_values`,
                     {
-                        params: { coinpairs: coinpairs.join() },
+                        params: { coinpairs: [...new Set(coinpairs)].join() },
                         timeout: 10000,
-                        headers: { "Content-Type": "application/json" },
+                        headers: { Accept: "application/json" },
                     }
                 );
 
