@@ -25,6 +25,8 @@ export interface MipChanger {
     submitter?: string | null;
     // acceptedStep() transaction that executed it, from the registry
     executedTx?: string | null;
+    // Timestamp of executedTx's block (UTC), from the registry
+    executedAt?: string | null;
 }
 
 // Projects a MIP changes, as tagged in the registry
@@ -52,6 +54,9 @@ export interface MipEntry {
     // mipVotingStatus for how the dapp combines it with the live state.
     outcome?: string | null;
     outcomeRound?: number | null;
+    // When that latest attempt was submitted for voting (first indexed event).
+    // Missing from older API versions.
+    submittedAt?: string | null;
 }
 
 export interface MipContent extends MipEntry {
@@ -107,6 +112,20 @@ interface ProposalDetailResponse {
     records: VotingRecord[];
 }
 
+/**
+ * Latest activity of a MIP: its execution or submission for voting, else its
+ * forum date. All are ISO 8601 in UTC, so their first 19 characters compare
+ * as text. The API sorts the list by it.
+ */
+function mipLastActivity(entry: MipEntry): string {
+    const latest = [entry.executedAt, entry.submittedAt]
+        .filter((date): date is string => !!date)
+        .map((date) => date.slice(0, 19))
+        .sort()
+        .pop();
+    return latest ?? entry.date ?? "";
+}
+
 /** "MIP#263101" -> "263101", the form used in routes and API paths. */
 export function mipNumber(mip: string): string {
     return mip.replace(/^MIP#?/i, "");
@@ -128,11 +147,15 @@ export function useMipList() {
                 "get",
                 url.toString()
             )) as MipListResponse;
-            // The API already leaves drafts out; also drop them here in case
-            // an older API version is deployed.
-            return (response.results ?? []).filter(
-                (entry) => entry.status !== "Draft"
-            );
+            // The API already leaves drafts out and sorts by latest activity;
+            // also do it here in case an older API version is deployed.
+            return (response.results ?? [])
+                .filter((entry) => entry.status !== "Draft")
+                .sort(
+                    (a, b) =>
+                        mipLastActivity(b).localeCompare(mipLastActivity(a)) ||
+                        b.mip.localeCompare(a.mip)
+                );
         },
     });
 }
