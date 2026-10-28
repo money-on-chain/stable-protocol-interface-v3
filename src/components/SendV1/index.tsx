@@ -31,8 +31,12 @@ const QUICK_ACTIONS = [25, 50, 75, 100];
 // transfer()/native-send, never requiring approval.
 export default function SendV1(): React.ReactElement {
     const { t, i18n } = useProjectTranslation();
-    const { contractProtocolStatusV1, userBalanceV1, userBaseCoinBalance } =
-        useWalletContext();
+    const {
+        contractProtocolStatusV1,
+        displayPricesV1,
+        userBalanceV1,
+        userBaseCoinBalance,
+    } = useWalletContext();
 
     const status = contractProtocolStatusV1.data;
     const balances = userBalanceV1.data;
@@ -156,7 +160,7 @@ export default function SendV1(): React.ReactElement {
         status && amountYouSend !== ""
             ? mulPrecision(
                   toBigIntPrecision(amountYouSend),
-                  tokenUsdPriceV1(currencyYouSend, status)
+                  tokenUsdPriceV1(currencyYouSend, displayPricesV1)
               )
             : 0n;
 

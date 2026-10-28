@@ -8,10 +8,15 @@ import PortfolioTableV1 from "../../Tables/PortfolioTableV1";
 export default function PortfolioV1(): JSX.Element {
     const space: string = " ";
     const { t, i18n } = useProjectTranslation();
-    const { contractProtocolStatusV1, userBalanceV1, userBaseCoinBalance } =
-        useWalletContext();
+    const {
+        contractProtocolStatusV1,
+        displayPricesV1,
+        userBalanceV1,
+        userBaseCoinBalance,
+    } = useWalletContext();
     const totalUSD = getPortfolioTotalUsdV1(
         contractProtocolStatusV1,
+        displayPricesV1,
         userBalanceV1,
         userBaseCoinBalance
     );

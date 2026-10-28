@@ -57,7 +57,7 @@ export default function CoinPair(): React.ReactElement {
         userOmocBalance,
         contractStatusOmoc,
         contractProtocolStatus,
-        contractProtocolStatusV1,
+        displayPricesV1,
         registeredOracles,
         publicClient,
         contractsAddress,
@@ -73,7 +73,7 @@ export default function CoinPair(): React.ReactElement {
     const ownAddress = vestingAddress ?? address;
 
     const mocUsdPrice = IS_MOC_V1
-        ? (contractProtocolStatusV1.data?.mocUsdPrice ?? 0n)
+        ? displayPricesV1.mocUsd
         : ConvertAmount(contractProtocolStatus, "TG", "USD", WAD, 0);
 
     // When vesting is in use, the oracle is registered and staked under the
