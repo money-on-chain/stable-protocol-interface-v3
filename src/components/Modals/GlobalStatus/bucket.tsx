@@ -3,6 +3,10 @@ import React from "react";
 import { useProjectTranslation } from "../../../helpers/translations";
 import settings from "../../../settings";
 
+// Bucket status code for an invalid price (set by Performance, not by
+// CheckStatusCA): no operations allowed
+export const PRICE_INVALID_STATUS_CODE = 5;
+
 // Type definitions
 interface StatusBucketProps {
     statusCode: number[];
@@ -32,7 +36,7 @@ export default function StatusBucket(props: StatusBucketProps): JSX.Element {
 
     const tpTokens = settings.tokens.TP;
     const tcTokens = settings.tokens.TC;
-    const caToken = (settings.tokens.CA)[caIndex];
+    const caToken = settings.tokens.CA[caIndex];
     const leveragedToken = tcTokens[caIndex];
 
     const status: number = statusCode[caIndex];
@@ -80,6 +84,12 @@ export default function StatusBucket(props: StatusBucketProps): JSX.Element {
         },
         3: {
             label: t("performance.detailedStatus.collateralStatus.liquidated"),
+            severity: "negative",
+        },
+        [PRICE_INVALID_STATUS_CODE]: {
+            label: t(
+                "performance.detailedStatus.collateralStatus.priceInvalid"
+            ),
             severity: "negative",
         },
     };

@@ -5,6 +5,10 @@
     "invalidValueDescription": "No value to display",
     "invalidValuePlaceholder": "--",
     "notification": {
+        "priceInvalid": {
+            "title": "Attention: price is invalid or outdated",
+            "text": "You cannot mint or redeem until a valid price is available."
+        },
         "dismiss": "Dismiss",
         "update": {
             "title": "New version available",
@@ -223,6 +227,7 @@
         "errors": {
             "notOperational": "Not Operational due to low Global Coverage ratio",
             "cantOperate": "Cannot operate with the current status",
+            "priceInvalid": "You cannot operate: the price is invalid or outdated",
             "requestTimeout": "Request timeout",
             "connectYourWallet": "Please connect your wallet",
             "amountTooLow": "Amount must be greater than zero",
@@ -279,6 +284,9 @@
             "statusDescriptionLiquidated": "No operations allowed",
             "statusTitlePaused": "Paused",
             "statusDescriptionPaused": "The contract is paused. No operations allowed",
+
+            "statusTitlePriceInvalid": "Invalid Price",
+            "statusDescriptionPriceInvalid": "Operations are disabled until a valid price is available.",
             "statusTitleUnavailable": "Cannot operate",
             "statusDescreiptionUnavailable": "One or more contracts are temporarily unavailable. Please try again later.",
             "showingBlock": "Showing block"
@@ -430,6 +438,7 @@
     "fees": {
         "labelFee": "Fee",
         "labelExecutionFee": "Execution Fee",
+        "feeTokenPriceInvalid": "Unavailable: the {{token}} price is invalid or outdated",
         "disclaimer1": "This fee will be deduced from the amount to be transferred.",
         "disclaimer2": "Amounts may change at the transaction confirmation"
     },
@@ -1044,6 +1053,8 @@
             "btnPushNextStep": "Push to Next Step",
             "infoApplyChanges": "Please run 'accepted step' to finish & apply the changes to contracts",
             "btnApplyChangesToContracts": "Change Contracts",
+            "acceptedStepPriorityLocked": "Only the proposal submitter ({{proposer}}) can apply the changes until {{deadline}}. After that, anyone can.",
+            "acceptedStepPriorityOwner": "You submitted this proposal: only you can apply the changes until {{deadline}}. After that, anyone can.",
             "addNewProposal": " Add New Proposal",
             "cancel": "Cancel",
             "addProposal": "Add Proposal"

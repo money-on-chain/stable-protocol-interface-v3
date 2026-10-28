@@ -2,11 +2,13 @@ import { useMemo } from "react";
 import { checksumAddress } from "viem";
 
 import { normalizeToBigInt } from "../helpers/precision";
+import { isPriceValidationEnabled } from "../helpers/priceValidation";
 import settings from "../settings";
 import type {
     ContractInfo,
     DContracts,
     ExternalData,
+    ExternalPrice,
     MultiCallErrorResult,
     MultiCallInput,
     ParsedPrices,
@@ -80,16 +82,23 @@ export function useContractProtocolStatus(
 
         if (isEmptyParsedPrices(parsedPrices)) return {} as ExternalData;
 
+        // Off-chain prices always come flagged as valid. With price validation
+        // enabled, only override the price and keep the on-chain peek() valid
+        // flag so the invalid-price alert can still fire.
+        const validate = isPriceValidationEnabled();
+        const toExternal = (price: [bigint, boolean]): ExternalPrice =>
+            validate && price ? { 0: price[0] } : price;
+
         const data: ExternalData = {};
         if (parsedPrices && !isEmptyParsedPrices(parsedPrices)) {
             for (let ca = 0; ca < settings.tokens.CA.length; ca++) {
                 data[ca] = {
-                    PP_CA: parsedPrices[ca]?.CA,
+                    PP_CA: toExternal(parsedPrices[ca]?.CA),
                     PP_TP: {},
-                    PP_FeeToken: parsedPrices[ca]?.TF,
+                    PP_FeeToken: toExternal(parsedPrices[ca]?.TF),
                 };
                 for (let tp = 0; tp < settings.tokens.TP.length; tp++) {
-                    data[ca].PP_TP[tp] = parsedPrices[ca]?.TP[tp];
+                    data[ca].PP_TP[tp] = toExternal(parsedPrices[ca]?.TP[tp]);
                 }
             }
         }

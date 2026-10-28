@@ -131,6 +131,7 @@ export function useMultiCall(
         refetch,
         error,
         queryKey,
+        dataUpdatedAt,
     } = useReadContracts({
         batchSize,
         contracts,
@@ -150,6 +151,10 @@ export function useMultiCall(
     const publicClient = usePublicClient();
     const [directRetryResults, setDirectRetryResults] = useState<
         Record<string, unknown>
+    >({});
+    // Addresses whose direct retry also failed, so the onError fallback is final
+    const [directRetryFailed, setDirectRetryFailed] = useState<
+        Record<string, true>
     >({});
     const inFlightRetries = useRef<Set<string>>(new Set());
 
@@ -184,16 +189,34 @@ export function useMultiCall(
                         ...prev,
                         [address]: result,
                     }));
+                    setDirectRetryFailed((prev) => {
+                        if (!prev[address]) return prev;
+                        const next = { ...prev };
+                        delete next[address];
+                        return next;
+                    });
                 })
                 .catch(() => {
-                    // Leave unresolved — the existing onError/default
-                    // fallback in `storage` still applies for this call.
+                    // Drop any earlier successful retry so a feed that now
+                    // reverts (e.g. paused) falls back to onError ([0n, false])
+                    // instead of keeping its last [price, true].
+                    setDirectRetryResults((prev) => {
+                        if (!(address in prev)) return prev;
+                        const next = { ...prev };
+                        delete next[address];
+                        return next;
+                    });
+                    setDirectRetryFailed((prev) =>
+                        prev[address] ? prev : { ...prev, [address]: true }
+                    );
                 })
                 .finally(() => {
                     inFlightRetries.current.delete(address);
                 });
         });
-    }, [results, calls, publicClient]);
+        // dataUpdatedAt: retry on every poll even when `results` is structurally
+        // shared (unchanged reference), so feed state changes are picked up.
+    }, [results, calls, publicClient, dataUpdatedAt]);
 
     // Step 3: Structure results into a nested dictionary, with optional transforms.
     // Wrapped in useMemo so the transform + deepMerge only re-run when results,
@@ -307,8 +330,32 @@ export function useMultiCall(
         return next;
     }, [results, calls, externalData, directRetryResults]);
 
+    // True while a failed peek() still waits for its first direct retry: its
+    // value is the onError fallback ([0n, false]) but not yet confirmed, so
+    // consumers shouldn't treat it as an invalid price.
+    const isRetryingPeeks = useMemo(() => {
+        if (!results) return false;
+        return results.some((item, i) => {
+            if (item.status === "success") return false;
+            const call = calls[i];
+            if (
+                !call ||
+                call.functionName !== "peek" ||
+                typeof call.contract !== "object" ||
+                !("address" in call.contract)
+            )
+                return false;
+            const address = call.contract.address.toLowerCase();
+            return (
+                directRetryResults[address] === undefined &&
+                !directRetryFailed[address]
+            );
+        });
+    }, [results, calls, directRetryResults, directRetryFailed]);
+
     return {
         data: storage,
+        isRetryingPeeks,
         isLoading,
         isFetching,
         refetch,

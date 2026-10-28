@@ -5,6 +5,10 @@
     "invalidValueDescription": "No hay ningún valor para mostrar",
     "invalidValuePlaceholder": "--",
     "notification": {
+        "priceInvalid": {
+            "title": "Atención: el precio es inválido o está desactualizado",
+            "text": "No es posible acuñar ni redimir hasta que haya un precio válido."
+        },
         "dismiss": "Descartar",
         "update": {
             "title": "Nueva versión disponible",
@@ -222,6 +226,7 @@
             "notOperational": "No operacional debido a bajo Global Coverage ratio",
             "coverageNotMet": "La operación no está disponible porque no se alcanza el ratio de cobertura requerido",
             "cantOperate": "No se puede operar con el estado actual",
+            "priceInvalid": "No es posible operar: el precio es inválido o está desactualizado",
             "requestTimeout": "Mucho tiempo procesando",
             "connectYourWallet": "Por favor, conecta tu wallet",
             "amountTooLow": "La cantidad debe ser mayor a cero",
@@ -284,6 +289,9 @@
             "statusTitlePaused": "Pausado",
             "statusDescriptionPaused": "El contrato está pausado. No hay operaciones permitidas",
 
+            "statusTitlePriceInvalid": "Precio Inválido",
+            "statusDescriptionPriceInvalid": "Las operaciones están deshabilitadas hasta que haya un precio válido.",
+
             "statusTitleUnavailable": "No puede operar",
             "statusDescreiptionUnavailable": "Uno o más contratos se encuentran temporalmente no disponibles. Intenta nuevamente más tarde.",
 
@@ -296,7 +304,8 @@
                 "fullyOperational": "Totalmente Operativo",
                 "partiallyOperational": "Parcialmente Operativo",
                 "protectedMode": "Modo Protegido",
-                "liquidated": "Liquidado"
+                "liquidated": "Liquidado",
+                "priceInvalid": "Precio Inválido"
             },
             "headerOperations": {
                 "token": "Token",
@@ -439,6 +448,7 @@
     "fees": {
         "labelFee": "Tasa",
         "labelExecutionFee": "Tasa de ejecución",
+        "feeTokenPriceInvalid": "No disponible: el precio de {{token}} es inválido o está desactualizado",
         "disclaimer1": "Esta tasa será restada del monto a ser transferido.",
         "disclaimer2": "Los montos pueden variar al momento de la confirmación de la transacción."
     },
@@ -1062,6 +1072,8 @@
             "btnPushNextStep": "Avanzar Etapa",
             "infoApplyChanges": "Por favor, ejecuta el 'paso aceptado' para finalizar y aplicar los cambios en los contratos",
             "btnApplyChangesToContracts": "Cambiar Contratos",
+            "acceptedStepPriorityLocked": "Solo quien presentó la propuesta ({{proposer}}) puede aplicar los cambios hasta el {{deadline}}. Después, cualquiera puede hacerlo.",
+            "acceptedStepPriorityOwner": "Presentaste esta propuesta: solo tú puedes aplicar los cambios hasta el {{deadline}}. Después, cualquiera puede hacerlo.",
             "addNewProposal": "Agregar Nueva Propuesta",
             "cancel": "Cancelar",
             "addProposal": "Agregar Propuesta"

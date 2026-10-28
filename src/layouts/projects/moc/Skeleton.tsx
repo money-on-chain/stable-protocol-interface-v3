@@ -11,6 +11,7 @@ import NotificationBody from "../../../components/Notification";
 import UpdateToast from "../../../components/UpdateToast";
 import { useWalletContext } from "../../../context/Wallet";
 import { CheckStatusGlobal } from "../../../helpers/checkStatus";
+import { hasInvalidProtocolPriceV1 } from "../../../helpers/priceValidation";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { isSomeTCLockedByVeto } from "../../../helpers/veto";
 
@@ -34,6 +35,7 @@ export default function Skeleton(): JSX.Element {
         isConnected,
         isOnCorrectChain,
         contractProtocolStatus,
+        contractProtocolStatusV1,
         userBalance,
         userOmocBalance,
         userVeto,
@@ -55,6 +57,32 @@ export default function Skeleton(): JSX.Element {
         null
     );
     const { checkerStatus } = CheckStatusGlobal();
+
+    // moc-v1 price validity: BTC / MoC price providers peek() valid flag.
+    // No-op on the v3 moc flavor, where contractProtocolStatusV1 stays empty.
+    const priceNotValidStatus: NotificationStatus | null = React.useMemo(() => {
+        if (
+            !hasInvalidProtocolPriceV1(
+                contractProtocolStatusV1.data,
+                contractProtocolStatusV1.isRetryingPeeks
+            )
+        )
+            return null;
+
+        return {
+            id: -1,
+            title: t("notification.priceInvalid.title"),
+            textContent: t("notification.priceInvalid.text"),
+            notifClass: "error",
+            iconLeft: "icon-status-warning",
+            isDismisable: false,
+            dismissTime: 0,
+        };
+    }, [
+        contractProtocolStatusV1.data,
+        contractProtocolStatusV1.isRetryingPeeks,
+        t,
+    ]);
 
     useEffect(() => {
         if (
@@ -99,7 +127,9 @@ export default function Skeleton(): JSX.Element {
         if (
             isSomeTCLockedByVeto(
                 userVeto.data as Parameters<typeof isSomeTCLockedByVeto>[0],
-                contractStatusOmoc.data as unknown as Parameters<typeof isSomeTCLockedByVeto>[1],
+                contractStatusOmoc.data as unknown as Parameters<
+                    typeof isSomeTCLockedByVeto
+                >[1],
                 address
             )
         ) {
@@ -133,6 +163,9 @@ export default function Skeleton(): JSX.Element {
                 <UpdateToast />
                 {/* TODO load an array of notifStatus items, and load a mapping for showing notifs here in this section , interact with a React Context */}
                 {notifStatus && <NotificationBody notifStatus={notifStatus} />}
+                {priceNotValidStatus && (
+                    <NotificationBody notifStatus={priceNotValidStatus} />
+                )}
                 {vetoWithdraw && (
                     <NotificationBody notifStatus={vetoWithdraw} />
                 )}

@@ -7,6 +7,7 @@ import {
     mulPrecision,
     normalizeToBigInt,
 } from "../../helpers/precision";
+import { tokenChartColors } from "../../helpers/tokenColors";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings";
 import DistributionPieChart, {
@@ -52,25 +53,20 @@ export default function Buckets(props: BucketsProps): JSX.Element {
             ),
         [caIndex, contractProtocolStatus]
     );
-    const collateralDistributionSlices: DistributionPieSlice[] = useMemo(
-        () =>
-            collateralDistributionRows.map((row, index) => ({
-                id: row.id,
-                label:
-                    row.fullName && row.fullName !== row.symbol
-                        ? `${row.fullName} (${row.symbol})`
-                        : row.symbol,
-                value: ratioToPercentNumber(row.collateralUsedRatio),
-                color: [
-                    "var(--brand-color-base)",
-                    "var(--brand-color-light)",
-                    "var(--brand-color-dark)",
-                    "var(--color-semantic-positive)",
-                    "var(--color-semantic-neutral-alt)",
-                ][index % 5],
-            })),
-        [collateralDistributionRows]
-    );
+    const collateralDistributionSlices: DistributionPieSlice[] = useMemo(() => {
+        const colors = tokenChartColors(
+            collateralDistributionRows.map((row) => row.symbol)
+        );
+        return collateralDistributionRows.map((row) => ({
+            id: row.id,
+            label:
+                row.fullName && row.fullName !== row.symbol
+                    ? `${row.fullName} (${row.symbol})`
+                    : row.symbol,
+            value: ratioToPercentNumber(row.collateralUsedRatio),
+            color: colors.get(row.symbol.toUpperCase()),
+        }));
+    }, [collateralDistributionRows]);
 
     if (acBalance !== 0n && priceCA !== 0n) {
         tvlUsd = mulPrecision(acBalance, priceCA);
@@ -290,12 +286,13 @@ export default function Buckets(props: BucketsProps): JSX.Element {
                     <DistributionPieChart
                         slices={collateralDistributionSlices}
                         size={224}
-                        displaySize="45%"
+                        displaySize={184}
                         gap={16}
                         sliceGap={1}
-                        legendPosition="bottom"
+                        legendPosition="right"
                         legendLayout="column"
-                        legendMaxWidth="80%"
+                        legendFlexBasis="auto"
+                        legendMaxWidth="100%"
                         justifyContent="center"
                         valueFormatter={(value) => `${value.toFixed(2)}%`}
                     />
