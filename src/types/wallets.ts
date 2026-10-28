@@ -4,6 +4,7 @@ import type { usePublicClient } from "wagmi";
 import type { useWalletClient } from "wagmi";
 import type { useConnect } from "wagmi";
 
+import type { DisplayPricesV1 } from "../helpers/pricesV1";
 import type { useContractLendingStatus } from "../hooks/useContractLendingStatus";
 import type { useContractOmocStatus } from "../hooks/useContractOmocStatus";
 import type { useContractProtocolStatus } from "../hooks/useContractProtocolStatus";
@@ -75,6 +76,8 @@ export type WalletContextType = {
     // than replacing them, so v3 components keep their existing types untouched.
     contractsAddressV1: DContractsV1 | null;
     contractProtocolStatusV1: ContractProtocolStatusV1Result;
+    // Off-chain-first USD prices for display only — see helpers/pricesV1
+    displayPricesV1: DisplayPricesV1;
     userBalanceV1: UserBalanceV1Result;
     interfaceMintBProV1: (
         btcAmount: bigint,

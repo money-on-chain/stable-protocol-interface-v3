@@ -2,6 +2,7 @@
 // v1 has exactly 4 fixed tokens (no CA-indexed/portfolio_table-driven loop like
 // the v3 helper in helpers/portfolio.ts) — RBTC, BPro, DOC (pegged), MOC.
 import { mulPrecision, WAD } from "../helpers/precision";
+import type { DisplayPricesV1 } from "../helpers/pricesV1";
 import type {
     ContractProtocolStatusV1Result,
     UserBalanceV1Result,
@@ -24,17 +25,16 @@ export type PortfolioRowV1 = {
 };
 
 export function getPortfolioRowsV1(
-    contractProtocolStatus: ContractProtocolStatusV1Result,
+    prices: DisplayPricesV1,
     userBalance: UserBalanceV1Result,
     userBaseCoinBalance: UseBaseCoinBalanceResult
 ): PortfolioRowV1[] {
-    const status = contractProtocolStatus.data;
     const balances = userBalance.data;
     const rbtcBalance = userBaseCoinBalance.balance;
 
-    const rbtcPrice = status?.getBitcoinPrice ?? 0n;
-    const bproPrice = status?.bproUsdPrice ?? 0n;
-    const mocPrice = status?.mocUsdPrice ?? 0n;
+    const rbtcPrice = prices.btcUsd;
+    const bproPrice = prices.bproUsd;
+    const mocPrice = prices.mocUsd;
 
     return [
         {
@@ -98,14 +98,14 @@ export function getPortfolioRowsV1(
 
 export function getPortfolioTotalUsdV1(
     contractProtocolStatus: ContractProtocolStatusV1Result,
+    prices: DisplayPricesV1,
     userBalance: UserBalanceV1Result,
     userBaseCoinBalance: UseBaseCoinBalanceResult
 ): bigint {
     if (!contractProtocolStatus.data || !userBalance.data) return 0n;
 
-    return getPortfolioRowsV1(
-        contractProtocolStatus,
-        userBalance,
-        userBaseCoinBalance
-    ).reduce((total, row) => total + row.balanceUSD, 0n);
+    return getPortfolioRowsV1(prices, userBalance, userBaseCoinBalance).reduce(
+        (total, row) => total + row.balanceUSD,
+        0n
+    );
 }

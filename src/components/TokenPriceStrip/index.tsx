@@ -50,11 +50,9 @@ export default function TokenPriceStrip(): JSX.Element | null {
 function TokenPriceStripContent({
     configuredTokens,
 }: TokenPriceStripContentProps): JSX.Element | null {
-    const { contractProtocolStatus, contractProtocolStatusV1 } =
-        useWalletContext();
+    const { contractProtocolStatus, displayPricesV1 } = useWalletContext();
     const { i18n } = useProjectTranslation();
     const data = contractProtocolStatus.data;
-    const dataV1 = contractProtocolStatusV1.data;
     const viewportRef = useRef<HTMLDivElement>(null);
     const [scrollState, setScrollState] = useState({
         hasOverflow: false,
@@ -73,10 +71,9 @@ function TokenPriceStripContent({
         return tokens[index] ?? null;
     };
 
-    // v1's protocol status is a flat set of fields (getBitcoinPrice/
-    // bproUsdPrice/mocUsdPrice, DOC pegged to WAD) — no caIndex, no per-token
-    // multicall lookup, unlike the v3 branch below. Mirrors the price sourcing
-    // already used by helpers/exchangeV1.ts's tokenUsdPriceV1.
+    // v1's prices are a flat set (BTC/BPro/MOC in USD, DOC pegged to WAD) —
+    // no caIndex, no per-token multicall lookup, unlike the v3 branch below.
+    // Off-chain first with on-chain fallback, see helpers/pricesV1.
     const getTokenPriceItemV1 = (tokenId: string): TokenPriceItem | null => {
         const [type] = tokenId.split("_");
 
@@ -95,7 +92,7 @@ function TokenPriceStripContent({
                         type === "COINBASE"
                             ? "icon-token-coinbase"
                             : "icon-token-ca_0",
-                    price: dataV1?.getBitcoinPrice ?? 0n,
+                    price: displayPricesV1.btcUsd,
                     pricePrefix: "$",
                     priceCurrency: "USD",
                     token,
@@ -108,7 +105,7 @@ function TokenPriceStripContent({
                 return {
                     key: tokenId,
                     iconClassName: "icon-token-tc_0",
-                    price: dataV1?.bproUsdPrice ?? 0n,
+                    price: displayPricesV1.bproUsd,
                     pricePrefix: "$",
                     priceCurrency: "USD",
                     token,
@@ -134,7 +131,7 @@ function TokenPriceStripContent({
                 return {
                     key: tokenId,
                     iconClassName: "icon-token-tg",
-                    price: dataV1?.mocUsdPrice ?? 0n,
+                    price: displayPricesV1.mocUsd,
                     pricePrefix: "$",
                     priceCurrency: "USD",
                     token,

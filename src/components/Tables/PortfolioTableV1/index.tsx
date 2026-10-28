@@ -19,6 +19,7 @@ export default function PortfolioTableV1(): React.ReactElement {
         address,
         contractsAddress,
         contractProtocolStatusV1,
+        displayPricesV1,
         userBalanceV1,
         userBaseCoinBalance,
     } = useWalletContext();
@@ -33,7 +34,7 @@ export default function PortfolioTableV1(): React.ReactElement {
     }
 
     const rows = getPortfolioRowsV1(
-        contractProtocolStatusV1,
+        displayPricesV1,
         userBalanceV1,
         userBaseCoinBalance
     );

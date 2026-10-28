@@ -50,8 +50,12 @@ function getModeV1(
 // info), both generic shared classes from assets/css/global.scss.
 export default function ExchangeV1(): React.ReactElement {
     const { t, i18n } = useProjectTranslation();
-    const { contractProtocolStatusV1, userBalanceV1, userBaseCoinBalance } =
-        useWalletContext();
+    const {
+        contractProtocolStatusV1,
+        displayPricesV1,
+        userBalanceV1,
+        userBaseCoinBalance,
+    } = useWalletContext();
 
     const [currencyYouExchange, setCurrencyYouExchange] =
         useState<string>("CA_0");
@@ -249,15 +253,15 @@ export default function ExchangeV1(): React.ReactElement {
 
     // Fee-currency selector data — each option shows its own rate/amount/USD,
     // since the RBTC and MOC fee paths are priced independently on-chain.
-    const feeUsdRbtc =
-        feePreview && status
-            ? mulPrecision(feePreview.total, status.getBitcoinPrice)
-            : 0n;
+    // Fee amounts use on-chain prices (what the contract charges); their USD
+    // hints are display-only, see helpers/pricesV1.
+    const feeUsdRbtc = feePreview
+        ? mulPrecision(feePreview.total, displayPricesV1.btcUsd)
+        : 0n;
     const feeMoc = feePreviewMoc ? feePreviewMoc.total : 0n;
-    const feeUsdMoc =
-        feePreviewMoc && status
-            ? mulPrecision(feePreviewMoc.total, status.mocUsdPrice)
-            : 0n;
+    const feeUsdMoc = feePreviewMoc
+        ? mulPrecision(feePreviewMoc.total, displayPricesV1.mocUsd)
+        : 0n;
     const feePercentWadRbtc = status
         ? (commissionRate() + status.vendorMarkup) * 100n
         : 0n;
@@ -341,11 +345,11 @@ export default function ExchangeV1(): React.ReactElement {
         ? (() => {
               const exchangeUsd = mulPrecision(
                   amountBigInt,
-                  tokenUsdPriceV1(currencyYouExchange, status)
+                  tokenUsdPriceV1(currencyYouExchange, displayPricesV1)
               );
               const receiveUsd = mulPrecision(
                   amountReceiveBigInt,
-                  tokenUsdPriceV1(currencyYouReceive, status)
+                  tokenUsdPriceV1(currencyYouReceive, displayPricesV1)
               );
               return exchangeUsd > receiveUsd ? exchangeUsd : receiveUsd;
           })()
@@ -357,7 +361,7 @@ export default function ExchangeV1(): React.ReactElement {
         if (!status || amount < 0) return 0n;
         return mulPrecision(
             toBigIntPrecision(amount),
-            tokenUsdPriceV1(currencyYouExchange, status)
+            tokenUsdPriceV1(currencyYouExchange, displayPricesV1)
         );
     };
 
@@ -365,7 +369,7 @@ export default function ExchangeV1(): React.ReactElement {
         if (!status || amount < 0) return 0n;
         return mulPrecision(
             toBigIntPrecision(amount),
-            tokenUsdPriceV1(currencyYouReceive, status)
+            tokenUsdPriceV1(currencyYouReceive, displayPricesV1)
         );
     };
 

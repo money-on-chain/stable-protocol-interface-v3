@@ -3,6 +3,7 @@ import React, {
     useCallback,
     useContext,
     useEffect,
+    useMemo,
     useRef,
     useState,
 } from "react";
@@ -83,6 +84,7 @@ import {
     exchangeMethodCombined,
     TokenContract,
 } from "../helpers/exchange";
+import { getDisplayPricesV1 } from "../helpers/pricesV1";
 import {
     loadVestingAddressesFromLocalStorage,
     saveVestingAddressesToLocalStorage,
@@ -238,6 +240,19 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             ? (contractsAddressV1 ?? undefined)
             : undefined,
         REFRESH_INTERVAL_CONTRACT_PROTOCOL_STATUS
+    );
+
+    // Off-chain prices are display-only on moc-v1 (see helpers/pricesV1).
+    // react-query keeps the last good data after a failed refetch, so drop it
+    // on error rather than showing a frozen price over the on-chain one.
+    const offChainPricesError = offChainPricesAPI.error;
+    const displayPricesV1 = useMemo(
+        () =>
+            getDisplayPricesV1(
+                contractProtocolStatusV1.data,
+                offChainPricesError ? undefined : offChainPrices
+            ),
+        [contractProtocolStatusV1.data, offChainPrices, offChainPricesError]
     );
 
     const priceProvider = usePriceProvider(
@@ -1468,6 +1483,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
                 userBalance,
                 contractsAddressV1,
                 contractProtocolStatusV1,
+                displayPricesV1,
                 userBalanceV1,
                 interfaceMintBProV1,
                 interfaceMintDocV1,
