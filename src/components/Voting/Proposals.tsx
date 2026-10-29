@@ -30,10 +30,6 @@ interface ProposalData {
     canVote: boolean;
 }
 
-interface EmptyProposal {
-    changeContract: string;
-}
-
 interface ProposalItem {
     [key: number]: [string, bigint, bigint, bigint];
 }
@@ -61,16 +57,14 @@ interface ProposalsProps {
 const Proposals: React.FC<ProposalsProps> = (props) => {
     const { infoVoting, infoUser } = props;
 
-    const emptyProposal: EmptyProposal = {
-        changeContract: "",
-    };
     const [actionProposal, setActionProposal] = useState<string>("LIST");
     // Expired pre-vote proposals stay in the contract's list until a new
     // proposal reuses their slot: hide them unless asked for.
     const [showExpired, setShowExpired] = useState<boolean>(false);
-    const [viewProposal, setViewProposal] = useState<
-        ProposalData | EmptyProposal
-    >(emptyProposal);
+    // Only the address: the proposal is looked up on every render so the
+    // detail view follows the polled contract state (e.g. it turns
+    // "selected" once readyToPreVoteStep() catches up with its expiration).
+    const [viewProposalAddress, setViewProposalAddress] = useState<string>("");
     const [addProposalAddress, setAddProposalAddress] = useState<string>("");
     const [addProposalAddressError, setAddProposalAddressError] =
         useState<boolean>(false);
@@ -250,6 +244,11 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
         [proposalsData]
     );
 
+    const viewProposal: ProposalData | undefined =
+        viewProposalAddress !== ""
+            ? searchProposal(viewProposalAddress)
+            : undefined;
+
     const onChangeInputAddProposal = (
         e: React.ChangeEvent<HTMLInputElement>
     ): void => {
@@ -356,13 +355,12 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
     };
 
     const onViewProposal = (changerAddr: string): void => {
-        const proposal = searchProposal(changerAddr);
-        setViewProposal(proposal);
+        setViewProposalAddress(changerAddr);
         setActionProposal("VIEW_PROPOSAL");
     };
 
     const onBackToProposalList = (): void => {
-        setViewProposal(emptyProposal);
+        setViewProposalAddress("");
         setActionProposal("LIST");
     };
 
@@ -521,8 +519,8 @@ const Proposals: React.FC<ProposalsProps> = (props) => {
                         </React.Fragment>
                     ))}
                 {actionProposal === "VIEW_PROPOSAL" &&
-                    viewProposal.changeContract !== "" &&
-                    "canVote" in viewProposal && (
+                    viewProposal &&
+                    viewProposal.changeContract !== "" && (
                         <>
                             {/* <div className={'title'}>
                                 <h1>{t('voting.cardTitle.proposalDetails')}</h1>
