@@ -39,6 +39,22 @@
             padding: 0;
         }
     }
+
+    .lend-card-injection {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid var(--dividers);
+        font-size: 12px;
+
+        &__label {
+            color: var(--color-txt-secondary);
+        }
+    }
 }
 
 @media (max-width: 960px) {

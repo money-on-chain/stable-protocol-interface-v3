@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 import { bigIntToInputValue } from "../../helpers/currencies";
 import { toBigIntPrecision } from "../../helpers/precision";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings";
+import DistributionPieChart from "../Charts/DistributionPieChart";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 
 interface UserInfoStaking {
@@ -130,30 +130,13 @@ const PieChartComponent: React.FC<PieChartComponentProps> = (props) => {
         readData();
     }, [readData]);
 
-    // Retrieve CSS color variables
-    const colorBalance: string = getComputedStyle(
-        document.querySelector(":root") as Element
-    ).getPropertyValue("--brand-color-darker");
-    const colorProcessing: string = getComputedStyle(
-        document.querySelector(":root") as Element
-    ).getPropertyValue("--brand-color-dark");
-    const colorReady: string = getComputedStyle(
-        document.querySelector(":root") as Element
-    ).getPropertyValue("--brand-color-base");
-    const colorStaked: string = getComputedStyle(
-        document.querySelector(":root") as Element
-    ).getPropertyValue("--brand-color-light");
-    const colorStakedInVoting: string = getComputedStyle(
-        document.querySelector(":root") as Element
-    ).getPropertyValue("--brand-color-lighter");
-
-    // Custom color palette for the pie chart
-    const pieColorPalette: string[] = [
-        colorBalance,
-        colorProcessing,
-        colorReady,
-        colorStaked,
-        colorStakedInVoting,
+    // CSS references follow theme changes without reading computed colors.
+    const pieColorPalette = [
+        "var(--brand-color-darker)",
+        "var(--brand-color-dark)",
+        "var(--brand-color-base)",
+        "var(--brand-color-light)",
+        "var(--brand-color-lighter)",
     ];
 
     return (
@@ -177,31 +160,20 @@ const PieChartComponent: React.FC<PieChartComponentProps> = (props) => {
                 </div>
             </div>
             <div className="pie-chart-container">
-                {/* ResponsiveContainer ensures the chart fits the container */}
-                <ResponsiveContainer width="100%" height={230}>
-                    <PieChart>
-                        <Pie
-                            data={data}
-                            dataKey="value"
-                            nameKey="type"
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={100}
-                        >
-                            {data.map((entry: PieChartData, index: number) => (
-                                <Cell
-                                    key={`cell-${index}`}
-                                    fill={
-                                        pieColorPalette[
-                                            index % pieColorPalette.length
-                                        ]
-                                    }
-                                />
-                            ))}
-                        </Pie>
-                        <Tooltip />
-                    </PieChart>
-                </ResponsiveContainer>
+                <DistributionPieChart
+                    slices={data.map((item, index) => ({
+                        id: String(index),
+                        label: item.type,
+                        value: item.value,
+                        color: pieColorPalette[index],
+                    }))}
+                    size={202}
+                    borderWidth={1}
+                    borderColor="var(--color-txt-primary)"
+                    showLegend={false}
+                    valueFormatter={(value) => `${value.toFixed(2)}%`}
+                    className="staking-distribution-chart"
+                />
             </div>
             <div className="dataContainer">
                 <div className="dataLabels">

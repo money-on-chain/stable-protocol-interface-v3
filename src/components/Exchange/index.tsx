@@ -30,6 +30,10 @@ import {
     normalizeToBigInt,
     toBigIntPrecision,
 } from "../../helpers/precision";
+import {
+    hasInvalidProtocolPrice,
+    isFeeTokenPriceInvalid,
+} from "../../helpers/priceValidation";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings";
 import type { CommissionItem, CommissionsState } from "../../types/status";
@@ -227,6 +231,25 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
 
         if (statusCode[caIndex] >= 2) {
             setGlobalValidationErrorText(t("exchange.errors.notOperational"));
+            setInputValidationError(true);
+            return;
+        }
+
+        // Invalid / stale price on this bucket's price providers
+        if (
+            hasInvalidProtocolPrice(
+                contractProtocolStatus.data,
+                {
+                    CA: settings.tokens.CA.length,
+                    TP: settings.tokens.TP.length,
+                },
+                {
+                    caIndex,
+                    isRetryingPeeks: contractProtocolStatus.isRetryingPeeks,
+                }
+            )
+        ) {
+            setGlobalValidationErrorText(t("exchange.errors.priceInvalid"));
             setInputValidationError(true);
             return;
         }
@@ -1223,12 +1246,19 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
         }
     };
 
+    // Invalid fee token price: can't pay the fee with it, fall back to CA
+    const feeTokenPriceInvalid = isFeeTokenPriceInvalid(
+        contractProtocolStatus.data,
+        caIndex,
+        contractProtocolStatus.isRetryingPeeks
+    );
+
     useEffect(() => {
         setSelectedFeeCurrency((current) => {
-            if (current === "TF") return "TF";
+            if (current === "TF" && !feeTokenPriceInvalid) return "TF";
             return `CA_${caIndex}`;
         });
-    }, [caIndex]);
+    }, [caIndex, feeTokenPriceInvalid]);
 
     const onChangeSlippageTolerance = (value: number): void => {
         console.warn("slippage tolerance", value);
@@ -2029,6 +2059,7 @@ export default function Exchange(props: ExchangeProps): JSX.Element {
                                     caIndex={caIndex}
                                     commissionsByKey={commissionsByKey}
                                     operationType={operationType}
+                                    feeTokenDisabled={feeTokenPriceInvalid}
                                 />
                             </div>
                             <div className="tx-fees-info">

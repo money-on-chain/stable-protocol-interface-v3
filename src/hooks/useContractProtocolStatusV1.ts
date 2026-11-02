@@ -13,12 +13,24 @@ import {
     REDEEM_DOC_FEES_RBTC,
     VENDOR_ADDRESS_V1,
 } from "../constants/v1";
-import type { MultiCallInput } from "../types/hooks";
+import { normalizeToBigInt } from "../helpers/precision";
+import type { MultiCallErrorResult, MultiCallInput } from "../types/hooks";
 import type {
     ContractProtocolStatusV1Result,
     DContractsV1,
 } from "../types/hooks-v1";
 import { useMultiCall } from "./useMulticall";
+
+// peek() reverts if the price provider rejects the caller — keep the
+// [price, valid] tuple shape and report it as invalid
+const onErrorGetInvalidPeek = (): MultiCallErrorResult => {
+    return { value: [0n, false] };
+};
+
+const peekResultType = [
+    { internalType: "bytes32", name: "", type: "bytes32" },
+    { internalType: "bool", name: "", type: "bool" },
+];
 
 /**
  * React hook that wraps useMultiCall to fetch v1 protocol status.
@@ -243,6 +255,25 @@ export function useContractProtocolStatusV1(
                 keys: ["redeemDocFeesMoc"],
             }
         );
+
+        for (const [contract, key] of [
+            [contracts.PP_BTC, "PP_BTC"],
+            [contracts.PP_MOC, "PP_MOC"],
+        ] as const) {
+            if (!contract?.address) continue;
+            callRequest.push({
+                contract,
+                functionName: "peek",
+                args: [],
+                resultType: peekResultType,
+                keys: [key],
+                transform: (result: unknown) => {
+                    const tuple = result as [string, boolean];
+                    return [normalizeToBigInt(tuple[0]), tuple[1]];
+                },
+                onError: onErrorGetInvalidPeek,
+            });
+        }
 
         return callRequest;
     }, [contracts]);

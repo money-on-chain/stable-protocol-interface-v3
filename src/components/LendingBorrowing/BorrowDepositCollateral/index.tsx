@@ -206,7 +206,7 @@ export default function BorrowDepositCollateral({
               return [
                   `${t("borrowing.sectionDepositCollateral.summary.txtDepositingCollateral")}: ${collateralAmount} ${card.collateralTokenTicker}.`,
                   liqPriceAfter !== undefined
-                      ? `${t("borrowing.labelLiquidationPrice")}: ${liqPriceAfter} ${card.borrowTokenTicker}/${card.collateralTokenTicker}.`
+                      ? `${t("borrowing.labelLiquidationPrice")}: ${liqPriceAfter} ${card.collateralTokenTicker}/${card.borrowTokenTicker}.`
                       : null,
                   borrowAvailableAfter !== undefined
                       ? `${t("borrowing.labelAvailableWithCollateral")}: ${borrowAvailableAfter} ${card.borrowTokenTicker}.`
@@ -422,6 +422,7 @@ export default function BorrowDepositCollateral({
                 <OperationActions>
                     <button
                         className="button borrow-deposit-collateral-actions__confirm"
+                        data-testid="borrow-deposit-collateral-confirm"
                         disabled={!hasPendingChanges || hasValidationError}
                         onClick={() => onConfirm(card, collateralAmount, () => setCollateralAmount(""))}
                         type="button"

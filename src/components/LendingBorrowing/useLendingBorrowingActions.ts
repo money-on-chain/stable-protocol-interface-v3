@@ -9,6 +9,7 @@ import {
     removeACfromVault,
     repay,
     repayWithAC,
+    triggerTPInjection,
     withdraw,
 } from "../../backend/lending/manager";
 import { useWalletContext } from "../../context/Wallet";
@@ -60,6 +61,7 @@ interface LendingBorrowingActions {
     confirmBorrowWithdrawCollateral: (card: BorrowCardData, collateralAmount: string, onSuccess?: () => void) => void;
     confirmLendEarn: (token: LendCardData, amount: string, onSuccess?: () => void) => void;
     confirmLendWithdraw: (token: LendCardData, amount: string, onSuccess?: () => void) => void;
+    confirmTriggerInjection: (token: LendCardData, onSuccess?: () => void) => void;
     operationProgress: OperationProgressState;
 }
 
@@ -256,6 +258,49 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
             void run();
         },
         [address, buildCtx, contractsAddress, markActiveFailed, pools, setStepStatus, t, userBalance, userLending]
+    );
+
+    const confirmTriggerInjection = React.useCallback(
+        (token: LendCardData, onSuccess?: () => void) => {
+            if (!address || !contractsAddress?.LendingManager) return;
+            const tpIndex = parseTpIndex(token.tokenCode);
+            const tpContract = contractsAddress.TP?.[tpIndex];
+            if (!tpContract) return;
+
+            const steps: OperationProgressStep[] = [
+                makeStep(
+                    "inject-tp",
+                    t("borrowing.operationProgress.injectTP"),
+                    t("borrowing.operationProgress.descriptions.injectTP"),
+                    "waiting"
+                ),
+            ];
+
+            const run = async () => {
+                setProgressState({
+                    isVisible: true,
+                    title: t("borrowing.operationProgress.titles.injectTP", {
+                        token: token.tokenTicker,
+                    }),
+                    steps,
+                });
+                try {
+                    const ctx = buildCtx();
+                    let injectHash = "";
+                    await triggerTPInjection(ctx, tpContract.address,
+                        (hash) => { injectHash = hash; setStepStatus("inject-tp", "processing", hash); },
+                        () => { setStepStatus("inject-tp", "completed", injectHash); onSuccess?.(); }
+                    );
+
+                    void contractLendingStatus.refetch?.();
+                } catch (error) {
+                    console.error("[lending] transaction failed:", error);
+                    markActiveFailed();
+                }
+            };
+            void run();
+        },
+        [address, buildCtx, contractLendingStatus, contractsAddress, markActiveFailed, setStepStatus, t]
     );
 
     // Internal helper: runs approve-CA (if ERC20) then addACtoVault.
@@ -662,6 +707,7 @@ export function useLendingBorrowingActions(): LendingBorrowingActions {
         confirmBorrowWithdrawCollateral,
         confirmLendEarn,
         confirmLendWithdraw,
+        confirmTriggerInjection,
         operationProgress,
     };
 }

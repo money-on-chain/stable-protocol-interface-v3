@@ -379,7 +379,7 @@
 
 .perfGlobalMetrics {
     .perfCardTitleV1 {
-        margin-bottom: 32px;
+        margin-bottom: 24px;
     }
 
     .perfAssetTitleV1 {
@@ -401,9 +401,13 @@
         white-space: nowrap;
     }
 
+    .perfCardTitleV1 + .collateralMetricsArea {
+        margin-top: 0;
+    }
+
     .collateralMetricsArea {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(360px, 42%);
+        grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr);
         gap: 32px;
         align-items: stretch;
         margin-top: 32px;
@@ -412,18 +416,64 @@
     .metrics {
         display: flex;
         flex-wrap: wrap;
+        align-content: flex-start;
         gap: 32px;
         margin-top: 0;
     }
 
+    .collateralMetricsArea > .metrics {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        gap: 24px;
+        min-width: 0;
+
+        .dataGroup {
+            min-width: 0;
+        }
+    }
+
     .collateralDistribution {
+        border: 1px solid var(--dividers);
+        border-radius: var(--card-border-radius);
+        padding: 16px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         gap: 12px;
         min-width: 0;
-        min-height: 180px;
+        min-height: 0;
+        box-sizing: border-box;
+
+        .distributionPieChart {
+            align-items: center;
+            min-height: 0;
+        }
+
+        .distributionPieChart__chart {
+            flex: 0 1 184px;
+            width: 184px;
+        }
+
+        .distributionPieChart__legend {
+            display: grid;
+            grid-template-columns: 10px minmax(0, 1fr) auto;
+            flex: 1 1 0;
+        }
+
+        .distributionPieChart__legendItem {
+            grid-column: 1 / -1;
+            grid-template-columns: subgrid;
+        }
+
+        .distributionPieChart__legendValue {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .distributionPieChart__legendDetail {
+            display: block;
+            margin-left: 0;
+        }
     }
 
     .collateralDistribution__title {
@@ -488,12 +538,38 @@
 
     @media (max-width: 900px) {
         .collateralMetricsArea {
-            grid-template-columns: 1fr;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 24px;
         }
 
         .collateralDistribution {
             justify-content: center;
-            min-height: 260px;
+            min-height: 0;
+            padding: 16px;
+
+            .distributionPieChart__chart {
+                flex-basis: 120px;
+                width: 120px;
+                max-width: 35%;
+            }
+
+            .distributionPieChart__legend {
+                grid-template-columns: 8px minmax(0, 1fr);
+            }
+
+            .distributionPieChart__legendItem {
+                gap: 4px 8px;
+            }
+
+            .distributionPieChart__legendValue {
+                grid-column: 2;
+            }
+
+            .distributionPieChart__legendDetail {
+                display: block;
+                margin-left: 0;
+                overflow-wrap: anywhere;
+            }
         }
     }
 }
@@ -756,6 +832,51 @@
 
         .tokenLabel {
             white-space: normal;
+        }
+    }
+}
+
+.perfGlobalMetricsSplit {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--layout-module-gap-horizontal);
+    width: 100%;
+
+    > .layout-card {
+        min-width: 0;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .metrics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
+    }
+
+    .dataGroup {
+        min-width: 0;
+    }
+
+    .collateralDistribution {
+        border: 0;
+        padding: var(--card-padding);
+        align-items: stretch;
+        justify-content: flex-start;
+        gap: 0;
+
+        .distributionPieChart {
+            margin-block: auto;
+        }
+    }
+
+    @media (max-width: 900px) {
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--layout-module-gap-vertical);
+    }
+    @media (max-width: 560px) {
+        .metrics {
+            grid-template-columns: minmax(0, 1fr);
         }
     }
 }

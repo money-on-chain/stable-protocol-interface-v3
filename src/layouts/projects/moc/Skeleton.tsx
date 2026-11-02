@@ -5,10 +5,13 @@ import { Outlet, useNavigate } from "react-router-dom";
 import DappFooter from "../../../components/Footer/index";
 import SectionHeader from "../../../components/Header";
 import MenuBar from "../../../components/MenuBar";
+import { NetworkGuard } from "../../../components/NetworkGuard";
+import NotConnected from "../../../components/NotConnected";
 import NotificationBody from "../../../components/Notification";
 import UpdateToast from "../../../components/UpdateToast";
 import { useWalletContext } from "../../../context/Wallet";
 import { CheckStatusGlobal } from "../../../helpers/checkStatus";
+import { hasInvalidProtocolPriceV1 } from "../../../helpers/priceValidation";
 import { useProjectTranslation } from "../../../helpers/translations";
 import { isSomeTCLockedByVeto } from "../../../helpers/veto";
 
@@ -30,13 +33,22 @@ export default function Skeleton(): JSX.Element {
     const { t } = useProjectTranslation();
     const {
         isConnected,
+        isOnCorrectChain,
         contractProtocolStatus,
+        contractProtocolStatusV1,
         userBalance,
         userOmocBalance,
         userVeto,
         contractStatusOmoc,
         address,
     } = useWalletContext();
+
+    // When the wallet is connected but on a different chain (e.g. MetaMask still
+    // on Ethereum mainnet because the target network was never added), contract
+    // discovery bails out and every data hook stays gated off — the dashboards
+    // would otherwise spin forever with no message. Surface NetworkGuard and
+    // hold the routed content until the wallet is on the right chain.
+    const isWrongNetwork = isConnected && !isOnCorrectChain;
     const navigate = useNavigate();
     const [notifStatus, setNotifStatus] = useState<NotificationStatus | null>(
         null
@@ -45,6 +57,32 @@ export default function Skeleton(): JSX.Element {
         null
     );
     const { checkerStatus } = CheckStatusGlobal();
+
+    // moc-v1 price validity: BTC / MoC price providers peek() valid flag.
+    // No-op on the v3 moc flavor, where contractProtocolStatusV1 stays empty.
+    const priceNotValidStatus: NotificationStatus | null = React.useMemo(() => {
+        if (
+            !hasInvalidProtocolPriceV1(
+                contractProtocolStatusV1.data,
+                contractProtocolStatusV1.isRetryingPeeks
+            )
+        )
+            return null;
+
+        return {
+            id: -1,
+            title: t("notification.priceInvalid.title"),
+            textContent: t("notification.priceInvalid.text"),
+            notifClass: "error",
+            iconLeft: "icon-status-warning",
+            isDismisable: false,
+            dismissTime: 0,
+        };
+    }, [
+        contractProtocolStatusV1.data,
+        contractProtocolStatusV1.isRetryingPeeks,
+        t,
+    ]);
 
     useEffect(() => {
         if (
@@ -89,7 +127,9 @@ export default function Skeleton(): JSX.Element {
         if (
             isSomeTCLockedByVeto(
                 userVeto.data as Parameters<typeof isSomeTCLockedByVeto>[0],
-                contractStatusOmoc.data as unknown as Parameters<typeof isSomeTCLockedByVeto>[1],
+                contractStatusOmoc.data as unknown as Parameters<
+                    typeof isSomeTCLockedByVeto
+                >[1],
                 address
             )
         ) {
@@ -119,16 +159,21 @@ export default function Skeleton(): JSX.Element {
             <MenuBar />
             <SectionHeader />
             <Content>
+                <NetworkGuard />
                 <UpdateToast />
                 {/* TODO load an array of notifStatus items, and load a mapping for showing notifs here in this section , interact with a React Context */}
                 {notifStatus && <NotificationBody notifStatus={notifStatus} />}
+                {priceNotValidStatus && (
+                    <NotificationBody notifStatus={priceNotValidStatus} />
+                )}
                 {vetoWithdraw && (
                     <NotificationBody notifStatus={vetoWithdraw} />
                 )}
 
                 {/* {auth.web3Error && <W3ErrorAlert />} */}
 
-                {isConnected && <Outlet />}
+                {isConnected &&
+                    (isWrongNetwork ? <NotConnected /> : <Outlet />)}
             </Content>
             <Footer>
                 <div className="footer-container">

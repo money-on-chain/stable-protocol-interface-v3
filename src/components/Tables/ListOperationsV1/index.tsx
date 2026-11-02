@@ -276,7 +276,9 @@ export default function ListOperationsV1(
                                                 <div className="lastOp__detail__transfer">
                                                     <div className="lastOp__detail__label">
                                                         {t(
-                                                            "operations.actions.transfer"
+                                                            parsed.incoming
+                                                                ? "operations.actions.origin"
+                                                                : "operations.actions.destination"
                                                         )}
                                                     </div>
                                                     <div className="lastOp__detail__address">
@@ -385,11 +387,7 @@ export default function ListOperationsV1(
                         defaultCurrent: 1,
                         onChange: setCurrent,
                         total,
-                        locale: {
-                            items_per_page: t("operations.table.itemsPerPage", {
-                                ns,
-                            }),
-                        },
+                        showSizeChanger: false,
                     }}
                     columns={tableColumns}
                     dataSource={isConnected ? processedData : undefined}

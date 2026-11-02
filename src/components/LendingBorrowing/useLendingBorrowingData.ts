@@ -3,12 +3,15 @@ import { formatUnits } from "viem";
 
 import { useWalletContext } from "../../context/Wallet";
 import { ConvertAmountLending } from "../../helpers/currencies";
+import { useChainTime } from "../../hooks/useChainTime";
+import { useLendingOperations } from "../../hooks/useLendingOperations";
 import { useLiquidationHistory } from "../../hooks/useLiquidationHistory";
 import settings from "../../settings";
 import type { LendingPoolStatus } from "../../types/status";
 import type { SettingsTokens } from "../../types/hooks";
 import type { BorrowCardData } from "./Borrow/data";
 import type { LendCardData } from "./Lend/data";
+import type { LendingOperation } from "./OperationsTable";
 import { getLendingBorrowingTokenMetadata } from "./tokenMetadata";
 
 const WAD = 10n ** 18n;
@@ -18,6 +21,8 @@ interface LendingBorrowingData {
     error: Error | null;
     isLoading: boolean;
     lendCards: LendCardData[];
+    operations: LendingOperation[];
+    operationsLoading: boolean;
     refetch: () => void;
 }
 
@@ -45,12 +50,15 @@ export function useLendingBorrowingData(): LendingBorrowingData {
         contractLendingStatus,
         contractProtocolStatus,
         contractProtocolStatusV1,
+        publicClient,
         userLending,
         userBalance,
         userBaseCoinBalance,
     } = useWalletContext();
 
     const liquidationHistory = useLiquidationHistory(address);
+    const { operations, isLoading: operationsLoading } = useLendingOperations(address, contractsAddress);
+    const chainTime = useChainTime(publicClient);
 
     const tokens = (settings as { tokens?: unknown }).tokens as SettingsTokens | undefined;
     const lmData = contractLendingStatus.data?.lendingmanager;
@@ -87,6 +95,8 @@ export function useLendingBorrowingData(): LendingBorrowingData {
 
             const depositedTpUsd = toUsd(tokenCode, depositedTp, 0);
 
+            const nextInjectionTime = pool?.getNextInjectionTime ?? 0n;
+
             return {
                 id: `lend-tp-${tpIndex}`,
                 caIndex: 0,
@@ -102,9 +112,15 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                 availableToWithdrawAmount: fmtBigInt(depositedTp, 18, meta.visibleDecimals),
                 availableToWithdrawAmountUsd: fmtBigInt(depositedTpUsd),
                 walletBalance: fmtBigInt(tpBalance, 18, meta.visibleDecimals),
+                nextInjectionAt: Number(nextInjectionTime),
+                // Compared against the chain's own current block timestamp,
+                // not the browser's clock — a forked/idle chain's own time
+                // can drift arbitrarily far from the real wall clock, and
+                // the on-chain guard only ever checks block.timestamp.
+                injectionReady: nextInjectionTime > 0n && chainTime !== undefined && chainTime >= nextInjectionTime,
             };
         });
-    }, [contractsAddress, toUsd, pools, userLending.data, userBalance.data, tokens]);
+    }, [chainTime, contractsAddress, toUsd, pools, userLending.data, userBalance.data, tokens]);
 
     const borrowCards: BorrowCardData[] = React.useMemo((): BorrowCardData[] => {
         if (!contractsAddress?.TP || !contractsAddress?.Moc || !tokens) return [];
@@ -175,7 +191,12 @@ export function useLendingBorrowingData(): LendingBorrowingData {
 
                 const bTicker = borrowMeta.ticker;
                 const cTicker = collMeta.ticker;
-                const liqUnit = `${bTicker}/${cTicker}`;
+                // liqPrice (MocLendingReader.getLiquidationPrice → pACtpLiquidation)
+                // is "how much borrow-token per 1 unit of collateral" — the same
+                // quantity as e.g. a BTC/USD quote (price of 1 BTC in USD).
+                // Standard BASE/QUOTE convention puts the asset being priced
+                // first, so this is collateral/borrow-token, not the other way.
+                const liqUnit = `${cTicker}/${bTicker}`;
                 const liqVal = fmtBigInt(liqPrice);
                 const liqDropVal = liqDropPct.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 const collVal = fmtBigInt(acBalance, 18, collMeta.visibleDecimals);
@@ -339,6 +360,7 @@ export function useLendingBorrowingData(): LendingBorrowingData {
                     depositedCollateral: { value: collVal, ticker: cTicker, valueUsd: fmtBigInt(acBalanceUsd) },
                     maxAvailable: { value: fmtBigInt(maxAvailableTP, 18, borrowMeta.visibleDecimals), ticker: bTicker, valueUsd: fmtBigInt(maxAvailableUsd) },
                     maxWithdrawableCollateral: fmtBigInt(maxWithdrawableCA, 18, collMeta.visibleDecimals),
+                    poolLiquidity: fmtBigInt(pool?.getPoolLiquidity ?? 0n, 18, borrowMeta.visibleDecimals),
                     liquidationCoverage: Number(liquidationCov) / 1e18,
                     minCoverage: Number(minCov) / 1e18,
                     liquidationDropPercentage: liqDropPct,
@@ -374,6 +396,8 @@ export function useLendingBorrowingData(): LendingBorrowingData {
         error: null,
         isLoading: contractLendingStatus.isLoading || userLending.isLoading,
         lendCards,
+        operations,
+        operationsLoading,
         refetch,
     };
 }

@@ -3,9 +3,11 @@ import React, { useMemo, useState } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
 import { CheckStatusGlobal } from "../../helpers/checkStatus";
+import { invalidPriceBuckets } from "../../helpers/priceValidation";
 import { useProjectTranslation } from "../../helpers/translations";
 import settings from "../../settings";
 import GlobalStatusModal from "../Modals/GlobalStatus";
+import { PRICE_INVALID_STATUS_CODE } from "../Modals/GlobalStatus/bucket";
 import Buckets from "./buckets";
 import MultiCollateral from "./multicollateral";
 import TVL from "./tvl";
@@ -30,8 +32,33 @@ export default function Performance(): JSX.Element {
         }
 
         // Asumo que checkerStatus usa esas data internamente
-        return checkerStatus();
-    }, [contractProtocolStatus.data, userBalance.data, checkerStatus]);
+        const result = checkerStatus();
+
+        // Buckets with an invalid price can't operate, whatever the coverage:
+        // mark them with PRICE_INVALID_STATUS_CODE and override the summary.
+        const invalidBuckets = invalidPriceBuckets(
+            contractProtocolStatus.data,
+            { CA: settings.tokens.CA.length, TP: settings.tokens.TP.length },
+            contractProtocolStatus.isRetryingPeeks
+        );
+        if (!invalidBuckets.some(Boolean)) return result;
+
+        return {
+            ...result,
+            statusLabel: t("performance.status.statusTitlePriceInvalid"),
+            statusLabelClass: "status-negative",
+            statusText: t("performance.status.statusDescriptionPriceInvalid"),
+            statusCode: result.statusCode.map((code, caIndex) =>
+                invalidBuckets[caIndex] ? PRICE_INVALID_STATUS_CODE : code
+            ),
+        };
+    }, [
+        contractProtocolStatus.data,
+        contractProtocolStatus.isRetryingPeeks,
+        userBalance.data,
+        checkerStatus,
+        t,
+    ]);
 
     const showModal = (): void => {
         setShowGlobalStatusModal(true);

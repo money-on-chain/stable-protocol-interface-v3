@@ -1,7 +1,9 @@
 import React from "react";
 
 import { useProjectTranslation } from "../../helpers/translations";
+import { ChangerLinks, ChangerTitle } from "./ChangerInfo";
 import CompletedBar from "./CompletedBar";
+import PreVoteStatus, { type PreVoteStatusKind } from "./PreVoteStatus";
 import ProposalStats from "./ProposalStats";
 
 const PRECISION_DECIMALS = 18n;
@@ -36,6 +38,7 @@ interface Proposal {
     votesPositive: bigint;
     votesPositivePCT: bigint;
     expirationTimeStampFormat: string;
+    preVoteStatus: PreVoteStatusKind;
     canRunStep: boolean;
 }
 
@@ -151,7 +154,7 @@ const Proposal: React.FC<ProposalProps> = (props) => {
             className="proposal__wrapper"
             data-testid={`voting-proposal-${proposal.changeContract.toLowerCase()}`}
         >
-            <div className="title">{proposal.changeContract}</div>
+            <ChangerTitle address={proposal.changeContract} />
             <div className="proposal__content">
                 <div className="details">
                     {/*{proposal.canRunStep && (*/}
@@ -161,35 +164,11 @@ const Proposal: React.FC<ProposalProps> = (props) => {
                     {/*{!proposal.canRunStep && (*/}
                     {/*    <div className='proposal-period'>The first stage voting is in progress!</div>*/}
                     {/*)}*/}
-
-                    <div className="externalLink">
-                        <a
-                            className="forumLink"
-                            href={`https://forum.moneyonchain.com/search?q=${proposal.changeContract}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            {t("voting.info.searchForum")}
-                            <div className="icon-external-link"></div>
-                        </a>
-                    </div>
-
-                    <div className="externalLink">
-                        <a
-                            className="forumLink"
-                            href={`https://rootstock.blockscout.com/address/${proposal.changeContract}?tab=contract`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            {t("voting.info.changeContract")}{" "}
-                            {proposal.changeContract}
-                            <span className="icon-external-link"></span>
-                        </a>
-                    </div>
-                    <p>
-                        {t("voting.info.stateAs")}
-                        <span>{proposal.expirationTimeStampFormat} </span>
-                    </p>
+                    <ChangerLinks address={proposal.changeContract} />
+                    <PreVoteStatus
+                        status={proposal.preVoteStatus}
+                        date={proposal.expirationTimeStampFormat}
+                    />
 
                     <div className="votingStatus__graphs">
                         {preVotingGraphs.map(CreateBarGraph)}

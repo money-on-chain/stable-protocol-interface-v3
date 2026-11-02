@@ -10,15 +10,17 @@ import type { LendCardData } from "./data";
 interface LendProps {
     cards: LendCardData[];
     onEarn: (token: LendCardData) => void;
+    onTriggerInjection: (token: LendCardData) => void;
     onWithdraw: (token: LendCardData) => void;
 }
 
 export default function Lend({
     cards,
     onEarn,
+    onTriggerInjection,
     onWithdraw,
 }: LendProps): React.ReactElement {
-    const { t } = useProjectTranslation();
+    const { i18n, t } = useProjectTranslation();
 
     return (
         <div className={"layout-card"}>
@@ -26,51 +28,79 @@ export default function Lend({
                 <h1>{t("lending.cardTitle")}</h1>
             </div>
             <div className="lend-items">
-                {cards.map((card) => (
-                    <div className={"card"} data-testid={`lend-card-${card.id}`} key={card.id}>
-                        <div className="card-header">
-                            <div className="token">
-                                <div className={card.tokenIconClassName}></div>
-                                <div className="token-name">
-                                    {card.tokenName}
-                                    <div className="token-ticker">
-                                        ({card.tokenTicker})
+                {cards.map((card) => {
+                    return (
+                        <div className={"card"} data-testid={`lend-card-${card.id}`} key={card.id}>
+                            <div className="card-header">
+                                <div className="token">
+                                    <div className={card.tokenIconClassName}></div>
+                                    <div className="token-name">
+                                        {card.tokenName}
+                                        <div className="token-ticker">
+                                            ({card.tokenTicker})
+                                        </div>
                                     </div>
                                 </div>
+                                <RateDisplay
+                                    number={card.supplyApy}
+                                    title={t("lending.labelInterest")}
+                                />
                             </div>
-                            <RateDisplay
-                                number={card.supplyApy}
-                                title={t("lending.labelInterest")}
-                            />
-                        </div>
-                        <div className="card-content">
-                            <MetricCard
-                                label={t("lending.labelDeposits")}
-                                localCurrencyValue={card.depositedAmountUsd}
-                                value={card.depositedAmount}
-                                valueLabel={card.depositedTicker}
-                            />
-                            <div className="cta">
-                                <button
-                                    className="button--compact"
-                                    data-testid={`lend-card-earn-${card.id}`}
-                                    onClick={() => onEarn(card)}
-                                    type="button"
-                                >
-                                    {t("lending.cta.earn")}
-                                </button>
-                                <button
-                                    className="button--compact button--compact--secondary"
-                                    data-testid={`lend-card-withdraw-${card.id}`}
-                                    onClick={() => onWithdraw(card)}
-                                    type="button"
-                                >
-                                    {t("lending.cta.withdraw")}
-                                </button>
+                            <div className="card-content">
+                                <MetricCard
+                                    label={t("lending.labelDeposits")}
+                                    localCurrencyValue={card.depositedAmountUsd}
+                                    value={card.depositedAmount}
+                                    valueLabel={card.depositedTicker}
+                                />
+                                <div className="cta">
+                                    <button
+                                        className="button--compact"
+                                        data-testid={`lend-card-earn-${card.id}`}
+                                        onClick={() => onEarn(card)}
+                                        type="button"
+                                    >
+                                        {t("lending.cta.earn")}
+                                    </button>
+                                    <button
+                                        className="button--compact button--compact--secondary"
+                                        data-testid={`lend-card-withdraw-${card.id}`}
+                                        onClick={() => onWithdraw(card)}
+                                        type="button"
+                                    >
+                                        {t("lending.cta.withdraw")}
+                                    </button>
+                                </div>
                             </div>
+                            {card.nextInjectionAt > 0 ? (
+                                <div className="lend-card-injection">
+                                    <div className="lend-card-injection__label">
+                                        {card.injectionReady
+                                            ? t("lending.injection.ready")
+                                            : t("lending.injection.availableAt", {
+                                                  date: new Intl.DateTimeFormat(i18n.language, {
+                                                      day: "2-digit",
+                                                      hour: "2-digit",
+                                                      minute: "2-digit",
+                                                      month: "short",
+                                                  }).format(new Date(card.nextInjectionAt * 1000)),
+                                              })}
+                                    </div>
+                                    {card.injectionReady ? (
+                                        <button
+                                            className="button--compact button--compact--secondary"
+                                            data-testid={`lend-card-trigger-injection-${card.id}`}
+                                            onClick={() => onTriggerInjection(card)}
+                                            type="button"
+                                        >
+                                            {t("lending.injection.cta")}
+                                        </button>
+                                    ) : null}
+                                </div>
+                            ) : null}
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );

@@ -12,6 +12,9 @@ interface BalanceBarProps {
     against: bigint; // BigInt with 18 decimals
     infavorVotes: bigint; // BigInt with 18 decimals
     infavor: bigint; // BigInt with 18 decimals
+    // Translated labels; default to the original English text
+    againstLabel?: string;
+    infavorLabel?: string;
 }
 
 export default function BalanceBar(props: BalanceBarProps): React.ReactElement {
@@ -37,7 +40,7 @@ export default function BalanceBar(props: BalanceBarProps): React.ReactElement {
                         i18n: i18n,
                         compact: true,
                     })}
-                    %) against
+                    %) {props.againstLabel ?? "against"}
                 </div>
                 <div className="label">
                     {PrecisionNumbers({
@@ -55,7 +58,7 @@ export default function BalanceBar(props: BalanceBarProps): React.ReactElement {
                         i18n: i18n,
                         compact: true,
                     })}
-                    %) in favor
+                    %) {props.infavorLabel ?? "in favor"}
                 </div>
             </div>
             <div className="balanceBar__wrapper">

@@ -15,6 +15,8 @@ export interface RawOperationV1 {
     status?: string;
     confirmingPercent?: number;
     address?: string;
+    otherAddress?: string;
+    isPositive?: boolean;
     transactionHash?: string;
     RBTCAmount?: string | number;
     amount?: string | number;
@@ -62,6 +64,8 @@ export interface ParsedOperationV1 {
     createdAtUnix: number;
     confirmationUnix: number | null;
     address: string;
+    // Transfers only: true when the connected wallet received the tokens.
+    incoming: boolean;
     txHash: string;
     blockNumber: number | string;
     fee: { amount: bigint; token: TokenConfig; tokenId: string } | null;
@@ -133,13 +137,28 @@ export function parseOperationV1(
         case "Transfer": {
             kind = "transfer";
             // raw.tokenInvolved comes straight off the legacy backend, which
-            // still uses its own old naming (RISKPRO/STABLE), not the new
-            // TC/TP identifiers — see the old dapp's TokenNameOldToNew.
-            const isBpro = raw.tokenInvolved === "RISKPRO";
-            const transferToken = isBpro ? tc : tp;
-            const transferTokenId = isBpro ? "TC_0" : "TP_0";
-            exchange = { amount, token: transferToken, tokenId: transferTokenId };
-            receive = { amount, token: transferToken, tokenId: transferTokenId };
+            // mixes naming: RISKPRO/STABLE for BPRO/DOC but "TG" for MOC
+            // (verified against the live API) — accept both old and new
+            // names, like the old dapp's TokenNameOldToNew.
+            let transferSide: OperationSideV1;
+            switch (raw.tokenInvolved) {
+                case "RISKPRO":
+                case "TC":
+                    transferSide = { amount, token: tc, tokenId: "TC_0" };
+                    break;
+                case "MOC":
+                case "TG":
+                    transferSide = {
+                        amount,
+                        token: settings.tokens.TG[0],
+                        tokenId: "TG",
+                    };
+                    break;
+                default:
+                    transferSide = { amount, token: tp, tokenId: "TP_0" };
+            }
+            exchange = transferSide;
+            receive = transferSide;
             break;
         }
         // The legacy backend logs reverted/failed txs with event:"ERROR" and
@@ -173,7 +192,12 @@ export function parseOperationV1(
         confirmationUnix: raw.confirmationTime
             ? dateToUnix(raw.confirmationTime)
             : null,
-        address: raw.address && raw.address !== "" ? raw.address : "",
+        // `address` is always the queried (connected) wallet; for transfers
+        // the counterparty — sender when incoming, recipient when outgoing —
+        // is in `otherAddress`.
+        address:
+            (kind === "transfer" ? raw.otherAddress : raw.address) || "",
+        incoming: raw.isPositive === true,
         txHash: raw.transactionHash || "",
         blockNumber: raw.blockNumber ?? "--",
         fee,

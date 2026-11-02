@@ -208,6 +208,8 @@ export interface UseStorageResult<T> {
     error: Error | null;
     queryKey?: string[];
     scopeKey?: string;
+    // Failed peek() calls still waiting for their direct retry (useMultiCall)
+    isRetryingPeeks?: boolean;
 }
 
 // Interface for parsed prices structure from offchain API
@@ -218,14 +220,18 @@ export interface ParsedPrices {
     COINBASE: [bigint, boolean];
 }
 
+// External price merged over the on-chain peek() result: either the full
+// [price, valid] tuple, or only the price so the on-chain valid flag is kept
+export type ExternalPrice = [bigint, boolean] | { 0: bigint };
+
 // Interface for external data structure used in multicall
 export interface ExternalData {
     [ca: number]: {
-        PP_CA: [bigint, boolean];
+        PP_CA: ExternalPrice;
         PP_TP: {
-            [tp: number]: [bigint, boolean];
+            [tp: number]: ExternalPrice;
         };
-        PP_FeeToken: [bigint, boolean];
+        PP_FeeToken: ExternalPrice;
     };
     [key: string]: unknown;
 }

@@ -211,7 +211,7 @@ export default function BorrowRepay({
               return [
                   `${t("borrowing.sectionRepay.summary.txtRepaying")}: ${repayAmount} ${card.currentDebt.ticker}.`,
                   liqPriceAfter !== undefined
-                      ? `${t("borrowing.labelLiquidationPrice")}: ${liqPriceAfter} ${card.borrowTokenTicker}/${card.collateralTokenTicker}.`
+                      ? `${t("borrowing.labelLiquidationPrice")}: ${liqPriceAfter} ${card.collateralTokenTicker}/${card.borrowTokenTicker}.`
                       : null,
                   borrowAvailableAfter !== undefined
                       ? `${t("borrowing.labelAvailableWithCollateral")}: ${borrowAvailableAfter} ${card.borrowTokenTicker}.`
@@ -411,6 +411,7 @@ export default function BorrowRepay({
                 <OperationActions>
                     <button
                         className="button secondary"
+                        data-testid="borrow-repay-in-full"
                         onClick={handleRepayInFull}
                         type="button"
                     >
@@ -418,6 +419,7 @@ export default function BorrowRepay({
                     </button>
                     <button
                         className="button borrow-repay-actions__confirm"
+                        data-testid="borrow-repay-confirm"
                         disabled={!hasPendingChanges || hasValidationError}
                         onClick={() => onConfirm(card, repayAmount, () => setRepayAmount(""))}
                         type="button"

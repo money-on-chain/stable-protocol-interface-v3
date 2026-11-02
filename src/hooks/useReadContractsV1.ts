@@ -7,6 +7,7 @@ import { readContract } from "viem/actions";
 
 import { runMulticallSync } from "../backend/runMulticallSync";
 import { MOC_V1_ADDRESS } from "../constants/v1";
+import IPriceProvider from "../contracts/IPriceProvider.json";
 import BProToken from "../contracts/v1/BProToken.json";
 import DocToken from "../contracts/v1/DocToken.json";
 import MoC from "../contracts/v1/MoC.json";
@@ -26,6 +27,7 @@ const ABI_MoCVendors = MoCVendors.abi as readonly unknown[];
 const ABI_BProToken = BProToken.abi as readonly unknown[];
 const ABI_DocToken = DocToken.abi as readonly unknown[];
 const ABI_MoCToken = MoCToken.abi as readonly unknown[];
+const ABI_IPriceProvider = IPriceProvider.abi as readonly unknown[];
 
 export const readContractsV1 = async (
     publicClient: PublicClient
@@ -121,10 +123,28 @@ export const readContractsV1 = async (
             resultType: "address",
             keys: ["mocToken"],
         },
+        {
+            contract: mocState,
+            functionName: "getBtcPriceProvider",
+            args: [],
+            resultType: "address",
+            keys: ["btcPriceProvider"],
+        },
+        {
+            contract: mocState,
+            functionName: "getMoCPriceProvider",
+            args: [],
+            resultType: "address",
+            keys: ["mocPriceProvider"],
+        },
     ] as SyncMulticallInput[]);
 
     const mocVendorsAddress = mocStateResult.data?.mocVendors as Address;
     const mocTokenAddress = mocStateResult.data?.mocToken as Address;
+    const btcPriceProviderAddress = mocStateResult.data
+        ?.btcPriceProvider as Address;
+    const mocPriceProviderAddress = mocStateResult.data
+        ?.mocPriceProvider as Address;
 
     return {
         Moc: moc,
@@ -157,6 +177,18 @@ export const readContractsV1 = async (
             address: mocTokenAddress,
             abi: ABI_MoCToken,
             name: "MoCToken",
+            type: "",
+        },
+        PP_BTC: {
+            address: btcPriceProviderAddress,
+            abi: ABI_IPriceProvider,
+            name: "PP_BTC",
+            type: "",
+        },
+        PP_MOC: {
+            address: mocPriceProviderAddress,
+            abi: ABI_IPriceProvider,
+            name: "PP_MOC",
             type: "",
         },
     };

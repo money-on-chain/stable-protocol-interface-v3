@@ -7,6 +7,9 @@ export interface DistributionPieSlice {
     label: string;
     value: number;
     color?: string;
+    // optional secondary line (e.g. the absolute amount behind the share),
+    // shown in the tooltip and next to the legend value
+    detail?: string;
 }
 
 export interface DistributionPieChartProps {
@@ -289,6 +292,7 @@ export default function DistributionPieChart({
     const tooltipHeight =
         TOOLTIP_VERTICAL_PADDING * 2 +
         hoveredLabelLines.length * TOOLTIP_LINE_HEIGHT +
+        (hoveredSlice?.detail ? TOOLTIP_LINE_HEIGHT : 0) +
         TOOLTIP_VALUE_LINE_HEIGHT;
 
     if (normalizedSlices.length === 0) {
@@ -355,6 +359,21 @@ export default function DistributionPieChart({
                                         {line}
                                     </tspan>
                                 ))}
+                                {hoveredSlice.detail ? (
+                                    <tspan
+                                        className="distributionPieChart__tooltipDetail"
+                                        x="0"
+                                        y={
+                                            -tooltipHeight / 2 +
+                                            TOOLTIP_VERTICAL_PADDING +
+                                            TOOLTIP_LINE_HEIGHT *
+                                                (hoveredLabelLines.length +
+                                                    0.75)
+                                        }
+                                    >
+                                        {hoveredSlice.detail}
+                                    </tspan>
+                                ) : null}
                                 <tspan
                                     className="distributionPieChart__tooltipValue"
                                     x="0"
@@ -392,6 +411,11 @@ export default function DistributionPieChart({
                                 {showValues && !showPercentages
                                     ? formatValue(slice.value)
                                     : null}
+                                {slice.detail ? (
+                                    <span className="distributionPieChart__legendDetail">
+                                        {slice.detail}
+                                    </span>
+                                ) : null}
                             </span>
                         </div>
                     ))}

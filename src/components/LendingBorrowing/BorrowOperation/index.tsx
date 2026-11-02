@@ -75,14 +75,19 @@ export default function BorrowOperation({
     // effective borrow limit from (existing deposited + new collateral).
     // The contract uses minCoverage (borrow constraint) not liquidationCoverage (liquidation
     // threshold) — using the wrong constant causes a ~10% overestimate in the UI.
-    // When no new collateral, use the chain-reported max directly.
+    // When no new collateral, use the chain-reported max directly (it's
+    // already capped to pool liquidity by MocLendingReader.getMaxTPToBorrow).
+    // The recomputed collateral-based limit below must be capped the same
+    // way — collateral can support a much larger debt than the pool
+    // actually has sitting in it to lend out.
+    const poolLiquidityNum = parseAmount(card.poolLiquidity).value;
     const effectiveMaxBorrowNum = React.useMemo(() => {
         if (!isMaxBorrowLoaded || systemMaxBorrowNum === null) return null;
         const addingCollateral = collateralAmountValue.isValid && collateralAmountValue.value > 0;
         if (!addingCollateral) return systemMaxBorrowNum;
-        if (!hasPriceData || card.minCoverage <= 0) return systemMaxBorrowNum;
+        if (!hasPriceData || card.minCoverage <= 0) return Math.min(systemMaxBorrowNum, poolLiquidityNum);
         const totalCA = depositedCollateralAmount + collateralAmountValue.value;
-        if (totalCA <= 0) return systemMaxBorrowNum;
+        if (totalCA <= 0) return Math.min(systemMaxBorrowNum, poolLiquidityNum);
         const totalTP = Number(ConvertAmountLending(
             contractProtocolStatus,
             contractProtocolStatusV1,
@@ -92,9 +97,10 @@ export default function BorrowOperation({
             card.caIndex
         )) / 1e18;
         const existingDebt = parseAmount(card.currentDebt.value).value;
-        return Math.max(0, totalTP / card.minCoverage - existingDebt);
+        const collateralBasedMax = Math.max(0, totalTP / card.minCoverage - existingDebt);
+        return Math.min(collateralBasedMax, poolLiquidityNum);
     }, [
-        isMaxBorrowLoaded, systemMaxBorrowNum,
+        isMaxBorrowLoaded, systemMaxBorrowNum, poolLiquidityNum,
         collateralAmountValue.isValid, collateralAmountValue.value,
         depositedCollateralAmount, card.minCoverage,
         card.collateralTokenCode, card.borrowTokenCode, card.caIndex,
@@ -371,7 +377,7 @@ export default function BorrowOperation({
                       ? `${t("borrowing.sectionBorrow.summary.txtDepositingCollateral")}: ${collateralAmount} ${card.collateralTokenTicker}.`
                       : null,
                   liquidationPriceMetric && liqPriceAfter !== undefined
-                      ? `${t("borrowing.labelLiquidationPrice")}: ${liqPriceAfter} ${card.borrowTokenTicker}/${card.collateralTokenTicker}.`
+                      ? `${t("borrowing.labelLiquidationPrice")}: ${liqPriceAfter} ${card.collateralTokenTicker}/${card.borrowTokenTicker}.`
                       : null,
                   borrowAvailableMetric && borrowAvailableAfter !== undefined
                       ? `${t("borrowing.sectionBorrow.summary.txtBorrowAvailableWithDepositedCollateral")}: ${borrowAvailableAfter} ${card.borrowTokenTicker}.`
@@ -498,7 +504,7 @@ export default function BorrowOperation({
                                 after={{
                                     label: t("beforeAfterCard.after"),
                                     unit: (hasBorrowTyped || hasCollateralTyped) && liqPriceAfter !== undefined
-                                        ? `${card.borrowTokenTicker}/${card.collateralTokenTicker}`
+                                        ? `${card.collateralTokenTicker}/${card.borrowTokenTicker}`
                                         : liquidationPriceMetric.currentUnit,
                                     value: (hasBorrowTyped || hasCollateralTyped) && liqPriceAfter !== undefined
                                         ? liqPriceAfter
@@ -685,6 +691,7 @@ export default function BorrowOperation({
                 <OperationActions>
                     <button
                         className="button borrow-operation-actions__confirm"
+                        data-testid="borrow-operation-confirm"
                         disabled={!hasPendingChanges}
                         onClick={() =>
                             onConfirm(card, borrowAmount, collateralAmount, () => {

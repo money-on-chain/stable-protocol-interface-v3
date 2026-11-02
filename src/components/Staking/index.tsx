@@ -3,6 +3,7 @@ import React, { Fragment, useCallback, useEffect, useState } from "react";
 import { useWalletContext } from "../../context/Wallet";
 import { pendingWithdrawalsFormat } from "../../helpers/staking";
 import { useProjectTranslation } from "../../helpers/translations";
+import LastStakeOperations from "./LastStakeOperations";
 import PerformanceChart from "./performanceChart";
 import PieChartComponent from "./PieChart";
 import Stake from "./Stake";
@@ -266,6 +267,7 @@ export default function Staking(): JSX.Element {
                             <Withdraw userInfoStaking={userInfoStaking} />
                         </div>
                     </div>
+                    <LastStakeOperations />
                 </Fragment>
             </div>
         </div>

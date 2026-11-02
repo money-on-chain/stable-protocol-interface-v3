@@ -19,6 +19,9 @@ const PerformanceV1 = React.lazy(
 const Staking = React.lazy(() => import("../../../pages/Staking/index"));
 const Vesting = React.lazy(() => import("../../../pages/Vesting/index"));
 const Voting = React.lazy(() => import("../../../pages/Voting/index"));
+const VotingMip = React.lazy(
+    () => import("../../../pages/Voting/Mip/index")
+);
 const OraclesCoinPair = React.lazy(
     () => import("../../../pages/Oracles/CoinPair/index")
 );
@@ -73,6 +76,10 @@ export default function Router(): React.ReactElement | null {
                     element: <Voting />,
                 },
                 {
+                    path: "voting/mip/:mip",
+                    element: <VotingMip />,
+                },
+                {
                     path: "oracles",
                     element: <OraclesCoinPair />,
                 },
@@ -87,6 +94,24 @@ export default function Router(): React.ReactElement | null {
                 {
                     path: "componenttest",
                     element: <ComponentTest />,
+                },
+                // Routes of the legacy dapp (now dapp-classic), which used to
+                // live on this same domain — keep old bookmarks working.
+                {
+                    path: "wallet/stable",
+                    element: <Navigate to="/exchange" replace />,
+                },
+                {
+                    path: "wallet/pro",
+                    element: <Navigate to="/exchange" replace />,
+                },
+                {
+                    path: "metrics",
+                    element: <Navigate to="/performance" replace />,
+                },
+                {
+                    path: "rewards",
+                    element: <Navigate to="/liquidity-mining" replace />,
                 },
                 { path: "404", element: <NotFound /> },
                 { path: "*", element: <Navigate to="/404" /> },

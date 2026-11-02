@@ -5,6 +5,10 @@
     "invalidValueDescription": "No hay ningún valor para mostrar",
     "invalidValuePlaceholder": "--",
     "notification": {
+        "priceInvalid": {
+            "title": "Atención: el precio es inválido o está desactualizado",
+            "text": "No es posible acuñar ni redimir hasta que haya un precio válido."
+        },
         "dismiss": "Descartar",
         "update": {
             "title": "Nueva versión disponible",
@@ -224,6 +228,7 @@
         "errors": {
             "notOperational": "No operacional debido a bajo Global Coverage ratio",
             "cantOperate": "No se puede operar con el estado actual",
+            "priceInvalid": "No es posible operar: el precio es inválido o está desactualizado",
             "requestTimeout": "Mucho tiempo procesando",
             "connectYourWallet": "Please connect your wallet Por favor conectar wallet",
             "amountTooLow": "La cantidad debe ser mayor a cero",
@@ -286,6 +291,9 @@
             "statusTitlePaused": "Pausado",
             "statusDescriptionPaused": "El contrato está pausado. No hay operaciones permitidas",
 
+            "statusTitlePriceInvalid": "Precio Inválido",
+            "statusDescriptionPriceInvalid": "Las operaciones están deshabilitadas hasta que haya un precio válido.",
+
             "statusTitleUnavailable": "No puede operar",
             "statusDescreiptionUnavailable": "Uno o más contratos se encuentran temporalmente no disponibles. Intenta nuevamente más tarde.",
 
@@ -298,7 +306,8 @@
                 "fullyOperational": "Totalmente Operativo",
                 "partiallyOperational": "Parcialmente Operativo",
                 "protectedMode": "Modo Protegido",
-                "liquidated": "Liquidado"
+                "liquidated": "Liquidado",
+                "priceInvalid": "Precio Inválido"
             },
             "headerOperations": {
                 "token": "Token",
@@ -446,6 +455,7 @@
     "fees": {
         "labelFee": "Tasa",
         "labelExecutionFee": "Tasa de ejecución",
+        "feeTokenPriceInvalid": "No disponible: el precio de {{token}} es inválido o está desactualizado",
         "disclaimer1": "Esta tasa será restada del monto a ser transferido.",
         "disclaimer2": "Los montos pueden variar al momento de la confirmación de la transacción."
     },
@@ -577,16 +587,30 @@
             }
         },
         "history": {
-            "title": "Staking - Últimas Operaciones",
-            "columnDate": "Fecha",
-            "columnAmount": "Cantidad",
-            "columnOperation": "Operación",
-            "operatons": {
+            "title": "Actividad de Staking",
+            "description": "Tus últimas operaciones de stake, unstake, restake y retiro.",
+            "columns": {
+                "date": "Fecha",
+                "operation": "Operación",
+                "amount": "Cantidad",
+                "status": "Estado",
+                "transaction": "Transacción"
+            },
+            "types": {
                 "stake": "Stake",
                 "unstake": "Unstake",
                 "restake": "Restake",
-                "withdraw": "Withdraw"
-            }
+                "withdraw": "Retiro"
+            },
+            "status": {
+                "confirmed": "Confirmada",
+                "pending": "Se libera el {{date}}",
+                "available": "Listo para retirar",
+                "withdrawn": "Retirado",
+                "restaked": "Devuelto a Stake"
+            },
+            "empty": "No hay operaciones de staking para mostrar.",
+            "error": "No se pudo cargar la actividad de staking. Intenta nuevamente más tarde."
         },
         "tokens": {
             "TG": {
@@ -735,6 +759,22 @@
         }
     },
     "voting": {
+        "preVoteStatus": {
+            "showExpired": "Ver expiradas ({{count}})",
+            "hideExpired": "Ocultar expiradas",
+            "open": {
+                "label": "Abierta",
+                "text": "Pre-votación abierta hasta el {{date}}."
+            },
+            "selected": {
+                "label": "Seleccionada para votación",
+                "text": "La pre-votación terminó el {{date}} y esta propuesta ganó. Pásela a la siguiente etapa para iniciar la votación."
+            },
+            "expired": {
+                "label": "Expirada",
+                "text": "La pre-votación terminó el {{date}} sin que esta propuesta ganara. Ya no puede recibir pre-votos y su lugar se reutiliza cuando se presenta una nueva propuesta."
+            }
+        },
         "cardTitle": {
             "section": "Votación",
             "proposalsList": "Propuestas",
@@ -796,6 +836,8 @@
             "btnPushNextStep": "Avanzar Etapa",
             "infoApplyChanges": "Por favor, ejecuta el 'paso aceptado' para finalizar y aplicar los cambios en los contratos",
             "btnApplyChangesToContracts": "Cambiar Contratos",
+            "acceptedStepPriorityLocked": "Solo quien presentó la propuesta ({{proposer}}) puede aplicar los cambios hasta el {{deadline}}. Después, cualquiera puede hacerlo.",
+            "acceptedStepPriorityOwner": "Presentaste esta propuesta: solo tú puedes aplicar los cambios hasta el {{deadline}}. Después, cualquiera puede hacerlo.",
             "addNewProposal": "Agregar Nueva Propuesta",
             "cancel": "Cancelar",
             "addProposal": "Agregar Propuesta"
@@ -1112,6 +1154,22 @@
             "operationCompleted": {
                 "title": "Operación completada"
             }
+        }
+    },
+    "common": {
+        "dataTable": {
+            "loading": "Cargando registros…",
+            "pagination": "Páginas de la tabla",
+            "previous": "Anterior",
+            "next": "Siguiente",
+            "page": "Página {{page}}",
+            "range": "Mostrando {{first}}–{{last}} de {{total}}",
+            "summary": "{{page}} de {{total}}",
+            "search": "Buscar",
+            "searchTransaction": "Buscar por hash de transacción",
+            "all": "Todos",
+            "pending": "Pendiente de desbloqueo",
+            "noResults": "No hay registros que coincidan con la búsqueda y los filtros."
         }
     }
 }

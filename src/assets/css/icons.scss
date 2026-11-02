@@ -21,6 +21,27 @@ icons.css contains all the css code for Icons across the Dapp
     filter: var(--color-icon-link-filter);
 }
 
+.icon-stage-complete,
+.icon-stage-stopped {
+    display: block;
+    width: 18px;
+    height: 18px;
+    mask-size: contain;
+    mask-position: center;
+    mask-repeat: no-repeat;
+    flex-shrink: 0;
+}
+
+.icon-stage-complete {
+    mask-image: url("../icons/d-check.svg");
+    background-color: var(--color-semantic-positive);
+}
+
+.icon-stage-stopped {
+    mask-image: url("../icons/e-remove.svg");
+    background-color: var(--color-semantic-negative);
+}
+
 .icon-external-link {
     width: 22px;
     height: 22px;

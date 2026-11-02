@@ -60,6 +60,10 @@ export interface BorrowCardData {
     liquidationDropPercentage: number;
     maxAvailable: BorrowCardMetric;
     maxWithdrawableCollateral: string;
+    // Total TP tokens currently sitting in the lending pool, available to be
+    // borrowed by anyone — a hard ceiling independent of any one user's own
+    // collateral. See MocLendingManager.getPoolLiquidity.
+    poolLiquidity: string;
     systemMaxBorrow: string | null;
     depositCollateralOperationMetrics: BorrowOperationMetric[];
     previousLiquidation?: BorrowPreviousLiquidation;

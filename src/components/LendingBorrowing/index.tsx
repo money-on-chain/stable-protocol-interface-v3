@@ -18,7 +18,7 @@ import { useLendingBorrowingData } from "./useLendingBorrowingData";
 
 const LendingBorrowing: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    const { borrowCards, lendCards } = useLendingBorrowingData();
+    const { borrowCards, lendCards, operations, operationsLoading } = useLendingBorrowingData();
     const actions = useLendingBorrowingActions();
     const { operationProgress } = actions;
     const view = searchParams.get("view");
@@ -32,9 +32,7 @@ const LendingBorrowing: React.FC = () => {
     const isBorrowOperationView =
         view === "borrow-operation" && !!selectedBorrowCard;
     const isBorrowDepositCollateralView =
-        view === "borrow-deposit-collateral" &&
-        !!selectedBorrowCard &&
-        parseMetricNumber(selectedBorrowCard.currentDebt.value) > 0;
+        view === "borrow-deposit-collateral" && !!selectedBorrowCard;
     const isBorrowRepayView =
         view === "borrow-repay" &&
         !!selectedBorrowCard &&
@@ -82,6 +80,8 @@ const LendingBorrowing: React.FC = () => {
                 <Overview
                     borrowCards={borrowCards}
                     lendCards={lendCards}
+                    operations={operations}
+                    operationsLoading={operationsLoading}
                     onOpenBorrow={(card) =>
                         updateSearchParams((params) => {
                             params.set("view", "borrow-operation");
@@ -124,6 +124,7 @@ const LendingBorrowing: React.FC = () => {
                             params.set("token", token.id);
                         })
                     }
+                    onTriggerInjection={actions.confirmTriggerInjection}
                 />
             ) : isLendEarnView ? (
                 <LendEarn

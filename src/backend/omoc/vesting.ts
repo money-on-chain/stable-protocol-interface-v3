@@ -668,6 +668,50 @@ const preVote = async (
     return receipt;
 };
 
+// The proposer of a proposal submitted in vesting mode is the VestingMachine
+// (preVote went through callWithData), so during the accepted-step priority
+// window (MIP#263501) acceptedStep() must be sent through it too.
+const acceptedStep = async (
+    interfaceContext: InterfaceContext,
+    vestingAddress: `0x${string}`,
+    onTransaction: OnTransaction,
+    onReceipt: OnReceipt
+): Promise<TransactionReceipt | undefined> => {
+    const { address, contracts } = interfaceContext;
+    if (!contracts) return;
+    if (!contracts.VotingMachine) return;
+    if (!contracts.VestingMachine) return;
+    const VotingMachine = contracts.VotingMachine;
+    const VestingMachine = contracts.VestingMachine;
+
+    const target = checksumAddress(VotingMachine.address);
+
+    const data = encodeFunctionData({
+        abi: VotingMachine.abi,
+        functionName: "acceptedStep",
+        args: [],
+    });
+
+    const { request } = await simulateContract(config, {
+        address: vestingAddress,
+        abi: VestingMachine.abi,
+        functionName: "callWithData",
+        args: [target, data],
+        account: address,
+    });
+
+    // Send transaction
+    const txHash = await writeContract(config, request);
+
+    if (onTransaction) onTransaction(txHash);
+
+    const receipt = await waitForTransactionReceipt(config, { hash: txHash });
+
+    if (onReceipt) onReceipt(receipt);
+
+    return receipt;
+};
+
 const vote = async (
     interfaceContext: InterfaceContext,
     inFavorAgainst: boolean,
@@ -711,6 +755,7 @@ const vote = async (
 };
 
 export {
+    acceptedStep,
     addStake,
     approve,
     approveStakingMachine,

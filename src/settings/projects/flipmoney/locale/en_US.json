@@ -5,6 +5,10 @@
     "invalidValueDescription": "No value to display",
     "invalidValuePlaceholder": "--",
     "notification": {
+        "priceInvalid": {
+            "title": "Attention: price is invalid or outdated",
+            "text": "You cannot mint or redeem until a valid price is available."
+        },
         "dismiss": "Dismiss",
         "update": {
             "title": "New version available",
@@ -224,6 +228,7 @@
         "errors": {
             "notOperational": "Not Operational due to low Global Coverage ratio",
             "cantOperate": "Cannot operate with the current status",
+            "priceInvalid": "You cannot operate: the price is invalid or outdated",
             "requestTimeout": "Request timeout",
             "connectYourWallet": "Please connect your wallet",
             "amountTooLow": "Amount must be greater than zero",
@@ -286,6 +291,9 @@
             "statusTitlePaused": "Paused",
             "statusDescriptionPaused": "The contract is paused. No operations allowed",
 
+            "statusTitlePriceInvalid": "Invalid Price",
+            "statusDescriptionPriceInvalid": "Operations are disabled until a valid price is available.",
+
             "statusTitleUnavailable": "Cannot operate",
             "statusDescreiptionUnavailable": "One or more contracts are temporarily unavailable. Please try again later.",
 
@@ -298,7 +306,8 @@
                 "fullyOperational": "Fully Operational",
                 "partiallyOperational": "Partially Operational",
                 "protectedMode": "Protected Mode",
-                "liquidated": "Liquidated"
+                "liquidated": "Liquidated",
+                "priceInvalid": "Invalid Price"
             },
             "headerOperations": {
                 "token": "Token",
@@ -446,6 +455,7 @@
     "fees": {
         "labelFee": "Fee",
         "labelExecutionFee": "Execution Fee",
+        "feeTokenPriceInvalid": "Unavailable: the {{token}} price is invalid or outdated",
         "disclaimer1": "This fee will be deducted from the amount to be transferred.",
         "disclaimer2": "Amounts may change at the transaction confirmation"
     },
@@ -577,16 +587,30 @@
             }
         },
         "history": {
-            "title": "Staking Last Operations",
-            "columnDate": "Date",
-            "columnAmount": "Amount",
-            "columnOperation": "Operation",
-            "operatons": {
+            "title": "Staking Activity",
+            "description": "Your latest stake, unstake, restake and withdraw operations.",
+            "columns": {
+                "date": "Date",
+                "operation": "Operation",
+                "amount": "Amount",
+                "status": "Status",
+                "transaction": "Transaction"
+            },
+            "types": {
                 "stake": "Stake",
                 "unstake": "Unstake",
                 "restake": "Restake",
                 "withdraw": "Withdraw"
-            }
+            },
+            "status": {
+                "confirmed": "Confirmed",
+                "pending": "Unlocks {{date}}",
+                "available": "Ready to withdraw",
+                "withdrawn": "Withdrawn",
+                "restaked": "Restaked"
+            },
+            "empty": "No staking operations to display.",
+            "error": "Staking activity could not be loaded. Please try again later."
         },
         "tokens": {
             "TG": {
@@ -735,6 +759,22 @@
         }
     },
     "voting": {
+        "preVoteStatus": {
+            "showExpired": "Show expired ({{count}})",
+            "hideExpired": "Hide expired",
+            "open": {
+                "label": "Open",
+                "text": "Pre-voting open until {{date}}."
+            },
+            "selected": {
+                "label": "Selected for voting",
+                "text": "Pre-voting ended on {{date}} and this proposal won. Push it to the next step to start the vote."
+            },
+            "expired": {
+                "label": "Expired",
+                "text": "Pre-voting ended on {{date}} without this proposal winning. It can no longer receive pre-votes, and its slot is reused when a new proposal is submitted."
+            }
+        },
         "cardTitle": {
             "section": "Voting",
             "proposalsList": "Proposals",
@@ -794,6 +834,8 @@
             "btnPushNextStep": "Push to Next Step",
             "infoApplyChanges": "Please run 'accepted step' to finish & apply the changes to contracts",
             "btnApplyChangesToContracts": "Change Contracts",
+            "acceptedStepPriorityLocked": "Only the proposal submitter ({{proposer}}) can apply the changes until {{deadline}}. After that, anyone can.",
+            "acceptedStepPriorityOwner": "You submitted this proposal: only you can apply the changes until {{deadline}}. After that, anyone can.",
             "addNewProposal": " Add New Proposal",
             "cancel": "Cancel",
             "addProposal": "Add Proposal"
@@ -1110,6 +1152,22 @@
             "operationCompleted": {
                 "title": "Operation completed"
             }
+        }
+    },
+    "common": {
+        "dataTable": {
+            "loading": "Loading records…",
+            "pagination": "Table pages",
+            "previous": "Previous",
+            "next": "Next",
+            "page": "Page {{page}}",
+            "range": "Showing {{first}}–{{last}} of {{total}}",
+            "summary": "{{page}} of {{total}}",
+            "search": "Search",
+            "searchTransaction": "Search by transaction hash",
+            "all": "All",
+            "pending": "Awaiting unlock",
+            "noResults": "No records match your search and filters."
         }
     }
 }

@@ -20,6 +20,11 @@ export default defineConfig({
             workbox: {
                 navigateFallbackDenylist: [/^\/api\//],
                 cleanupOutdatedCaches: true,
+                // Default is 2 MiB and the main chunk is already ~1.7MB. A file
+                // over the limit is silently left out of the precache, so after
+                // a deploy a stale client would fetch it from the new CID, get
+                // a 404 and render a blank page.
+                maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
             },
             manifest: manifestFromPublic,
         }),

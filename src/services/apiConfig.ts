@@ -56,6 +56,17 @@ export const API_OPERATIONS_BASE = validateAndGetApiBase(
     ALLOWED_OPERATIONS_ORIGINS
 );
 
+// Builds an operations API URL for `path` (no leading slash) relative to
+// API_OPERATIONS_BASE, keeping the base's version prefix: moc-v1's API
+// (stable-protocol-api) serves /api/v1/..., roc/flipmoney's
+// (stable-protocol-api-v3) /v1/... - so don't assign url.pathname.
+export function apiOperationsUrl(path: string): URL {
+    const base = API_OPERATIONS_BASE.endsWith("/")
+        ? API_OPERATIONS_BASE
+        : `${API_OPERATIONS_BASE}/`;
+    return new URL(path, base);
+}
+
 // Backs moc-v1's Liquidity Mining rewards (see hooks/useIncentives.ts) — the
 // legacy off-chain/agent-relayed reward system ported from the old dapp.
 // Only moc-v1 configures this env var; other flavors leave it unset.

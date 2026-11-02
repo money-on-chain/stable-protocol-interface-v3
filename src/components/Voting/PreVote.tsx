@@ -5,7 +5,9 @@ import { TokenSettings } from "../../helpers/currencies";
 import { useProjectTranslation } from "../../helpers/translations";
 import VotingStatusModal from "../Modals/VotingStatusModal/VotingStatusModal";
 import { PrecisionNumbers } from "../PrecisionNumbers";
+import { ChangerLinks, ChangerTitle } from "./ChangerInfo";
 import CompletedBar from "./CompletedBar";
+import PreVoteStatus, { type PreVoteStatusKind } from "./PreVoteStatus";
 
 const PRECISION_DECIMALS = 18n;
 const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
@@ -43,6 +45,7 @@ interface Proposal {
     votesPositive: bigint;
     votesPositivePCT: bigint;
     expirationTimeStampFormat: string;
+    preVoteStatus?: PreVoteStatusKind;
 }
 
 interface InfoVoting {
@@ -104,7 +107,6 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
         onRunPreVoteStep,
     } = props;
     const { t, i18n, ns } = useProjectTranslation();
-    const space: string = "\u00A0";
     const { interfaceVotingPreVote, userOmocBalance, contractStatusOmoc } =
         useWalletContext();
 
@@ -244,36 +246,16 @@ const PreVote: React.FC<PreVoteProps> = (props) => {
                 <div className={"title"}>
                     <h1>{t("voting.cardTitle.proposalDetails")}</h1>
                 </div>
-                <div className="title">{proposal.changeContract}</div>
+                <ChangerTitle address={proposal.changeContract} />
                 <div className="proposal__content">
                     <div className="details">
-                        <div className="externalLink">
-                            <a
-                                className="forumLink"
-                                href={`https://forum.moneyonchain.com/search?q=${proposal.changeContract}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                {t("voting.info.searchForum")}
-                                <div className="icon-external-link"></div>
-                            </a>
-                        </div>
-                        <div className="externalLink">
-                            <a
-                                className="forumLink"
-                                href={`https://rootstock.blockscout.com/address/${proposal.changeContract}?tab=contract`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                {t("voting.info.changeContract")} {space}
-                                {proposal.changeContract}
-                                <span className="icon-external-link"></span>
-                            </a>
-                        </div>
-                        <p>
-                            {t("voting.info.stateAs")}
-                            <span>{proposal.expirationTimeStampFormat}</span>
-                        </p>
+                        <ChangerLinks address={proposal.changeContract} />
+                        {proposal.preVoteStatus && (
+                            <PreVoteStatus
+                                status={proposal.preVoteStatus}
+                                date={proposal.expirationTimeStampFormat}
+                            />
+                        )}
                         {/* <div className="voting__status__container"> */}
                         <div className="graphs">
                             {/* {!proposal.canVote && (
