@@ -27,6 +27,9 @@
 .icon-token-RIFP {
     @include token-icon("RIFP");
 }
+.icon-token-RIFP_LEGACY {
+    @include token-icon("RIFP_LEGACY");
+}
 .icon-token-ROCR {
     @include token-icon("ROCR");
 }

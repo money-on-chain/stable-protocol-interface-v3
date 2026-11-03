@@ -8,6 +8,11 @@ import { TokenSettings } from "../../helpers/currencies";
 import { useProjectTranslation } from "../../helpers/translations";
 import { PrecisionNumbers } from "../PrecisionNumbers";
 
+// Legacy RIFP -> new RIFP conversion rate (18-decimal fixed point):
+// newAmount = legacyBalance * RIFPRO_MIGRATION_RATE / 1e18
+const RIFPRO_MIGRATION_RATE = 633939721633903644n;
+const RATE_PRECISION = 10n ** 18n;
+
 type MigrationStep =
     | "details"
     | "confirm"
@@ -29,6 +34,8 @@ export default function RifProMigration(): React.ReactElement | null {
     if (!legacyRifPro) {
         return null;
     }
+
+    const newRifProAmount = (legacyRifPro.balance * RIFPRO_MIGRATION_RATE) / RATE_PRECISION;
 
     const closeDialog = () => {
         setStep("details");
@@ -123,7 +130,7 @@ export default function RifProMigration(): React.ReactElement | null {
                                         <div className="MigrationAssetLabel">{t("rifProMigration.exchanging")}</div>
                                         <div className="MigrationAssetContent">
                                             <div
-                                                className="icon-token-RIFP MigrationTokenIcon"
+                                                className="icon-token-RIFP_LEGACY MigrationTokenIcon"
                                                 aria-hidden="true"
                                             ></div>
                                             <div className="MigrationAssetDetails">
@@ -153,7 +160,7 @@ export default function RifProMigration(): React.ReactElement | null {
                                             <div className="MigrationAssetDetails">
                                                 <div className="MigrationAssetAmount">
                                                     {PrecisionNumbers({
-                                                        amount: legacyRifPro.balance,
+                                                        amount: newRifProAmount,
                                                         token: TokenSettings("TC_0"),
                                                         decimals: 4,
                                                         i18n,
