@@ -1,6 +1,6 @@
 {
     "name": "stable-protocol-interface-v3",
-    "version": "3.7.12",
+    "version": "3.7.13",
     "private": true,
     "homepage": ".",
     "type": "module",
