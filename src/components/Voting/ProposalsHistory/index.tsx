@@ -62,8 +62,11 @@ export type MipVotingStatus =
  * The MIP's voting status. The live contract state wins for the current
  * round (in pre-vote, in vote, vote ended, accepted). Otherwise the API's
  * outcome of its latest indexed attempt, where a pre-vote that is no longer
- * live has expired - the events don't carry the expiration. Undefined when
- * nothing is known (e.g. old mainnet attempts, before it emitted events).
+ * live has expired - the events don't carry the expiration - and an accepted
+ * one that is no longer live but is known to be executed was executed: the
+ * indexer misses an acceptedStep() called through a multisig, leaving only the
+ * registry's executedTx. Undefined when nothing is known (e.g. old mainnet
+ * attempts, before it emitted events).
  */
 export function mipVotingStatus(
     entry: MipEntry,
@@ -77,6 +80,8 @@ export function mipVotingStatus(
             return entry.executed ? "Executed" : undefined;
         case "PreVoting":
             return "Expired";
+        case "Accepted":
+            return entry.executed ? "Executed" : "Accepted";
         default:
             return entry.outcome as MipVotingStatus;
     }
