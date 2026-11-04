@@ -340,17 +340,24 @@ function VotingRecords({ mip }: { mip: MipContent }): React.ReactElement {
 
     const live = useLiveVoting();
 
-    const closingTx = (record: VotingRecord) =>
-        record.acceptedStep?.hash ?? record.voteStep?.hash ?? null;
-
     // The indexed status of an open round, refined with the live contract
-    // state: a pre-vote no longer live has expired, a vote may have ended.
+    // state: a pre-vote no longer live has expired, a vote may have ended, and
+    // an accepted round no longer live was executed if the MIP is known to be
+    // (the indexer misses an acceptedStep() called through a multisig).
     const displayStatus = (record: VotingRecord): string => {
         const current = live[record.proposal.toLowerCase()];
         if (record.status === "PreVoting") return current ?? "Expired";
         if (record.status === "Voting") return current ?? "Voting";
+        if (record.status === "Accepted" && mip.executed)
+            return current ?? "Executed";
         return record.status;
     };
+
+    const closingTx = (record: VotingRecord) =>
+        record.acceptedStep?.hash ??
+        (displayStatus(record) === "Executed" ? mip.executedTx : null) ??
+        record.voteStep?.hash ??
+        null;
 
     if (isLoading) return <Skeleton active paragraph={{ rows: 1 }} />;
     if (!records?.length) {
