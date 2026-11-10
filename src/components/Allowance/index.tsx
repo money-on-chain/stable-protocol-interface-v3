@@ -1,5 +1,5 @@
 import { Checkbox } from "antd";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
 import { useProjectTranslation } from "../../helpers/translations";
@@ -44,6 +44,7 @@ export default function AllowanceDialog(
     const { interfaceAllowanceAmount } = useWalletContext();
 
     const [status, setStatus] = useState<StatusType>("SUBMIT");
+    const authorizing = useRef(false);
     const [infinityAllowance, setInfinityAllowance] = useState(false);
 
     let sentIcon: string = "";
@@ -95,6 +96,8 @@ export default function AllowanceDialog(
     };
 
     const onAuthorize = (): void => {
+        if (authorizing.current) return;
+        authorizing.current = true;
         // First change status to sign tx
         //amountAllowance = new BigNumber(1000) //Number.MAX_SAFE_INTEGER.toString()
         let amountAllowance: bigint;
@@ -115,7 +118,10 @@ export default function AllowanceDialog(
             onTransaction,
             onReceipt
         )
-            .then((/*value*/) => {
+            .then((receipt) => {
+                if (receipt?.status !== "success") {
+                    throw new Error("Allowance transaction did not succeed");
+                }
                 onClose();
                 const step = nextStep(ALLOWANCE_STEPS, name as AllowanceStep);
                 if (step) {
@@ -125,6 +131,9 @@ export default function AllowanceDialog(
             .catch((error: unknown) => {
                 console.error("Allowance error:", error);
                 setStatus("ERROR");
+            })
+            .finally(() => {
+                authorizing.current = false;
             });
     };
 

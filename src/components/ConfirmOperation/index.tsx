@@ -100,6 +100,7 @@ export default function ConfirmOperation(
     const { userBalance, interfaceExchangeMethod } = useWalletContext();
 
     const [status, setStatus] = useState<StatusType>("SUBMIT");
+    const submittingOperation = useRef(false);
 
     const [txID, setTxID] = useState<string>("");
     const [opID, setOpID] = useState<number | null>(null);
@@ -424,8 +425,7 @@ export default function ConfirmOperation(
     };
 
     const onRealSendTransaction = (): void => {
-        // Real send transaction
-        setStatus("SIGN");
+        if (submittingOperation.current) return;
 
         let tokenAmount: bigint;
         let limitAmount: bigint;
@@ -454,6 +454,8 @@ export default function ConfirmOperation(
             throw new Error("Invalid type operation");
         }
 
+        submittingOperation.current = true;
+        setStatus("SIGN");
         void interfaceExchangeMethod(
             currencyYouExchange,
             currencyYouReceive,
@@ -467,8 +469,10 @@ export default function ConfirmOperation(
             onTransaction,
             onReceipt
         )
-            .then((/*value*/) => {
-                //console.warn("DONE!");
+            .then((receipt) => {
+                if (!receipt || typeof receipt !== "object" || !("status" in receipt) || receipt.status !== "success") {
+                    throw new Error("Operation transaction did not succeed");
+                }
             })
             .catch((error: AxiosError) => {
                 if (error.response) {
@@ -495,6 +499,9 @@ export default function ConfirmOperation(
                     console.error("Error setting up request:", error.message);
                     setStatus("ERROR");
                 }
+            })
+            .finally(() => {
+                submittingOperation.current = false;
             });
     };
 
