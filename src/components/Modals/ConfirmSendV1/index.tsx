@@ -14,9 +14,7 @@ interface ModalConfirmSendV1Props {
     onClear: () => void;
 }
 
-export default function ModalConfirmSendV1(
-    props: ModalConfirmSendV1Props
-): React.ReactElement {
+export default function ModalConfirmSendV1(props: ModalConfirmSendV1Props): React.ReactElement {
     const { inputValidationError } = props;
 
     const { t } = useProjectTranslation();
@@ -41,22 +39,21 @@ export default function ModalConfirmSendV1(
             >
                 {t("send.buttonPrimary")}
             </Button>
-            {visible && (
-                <Modal
-                    title={t("send.modalTitle")}
-                    width={505}
-                    open={visible}
-                    onCancel={hideModal}
-                    footer={null}
-                    className="ModalConfirmOperation"
-                    closable={false}
-                    centered={true}
-                    maskClosable={false}
-                    maskStyle={{}}
-                >
-                    <ConfirmSendV1 {...props} onCloseModal={hideModal} />
-                </Modal>
-            )}
+            <Modal
+                title={t("send.modalTitle")}
+                width={505}
+                open={visible}
+                onCancel={hideModal}
+                destroyOnClose
+                footer={null}
+                className="ModalConfirmOperation"
+                closable={false}
+                centered={true}
+                maskClosable={false}
+                maskStyle={{}}
+            >
+                <ConfirmSendV1 {...props} onCloseModal={hideModal} />
+            </Modal>
         </div>
     );
 }

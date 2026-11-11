@@ -129,7 +129,6 @@ export default function ConfirmSend(props: ConfirmSendProps): JSX.Element {
     }
 
     const onClose = (): void => {
-        setStatus("SUBMIT");
         onCloseModal();
     };
 

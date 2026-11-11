@@ -571,7 +571,6 @@ export default function ConfirmOperation(
     };
 
     const onClose = (): void => {
-        setStatus("SUBMIT");
         onCloseModal();
     };
 

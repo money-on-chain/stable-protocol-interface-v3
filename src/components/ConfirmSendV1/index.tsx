@@ -110,7 +110,6 @@ export default function ConfirmSendV1(
     }
 
     const onClose = (): void => {
-        setStatus("SUBMIT");
         onCloseModal();
     };
 

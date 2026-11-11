@@ -10,12 +10,11 @@ const PRECISION_DECIMALS = 18n;
 const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
 
 interface AllowanceDialogProps {
-    onCloseModal: () => void;
+    onCloseModal: (nextStep?: AllowanceStep) => void;
     currencyYouExchange: string;
     currencyYouReceive: string;
     amountYouExchangeLimit: bigint;
     //amountYouReceiveLimit: BigNumber;
-    onCallback: (startPoint: AllowanceStep) => void;
     disAllowance?: boolean;
     name?: string;
     caIndex: number;
@@ -34,7 +33,6 @@ export default function AllowanceDialog(
         currencyYouReceive,
         amountYouExchangeLimit,
         //amountYouReceiveLimit,
-        onCallback,
         disAllowance,
         name,
         caIndex,
@@ -75,13 +73,7 @@ export default function AllowanceDialog(
         setInfinityAllowance(e.target.checked);
     };
 
-    const reset = (): void => {
-        setStatus("SUBMIT");
-        setInfinityAllowance(false);
-    };
-
     const onClose = (): void => {
-        reset();
         onCloseModal();
     };
 
@@ -122,11 +114,8 @@ export default function AllowanceDialog(
                 if (receipt?.status !== "success") {
                     throw new Error("Allowance transaction did not succeed");
                 }
-                onClose();
                 const step = nextStep(ALLOWANCE_STEPS, name as AllowanceStep);
-                if (step) {
-                    onCallback(step);
-                }
+                onCloseModal(step);
             })
             .catch((error: unknown) => {
                 console.error("Allowance error:", error);
