@@ -1,5 +1,5 @@
 import { Checkbox } from "antd";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
 import { useProjectTranslation } from "../../helpers/translations";
@@ -10,12 +10,11 @@ const PRECISION_DECIMALS = 18n;
 const DECIMALS_18 = 10n ** PRECISION_DECIMALS;
 
 interface AllowanceDialogProps {
-    onCloseModal: () => void;
+    onCloseModal: (nextStep?: AllowanceStep) => void;
     currencyYouExchange: string;
     currencyYouReceive: string;
     amountYouExchangeLimit: bigint;
     //amountYouReceiveLimit: BigNumber;
-    onCallback: (startPoint: AllowanceStep) => void;
     disAllowance?: boolean;
     name?: string;
     caIndex: number;
@@ -34,7 +33,6 @@ export default function AllowanceDialog(
         currencyYouReceive,
         amountYouExchangeLimit,
         //amountYouReceiveLimit,
-        onCallback,
         disAllowance,
         name,
         caIndex,
@@ -44,6 +42,7 @@ export default function AllowanceDialog(
     const { interfaceAllowanceAmount } = useWalletContext();
 
     const [status, setStatus] = useState<StatusType>("SUBMIT");
+    const authorizing = useRef(false);
     const [infinityAllowance, setInfinityAllowance] = useState(false);
 
     let sentIcon: string = "";
@@ -74,13 +73,7 @@ export default function AllowanceDialog(
         setInfinityAllowance(e.target.checked);
     };
 
-    const reset = (): void => {
-        setStatus("SUBMIT");
-        setInfinityAllowance(false);
-    };
-
     const onClose = (): void => {
-        reset();
         onCloseModal();
     };
 
@@ -95,6 +88,8 @@ export default function AllowanceDialog(
     };
 
     const onAuthorize = (): void => {
+        if (authorizing.current) return;
+        authorizing.current = true;
         // First change status to sign tx
         //amountAllowance = new BigNumber(1000) //Number.MAX_SAFE_INTEGER.toString()
         let amountAllowance: bigint;
@@ -115,16 +110,19 @@ export default function AllowanceDialog(
             onTransaction,
             onReceipt
         )
-            .then((/*value*/) => {
-                onClose();
-                const step = nextStep(ALLOWANCE_STEPS, name as AllowanceStep);
-                if (step) {
-                    onCallback(step);
+            .then((receipt) => {
+                if (receipt?.status !== "success") {
+                    throw new Error("Allowance transaction did not succeed");
                 }
+                const step = nextStep(ALLOWANCE_STEPS, name as AllowanceStep);
+                onCloseModal(step);
             })
             .catch((error: unknown) => {
                 console.error("Allowance error:", error);
                 setStatus("ERROR");
+            })
+            .finally(() => {
+                authorizing.current = false;
             });
     };
 

@@ -26,9 +26,7 @@ interface ModalConfirmOperationProps {
     totalAmountReceiveInFiat: bigint;
 }
 
-export default function ModalConfirmOperation(
-    props: ModalConfirmOperationProps
-): React.ReactElement {
+export default function ModalConfirmOperation(props: ModalConfirmOperationProps): React.ReactElement {
     const { /*onClear,*/ inputValidationError } = props;
 
     const { t } = useProjectTranslation();
@@ -58,22 +56,21 @@ export default function ModalConfirmOperation(
             >
                 {t("exchange.buttonPrimary")}
             </Button>
-            {visible && (
-                <Modal
-                    title={t("exchange.modalTitle")}
-                    width={505}
-                    open={visible}
-                    onCancel={hideModal}
-                    footer={null}
-                    className="ModalConfirmOperation"
-                    closable={false}
-                    centered={true}
-                    maskClosable={false}
-                    maskStyle={{}}
-                >
-                    <ConfirmOperation {...props} onCloseModal={hideModal} />
-                </Modal>
-            )}
+            <Modal
+                title={t("exchange.modalTitle")}
+                width={505}
+                open={visible}
+                onCancel={hideModal}
+                destroyOnClose
+                footer={null}
+                className="ModalConfirmOperation"
+                closable={false}
+                centered={true}
+                maskClosable={false}
+                maskStyle={{}}
+            >
+                <ConfirmOperation {...props} onCloseModal={hideModal} />
+            </Modal>
         </div>
     );
 }

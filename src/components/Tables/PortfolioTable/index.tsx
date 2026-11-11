@@ -50,6 +50,14 @@ export default function PortfolioTable() {
         priceProvider,
     } = useWalletContext();
     const [ready, setReady] = useState<boolean>(false);
+    const readinessStartedAt = useRef(performance.now());
+    const reportedReadiness = useRef({
+        started: false,
+        protocolStatus: false,
+        tokenBalances: false,
+        baseCoinBalance: false,
+        complete: false,
+    });
 
     // Refs to track previous values and prevent infinite loops
     const prevContractDataRef = useRef<unknown>(null);
@@ -67,12 +75,40 @@ export default function PortfolioTable() {
     };
 
     useEffect(() => {
-        // Set component ready when contract status data is available
+        if (!reportedReadiness.current.started) {
+            console.info(
+                "[Portfolio] Waiting for protocol status, token balances, and base coin balance"
+            );
+            reportedReadiness.current.started = true;
+        }
+        const elapsedMs = Math.round(performance.now() - readinessStartedAt.current);
+        if (
+            contractProtocolStatus.data &&
+            !reportedReadiness.current.protocolStatus
+        ) {
+            console.info(`[Portfolio] Protocol status ready after ${elapsedMs} ms`);
+            reportedReadiness.current.protocolStatus = true;
+        }
+        if (userBalance.data && !reportedReadiness.current.tokenBalances) {
+            console.info(`[Portfolio] Token balances ready after ${elapsedMs} ms`);
+            reportedReadiness.current.tokenBalances = true;
+        }
+        if (
+            userBaseCoinBalance.balance != null &&
+            !reportedReadiness.current.baseCoinBalance
+        ) {
+            console.info(`[Portfolio] Base coin balance ready after ${elapsedMs} ms`);
+            reportedReadiness.current.baseCoinBalance = true;
+        }
         if (
             contractProtocolStatus.data &&
             userBalance.data &&
             userBaseCoinBalance.balance != null
         ) {
+            if (!reportedReadiness.current.complete) {
+                console.info(`[Portfolio] All data ready after ${elapsedMs} ms`);
+                reportedReadiness.current.complete = true;
+            }
             setReady(true);
         }
     }, [
