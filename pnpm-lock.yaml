@@ -17,7 +17,7 @@ overrides:
   js-yaml@>=4.0.0 <4.3.2: 4.3.2
   nanoid@<3.3.18: 3.3.18
   uuid@<11.1.1: 11.1.1
-  hono@<4.13.11: 4.13.13
+  hono@<4.13.16: 4.13.18
   decode-uri-component@<0.5.1: 0.5.1
   source-map-js@<1.2.2: 1.2.2
   moment@>=2.29.2 <2.31.0: 2.31.0
@@ -26,6 +26,7 @@ overrides:
   zod@<4.6.6: 4.6.7
   serialize-javascript@<7.1.3: 7.1.3
   glob@>=9.0.0 <14.0.2: 14.0.3
+  minimatch@>=7.0.0 <11.0.1: 11.0.3
 
 importers:
 
@@ -39,7 +40,7 @@ importers:
         version: 5.101.2(react@18.3.1)
       '@vitejs/plugin-react-swc':
         specifier: ^3.10.0
-        version: 3.11.0(vite@6.4.5(@types/node@24.13.3)(sass@1.101.0)(terser@5.49.0))
+        version: 3.11.0(vite@6.4.6(@types/node@24.13.3)(sass@1.101.0)(terser@5.49.0))
       '@wagmi/core':
         specifier: 2.22.1
         version: 2.22.1(@tanstack/query-core@5.101.2)(@types/react@18.3.31)(react@18.3.1)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@18.3.1))(viem@2.55.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.6.7))
@@ -95,8 +96,8 @@ importers:
         specifier: ^2.32.0
         version: 2.55.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.6.7)
       vite:
-        specifier: ~6.4.5
-        version: 6.4.5(@types/node@24.13.3)(sass@1.101.0)(terser@5.49.0)
+        specifier: ~6.4.6
+        version: 6.4.6(@types/node@24.13.3)(sass@1.101.0)(terser@5.49.0)
       wagmi:
         specifier: ^2.15.7
         version: 2.19.5(@tanstack/query-core@5.101.2)(@tanstack/react-query@5.101.2(react@18.3.1))(@types/react@18.3.31)(bufferutil@4.1.0)(debug@4.4.3(supports-color@7.2.0))(react@18.3.1)(supports-color@7.2.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(viem@2.55.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.6.7))(zod@4.6.7)
@@ -154,10 +155,10 @@ importers:
         version: 8.63.0(eslint@9.39.5(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)
       vite-plugin-pwa:
         specifier: ^1.2.0
-        version: 1.3.0(supports-color@7.2.0)(vite@6.4.5(@types/node@24.13.3)(sass@1.101.0)(terser@5.49.0))(workbox-build@7.4.1(supports-color@7.2.0))(workbox-window@7.4.1)
+        version: 1.3.0(supports-color@7.2.0)(vite@6.4.6(@types/node@24.13.3)(sass@1.101.0)(terser@5.49.0))(workbox-build@7.4.1(supports-color@7.2.0))(workbox-window@7.4.1)
       vite-plugin-svgr:
         specifier: ^4.3.0
-        version: 4.5.0(rollup@4.62.2)(supports-color@7.2.0)(typescript@5.9.3)(vite@6.4.5(@types/node@24.13.3)(sass@1.101.0)(terser@5.49.0))
+        version: 4.5.0(rollup@4.62.2)(supports-color@7.2.0)(typescript@5.9.3)(vite@6.4.6(@types/node@24.13.3)(sass@1.101.0)(terser@5.49.0))
       workbox-build:
         specifier: ^7.4.0
         version: 7.4.1(supports-color@7.2.0)
@@ -3431,8 +3432,8 @@ packages:
   hast-util-whitespace@3.0.0:
     resolution: {integrity: sha512-88JUN06ipLwsnv+dVn+OIYOvAuvBMy/Qoi6O7mQHxdPXpjy+Cd6xRkWwux7DKO+4sYILtLBRIKgsdpS2gQc7qw==}
 
-  hono@4.13.13:
-    resolution: {integrity: sha512-CQ46U0ZkAGmbT/4UxdzzGJpacP2IeKgY4a5/tOI9AABbpOMfK739wfDXmv1usCk+3RkKj1hQy4/fjhiwa2xlrA==}
+  hono@4.13.18:
+    resolution: {integrity: sha512-H9q/E1XizaWstJxUW881dmLxEj+t/TrGGnyxINkm4+sK0qUwsMtFdo2BWI9Vs3cIS19MU6b6iCijoUoEf4f3DA==}
     engines: {node: '>=16.9.0'}
 
   html-parse-stringify@3.0.1:
@@ -3958,10 +3959,6 @@ packages:
   mime-types@2.1.35:
     resolution: {integrity: sha512-ZDY+bPm5zTTF+YpCrAU9nK0UgICYPT0QtT1NZWFv4s++TNkcgVaT0g6+4R2uI4MjQjzysHB1zxuWL50hzaeXiw==}
     engines: {node: '>= 0.6'}
-
-  minimatch@10.2.5:
-    resolution: {integrity: sha512-MULkVLfKGYDFYejP07QOurDLLQpcjk7Fw+7jXS2R2czRQzR56yHRveU5NDJEOviH+hETZKSkIk5c+T23GjFUMg==}
-    engines: {node: 18 || 20 || >=22}
 
   minimatch@11.0.3:
     resolution: {integrity: sha512-iny/40PEGkNJQ5/Pv6z3nm6FbRAby32GeZRjCUJk2WnNDbgPSTcdI+DDvLqsgBdD4cD5sMtMheqPPnehCCa8Nw==}
@@ -5295,8 +5292,8 @@ packages:
     peerDependencies:
       vite: 6.4.5
 
-  vite@6.4.5:
-    resolution: {integrity: sha512-4enwjFfi4IwtEh0w+jPzpLVOFQiPHmmzPxcHXQOyEur47o6u0jE573DmGpjA+7irXoMLYRZD5ZaFUEneS3abPg==}
+  vite@6.4.6:
+    resolution: {integrity: sha512-RtsraAwEG68idOA6iUOoIpOlcSKROnf815aIq9qHTSrDNpLoBrBa12suyfcEd8qn0xwOVQI1Yhm1GbmTjF600A==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
     peerDependencies:
@@ -8006,7 +8003,7 @@ snapshots:
       '@typescript-eslint/types': 8.63.0
       '@typescript-eslint/visitor-keys': 8.63.0
       debug: 4.4.3(supports-color@7.2.0)
-      minimatch: 10.2.5
+      minimatch: 11.0.3
       semver: 7.8.5
       tinyglobby: 0.2.17
       ts-api-utils: 2.5.0(typescript@5.9.3)
@@ -8102,11 +8099,11 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.12.2':
     optional: true
 
-  '@vitejs/plugin-react-swc@3.11.0(vite@6.4.5(@types/node@24.13.3)(sass@1.101.0)(terser@5.49.0))':
+  '@vitejs/plugin-react-swc@3.11.0(vite@6.4.6(@types/node@24.13.3)(sass@1.101.0)(terser@5.49.0))':
     dependencies:
       '@rolldown/pluginutils': 1.0.0-beta.27
       '@swc/core': 1.15.43
-      vite: 6.4.5(@types/node@24.13.3)(sass@1.101.0)(terser@5.49.0)
+      vite: 6.4.6(@types/node@24.13.3)(sass@1.101.0)(terser@5.49.0)
     transitivePeerDependencies:
       - '@swc/helpers'
 
@@ -9937,7 +9934,7 @@ snapshots:
     dependencies:
       '@types/hast': 3.0.5
 
-  hono@4.13.13: {}
+  hono@4.13.18: {}
 
   html-parse-stringify@3.0.1:
     dependencies:
@@ -10663,10 +10660,6 @@ snapshots:
     dependencies:
       mime-db: 1.52.0
 
-  minimatch@10.2.5:
-    dependencies:
-      brace-expansion: 5.0.12
-
   minimatch@11.0.3:
     dependencies:
       '@isaacs/nonrecursive-glob-match': 1.0.3
@@ -10966,7 +10959,7 @@ snapshots:
   porto@0.2.35(@tanstack/react-query@5.101.2(react@18.3.1))(@types/react@18.3.31)(@wagmi/core@2.22.1(@tanstack/query-core@5.101.2)(@types/react@18.3.31)(react@18.3.1)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@18.3.1))(viem@2.55.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.6.7)))(react@18.3.1)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@18.3.1))(viem@2.55.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.6.7))(wagmi@2.19.5(@tanstack/query-core@5.101.2)(@tanstack/react-query@5.101.2(react@18.3.1))(@types/react@18.3.31)(bufferutil@4.1.0)(debug@4.4.3(supports-color@7.2.0))(react@18.3.1)(supports-color@7.2.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(viem@2.55.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.6.7))(zod@4.6.7)):
     dependencies:
       '@wagmi/core': 2.22.1(@tanstack/query-core@5.101.2)(@types/react@18.3.31)(react@18.3.1)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@18.3.1))(viem@2.55.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.6.7))
-      hono: 4.13.13
+      hono: 4.13.18
       idb-keyval: 6.3.0
       mipd: 0.0.7(typescript@5.9.3)
       ox: 0.9.17(typescript@5.9.3)(zod@4.6.7)
@@ -12240,29 +12233,29 @@ snapshots:
       - utf-8-validate
       - zod
 
-  vite-plugin-pwa@1.3.0(supports-color@7.2.0)(vite@6.4.5(@types/node@24.13.3)(sass@1.101.0)(terser@5.49.0))(workbox-build@7.4.1(supports-color@7.2.0))(workbox-window@7.4.1):
+  vite-plugin-pwa@1.3.0(supports-color@7.2.0)(vite@6.4.6(@types/node@24.13.3)(sass@1.101.0)(terser@5.49.0))(workbox-build@7.4.1(supports-color@7.2.0))(workbox-window@7.4.1):
     dependencies:
       debug: 4.4.3(supports-color@7.2.0)
       pretty-bytes: 6.1.1
       tinyglobby: 0.2.17
-      vite: 6.4.5(@types/node@24.13.3)(sass@1.101.0)(terser@5.49.0)
+      vite: 6.4.6(@types/node@24.13.3)(sass@1.101.0)(terser@5.49.0)
       workbox-build: 7.4.1(supports-color@7.2.0)
       workbox-window: 7.4.1
     transitivePeerDependencies:
       - supports-color
 
-  vite-plugin-svgr@4.5.0(rollup@4.62.2)(supports-color@7.2.0)(typescript@5.9.3)(vite@6.4.5(@types/node@24.13.3)(sass@1.101.0)(terser@5.49.0)):
+  vite-plugin-svgr@4.5.0(rollup@4.62.2)(supports-color@7.2.0)(typescript@5.9.3)(vite@6.4.6(@types/node@24.13.3)(sass@1.101.0)(terser@5.49.0)):
     dependencies:
       '@rollup/pluginutils': 5.4.0(rollup@4.62.2)
       '@svgr/core': 8.1.0(supports-color@7.2.0)(typescript@5.9.3)
       '@svgr/plugin-jsx': 8.1.0(@svgr/core@8.1.0(supports-color@7.2.0)(typescript@5.9.3))(supports-color@7.2.0)
-      vite: 6.4.5(@types/node@24.13.3)(sass@1.101.0)(terser@5.49.0)
+      vite: 6.4.6(@types/node@24.13.3)(sass@1.101.0)(terser@5.49.0)
     transitivePeerDependencies:
       - rollup
       - supports-color
       - typescript
 
-  vite@6.4.5(@types/node@24.13.3)(sass@1.101.0)(terser@5.49.0):
+  vite@6.4.6(@types/node@24.13.3)(sass@1.101.0)(terser@5.49.0):
     dependencies:
       esbuild: 0.25.12
       fdir: 6.5.0(picomatch@4.0.5)

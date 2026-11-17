@@ -1,4 +1,4 @@
-FROM node:22.23.4
+FROM node:22.23.5
 
 LABEL maintainer="Nicolas Flores & Martin Mulone"
 
@@ -19,10 +19,8 @@ COPY build_target.sh prepare_target.sh remove_build.sh ./
 
 # Environment files (one per deployment target)
 COPY .env ./
-COPY .env.flipmoneyMainnet .env.flipmoneyTestnet ./
 COPY .env.rocMainnet .env.rocTestnet ./
-COPY .env.votingMainnet .env.votingTestnet ./
-COPY .env.lendborrowTestnet ./
+COPY .env.mocV1Mainnet .env.mocV1Testnet ./
 
 # Pass TARGET_BUILD at runtime: docker run -e TARGET_BUILD=build:roc-mainnet <image>
 CMD ["/bin/bash", "-c", "bash ./build_target.sh"]
