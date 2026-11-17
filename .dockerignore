@@ -6,4 +6,3 @@ dist/
 *.local
 .env.local
 .env.*.local
-pnpm-lock.yaml
