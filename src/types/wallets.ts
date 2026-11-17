@@ -152,7 +152,7 @@ export type WalletContextType = {
         caIndex: number,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt
-    ) => Promise<void>;
+    ) => Promise<TransactionReceipt | undefined>;
 
     interfaceExchangeMethod: (
         currencyYouExchange: string,

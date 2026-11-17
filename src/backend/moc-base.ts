@@ -1,4 +1,5 @@
 import {
+    readContract,
     sendTransaction,
     simulateContract,
     waitForTransactionReceipt,
@@ -40,6 +41,22 @@ const AllowanceAmount = async (
     if (onTransaction) onTransaction(txHash);
 
     const receipt = await waitForTransactionReceipt(config, { hash: txHash });
+
+    if (receipt.status !== "success") {
+        throw new Error(`Approval transaction ${txHash} reverted`);
+    }
+    const approvedAmount = await readContract(config, {
+        address: token.address,
+        abi: token.abi,
+        functionName: "allowance",
+        args: [address, contractAllowAddress],
+    });
+    if (
+        typeof approvedAmount !== "bigint" ||
+        (amountAllowance === 0n ? approvedAmount !== 0n : approvedAmount < amountAllowance)
+    ) {
+        throw new Error(`Approval transaction ${txHash} did not establish the requested allowance`);
+    }
 
     if (onReceipt) onReceipt(receipt);
 

@@ -140,7 +140,7 @@ interface ApiResponse {
 interface TokenExchangeResult {
     exchange: {
         action?: string;
-        amount: string | number;
+        amount: string | number | null;
         name: string;
         token: unknown;
         icon: string;
@@ -148,7 +148,7 @@ interface TokenExchangeResult {
     };
     receive: {
         action?: string;
-        amount: string | number | undefined;
+        amount: string | number | null | undefined;
         name: string;
         token: unknown;
         icon: string;
@@ -156,7 +156,7 @@ interface TokenExchangeResult {
     };
     another: {
         action?: string;
-        amount: string | number | undefined;
+        amount: string | number | null | undefined;
         name: string;
         token: unknown;
         icon: string;
@@ -1619,7 +1619,9 @@ export default function LastOperations(props: LastOperationsProps) {
                                                 const exchangeToken = token
                                                     .exchange
                                                     .token as TokenConfig;
-                                                return (
+                                                return token.exchange.amount == null ? (
+                                                    "--"
+                                                ) : (
                                                     <PrecisionNumbers
                                                         amount={BigInt(
                                                             token.exchange
@@ -1681,7 +1683,7 @@ export default function LastOperations(props: LastOperationsProps) {
                                                         .receive
                                                         .token as TokenConfig;
                                                     return token.receive
-                                                        .amount === undefined
+                                                        .amount == null
                                                         ? "--"
                                                         : PrecisionNumbers({
                                                               amount: BigInt(
@@ -1757,7 +1759,7 @@ export default function LastOperations(props: LastOperationsProps) {
                                                         .another
                                                         .token as TokenConfig;
                                                     return token.another
-                                                        .amount === undefined
+                                                        .amount == null
                                                         ? "--"
                                                         : PrecisionNumbers({
                                                               amount: BigInt(

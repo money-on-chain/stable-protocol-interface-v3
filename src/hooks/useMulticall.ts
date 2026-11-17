@@ -79,7 +79,7 @@ export function useMultiCall(
 ) {
     // Extract options values for stable dependencies
     const {
-        batchSize = 50,
+        batchSize = 1024,
         scopeKey,
         refetchInterval = 30_000,
         enabled = true,

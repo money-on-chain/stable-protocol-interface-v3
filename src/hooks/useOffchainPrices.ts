@@ -45,6 +45,7 @@ export function useOffchainPrices(
                 coinpairs.push(mapPrices[ca].COINBASE);
             }
 
+            const requestStartedAt = performance.now();
             try {
                 // The API answers with a plain-text report whenever Accept
                 // includes text/plain (axios' default), so ask for JSON only.
@@ -56,6 +57,9 @@ export function useOffchainPrices(
                         timeout: 10000,
                         headers: { Accept: "application/json" },
                     }
+                );
+                console.info(
+                    `[Prices] Off-chain price request returned HTTP ${response.status} after ${Math.round(performance.now() - requestStartedAt)} ms`
                 );
 
                 if (response.status === 200) {
@@ -109,7 +113,10 @@ export function useOffchainPrices(
                 }
                 throw new Error("API returned non-200 status");
             } catch (err) {
-                console.error("Error fetching off-chain prices:", err);
+                console.error(
+                    `[Prices] Off-chain price request failed after ${Math.round(performance.now() - requestStartedAt)} ms:`,
+                    err
+                );
                 throw err;
             }
         },

@@ -685,12 +685,19 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             skip: "0",
         }).toString();
 
+        const requestStartedAt = performance.now();
         api<VestingResponse>("get", url.toString())
             .then((response) => {
+                console.info(
+                    `[Vesting] Request completed after ${Math.round(performance.now() - requestStartedAt)} ms`
+                );
                 saveUserVesting(response as VestingResponse);
             })
             .catch((error: Error) => {
-                console.error(error);
+                console.error(
+                    `[Vesting] Request failed after ${Math.round(performance.now() - requestStartedAt)} ms:`,
+                    error
+                );
             });
     }, [address, saveUserVesting]);
 
@@ -753,7 +760,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         caIndex: number,
         onTransaction: OnTransaction,
         onReceipt: OnReceipt
-    ): Promise<void> => {
+    ): Promise<TransactionReceipt | undefined> => {
         if (!contractsAddress) return;
 
         const approveInfo = ApproveTokenContract(
@@ -764,7 +771,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         );
         if (approveInfo.token) {
             const interfaceContext = buildInterfaceContext();
-            await AllowanceAmount(
+            return await AllowanceAmount(
                 interfaceContext,
                 approveInfo.token,
                 approveInfo.contractAllow,

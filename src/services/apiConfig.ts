@@ -35,12 +35,14 @@ function validateAndGetApiBase(
 
     // DEV-only escape hatch: local dev/testing against a local API server
     // (e.g. a mock backend or local fork setup) shouldn't require adding
-    // 127.0.0.1 to the production allowlist. Production builds (DEV=false)
-    // never take this branch.
-    const isLocalhost =
-        url.hostname === "localhost" || url.hostname === "127.0.0.1";
+    // loopback or Docker's host gateway to the production allowlist.
+    // Production builds (DEV=false) never take this branch.
+    const isLocalDevelopmentHost =
+        url.hostname === "localhost" ||
+        url.hostname === "127.0.0.1" ||
+        url.hostname === "host.docker.internal";
 
-    if (!allowedOrigins.has(url.origin) && !(import.meta.env.DEV && isLocalhost)) {
+    if (!allowedOrigins.has(url.origin) && !(import.meta.env.DEV && isLocalDevelopmentHost)) {
         const msg = `[apiConfig] API origin "${url.origin}" is not in the allowlist for ${envVarName}`;
         if (import.meta.env.DEV) throw new Error(msg);
         console.error(msg);

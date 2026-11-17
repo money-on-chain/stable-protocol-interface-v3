@@ -1,5 +1,5 @@
 import Modal from "antd/lib/modal/Modal";
-import React from "react";
+import React, { useRef } from "react";
 
 import type { AllowanceStep } from "../../../types/status";
 import Allowance from "../../Allowance";
@@ -21,6 +21,20 @@ export default function ModalAllowanceOperation(
     props: ModalAllowanceOperationProps
 ): React.ReactElement {
     const { visible, onHideModalAllowance, title } = props;
+    // Close the approval dialog before starting the next wallet request.
+    // destroyOnClose then resets its state for the next approval.
+    const pendingStep = useRef<AllowanceStep>();
+
+    const closeModal = (nextStep?: AllowanceStep): void => {
+        pendingStep.current = nextStep;
+        onHideModalAllowance();
+    };
+
+    const afterClose = (): void => {
+        const nextStep = pendingStep.current;
+        pendingStep.current = undefined;
+        if (nextStep) props.onCallback(nextStep);
+    };
 
     return (
         <div className="ShowModalAllowance">
@@ -28,7 +42,9 @@ export default function ModalAllowanceOperation(
                 title={title}
                 width={505}
                 open={visible}
-                onCancel={onHideModalAllowance}
+                onCancel={() => closeModal()}
+                afterClose={afterClose}
+                destroyOnClose
                 footer={null}
                 closable={false}
                 className="ModalAllowance"
@@ -36,7 +52,7 @@ export default function ModalAllowanceOperation(
                 maskClosable={false}
                 maskStyle={{}}
             >
-                <Allowance {...props} onCloseModal={onHideModalAllowance} />
+                <Allowance {...props} onCloseModal={closeModal} />
             </Modal>
         </div>
     );

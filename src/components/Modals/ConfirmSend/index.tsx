@@ -15,9 +15,7 @@ interface ModalConfirmSendProps {
     caIndex: number;
 }
 
-export default function ModalConfirmSend(
-    props: ModalConfirmSendProps
-): React.ReactElement {
+export default function ModalConfirmSend(props: ModalConfirmSendProps): React.ReactElement {
     const { /*onClear,*/ inputValidationError } = props;
 
     const { t } = useProjectTranslation();
@@ -35,33 +33,28 @@ export default function ModalConfirmSend(
         <div className="ShowModalConfirmOperation">
             <Button
                 type="primary"
-                className={
-                    import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT.toLowerCase()
-                        ? "button"
-                        : "button"
-                }
+                className={import.meta.env.REACT_APP_ENVIRONMENT_APP_PROJECT.toLowerCase() ? "button" : "button"}
                 data-testid="confirm-send-ok"
                 onClick={showModal}
                 disabled={inputValidationError || false}
             >
                 {t("send.buttonPrimary")}
             </Button>
-            {visible && (
-                <Modal
-                    title={t("send.modalTitle")}
-                    width={505}
-                    open={visible}
-                    onCancel={hideModal}
-                    footer={null}
-                    className="ModalConfirmOperation"
-                    closable={false}
-                    centered={true}
-                    maskClosable={false}
-                    maskStyle={{}}
-                >
-                    <ConfirmSend {...props} onCloseModal={hideModal} />
-                </Modal>
-            )}
+            <Modal
+                title={t("send.modalTitle")}
+                width={505}
+                open={visible}
+                onCancel={hideModal}
+                destroyOnClose
+                footer={null}
+                className="ModalConfirmOperation"
+                closable={false}
+                centered={true}
+                maskClosable={false}
+                maskStyle={{}}
+            >
+                <ConfirmSend {...props} onCloseModal={hideModal} />
+            </Modal>
         </div>
     );
 }
