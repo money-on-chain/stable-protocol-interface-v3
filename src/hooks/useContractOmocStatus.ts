@@ -1,4 +1,6 @@
 import { useMemo } from "react";
+import type { Abi } from "viem";
+import { useReadContract } from "wagmi";
 
 import omoc from "../settings/omoc/omoc.json";
 import type {
@@ -9,6 +11,9 @@ import type {
 } from "../types/hooks";
 import type { ContractStatusOmocResult } from "../types/status";
 import { useMultiCall } from "./useMulticall";
+
+// Upper bound on proposalsList entries read (the dapp read indexes 0..10)
+const MAX_PROPOSALS_LIST = 11;
 
 // Track when we last logged errors to prevent spam
 const lastProposalErrorLog = 0;
@@ -23,6 +28,10 @@ const onErrorProposal = (): MultiCallErrorResult => {
     return { value: null };
 };
 
+// For VotingMachine reads whose failure must be told apart from a real 0:
+// a failed uint256 read becomes 0n, which is also "pre-voting" / round 0.
+const onErrorUnknown = (): MultiCallErrorResult => ({ value: null });
+
 /**
  * React hook that wraps useMultiCall3 to fetch contract status data.
  * Builds the call array with useMemo so it remains stable between renders.
@@ -31,8 +40,33 @@ export function useContractOmocStatus(
     contracts?: DContracts,
     refetchInterval = 30_000
 ): ContractStatusOmocResult {
+    // proposalsList is a plain array on contracts built with Solidity < 0.8:
+    // reading past its end hits INVALID, which burns all the gas it's given.
+    // Inside a multicall that leaves aggregate3 out of gas, so it returns
+    // "0x" and EVERY call batched with it fails (the Voting section went
+    // blank). Only read the indexes that exist.
+    const proposalsLength = useReadContract({
+        address: contracts?.VotingMachine?.address,
+        abi: contracts?.VotingMachine?.abi as Abi | undefined,
+        functionName: "getProposalsLength",
+        query: {
+            enabled: !!contracts?.VotingMachine,
+            refetchInterval,
+        },
+    });
+    // Unknown until getProposalsLength() has answered: don't read it as 0,
+    // which would silently drop the list (and the veto positions useUserVeto
+    // reads for it). The status waits for it instead; once loaded, the last
+    // value survives later refetch errors.
+    const proposalsListLength: number | undefined =
+        proposalsLength.data === undefined
+            ? undefined
+            : Math.min(Number(proposalsLength.data), MAX_PROPOSALS_LIST);
+
     const callsRequests = useMemo(() => {
         if (!contracts) return [];
+        if (contracts.VotingMachine && proposalsListLength === undefined)
+            return [];
 
         const callRequest: MultiCallInput[] = [];
 
@@ -149,6 +183,7 @@ export function useContractOmocStatus(
                     args: [],
                     resultType: "uint256",
                     keys: ["votingmachine", "getState"],
+                    onError: onErrorUnknown,
                 });
 
                 callRequest.push({
@@ -157,6 +192,7 @@ export function useContractOmocStatus(
                     args: [],
                     resultType: "uint256",
                     keys: ["votingmachine", "getVotingRound"],
+                    onError: onErrorUnknown,
                 });
 
                 callRequest.push({
@@ -177,6 +213,7 @@ export function useContractOmocStatus(
                     args: [],
                     resultType: "bool",
                     keys: ["votingmachine", "readyToPreVoteStep"],
+                    onError: onErrorUnknown,
                 });
 
                 callRequest.push({
@@ -185,6 +222,7 @@ export function useContractOmocStatus(
                     args: [],
                     resultType: "bool",
                     keys: ["votingmachine", "readyToVoteStep"],
+                    onError: onErrorUnknown,
                 });
 
                 callRequest.push({
@@ -240,7 +278,7 @@ export function useContractOmocStatus(
                     });
                 }
 
-                for (let i = 0; i <= 10; i++) {
+                for (let i = 0; i < (proposalsListLength ?? 0); i++) {
                     callRequest.push({
                         contract: contracts.VotingMachine,
                         functionName: "proposalsList",
@@ -365,7 +403,7 @@ export function useContractOmocStatus(
         }
 
         return callRequest;
-    }, [contracts]);
+    }, [contracts, proposalsListLength]);
 
     // Pass callsRequests into your multicall hook (safe: it's a hook calling a hook)
     const multicallState = useMultiCall(callsRequests, {

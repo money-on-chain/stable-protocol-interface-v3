@@ -64,6 +64,48 @@ interface InfoUser {
     Voting_Power_PCT: bigint;
 }
 
+// A fresh object each time: the memo below fills its nested votingData /
+// votingInfo in place.
+function emptyInfoVoting(): InfoVoting {
+    return {
+        globalVotingRound: 0n,
+        totalSupply: 0n,
+        PRE_VOTE_MIN_TO_WIN: 0n,
+        PRE_VOTE_MIN_PCT_TO_WIN: 0n,
+        MIN_PCT_FOR_QUORUM: 0n,
+        MIN_FOR_QUORUM: 0n,
+        MIN_STAKE: 0n,
+        VOTING_POWER: 0n,
+        VOTE_MIN_PCT_TO_VETO: 0n,
+        VOTE_MIN_TO_VETO: 0n,
+        proposals: {},
+        state: 0,
+        readyToPreVoteStep: false,
+        readyToVoteStep: false,
+        votingData: {
+            winnerProposal: "",
+            inFavorVotes: 0n,
+            againstVotes: 0n,
+            votingExpirationTime: 0n,
+            expired: true,
+            totalVotedPCT: 0n,
+            totalVoted: 0n,
+            votingExpirationTimeFormat: "",
+            inFavorVotesTotalSupplyPCT: 0n,
+            againstVotesTotalSupplyPCT: 0n,
+            inFavorVotesPCT: 0n,
+            againstVotesPCT: 0n,
+            totalVetoPCT: 0n,
+        },
+        votingInfo: {
+            winnerProposal: "",
+            inFavorVotes: 0n,
+            againstVotes: 0n,
+        },
+        isVetoMachine: false,
+    };
+}
+
 const Voting: React.FC = () => {
     const { t } = useProjectTranslation();
 
@@ -74,59 +116,43 @@ const Voting: React.FC = () => {
         userVesting,
     } = useWalletContext();
 
-    const infoVoting: InfoVoting = React.useMemo(() => {
-        const defaultInfoVoting: InfoVoting = {
-            globalVotingRound: 0n,
-            totalSupply: 0n,
-            PRE_VOTE_MIN_TO_WIN: 0n,
-            PRE_VOTE_MIN_PCT_TO_WIN: 0n,
-            MIN_PCT_FOR_QUORUM: 0n,
-            MIN_FOR_QUORUM: 0n,
-            MIN_STAKE: 0n,
-            VOTING_POWER: 0n,
-            VOTE_MIN_PCT_TO_VETO: 0n,
-            VOTE_MIN_TO_VETO: 0n,
-            proposals: {},
-            state: 0,
-            readyToPreVoteStep: false,
-            readyToVoteStep: false,
-            votingData: {
-                winnerProposal: "",
-                inFavorVotes: 0n,
-                againstVotes: 0n,
-                votingExpirationTime: 0n,
-                expired: true,
-                totalVotedPCT: 0n,
-                totalVoted: 0n,
-                votingExpirationTimeFormat: "",
-                inFavorVotesTotalSupplyPCT: 0n,
-                againstVotesTotalSupplyPCT: 0n,
-                inFavorVotesPCT: 0n,
-                againstVotesPCT: 0n,
-                totalVetoPCT: 0n,
-            },
-            votingInfo: {
-                winnerProposal: "",
-                inFavorVotes: 0n,
-                againstVotes: 0n,
-            },
-            isVetoMachine: false,
-        };
+    // Last InfoVoting read successfully. A poll whose VotingMachine reads all
+    // fail (e.g. the RPC rejected the batch) keeps showing it instead of
+    // blanking the section with an empty pre-vote stage.
+    const lastInfoVoting = React.useRef<InfoVoting | null>(null);
+
+    const freshInfoVoting: InfoVoting | null = React.useMemo(() => {
+        const defaultInfoVoting = emptyInfoVoting();
 
         if (!contractStatusOmoc.data || !userOmocBalance.data) {
-            return defaultInfoVoting;
+            return null;
         }
 
+        // Accept the poll only if every VotingMachine read this view needs
+        // succeeded; otherwise keep the last good one. Failed uint256 reads
+        // come back as 0n, so totalSupply / PRE_VOTE_MIN_PCT_TO_WIN being
+        // zero means they failed; getState etc. come back null (see
+        // onErrorUnknown), and failed tuples null.
         const vm = contractStatusOmoc.data.votingmachine;
-        if (!vm || !vm.totalSupply || !vm.PRE_VOTE_MIN_PCT_TO_WIN) {
-            return defaultInfoVoting;
+        if (
+            !vm ||
+            !vm.totalSupply ||
+            !vm.PRE_VOTE_MIN_PCT_TO_WIN ||
+            vm.getState == null ||
+            vm.getVotingRound == null ||
+            vm.readyToPreVoteStep == null ||
+            vm.readyToVoteStep == null ||
+            !Array.isArray(vm.getVotingData) ||
+            !Array.isArray(vm.getVoteInfo)
+        ) {
+            return null;
         }
 
         const nowTimestamp: bigint = BigInt(Date.now());
 
         const cData: InfoVoting = {
             ...defaultInfoVoting,
-            proposals: vm.getProposalByIndex as unknown as ProposalItem,
+            proposals: vm.getProposalByIndex,
             state: Number(vm.getState || 0n),
             readyToPreVoteStep: vm.readyToPreVoteStep || false,
             readyToVoteStep: vm.readyToVoteStep || false,
@@ -209,6 +235,12 @@ const Voting: React.FC = () => {
 
         return cData;
     }, [contractStatusOmoc.data, userOmocBalance.data]);
+
+    if (freshInfoVoting) lastInfoVoting.current = freshInfoVoting;
+    const infoVoting: InfoVoting = React.useMemo(
+        () => freshInfoVoting ?? lastInfoVoting.current ?? emptyInfoVoting(),
+        [freshInfoVoting]
+    );
 
     const infoUser: InfoUser = React.useMemo(() => {
         const defaultInfoUser: InfoUser = {
