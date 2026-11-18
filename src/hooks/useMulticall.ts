@@ -69,6 +69,16 @@ function deepMerge(
     return merged;
 }
 
+/** One line about why a call failed (rate limit, timeout, revert...). */
+function describeError(error: unknown): string {
+    if (!error) return "unknown error";
+    if (error instanceof Error) {
+        const e = error as Error & { shortMessage?: string };
+        return `${e.name}: ${e.shortMessage ?? e.message.split("\n")[0]}`;
+    }
+    return typeof error === "string" ? error : "non-Error failure";
+}
+
 /**
  * Custom hook to simulate multicall behavior using wagmi's useReadContracts.
  * It supports deeply nested storage mapping, error fallbacks, and custom value transforms.
@@ -79,7 +89,11 @@ export function useMultiCall(
 ) {
     // Extract options values for stable dependencies
     const {
-        batchSize = 50,
+        // viem measures this in calldata BYTES per aggregate3 chunk, not in
+        // calls. At 50 bytes nearly every call with an argument got its own
+        // eth_call, so each poll fired dozens of parallel requests through
+        // the wallet's RPC, and a rejected chunk fails every call in it.
+        batchSize = 1024,
         scopeKey,
         refetchInterval = 30_000,
         enabled = true,
@@ -313,7 +327,7 @@ export function useMultiCall(
                             value = null;
                     }
                     console.warn(
-                        `Multicall failed for keys [${keys.join(".")}] at index ${i}`
+                        `Multicall failed for keys [${keys.join(".")}] at index ${i}: ${describeError(item.error)}`
                     );
                 }
             }
