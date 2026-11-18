@@ -38,6 +38,18 @@ function isUnreachableError(error: unknown): boolean {
     );
 }
 
+/** What a call reads: target, function, args and where its result goes. */
+function callIdentity(call: MultiCallInput): string {
+    const contract = call.contract as { address?: string } | string;
+    const address =
+        typeof contract === "string" ? contract : (contract?.address ?? "");
+    const args = JSON.stringify(call.args ?? [], (_key, v: unknown) =>
+        typeof v === "bigint" ? v.toString() : v
+    );
+    return [address.toLowerCase(), call.functionName, args, call.keys.join(".")]
+        .join("|");
+}
+
 /**
  * Assigns a value into a nested object structure given a path of keys.
  */
@@ -169,7 +181,8 @@ export function useMultiCall(
 
     // Step 2: Perform the multicall using wagmi
     const {
-        data: results,
+        data: rawResults,
+        isPlaceholderData,
         isLoading,
         isFetching,
         refetch,
@@ -186,6 +199,32 @@ export function useMultiCall(
             placeholderData: (previousData) => previousData, // Keep previous data while refetching
         },
     });
+
+    // Placeholder data only shows when the query key changed, i.e. while the
+    // results still belong to the PREVIOUS call list. Mapping them by index
+    // onto the new list put values in the wrong fields whenever calls were
+    // added or removed (e.g. proposalsList growing). Match them by call
+    // identity instead; when some new call has no previous result (or the
+    // calls changed entirely, like another account), report "loading"
+    // rather than mixing data.
+    const callKeys = useMemo(() => calls.map(callIdentity), [calls]);
+    // Call identities behind the last non-placeholder results
+    const resultCallKeys = useRef<string[] | null>(null);
+    const results = useMemo(() => {
+        if (!rawResults) return undefined;
+        if (!isPlaceholderData) {
+            resultCallKeys.current = callKeys;
+            return rawResults;
+        }
+        const prevKeys = resultCallKeys.current;
+        if (!prevKeys || prevKeys.length !== rawResults.length)
+            return undefined;
+        const byKey = new Map(prevKeys.map((k, i) => [k, rawResults[i]]));
+        const aligned = callKeys.map((k) => byKey.get(k));
+        return aligned.every((r) => r !== undefined)
+            ? (aligned)
+            : undefined;
+    }, [rawResults, isPlaceholderData, callKeys]);
 
     // Step 2b: Retry failed peek() calls individually (bypassing multicall)
     // as DIRECT_RETRY_ACCOUNT — see comment above. Keyed by contract address
