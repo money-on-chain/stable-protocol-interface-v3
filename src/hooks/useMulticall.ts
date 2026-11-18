@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Abi } from "viem";
+import {
+    BaseError,
+    HttpRequestError,
+    LimitExceededRpcError,
+    TimeoutError,
+} from "viem";
 import { usePublicClient, useReadContracts } from "wagmi";
 
 import type { MultiCallInput, MultiCallOptions } from "../types/hooks";
@@ -11,6 +17,26 @@ import type { MultiCallInput, MultiCallOptions } from "../types/hooks";
 // reader" account these providers whitelist for exactly this purpose.
 const DIRECT_RETRY_ACCOUNT =
     "0x0000000000000000000000000000000000000001" as const;
+
+// How long a failed peek() may keep showing its last good result when the
+// RPC can't be reached. A fetch failure isn't the contract saying the price
+// is invalid, so it shouldn't raise the "invalid price" alert - but don't
+// keep serving a stale price forever either.
+const PEEK_STALE_MS = 5 * 60_000;
+
+/** True when the call never got an answer from the contract (network down,
+ * HTTP error, rate limit, timeout), as opposed to the contract reverting. */
+function isUnreachableError(error: unknown): boolean {
+    return (
+        error instanceof BaseError &&
+        !!error.walk(
+            (e) =>
+                e instanceof HttpRequestError ||
+                e instanceof TimeoutError ||
+                e instanceof LimitExceededRpcError
+        )
+    );
+}
 
 /**
  * Assigns a value into a nested object structure given a path of keys.
@@ -174,6 +200,15 @@ export function useMultiCall(
     const [directRetryFailed, setDirectRetryFailed] = useState<
         Record<string, true>
     >({});
+    // Addresses whose direct retry couldn't reach the RPC: their price is
+    // unknown, not invalid, so the last good result keeps being used
+    const [unreachablePeeks, setUnreachablePeeks] = useState<
+        Record<string, true>
+    >({});
+    // Last successful peek() result per address, with when it was read
+    const lastGoodPeeks = useRef<
+        Record<string, { value: unknown; at: number }>
+    >({});
     const inFlightRetries = useRef<Set<string>>(new Set());
 
     useEffect(() => {
@@ -213,8 +248,23 @@ export function useMultiCall(
                         delete next[address];
                         return next;
                     });
+                    setUnreachablePeeks((prev) => {
+                        if (!prev[address]) return prev;
+                        const next = { ...prev };
+                        delete next[address];
+                        return next;
+                    });
                 })
-                .catch(() => {
+                .catch((error: unknown) => {
+                    if (isUnreachableError(error)) {
+                        // No answer from the contract: keep the last good
+                        // result (see PEEK_STALE_MS) instead of reporting
+                        // the price as invalid
+                        setUnreachablePeeks((prev) =>
+                            prev[address] ? prev : { ...prev, [address]: true }
+                        );
+                        return;
+                    }
                     // Drop any earlier successful retry so a feed that now
                     // reverts (e.g. paused) falls back to onError ([0n, false])
                     // instead of keeping its last [price, true].
@@ -227,6 +277,13 @@ export function useMultiCall(
                     setDirectRetryFailed((prev) =>
                         prev[address] ? prev : { ...prev, [address]: true }
                     );
+                    // The contract answered: no longer just unreachable
+                    setUnreachablePeeks((prev) => {
+                        if (!prev[address]) return prev;
+                        const next = { ...prev };
+                        delete next[address];
+                        return next;
+                    });
                 })
                 .finally(() => {
                     inFlightRetries.current.delete(address);
@@ -274,12 +331,39 @@ export function useMultiCall(
                 "address" in contract
                     ? directRetryResults[contract.address.toLowerCase()]
                     : undefined;
+            const peekAddress =
+                calls[i].functionName === "peek" &&
+                typeof contract === "object" &&
+                "address" in contract
+                    ? contract.address.toLowerCase()
+                    : undefined;
+            // A peek() whose retry couldn't reach the RPC keeps its last
+            // good result for a while: unknown is not invalid
+            const lastGood =
+                item.status !== "success" &&
+                directRetryResult === undefined &&
+                peekAddress &&
+                unreachablePeeks[peekAddress]
+                    ? lastGoodPeeks.current[peekAddress]
+                    : undefined;
+            const useLastGood =
+                !!lastGood && Date.now() - lastGood.at <= PEEK_STALE_MS;
             const succeeded =
-                item.status === "success" || directRetryResult !== undefined;
+                item.status === "success" ||
+                directRetryResult !== undefined ||
+                useLastGood;
 
             if (succeeded) {
-                value =
-                    item.status === "success" ? item.result : directRetryResult;
+                if (item.status === "success") value = item.result;
+                else if (directRetryResult !== undefined)
+                    value = directRetryResult;
+                else value = lastGood?.value;
+                if (peekAddress && !useLastGood) {
+                    lastGoodPeeks.current[peekAddress] = {
+                        value,
+                        at: Date.now(),
+                    };
+                }
                 // A live decode always hands back a native bigint for
                 // uint256/int256, but on a cold page load `results` can
                 // briefly reflect cached/rehydrated query state instead of a
@@ -346,7 +430,7 @@ export function useMultiCall(
         }
 
         return next;
-    }, [results, calls, externalData, directRetryResults]);
+    }, [results, calls, externalData, directRetryResults, unreachablePeeks]);
 
     // True while a failed peek() still waits for its first direct retry: its
     // value is the onError fallback ([0n, false]) but not yet confirmed, so
@@ -366,10 +450,17 @@ export function useMultiCall(
             const address = call.contract.address.toLowerCase();
             return (
                 directRetryResults[address] === undefined &&
-                !directRetryFailed[address]
+                !directRetryFailed[address] &&
+                !unreachablePeeks[address]
             );
         });
-    }, [results, calls, directRetryResults, directRetryFailed]);
+    }, [
+        results,
+        calls,
+        directRetryResults,
+        directRetryFailed,
+        unreachablePeeks,
+    ]);
 
     return {
         data: storage,
