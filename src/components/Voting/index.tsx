@@ -130,7 +130,7 @@ const Voting: React.FC = () => {
 
         // Accept the poll only if every VotingMachine read this view needs
         // succeeded; otherwise keep the last good one. Failed uint256 reads
-        // come back as 0n, so totalSupply / PRE_VOTE_MIN_PCT_TO_WIN being
+        // come back as 0n, so totalSupply and the registry percentages being
         // zero means they failed; getState etc. come back null (see
         // onErrorUnknown), and failed tuples null.
         const vm = contractStatusOmoc.data.votingmachine;
@@ -138,6 +138,8 @@ const Voting: React.FC = () => {
             !vm ||
             !vm.totalSupply ||
             !vm.PRE_VOTE_MIN_PCT_TO_WIN ||
+            !vm.VOTE_MIN_PCT_TO_VETO ||
+            !vm.MIN_PCT_FOR_QUORUM ||
             vm.getState == null ||
             vm.getVotingRound == null ||
             vm.readyToPreVoteStep == null ||
