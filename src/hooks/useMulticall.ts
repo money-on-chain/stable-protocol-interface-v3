@@ -277,6 +277,10 @@ export function useMultiCall(
                     account: DIRECT_RETRY_ACCOUNT,
                 })
                 .then((result) => {
+                    lastGoodPeeks.current[address] = {
+                        value: result,
+                        at: Date.now(),
+                    };
                     setDirectRetryResults((prev) => ({
                         ...prev,
                         [address]: result,
@@ -302,6 +306,14 @@ export function useMultiCall(
                         setUnreachablePeeks((prev) =>
                             prev[address] ? prev : { ...prev, [address]: true }
                         );
+                        // An earlier retry's result would otherwise win over
+                        // lastGoodPeeks and never expire
+                        setDirectRetryResults((prev) => {
+                            if (!(address in prev)) return prev;
+                            const next = { ...prev };
+                            delete next[address];
+                            return next;
+                        });
                         return;
                     }
                     // Drop any earlier successful retry so a feed that now
@@ -397,11 +409,19 @@ export function useMultiCall(
                 else if (directRetryResult !== undefined)
                     value = directRetryResult;
                 else value = lastGood?.value;
-                if (peekAddress && !useLastGood) {
-                    lastGoodPeeks.current[peekAddress] = {
-                        value,
-                        at: Date.now(),
-                    };
+                // Stamp with when the multicall READ it (not now: this memo
+                // also re-runs on unrelated changes), so PEEK_STALE_MS
+                // counts from the read. Direct retries stamp themselves.
+                if (
+                    peekAddress &&
+                    item.status === "success" &&
+                    !isPlaceholderData
+                ) {
+                    const at = dataUpdatedAt || Date.now();
+                    const prev = lastGoodPeeks.current[peekAddress];
+                    if (!prev || at >= prev.at) {
+                        lastGoodPeeks.current[peekAddress] = { value, at };
+                    }
                 }
                 // A live decode always hands back a native bigint for
                 // uint256/int256, but on a cold page load `results` can
@@ -469,7 +489,15 @@ export function useMultiCall(
         }
 
         return next;
-    }, [results, calls, externalData, directRetryResults, unreachablePeeks]);
+    }, [
+        results,
+        calls,
+        externalData,
+        directRetryResults,
+        unreachablePeeks,
+        dataUpdatedAt,
+        isPlaceholderData,
+    ]);
 
     // True while a failed peek()'s price is unknown: its first direct retry
     // is still in flight, or the RPC is unreachable and no read ever
