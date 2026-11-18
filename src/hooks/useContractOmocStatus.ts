@@ -1,4 +1,6 @@
 import { useMemo } from "react";
+import type { Abi } from "viem";
+import { useReadContract } from "wagmi";
 
 import omoc from "../settings/omoc/omoc.json";
 import type {
@@ -9,6 +11,9 @@ import type {
 } from "../types/hooks";
 import type { ContractStatusOmocResult } from "../types/status";
 import { useMultiCall } from "./useMulticall";
+
+// Upper bound on proposalsList entries read (the dapp read indexes 0..10)
+const MAX_PROPOSALS_LIST = 11;
 
 // Track when we last logged errors to prevent spam
 const lastProposalErrorLog = 0;
@@ -31,6 +36,25 @@ export function useContractOmocStatus(
     contracts?: DContracts,
     refetchInterval = 30_000
 ): ContractStatusOmocResult {
+    // proposalsList is a plain array on contracts built with Solidity < 0.8:
+    // reading past its end hits INVALID, which burns all the gas it's given.
+    // Inside a multicall that leaves aggregate3 out of gas, so it returns
+    // "0x" and EVERY call batched with it fails (the Voting section went
+    // blank). Only read the indexes that exist.
+    const proposalsLength = useReadContract({
+        address: contracts?.VotingMachine?.address,
+        abi: contracts?.VotingMachine?.abi as Abi | undefined,
+        functionName: "getProposalsLength",
+        query: {
+            enabled: !!contracts?.VotingMachine,
+            refetchInterval,
+        },
+    });
+    const proposalsListLength = Math.min(
+        Number((proposalsLength.data as bigint | undefined) ?? 0n),
+        MAX_PROPOSALS_LIST
+    );
+
     const callsRequests = useMemo(() => {
         if (!contracts) return [];
 
@@ -240,7 +264,7 @@ export function useContractOmocStatus(
                     });
                 }
 
-                for (let i = 0; i <= 10; i++) {
+                for (let i = 0; i < proposalsListLength; i++) {
                     callRequest.push({
                         contract: contracts.VotingMachine,
                         functionName: "proposalsList",
@@ -365,7 +389,7 @@ export function useContractOmocStatus(
         }
 
         return callRequest;
-    }, [contracts]);
+    }, [contracts, proposalsListLength]);
 
     // Pass callsRequests into your multicall hook (safe: it's a hook calling a hook)
     const multicallState = useMultiCall(callsRequests, {

@@ -93,6 +93,10 @@ export function useMultiCall(
         // calls. At 50 bytes nearly every call with an argument got its own
         // eth_call, so each poll fired dozens of parallel requests through
         // the wallet's RPC, and a rejected chunk fails every call in it.
+        // A call that burns all its gas (e.g. reading past the end of an
+        // array on a Solidity < 0.8 contract) leaves aggregate3 out of gas
+        // and fails its whole chunk, so never batch such calls (see
+        // proposalsList in useContractOmocStatus).
         batchSize = 1024,
         scopeKey,
         refetchInterval = 30_000,
