@@ -50,13 +50,19 @@ export function useContractOmocStatus(
             refetchInterval,
         },
     });
-    const proposalsListLength = Math.min(
-        Number((proposalsLength.data as bigint | undefined) ?? 0n),
-        MAX_PROPOSALS_LIST
-    );
+    // Unknown until getProposalsLength() has answered: don't read it as 0,
+    // which would silently drop the list (and the veto positions useUserVeto
+    // reads for it). The status waits for it instead; once loaded, the last
+    // value survives later refetch errors.
+    const proposalsListLength: number | undefined =
+        proposalsLength.data === undefined
+            ? undefined
+            : Math.min(Number(proposalsLength.data), MAX_PROPOSALS_LIST);
 
     const callsRequests = useMemo(() => {
         if (!contracts) return [];
+        if (contracts.VotingMachine && proposalsListLength === undefined)
+            return [];
 
         const callRequest: MultiCallInput[] = [];
 
@@ -264,7 +270,7 @@ export function useContractOmocStatus(
                     });
                 }
 
-                for (let i = 0; i < proposalsListLength; i++) {
+                for (let i = 0; i < (proposalsListLength ?? 0); i++) {
                     callRequest.push({
                         contract: contracts.VotingMachine,
                         functionName: "proposalsList",
