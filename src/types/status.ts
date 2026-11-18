@@ -233,13 +233,13 @@ export type VotingMachineStatus = {
     // State / getters
     getProposalByIndex: Proposal[];
     getProposalCount: bigint;
-    getState: bigint;
+    getState: bigint | null;
     getVoteInfo: VoteInfo;
     getVotingData: VotingData;
-    getVotingRound: bigint;
+    getVotingRound: bigint | null;
     proposalsList: Record<number, Address>;
-    readyToPreVoteStep: boolean;
-    readyToVoteStep: boolean;
+    readyToPreVoteStep: boolean | null;
+    readyToVoteStep: boolean | null;
     totalSupply: bigint;
 };
 

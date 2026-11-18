@@ -28,6 +28,10 @@ const onErrorProposal = (): MultiCallErrorResult => {
     return { value: null };
 };
 
+// For VotingMachine reads whose failure must be told apart from a real 0:
+// a failed uint256 read becomes 0n, which is also "pre-voting" / round 0.
+const onErrorUnknown = (): MultiCallErrorResult => ({ value: null });
+
 /**
  * React hook that wraps useMultiCall3 to fetch contract status data.
  * Builds the call array with useMemo so it remains stable between renders.
@@ -179,6 +183,7 @@ export function useContractOmocStatus(
                     args: [],
                     resultType: "uint256",
                     keys: ["votingmachine", "getState"],
+                    onError: onErrorUnknown,
                 });
 
                 callRequest.push({
@@ -187,6 +192,7 @@ export function useContractOmocStatus(
                     args: [],
                     resultType: "uint256",
                     keys: ["votingmachine", "getVotingRound"],
+                    onError: onErrorUnknown,
                 });
 
                 callRequest.push({
@@ -207,6 +213,7 @@ export function useContractOmocStatus(
                     args: [],
                     resultType: "bool",
                     keys: ["votingmachine", "readyToPreVoteStep"],
+                    onError: onErrorUnknown,
                 });
 
                 callRequest.push({
@@ -215,6 +222,7 @@ export function useContractOmocStatus(
                     args: [],
                     resultType: "bool",
                     keys: ["votingmachine", "readyToVoteStep"],
+                    onError: onErrorUnknown,
                 });
 
                 callRequest.push({

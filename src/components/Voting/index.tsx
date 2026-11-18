@@ -128,10 +128,23 @@ const Voting: React.FC = () => {
             return null;
         }
 
-        // Failed reads come back as 0n, so these being zero means the
-        // VotingMachine data didn't load.
+        // Accept the poll only if every VotingMachine read this view needs
+        // succeeded; otherwise keep the last good one. Failed uint256 reads
+        // come back as 0n, so totalSupply / PRE_VOTE_MIN_PCT_TO_WIN being
+        // zero means they failed; getState etc. come back null (see
+        // onErrorUnknown), and failed tuples null.
         const vm = contractStatusOmoc.data.votingmachine;
-        if (!vm || !vm.totalSupply || !vm.PRE_VOTE_MIN_PCT_TO_WIN) {
+        if (
+            !vm ||
+            !vm.totalSupply ||
+            !vm.PRE_VOTE_MIN_PCT_TO_WIN ||
+            vm.getState == null ||
+            vm.getVotingRound == null ||
+            vm.readyToPreVoteStep == null ||
+            vm.readyToVoteStep == null ||
+            !Array.isArray(vm.getVotingData) ||
+            !Array.isArray(vm.getVoteInfo)
+        ) {
             return null;
         }
 
@@ -139,7 +152,7 @@ const Voting: React.FC = () => {
 
         const cData: InfoVoting = {
             ...defaultInfoVoting,
-            proposals: vm.getProposalByIndex as unknown as ProposalItem,
+            proposals: vm.getProposalByIndex,
             state: Number(vm.getState || 0n),
             readyToPreVoteStep: vm.readyToPreVoteStep || false,
             readyToVoteStep: vm.readyToVoteStep || false,
