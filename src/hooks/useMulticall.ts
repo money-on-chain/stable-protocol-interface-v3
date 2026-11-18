@@ -471,9 +471,10 @@ export function useMultiCall(
         return next;
     }, [results, calls, externalData, directRetryResults, unreachablePeeks]);
 
-    // True while a failed peek() still waits for its first direct retry: its
-    // value is the onError fallback ([0n, false]) but not yet confirmed, so
-    // consumers shouldn't treat it as an invalid price.
+    // True while a failed peek()'s price is unknown: its first direct retry
+    // is still in flight, or the RPC is unreachable and no read ever
+    // succeeded. Its value is the onError fallback ([0n, false]), which
+    // consumers must not treat as an invalid price.
     const isRetryingPeeks = useMemo(() => {
         if (!results) return false;
         return results.some((item, i) => {
@@ -487,11 +488,15 @@ export function useMultiCall(
             )
                 return false;
             const address = call.contract.address.toLowerCase();
-            return (
-                directRetryResults[address] === undefined &&
-                !directRetryFailed[address] &&
-                !unreachablePeeks[address]
-            );
+            if (directRetryResults[address] !== undefined) return false;
+            if (directRetryFailed[address]) return false; // contract reverted
+            // Unreachable RPC: with a last good value (fresh, or expired
+            // past PEEK_STALE_MS) storage has a definite answer. Without one
+            // - a cold load - the price is unknown, not invalid, so keep it
+            // pending until a read succeeds.
+            if (unreachablePeeks[address])
+                return lastGoodPeeks.current[address] === undefined;
+            return true; // first direct retry still in flight
         });
     }, [
         results,
