@@ -33,3 +33,13 @@ allowBuilds:
   keccak: true
   unrs-resolver: true
   utf-8-validate: true
+
+auditConfig:
+  ignoreGhsas:
+    # picomatch ReDoS via repeated extglobs (<= 4.0.7). No patched release
+    # exists yet (latest is 4.0.7). Only reachable with attacker-supplied
+    # glob patterns; here picomatch only gets hard-coded patterns from build
+    # tooling (vite, tinyglobby/fdir, @parcel/watcher) and from
+    # @walletconnect's unstorage > anymatch. When 4.0.8 ships, remove this
+    # and add a "picomatch@<4.0.8" override instead.
+    - GHSA-fc5q-39xc-vjpf
