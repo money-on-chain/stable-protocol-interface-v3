@@ -169,6 +169,8 @@ jobs:
                       **Primary Mainnet gateway**:
                       - Always last version available: [https://dapp.moneyonchain.com](https://dapp.moneyonchain.com)
                       - https://dapp.moneyonchain.com/ipfs/${{ steps.upload.outputs.hash }}
-                      - https://cloudflare-ipfs.com/ipfs/${{ steps.upload.outputs.hash }}
+
+                      **Your own IPFS node / IPFS Desktop / Brave**:
+                      - `ipfs://${{ steps.convert_cidv0.outputs.cidv1 }}`
 
                       ${{ needs.bump_version.outputs.changelog }}

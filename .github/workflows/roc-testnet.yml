@@ -136,6 +136,8 @@ jobs:
                       **Primary Testnet gateway**:
                       - Always last version available: [https://dapp-testnet.rifonchain.com/](https://dapp-testnet.rifonchain.com/).                      
                       - https://dapp-testnet.rifonchain.com/ipfs/${{ steps.upload.outputs.hash }}
-                      - https://cloudflare-ipfs.com/ipfs/${{ steps.upload.outputs.hash }}
+
+                      **Your own IPFS node / IPFS Desktop / Brave**:
+                      - `ipfs://${{ steps.convert_cidv0.outputs.cidv1 }}`
 
                       ${{ needs.bump_version.outputs.changelog }}
