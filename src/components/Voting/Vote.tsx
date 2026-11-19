@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useState } from "react";
+import React, { Fragment, useMemo, useState } from "react";
 
 import { useWalletContext } from "../../context/Wallet";
 import { TokenSettings } from "../../helpers/currencies";
@@ -94,13 +94,8 @@ function Vote(props: VoteProps): JSX.Element {
     const [txHash, setTxHash] = useState<string>("");
     const [operationStatus, setOperationStatus] = useState<string>("sign");
     const [modalTitle, setModalTitle] = useState<string>("Voting Proposal");
-    const [votingInFavorOrAgainstError, setVotingInFavorOrAgainstError] =
-        useState<boolean>(false);
     const [voteInFavor, setVoteInFavor] = useState<boolean>(true);
     const [showProposalModal, setShowProposalModal] = useState<boolean>(false);
-
-    const [votingFinish, setVotingFinish] = useState<boolean>(false);
-    const [votingFinishReason, setVotingFinishReason] = useState<number>(0);
 
     const { t, i18n, ns } = useProjectTranslation();
     const {
@@ -145,57 +140,39 @@ function Vote(props: VoteProps): JSX.Element {
         : "";
 
     const votingPower = infoUser["Voting_Power"];
-    const onValidateVotingInFavorOrAgainst = useCallback((): boolean => {
-        if (votingPower <= 0n) {
-            // You need at least voting power > 0
-            setVotingInFavorOrAgainstError(true);
-            return false;
-        } else return true;
-    }, [votingPower]);
-
     const votingData = infoVoting["votingData"];
     const voteMinPctToVeto = infoVoting["VOTE_MIN_PCT_TO_VETO"];
     const minForQuorum = infoVoting["MIN_FOR_QUORUM"];
     const voteMinToVeto = infoVoting["VOTE_MIN_TO_VETO"];
 
-    const refreshVotingFinish = useCallback((): void => {
-        /* Voting Finish Reason */
-        /* 0 - No reason */
-        /* 1 - Success */
-        /* 2 - No Quorum */
-        /* 3 - Proposal rejected by votes against */
-        /* 4 - Proposal vetoed by Collateral Token holders */
-
+    // Derived from the current data on every render. These used to be
+    // one-way state: a single render with zero voting power (balances still
+    // loading, a failed poll, switching account or vesting) disabled the
+    // vote buttons until the page was reloaded, even once the power loaded.
+    //
+    // Voting finish reason:
+    // 0 - No reason (still open)
+    // 1 - Success
+    // 2 - No Quorum
+    // 3 - Proposal rejected by votes against
+    // 4 - Proposal vetoed by Collateral Token holders
+    const votingFinishReason = useMemo((): number => {
+        // voteMinPctToVeto is 0 only if its read failed (the registry holds
+        // a positive percentage): don't call that a veto
         if (
-            votingData["totalVetoPCT"] * 100n >=
-            voteMinPctToVeto * DECIMALS_18
-        ) {
-            setVotingFinishReason(4);
-            setVotingFinish(true);
-            setVotingInFavorOrAgainstError(true);
-        } else if (votingData["expired"]) {
-            setVotingFinish(true);
-            setVotingInFavorOrAgainstError(true);
-            if (votingData["totalVoted"] < minForQuorum * DECIMALS_18) {
-                setVotingFinishReason(2);
-            } else if (
-                votingData["againstVotesPCT"] >=
-                voteMinToVeto * DECIMALS_18
-            ) {
-                setVotingFinishReason(3);
-            } else {
-                setVotingFinishReason(1);
-            }
-        }
+            voteMinPctToVeto > 0n &&
+            votingData["totalVetoPCT"] * 100n >= voteMinPctToVeto * DECIMALS_18
+        )
+            return 4;
+        if (!votingData["expired"]) return 0;
+        if (votingData["totalVoted"] < minForQuorum * DECIMALS_18) return 2;
+        if (votingData["againstVotesPCT"] >= voteMinToVeto * DECIMALS_18)
+            return 3;
+        return 1;
     }, [votingData, voteMinPctToVeto, minForQuorum, voteMinToVeto]);
-
-    useEffect(() => {
-        onValidateVotingInFavorOrAgainst();
-    }, [onValidateVotingInFavorOrAgainst]);
-
-    useEffect(() => {
-        refreshVotingFinish();
-    }, [refreshVotingFinish]);
+    const votingFinish = votingFinishReason !== 0;
+    // You need voting power > 0, and the vote must still be open
+    const votingInFavorOrAgainstError = votingFinish || votingPower <= 0n;
 
     const votingGraphs: CreateBarGraphProps[] = [
         {
