@@ -38,16 +38,17 @@ function isUnreachableError(error: unknown): boolean {
     );
 }
 
-/** What a call reads: target, function, args and where its result goes. */
-function callIdentity(call: MultiCallInput): string {
+/** Which field a call fills: target, function and where its result goes.
+ * Args are left out on purpose: a call whose args change between polls
+ * (roc passes the latest off-chain prices to calcPTCac, calcCglb...) still
+ * fills the same field. */
+function callSlot(call: MultiCallInput): string {
     const contract = call.contract as { address?: string } | string;
     const address =
         typeof contract === "string" ? contract : (contract?.address ?? "");
-    const args = JSON.stringify(call.args ?? [], (_key, v: unknown) =>
-        typeof v === "bigint" ? v.toString() : v
+    return [address.toLowerCase(), call.functionName, call.keys.join(".")].join(
+        "|"
     );
-    return [address.toLowerCase(), call.functionName, args, call.keys.join(".")]
-        .join("|");
 }
 
 /**
@@ -203,28 +204,36 @@ export function useMultiCall(
     // Placeholder data only shows when the query key changed, i.e. while the
     // results still belong to the PREVIOUS call list. Mapping them by index
     // onto the new list put values in the wrong fields whenever calls were
-    // added or removed (e.g. proposalsList growing). Match them by call
-    // identity instead; when some new call has no previous result (or the
-    // calls changed entirely, like another account), report "loading"
-    // rather than mixing data.
-    const callKeys = useMemo(() => calls.map(callIdentity), [calls]);
-    // Call identities behind the last non-placeholder results
+    // added or removed (e.g. proposalsList growing), so match them by slot
+    // (callSlot) instead: a call whose args changed keeps showing its last
+    // value until the new one arrives, with no "--" flicker in the header.
+    // Report "loading" instead of mixing data when a new slot has no
+    // previous result, or when scopeKey changed: hooks put the account in
+    // it, so another account's data is never shown.
+    const callKeys = useMemo(() => calls.map(callSlot), [calls]);
+    // Slots and scope behind the last non-placeholder results
     const resultCallKeys = useRef<string[] | null>(null);
+    const resultScope = useRef<string | undefined>(undefined);
     const results = useMemo(() => {
         if (!rawResults) return undefined;
         if (!isPlaceholderData) {
             resultCallKeys.current = callKeys;
+            resultScope.current = scopeKey;
             return rawResults;
         }
         const prevKeys = resultCallKeys.current;
-        if (!prevKeys || prevKeys.length !== rawResults.length)
+        if (
+            !prevKeys ||
+            prevKeys.length !== rawResults.length ||
+            resultScope.current !== scopeKey
+        )
             return undefined;
         const byKey = new Map(prevKeys.map((k, i) => [k, rawResults[i]]));
         const aligned = callKeys.map((k) => byKey.get(k));
         return aligned.every((r) => r !== undefined)
             ? (aligned)
             : undefined;
-    }, [rawResults, isPlaceholderData, callKeys]);
+    }, [rawResults, isPlaceholderData, callKeys, scopeKey]);
 
     // Step 2b: Retry failed peek() calls individually (bypassing multicall)
     // as DIRECT_RETRY_ACCOUNT — see comment above. Keyed by contract address
