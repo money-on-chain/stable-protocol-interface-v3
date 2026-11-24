@@ -230,9 +230,7 @@ export function useMultiCall(
             return undefined;
         const byKey = new Map(prevKeys.map((k, i) => [k, rawResults[i]]));
         const aligned = callKeys.map((k) => byKey.get(k));
-        return aligned.every((r) => r !== undefined)
-            ? (aligned)
-            : undefined;
+        return aligned.every((r) => r !== undefined) ? aligned : undefined;
     }, [rawResults, isPlaceholderData, callKeys, scopeKey]);
 
     // Step 2b: Retry failed peek() calls individually (bypassing multicall)
@@ -443,6 +441,13 @@ export function useMultiCall(
                     (resultType === "uint256" || resultType === "int256") &&
                     typeof value !== "bigint"
                 ) {
+                    // A tuple-returning function declared with a scalar
+                    // resultType would be silently collapsed to 0n below.
+                    if (Array.isArray(value)) {
+                        console.warn(
+                            `Multicall: ${calls[i].functionName} [${keys.join(".")}] declared resultType "${resultType}" but returned a tuple — declare its outputs as the resultType`
+                        );
+                    }
                     try {
                         value = BigInt(value as string | number | boolean);
                     } catch {

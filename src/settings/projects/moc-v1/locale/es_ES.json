@@ -352,9 +352,9 @@
             "statusDescriptionOpportunity": "BPro está disponible a precio de descuento",
             "statusTitleSettlement": "Liquidación en curso",
             "statusDescriptionSettlement": "No hay operaciones permitidas durante la liquidación",
-            "buttonDetails": "Ver Estado por Colateral",
+            "buttonDetails": "Ver Estado por Token",
             "detailedStatus": {
-                "modalTitle": "Estado del Sistema por Colateral",
+                "modalTitle": "Estado del Sistema por Token",
                 "headerOperations": {
                     "token": "Token",
                     "mint": "Mintear",

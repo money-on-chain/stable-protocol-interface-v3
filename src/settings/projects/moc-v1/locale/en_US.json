@@ -339,9 +339,9 @@
             "statusDescriptionOpportunity": "BPro is available at a discount price",
             "statusTitleSettlement": "Settlement in progress",
             "statusDescriptionSettlement": "No operations allowed during settlement",
-            "buttonDetails": "View Status by Collateral",
+            "buttonDetails": "View Status by Token",
             "detailedStatus": {
-                "modalTitle": "System Status by Collateral",
+                "modalTitle": "System Status by Token",
                 "headerOperations": {
                     "token": "Token",
                     "mint": "Mint",
