@@ -623,7 +623,21 @@ export function useContractProtocolStatus(
                     contract: Moc,
                     functionName: "pegContainer",
                     args: [tp],
-                    resultType: "uint256",
+                    // Returns the (nTP, priceProvider) tuple, not a scalar:
+                    // a "uint256" resultType makes useMulticall coerce the
+                    // array with BigInt(), which throws and collapses it to 0n
+                    resultType: [
+                        {
+                            internalType: "uint256",
+                            name: "nTP",
+                            type: "uint256",
+                        },
+                        {
+                            internalType: "contract IPriceProvider",
+                            name: "priceProvider",
+                            type: "address",
+                        },
+                    ],
                     keys: [ca, "pegContainer", tp],
                 });
 
@@ -655,7 +669,19 @@ export function useContractProtocolStatus(
                     contract: Moc,
                     functionName: "tpEma",
                     args: [tp],
-                    resultType: "uint256",
+                    // (ema, sf) tuple — see pegContainer above
+                    resultType: [
+                        {
+                            internalType: "uint256",
+                            name: "ema",
+                            type: "uint256",
+                        },
+                        {
+                            internalType: "uint256",
+                            name: "sf",
+                            type: "uint256",
+                        },
+                    ],
                     keys: [ca, "tpEma", tp],
                 });
 
